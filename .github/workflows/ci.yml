@@ -1,0 +1,120 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  # ─── Backend Tests ─────────────────────────────────────────────────────────
+  backend-test:
+    name: Backend — Unit Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://postgres:test@localhost:5432/test
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Run unit tests
+        run: npm test -- --no-coverage --forceExit
+
+  # ─── Backend Build ──────────────────────────────────────────────────────────
+  backend-build:
+    name: Backend — Build
+    runs-on: ubuntu-latest
+    needs: backend-test
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://postgres:test@localhost:5432/test
+
+      - name: Build
+        run: npm run build
+
+  # ─── Admin Build ────────────────────────────────────────────────────────────
+  admin-build:
+    name: Admin — Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: admin
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: admin/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript + Vite build
+        run: npm run build
+        env:
+          VITE_API_URL: https://staging-api.mogu.vn/v1
+
+  # ─── Mobile TypeScript Check ─────────────────────────────────────────────────
+  mobile-typecheck:
+    name: Mobile — TypeScript Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: TypeScript check
+        run: npx tsc --noEmit

@@ -1,0 +1,756 @@
+﻿
+=== Mogu_BA_Phan_he_Mon_an_v1.0.docx | paragraphs=195 tables=25 ===
+[Normal] Mogu
+[Title] TÀI LIỆU BA – PHÂN HỆ MÓN ĂN
+[Subtitle] Đặc tả nghiệp vụ từ thu thập dữ liệu, kiểm duyệt, xuất bản đến tìm kiếm, random và xem chi tiết món ăn
+[Heading 2] Phê duyệt tài liệu
+[Heading 1] 1. Tổng quan nghiệp vụ
+[Heading 2] 1.1 Bối cảnh
+[Heading 2] 1.2 Mục tiêu kinh doanh
+[List Bullet] Xây dựng kho món ăn Việt Nam có cấu trúc, có thể mở rộng theo vùng miền và tỉnh thành.
+[List Bullet] Giảm thời gian nhập liệu thủ công bằng pipeline thu thập, trích xuất và chuẩn hóa có kiểm soát.
+[List Bullet] Cung cấp dữ liệu đủ tin cậy cho thuật toán random và cá nhân hóa.
+[List Bullet] Giải thích được vì sao món ăn phù hợp với người dùng.
+[List Bullet] Đảm bảo thông tin dinh dưỡng, dị ứng và nguồn tham khảo được trình bày minh bạch.
+[List Bullet] Cho phép Admin kiểm soát chất lượng trước và sau xuất bản.
+[Heading 2] 1.3 Chỉ số thành công
+[Heading 2] 1.4 Ngoài phạm vi phiên bản đầu
+[Heading 1] 2. Phạm vi chức năng
+[Heading 1] 3. Tác nhân và quyền
+[Heading 1] 4. Mô hình vòng đời món ăn
+[Heading 2] 4.1 Điều kiện xuất bản
+[List Bullet] Có tên tiếng Việt duy nhất theo slug và ít nhất một danh mục.
+[List Bullet] Có ảnh đại diện hợp lệ, mô tả ngắn, vùng miền hoặc nguồn gốc nếu xác định được.
+[List Bullet] Có ít nhất một bữa ăn phù hợp và một mục tiêu/nhu cầu.
+[List Bullet] Có ít nhất một khẩu phần dinh dưỡng tham khảo hoặc được đánh dấu chưa xác định có lý do.
+[List Bullet] Có danh sách nguyên liệu chính; thông tin dị ứng được đánh giá.
+[List Bullet] Nếu có công thức: phải có khẩu phần, thời gian và các bước hợp lệ.
+[List Bullet] Có ít nhất một nguồn tham khảo; mọi xung đột nghiêm trọng đã được xử lý.
+[List Bullet] Reviewer có quyền PUBLISH thực hiện thao tác duyệt.
+[Heading 1] 5. Cấu trúc dữ liệu món ăn
+[Heading 2] 5.1 Thực thể Dish
+[Heading 2] 5.2 Các bảng liên quan
+[Heading 2] 5.3 Dinh dưỡng tham khảo
+[Heading 1] 6. Quy trình tạo món thủ công
+[List Number] Admin chọn “Thêm món mới”.
+[List Number] Nhập thông tin cơ bản: tên, danh mục, vùng miền, bữa ăn, mục tiêu.
+[List Number] Tải ảnh lên kho nội bộ; hệ thống kiểm tra định dạng, kích thước và nội dung.
+[List Number] Thêm nguyên liệu; hệ thống gợi ý từ điển nguyên liệu chuẩn.
+[List Number] Thêm dinh dưỡng, dị ứng, công thức, nguồn, địa điểm nếu có.
+[List Number] Lưu bản nháp hoặc gửi kiểm duyệt.
+[List Number] Hệ thống chạy validation và tạo danh sách lỗi/cảnh báo.
+[List Number] Reviewer chỉnh sửa hoặc duyệt xuất bản.
+[Heading 2] 6.1 Autosave và chống mất dữ liệu
+[Heading 1] 7. Quy trình nhập món tự động
+[Heading 2] 7.1 Input tạo job
+[Heading 2] 7.2 Pipeline
+[Heading 2] 7.3 Công thức confidence
+[Heading 2] 7.4 Nguồn và bản quyền
+[List Bullet] Lưu URL, domain, tác giả nếu có và thời điểm truy cập.
+[List Bullet] Ưu tiên dữ liệu có cấu trúc, nguồn chính thức hoặc cơ sở dữ liệu có giấy phép phù hợp.
+[List Bullet] Không sao chép nguyên văn bài viết/công thức dài; chỉ lưu dữ kiện được chuẩn hóa và nội dung do biên tập viên viết lại.
+[List Bullet] Tôn trọng robots.txt, điều khoản sử dụng và yêu cầu gỡ nội dung.
+[List Bullet] Ảnh bên thứ ba không được tải lại nếu chưa có quyền; dùng ảnh nội bộ hoặc nguồn được cấp phép.
+[Heading 1] 8. Kiểm duyệt và xuất bản
+[Heading 2] 8.1 Màn hàng đợi
+[Heading 2] 8.2 Checklist kiểm duyệt
+[Heading 2] 8.3 Từ chối và yêu cầu sửa
+[Heading 1] 9. Trải nghiệm người dùng với món ăn
+[Heading 2] 9.1 Danh sách và tìm kiếm
+[List Bullet] Chỉ trả về món PUBLISHED và không bị xóa mềm.
+[List Bullet] Tìm theo tên, tên khác, nguyên liệu, vùng miền; hỗ trợ không dấu.
+[List Bullet] Bộ lọc: bữa ăn, mục tiêu, khoảng giá, thời gian, loại món, chế độ ăn, nguyên liệu tránh.
+[List Bullet] Kết quả phải phân trang/cursor; sắp xếp phù hợp, phổ biến, mới, gần người dùng.
+[List Bullet] Món đã lưu không thay đổi tính hợp lệ; nếu món bị gỡ, hiển thị trạng thái không còn khả dụng.
+[Heading 2] 9.2 Chi tiết món
+[Heading 2] 9.3 Random món
+[Heading 3] Quy tắc “Tiết kiệm”
+[Heading 1] 10. Business rules tổng hợp
+[Heading 1] 11. User stories và acceptance criteria
+[Heading 2] US-DISH-01 — Tạo món thủ công
+[Normal] Với vai trò Content Admin, tôi muốn tạo món thủ công để xây dựng dữ liệu mới.
+[List Bullet] AC: Tên món hợp lệ tạo được bản nháp
+[List Bullet] AC: Lỗi validation hiển thị tại trường
+[List Bullet] AC: Autosave không làm mất dữ liệu
+[Heading 2] US-DISH-02 — Tạo job tự động từ tên món
+[Normal] Với vai trò Content Admin, tôi muốn tạo job tự động từ tên món để giảm nhập tay.
+[List Bullet] AC: Theo dõi được từng bước pipeline
+[List Bullet] AC: Job lỗi có mã lỗi và retry
+[List Bullet] AC: Output luôn ở trạng thái chưa xuất bản
+[Heading 2] US-DISH-03 — Xem evidence theo trường
+[Normal] Với vai trò Reviewer, tôi muốn xem evidence theo trường để đánh giá nguồn.
+[List Bullet] AC: Xem được URL và giá trị từng nguồn
+[List Bullet] AC: Có confidence và xung đột
+[List Bullet] AC: Có thể chọn giá trị hoặc nhập thủ công
+[Heading 2] US-DISH-04 — Duyệt món
+[Normal] Với vai trò Reviewer, tôi muốn duyệt món để đưa món lên ứng dụng.
+[List Bullet] AC: Chặn khi thiếu điều kiện publish
+[List Bullet] AC: Publish tạo version và audit
+[List Bullet] AC: Món xuất hiện qua API sau khi cache đồng bộ
+[Heading 2] US-DISH-05 — Tìm món không dấu
+[Normal] Với vai trò Người dùng, tôi muốn tìm món không dấu để tìm nhanh món mong muốn.
+[List Bullet] AC: “pho bo” tìm thấy “Phở bò”
+[List Bullet] AC: Chỉ trả món đã xuất bản
+[List Bullet] AC: Bộ lọc kết hợp đúng
+[Heading 2] US-DISH-06 — Random theo nhu cầu
+[Normal] Với vai trò Người dùng, tôi muốn random theo nhu cầu để nhận gợi ý phù hợp.
+[List Bullet] AC: Không trả món chứa allergen bị cấm
+[List Bullet] AC: Có lý do lựa chọn
+[List Bullet] AC: Random lại tránh lặp gần nhất
+[Heading 2] US-DISH-07 — Xem chi tiết món
+[Normal] Với vai trò Người dùng, tôi muốn xem chi tiết món để quyết định chọn món.
+[List Bullet] AC: Thông tin quan trọng hiển thị trước
+[List Bullet] AC: Dinh dưỡng có disclaimer
+[List Bullet] AC: Cảnh báo dị ứng dễ thấy
+[Heading 2] US-DISH-08 — Gỡ xuất bản món sai
+[Normal] Với vai trò Admin, tôi muốn gỡ xuất bản món sai để bảo vệ người dùng.
+[List Bullet] AC: Món biến mất khỏi search/random
+[List Bullet] AC: Lịch sử vẫn giữ snapshot
+[List Bullet] AC: Ghi reason và audit log
+[Heading 1] 12. Yêu cầu API ở mức BA
+[Heading 2] 12.1 Chuẩn response và lỗi
+[List Bullet] ID sử dụng UUID; thời gian ISO-8601 UTC.
+[List Bullet] Danh sách dùng cursor pagination cho dữ liệu lớn.
+[List Bullet] Validation lỗi trả fieldErrors có code, field và message.
+[List Bullet] 409 cho xung đột phiên bản/slug; 422 cho business rule; 403 cho thiếu quyền; 404 không tiết lộ bản ghi ngoài phạm vi.
+[List Bullet] Admin API trả warnings riêng với errors để UI cho phép quyết định có kiểm soát.
+[List Bullet] Idempotency-Key bắt buộc cho create import job, approve và random nếu client có retry.
+[Heading 1] 13. Yêu cầu phi chức năng
+[Heading 1] 14. Logging, audit và analytics
+[Heading 1] 15. Trường hợp biên và xử lý lỗi
+[Heading 1] 16. Ma trận kiểm thử nghiệm thu
+[Heading 1] 17. Đề xuất cấu trúc triển khai Backend
+[List Bullet] DishesModule: CRUD, lifecycle, versions.
+[List Bullet] TaxonomyModule: regions, provinces, categories, meal types, goals, diets.
+[List Bullet] IngredientsModule: dictionary, synonyms, units, allergens.
+[List Bullet] NutritionModule: profiles, calculation, validation.
+[List Bullet] RecipesModule: recipe và steps.
+[List Bullet] MediaModule: Cloudflare R2 metadata, signed upload.
+[List Bullet] ImportJobsModule: orchestration, queue, workers, evidence.
+[List Bullet] ReviewModule: queues, approvals, reason codes.
+[List Bullet] RandomizationModule: eligibility, scoring, explanation, history.
+[List Bullet] SearchModule: full-text/unaccent/pgvector.
+[List Bullet] AuditModule: immutable event log.
+[Heading 2] 17.1 Transaction boundaries
+[Heading 1] 18. Câu hỏi mở cần Product chốt
+[List Bullet] Mogu lưu món biến thể theo một Dish hay parent dish + variants?
+[List Bullet] Giá tham khảo lấy theo toàn quốc hay theo tỉnh/thành? Chu kỳ hết hạn giá?
+[List Bullet] Ngưỡng confidence mặc định và trường nào luôn cần reviewer xác nhận?
+[List Bullet] Danh sách nguồn/domain được phép và quy trình xử lý yêu cầu gỡ dữ liệu?
+[List Bullet] Dữ liệu vi chất có nằm trong MVP hay chỉ calories/macros?
+[List Bullet] Địa điểm do Admin nhập hay đồng bộ đối tác bản đồ?
+[List Bullet] Cần hai cấp duyệt cho món có claim sức khỏe/dị ứng rủi ro cao không?
+[List Bullet] Thời gian lưu raw extraction và transcript?
+[List Bullet] Có cho cộng đồng đề xuất chỉnh sửa món không?
+[List Bullet] Mức nới điều kiện khi random không có kết quả?
+[Heading 1] Phụ lục A — Definition of Ready
+[List Bullet] User story có actor, value và acceptance criteria.
+[List Bullet] Business rules liên quan đã được đánh mã.
+[List Bullet] Wireframe hoặc mô tả UI đủ rõ.
+[List Bullet] Data field, validation và permission đã chốt.
+[List Bullet] API dependency và nguồn dữ liệu đã xác định.
+[List Bullet] Không còn câu hỏi mở chặn phát triển.
+[Heading 1] Phụ lục B — Definition of Done
+[List Bullet] Code review và test tự động đạt.
+[List Bullet] Migration/index/seed có rollback.
+[List Bullet] API contract và error codes được cập nhật.
+[List Bullet] Audit, metric và log không chứa dữ liệu nhạy cảm.
+[List Bullet] QA pass acceptance + edge cases.
+[List Bullet] Admin UI có loading/empty/error/permission states.
+[List Bullet] Tài liệu vận hành và rollback được bàn giao.
+[TABLE 1 1x1] Mục tiêu tài liệu / Làm nguồn thống nhất cho Product, BA, UI/UX, Backend, Frontend, Data/AI và QA khi phát triển phân hệ Món ăn của Mogu.
+[TABLE 2 7x2] Thuộc tính | Giá trị || Sản phẩm | Mogu – Ứng dụng gợi ý món ăn cá nhân hóa || Phiên bản tài liệu | 1.0 || Ngày cập nhật | 12/08/2026
+[TABLE 3 5x4] Vai trò | Họ tên | Trạng thái | Ngày || Product Owner |  | Chờ duyệt |  || Business Analyst |  | Soạn thảo | 12/08/2026 || Tech Lead |  | Chờ duyệt | 
+[TABLE 4 7x3] Mã | Chỉ số | Mục tiêu gợi ý || KPI-01 | Tỷ lệ món được xuất bản có đủ trường bắt buộc | ≥ 98% || KPI-02 | Thời gian trung bình tạo bản nháp tự động | ≤ 5 phút/món || KPI-03 | Tỷ lệ bản nháp tự động được duyệt không cần sửa lớn | ≥ 80%
+[TABLE 5 8x3] Nhóm | Trong MVP | Giai đoạn sau || Kho món | CRUD, tìm kiếm, lọc, trạng thái, lưu trữ ảnh | Versioning nâng cao, dịch đa ngôn ngữ || Thu thập tự động | Tạo job theo tên món; website có cấu trúc; video; dinh dưỡng | Crawler theo lịch, đối tác dữ liệu || Kiểm duyệt | Đối chiếu nguồn, confidence, cảnh báo, duyệt/từ chối | Hai cấp duyệt, SLA theo nhóm
+[TABLE 6 7x3] Tác nhân | Mục tiêu | Quyền chính || Khách | Khám phá trước đăng ký | Xem món đã xuất bản, tìm kiếm cơ bản || Người dùng | Nhận gợi ý và lưu món | Xem, random, lưu, chia sẻ, ghi nhật ký || Content Admin | Quản lý nội dung món | Tạo/sửa bản nháp, gắn nguồn, gửi duyệt
+[TABLE 7 1x1] Nguyên tắc phân quyền / Tách quyền tạo/sửa nội dung và quyền xuất bản khi hệ thống có từ hai nhân sự vận hành trở lên. Mọi thao tác duyệt, gỡ xuất bản và xóa phải có audit log.
+[TABLE 8 10x4] Trạng thái | Ý nghĩa | Được hiển thị cho user | Chuyển tiếp hợp lệ || DRAFT | Bản nháp thủ công hoặc do AI tạo | Không | → PROCESSING, PENDING_REVIEW, ARCHIVED || PROCESSING | Pipeline đang thu thập/chuẩn hóa | Không | → PENDING_REVIEW, FAILED || PENDING_REVIEW | Đã đủ dữ liệu tối thiểu, chờ duyệt | Không | → PUBLISHED, CHANGES_REQUESTED, REJECTED
+[TABLE 9 20x4] Trường | Kiểu | Bắt buộc | Quy tắc nghiệp vụ || id | UUID | Có | Sinh bởi hệ thống; bất biến || name | varchar(150) | Có | Tên hiển thị tiếng Việt; trim; không ký tự điều khiển || slug | varchar(180) | Có | Unique; lowercase; bỏ dấu; hậu tố khi trùng
+[TABLE 10 21x3] Bảng | Mục đích | Quan hệ/chú ý || regions | Danh mục vùng miền | 1–N provinces; 1–N dishes || provinces | Tỉnh/thành | province.region_id bắt buộc || dish_categories | Món nước, món khô, món chính… | Dish N–N category
+[TABLE 11 12x3] Trường | Đơn vị | Validation || serving_name | text | Ví dụ: 1 tô (500 g) || serving_grams | g | >0 nếu xác định được || calories | kcal | 0–5000
+[TABLE 12 1x1] Quy tắc an toàn / Không trình bày dinh dưỡng như chẩn đoán hoặc điều trị. Khi dữ liệu được tính từ nguyên liệu, phải lưu phương pháp, phiên bản cơ sở dữ liệu và ngày tính.
+[TABLE 13 7x3] Trường | Bắt buộc | Mặc định/Quy tắc || Tên món | Có | 2–150 ký tự || Từ khóa liên quan | Không | Tối đa 10 từ khóa || Vùng miền gợi ý | Không | Không ép kết quả nếu nguồn không đủ
+[TABLE 14 7x4] Bước | Xử lý | Output | Lỗi chính || SEARCH | Tìm URL ứng viên; loại domain cấm/trùng | Danh sách nguồn | Không tìm thấy nguồn || EXTRACT | Đọc JSON-LD/metadata/transcript | Dữ liệu thô + bằng chứng | Không đọc được/thiếu cấu trúc || NORMALIZE | Map nguyên liệu, đơn vị, thời gian, vùng | Dữ liệu chuẩn hóa | Không map được đơn vị/nguyên liệu
+[TABLE 15 5x2] Mức | Xử lý || 90–100 | Có thể chấp nhận mặc định; reviewer vẫn xem được evidence || 75–89 | Hiển thị màu cam; reviewer xác nhận khi trường quan trọng || 0–74 | Gắn cờ; không được tự điền trường nhạy cảm như dị ứng/dinh dưỡng
+[TABLE 16 9x2] Nhóm | Tiêu chí bắt buộc || Nhận diện | Tên, slug, danh mục, ảnh đúng món || Phân loại | Vùng miền, bữa ăn, mục tiêu, loại món hợp lý || Nguyên liệu | Mapping chính xác, định lượng/đơn vị rõ, không trùng
+[TABLE 17 9x2] Reason code | Mô tả || INSUFFICIENT_SOURCE | Nguồn không đủ/không đáng tin || CONFLICTING_DATA | Mâu thuẫn chưa xử lý || WRONG_DISH | Sai món hoặc ảnh không phù hợp
+[TABLE 18 11x2] Khối | Nội dung || Hero | Ảnh, tên, vùng miền, mức phù hợp || Thông tin nhanh | Bữa ăn, khoảng giá, thời gian, calo || Mô tả | Mô tả ngắn, nguồn gốc
+[TABLE 19 8x2] Thứ tự | Quy tắc || 1 | Loại món không PUBLISHED, món bị ẩn hoặc không đủ dữ liệu tối thiểu || 2 | Loại tuyệt đối theo dị ứng và nguyên liệu tránh || 3 | Lọc bữa ăn và điều kiện cứng user chọn
+[TABLE 20 21x2] Mã | Nội dung || BR-001 | Tên món bắt buộc và slug duy nhất. || BR-002 | Chỉ PUBLISHED xuất hiện trên User App và random. || BR-003 | Mọi món xuất bản phải có nguồn tham khảo.
+[TABLE 21 17x3] Nhóm | Endpoint gợi ý | Mục đích || Public | GET /dishes | Danh sách/search/filter món published || Public | GET /dishes/{id-or-slug} | Chi tiết món || Public | POST /dish-randomizations | Tạo kết quả random và lưu snapshot
+[TABLE 22 9x2] Nhóm | Yêu cầu || Hiệu năng | GET list p95 ≤ 500 ms; detail p95 ≤ 400 ms; random p95 ≤ 1.5 s, không tính dịch vụ ngoài || Sẵn sàng | API đọc món ≥ 99.9%/tháng; pipeline có retry và dead-letter queue || Bảo mật | RBAC; rate limit; URL upload ký; sanitize rich text; audit log bất biến
+[TABLE 23 11x3] Event | Khi phát sinh | Thuộc tính tối thiểu || dish_created | Tạo nháp | dish_id, actor_id, method || import_job_started | Bắt đầu pipeline | job_id, query, source_types || import_job_completed | Pipeline kết thúc | duration, sources, warnings, status
+[TABLE 24 11x2] Tình huống | Kỳ vọng || Tên món trùng nhưng khác vùng | Cảnh báo duplicate; cho phép biến thể nếu có khác biệt thực và relation parent/variant || Nguồn không truy cập được | Giữ evidence cũ, đánh dấu stale; không làm hỏng món đang publish || Hai admin sửa cùng lúc | Optimistic lock; người sau nhận 409 và diff
+[TABLE 25 13x3] Mã | Kịch bản | Kết quả mong đợi || AT-01 | Tạo món thiếu tên | Không lưu/gửi duyệt; báo lỗi tên || AT-02 | Publish món thiếu nguồn | Bị chặn || AT-03 | Import “Phở bò” từ 5 nguồn | Tạo draft, evidence và confidence
+
+=== MOGU_BA_003_Trang_chu_Dieu_huong_v1.0.docx | paragraphs=178 tables=33 ===
+[Normal] MOGU
+[Normal] TÀI LIỆU PHÂN TÍCH NGHIỆP VỤ
+[Normal] TRANG CHỦ & ĐIỀU HƯỚNG CHÍNH
+[Normal] Business Analysis Specification — Home Dashboard & Main Navigation
+[Heading 1] Lịch sử tài liệu
+[Heading 2] Phê duyệt
+[Heading 2] Thuật ngữ
+[Heading 1] 1. Tổng quan nghiệp vụ
+[Heading 2] 1.1 Bối cảnh
+[Heading 2] 1.2 Mục tiêu kinh doanh
+[List Bullet] Tăng tỷ lệ người dùng bắt đầu Random từ Trang chủ.
+[List Bullet] Đưa món phù hợp tới người dùng mà không cần nhập lại dữ liệu onboarding.
+[List Bullet] Tạo thói quen quay lại hằng ngày bằng lời chào, gợi ý và tiến độ hôm nay.
+[List Bullet] Tạo lối vào rõ ràng cho Khám phá, Sức khỏe và Cá nhân.
+[List Bullet] Duy trì trải nghiệm ổn định khi API thành phần lỗi hoặc mạng yếu.
+[Heading 2] 1.3 KPI đề xuất
+[Heading 2] 1.4 Phạm vi
+[Heading 1] 2. Tác nhân, tiền điều kiện và điều hướng vào
+[Heading 1] 3. Kiến trúc nội dung Trang chủ
+[Heading 1] 4. User stories và yêu cầu chức năng
+[Heading 1] 5. Quy tắc nghiệp vụ
+[Heading 1] 6. Đặc tả giao diện và tương tác
+[Heading 2] HOME-UI-01 — Header
+[Heading 2] HOME-UI-02 — Lời chào & thời tiết
+[Heading 2] HOME-UI-03 — Hero Random
+[Heading 2] HOME-UI-04 — Quick goals
+[Heading 2] HOME-UI-05 — Gợi ý món
+[Heading 2] HOME-UI-06 — Dinh dưỡng hôm nay
+[Heading 2] HOME-UI-07 — Bottom navigation
+[Heading 1] 7. Luồng nghiệp vụ và Use Case
+[Heading 2] UC-HOME-01 — Mở Trang chủ
+[Normal] Tiền điều kiện: Phiên hợp lệ; onboarding đủ điều kiện
+[Heading 3] Luồng chính
+[Normal] Bước 1 — App kiểm tra/refresh phiên.
+[Normal] Bước 2 — Tải cache dashboard gần nhất nếu có.
+[Normal] Bước 3 — Gọi API dashboard và các widget độc lập.
+[Normal] Bước 4 — Render skeleton theo cấu trúc cố định.
+[Normal] Bước 5 — Cập nhật nội dung mới, giữ layout ổn định.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Auth hết hạn: về Login.
+[List Bullet] Một widget lỗi: hiển thị retry tại widget.
+[List Bullet] Offline: hiển thị cache và trạng thái cũ.
+[Normal] Hậu điều kiện: Trang chủ usable; analytics view một lần.
+[Heading 2] UC-HOME-02 — Random từ Hero
+[Normal] Tiền điều kiện: Home đã hiển thị
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Người dùng bấm Random ngay.
+[Normal] Bước 2 — Hệ thống tạo draft random context: meal theo giờ, profile constraints.
+[Normal] Bước 3 — Mở MOGU-BA-004 Step 1.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Không tải được context: mở Random với default an toàn.
+[Normal] Hậu điều kiện: Người dùng vào luồng Random tối đa một lần.
+[Heading 2] UC-HOME-03 — Random theo mục tiêu nhanh
+[Normal] Tiền điều kiện: Quick goal active
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Người dùng chọn goal.
+[Normal] Bước 2 — UI phản hồi selected ngắn.
+[Normal] Bước 3 — Tạo context với session_goal, không sửa profile.
+[Normal] Bước 4 — Mở Random với goal preselected.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Goal inactive: refresh catalog và thông báo.
+[Normal] Hậu điều kiện: Random nhận đúng mục tiêu.
+[Heading 2] UC-HOME-04 — Mở món gợi ý
+[Normal] Tiền điều kiện: Có recommendation card
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Ghi click/impression hợp lệ.
+[Normal] Bước 2 — Mở chi tiết dish_id.
+[Normal] Bước 3 — Back quay đúng vị trí scroll Home.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Món bị ẩn/xóa: loại card, tải gợi ý thay thế.
+[Normal] Hậu điều kiện: Không mất state Trang chủ.
+[Heading 2] UC-HOME-05 — Điều hướng tab
+[Normal] Tiền điều kiện: Bottom nav khả dụng
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Tap tab đích.
+[Normal] Bước 2 — Lưu state tab hiện tại theo policy.
+[Normal] Bước 3 — Mở root/stack gần nhất của tab đích.
+[Normal] Bước 4 — Cập nhật selected state và accessibility announcement.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Tap tab hiện tại: scroll-to-top/refresh theo quyết định UX.
+[Normal] Hậu điều kiện: Chỉ một tab selected.
+[Heading 2] UC-HOME-06 — Xem thông báo
+[Normal] Tiền điều kiện: Có hoặc không có unread
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Tap chuông.
+[Normal] Bước 2 — Mở Notification Center.
+[Normal] Bước 3 — Tap item → validate deep link và mở đích.
+[Normal] Bước 4 — Đánh dấu đọc theo policy.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Deep link không còn hợp lệ: thông báo và về màn fallback.
+[Normal] Hậu điều kiện: Badge đồng bộ đúng.
+[Heading 1] 8. Trạng thái hệ thống
+[Heading 1] 9. Điều hướng chính và route map
+[Heading 2] Quy tắc deep link
+[List Bullet] Nếu chưa đăng nhập: lưu pending destination an toàn → Login → onboarding nếu cần → destination.
+[List Bullet] Nếu dish/post không tồn tại: mở fallback và thông báo thân thiện.
+[List Bullet] Không cho deep link bỏ qua auth/onboarding guard hoặc mở dữ liệu người khác.
+[List Bullet] Validate scheme, host, path, ID và tham số allowlist; không thực thi URL tùy ý.
+[Heading 1] 10. Dữ liệu và API đề xuất
+[Heading 2] Contract và cache
+[List Bullet] Home API có thể là Backend-for-Frontend aggregation nhưng timeout/fallback từng nguồn.
+[List Bullet] Response có generated_at, expires_at/TTL và version để client biết độ cũ.
+[List Bullet] Không cache dashboard chung giữa user; key bắt buộc chứa user_id và profile_version.
+[List Bullet] Ảnh dùng CDN/R2 URL đã tối ưu kích thước; placeholder khi lỗi.
+[List Bullet] Không trả raw birth_date, allergens hoặc vị trí chính xác trong Home payload nếu không cần.
+[Heading 1] 11. Analytics và audit
+[List Bullet] Không gửi tên, email, ngày sinh, dị ứng, tọa độ chính xác hoặc nội dung notification vào analytics.
+[List Bullet] Impression chỉ ghi khi card thực sự vào viewport theo ngưỡng cấu hình; chống ghi trùng trong cùng view session.
+[Heading 1] 12. Yêu cầu phi chức năng
+[Heading 1] 13. Tiêu chí nghiệm thu
+[Heading 1] 14. Kịch bản kiểm thử tối thiểu
+[Heading 1] 15. Ma trận truy vết
+[Heading 1] 16. Definition of Done và phân kỳ
+[List Bullet] PO duyệt thứ tự widget, quick goals và hành vi tab Random.
+[List Bullet] UI có loading, refresh, partial/full error, empty, offline và permission states.
+[List Bullet] API aggregate có timeout/fallback/cache contract được review.
+[List Bullet] Recommendation tuân thủ hard constraints và có model_version/reason_short.
+[List Bullet] E2E bao phủ auth/onboarding guard, 5 tab, deep link, offline và stale cache.
+[List Bullet] Accessibility và privacy QA đạt yêu cầu; không còn Critical/High.
+[List Bullet] Analytics staging đúng impression/click và không có trường cấm.
+[Heading 1] 17. Câu hỏi mở
+[Heading 1] Phụ lục A — UX copy đề xuất
+[Heading 1] Phụ lục B — Checklist bàn giao UI/UX
+[List Bullet] Home full screen và viewport đầu tiên thấy Hero Random.
+[List Bullet] Header badge/avatar; weather grant/deny/hidden.
+[List Bullet] Hero default/loading/pressed/image error.
+[List Bullet] Quick goals selected/inactive/Xem tất cả.
+[List Bullet] Recommendation card, save optimistic/rollback, empty/error/skeleton.
+[List Bullet] Nutrition populated/partial/empty/error.
+[List Bullet] Bottom nav 5 selected states, Random nổi bật, keyboard/safe area.
+[List Bullet] Full/partial/offline/stale/session-expired states.
+[List Bullet] Prototype: Auth/Onboarding → Home → Random/Detail/Health/Profile/Notification.
+[Heading 1] Phụ lục C — Ghi chú triển khai NestJS + Supabase
+[List Bullet] HomeModule làm BFF/aggregator; không nhồi logic recommendation vào controller.
+[List Bullet] Song song các nguồn độc lập với timeout; trả widget_status thay vì fail toàn response.
+[List Bullet] Cache key gồm user_id, local_date, profile_version, recommendation_version.
+[List Bullet] Dùng outbox/event để invalidate cache khi profile, allergen, meal log hoặc save thay đổi.
+[List Bullet] Recommendation pipeline: hard exclusion → candidate retrieval/pgvector → ranking → diversity → explanation.
+[List Bullet] Ảnh dish từ Cloudflare R2/CDN với responsive variants; không trả file gốc quá lớn.
+[List Bullet] Supabase RLS cho profile, saves, meal logs, notifications; NestJS xác thực JWT.
+[List Bullet] Deep-link allowlist và route guard ở cả mobile và backend resource access.
+[List Bullet] Metric/OpenTelemetry theo widget; log sanitize; circuit breaker cho provider ngoài.
+[TABLE 1 9x2] Thuộc tính | Giá trị || Mã tài liệu | MOGU-BA-003 || Phiên bản | 1.0 || Trạng thái | Draft for Review
+[TABLE 2 1x1] Mục đích  Xác định Trang chủ là điểm bắt đầu sau onboarding, ưu tiên hành động Random món nhưng vẫn cung cấp gợi ý, tiến độ dinh dưỡng và lối vào các module chính.
+[TABLE 3 2x5] Phiên bản | Ngày | Người thực hiện | Thay đổi | Trạng thái || 1.0 | 11/08/2026 | BA / Product | Tạo mới đặc tả Trang chủ và điều hướng | Draft
+[TABLE 4 5x4] Vai trò | Họ tên | Trạng thái | Ngày || Product Owner | TBD | Chờ duyệt | — || Tech Lead | TBD | Chờ duyệt | — || Data/AI Lead | TBD | Chờ duyệt | —
+[TABLE 5 9x2] Thuật ngữ | Định nghĩa || Home Dashboard | Trang tổng hợp thông tin và hành động chính sau đăng nhập. || Hero Random | Banner/khối nổi bật dẫn vào luồng Random. || Quick Goal | Lối tắt chọn mục tiêu trước khi random.
+[TABLE 6 7x3] KPI | Định nghĩa | Mục tiêu MVP || Home load success | Trang chủ usable / lượt mở hợp lệ | ≥ 99% || Time to interactive | P75 từ mở Home đến có thể bấm CTA | ≤ 2 giây || Random CTA conversion | Lượt bấm Random / lượt xem Home | ≥ 35%
+[TABLE 7 2x2] Trong MVP | Ngoài phạm vi/giai đoạn sau || Header; lời chào; thời tiết nếu được cấp quyền; Hero Random; quick goals; gợi ý món; tóm tắt dinh dưỡng; thông báo; bottom nav; loading/empty/error/offline; refresh. | Widget tùy chỉnh; quảng cáo; gamification nâng cao; feed cộng đồng đầy đủ trên Home; wearable realtime; AI chat trực tiếp; cung hoàng đạo/số chủ đạo.
+[TABLE 8 7x2] Thành phần | Đặc tả || Tác nhân chính | Người dùng ACTIVE có onboarding_status=COMPLETED hoặc SKIPPED theo policy. || Tiền điều kiện | Phiên hợp lệ; /me tải được hoặc có cache an toàn. || Kích hoạt | Mở app, hoàn tất onboarding, bấm tab Trang chủ hoặc deep link về Home.
+[TABLE 9 8x4] ID | Khu vực | Nội dung | Vai trò || HOME-01 | Header | Logo Mogu, chuông thông báo, avatar. | Mở thông báo/cá nhân. || HOME-02 | Lời chào & ngữ cảnh | Chào buổi sáng/trưa/tối, tên người dùng; thời tiết tùy quyền. | Cá nhân hóa cảm giác hằng ngày. || HOME-03 | Hero Random | Thông điệp, linh vật, CTA Random ngay. | Hành động chính số 1.
+[TABLE 10 1x1] Ưu tiên hiển thị  Trong viewport đầu tiên phải thấy lời chào và phần lớn Hero Random. Không đặt nội dung phụ hoặc quảng cáo phía trên CTA Random.
+[TABLE 11 9x3] ID | User story | Ưu tiên || US-HOME-01 | Tôi muốn nhìn thấy thông tin phù hợp ngay khi mở app. | Must || US-HOME-02 | Tôi muốn bắt đầu Random thật nhanh. | Must || US-HOME-03 | Tôi muốn chọn mục tiêu nhanh mà không qua nhiều bước. | Must
+[TABLE 12 16x3] ID | Yêu cầu | Ưu tiên || HOME-FR-001 | Tải dashboard tổng hợp theo user và ngày local. | Must || HOME-FR-002 | Hiển thị lời chào theo thời gian và tên/fallback “bạn”. | Must || HOME-FR-003 | Xin quyền vị trí/thời tiết theo thời điểm phù hợp; có fallback. | Should
+[TABLE 13 21x2] ID | Quy tắc || HOME-BR-001 | Chỉ người dùng có phiên hợp lệ và onboarding đủ điều kiện được vào Home. || HOME-BR-002 | Lời chào: 05:00–10:59 sáng; 11:00–13:59 trưa; 14:00–17:59 chiều; còn lại tối; cấu hình được. || HOME-BR-003 | Nếu không có display_name, dùng “bạn”; không hiển thị email thay tên.
+[TABLE 14 5x2] Thành phần | Yêu cầu || Logo | Mogu phiên bản đơn giản; tap về đầu trang nếu cần. || Thông báo | Icon chuông, badge; tap mở Notification Center. || Avatar | Ảnh hoặc initials; tap mở Cá nhân.
+[TABLE 15 5x2] Thành phần | Yêu cầu || Headline | “Chào buổi sáng, Huy!” hoặc fallback. || Subtitle | “Hôm nay bạn muốn ăn gì?” || Weather | Icon, nhiệt độ làm tròn, mô tả ngắn.
+[TABLE 16 6x2] Thành phần | Yêu cầu || Headline | Để Mogu chọn món cho bạn || Description | Phù hợp với mục tiêu, tâm trạng và ngân sách hôm nay. || CTA | Random ngay — primary, tương phản cao.
+[TABLE 17 5x2] Thành phần | Yêu cầu || Title | Chọn nhanh theo mục tiêu || Items | 4 card đầu; selected state khi tap. || Xem tất cả | Mở goal picker/bottom sheet.
+[TABLE 18 6x2] Thành phần | Yêu cầu || Card | Ảnh, tên, kcal, phút, mô tả/lý do ngắn. || Bookmark | Lưu/bỏ lưu; login đã có. || Tap card | Mở chi tiết món.
+[TABLE 19 5x2] Thành phần | Yêu cầu || Metrics | kcal, protein, nước; đơn vị rõ. || Chi tiết | Mở Sức khỏe tại ngày hôm nay. || Empty | Chưa có bữa ăn → CTA Ghi lại bữa ăn.
+[TABLE 20 6x2] Thành phần | Yêu cầu || Items | Trang chủ; Khám phá; Random; Sức khỏe; Cá nhân. || Selected | Icon + label rõ, không chỉ đổi màu. || Random | Nút trung tâm nổi bật/liquid glass nhưng touch target và label vẫn rõ.
+[TABLE 21 10x2] Trạng thái | Yêu cầu UI/behavior || Initial loading | Skeleton giữ đúng kích thước header, hero và cards; không spinner toàn trang kéo dài. || Refreshing | Giữ nội dung cũ; indicator pull-to-refresh; không reset scroll đột ngột. || Partial error | Widget lỗi có copy ngắn và Retry; các phần khác hoạt động.
+[TABLE 22 8x5] Mục | Route logic | Root | Push stack | Ghi chú || Trang chủ | /home | Home root | Không | Tap lại: scroll top/refresh || Khám phá | /explore | Explore root | Không | Giữ filter/scroll theo policy || Random | /random | Random Step 1 hoặc draft | Có | Nếu đang có draft hỏi tiếp tục/làm mới
+[TABLE 23 6x2] Model | Trường chính || HomeDashboard | server_time, local_date, profile_version, greeting, weather, hero, quick_goals, recommendations, nutrition_summary, unread_count, cache_ttl || RecommendationCard | dish_id, name, image_url, calories, prep_minutes, price_range, match_score_optional, reason_short, is_saved || NutritionSummary | date, calories_consumed, calorie_target_optional, protein_g, water_ml, data_status
+[TABLE 24 10x4] Method | Endpoint | Auth | Mục đích || GET | /api/v1/home | Bearer | Dashboard tổng hợp; ETag/cache. || GET | /api/v1/recommendations/home | Bearer | Phân trang gợi ý. || POST | /api/v1/dishes/:id/save | Bearer | Lưu idempotent.
+[TABLE 25 13x2] Event | Thuộc tính cho phép || home_viewed | entry_point, cache_state, load_duration_bucket || home_widget_loaded | widget, result, duration_bucket || home_random_clicked | source=hero|nav|goal
+[TABLE 26 11x2] ID | Yêu cầu || HOME-NFR-PERF-01 | P75 usable ≤2 giây; P95 Home API ≤1,5 giây không tính dịch vụ ngoài bất thường. || HOME-NFR-REL-01 | Widget isolation; retry có backoff; timeout/circuit breaker cho weather/recommendation. || HOME-NFR-CACHE-01 | Stale-while-revalidate; cache mã hóa nếu chứa dữ liệu người dùng.
+[TABLE 27 15x2] ID | Given / When / Then || AC-01 | Given ACTIVE + COMPLETED; When mở app; Then Home usable và không quay lại onboarding. || AC-02 | Given display_name rỗng; When render greeting; Then dùng “bạn”, không dùng email. || AC-03 | Given chưa cấp vị trí; When mở Home; Then không chặn Home và không tự bật prompt ngoài ngữ cảnh.
+[TABLE 28 25x3] ID | Kịch bản | Kết quả || HOME-TC-001 | Mở Home từ login/onboarding | Đúng guard và route. || HOME-TC-002 | Greeting theo mốc giờ/timezone | Đúng câu và fallback. || HOME-TC-003 | Tên null/dài/Unicode | Hiển thị an toàn.
+[TABLE 29 9x5] Story | FR | BR | UC | AC || US-HOME-01 | FR-001..003 | BR-001..005 | UC-01 | AC-01..03 || US-HOME-02 | FR-004 | BR-006 | UC-02 | AC-04 || US-HOME-03 | FR-005 | BR-007 | UC-03 | AC-05
+[TABLE 30 2x2] MVP — Must | Sau MVP — Should/Could || Header; greeting; Hero Random; quick goals; recommendations; bottom nav; cache/refresh; partial errors; analytics; deep link guard. | Weather nâng cao; nutrition summary nếu chưa sẵn sàng; widget tùy chỉnh; A/B layout; AI chat; gamification; realtime wearable.
+[TABLE 31 11x4] ID | Câu hỏi | Owner | Đề xuất/trạng thái || Q-01 | Weather có thuộc MVP và dùng provider nào? | PO/Tech | Open || Q-02 | Quick goals chính thức gồm những mục nào? | Product/Data | Đề xuất 4 mục || Q-03 | Tap Quick Goal mở thẳng Random hay chỉ chọn trên Home? | Product | Đề xuất mở Random
+[TABLE 32 13x2] Ngữ cảnh | Copy || Greeting sáng | Chào buổi sáng, {name}! || Greeting trưa | Chào buổi trưa, {name}! || Greeting tối | Chào buổi tối, {name}!
+[TABLE 33 1x1] Kết thúc tài liệu  MOGU-BA-003 là baseline cho Trang chủ và điều hướng. Sau khi PO chốt quick goals, hành vi tab Random, weather và navigation stack, đội dự án có thể khóa UI/API và chuyển sang MOGU-BA-004 — Random món ăn 3 bước.
+
+=== MOGU_BA_002_Onboarding_v1.0.docx | paragraphs=189 tables=35 ===
+[Normal] MOGU
+[Normal] TÀI LIỆU PHÂN TÍCH NGHIỆP VỤ
+[Normal] ONBOARDING NGƯỜI DÙNG
+[Normal] Business Analysis Specification — Personalized Onboarding
+[Normal] Tính bảo mật: Internal — dữ liệu sức khỏe và hạn chế ăn uống là dữ liệu nhạy cảm cần kiểm soát truy cập.
+[Heading 1] Lịch sử tài liệu
+[Heading 2] Phê duyệt
+[Heading 2] Thuật ngữ
+[Heading 1] 1. Tổng quan nghiệp vụ
+[Heading 2] 1.1 Bối cảnh
+[Heading 2] 1.2 Mục tiêu
+[List Bullet] Hoàn tất baseline profile trong khoảng 60–90 giây.
+[List Bullet] Giải thích rõ vì sao Mogu hỏi từng nhóm dữ liệu.
+[List Bullet] Cho phép bỏ qua dữ liệu không bắt buộc và chỉnh sửa sau.
+[List Bullet] Lưu tiến độ tự động để tiếp tục khi app bị đóng hoặc mất mạng.
+[List Bullet] Đưa người dùng đến lần random đầu tiên nhanh nhất sau hoàn tất.
+[List Bullet] Không đưa ra kết luận y khoa từ dữ liệu onboarding.
+[Heading 2] 1.3 KPI đề xuất
+[Heading 2] 1.4 Phạm vi
+[Heading 1] 2. Tác nhân, tiền điều kiện và kích hoạt
+[Heading 1] 3. Luồng onboarding 8 bước
+[Heading 1] 4. User stories và yêu cầu chức năng
+[Heading 1] 5. Quy tắc nghiệp vụ
+[Heading 1] 6. Đặc tả chi tiết từng màn hình
+[Heading 2] OB-UI-01 — Chào mừng
+[Heading 2] OB-UI-02 — Tên gọi
+[Heading 2] OB-UI-03 — Ngày sinh
+[Heading 2] OB-UI-04 — Giới tính
+[Heading 2] OB-UI-05 — Chiều cao & cân nặng
+[Heading 2] OB-UI-06 — Mục tiêu
+[Heading 2] OB-UI-07 — Sở thích & hạn chế
+[Heading 2] OB-UI-08 — Hoàn tất
+[Heading 1] 7. Use case chi tiết
+[Heading 2] UC-ONB-01 — Bắt đầu onboarding
+[Normal] Tiền điều kiện: ACTIVE và NOT_STARTED
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Auth trả next_step=ONBOARDING.
+[Normal] Bước 2 — Ứng dụng tải cấu hình/version onboarding.
+[Normal] Bước 3 — Hiển thị OB-UI-01.
+[Normal] Bước 4 — Người dùng bấm Bắt đầu.
+[Normal] Bước 5 — Tạo session IN_PROGRESS, step=2.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Không tải được cấu hình: dùng cấu hình bundled an toàn hoặc retry.
+[Normal] Hậu điều kiện: Session được tạo một lần.
+[Heading 2] UC-ONB-02 — Lưu và chuyển bước
+[Normal] Tiền điều kiện: IN_PROGRESS
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Người dùng nhập/chọn dữ liệu.
+[Normal] Bước 2 — Client validation.
+[Normal] Bước 3 — Gửi PATCH step với profile_version/idempotency key.
+[Normal] Bước 4 — Server validation và lưu draft.
+[Normal] Bước 5 — Trả next_step; UI chuyển với animation.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Validation server lỗi: giữ dữ liệu và focus lỗi.
+[List Bullet] Mất mạng: lưu local draft và retry.
+[List Bullet] Conflict version: lấy bản mới nhất, hợp nhất an toàn hoặc hỏi người dùng.
+[Normal] Hậu điều kiện: Dữ liệu bước được lưu; step cập nhật.
+[Heading 2] UC-ONB-03 — Bỏ qua/quay lại
+[Normal] Tiền điều kiện: Bước cho phép skip hoặc có dữ liệu trước
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Người dùng chọn Bỏ qua hoặc Back.
+[Normal] Bước 2 — Hệ thống lưu skipped/null hoặc giữ dữ liệu cũ.
+[Normal] Bước 3 — Đi đến bước phù hợp.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Nếu bước bắt buộc: không hiển thị Skip.
+[List Bullet] Nếu thay đổi làm xung đột mục tiêu: yêu cầu xác nhận.
+[Normal] Hậu điều kiện: Không mất dữ liệu ngoài ý muốn.
+[Heading 2] UC-ONB-04 — Tiếp tục sau gián đoạn
+[Normal] Tiền điều kiện: IN_PROGRESS có step đã lưu
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Mở app và xác thực phiên.
+[Normal] Bước 2 — GET onboarding state.
+[Normal] Bước 3 — Tải dữ liệu draft.
+[Normal] Bước 4 — Mở bước chưa hoàn tất gần nhất.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Local mới hơn server: sync theo version.
+[List Bullet] Phiên hết hạn: login rồi resume.
+[Normal] Hậu điều kiện: Resume đúng bước và dữ liệu.
+[Heading 2] UC-ONB-05 — Hoàn tất
+[Normal] Tiền điều kiện: Đã đến summary; dữ liệu bắt buộc hợp lệ
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Hiển thị summary.
+[Normal] Bước 2 — Người dùng xác nhận.
+[Normal] Bước 3 — Server kiểm tra toàn bộ profile.
+[Normal] Bước 4 — Tạo profile snapshot/version và COMPLETED.
+[Normal] Bước 5 — Phát onboarding_completed.
+[Normal] Bước 6 — Mở Random hoặc Home.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Double tap: chỉ hoàn tất một lần.
+[List Bullet] Dữ liệu catalog lỗi thời: map/migrate hoặc yêu cầu sửa mục bị ảnh hưởng.
+[Normal] Hậu điều kiện: Baseline profile sẵn sàng cho recommendation.
+[Heading 2] UC-ONB-06 — Chỉnh sửa sau onboarding
+[Normal] Tiền điều kiện: COMPLETED
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Mở Cá nhân → Mục tiêu & sở thích/Thông tin sức khỏe.
+[Normal] Bước 2 — Sửa dữ liệu.
+[Normal] Bước 3 — Server validation, tăng profile_version.
+[Normal] Bước 4 — Invalidate/recompute recommendation context.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Thay đổi dị ứng: cảnh báo và áp dụng ngay.
+[Normal] Hậu điều kiện: Các gợi ý sau dùng dữ liệu mới.
+[Heading 1] 8. Validation và thông báo lỗi
+[Heading 1] 9. Dữ liệu và catalog
+[Heading 2] Nguyên tắc dữ liệu
+[List Bullet] Catalog có code ổn định; tên/description có thể dịch và thay đổi mà không phá dữ liệu.
+[List Bullet] Không lưu tuổi nếu có thể tính từ birth_date; không đưa birth_date vào analytics.
+[List Bullet] Dữ liệu dị ứng và sức khỏe không xuất hiện công khai mặc định.
+[List Bullet] Recommendation service nhận context tối thiểu qua ID/code, không cần toàn bộ PII.
+[List Bullet] onboarding_sessions có retention ngắn sau hoàn tất; profile là nguồn dữ liệu chính.
+[Heading 1] 10. API đề xuất cho NestJS
+[Heading 2] Yêu cầu contract
+[List Bullet] Mọi PATCH nhận profile_version và idempotency_key.
+[List Bullet] Response trả saved_at, profile_version, current_step, next_step, field_errors.
+[List Bullet] Server là nguồn validation cuối; client không tự quyết trạng thái COMPLETED.
+[List Bullet] Catalog trả version/ETag và hỗ trợ cache; ID không bị tái sử dụng.
+[List Bullet] Complete thực hiện transaction hoặc cơ chế bù để không có COMPLETED nhưng thiếu dữ liệu bắt buộc.
+[Heading 1] 11. Yêu cầu phi chức năng và quyền riêng tư
+[Heading 1] 12. Analytics và audit
+[List Bullet] Không gửi giá trị ngày sinh, chiều cao, cân nặng, giới tính, dị ứng hoặc tên nguyên liệu vào analytics.
+[List Bullet] Audit cho thay đổi dị ứng, consent và completion; metadata được sanitize.
+[Heading 1] 13. Tiêu chí nghiệm thu
+[Heading 1] 14. Kịch bản kiểm thử tối thiểu
+[Heading 1] 15. Ma trận truy vết
+[Heading 1] 16. Definition of Done và phân kỳ
+[List Bullet] PO/Legal duyệt trường bắt buộc, độ tuổi tối thiểu và copy consent.
+[List Bullet] UI có default, selected, disabled, validation, loading, offline, conflict, success states.
+[List Bullet] API/catalog/profile schema được version hóa và migration review.
+[List Bullet] Unit/integration/E2E bao phủ resume, conflict, idempotency và privacy.
+[List Bullet] Recommendation nhận đúng hard/soft constraints.
+[List Bullet] Không còn lỗi Security/Privacy Critical hoặc High.
+[List Bullet] Analytics staging được kiểm tra không chứa dữ liệu cấm.
+[Heading 1] 17. Câu hỏi mở
+[Heading 1] Phụ lục A — UX copy đề xuất
+[Heading 1] Phụ lục B — Checklist bàn giao UI/UX
+[List Bullet] 8 màn chính và summary edit path.
+[List Bullet] Progress indicator ở Step 1–8; Back/Skip/Continue states.
+[List Bullet] Keyboard numeric/date picker; safe area; bàn phím không che CTA.
+[List Bullet] Selected/unselected/disabled/conflict cho goal, preference và allergen cards.
+[List Bullet] Loading save; saved confirmation nhẹ; offline banner; retry; version conflict.
+[List Bullet] Privacy explanation và allergy warning không gây hoảng sợ.
+[List Bullet] VoiceOver/TalkBack labels; dynamic type; contrast AA; touch target 44pt.
+[List Bullet] Prototype thể hiện auth → onboarding → random/home và resume sau gián đoạn.
+[Heading 1] Phụ lục C — Ghi chú triển khai NestJS + Supabase
+[List Bullet] OnboardingModule tách controller/service/repository/catalog/policy/analytics adapter.
+[List Bullet] DTO theo từng bước, không dùng một DTO khổng lồ cho toàn flow.
+[List Bullet] Upsert idempotent theo user_id + onboarding_version; optimistic locking bằng profile_version.
+[List Bullet] Transaction cho complete: validate snapshot, ghi profile/goals/preferences, status, audit và outbox event.
+[List Bullet] RLS cho profile và bảng liên kết; service role chỉ ở backend khi thật sự cần.
+[List Bullet] Catalog seed có code ổn định, active/display_order và version; không xóa cứng ID đã dùng.
+[List Bullet] Recommendation context được build từ profile đã chuẩn hóa; dị ứng là exclusion trước khi ranking.
+[List Bullet] Không đưa PII/health raw vào queue, logs hoặc analytics; sử dụng allowlist metadata.
+[List Bullet] E2E test cover reconnect, retry, duplicate request, stale version và catalog migration.
+[TABLE 1 9x2] Thuộc tính | Giá trị || Mã tài liệu | MOGU-BA-002 || Phiên bản | 1.0 || Trạng thái | Draft for Review
+[TABLE 2 1x1] Mục đích  Xác định dữ liệu tối thiểu Mogu cần để cá nhân hóa gợi ý món ăn mà không tạo cảm giác dài, xâm phạm riêng tư hoặc mang tính chẩn đoán y khoa.
+[TABLE 3 2x5] Phiên bản | Ngày | Người thực hiện | Thay đổi | Trạng thái || 1.0 | 10/08/2026 | BA / Product | Tạo mới đặc tả onboarding 8 bước | Draft
+[TABLE 4 6x4] Vai trò | Họ tên | Trạng thái | Ngày || Product Owner | TBD | Chờ duyệt | — || Tech Lead | TBD | Chờ duyệt | — || Data/AI Lead | TBD | Chờ duyệt | —
+[TABLE 5 9x2] Thuật ngữ | Định nghĩa || Onboarding | Chuỗi bước thiết lập hồ sơ lần đầu sau khi xác thực. || Progressive profiling | Thu thập dữ liệu theo từng thời điểm thay vì hỏi tất cả ngay từ đầu. || Primary goal | Mục tiêu chính dùng để ưu tiên thuật toán gợi ý.
+[TABLE 6 7x3] KPI | Định nghĩa | Mục tiêu MVP || Onboarding completion | COMPLETED / số người bắt đầu | ≥ 75% || Median completion time | Thời gian trung vị từ Step 1 đến Step 8 | ≤ 90 giây || Step abandonment | Rời luồng tại từng bước | < 15%/bước
+[TABLE 7 2x2] Trong MVP | Ngoài MVP / giai đoạn sau || 8 bước onboarding; validation; skip có kiểm soát; lưu nháp; resume; hoàn tất; sync profile; giải thích quyền riêng tư; chỉnh sửa lại trong Cá nhân. | Thiết bị y tế; hồ sơ bệnh án; chẩn đoán; đơn thuốc; wearable sync; ảnh cơ thể; xét nghiệm; kế hoạch dinh dưỡng điều trị; tư vấn bác sĩ.
+[TABLE 8 7x2] Thành phần | Đặc tả || Tác nhân chính | Người dùng vừa đăng ký hoặc đăng nhập nhưng chưa hoàn tất onboarding. || Tác nhân hỗ trợ | Mobile App, NestJS, Supabase/Postgres, Recommendation Service, Analytics. || Tiền điều kiện | Tài khoản ACTIVE; có user_id; profile đã tồn tại hoặc có thể upsert idempotent.
+[TABLE 9 9x4] ID | Bước | Mục đích | Quy tắc chính || OB-01 | Chào mừng | Giới thiệu giá trị “Mogu hiểu bạn để chọn món phù hợp hơn”. | Bắt buộc xem; CTA Bắt đầu || OB-02 | Tên gọi | Tên hiển thị/cách Mogu gọi người dùng. | Có thể bỏ qua; mặc định “bạn” || OB-03 | Ngày sinh | Ngày/tháng/năm sinh để ước tính nhóm tuổi và cá nhân hóa. | Bắt buộc nếu chính sách sản phẩm yêu cầu tuổi tối thiểu
+[TABLE 10 1x1] Nguyên tắc UX  Thanh tiến độ phản ánh 8 bước nhưng không gây áp lực. Nút Quay lại giữ dữ liệu; nút Tiếp tục chỉ bật khi dữ liệu bắt buộc hợp lệ; Skip chỉ xuất hiện ở bước được phép.
+[TABLE 11 9x3] ID | User story | Ưu tiên || US-ONB-01 | Là người dùng mới, tôi muốn hiểu lợi ích trước khi cung cấp dữ liệu. | Must || US-ONB-02 | Tôi muốn Mogu gọi đúng tên nhưng có thể bỏ qua. | Should || US-ONB-03 | Tôi muốn nhập thông tin cơ bản nhanh và biết dữ liệu được dùng thế nào. | Must
+[TABLE 12 16x3] ID | Yêu cầu | Ưu tiên || ONB-FR-001 | Khởi tạo/đọc onboarding session theo user_id. | Must || ONB-FR-002 | Hiển thị đúng bước dựa trên onboarding_status và onboarding_step. | Must || ONB-FR-003 | Lưu nháp sau mỗi bước và chống request lặp. | Must
+[TABLE 13 21x2] ID | Quy tắc || ONB-BR-001 | Chỉ tài khoản ACTIVE được ghi onboarding. || ONB-BR-002 | onboarding_step chỉ tiến khi bước hiện tại hợp lệ hoặc được phép skip; Back không làm mất dữ liệu. || ONB-BR-003 | Mỗi lần lưu có profile_version hoặc updated_at để xử lý xung đột.
+[TABLE 14 6x2] Thành phần | Yêu cầu || Headline | Mogu chọn món hợp với bạn, không chỉ chọn ngẫu nhiên. || Nội dung | 3 lợi ích ngắn: đúng nhu cầu, tránh món không phù hợp, tiết kiệm thời gian. || Minh họa | Linh vật Mogu; không làm chậm tải màn.
+[TABLE 15 5x2] Thành phần | Yêu cầu || Câu hỏi | Mogu nên gọi bạn là gì? || Input | Tên hiển thị; 1–50 ký tự; counter tùy chọn. || Gợi ý | Bạn có thể đổi lại bất cứ lúc nào.
+[TABLE 16 6x2] Thành phần | Yêu cầu || Câu hỏi | Ngày sinh của bạn là khi nào? || Control | Date picker tối ưu mobile; không cho ngày tương lai. || Giải thích | Dùng để điều chỉnh gợi ý theo nhóm tuổi.
+[TABLE 17 5x2] Thành phần | Yêu cầu || Câu hỏi | Bạn muốn Mogu hiểu thêm điều gì về bạn? || Options | Nam; Nữ; Khác; Không muốn trả lời. || Selection | Single-select card/radio.
+[TABLE 18 6x2] Thành phần | Yêu cầu || Câu hỏi | Cho Mogu biết thông số hiện tại của bạn || Height | Numeric input/slider; cm; 80–250. || Weight | Numeric input/slider; kg; 20–350; 1 decimal.
+[TABLE 19 6x2] Thành phần | Yêu cầu || Câu hỏi | Bạn muốn Mogu đồng hành theo mục tiêu nào? || Options | Cân bằng; Giảm cân; Tăng cơ; Ăn lành mạnh; Tiết kiệm; Khám phá món mới. || Selection | Chọn primary trước; thêm tối đa 2 secondary.
+[TABLE 20 6x2] Thành phần | Yêu cầu || Khẩu vị | Cay, thanh đạm, đậm vị, món nước, món khô… || Chế độ ăn | Ăn chay, vegan, keto, eat clean… theo catalog. || Dị ứng | Hải sản, đậu phộng, sữa, trứng, gluten…
+[TABLE 21 6x2] Thành phần | Yêu cầu || Headline | Mogu đã hiểu bạn hơn rồi! || Summary | Tên; nhóm tuổi; thông số; mục tiêu; sở thích; nguyên liệu tránh. || Edit | Mỗi nhóm có Sửa, quay đúng bước rồi trở lại summary.
+[TABLE 22 11x4] Trường | Mức | Validation | Copy lỗi || display_name | Optional | 1–50 ký tự sau trim | Tên quá dài. Vui lòng dùng tối đa 50 ký tự. || date_of_birth | Conditional | Không tương lai; đạt tuổi tối thiểu | Ngày sinh chưa hợp lệ. || gender | Optional | ENUM đã cấu hình | Vui lòng chọn một lựa chọn hợp lệ.
+[TABLE 23 9x4] Code | Loại | Thông báo | UI || ONB_001 | INVALID_STEP | Bước onboarding không hợp lệ. | Tải lại state. || ONB_002 | VALIDATION_ERROR | Thông tin chưa hợp lệ. Vui lòng kiểm tra lại. | Lỗi inline. || ONB_003 | VERSION_CONFLICT | Thông tin của bạn vừa được cập nhật ở nơi khác. | Refresh/merge.
+[TABLE 24 10x3] Bảng | Mục đích | Trường chính || profiles | Trạng thái và dữ liệu hồ sơ cơ bản | user_id, display_name, birth_date, gender, height_cm, weight_kg, onboarding_status, onboarding_step, profile_version || user_goals | Mục tiêu chính/phụ | user_id, goal_id, priority, active, created_at || goals | Catalog mục tiêu | id, code, name, description, active, display_order
+[TABLE 25 11x4] Method | Endpoint | Auth | Mục đích || GET | /api/v1/onboarding | Bearer | Lấy status, step, version, draft, catalog_version || POST | /api/v1/onboarding/start | Bearer | Khởi tạo idempotent || PATCH | /api/v1/onboarding/steps/:step | Bearer | Lưu dữ liệu một bước; profile_version
+[TABLE 26 11x2] ID | Yêu cầu || ONB-NFR-SEC-01 | RLS đảm bảo mỗi người chỉ đọc/ghi onboarding của chính mình. || ONB-NFR-PRIV-01 | Consent minh bạch; giải thích mục đích, quyền sửa/xóa và phạm vi sử dụng. || ONB-NFR-PRIV-02 | Không log birth_date, height, weight, allergen raw trong analytics.
+[TABLE 27 1x1] Cảnh báo sản phẩm  Mogu không cam kết món ăn hoàn toàn không chứa chất gây dị ứng. Kết quả phải nhắc người dùng kiểm tra nguyên liệu, nhãn sản phẩm hoặc hỏi nhà hàng khi có dị ứng nghiêm trọng.
+[TABLE 28 11x2] Event | Thuộc tính cho phép || onboarding_viewed | step, onboarding_version || onboarding_started | entry_point || onboarding_step_viewed | step
+[TABLE 29 15x2] ID | Given / When / Then || AC-01 | Given ACTIVE + NOT_STARTED; When auth thành công; Then mở Step 1 và không mở Home. || AC-02 | Given bước tùy chọn; When Skip; Then lưu skipped/null, chuyển bước và không tạo dữ liệu giả. || AC-03 | Given dữ liệu sai; When Continue; Then không chuyển bước, focus lỗi đầu tiên và giữ dữ liệu.
+[TABLE 30 23x3] ID | Kịch bản | Kết quả || ONB-TC-001 | Start từ tài khoản mới | Step 1, session idempotent. || ONB-TC-002 | Tên trống/dài/ký tự Unicode | Skip hoặc validation đúng. || ONB-TC-003 | Ngày sinh tương lai/biên tuổi | Từ chối đúng policy.
+[TABLE 31 9x5] Story | FR | BR | UC | AC || US-ONB-01 | FR-001,002,015 | BR-001,002 | UC-01 | AC-01,13 || US-ONB-02 | FR-004,005,013 | BR-004,016 | UC-02/03 | AC-02/03 || US-ONB-03 | FR-005,006 | BR-005..010 | UC-02 | AC-03/04/14
+[TABLE 32 2x2] MVP — Must | Sau MVP — Should/Could || 8 bước; lưu/resume; validation; catalog; summary/edit; complete; privacy copy; profile edit; analytics/audit; RLS. | Offline sync nâng cao; adaptive onboarding; import dữ liệu wearable; đơn vị imperial; A/B test thứ tự; recommendation preview realtime.
+[TABLE 33 11x4] ID | Câu hỏi | Owner | Đề xuất/trạng thái || Q-01 | Có cho bỏ qua toàn bộ onboarding không? Nếu có, status SKIPPED hành xử thế nào? | PO | Open || Q-02 | Ngày sinh có bắt buộc và tuổi tối thiểu là bao nhiêu? | PO/Legal | Open || Q-03 | Giới tính có thực sự cần cho MVP không? | Product/Data | Đề xuất optional
+[TABLE 34 13x2] Ngữ cảnh | Copy || Step 1 | Để Mogu hiểu bạn hơn một chút nhé! || Step 2 | Mogu nên gọi bạn là gì? || Step 3 | Ngày sinh của bạn là khi nào?
+[TABLE 35 1x1] Kết thúc tài liệu  MOGU-BA-002 là baseline cho onboarding. Các quyết định về trường bắt buộc, độ tuổi, mục tiêu và dị ứng phải được Product, Legal và Data thống nhất trước khi khóa API/UI.
+
+=== MOGU_BA_001_Dang_nhap_Dang_ky_v1.0.docx | paragraphs=207 tables=34 ===
+[Normal] MOGU
+[Normal] TÀI LIỆU PHÂN TÍCH NGHIỆP VỤ
+[Normal] ĐĂNG NHẬP & ĐĂNG KÝ
+[Normal] Business Analysis Specification — Authentication Module
+[Normal] Tính bảo mật: Internal — không chứa mật khẩu, token, OTP hoặc dữ liệu cá nhân thật.
+[Heading 1] Lịch sử tài liệu
+[Heading 2] Phê duyệt
+[Heading 2] Quy ước mức độ ưu tiên
+[Heading 2] Thuật ngữ
+[Heading 1] 1. Tổng quan nghiệp vụ
+[Heading 2] 1.1 Bối cảnh
+[Heading 2] 1.2 Mục tiêu kinh doanh
+[List Bullet] Cho phép người dùng tạo tài khoản và đăng nhập an toàn, đơn giản.
+[List Bullet] Giảm tỷ lệ bỏ dở ở bước xác thực và tạo nền tảng cho onboarding cá nhân hóa.
+[List Bullet] Bảo vệ dữ liệu sức khỏe, sở thích và lịch sử ăn uống của người dùng.
+[List Bullet] Hỗ trợ khôi phục quyền truy cập mà không cần can thiệp thủ công.
+[List Bullet] Tạo dữ liệu đo lường đầy đủ nhưng không ghi nhận bí mật xác thực.
+[Heading 2] 1.3 Chỉ số thành công đề xuất
+[Heading 2] 1.4 Phạm vi
+[Heading 1] 2. Bên liên quan và tác nhân
+[Heading 1] 3. Giả định, phụ thuộc và ràng buộc
+[List Bullet] Ứng dụng mobile hỗ trợ iOS và Android; múi giờ mặc định Asia/Ho_Chi_Minh.
+[List Bullet] Supabase Auth là nguồn danh tính; NestJS là API nghiệp vụ và xác thực Bearer token.
+[List Bullet] Email provider có khả năng gửi OTP/link và cung cấp trạng thái giao nhận.
+[List Bullet] Ứng dụng có Điều khoản sử dụng và Chính sách quyền riêng tư được version hóa.
+[List Bullet] Thông tin sức khỏe chi tiết được thu thập ở onboarding, không bắt buộc trong form đăng ký.
+[List Bullet] Mật khẩu không được lưu trong cơ sở dữ liệu nghiệp vụ của Mogu.
+[List Bullet] Các ngưỡng khóa, OTP và rate limit phải cấu hình được theo môi trường.
+[Heading 1] 4. Mô hình trạng thái
+[Heading 2] 4.1 Trạng thái tài khoản
+[Heading 2] 4.2 Trạng thái onboarding
+[Heading 2] 4.3 Quy tắc điều hướng khi mở ứng dụng
+[Normal] Bước 1 — Không có phiên → Splash → Welcome/Auth.
+[Normal] Bước 2 — Có access token hợp lệ → tải /me → điều hướng theo onboarding_status.
+[Normal] Bước 3 — Access token hết hạn nhưng refresh token hợp lệ → refresh âm thầm → tiếp tục.
+[Normal] Bước 4 — Refresh thất bại/thu hồi → xóa thông tin phiên cục bộ → Welcome/Auth.
+[Heading 1] 5. User stories và yêu cầu chức năng
+[Heading 1] 6. Quy tắc nghiệp vụ
+[Heading 1] 7. Đặc tả màn hình và validation
+[Heading 2] AUTH-UI-01 — Welcome / Chọn phương thức
+[Heading 2] AUTH-UI-02 — Đăng ký
+[Heading 2] AUTH-UI-03 — Xác minh OTP
+[Heading 2] AUTH-UI-04 — Đăng nhập
+[Heading 2] AUTH-UI-05/06 — Quên và đặt lại mật khẩu
+[Heading 1] 8. Use case chi tiết
+[Heading 2] UC-AUTH-01 — Đăng ký bằng email
+[Normal] Tiền điều kiện: Khách chưa có tài khoản; có mạng.
+[Normal] Kích hoạt: Người dùng chọn Đăng ký.
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Nhập email, mật khẩu, xác nhận và chấp thuận chính sách.
+[Normal] Bước 2 — Ứng dụng validation tại client.
+[Normal] Bước 3 — Backend/Auth kiểm tra, tạo danh tính PENDING_VERIFICATION.
+[Normal] Bước 4 — Hệ thống gửi OTP và mở màn xác minh.
+[Normal] Bước 5 — Người dùng nhập OTP hợp lệ.
+[Normal] Bước 6 — Hệ thống kích hoạt ACTIVE, tạo profile và consent.
+[Normal] Bước 7 — Cấp phiên và điều hướng onboarding.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Email đã tồn tại: hướng dẫn Đăng nhập/Quên mật khẩu mà không rò rỉ quá mức.
+[List Bullet] Gửi OTP lỗi: giữ challenge, cho retry có kiểm soát.
+[List Bullet] Bấm lặp: chỉ tạo một yêu cầu logic.
+[Normal] Hậu điều kiện: Tài khoản ACTIVE; profile NOT_STARTED; có audit.
+[Heading 2] UC-AUTH-02 — Đăng nhập
+[Normal] Tiền điều kiện: Tài khoản ACTIVE.
+[Normal] Kích hoạt: Người dùng chọn Đăng nhập.
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Nhập email và mật khẩu.
+[Normal] Bước 2 — Client validation và gửi request.
+[Normal] Bước 3 — Hệ thống xác minh thông tin và trạng thái.
+[Normal] Bước 4 — Cấp access/refresh token.
+[Normal] Bước 5 — Tải /me và điều hướng theo onboarding.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Sai thông tin: lỗi chung; tăng bộ đếm.
+[List Bullet] LOCKED: hiển thị thời gian/khôi phục.
+[List Bullet] PENDING_VERIFICATION: mở xác minh và có thể gửi lại OTP.
+[List Bullet] Mạng lỗi: giữ email; cho thử lại.
+[Normal] Hậu điều kiện: Tạo session/audit; người dùng vào đúng màn.
+[Heading 2] UC-AUTH-03 — Quên mật khẩu
+[Normal] Tiền điều kiện: Có thể truy cập email đăng ký.
+[Normal] Kích hoạt: Chọn Quên mật khẩu.
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Nhập email.
+[Normal] Bước 2 — Hệ thống trả phản hồi chung và gửi link/OTP nếu tài khoản hợp lệ.
+[Normal] Bước 3 — Người dùng mở deep link hoặc nhập OTP.
+[Normal] Bước 4 — Nhập mật khẩu mới hai lần.
+[Normal] Bước 5 — Hệ thống cập nhật mật khẩu, thu hồi phiên theo chính sách.
+[Normal] Bước 6 — Đi đến Đăng nhập với thông báo thành công.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Challenge hết hạn: cho gửi lại.
+[List Bullet] Mật khẩu mới không đạt: hiển thị tiêu chí.
+[List Bullet] Deep link mở sai thiết bị: vẫn yêu cầu challenge hợp lệ.
+[Normal] Hậu điều kiện: Mật khẩu đổi; audit; session cũ xử lý đúng.
+[Heading 2] UC-AUTH-04 — Social login
+[Normal] Tiền điều kiện: Google/Apple được cấu hình.
+[Normal] Kích hoạt: Chọn provider.
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Mở màn consent của provider.
+[Normal] Bước 2 — Người dùng xác thực tại provider.
+[Normal] Bước 3 — Ứng dụng nhận callback/deep link.
+[Normal] Bước 4 — Backend xác minh code/token với provider/Auth.
+[Normal] Bước 5 — Tạo hoặc tìm danh tính và profile.
+[Normal] Bước 6 — Cấp phiên; điều hướng onboarding/home.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Người dùng hủy: quay lại không báo lỗi đỏ.
+[List Bullet] Provider lỗi: hiển thị retry/phương thức khác.
+[List Bullet] Email trùng: yêu cầu quy trình liên kết an toàn.
+[Normal] Hậu điều kiện: Phiên hợp lệ; không lưu token provider ngoài nhu cầu.
+[Heading 2] UC-AUTH-05 — Đăng xuất
+[Normal] Tiền điều kiện: Người dùng đang đăng nhập.
+[Normal] Kích hoạt: Chọn Đăng xuất trong Cài đặt.
+[Heading 3] Luồng chính
+[Normal] Bước 1 — Hiển thị xác nhận nếu cần.
+[Normal] Bước 2 — Gọi logout/revoke.
+[Normal] Bước 3 — Xóa token và cache nhạy cảm local.
+[Normal] Bước 4 — Đi đến Welcome/Auth.
+[Heading 3] Luồng thay thế/ngoại lệ
+[List Bullet] Mất mạng: xóa local ngay; đánh dấu revoke cần xử lý nếu khả thi.
+[Normal] Hậu điều kiện: Thiết bị không còn truy cập dữ liệu bảo vệ.
+[Heading 1] 9. Danh mục lỗi và nội dung hiển thị
+[Heading 1] 10. Yêu cầu API và tích hợp
+[Heading 2] Chuẩn phản hồi API
+[List Bullet] Envelope thống nhất: success, data, error {code, message, field_errors}, correlation_id.
+[List Bullet] HTTP status đúng ngữ nghĩa: 200/201, 400, 401, 403, 409, 422, 429, 500/503.
+[List Bullet] Không trả raw exception, stack trace, token provider hoặc thông tin cho phép dò tài khoản.
+[List Bullet] Idempotency key cho thao tác đăng ký/gửi OTP khi client retry.
+[Heading 1] 11. Mô hình dữ liệu nghiệp vụ
+[Heading 2] 11.1 Nguồn dữ liệu
+[Heading 2] 11.2 Ràng buộc dữ liệu
+[List Bullet] profiles.user_id là PK/FK 1–1 với auth.users.id.
+[List Bullet] user_consents là append-only; không sửa ngược lịch sử chấp thuận.
+[List Bullet] Audit log không chứa password, OTP, access/refresh token, authorization header hoặc email đầy đủ nếu không cần.
+[List Bullet] Xóa tài khoản tuân theo retention: xóa/ẩn danh PII, giữ audit tối thiểu theo chính sách pháp lý.
+[List Bullet] RLS/policy ngăn người dùng đọc profile hoặc consent của người khác.
+[Heading 1] 12. Yêu cầu phi chức năng
+[Heading 1] 13. Phân tích bảo mật và quyền riêng tư
+[Heading 2] Dữ liệu được phép trong analytics
+[List Bullet] Tên sự kiện; kết quả; loại provider; mã lỗi chuẩn hóa; thời lượng; platform/app version.
+[List Bullet] Không gửi email, password, OTP, token, authorization header hoặc nội dung tự do từ người dùng.
+[Heading 1] 14. Sự kiện analytics và audit
+[Heading 1] 15. Tiêu chí nghiệm thu
+[Heading 1] 16. Kịch bản kiểm thử tối thiểu
+[Heading 1] 17. Ma trận truy vết yêu cầu
+[Heading 1] 18. Phân kỳ phát hành
+[Heading 2] Definition of Done
+[List Bullet] FR/BR/AC đã được Product Owner duyệt và trace tới test case.
+[List Bullet] UI có đủ normal, loading, disabled, error, empty/expired và success states.
+[List Bullet] API contract được version hóa; migration/RLS/recovery plan được review.
+[List Bullet] Security review không còn lỗi Critical/High; log scan không có bí mật.
+[List Bullet] Unit, integration, E2E và regression đạt ngưỡng CI đã thống nhất.
+[List Bullet] Analytics/audit được xác minh trên staging.
+[List Bullet] Tài liệu vận hành và xử lý sự cố auth được bàn giao.
+[Heading 1] 19. Câu hỏi mở và quyết định cần xác nhận
+[Heading 1] Phụ lục A — UX copy đề xuất
+[Heading 1] Phụ lục B — Checklist bàn giao UI/UX
+[List Bullet] Welcome/Auth choice: default, loading provider, error provider.
+[List Bullet] Register: empty, typing, valid, invalid, password visible/hidden, submitting, server error.
+[List Bullet] OTP: default, auto-fill, incorrect, expired, cooldown, resent, success.
+[List Bullet] Login: default, invalid, locked, unverified, network error, success.
+[List Bullet] Forgot/reset: request, generic success, deep-link invalid, password rules, reset success.
+[List Bullet] Responsive/safe area/keyboard, dynamic text, VoiceOver/TalkBack, dark mode nếu thuộc phạm vi.
+[List Bullet] Prototype thể hiện back, close, retry, social callback, session-expired và onboarding redirect.
+[Heading 1] Phụ lục C — Ghi chú triển khai NestJS + Supabase
+[List Bullet] Tạo AuthModule tách biệt: controller, service, guards, decorators, strategies/adapters và audit service.
+[List Bullet] Xác minh JWT bằng JWKS/public key hoặc thư viện được Supabase khuyến nghị; kiểm tra iss, aud, exp.
+[List Bullet] Dùng Admin client chỉ ở server và không đưa service role key xuống ứng dụng.
+[List Bullet] Tách profiles/user_consents khỏi auth.users; trigger hoặc transaction/idempotent upsert để tránh thiếu profile.
+[List Bullet] Validation DTO với class-validator/Zod theo tiêu chuẩn dự án; response/error code ổn định.
+[List Bullet] Rate limit bằng Redis hoặc hạ tầng phù hợp; khóa theo tổ hợp user/email hash, IP và device, tránh chặn nhầm diện rộng.
+[List Bullet] Secrets qua secret manager; rotate key; không commit .env.
+[List Bullet] E2E test trên project Supabase staging riêng; email inbox test và deep link scheme riêng cho môi trường.
+[TABLE 1 8x2] Thuộc tính | Giá trị || Mã tài liệu | MOGU-BA-001 || Phiên bản | 1.0 || Trạng thái | Draft for Review
+[TABLE 2 1x1] Mục đích  Là nguồn yêu cầu thống nhất cho việc thiết kế, phát triển, kiểm thử và nghiệm thu module Authentication của Mogu.
+[TABLE 3 2x5] Phiên bản | Ngày | Người thực hiện | Thay đổi | Trạng thái || 1.0 | 10/08/2026 | BA / Product | Tạo mới đặc tả đầy đủ module Authentication | Draft
+[TABLE 4 5x4] Vai trò | Họ tên | Trạng thái | Ngày || Product Owner | TBD | Chờ duyệt | — || Tech Lead | TBD | Chờ duyệt | — || QA Lead | TBD | Chờ duyệt | —
+[TABLE 5 5x2] Mức | Ý nghĩa || Must | Bắt buộc để phát hành MVP || Should | Quan trọng, có thể lùi nếu có phương án kiểm soát || Could | Nâng cao trải nghiệm, thực hiện khi còn nguồn lực
+[TABLE 6 11x2] Thuật ngữ | Định nghĩa || Authentication | Xác minh danh tính người dùng. || Authorization | Xác định quyền truy cập sau khi đã xác thực. || OTP | Mã dùng một lần để xác minh email/số điện thoại.
+[TABLE 7 7x3] KPI | Định nghĩa | Mục tiêu MVP || Registration completion | Số tài khoản ACTIVE / số lượt bắt đầu đăng ký | ≥ 70% || OTP verification success | Xác minh thành công / OTP đã gửi | ≥ 85% || Login success | Đăng nhập thành công / lượt gửi hợp lệ | ≥ 90%
+[TABLE 8 2x2] Trong phạm vi MVP | Ngoài phạm vi MVP / giai đoạn sau || Đăng ký bằng email và mật khẩu; xác minh email bằng OTP; đăng nhập; lưu phiên; refresh token; quên/đặt lại mật khẩu; đăng xuất; điều hướng theo trạng thái onboarding; Google/Apple nếu được PO xác nhận. | Đăng nhập bằng số điện thoại; MFA bắt buộc; tài khoản doanh nghiệp; quản trị vai trò nâng cao; hợp nhất tài khoản tự động phức tạp; SSO doanh nghiệp; xác minh danh tính giấy tờ.
+[TABLE 9 9x2] Vai trò/Tác nhân | Trách nhiệm hoặc nhu cầu || Khách chưa đăng nhập | Tạo tài khoản, đăng nhập, khôi phục mật khẩu. || Người dùng đã đăng ký | Duy trì phiên, đăng xuất, tiếp tục onboarding hoặc vào Trang chủ. || Product Owner | Quyết định phạm vi, ưu tiên, chính sách và copy.
+[TABLE 10 1x1] Quyết định cần chốt  Google Sign-In và Sign in with Apple được mô tả đầy đủ trong tài liệu nhưng đánh dấu Should cho MVP cho đến khi Product Owner xác nhận.
+[TABLE 11 6x3] Trạng thái | Ý nghĩa | Hành vi hệ thống || PENDING_VERIFICATION | Đã tạo danh tính nhưng chưa xác minh email | Chỉ cho phép xác minh, gửi lại OTP hoặc hủy. || ACTIVE | Đã xác minh và được phép sử dụng | Đăng nhập; điều hướng theo onboarding_status. || LOCKED | Tạm khóa do nhiều lần thất bại hoặc kiểm soát rủi ro | Từ chối đăng nhập; hiển thị hướng dẫn thử lại/khôi phục.
+[TABLE 12 5x2] Trạng thái | Điều hướng sau đăng nhập || NOT_STARTED | Màn chào mừng onboarding. || IN_PROGRESS | Tiếp tục tại bước chưa hoàn thành gần nhất. || COMPLETED | Trang chủ Mogu.
+[TABLE 13 9x3] ID | User story | Ưu tiên || US-AUTH-01 | Là khách, tôi muốn đăng ký bằng email để có tài khoản Mogu. | Must || US-AUTH-02 | Là người đăng ký, tôi muốn xác minh email để kích hoạt tài khoản. | Must || US-AUTH-03 | Là người dùng, tôi muốn đăng nhập để truy cập dữ liệu cá nhân. | Must
+[TABLE 14 16x3] ID | Yêu cầu | Ưu tiên || AUTH-FR-001 | Hiển thị Welcome với Đăng nhập, Đăng ký và social auth được bật. | Must || AUTH-FR-002 | Đăng ký bằng email, mật khẩu, xác nhận mật khẩu và đồng ý chính sách. | Must || AUTH-FR-003 | Chuẩn hóa email trước khi kiểm tra và gửi. | Must
+[TABLE 15 21x2] ID | Quy tắc || AUTH-BR-001 | Email được trim khoảng trắng, chuyển lowercase cho mục đích so sánh; lưu email chuẩn hóa. || AUTH-BR-002 | Mỗi email chuẩn hóa chỉ gắn với một danh tính hoạt động; không tiết lộ email có tồn tại trong luồng nhạy cảm. || AUTH-BR-003 | Mật khẩu tối thiểu 8 ký tự, có ít nhất 1 chữ và 1 số; cho phép password manager và paste.
+[TABLE 16 6x2] Thành phần | Nội dung/Hành vi || Logo/linh vật | Mogu; giữ thời gian splash ngắn, không chặn thao tác không cần thiết. || CTA chính | Đăng ký miễn phí. || CTA phụ | Tôi đã có tài khoản — Đăng nhập.
+[TABLE 17 6x5] Trường | Kiểu | Bắt buộc | Validation | Thông báo lỗi || Email | Email keyboard | Có | Đúng định dạng; tối đa 254 ký tự | Vui lòng nhập email hợp lệ. || Mật khẩu | Secure text | Có | ≥8 ký tự; có chữ và số | Mật khẩu cần ít nhất 8 ký tự, gồm chữ và số. || Xác nhận mật khẩu | Secure text | Có | Trùng mật khẩu | Mật khẩu xác nhận chưa khớp.
+[TABLE 18 7x2] Thành phần | Yêu cầu || Tiêu đề | Xác minh email của bạn || Mô tả | Đã gửi mã 6 số đến email đã che một phần. || Ô OTP | 6 ô hoặc một input; hỗ trợ auto-fill/paste; chỉ số.
+[TABLE 19 6x2] Trường/Hành động | Yêu cầu || Email | Bắt buộc; email hợp lệ. || Mật khẩu | Bắt buộc; cho phép hiện/ẩn; hỗ trợ password manager. || Quên mật khẩu? | Mở AUTH-UI-05.
+[TABLE 20 4x3] Màn | Nội dung chính | Kết quả || Quên mật khẩu | Nhập email; CTA Gửi hướng dẫn | Luôn trả thông báo chung để chống dò email. || Mở link/OTP | Xác thực challenge còn hiệu lực | Cho phép nhập mật khẩu mới. || Đặt lại | Mật khẩu mới + xác nhận | Thông báo thành công và CTA Đăng nhập.
+[TABLE 21 15x4] Code | Loại | Thông báo người dùng | Xử lý UI || AUTH_001 | VALIDATION_ERROR | Dữ liệu chưa hợp lệ. Vui lòng kiểm tra lại. | Highlight trường liên quan. || AUTH_002 | INVALID_CREDENTIALS | Email hoặc mật khẩu không chính xác. | Không cho biết trường nào sai. || AUTH_003 | EMAIL_NOT_VERIFIED | Bạn cần xác minh email để tiếp tục. | Mở OTP.
+[TABLE 22 1x1] Nguyên tắc kiến trúc  Supabase Auth quản lý mật khẩu/OTP/token. NestJS không tự băm hoặc lưu mật khẩu; NestJS xác thực JWT và quản lý profile, consent, audit, onboarding và chính sách ứng dụng.
+[TABLE 23 11x5] Method | Endpoint | Auth | Input chính | Output chính || POST | /api/v1/auth/register | Public | email, password, consent_version | challenge_id, masked_email || POST | /api/v1/auth/verify-otp | Public | challenge_id, otp | session hoặc next_step || POST | /api/v1/auth/resend-otp | Public | challenge_id | cooldown_seconds
+[TABLE 24 6x3] Bảng/Nguồn | Vai trò | Trường chính || auth.users (Supabase) | Nguồn danh tính được quản lý bởi Auth | id, email, email_confirmed_at, provider, created_at, last_sign_in_at || profiles | Hồ sơ ứng dụng | user_id, display_name, avatar_url, account_status, onboarding_status, onboarding_step, locale, timezone, created_at, updated_at || user_consents | Bằng chứng chấp thuận | id, user_id, consent_type, version, accepted_at, source
+[TABLE 25 11x2] ID | Yêu cầu || NFR-SEC-01 | TLS cho mọi kết nối; token chỉ lưu Secure Storage/Keychain/Keystore. || NFR-SEC-02 | Tuân thủ OWASP ASVS/MASVS phù hợp; chống brute force, enumeration, replay và CSRF/state với OAuth. || NFR-SEC-03 | Không đưa bí mật vào analytics, crash log, URL query hoặc clipboard không cần thiết.
+[TABLE 26 9x2] Rủi ro | Kiểm soát bắt buộc || Dò email/tài khoản | Thông báo chung; rate limit; không thay đổi thời gian phản hồi quá rõ. || Brute force mật khẩu/OTP | Rate limit nhiều lớp; khóa tạm; giám sát bất thường. || Đánh cắp token | Secure Storage; token ngắn hạn; rotation; revoke; TLS.
+[TABLE 27 14x3] Event | Kênh | Thuộc tính cho phép || auth_welcome_viewed | analytics | source || registration_started | analytics | method || registration_submitted | analytics | method, validation_result
+[TABLE 28 15x2] ID | Given / When / Then || AC-01 Đăng ký hợp lệ | Given khách nhập email hợp lệ, mật khẩu đạt chuẩn và đồng ý chính sách; When bấm Đăng ký; Then hệ thống tạo challenge, gửi OTP một lần và mở màn xác minh. || AC-02 Validation | Given dữ liệu không hợp lệ; When gửi form; Then không gọi API, focus trường đầu tiên lỗi và hiển thị copy tương ứng. || AC-03 OTP hợp lệ | Given challenge còn hạn; When nhập đúng OTP; Then tài khoản ACTIVE, profile được tạo một lần và đi onboarding.
+[TABLE 29 21x3] ID | Kịch bản | Kết quả mong đợi || AUTH-TC-001 | Đăng ký email mới hợp lệ | Tạo challenge; nhận OTP; ACTIVE. || AUTH-TC-002 | Email sai định dạng | Client chặn; lỗi inline. || AUTH-TC-003 | Mật khẩu yếu/không khớp | Client chặn; copy đúng.
+[TABLE 30 9x5] User story | FR | BR | UC | AC || US-AUTH-01 | FR-001..004,007,014 | BR-001..007,011,013,019,020 | UC-01 | AC-01..04,12,14 || US-AUTH-02 | FR-004,010,014 | BR-005..007,010 | UC-01 | AC-03..04 || US-AUTH-03 | FR-005,010,011 | BR-008..012 | UC-02 | AC-05..07
+[TABLE 31 2x2] MVP — Must | Sau MVP — Should/Could || Email/password; OTP email; login; refresh; forgot/reset; logout; profile/consent; onboarding redirect; rate limit; audit; accessibility cơ bản. | Google/Apple nếu chưa kịp MVP; quản lý danh sách thiết bị; logout all; MFA; phone OTP; passkey; cảnh báo đăng nhập bất thường.
+[TABLE 32 11x4] ID | Câu hỏi | Owner | Trạng thái/đề xuất || Q-01 | Google và Apple có nằm trong MVP không? | Product Owner | Open || Q-02 | Email verification dùng OTP 6 số, magic link hay hỗ trợ cả hai? | PO/Tech | Đề xuất OTP || Q-03 | Sau reset mật khẩu có thu hồi tất cả phiên không? | Security/PO | Đề xuất Có
+[TABLE 33 11x2] Ngữ cảnh | Copy || Welcome headline | Hôm nay ăn gì? Mogu chọn giúp bạn! || Đăng ký | Tạo tài khoản Mogu || Đăng ký subtitle | Lưu sở thích và nhận gợi ý phù hợp với riêng bạn.
+[TABLE 34 1x1] Kết thúc tài liệu  MOGU-BA-001 là baseline. Mọi thay đổi về chính sách, validation hoặc phạm vi phải cập nhật version, lịch sử thay đổi và ma trận truy vết trước khi phát triển.

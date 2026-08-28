@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 48 100% 98%;
+    --foreground: 20 14% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 20 14% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 20 14% 10%;
+    --primary: 45 91% 54%;
+    /* Mogu yellow #F5C518 */
+    --primary-foreground: 20 14% 10%;
+    --secondary: 43 60% 95%;
+    --secondary-foreground: 20 14% 10%;
+    --muted: 43 30% 96%;
+    --muted-foreground: 20 10% 46%;
+    --accent: 43 60% 92%;
+    --accent-foreground: 20 14% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 43 20% 88%;
+    --input: 43 20% 88%;
+    --ring: 45 91% 54%;
+    --radius: 0.625rem;
+
+    /* Mogu brand tokens */
+    --mogu-yellow: #FACC15;
+    --mogu-yellow-light: #FEF9C3;
+    --mogu-dark: #1A1A1A;
+    --mogu-cream: #FFFDF5;
+    --success: 142 71% 45%;
+    --success-soft: 138 76% 97%;
+    --warning: 25 95% 53%;
+    --warning-soft: 33 100% 96%;
+    --warning-border: 34 93% 89%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    margin: 0;
+    min-width: 1120px;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p {
+    margin-top: 0;
+  }
+
+  button,
+  input,
+  textarea {
+    font: inherit;
+  }
+}

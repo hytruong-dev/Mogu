@@ -1,0 +1,8 @@
+node_modules
+.expo
+.expo-*
+android
+ios
+web-build
+dist
+coverage

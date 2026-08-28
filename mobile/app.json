@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "Mogu",
+    "slug": "mogu",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "com.mogu.app"
+    },
+    "ios": {
+      "bundleIdentifier": "com.mogu.app"
+    },
+    "plugins": ["expo-status-bar"]
+  }
+}

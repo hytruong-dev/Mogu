@@ -1,0 +1,88 @@
+NGUYÊN LIỆU TRONG MÓN ĂN CHƯA CÓ TRONG DB INGREDIENT
+============================================================
+
+[MON] Bún bò Huế
+  THIEU: Bún tươi sợi lớn  (qty: 200 g)  prep: Trụng trước khi ăn
+  THIEU: Bắp bò  (qty: 80 g)  prep: Có thể thay bằng nạm bò
+  THIEU: Giò heo  (qty: 100 g)  prep: Chọn khoanh có da và xương
+  THIEU: Xương bò  (qty: 150 g)  prep: Dùng nấu nước dùng
+  THIEU: Mắm ruốc Huế  (qty: 1 thìa)  prep: Điều chỉnh theo khẩu vị
+  THIEU: Dầu điều  (qty: 1 thìa)  prep: Tạo màu
+  THIEU: Rau sống/giá/hoa chuối  (qty: 90 g)  prep: Ăn kèm
+
+[MON] Phở bò
+  THIEU: Bánh phở tươi  (qty: 200 g)  prep: Trụng trước khi dùng
+  THIEU: Xương bò  (qty: 250 g)  prep: Dùng tạo vị ngọt cho nước dùng
+  THIEU: Quế  (qty: 1 thanh)  prep: Dùng tạo mùi
+  THIEU: Hoa hồi  (qty: 2 cánh)  prep: Không dùng quá nhiều
+  THIEU: Thảo quả  (qty: 0.5 quả)  prep: Có thể bỏ nếu không có
+  THIEU: Hạt mùi  (qty: 0.5 thìa)  prep: Tạo mùi thơm
+
+[MON] Cơm chiên
+  THIEU: Cơm nguội  (qty: 250 g)  prep: Cơm để lạnh sẽ dễ chiên tơi
+  THIEU: Đậu Hà Lan  (qty: 25 g)  prep: Có thể dùng loại đông lạnh
+  THIEU: Xúc xích  (qty: 40 g)  prep: Thái hạt lựu
+  THIEU: Hành lá  (qty: 10 g)  prep: Thái nhỏ
+  THIEU: Dầu ăn  (qty: 1.5 thìa canh)  prep: Dùng chiên
+
+[MON] Mì xào bò rau củ
+  THIEU: Mì trứng  (qty: 80 g)  prep: Trụng vừa chín
+  THIEU: Cải thìa  (qty: 100 g)  prep: Cắt khúc
+  THIEU: Dầu hào  (qty: 1 thìa)  prep: Dùng làm sốt
+  THIEU: Dầu mè  (qty: 0.5 thìa)  prep: Tạo mùi thơm
+  THIEU: Dầu ăn  (qty: 1 thìa canh)  prep: Xào
+
+[MON] Bánh canh tôm thịt
+  THIEU: Bánh canh tươi  (qty: 200 g)  prep: Sợi bột gạo/bột lọc tùy loại
+  THIEU: Giò heo  (qty: 120 g)  prep: Chọn khoanh vừa ăn
+  THIEU: Xương heo  (qty: 200 g)  prep: Dùng nấu nước dùng
+  THIEU: Hành lá  (qty: 10 g)  prep: Thái nhỏ
+
+============================================================
+TONG HOP: 23 NGUYEN LIEU CHUA CO TRONG DB
+============================================================
+
+  MISSING: Bánh canh tươi  |  Dung trong: Bánh canh tôm thịt
+  MISSING: Bánh phở tươi  |  Dung trong: Phở bò
+  MISSING: Bắp bò  |  Dung trong: Bún bò Huế
+  MISSING: Bún tươi sợi lớn  |  Dung trong: Bún bò Huế
+  MISSING: Cải thìa  |  Dung trong: Mì xào bò rau củ
+  MISSING: Cơm nguội  |  Dung trong: Cơm chiên
+  MISSING: Dầu ăn  |  Dung trong: Cơm chiên, Mì xào bò rau củ
+  MISSING: Dầu điều  |  Dung trong: Bún bò Huế
+  MISSING: Dầu hào  |  Dung trong: Mì xào bò rau củ
+  MISSING: Dầu mè  |  Dung trong: Mì xào bò rau củ
+  MISSING: Đậu Hà Lan  |  Dung trong: Cơm chiên
+  MISSING: Giò heo  |  Dung trong: Bún bò Huế, Bánh canh tôm thịt
+  MISSING: Hành lá  |  Dung trong: Cơm chiên, Bánh canh tôm thịt
+  MISSING: Hạt mùi  |  Dung trong: Phở bò
+  MISSING: Hoa hồi  |  Dung trong: Phở bò
+  MISSING: Mắm ruốc Huế  |  Dung trong: Bún bò Huế
+  MISSING: Mì trứng  |  Dung trong: Mì xào bò rau củ
+  MISSING: Quế  |  Dung trong: Phở bò
+  MISSING: Rau sống/giá/hoa chuối  |  Dung trong: Bún bò Huế
+  MISSING: Thảo quả  |  Dung trong: Phở bò
+  MISSING: Xúc xích  |  Dung trong: Cơm chiên
+  MISSING: Xương bò  |  Dung trong: Bún bò Huế, Phở bò
+  MISSING: Xương heo  |  Dung trong: Bánh canh tôm thịt
+
+DA CO TRONG DB:
+  OK: Cà rốt
+  OK: Chanh
+  OK: Đường
+  OK: Đường phèn
+  OK: Gừng
+  OK: Hành lá và rau mùi
+  OK: Hành tây
+  OK: Muối
+  OK: Nước mắm
+  OK: Nước tương
+  OK: Ớt
+  OK: Rau mùi
+  OK: Sả
+  OK: Thịt bò
+  OK: Thịt bò tái/nạm
+  OK: Tiêu đen
+  OK: Tỏi
+  OK: Tôm
+  OK: Trứng gà

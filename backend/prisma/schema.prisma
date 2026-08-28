@@ -1,0 +1,1686 @@
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Mogu â Prisma Schema v2.0
+// DB: Supabase PostgreSQL 17
+// Auth: Supabase Auth (auth.users) Ã¢â¬â NestJS chÃ¡Â»â° ÃâÃ¡Â»Âc, khÃÂ´ng tÃ¡Â»Â± quÃ¡ÂºÂ£n lÃÂ½ password
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+generator client {
+  provider = "prisma-client-js"
+  // output mÃ¡ÂºÂ·c ÃâÃ¡Â»â¹nh Ã¢â â node_modules/.prisma/client (chuÃ¡ÂºÂ©n NestJS)
+}
+
+datasource db {
+  provider = "postgresql"
+  // URL cÃ¡ÂºÂ¥u hÃÂ¬nh trong prisma.config.ts (Prisma 7)
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Enums
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+enum AccountStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  LOCKED
+  SUSPENDED
+  DELETED
+
+  @@map("account_status")
+}
+
+enum OnboardingStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  SKIPPED
+  COMPLETED
+
+  @@map("onboarding_status")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+
+  @@map("gender")
+}
+
+enum GoalPriority {
+  PRIMARY
+  SECONDARY
+
+  @@map("goal_priority")
+}
+
+enum DietaryPreferenceType {
+  TASTE // KhÃ¡ÂºÂ©u vÃ¡Â»â¹: cay, thanh ÃâÃ¡ÂºÂ¡m, ÃâÃ¡ÂºÂ­m vÃ¡Â»â¹Ã¢â¬Â¦
+  DIET // ChÃ¡ÂºÂ¿ ÃâÃ¡Â»â¢ ÃÆn: chay, vegan, ketoÃ¢â¬Â¦
+
+  @@map("dietary_preference_type")
+}
+
+enum ConsentType {
+  TERMS_OF_SERVICE
+  PRIVACY_POLICY
+
+  @@map("consent_type")
+}
+
+enum AuditEventType {
+  REGISTER_STARTED
+  REGISTER_OTP_SENT
+  REGISTER_OTP_VERIFIED
+  REGISTER_COMPLETED
+  LOGIN_SUCCEEDED
+  LOGIN_FAILED
+  LOGOUT
+  PASSWORD_RESET_REQUESTED
+  PASSWORD_RESET_COMPLETED
+  TOKEN_REFRESHED
+  ACCOUNT_LOCKED
+  OTP_RESENT
+  TEMP_PASSWORD_ISSUED
+  TEMP_PASSWORD_CHANGED
+  SESSIONS_REVOKED
+
+  @@map("audit_event_type")
+}
+
+enum AuditResult {
+  SUCCESS
+  FAILURE
+
+  @@map("audit_result")
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+
+  @@map("meal_type")
+}
+
+// DEPRECATED: dÃÂ¹ng LegacyDishCategory ÃâÃ¡Â»Æ trÃÂ¡nh conflict vÃ¡Â»âºi model DishCategory mÃ¡Â»âºi
+enum LegacyDishCategory {
+  RICE
+  NOODLE
+  SOUP
+  SALAD
+  SNACK
+  DRINK
+  OTHER
+
+  @@map("legacy_dish_category")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// BA-004 Enums
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+enum DishStatus {
+  DRAFT
+  PROCESSING
+  PENDING_REVIEW
+  CHANGES_REQUESTED
+  PUBLISHED
+  UNPUBLISHED
+  REJECTED
+  FAILED
+  ARCHIVED
+
+  @@map("dish_status")
+}
+
+enum DishDifficulty {
+  EASY
+  MEDIUM
+  HARD
+
+  @@map("dish_difficulty")
+}
+
+enum AllergenLevel {
+  CONTAINS
+  MAY_CONTAIN
+  FREE_FROM
+
+  @@map("allergen_level")
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+
+  @@map("media_type")
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+
+  @@map("moderation_status")
+}
+
+enum SystemRole {
+  USER
+  CONTENT_ADMIN
+  REVIEWER
+  SUPER_ADMIN
+
+  @@map("system_role")
+}
+
+model Account {
+  id                  String           @id @default(uuid()) @db.Uuid
+  username            String           @unique @db.VarChar(32)
+  passwordHash        String           @map("password_hash")
+  mustChangePassword  Boolean          @default(false) @map("must_change_password")
+  tokenVersion        Int              @default(0) @map("token_version")
+  failedLoginAttempts Int              @default(0) @map("failed_login_attempts")
+  lockedUntil         DateTime?        @map("locked_until") @db.Timestamptz(6)
+  lastLoginAt         DateTime?        @map("last_login_at") @db.Timestamptz(6)
+  createdAt           DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime         @updatedAt @map("updated_at") @db.Timestamptz(6)
+  refreshSessions     RefreshSession[]
+
+  @@map("accounts")
+}
+
+model RefreshSession {
+  id            String    @id @default(uuid()) @db.Uuid
+  accountId     String    @map("account_id") @db.Uuid
+  tokenHash     String    @unique @map("token_hash") @db.VarChar(64)
+  expiresAt     DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt     DateTime? @map("revoked_at") @db.Timestamptz(6)
+  replacedById  String?   @map("replaced_by_id") @db.Uuid
+  userAgentHash String?   @map("user_agent_hash") @db.VarChar(64)
+  ipHash        String?   @map("ip_hash") @db.VarChar(64)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastUsedAt    DateTime? @map("last_used_at") @db.Timestamptz(6)
+  account       Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, revokedAt])
+  @@index([expiresAt])
+  @@map("refresh_sessions")
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+
+  @@map("notification_status")
+}
+
+enum NotificationType {
+  SYSTEM
+  PROMO
+  REMINDER
+  ACHIEVEMENT
+
+  @@map("notification_type")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Profiles Ã¢â¬â mirrors auth.users, quÃ¡ÂºÂ£n lÃÂ½ bÃ¡Â»Å¸i NestJS
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model Profile {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @map("user_id") @db.Uuid
+  // userId tham chiÃ¡ÂºÂ¿u auth.users.id Ã¢â¬â FK khÃÂ´ng khai bÃÂ¡o vÃÂ¬ auth schema khÃÂ¡c
+
+  displayName String? @map("display_name")
+  avatarUrl   String? @map("avatar_url")
+  locale      String  @default("vi")
+  timezone    String  @default("Asia/Ho_Chi_Minh")
+
+  accountStatus    AccountStatus    @default(PENDING_VERIFICATION) @map("account_status")
+  onboardingStatus OnboardingStatus @default(NOT_STARTED) @map("onboarding_status")
+  onboardingStep   Int              @default(0) @map("onboarding_step")
+
+  // ThÃÂªm trong v2: thÃÂ´ng tin cÃÂ¡ nhÃÂ¢n
+  gender      Gender?
+  dateOfBirth DateTime? @map("date_of_birth") @db.Date
+  noAllergies Boolean   @default(false) @map("no_allergies") // "KhÃÂ´ng cÃÂ³ dÃ¡Â»â¹ Ã¡Â»Â©ng"
+
+  // Health data (filled in onboarding)
+  weightKg Float? @map("weight_kg")
+  heightCm Float? @map("height_cm")
+  goalKcal Int?   @map("goal_kcal")
+
+  // Versioning Ã¢â¬â tÃÆng mÃ¡Â»âi lÃ¡ÂºÂ§n hoÃÂ n tÃ¡ÂºÂ¥t hoÃ¡ÂºÂ·c update
+  profileVersion Int       @default(1) @map("profile_version")
+  completedAt    DateTime? @map("completed_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  consents               UserConsent[]
+  meals                  Meal[]
+  mealLogs               MealLog[]
+  onboardingSession      OnboardingSession?
+  userGoals              UserGoal[]
+  userDietaryPreferences UserDietaryPreference[]
+  userAllergens          UserAllergen[]
+  userAvoidedIngredients UserAvoidedIngredient[]
+  savedDishes            SavedDish[]
+  notifications          Notification[]
+  profileRoles           ProfileRole[]
+  userDietTypes          UserDietType[]
+  reviews                Review[]
+  articles               Article[]
+  communityPosts         CommunityPost[]
+  postLikes              PostLike[]
+  postComments           PostComment[]
+  weeklyPlanConfig       WeeklyPlanConfig?
+  weeklyPlans            WeeklyPlan[]
+
+  @@map("profiles")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// OnboardingSession Ã¢â¬â lÃÂ°u draft/resume/state per user
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model OnboardingSession {
+  id      String  @id @default(uuid()) @db.Uuid
+  userId  String  @unique @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  onboardingVersion String           @default("1.0") @map("onboarding_version")
+  currentStep       Int              @default(1) @map("current_step")
+  status            OnboardingStatus @default(IN_PROGRESS)
+  dataJson          Json?            @map("data_json") // draft data per step (sanitized)
+
+  completedAt DateTime? @map("completed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("onboarding_sessions")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Goals Ã¢â¬â catalog mÃ¡Â»Â¥c tiÃÂªu (seed data)
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model Goal {
+  id           String  @id @default(uuid()) @db.Uuid
+  code         String  @unique // e.g. "BALANCE", "LOSE_WEIGHT"
+  name         String
+  description  String?
+  active       Boolean @default(true)
+  displayOrder Int     @default(0) @map("display_order")
+
+  userGoals UserGoal[]
+  dishGoals DishGoal[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("goals")
+}
+
+model UserGoal {
+  id      String  @id @default(uuid()) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  goalId String @map("goal_id") @db.Uuid
+  goal   Goal   @relation(fields: [goalId], references: [id])
+
+  priority GoalPriority
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, priority], name: "unique_primary_goal") // Enforce 1 primary at DB level... relaxed for secondary
+  @@unique([userId, goalId])
+  @@map("user_goals")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// DietaryPreferences Ã¢â¬â catalog sÃ¡Â»Å¸ thÃÂ­ch / chÃ¡ÂºÂ¿ ÃâÃ¡Â»â¢ ÃÆn (seed data)
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model DietaryPreference {
+  id           String                @id @default(uuid()) @db.Uuid
+  code         String                @unique // e.g. "SPICY", "VEGAN"
+  type         DietaryPreferenceType
+  name         String
+  active       Boolean               @default(true)
+  displayOrder Int                   @default(0) @map("display_order")
+
+  userPreferences UserDietaryPreference[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("dietary_preferences")
+}
+
+model UserDietaryPreference {
+  id      String  @id @default(uuid()) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  preferenceId String            @map("preference_id") @db.Uuid
+  preference   DietaryPreference @relation(fields: [preferenceId], references: [id])
+
+  strength Int @default(1) // 1=mild, 2=strong preference
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, preferenceId])
+  @@map("user_dietary_preferences")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Allergens Ã¢â¬â catalog dÃ¡Â»â¹ Ã¡Â»Â©ng (seed data)
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model Allergen {
+  id           String  @id @default(uuid()) @db.Uuid
+  code         String  @unique // e.g. "PEANUT", "MILK", "GLUTEN"
+  name         String
+  description  String? // Ví dụ nguyên liệu cần tránh
+  active       Boolean @default(true)
+  displayOrder Int     @default(0) @map("display_order")
+
+  userAllergens UserAllergen[]
+  dishAllergens DishAllergen[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("allergens")
+}
+
+model UserAllergen {
+  id      String  @id @default(uuid()) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  allergenId String   @map("allergen_id") @db.Uuid
+  allergen   Allergen @relation(fields: [allergenId], references: [id])
+
+  severity    String? // "mild", "severe" Ã¢â¬â optional
+  confirmedAt DateTime? @map("confirmed_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, allergenId])
+  @@map("user_allergens")
+}
+
+model UserAvoidedIngredient {
+  id      String  @id @default(uuid()) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  ingredientName String  @map("ingredient_name") // free text, max 80 chars
+  reason         String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, ingredientName])
+  @@map("user_avoided_ingredients")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// UserConsent Ã¢â¬â append-only, khÃÂ´ng sÃ¡Â»Â­a lÃ¡Â»â¹ch sÃ¡Â»Â­
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model UserConsent {
+  id      String  @id @default(uuid()) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  consentType ConsentType @map("consent_type")
+  version     String // e.g. "1.0"
+  acceptedAt  DateTime    @default(now()) @map("accepted_at")
+  source      String? // "mobile_register", "settings", etc.
+
+  @@map("user_consents")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// AuthAuditLog Ã¢â¬â security audit, khÃÂ´ng chÃ¡Â»Â©a bÃÂ­ mÃ¡ÂºÂ­t
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model AuthAuditLog {
+  id     String  @id @default(uuid()) @db.Uuid
+  userId String? @map("user_id") @db.Uuid // nullable (login thÃ¡ÂºÂ¥t bÃ¡ÂºÂ¡i)
+
+  eventType     AuditEventType @map("event_type")
+  result        AuditResult
+  correlationId String?        @map("correlation_id")
+
+  ipHash       String? @map("ip_hash")
+  deviceIdHash String? @map("device_id_hash")
+  platform     String? // "ios", "android"
+  appVersion   String? @map("app_version")
+
+  metadataSanitized Json?    @map("metadata_sanitized") // NO password/token/OTP
+  occurredAt        DateTime @default(now()) @map("occurred_at")
+
+  @@index([userId])
+  @@index([occurredAt])
+  @@map("auth_audit_logs")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Foods Ã¢â¬â master food catalogue
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model Food {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  imageUrl    String?  @map("image_url")
+  kcal        Int
+  protein     Float    @default(0)
+  carb        Float    @default(0)
+  fat         Float    @default(0)
+  tags        String[]
+
+  // embedding thÃÂªm sau khi enable pgvector
+  // embedding Unsupported("vector(1536)")?
+
+  mealItems MealItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("foods")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Meals & MealLogs
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model Meal {
+  id      String  @id @default(uuid()) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  type  MealType
+  date  DateTime   @db.Date
+  items MealItem[]
+  logs  MealLog[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, type, date])
+  @@map("meals")
+}
+
+model MealItem {
+  id     String @id @default(uuid()) @db.Uuid
+  mealId String @map("meal_id") @db.Uuid
+  meal   Meal   @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  foodId String @map("food_id") @db.Uuid
+  food   Food   @relation(fields: [foodId], references: [id])
+
+  quantity Float  @default(1)
+  grams    Float?
+
+  @@map("meal_items")
+}
+
+model MealLog {
+  id      String  @id @default(uuid()) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  mealId String @map("meal_id") @db.Uuid
+  meal   Meal   @relation(fields: [mealId], references: [id], onDelete: Cascade)
+
+  loggedAt  DateTime @default(now()) @map("logged_at")
+  totalKcal Int      @map("total_kcal")
+  note      String?
+
+  @@map("meal_logs")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// BA-004: Taxonomy
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+model Region {
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code     String  @unique @db.VarChar(50)
+  name     String  @db.VarChar(100)
+  isActive Boolean @default(true) @map("is_active")
+
+  provinces Province[]
+  dishes    Dish[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("regions")
+}
+
+model Province {
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code     String  @unique @db.VarChar(50)
+  name     String  @db.VarChar(100)
+  regionId String  @map("region_id") @db.Uuid
+  region   Region  @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  isActive Boolean @default(true) @map("is_active")
+
+  dishes Dish[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("provinces")
+}
+
+model DishCategory {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code         String  @unique @db.VarChar(50)
+  name         String  @db.VarChar(100)
+  description  String?
+  isActive     Boolean @default(true) @map("is_active")
+  displayOrder Int     @default(0) @map("display_order")
+
+  dishes DishCategoryLink[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("dish_categories")
+}
+
+model MealTypeTag {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code         String  @unique @db.VarChar(50)
+  name         String  @db.VarChar(100)
+  isActive     Boolean @default(true) @map("is_active")
+  displayOrder Int     @default(0) @map("display_order")
+
+  dishes DishMealType[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("meal_type_tags")
+}
+
+model DietType {
+  id           String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code         String  @unique @db.VarChar(50)
+  name         String  @db.VarChar(100)
+  description  String?
+  isActive     Boolean @default(true) @map("is_active")
+  displayOrder Int     @default(0) @map("display_order")
+
+  dishes        DishDietType[]
+  userDietTypes UserDietType[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("diet_types")
+}
+
+model Ingredient {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  code         String   @unique @db.VarChar(100)
+  name         String   @db.VarChar(200)
+  synonyms     String[] @default([])
+  unit         String?  @db.VarChar(50)
+  allergenCode String?  @map("allergen_code") @db.VarChar(50)
+  isActive     Boolean  @default(true) @map("is_active")
+  imageUrl     String?  @map("image_url")
+  imageKey     String?  @map("image_key") @db.VarChar(500)
+
+  dishIngredients DishIngredient[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("ingredients")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// BA-004: Dish (full version per BA)
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+model Dish {
+  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name             String     @db.VarChar(150)
+  slug             String     @db.VarChar(180)
+  alternateNames   String[]   @default([]) @map("alternate_names")
+  searchText       String     @default("") @map("search_text")
+  shortDescription String?    @map("short_description") @db.VarChar(300)
+  fullDescription  String?    @map("full_description")
+  status           DishStatus @default(DRAFT)
+
+  regionId        String?         @map("region_id") @db.Uuid
+  provinceId      String?         @map("province_id") @db.Uuid
+  originText      String?         @map("origin_text") @db.VarChar(200)
+  difficulty      DishDifficulty?
+  prepMinutes     Int?            @map("prep_minutes") @db.SmallInt
+  cookMinutes     Int?            @map("cook_minutes") @db.SmallInt
+  servings        Decimal?        @db.Decimal(6, 2)
+  primaryMealSlot String?         @map("primary_meal_slot") @db.VarChar(50)
+
+  priceMin   Int?    @map("price_min")
+  priceMax   Int?    @map("price_max")
+  recipeTitle String? @map("recipe_title") @db.VarChar(200)
+  flavorTags  String[] @default([]) @map("flavor_tags")
+  currency   String  @default("VND") @db.Char(3)
+  isFeatured Boolean @default(false) @map("is_featured")
+
+  // Rating (denormalized, updated by trigger)
+  ratingAvg   Decimal @default(0) @map("rating_avg") @db.Decimal(3, 2)
+  ratingCount Int     @default(0) @map("rating_count")
+
+  // Self-relation for variants (max 1 level)
+  parentDishId String? @map("parent_dish_id") @db.Uuid
+  parentDish   Dish?   @relation("DishVariants", fields: [parentDishId], references: [id], onDelete: SetNull)
+  variants     Dish[]  @relation("DishVariants")
+
+  version        Int       @default(1)
+  publishVersion Int       @default(0) @map("publish_version")
+  publishedAt    DateTime? @map("published_at") @db.Timestamptz(6)
+  reviewedAt     DateTime? @map("reviewed_at") @db.Timestamptz(6)
+  reviewedBy     String?   @map("reviewed_by") @db.Uuid
+  archivedAt     DateTime? @map("archived_at") @db.Timestamptz(6)
+  deletedAt      DateTime? @map("deleted_at") @db.Timestamptz(6)
+
+  createdBy String?  @map("created_by") @db.Uuid
+  updatedBy String?  @map("updated_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  region   Region?   @relation(fields: [regionId], references: [id], onDelete: Restrict)
+  province Province? @relation(fields: [provinceId], references: [id], onDelete: Restrict)
+
+  categories           DishCategoryLink[]
+  mealTypes            DishMealType[]
+  dietTypes            DishDietType[]
+  dishGoals            DishGoal[]
+  dishIngredients      DishIngredient[]
+  dishAllergens        DishAllergen[]
+  nutrition            DishNutrition?
+  recipeSteps          RecipeStep[]
+  media                DishMedia[]
+  sources              DishSource[]
+  savedByUsers         SavedDish[]
+  recLogs              RecommendationLog[]
+  randomHistories      RandomHistory[]
+  randomCandidates     RandomCandidate[]
+  recommendationEvents RecommendationEvent[]
+  reviews              Review[]
+  weeklyPlanSlots      WeeklyPlanSlot[]
+
+  @@index([status, publishedAt])
+  @@index([regionId, provinceId])
+  @@index([parentDishId])
+  @@map("dishes")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// BA-004: Junction tables
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+model DishCategoryLink {
+  dishId     String       @map("dish_id") @db.Uuid
+  categoryId String       @map("category_id") @db.Uuid
+  dish       Dish         @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  category   DishCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@id([dishId, categoryId])
+  @@map("dish_category_links")
+}
+
+model DishMealType {
+  dishId        String      @map("dish_id") @db.Uuid
+  mealTypeTagId String      @map("meal_type_tag_id") @db.Uuid
+  dish          Dish        @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  mealTypeTag   MealTypeTag @relation(fields: [mealTypeTagId], references: [id], onDelete: Restrict)
+
+  @@id([dishId, mealTypeTagId])
+  @@map("dish_meal_types")
+}
+
+model DishDietType {
+  dishId     String   @map("dish_id") @db.Uuid
+  dietTypeId String   @map("diet_type_id") @db.Uuid
+  dish       Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  dietType   DietType @relation(fields: [dietTypeId], references: [id], onDelete: Restrict)
+
+  @@id([dishId, dietTypeId])
+  @@map("dish_diet_types")
+}
+
+model DishGoal {
+  dishId String @map("dish_id") @db.Uuid
+  goalId String @map("goal_id") @db.Uuid
+  score  Int    @default(50)
+  dish   Dish   @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  goal   Goal   @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@id([dishId, goalId])
+  @@index([goalId, score])
+  @@map("dish_goals")
+}
+
+model DishIngredient {
+  id                   String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dishId               String                      @map("dish_id") @db.Uuid
+  ingredientId         String?                     @map("ingredient_id") @db.Uuid
+  rawText              String                      @map("raw_text") @db.VarChar(200)
+  parsedName           String?                     @map("parsed_name") @db.VarChar(200)
+  quantity             Decimal?                    @db.Decimal(10, 3)
+  quantityTo           Decimal?                    @map("quantity_to") @db.Decimal(10, 3)
+  quantityText         String?                     @map("quantity_text") @db.VarChar(100)
+  unit                 String?                     @db.VarChar(50)
+  preparation          String?                     @db.VarChar(100)
+  specification        String?                     @db.VarChar(200)
+  alternativeNote      String?                     @map("alternative_note") @db.VarChar(200)
+  normalizedWeightG    Decimal?                    @map("normalized_weight_g") @db.Decimal(10, 3)
+  parseMetadata        Json?                       @map("parse_metadata")
+  resolutionMethod     IngredientResolutionMethod? @map("resolution_method")
+  resolutionConfidence Int?                        @map("resolution_confidence")
+  resolutionCandidates Json?                       @map("resolution_candidates")
+  needsReview          Boolean                     @default(false) @map("needs_review")
+  isOptional           Boolean                     @default(false) @map("is_optional")
+  groupLabel           String?                     @map("group_label") @db.VarChar(100)
+  sortOrder            Int                         @default(0) @map("sort_order")
+
+  dish       Dish        @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  ingredient Ingredient? @relation(fields: [ingredientId], references: [id], onDelete: SetNull)
+
+  @@index([dishId])
+  @@map("dish_ingredients")
+}
+
+enum IngredientResolutionMethod {
+  EXACT
+  ALIAS
+  NORMALIZED
+  FUZZY
+  NONE
+
+  @@map("ingredient_resolution_method")
+}
+
+model DishAllergen {
+  dishId         String        @map("dish_id") @db.Uuid
+  allergenId     String        @map("allergen_id") @db.Uuid
+  level          AllergenLevel
+  confidence     Int?
+  resolved       Boolean       @default(false)
+  resolutionNote String?       @map("resolution_note")
+  dish           Dish          @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  allergen       Allergen      @relation(fields: [allergenId], references: [id], onDelete: Restrict)
+
+  @@id([dishId, allergenId])
+  @@map("dish_allergens")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// BA-004: Nutrition, Recipe, Media, Source
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+// ââ Dinh dÆ°á»¡ng: 1-1 vá»i dish ââââââââââââââââââââââââââââââââââââââââââââ
+model DishNutrition {
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dishId      String           @unique @map("dish_id") @db.Uuid
+  calories    Decimal?         @db.Decimal(8, 2)
+  proteinG    Decimal?         @map("protein_g") @db.Decimal(8, 2)
+  carbsG      Decimal?         @map("carbs_g") @db.Decimal(8, 2)
+  fatG        Decimal?         @map("fat_g") @db.Decimal(8, 2)
+  fiberG      Decimal?         @map("fiber_g") @db.Decimal(8, 2)
+  sodiumMg    Decimal?         @map("sodium_mg") @db.Decimal(10, 2)
+  servingName String?          @map("serving_name") @db.VarChar(100)
+  servingG    Decimal?         @map("serving_g") @db.Decimal(8, 2)
+  basis       NutritionBasis?  @map("basis")
+  servings    Decimal?         @db.Decimal(6, 2)
+  method      NutritionMethod? @map("method")
+  confidence  Int?
+  sourceUrl   String?          @map("source_url")
+  provenance  Json?
+
+  dish Dish @relation(fields: [dishId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("dish_nutrition")
+}
+
+enum NutritionBasis {
+  PER_SERVING
+  PER_100G
+  WHOLE_RECIPE
+
+  @@map("nutrition_basis")
+}
+
+enum NutritionMethod {
+  AI_ESTIMATED
+  INGREDIENT_CALCULATED
+  SOURCE_VERIFIED
+
+  @@map("nutrition_method")
+}
+
+enum ImportSourceType {
+  JSON_LD
+  VIDEO
+  NUTRITION
+  UNSTRUCTURED
+
+  @@map("import_source_type")
+}
+
+model DishSource {
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dishId      String           @map("dish_id") @db.Uuid
+  url         String
+  domain      String?          @db.VarChar(200)
+  title       String?          @db.VarChar(300)
+  author      String?          @db.VarChar(200)
+  sourceType  ImportSourceType @default(UNSTRUCTURED) @map("source_type")
+  reliability Int              @default(50)
+  accessedAt  DateTime?        @map("accessed_at") @db.Timestamptz(6)
+  isStale     Boolean          @default(false) @map("is_stale")
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  dish Dish @relation(fields: [dishId], references: [id], onDelete: Cascade)
+
+  @@index([dishId])
+  @@map("dish_sources")
+}
+
+// ââ CÃ¡c bÆ°á»c náº¥u: link tháº³ng dish_id ââââââââââââââââââââââââââââââââââââ
+model RecipeStep {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dishId      String  @map("dish_id") @db.Uuid
+  stepOrder   Int     @map("step_order")
+  instruction String
+  imageUrl    String? @map("image_url")
+  durationMin Int?    @map("duration_min") @db.SmallInt
+
+  dish Dish @relation(fields: [dishId], references: [id], onDelete: Cascade)
+
+  @@unique([dishId, stepOrder])
+  @@map("recipe_steps")
+}
+
+// ââ ÄÃ¡nh giÃ¡ cá»ng Äá»ng âââââââââââââââââââââââââââââââââââââââââââââââââââ
+model Review {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dishId    String  @map("dish_id") @db.Uuid
+  userId    String  @map("user_id") @db.Uuid
+  rating    Int // 1-5
+  comment   String?
+  isVisible Boolean @default(true) @map("is_visible")
+
+  dish    Dish    @relation(fields: [dishId], references: [id], onDelete: Cascade)
+  profile Profile @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([dishId, userId])
+  @@index([dishId])
+  @@index([userId])
+  @@map("reviews")
+}
+
+model DishMedia {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dishId           String           @map("dish_id") @db.Uuid
+  type             MediaType        @default(IMAGE)
+  storageKey       String           @map("storage_key") @db.VarChar(500)
+  bucket           String           @default("dish-images") @db.VarChar(100)
+  mimeType         String           @map("mime_type") @db.VarChar(100)
+  sizeBytes        Int              @map("size_bytes")
+  width            Int?
+  height           Int?
+  durationSec      Int?             @map("duration_sec")
+  checksum         String?          @db.VarChar(100)
+  altText          String?          @map("alt_text") @db.VarChar(300)
+  credit           String?          @db.VarChar(300)
+  sourceUrl        String?          @map("source_url")
+  moderationStatus ModerationStatus @default(PENDING) @map("moderation_status")
+  isPrimary        Boolean          @default(false) @map("is_primary")
+  sortOrder        Int              @default(0) @map("sort_order")
+
+  dish Dish @relation(fields: [dishId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([dishId, moderationStatus])
+  @@map("dish_media")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// BA-004: Randomization History
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+// BA-006 enums
+enum RandomizationStatus {
+  PROCESSING
+  COMPLETED
+  NO_CANDIDATE
+  CANCELLED
+  FAILED
+
+  @@map("randomization_status")
+}
+
+enum RecommendationSource {
+  RANDOM_FLOW
+  RANDOM_AGAIN
+  HOME_QUICK_RANDOM
+  WEEKLY_PLAN_SWAP
+
+  @@map("recommendation_source")
+}
+
+enum MealSelectionSource {
+  AUTO_TIME
+  USER_SELECTED
+  PROFILE_DEFAULT
+  SYSTEM_DEFAULT
+
+  @@map("meal_selection_source")
+}
+
+enum BudgetMode {
+  EXPLICIT_RANGE
+  ECONOMY_PROFILE
+  PROFILE_DEFAULT
+  UNLIMITED
+
+  @@map("budget_mode")
+}
+
+enum RecommendationEventType {
+  IMPRESSION
+  OPEN_DETAIL
+  SELECT
+  RETRY
+  SAVE
+  SHARE
+  DISLIKE
+  NOT_RELEVANT
+  TOO_EXPENSIVE
+  TOO_FAR
+  ALLERGY_CONCERN
+  DISMISS
+
+  @@map("recommendation_event_type")
+}
+
+model RandomHistory {
+  id     String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String  @map("user_id") @db.Uuid
+  dishId String? @map("dish_id") @db.Uuid
+
+  // BA-006: session & attempt tracking
+  sessionId               String               @default(dbgenerated("gen_random_uuid()")) @map("session_id") @db.Uuid
+  previousRandomizationId String?              @map("previous_randomization_id") @db.Uuid
+  idempotencyKey          String?              @map("idempotency_key") @db.VarChar(100)
+  status                  RandomizationStatus  @default(COMPLETED)
+  source                  RecommendationSource @default(RANDOM_FLOW)
+  attemptNo               Int                  @default(1) @map("attempt_no")
+
+  // BA-006: meal & budget context
+  mealSlot            String?             @map("meal_slot") @db.VarChar(20)
+  mealSelectionSource MealSelectionSource @default(AUTO_TIME) @map("meal_selection_source")
+  budgetMode          BudgetMode          @default(UNLIMITED) @map("budget_mode")
+  budgetMinVnd        Int?                @map("budget_min_vnd")
+  budgetMaxVnd        Int?                @map("budget_max_vnd")
+
+  // BA-006: profile snapshot
+  profileVersion   Int   @default(1) @map("profile_version")
+  criteriaSnapshot Json  @map("criteria_snapshot")
+  profileSnapshot  Json? @map("profile_snapshot")
+  fallbackSnapshot Json? @map("fallback_snapshot")
+
+  // BA-006: algorithm metadata
+  algorithmVersion String  @default("rule-v2.0.0") @map("algorithm_version") @db.VarChar(32)
+  randomSeed       String? @map("random_seed") @db.VarChar(64)
+  candidateCount   Int     @default(0) @map("candidate_count")
+  durationMs       Int?    @map("duration_ms")
+
+  // BA-006: result
+  totalScore           Decimal? @map("total_score") @db.Decimal(6, 3)
+  compatibilityPercent Int?     @map("compatibility_percent")
+  scoreBreakdown       Json?    @map("score_breakdown")
+  reasonSnapshot       Json?    @map("reason_snapshot")
+
+  // BA-006: selection
+  isSelected     Boolean   @default(false) @map("is_selected")
+  selectedAt     DateTime? @map("selected_at") @db.Timestamptz(6)
+  failReasonCode String?   @map("fail_reason_code") @db.VarChar(64)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  dish       Dish?                 @relation(fields: [dishId], references: [id], onDelete: SetNull)
+  candidates RandomCandidate[]
+  events     RecommendationEvent[]
+
+  @@unique([userId, idempotencyKey])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([sessionId, attemptNo])
+  @@index([dishId, createdAt(sort: Desc)])
+  @@map("random_histories")
+}
+
+// BA-006: Top candidates per randomization (audit & debug)
+model RandomCandidate {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  randomHistoryId String   @map("random_history_id") @db.Uuid
+  dishId          String   @map("dish_id") @db.Uuid
+  rank            Int
+  totalScore      Decimal  @map("total_score") @db.Decimal(6, 3)
+  samplingWeight  Decimal  @map("sampling_weight") @db.Decimal(12, 8)
+  scoreBreakdown  Json     @map("score_breakdown")
+  isChosen        Boolean  @default(false) @map("is_chosen")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  randomHistory RandomHistory @relation(fields: [randomHistoryId], references: [id], onDelete: Cascade)
+  dish          Dish          @relation(fields: [dishId], references: [id], onDelete: Restrict)
+
+  @@unique([randomHistoryId, dishId])
+  @@index([randomHistoryId, rank])
+  @@map("random_candidates")
+}
+
+// BA-006: User feedback events on recommendations
+model RecommendationEvent {
+  id              String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String                  @map("user_id") @db.Uuid
+  randomHistoryId String?                 @map("random_history_id") @db.Uuid
+  dishId          String?                 @map("dish_id") @db.Uuid
+  eventType       RecommendationEventType @map("event_type")
+  reasonCode      String?                 @map("reason_code") @db.VarChar(64)
+  metadata        Json?
+  createdAt       DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  randomHistory RandomHistory? @relation(fields: [randomHistoryId], references: [id], onDelete: SetNull)
+  dish          Dish?          @relation(fields: [dishId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, dishId, createdAt(sort: Desc)])
+  @@index([randomHistoryId])
+  @@map("recommendation_events")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// BA-004: User diet type preferences (linked to DietType catalog)
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+model UserDietType {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String  @map("user_id") @db.Uuid
+  dietTypeId String  @map("diet_type_id") @db.Uuid
+  isHard     Boolean @default(false) @map("is_hard") // hard = must exclude
+
+  profile  Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  dietType DietType @relation(fields: [dietTypeId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, dietTypeId])
+  @@map("user_diet_types")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// BA-004: RBAC
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+
+model ProfileRole {
+  profileId  String     @map("profile_id") @db.Uuid
+  role       SystemRole
+  assignedBy String?    @map("assigned_by") @db.Uuid
+  assignedAt DateTime   @default(now()) @map("assigned_at") @db.Timestamptz(6)
+  profile    Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@id([profileId, role])
+  @@map("profile_roles")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// SavedDish Ã¢â¬â mÃÂ³n ÃâÃÂ£ lÃÂ°u cÃ¡Â»Â§a user
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model SavedDish {
+  id      String  @id @default(uuid()) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  dishId String @map("dish_id") @db.Uuid
+  dish   Dish   @relation(fields: [dishId], references: [id], onDelete: Cascade)
+
+  savedAt DateTime @default(now()) @map("saved_at")
+
+  @@unique([userId, dishId])
+  @@index([userId])
+  @@map("saved_dishes")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Notifications Ã¢â¬â thÃÂ´ng bÃÂ¡o ngÃÂ°Ã¡Â»Âi dÃÂ¹ng
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model Notification {
+  id      String  @id @default(uuid()) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  type     NotificationType
+  title    String
+  body     String
+  deepLink String?            @map("deep_link")
+  imageUrl String?            @map("image_url")
+  status   NotificationStatus @default(UNREAD)
+  readAt   DateTime?          @map("read_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, status])
+  @@map("notifications")
+}
+
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// RecommendationLog Ã¢â¬â audit impressions/clicks (no PII)
+// âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+model RecommendationLog {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id") @db.Uuid // khÃÂ´ng FK ÃâÃ¡Â»Æ trÃÂ¡nh cascade phÃ¡Â»Â©c tÃ¡ÂºÂ¡p
+
+  dishId String? @map("dish_id") @db.Uuid
+  dish   Dish?   @relation(fields: [dishId], references: [id], onDelete: SetNull)
+
+  event     String // "impression" | "click" | "save"
+  position  Int?
+  sessionId String? @map("session_id")
+  goalCode  String? @map("goal_code")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, createdAt])
+  @@index([dishId])
+  @@map("recommendation_logs")
+}
+
+// -----------------------------------------------------------------------------
+// BA-005 Explore: Enums
+// -----------------------------------------------------------------------------
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+
+  @@map("article_status")
+}
+
+enum PostStatus {
+  ACTIVE
+  HIDDEN
+  DELETED
+
+  @@map("post_status")
+}
+
+// -----------------------------------------------------------------------------
+// BA-005 Explore: Topic  Ch? d? do admin qu?n lý
+// -----------------------------------------------------------------------------
+
+model Topic {
+  id            String   @id @default(uuid()) @db.Uuid
+  slug          String   @unique @db.VarChar(120)
+  title         String   @db.VarChar(200)
+  description   String?
+  coverImageUrl String?  @map("cover_image_url")
+  displayOrder  Int      @default(0) @map("display_order")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  articles Article[]
+
+  @@index([isActive, displayOrder])
+  @@map("topics")
+}
+
+// -----------------------------------------------------------------------------
+// BA-005 Explore: Article  Bài vi?t (admin ho?c user t?o)
+// -----------------------------------------------------------------------------
+
+model Article {
+  id            String        @id @default(uuid()) @db.Uuid
+  slug          String        @unique @db.VarChar(200)
+  title         String        @db.VarChar(300)
+  summary       String?
+  content       String // Markdown
+  coverImageUrl String?       @map("cover_image_url")
+  status        ArticleStatus @default(DRAFT)
+  readMinutes   Int           @default(3) @map("read_minutes")
+  viewCount     Int           @default(0) @map("view_count")
+
+  authorId String  @map("author_id") @db.Uuid
+  author   Profile @relation(fields: [authorId], references: [userId], onDelete: Cascade)
+
+  topicId String? @map("topic_id") @db.Uuid
+  topic   Topic?  @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  tags ArticleTag[]
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([topicId])
+  @@index([authorId])
+  @@map("articles")
+}
+
+model ArticleTag {
+  id        String  @id @default(uuid()) @db.Uuid
+  articleId String  @map("article_id") @db.Uuid
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tag       String  @db.VarChar(60)
+
+  @@unique([articleId, tag])
+  @@index([tag])
+  @@map("article_tags")
+}
+
+// -----------------------------------------------------------------------------
+// BA-005 Explore: CommunityPost  Bài dang c?ng d?ng
+// -----------------------------------------------------------------------------
+
+model CommunityPost {
+  id           String     @id @default(uuid()) @db.Uuid
+  authorId     String     @map("author_id") @db.Uuid
+  author       Profile    @relation(fields: [authorId], references: [userId], onDelete: Cascade)
+  content      String
+  imageUrls    String[]   @map("image_urls")
+  status       PostStatus @default(ACTIVE)
+  likeCount    Int        @default(0) @map("like_count")
+  commentCount Int        @default(0) @map("comment_count")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  likes    PostLike[]
+  comments PostComment[]
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([authorId])
+  @@map("community_posts")
+}
+
+model PostLike {
+  id     String        @id @default(uuid()) @db.Uuid
+  postId String        @map("post_id") @db.Uuid
+  post   CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId String        @map("user_id") @db.Uuid
+  user   Profile       @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([postId, userId])
+  @@index([userId])
+  @@map("post_likes")
+}
+
+model PostComment {
+  id       String        @id @default(uuid()) @db.Uuid
+  postId   String        @map("post_id") @db.Uuid
+  post     CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId String        @map("author_id") @db.Uuid
+  author   Profile       @relation(fields: [authorId], references: [userId], onDelete: Cascade)
+  content  String
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([postId, createdAt])
+  @@index([authorId])
+  @@map("post_comments")
+}
+
+// -----------------------------------------------------------------------------
+// BA-005: Weekly Meal Plan
+// -----------------------------------------------------------------------------
+
+enum WeeklyPlanStatus {
+  GENERATING
+  READY
+  ACTIVE
+  COMPLETED
+  FAILED
+  CANCELLED
+  ARCHIVED
+
+  @@map("weekly_plan_status")
+}
+
+enum WeeklyPlanSlotStatus {
+  PLANNED
+  COMPLETED
+  SKIPPED
+
+  @@map("weekly_plan_slot_status")
+}
+
+enum WeeklyMealSlot {
+  MORNING
+  LUNCH
+  DINNER
+  SNACK
+
+  @@map("weekly_meal_slot")
+}
+
+enum WeeklyKcalMode {
+  PROFILE
+  CUSTOM
+
+  @@map("weekly_kcal_mode")
+}
+
+enum WeeklyPlanSwapReason {
+  USER_REQUEST
+  REBALANCE_BUDGET
+  REBALANCE_CALORIES
+  DISH_UNAVAILABLE
+  DIET_CONFLICT
+  OTHER
+
+  @@map("weekly_plan_swap_reason")
+}
+
+model WeeklyPlanConfig {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @unique @map("user_id") @db.Uuid
+
+  budgetVnd  Int            @map("budget_vnd")
+  kcalPerDay Int            @map("kcal_per_day")
+  kcalMode   WeeklyKcalMode @default(PROFILE) @map("kcal_mode")
+
+  durationDays Int @default(7) @map("duration_days")
+  mealsPerDay  Int @default(3) @map("meals_per_day")
+
+  enabledSlots WeeklyMealSlot[] @map("enabled_slots")
+
+  avoidRepeat             Boolean @default(true) @map("avoid_repeat")
+  preferHomeCook          Boolean @default(false) @map("prefer_home_cook")
+  calorieTolerancePercent Int     @default(10) @map("calorie_tolerance_percent")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user  Profile      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  plans WeeklyPlan[]
+
+  @@map("weekly_plan_configs")
+}
+
+model WeeklyPlan {
+  id       String @id @default(uuid()) @db.Uuid
+  userId   String @map("user_id") @db.Uuid
+  configId String @map("config_id") @db.Uuid
+
+  startDate DateTime @map("start_date") @db.Date
+  endDate   DateTime @map("end_date") @db.Date
+
+  status WeeklyPlanStatus @default(GENERATING)
+
+  budgetLimitVnd   Int @map("budget_limit_vnd")
+  projectedCostVnd Int @default(0) @map("projected_cost_vnd")
+  actualSpentVnd   Int @default(0) @map("actual_spent_vnd")
+
+  targetKcal    Int @map("target_kcal")
+  projectedKcal Int @default(0) @map("projected_kcal")
+  actualKcal    Int @default(0) @map("actual_kcal")
+
+  configSnapshot   Json   @map("config_snapshot")
+  profileSnapshot  Json?  @map("profile_snapshot")
+  algorithmVersion String @default("1.0") @map("algorithm_version")
+
+  generationErrorCode String? @map("generation_error_code")
+  generationErrorData Json?   @map("generation_error_data")
+
+  startedAt   DateTime? @map("started_at") @db.Timestamptz(6)
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(6)
+  archivedAt  DateTime? @map("archived_at") @db.Timestamptz(6)
+
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  user   Profile          @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  config WeeklyPlanConfig @relation(fields: [configId], references: [id], onDelete: Restrict)
+  slots  WeeklyPlanSlot[]
+
+  @@index([userId, status])
+  @@index([userId, startDate])
+  @@index([configId])
+  @@map("weekly_plans")
+}
+
+model WeeklyPlanSlot {
+  id     String @id @default(uuid()) @db.Uuid
+  planId String @map("plan_id") @db.Uuid
+  dishId String @map("dish_id") @db.Uuid
+
+  date     DateTime             @db.Date
+  mealSlot WeeklyMealSlot       @map("meal_slot")
+  status   WeeklyPlanSlotStatus @default(PLANNED)
+
+  servings Decimal @default(1) @db.Decimal(6, 2)
+
+  isLocked  Boolean @default(false) @map("is_locked")
+  swapCount Int     @default(0) @map("swap_count")
+
+  dishNameSnapshot String  @map("dish_name_snapshot") @db.VarChar(150)
+  imageUrlSnapshot String? @map("image_url_snapshot")
+  priceSnapshotVnd Int     @map("price_snapshot_vnd")
+  kcalSnapshot     Int     @map("kcal_snapshot")
+
+  proteinGSnapshot Decimal? @map("protein_g_snapshot") @db.Decimal(8, 2)
+  carbsGSnapshot   Decimal? @map("carbs_g_snapshot") @db.Decimal(8, 2)
+  fatGSnapshot     Decimal? @map("fat_g_snapshot") @db.Decimal(8, 2)
+
+  scoreSnapshot  Json? @map("score_snapshot")
+  reasonSnapshot Json? @map("reason_snapshot")
+
+  actualCostVnd Int? @map("actual_cost_vnd")
+  actualKcal    Int? @map("actual_kcal")
+
+  completedAt DateTime? @map("completed_at") @db.Timestamptz(6)
+  skippedAt   DateTime? @map("skipped_at") @db.Timestamptz(6)
+
+  version   Int      @default(1)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  plan  WeeklyPlan           @relation(fields: [planId], references: [id], onDelete: Cascade)
+  dish  Dish                 @relation(fields: [dishId], references: [id], onDelete: Restrict)
+  swaps WeeklyPlanSlotSwap[]
+
+  @@unique([planId, date, mealSlot])
+  @@index([planId, date])
+  @@index([dishId])
+  @@index([status])
+  @@map("weekly_plan_slots")
+}
+
+model WeeklyPlanSlotSwap {
+  id     String @id @default(uuid()) @db.Uuid
+  slotId String @map("slot_id") @db.Uuid
+
+  previousDishId String @map("previous_dish_id") @db.Uuid
+  newDishId      String @map("new_dish_id") @db.Uuid
+
+  previousCostVnd Int @map("previous_cost_vnd")
+  newCostVnd      Int @map("new_cost_vnd")
+  previousKcal    Int @map("previous_kcal")
+  newKcal         Int @map("new_kcal")
+
+  reason        WeeklyPlanSwapReason @default(USER_REQUEST)
+  scoreSnapshot Json?                @map("score_snapshot")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  slot WeeklyPlanSlot @relation(fields: [slotId], references: [id], onDelete: Cascade)
+
+  @@index([slotId, createdAt])
+  @@map("weekly_plan_slot_swaps")
+}
+
+enum DishFileImportStatus {
+  UPLOADED
+  MAPPING
+  VALIDATING
+  READY
+  QUEUED
+  IMPORTING
+  FINALIZING
+  DONE
+  FAILED
+  CANCEL_REQUESTED
+  CANCELLED
+}
+
+enum DishFileImportRowStatus {
+  PENDING
+  VALID
+  WARNING
+  ERROR
+  DUPLICATE
+  IMPORTED
+  SKIPPED
+  FAILED
+}
+
+enum ImportJobStatus {
+  PENDING
+  SEARCHING
+  EXTRACTING
+  NORMALIZING
+  RECONCILING
+  ENRICHING
+  DRAFTING
+  DONE
+  FAILED
+  CANCELLED
+
+  @@map("import_job_status")
+}
+
+model ImportJob {
+  id                      String          @id @default(uuid()) @db.Uuid
+  query                   String          @db.VarChar(150)
+  status                  ImportJobStatus @default(PENDING)
+  currentStep             Int             @default(0) @map("current_step")
+  totalSteps              Int             @default(6) @map("total_steps")
+  progress                Int             @default(0)
+  currentStepName         String?         @map("current_step_name") @db.VarChar(100)
+  currentStepMessage      String?         @map("current_step_message")
+  relatedKeywords         String[]        @default([]) @map("related_keywords")
+  regionHint              String?         @map("region_hint") @db.VarChar(50)
+  sourceTypes             String[]        @default(["AI_GENERATED"]) @map("source_types")
+  resultDishId            String?         @unique @map("result_dish_id") @db.Uuid
+  suggestedImageUrl       String?         @map("suggested_image_url")
+  errorCode               String?         @map("error_code") @db.VarChar(100)
+  errorMessage            String?         @map("error_message")
+  completionPercent       Int             @default(0) @map("completion_percent")
+  warnings                Json?
+  unresolvedFields        String[]        @default([]) @map("unresolved_fields")
+  taxonomySnapshotVersion String?         @map("taxonomy_snapshot_version") @db.VarChar(100)
+  taxonomySnapshot        Json?           @map("taxonomy_snapshot")
+  extractionSnapshot      Json?           @map("extraction_snapshot")
+  normalizedSnapshot      Json?           @map("normalized_snapshot")
+  resolutionSnapshot      Json?           @map("resolution_snapshot")
+  nutritionSnapshot       Json?           @map("nutrition_snapshot")
+  fieldMetadata           Json?           @map("field_metadata")
+  auditMetadata           Json?           @map("audit_metadata")
+  pipelineVersion         String          @default("1.1") @map("pipeline_version") @db.VarChar(32)
+  schemaVersion           String          @default("1.1") @map("schema_version") @db.VarChar(32)
+  provider                String?         @db.VarChar(100)
+  model                   String?         @db.VarChar(200)
+  idempotencyKey          String?         @unique @map("idempotency_key") @db.VarChar(100)
+  requestedBy             String?         @map("requested_by") @db.Uuid
+  cancelRequested         Boolean         @default(false) @map("cancel_requested")
+  startedAt               DateTime?       @map("started_at") @db.Timestamptz(6)
+  completedAt             DateTime?       @map("completed_at") @db.Timestamptz(6)
+  createdAt               DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt               DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([status, updatedAt])
+  @@index([requestedBy, createdAt(sort: Desc)])
+  @@map("import_jobs")
+}
+
+model DishFileImportSession {
+  id               String               @id @default(uuid()) @db.Uuid
+  createdById      String               @map("created_by_id") @db.Uuid
+  originalFileName String               @map("original_file_name")
+  mimeType         String               @default("text/csv") @map("mime_type")
+  fileSizeBytes    Int                  @map("file_size_bytes")
+  csvText          String               @map("csv_text")
+  sheetName        String?              @map("sheet_name")
+  headerRow        Int                  @default(1) @map("header_row")
+  mappingSnapshot  Json?                @map("mapping_snapshot")
+  optionsSnapshot  Json?                @map("options_snapshot")
+  status           DishFileImportStatus @default(UPLOADED)
+  totalRows        Int                  @default(0) @map("total_rows")
+  eligibleRows     Int                  @default(0) @map("eligible_rows")
+  errorCount       Int                  @default(0) @map("error_count")
+  warningCount     Int                  @default(0) @map("warning_count")
+  duplicateCount   Int                  @default(0) @map("duplicate_count")
+  createdCount     Int                  @default(0) @map("created_count")
+  skippedCount     Int                  @default(0) @map("skipped_count")
+  failedCount      Int                  @default(0) @map("failed_count")
+  jobId            String?              @map("job_id")
+  cancelRequested  Boolean              @default(false) @map("cancel_requested")
+  createdAt        DateTime             @default(now()) @map("created_at")
+  updatedAt        DateTime             @updatedAt @map("updated_at")
+  rows             DishFileImportRow[]
+
+  @@index([createdById, createdAt])
+  @@index([status, updatedAt])
+  @@map("dish_file_import_sessions")
+}
+
+model DishFileImportRow {
+  id              String                  @id @default(uuid()) @db.Uuid
+  sessionId       String                  @map("session_id") @db.Uuid
+  rowNumber       Int                     @map("row_number")
+  rawData         Json                    @map("raw_data")
+  normalizedData  Json?                   @map("normalized_data")
+  issues          Json?
+  status          DishFileImportRowStatus @default(PENDING)
+  duplicateDishId String?                 @map("duplicate_dish_id") @db.Uuid
+  createdDishId   String?                 @map("created_dish_id") @db.Uuid
+  processedAt     DateTime?               @map("processed_at")
+  createdAt       DateTime                @default(now()) @map("created_at")
+  updatedAt       DateTime                @updatedAt @map("updated_at")
+  session         DishFileImportSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, rowNumber])
+  @@index([sessionId, status])
+  @@map("dish_file_import_rows")
+}
+
+model DishEditorAuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  dishId     String?  @map("dish_id") @db.Uuid
+  actorId    String   @map("actor_id") @db.Uuid
+  action     String
+  fromStatus String?  @map("from_status")
+  toStatus   String?  @map("to_status")
+  payload    Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([dishId, createdAt])
+  @@map("dish_editor_audit_logs")
+}
