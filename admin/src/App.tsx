@@ -11,11 +11,8 @@ import {
   Heart,
   LayoutDashboard,
   Leaf,
-  Salad,
   Search,
   ShieldCheck,
-  ShieldAlert,
-  Tag,
   Users,
   Utensils,
 } from 'lucide-react'
@@ -35,12 +32,9 @@ const ReviewPage = lazy(() => import('./pages/ReviewPage'))
 const UsersPage = lazy(() => import('./pages/UsersPage'))
 const CommunityPage = lazy(() => import('./pages/CommunityPage'))
 const ReportsPage = lazy(() => import('./pages/ReportsPage'))
-const IngredientsPage = lazy(() => import('./pages/IngredientsPage'))
-const CategoriesPage = lazy(() => import('./pages/CategoriesPage'))
+const FoodDataPage = lazy(() => import('./pages/FoodDataPage'))
 const TopicsPage = lazy(() => import('./pages/TopicsPage'))
 const ArticlesPage = lazy(() => import('./pages/ArticlesPage'))
-const DietTypesPage = lazy(() => import('./pages/DietTypesPage'))
-const AllergenPage = lazy(() => import('./pages/AllergenPage'))
 
 // ─── React Query client ───────────────────────────────────────────────────────
 
@@ -67,10 +61,7 @@ type NavItem = {
 const nav: NavItem[] = [
   { path: '/dashboard', label: 'Tổng quan', icon: LayoutDashboard },
   { path: '/foods', label: 'Kho món ăn', icon: Utensils, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN', 'REVIEWER'] },
-  { path: '/ingredients', label: 'Nguyên liệu', icon: Leaf, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
-  { path: '/categories', label: 'Danh mục', icon: Tag, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
-  { path: '/diet-types', label: 'Chế độ ăn', icon: Salad, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
-  { path: '/allergens', label: 'Dị ứng', icon: ShieldAlert, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
+  { path: '/food-data', label: 'Dữ liệu món ăn', icon: Leaf, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
   { path: '/ingest', label: 'Nhập món tự động', icon: CloudDownload, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
   { path: '/review', label: 'Kiểm duyệt', icon: ShieldCheck, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN', 'REVIEWER'] },
   { path: '/topics', label: 'Ch? d?', icon: BookOpen, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
@@ -227,12 +218,13 @@ function AppRoutes() {
         <Route path="/users" element={<ProtectedLayout currentPath="/users"><UsersPage /></ProtectedLayout>} />
         <Route path="/community" element={<ProtectedLayout currentPath="/community"><CommunityPage /></ProtectedLayout>} />
         <Route path="/reports" element={<ProtectedLayout currentPath="/reports"><ReportsPage /></ProtectedLayout>} />
-        <Route path="/ingredients" element={<ProtectedLayout currentPath="/ingredients"><IngredientsPage /></ProtectedLayout>} />
+        <Route path="/food-data" element={<ProtectedLayout currentPath="/food-data"><FoodDataPage /></ProtectedLayout>} />
+        <Route path="/ingredients" element={<Navigate to="/food-data?tab=ingredients" replace />} />
+        <Route path="/categories" element={<Navigate to="/food-data?tab=categories" replace />} />
+        <Route path="/diet-types" element={<Navigate to="/food-data?tab=diet-types" replace />} />
+        <Route path="/allergens" element={<Navigate to="/food-data?tab=allergens" replace />} />
         <Route path="/topics" element={<ProtectedLayout currentPath="/topics"><TopicsPage /></ProtectedLayout>} />
         <Route path="/articles" element={<ProtectedLayout currentPath="/articles"><ArticlesPage /></ProtectedLayout>} />
-        <Route path="/categories" element={<ProtectedLayout currentPath="/categories"><CategoriesPage /></ProtectedLayout>} />
-        <Route path="/diet-types" element={<ProtectedLayout currentPath="/diet-types"><DietTypesPage /></ProtectedLayout>} />
-        <Route path="/allergens" element={<ProtectedLayout currentPath="/allergens"><AllergenPage /></ProtectedLayout>} />
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

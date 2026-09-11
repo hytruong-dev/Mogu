@@ -1,7 +1,9 @@
-import { useState, type ReactNode } from 'react';
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CommunityPostDetailScreen } from './CommunityPostDetailScreen';
+import FoodDetailScreen from './FoodDetailScreen';
+import { articlesApi } from '../services/api/explore';
 import {
   ArrowLeft,
   Bookmark,
@@ -44,15 +46,146 @@ const brand = require('../assets/images/logo/mogu-wordmark-header.png');
 
 export type ExploreDetailType = 'food' | 'article' | 'post';
 
+export type ExploreDetailParams = {
+  type: ExploreDetailType;
+  resourceId: string;
+};
+
 export function ExploreDetailScreen({
   type,
+  resourceId,
   onBack,
 }: {
   type: ExploreDetailType;
+  resourceId?: string | null;
   onBack: () => void;
 }) {
-  if (type === 'post') return <CommunityPostDetailScreen onBack={onBack} />;
-  return type === 'food' ? <FoodDetail onBack={onBack} /> : <ArticleDetail onBack={onBack} />;
+  if (!resourceId) {
+    return (
+      <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+        <View style={styles.header}>
+          <Pressable onPress={onBack} style={styles.iconButton}>
+            <ArrowLeft size={26} color={C.ink} />
+          </Pressable>
+          <Image source={brand} style={styles.brand} resizeMode="contain" />
+          <View style={styles.headerActions} />
+        </View>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: C.ink, textAlign: 'center' }}>
+            Thiếu mã nội dung
+          </Text>
+          <Text style={{ marginTop: 8, color: C.secondary, textAlign: 'center' }}>
+            Không thể mở chi tiết vì không có dishId / articleId / postId.
+          </Text>
+          <Pressable
+            onPress={onBack}
+            style={{
+              marginTop: 20,
+              backgroundColor: C.primary,
+              paddingHorizontal: 20,
+              paddingVertical: 12,
+              borderRadius: 999,
+            }}
+          >
+            <Text style={{ fontWeight: '700', color: C.ink }}>Quay lại</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (type === 'post') {
+    return <CommunityPostDetailScreen postId={resourceId} onBack={onBack} />;
+  }
+  if (type === 'article') {
+    return <ArticleDetailLoaded articleId={resourceId} onBack={onBack} />;
+  }
+  return (
+    <FoodDetailScreen
+      route={{ params: { dishId: resourceId } }}
+      navigation={{ goBack: onBack, setOptions: () => undefined }}
+    />
+  );
+}
+
+function ArticleDetailLoaded({
+  articleId,
+  onBack,
+}: {
+  articleId: string;
+  onBack: () => void;
+}) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [article, setArticle] = useState<{
+    title: string;
+    content?: string;
+    summary?: string | null;
+    coverImageUrl?: string | null;
+    topic?: { title: string } | null;
+    readMinutes?: number;
+  } | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    articlesApi
+      .findOne(articleId)
+      .then((data) => {
+        if (!cancelled) setArticle(data);
+      })
+      .catch((e: any) => {
+        if (!cancelled) setError(e?.message || 'Không tải được bài viết');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [articleId]);
+
+  return (
+    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+      <Header onBack={onBack} saved={saved} onSave={() => setSaved((s) => !s)} />
+      {loading ? (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator color={C.primaryDark} />
+        </View>
+      ) : error || !article ? (
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <Text style={{ color: C.ink, fontWeight: '700', textAlign: 'center' }}>
+            {error ?? 'Không có dữ liệu'}
+          </Text>
+          <Pressable onPress={onBack} style={{ marginTop: 16 }}>
+            <Text style={{ color: C.secondary }}>Quay lại</Text>
+          </Pressable>
+        </View>
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.articleContent}>
+          {article.coverImageUrl ? (
+            <Image source={{ uri: article.coverImageUrl }} style={styles.articleHero} />
+          ) : null}
+          <View style={styles.articleBadge}>
+            <Text style={{ fontWeight: '600', color: C.ink }}>
+              {article.topic?.title ?? 'Bài viết'}
+            </Text>
+          </View>
+          <Text style={styles.articleHeading}>{article.title}</Text>
+          {article.readMinutes != null ? (
+            <Text style={styles.articleMeta}>
+              {article.readMinutes} phút đọc
+            </Text>
+          ) : null}
+          <Text style={styles.lead}>
+            {article.content?.trim() || article.summary?.trim() || 'Bài viết chưa có nội dung.'}
+          </Text>
+        </ScrollView>
+      )}
+    </SafeAreaView>
+  );
 }
 
 function Header({

@@ -1,432 +1,387 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Pencil, Eye, EyeOff, X, ShieldAlert } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Pencil, Search, Trash2 } from 'lucide-react'
 import {
   taxonomyAdminApi,
   type Allergen,
   type CreateAllergenDto,
   type UpdateAllergenDto,
 } from '../api/taxonomy'
+import { useFoodDataActions } from '../components/food-data/food-data-context'
+import { FoodDataPagination } from '../components/food-data/FoodDataPagination'
+import { HideConfirmDialog } from '../components/food-data/HideConfirmDialog'
+import { Button } from '../components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../components/ui/dialog'
 import { Input } from '../components/ui/input'
-import { Textarea } from '../components/ui/textarea'
+import { Select } from '../components/ui/select'
+import { Switch } from '../components/ui/switch'
 
-// ─── Icon / màu cho từng allergen ────────────────────────────────────────────
-const ALLERGEN_META: Record<string, { icon: string; color: string; bg: string }> = {
-  PEANUT:    { icon: '🥜', color: '#92400e', bg: '#fef3c7' },
-  TREE_NUT:  { icon: '🌰', color: '#78350f', bg: '#fde68a' },
-  MILK:      { icon: '🥛', color: '#1e40af', bg: '#dbeafe' },
-  EGG:       { icon: '🥚', color: '#92400e', bg: '#fef9c3' },
-  FISH:      { icon: '🐟', color: '#0e7490', bg: '#cffafe' },
-  SHELLFISH: { icon: '🦐', color: '#9d174d', bg: '#fce7f3' },
-  MOLLUSK:   { icon: '🦑', color: '#5b21b6', bg: '#ede9fe' },
-  SOY:       { icon: '🌿', color: '#166534', bg: '#dcfce7' },
-  WHEAT:     { icon: '🌾', color: '#854d0e', bg: '#fef9c3' },
-  GLUTEN:    { icon: '🍞', color: '#92400e', bg: '#fef3c7' },
-  SESAME:    { icon: '🫙', color: '#713f12', bg: '#fef3c7' },
-  CELERY:    { icon: '🥬', color: '#166534', bg: '#d1fae5' },
-  MUSTARD:   { icon: '🟡', color: '#854d0e', bg: '#fef9c3' },
-  SULFITE:   { icon: '🍷', color: '#6b21a8', bg: '#f3e8ff' },
-  LUPIN:     { icon: '🌼', color: '#0f766e', bg: '#ccfbf1' },
-  OTHER:     { icon: '❓', color: '#374151', bg: '#f3f4f6' },
-}
-
-function getMeta(code: string) {
-  return ALLERGEN_META[code] ?? { icon: '⚠️', color: '#374151', bg: '#f9fafb' }
-}
-
-// ─── Card allergen ────────────────────────────────────────────────────────────
-function AllergenCard({
+function AllergenFormDialog({
+  open,
   item,
-  onEdit,
-  onToggle,
-}: {
-  item: Allergen
-  onEdit: () => void
-  onToggle: () => void
-}) {
-  const meta = getMeta(item.code)
-
-  return (
-    <div
-      style={{
-        display: 'flex', flexDirection: 'column',
-        background: item.active ? '#fff' : '#f9fafb',
-        border: `1.5px solid ${item.active ? '#e5e7eb' : '#e5e7eb'}`,
-        borderRadius: 14, padding: '14px 16px',
-        opacity: item.active ? 1 : 0.6,
-        gap: 8,
-        position: 'relative',
-        transition: 'box-shadow 0.15s',
-      }}
-    >
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: 10,
-          background: meta.bg,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 20, flexShrink: 0,
-        }}>
-          {meta.icon}
-        </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 14, color: '#111', lineHeight: 1.3 }}>{item.name}</div>
-          <code style={{
-            fontSize: 11, background: meta.bg, color: meta.color,
-            padding: '1px 7px', borderRadius: 5, fontWeight: 600,
-          }}>{item.code}</code>
-        </div>
-        {/* Status badge */}
-        <span style={{
-          fontSize: 11, padding: '2px 8px', borderRadius: 20, fontWeight: 600,
-          background: item.active ? '#dcfce7' : '#f3f4f6',
-          color: item.active ? '#166534' : '#9ca3af',
-          flexShrink: 0,
-        }}>
-          {item.active ? 'Hiện' : 'Ẩn'}
-        </span>
-      </div>
-
-      {/* Description */}
-      {item.description && (
-        <p style={{ margin: 0, fontSize: 12, color: '#6b7280', lineHeight: 1.5 }}>
-          <span style={{ fontWeight: 600, color: '#374151' }}>VD: </span>{item.description}
-        </p>
-      )}
-
-      {/* Actions */}
-      <div style={{ display: 'flex', gap: 6, marginTop: 2 }}>
-        <button
-          onClick={onEdit}
-          style={{
-            flex: 1, padding: '6px 0', borderRadius: 8,
-            border: '1px solid #e5e7eb', background: '#fff',
-            cursor: 'pointer', fontSize: 12, fontWeight: 600,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, color: '#374151',
-          }}
-        >
-          <Pencil size={12} /> Sửa
-        </button>
-        <button
-          onClick={onToggle}
-          style={{
-            flex: 1, padding: '6px 0', borderRadius: 8,
-            border: '1px solid #e5e7eb', background: '#fff',
-            cursor: 'pointer', fontSize: 12, fontWeight: 600,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4,
-            color: item.active ? '#dc2626' : '#16a34a',
-          }}
-        >
-          {item.active ? <><EyeOff size={12} /> Ẩn</> : <><Eye size={12} /> Hiện</>}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// ─── Modal thêm/sửa ───────────────────────────────────────────────────────────
-function AllergenModal({
-  item,
-  onClose,
+  onOpenChange,
   onSave,
   saving,
 }: {
-  item: Partial<Allergen> | null
-  onClose: () => void
-  onSave: (dto: CreateAllergenDto | UpdateAllergenDto) => void
+  open: boolean
+  item?: Allergen | null
+  onOpenChange: (open: boolean) => void
+  onSave: (dto: CreateAllergenDto | UpdateAllergenDto) => Promise<void>
   saving: boolean
 }) {
-  const isEdit = !!item?.id
-  const [code, setCode] = useState(item?.code ?? '')
-  const [name, setName] = useState(item?.name ?? '')
-  const [desc, setDesc] = useState(item?.description ?? '')
-  const [order, setOrder] = useState(item?.displayOrder ?? 0)
-  const meta = getMeta(code)
+  const isEdit = !!item
+  const [code, setCode] = useState('')
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [displayOrder, setDisplayOrder] = useState(1)
+  const [active, setActive] = useState(true)
+  const [error, setError] = useState('')
+  const [localSaving, setLocalSaving] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (isEdit) {
-      onSave({ name, description: desc || undefined, displayOrder: order })
-    } else {
-      onSave({ code: code.toUpperCase(), name, description: desc || undefined, displayOrder: order })
-    }
-  }
+  useEffect(() => {
+    if (!open) return
+    setCode(item?.code ?? '')
+    setName(item?.name ?? '')
+    setDescription(item?.description ?? '')
+    setDisplayOrder(item?.displayOrder ?? 1)
+    setActive(item?.active ?? true)
+    setError('')
+  }, [open, item])
 
   return (
-    <div
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: 460, maxWidth: '95vw', boxShadow: '0 20px 60px rgba(0,0,0,0.18)', maxHeight: '90vh', overflowY: 'auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <ShieldAlert size={20} color="#ef4444" />
-            {isEdit ? 'Sửa dị ứng' : 'Thêm dị ứng mới'}
-          </h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}>
-            <X size={20} />
-          </button>
-        </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{isEdit ? 'Sửa nhóm dị ứng' : 'Thêm nhóm dị ứng'}</DialogTitle>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {!isEdit && (
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 4, display: 'block' }}>
-                Mã (code) <span style={{ color: '#ef4444' }}>*</span>
+        <form
+          className="fd-modal-body"
+          onSubmit={async (e) => {
+            e.preventDefault()
+            if (!isEdit && !code.trim()) return setError('Mã không được trống')
+            if (!name.trim()) return setError('Tên nhóm không được trống')
+            setLocalSaving(true)
+            setError('')
+            try {
+              if (isEdit) {
+                await onSave({
+                  name: name.trim(),
+                  description: description.trim() || undefined,
+                  displayOrder: Number(displayOrder) || 0,
+                  active,
+                })
+              } else {
+                await onSave({
+                  code: code.toUpperCase(),
+                  name: name.trim(),
+                  description: description.trim() || undefined,
+                  displayOrder: Number(displayOrder) || 0,
+                  active,
+                })
+              }
+              onOpenChange(false)
+            } catch (err: any) {
+              setError(
+                err?.response?.data?.message ??
+                  err?.response?.data?.error?.message ??
+                  err?.message ??
+                  'Lỗi không xác định',
+              )
+            } finally {
+              setLocalSaving(false)
+            }
+          }}
+        >
+          <div className="fd-form-grid">
+            {!isEdit && (
+              <div className="fd-field">
+                <label>
+                  Mã <span className="req">*</span>
+                </label>
+                <Input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''))}
+                  placeholder="PEANUT"
+                  required
+                  style={{ fontFamily: 'ui-monospace, monospace' }}
+                />
+                <p className="fd-field-hint">Mã viết hoa, không dấu và không khoảng trắng</p>
+              </div>
+            )}
+
+            <div className="fd-field">
+              <label>
+                Tên nhóm <span className="req">*</span>
               </label>
               <Input
-                placeholder="VD: PEANUT"
-                value={code}
-                onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''))}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nhập tên nhóm dị ứng"
                 required
-                style={{ fontFamily: 'monospace' }}
               />
-              <small style={{ color: '#9ca3af' }}>Chỉ chữ HOA, số và dấu _</small>
+              <p className="fd-field-hint">Tên đầy đủ, dễ hiểu cho nhóm dị ứng.</p>
             </div>
-          )}
 
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 4, display: 'block' }}>
-              Tên hiển thị <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <Input
-              placeholder="VD: Đậu phộng"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required
-            />
-          </div>
+            <div className="fd-field">
+              <label>Ví dụ nguyên liệu</label>
+              <Input
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Nhập ví dụ nguyên liệu"
+              />
+              <p className="fd-field-hint">Các nguyên liệu thường thuộc nhóm này, cách nhau bởi dấu phẩy.</p>
+            </div>
 
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 4, display: 'block' }}>
-              Ví dụ nguyên liệu cần tránh
-            </label>
-            <Textarea
-              placeholder="VD: Đậu phộng, dầu đậu phộng, bơ đậu phộng..."
-              value={desc}
-              onChange={e => setDesc(e.target.value)}
-              rows={2}
-            />
-          </div>
+            <div className="fd-field">
+              <label>Thứ tự hiển thị</label>
+              <Input
+                type="number"
+                min={0}
+                value={displayOrder}
+                onChange={(e) => setDisplayOrder(Number(e.target.value))}
+              />
+              <p className="fd-field-hint">Số nhỏ hiển thị trước.</p>
+            </div>
 
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 4, display: 'block' }}>
-              Thứ tự hiển thị
-            </label>
-            <Input
-              type="number"
-              value={order}
-              onChange={e => setOrder(Number(e.target.value))}
-              min={0}
-              style={{ width: 100 }}
-            />
-          </div>
-
-          {/* Preview */}
-          {(code || name) && (
-            <div style={{ padding: '10px 14px', background: '#f8f9fa', borderRadius: 8, border: '1px dashed #dee2e6' }}>
-              <small style={{ color: '#9ca3af', display: 'block', marginBottom: 6 }}>Xem trước</small>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 12px', borderRadius: 20, background: meta.bg, border: `1px solid ${meta.color}30` }}>
-                <span style={{ fontSize: 16 }}>{meta.icon}</span>
-                <span style={{ fontWeight: 700, fontSize: 13, color: meta.color }}>{name || '...'}</span>
-                <code style={{ fontSize: 10, color: meta.color, opacity: 0.7 }}>{code || '...'}</code>
+            <div className="fd-switch-row">
+              <Switch checked={active} onCheckedChange={setActive} aria-label="Hiển thị nhóm dị ứng" />
+              <div>
+                <strong>Hiển thị</strong>
+                <span>Ẩn nhóm nếu tắt.</span>
               </div>
             </div>
-          )}
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 4, justifyContent: 'flex-end' }}>
-            <button type="button" onClick={onClose} style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: 14 }}>
-              Hủy
-            </button>
-            <button type="submit" disabled={saving} style={{ padding: '8px 22px', borderRadius: 8, border: 'none', background: '#ef4444', color: '#fff', fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', fontSize: 14, opacity: saving ? 0.7 : 1 }}>
-              {saving ? 'Đang lưu...' : isEdit ? 'Cập nhật' : 'Tạo mới'}
-            </button>
+            {error && (
+              <div style={{ background: '#fef2f2', color: '#b91c1c', borderRadius: 10, padding: '10px 12px', fontSize: 13 }}>
+                {error}
+              </div>
+            )}
           </div>
+
+          <DialogFooter className="fd-modal-footer">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={saving || localSaving}>
+              Hủy
+            </Button>
+            <Button type="submit" disabled={saving || localSaving}>
+              {saving || localSaving ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Tạo nhóm dị ứng'}
+            </Button>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
-export default function AllergenPage() {
+export default function AllergenPage({
+  embedded = false,
+  isActive = true,
+}: {
+  embedded?: boolean
+  isActive?: boolean
+}) {
   const qc = useQueryClient()
-  const [modalItem, setModalItem] = useState<Partial<Allergen> | null | false>(false)
-  const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('active')
+  const { registerCreateHandler } = useFoodDataActions()
+  const [q, setQ] = useState('')
+  const [status, setStatus] = useState<'all' | 'active' | 'inactive'>('all')
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editItem, setEditItem] = useState<Allergen | null>(null)
+  const [hideItem, setHideItem] = useState<Allergen | null>(null)
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['admin-allergens'],
-    queryFn: () => taxonomyAdminApi.listAllergens(),
+    queryFn: taxonomyAdminApi.listAllergens,
   })
 
-  const createMut = useMutation({
-    mutationFn: (dto: CreateAllergenDto) => taxonomyAdminApi.createAllergen(dto),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-allergens'] }); setModalItem(false) },
-  })
-
-  const updateMut = useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: UpdateAllergenDto }) =>
-      taxonomyAdminApi.updateAllergen(id, dto),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-allergens'] }); setModalItem(false) },
-  })
-
-  const toggleMut = useMutation({
-    mutationFn: (id: string) => taxonomyAdminApi.toggleAllergen(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-allergens'] }),
-  })
-
-  const filtered = items.filter(i =>
-    filter === 'all' ? true : filter === 'active' ? i.active : !i.active
-  )
-
-  const activeCount = items.filter(i => i.active).length
-  const inactiveCount = items.filter(i => !i.active).length
-
-  const handleSave = (dto: CreateAllergenDto | UpdateAllergenDto) => {
-    if (modalItem && 'id' in modalItem && modalItem.id) {
-      updateMut.mutate({ id: modalItem.id, dto: dto as UpdateAllergenDto })
-    } else {
-      createMut.mutate(dto as CreateAllergenDto)
-    }
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['admin-allergens'] })
+    qc.invalidateQueries({ queryKey: ['food-data-tab-count', 'allergens'] })
   }
 
+  const createMut = useMutation({ mutationFn: taxonomyAdminApi.createAllergen, onSuccess: invalidate })
+  const updateMut = useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateAllergenDto }) => taxonomyAdminApi.updateAllergen(id, dto),
+    onSuccess: invalidate,
+  })
+  const toggleMut = useMutation({
+    mutationFn: taxonomyAdminApi.toggleAllergen,
+    onSuccess: invalidate,
+  })
+
+  useEffect(() => {
+    if (!embedded || !isActive) return
+    registerCreateHandler(() => {
+      setEditItem(null)
+      setModalOpen(true)
+    })
+    return () => registerCreateHandler(null)
+  }, [embedded, isActive, registerCreateHandler])
+
+  useEffect(() => {
+    if (isActive) return
+    setModalOpen(false)
+    setEditItem(null)
+    setHideItem(null)
+  }, [isActive])
+
+  const filtered = useMemo(() => {
+    return items
+      .filter((item) => {
+        if (status === 'active' && !item.active) return false
+        if (status === 'inactive' && item.active) return false
+        if (!q.trim()) return true
+        const needle = q.trim().toLowerCase()
+        return (
+          item.name.toLowerCase().includes(needle) ||
+          item.code.toLowerCase().includes(needle) ||
+          (item.description ?? '').toLowerCase().includes(needle)
+        )
+      })
+      .sort((a, b) => a.displayOrder - b.displayOrder || a.code.localeCompare(b.code))
+  }, [items, q, status])
+
+  const total = filtered.length
+  const totalPages = Math.max(1, Math.ceil(total / limit))
+  const pageSafe = Math.min(page, totalPages)
+  const pageItems = filtered.slice((pageSafe - 1) * limit, pageSafe * limit)
+
   return (
-    <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <ShieldAlert size={24} color="#ef4444" />
-            Dị ứng & Hạn chế thực phẩm
-          </h1>
-          <p style={{ margin: '4px 0 0', color: '#9ca3af', fontSize: 14 }}>
-            Quản lý 16 nhóm dị ứng chuẩn — hiển thị trong onboarding và lọc món ăn an toàn
-          </p>
-        </div>
-        <button
-          onClick={() => setModalItem({})}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, border: 'none', background: '#ef4444', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}
-        >
-          <Plus size={16} /> Thêm mới
-        </button>
-      </div>
-
-      {/* Stats + Filter */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
-        {([
-          { key: 'active', label: `Đang hiển thị (${activeCount})` },
-          { key: 'inactive', label: `Đã ẩn (${inactiveCount})` },
-          { key: 'all', label: `Tất cả (${items.length})` },
-        ] as const).map(f => (
-          <button
-            key={f.key}
-            onClick={() => setFilter(f.key)}
-            style={{
-              padding: '6px 16px', borderRadius: 8, fontSize: 13, cursor: 'pointer',
-              fontWeight: filter === f.key ? 700 : 400,
-              border: `1.5px solid ${filter === f.key ? '#ef4444' : '#e5e7eb'}`,
-              background: filter === f.key ? '#fef2f2' : '#fff',
-              color: filter === f.key ? '#991b1b' : '#6b7280',
-            }}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Grid */}
-      {isLoading ? (
-        <div style={{ textAlign: 'center', padding: 48, color: '#9ca3af' }}>⏳ Đang tải...</div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14, marginBottom: 32 }}>
-          {filtered.map(item => (
-            <AllergenCard
-              key={item.id}
-              item={item}
-              onEdit={() => setModalItem(item)}
-              onToggle={() => toggleMut.mutate(item.id)}
-            />
-          ))}
-          {filtered.length === 0 && (
-            <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: 40, color: '#9ca3af', fontSize: 14 }}>
-              Không có dị ứng nào
-            </div>
-          )}
+    <div className={embedded ? 'food-data-embedded allergens-panel' : undefined} style={{ padding: embedded ? 0 : '28px 32px' }}>
+      {!embedded && (
+        <div className="fd-panel-heading" style={{ marginBottom: 20 }}>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Dị ứng</h1>
         </div>
       )}
 
-      {/* Summary table */}
-      <div style={{ borderRadius: 12, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-        <div style={{ padding: '12px 16px', background: '#fef2f2', borderBottom: '1px solid #fecaca' }}>
-          <span style={{ fontWeight: 700, fontSize: 14, color: '#991b1b' }}>
-            📋 Danh sách đầy đủ ({items.length} nhóm)
-          </span>
+      <h2 className="fd-section-title">Danh sách nhóm dị ứng</h2>
+
+      <div className="fd-toolbar">
+        <div className="fd-search" style={{ position: 'relative' }}>
+          <Search size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#9ca3af' }} />
+          <Input
+            value={q}
+            onChange={(e) => { setQ(e.target.value); setPage(1) }}
+            placeholder="Tìm theo tên nhóm..."
+            style={{ paddingLeft: 34 }}
+          />
         </div>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <div className="fd-toolbar-filters">
+          <Select value={status} onChange={(e) => { setStatus(e.target.value as typeof status); setPage(1) }}>
+            <option value="all">Tất cả trạng thái</option>
+            <option value="active">Đang hiển thị</option>
+            <option value="inactive">Đã ẩn</option>
+          </Select>
+        </div>
+      </div>
+
+      <div className="fd-table-wrap">
+        <table className="fd-table">
           <thead>
-            <tr style={{ background: '#f9fafb' }}>
-              <th style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: '#6b7280', width: 40 }}>#</th>
-              <th style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: '#6b7280' }}>Mã</th>
-              <th style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: '#6b7280' }}>Tên</th>
-              <th style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: '#6b7280' }}>Ví dụ nguyên liệu</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center', fontWeight: 600, color: '#6b7280' }}>Trạng thái</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center', fontWeight: 600, color: '#6b7280' }}>Hành động</th>
+            <tr>
+              <th>Mã</th>
+              <th>Tên nhóm</th>
+              <th>Hiển thị</th>
+              <th style={{ width: 120 }}>Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            {items.map((item, idx) => {
-              const meta = getMeta(item.code)
-              return (
-                <tr key={item.id} style={{ borderTop: '1px solid #f3f4f6', background: idx % 2 === 0 ? '#fff' : '#fafafa' }}>
-                  <td style={{ padding: '10px 16px', color: '#9ca3af', fontSize: 12 }}>{item.displayOrder}</td>
-                  <td style={{ padding: '10px 16px' }}>
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '2px 8px', borderRadius: 6, background: meta.bg, color: meta.color, fontFamily: 'monospace', fontSize: 12, fontWeight: 700 }}>
-                      {meta.icon} {item.code}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px 16px', fontWeight: 600 }}>{item.name}</td>
-                  <td style={{ padding: '10px 16px', color: '#6b7280', fontSize: 12, maxWidth: 260 }}>
-                    <span style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      {item.description ?? '—'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                    <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, fontWeight: 600, background: item.active ? '#dcfce7' : '#f3f4f6', color: item.active ? '#166534' : '#9ca3af' }}>
-                      {item.active ? 'Hiển thị' : 'Đã ẩn'}
-                    </span>
-                  </td>
-                  <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-                      <button
-                        onClick={() => setModalItem(item)}
-                        style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}
-                      >
-                        <Pencil size={12} /> Sửa
-                      </button>
-                      <button
-                        onClick={() => toggleMut.mutate(item.id)}
-                        style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: item.active ? '#dc2626' : '#16a34a' }}
-                      >
-                        {item.active ? <><EyeOff size={12} /> Ẩn</> : <><Eye size={12} /> Hiện</>}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
+            {isLoading && <tr><td colSpan={4} className="fd-empty">Đang tải...</td></tr>}
+            {!isLoading && pageItems.length === 0 && <tr><td colSpan={4} className="fd-empty">Không có dị ứng nào</td></tr>}
+            {pageItems.map((item) => (
+              <tr key={item.id} style={{ cursor: 'default' }}>
+                <td>
+                  <code className="fd-code">{item.code}</code>
+                </td>
+                <td>
+                  <div className="fd-name-cell">
+                    <strong>{item.name}</strong>
+                    {item.description && <span>{item.description}</span>}
+                  </div>
+                </td>
+                <td onClick={(e) => e.stopPropagation()}>
+                  <Switch
+                    checked={item.active}
+                    onCheckedChange={() => toggleMut.mutate(item.id)}
+                    aria-label={`Hiển thị ${item.name}`}
+                  />
+                </td>
+                <td>
+                  <div className="fd-row-actions">
+                    <button
+                      type="button"
+                      className="fd-icon-btn"
+                      title="Sửa"
+                      onClick={() => {
+                        setEditItem(item)
+                        setModalOpen(true)
+                      }}
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      className="fd-icon-btn is-danger"
+                      title="Ẩn"
+                      disabled={!item.active}
+                      onClick={() => setHideItem(item)}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
 
-      {/* Modal */}
-      {modalItem !== false && (
-        <AllergenModal
-          item={modalItem}
-          onClose={() => setModalItem(false)}
-          onSave={handleSave}
-          saving={createMut.isPending || updateMut.isPending}
-        />
-      )}
+      <FoodDataPagination
+        page={pageSafe}
+        limit={limit}
+        total={total}
+        totalPages={totalPages}
+        itemLabel="nhóm dị ứng"
+        onPageChange={setPage}
+        onLimitChange={(next) => { setLimit(next); setPage(1) }}
+      />
+
+      <AllergenFormDialog
+        open={modalOpen}
+        item={editItem}
+        onOpenChange={(open) => {
+          setModalOpen(open)
+          if (!open) setEditItem(null)
+        }}
+        onSave={async (dto) => {
+          if (editItem) await updateMut.mutateAsync({ id: editItem.id, dto: dto as UpdateAllergenDto })
+          else await createMut.mutateAsync(dto as CreateAllergenDto)
+        }}
+        saving={createMut.isPending || updateMut.isPending}
+      />
+
+      <HideConfirmDialog
+        open={!!hideItem}
+        onOpenChange={(open) => { if (!open) setHideItem(null) }}
+        title="Ẩn nhóm dị ứng này?"
+        description="Dữ liệu sẽ không bị xóa vĩnh viễn. Hồ sơ người dùng và món đã liên kết vẫn giữ lịch sử, nhưng nhóm không còn hiển thị trong onboarding."
+        itemName={hideItem ? `${hideItem.code} — ${hideItem.name}` : ''}
+        confirmLabel="Ẩn nhóm dị ứng"
+        loading={toggleMut.isPending}
+        onConfirm={() => {
+          if (!hideItem) return
+          toggleMut.mutate(hideItem.id, {
+            onSuccess: () => setHideItem(null),
+          })
+        }}
+      />
     </div>
   )
 }

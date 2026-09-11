@@ -10,6 +10,7 @@ export interface Ingredient {
   imageUrl?: string
   imageKey?: string
   isActive: boolean
+  dishCount?: number
   createdAt: string
   updatedAt: string
 }

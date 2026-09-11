@@ -76,6 +76,13 @@ export async function archiveWeeklyPlan(planId: string): Promise<WeeklyPlan> {
 
 // ── Slots ─────────────────────────────────────────────────────────────────────
 
+export type SwapSlotSummary = {
+  projectedCostVnd: number;
+  projectedKcal: number;
+  budgetLimitVnd: number;
+  remainingBudgetVnd: number;
+};
+
 export type SwapSlotResult = {
   id: string;
   dishId: string;
@@ -89,7 +96,35 @@ export type SwapSlotResult = {
   version: number;
   swapCount: number;
   budgetWarning: boolean;
+  summary?: SwapSlotSummary;
 };
+
+export type SlotActionResult = {
+  id: string;
+  status: string;
+  version: number;
+  isLocked?: boolean;
+};
+
+const PLAN_TERMINAL: Set<string> = new Set(['READY', 'FAILED', 'CANCELLED']);
+
+/** Poll plan by id until READY/FAILED or timeout. */
+export async function pollWeeklyPlan(
+  planId: string,
+  opts?: { intervalMs?: number; maxAttempts?: number; onTick?: (plan: WeeklyPlan) => void },
+): Promise<WeeklyPlan> {
+  const intervalMs = opts?.intervalMs ?? 2000;
+  const maxAttempts = opts?.maxAttempts ?? 45;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const plan = await getWeeklyPlanById(planId);
+    opts?.onTick?.(plan);
+    if (PLAN_TERMINAL.has(plan.status)) return plan;
+    await new Promise((r) => setTimeout(r, intervalMs));
+  }
+
+  return getWeeklyPlanById(planId);
+}
 
 export async function swapSlot(
   planId: string,

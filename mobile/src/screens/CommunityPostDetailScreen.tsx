@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -14,18 +15,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ArrowLeft,
   Bookmark,
-  ChevronDown,
   Heart,
-  ImageIcon,
   MessageCircle,
-  MoreHorizontal,
-  Plus,
   Send,
   Share2,
-  Smile,
-  Sparkles,
   X,
 } from 'lucide-react-native';
+import { communityApi, type ExplorePost, type PostComment } from '../services/api/explore';
 
 const C = {
   bg: '#FFF9E8',
@@ -34,25 +30,60 @@ const C = {
   secondary: '#626262',
   tertiary: '#929292',
   border: '#E8E0D2',
-  connector: '#DDD6C9',
-  selected: '#FFF8DC',
   yellow: '#FFD54F',
   yellowDark: '#E6A700',
   red: '#FF5F57',
 };
 const avatar = require('../assets/images/home/avatar.jpg');
-const food = require('../assets/images/random/bun-rieu.jpg');
 
 type ReplyTarget = { name: string; mention: string } | null;
 
-export function CommunityPostDetailScreen({ onBack }: { onBack: () => void }) {
+export function CommunityPostDetailScreen({
+  postId,
+  onBack,
+}: {
+  postId?: string | null;
+  onBack: () => void;
+}) {
+  const [loading, setLoading] = useState(Boolean(postId));
+  const [error, setError] = useState<string | null>(null);
+  const [post, setPost] = useState<ExplorePost | null>(null);
+  const [comments, setComments] = useState<PostComment[]>([]);
   const [saved, setSaved] = useState(false);
   const [followed, setFollowed] = useState(false);
-  const [postLiked, setPostLiked] = useState(true);
+  const [postLiked, setPostLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(0);
   const [replying, setReplying] = useState<ReplyTarget>(null);
   const [value, setValue] = useState('');
-  const [submitted, setSubmitted] = useState<string[]>([]);
   const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    if (!postId) {
+      setLoading(false);
+      setError('Thiếu postId');
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    Promise.all([communityApi.getPost(postId), communityApi.listComments(postId)])
+      .then(([p, c]) => {
+        if (cancelled) return;
+        setPost(p);
+        setComments(c);
+        setPostLiked(Boolean(p.isLiked));
+        setLikeCount(p.likeCount ?? 0);
+      })
+      .catch((e: any) => {
+        if (!cancelled) setError(e?.message || 'Không tải được bài đăng');
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [postId]);
 
   const beginReply = (name: string, mention: string) => {
     setReplying({ name, mention });
@@ -64,13 +95,66 @@ export function CommunityPostDetailScreen({ onBack }: { onBack: () => void }) {
     setValue('');
     inputRef.current?.blur();
   };
-  const sendComment = () => {
+  const sendComment = async () => {
     const message = value.trim();
-    if (!message) return;
-    setSubmitted((items) => [message, ...items]);
-    setValue('');
-    setReplying(null);
+    if (!message || !postId) return;
+    try {
+      const created = await communityApi.addComment(postId, message);
+      setComments((prev) => [...prev, created]);
+      setValue('');
+      setReplying(null);
+    } catch {
+      // keep draft
+    }
   };
+
+  const toggleLike = async () => {
+    if (!postId) return;
+    const prevLiked = postLiked;
+    const prevCount = likeCount;
+    setPostLiked(!prevLiked);
+    setLikeCount(prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
+    try {
+      const res = await communityApi.toggleLike(postId);
+      setPostLiked(res.liked);
+    } catch {
+      setPostLiked(prevLiked);
+      setLikeCount(prevCount);
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
+        <View style={[s.header, { justifyContent: 'center' }]}>
+          <ActivityIndicator color={C.yellowDark} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !post) {
+    return (
+      <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
+        <View style={s.header}>
+          <Pressable onPress={onBack} style={s.iconButton}>
+            <ArrowLeft size={27} />
+          </Pressable>
+        </View>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <Text style={{ color: C.ink, fontWeight: '700', textAlign: 'center' }}>
+            {error ?? 'Không có dữ liệu'}
+          </Text>
+          <Pressable onPress={onBack} style={{ marginTop: 16 }}>
+            <Text style={{ color: C.secondary }}>Quay lại</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  const authorName = post.author?.displayName?.trim() || 'Thành viên Mogu';
+  const imageUri = post.imageUrls?.[0];
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
@@ -79,428 +163,200 @@ export function CommunityPostDetailScreen({ onBack }: { onBack: () => void }) {
           <Pressable onPress={onBack} style={s.iconButton}>
             <ArrowLeft size={27} />
           </Pressable>
-          <Text style={s.headerTitle}>Bài viết</Text>
-          <View style={s.headerRight}>
-            <Pressable onPress={() => setSaved(!saved)} style={s.iconButton}>
-              <Bookmark size={25} fill={saved ? C.yellow : 'transparent'} />
-            </Pressable>
-            <Pressable style={s.iconButton}>
-              <MoreHorizontal size={25} />
+          <Text style={{ flex: 1, fontWeight: '700', fontSize: 16, color: C.ink }} numberOfLines={1}>
+            Bài đăng
+          </Text>
+          <Pressable onPress={() => setSaved((v) => !v)} style={s.iconButton}>
+            <Bookmark size={24} fill={saved ? C.yellow : 'transparent'} />
+          </Pressable>
+          <Pressable style={s.iconButton}>
+            <Share2 size={24} />
+          </Pressable>
+        </View>
+
+        <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              paddingHorizontal: 16,
+              marginTop: 8,
+            }}
+          >
+            <Image
+              source={post.author?.avatarUrl ? { uri: post.author.avatarUrl } : avatar}
+              style={{ width: 44, height: 44, borderRadius: 22 }}
+            />
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontWeight: '700', color: C.ink }}>{authorName}</Text>
+              <Text style={{ color: C.tertiary, fontSize: 12 }}>
+                {new Date(post.createdAt).toLocaleString('vi-VN')}
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => setFollowed((f) => !f)}
+              style={{
+                paddingHorizontal: 12,
+                paddingVertical: 8,
+                borderRadius: 999,
+                backgroundColor: followed ? C.border : C.yellow,
+              }}
+            >
+              <Text style={{ fontWeight: '600', fontSize: 12 }}>
+                {followed ? 'Đang follow' : 'Follow'}
+              </Text>
             </Pressable>
           </View>
-        </View>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={s.content}
-          keyboardShouldPersistTaps="handled"
-        >
-          <View style={s.postCard}>
-            <View style={s.authorRow}>
-              <Image source={avatar} style={s.authorAvatar} />
-              <View style={s.flex}>
-                <Text style={s.authorName}>Hương Giang</Text>
-                <Text style={s.time}>15 phút</Text>
-              </View>
-              <Pressable
-                onPress={() => setFollowed(!followed)}
-                style={[s.follow, followed && s.followed]}
-              >
-                {!followed && <Plus size={20} />}
-                <Text style={s.followText}>{followed ? 'Đang theo dõi' : 'Theo dõi'}</Text>
-              </Pressable>
-            </View>
-            <Text style={s.postText}>Hôm nay Mogu chọn Bún bò Huế cho mình!</Text>
-            <View style={s.imageWrap}>
-              <Image source={food} style={s.postImage} />
-              <View style={s.randomBadge}>
-                <Sparkles size={15} />
-                <Text style={s.randomText}>Kết quả Random</Text>
-              </View>
-            </View>
-            <View style={s.stats}>
-              <Pressable onPress={() => setPostLiked(!postLiked)} style={s.stat}>
-                <Heart
-                  size={25}
-                  color={postLiked ? C.red : C.secondary}
-                  fill={postLiked ? C.red : 'transparent'}
-                />
-                <Text style={[s.statText, postLiked && { color: C.red }]}>Yêu thích</Text>
-                <Text style={s.statCount}>{postLiked ? '128' : '127'}</Text>
-              </Pressable>
-              <View style={s.stat}>
-                <MessageCircle size={24} color={C.secondary} />
-                <Text style={s.statCount}>24</Text>
-              </View>
-              <View style={s.stat}>
-                <Share2 size={24} color={C.secondary} />
-                <Text style={s.statText}>Chia sẻ</Text>
-              </View>
+
+          <Text
+            style={{
+              marginHorizontal: 16,
+              marginTop: 14,
+              fontSize: 16,
+              lineHeight: 24,
+              color: C.ink,
+            }}
+          >
+            {post.content}
+          </Text>
+
+          {imageUri ? (
+            <Image
+              source={{ uri: imageUri }}
+              style={{ width: '100%', height: 280, marginTop: 14 }}
+              resizeMode="cover"
+            />
+          ) : null}
+
+          <View
+            style={{
+              flexDirection: 'row',
+              gap: 20,
+              paddingHorizontal: 16,
+              marginTop: 14,
+              alignItems: 'center',
+            }}
+          >
+            <Pressable
+              onPress={toggleLike}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+            >
+              <Heart
+                size={22}
+                color={postLiked ? C.red : C.ink}
+                fill={postLiked ? C.red : 'transparent'}
+              />
+              <Text style={{ fontWeight: '600' }}>{likeCount}</Text>
+            </Pressable>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <MessageCircle size={22} />
+              <Text style={{ fontWeight: '600' }}>{comments.length}</Text>
             </View>
           </View>
 
-          <View style={s.commentsCard}>
-            <View style={s.commentsHeader}>
-              <Text style={s.commentsTitle}>24 bình luận</Text>
-              <Pressable style={s.sort}>
-                <Text style={s.sortText}>Phù hợp nhất</Text>
-                <ChevronDown size={17} color={C.secondary} />
+          <Text style={{ marginHorizontal: 16, marginTop: 22, fontWeight: '700', fontSize: 16 }}>
+            Bình luận
+          </Text>
+          {comments.length === 0 ? (
+            <Text style={{ marginHorizontal: 16, marginTop: 8, color: C.secondary }}>
+              Chưa có bình luận.
+            </Text>
+          ) : (
+            comments.map((c) => (
+              <View key={c.id} style={{ marginHorizontal: 16, marginTop: 14 }}>
+                <Text style={{ fontWeight: '700', color: C.ink }}>
+                  {c.author?.displayName?.trim() || 'Thành viên'}
+                </Text>
+                <Text style={{ marginTop: 4, color: C.ink, lineHeight: 20 }}>{c.content}</Text>
+                <Pressable
+                  onPress={() =>
+                    beginReply(
+                      c.author?.displayName || 'Thành viên',
+                      (c.author?.displayName || 'user').replace(/\s+/g, ''),
+                    )
+                  }
+                  style={{ marginTop: 6 }}
+                >
+                  <Text style={{ color: C.secondary, fontSize: 12 }}>Trả lời</Text>
+                </Pressable>
+              </View>
+            ))
+          )}
+        </ScrollView>
+
+        <View
+          style={{
+            borderTopWidth: 1,
+            borderTopColor: C.border,
+            padding: 12,
+            backgroundColor: C.white,
+          }}
+        >
+          {replying ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginBottom: 8,
+              }}
+            >
+              <Text style={{ color: C.secondary, fontSize: 12 }}>Trả lời @{replying.mention}</Text>
+              <Pressable onPress={cancelReply}>
+                <X size={16} color={C.secondary} />
               </Pressable>
             </View>
-            <Comment
-              name="Minh Quân"
-              time="10 phút"
-              text="Nhìn ngon quá! Quán này ở đâu vậy bạn?"
-              likes={8}
-              selected={replying?.name === 'Minh Quân'}
-              onReply={() => beginReply('Minh Quân', 'MinhQuân')}
+          ) : null}
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+            <TextInput
+              ref={inputRef}
+              value={value}
+              onChangeText={setValue}
+              placeholder="Viết bình luận..."
+              style={{
+                flex: 1,
+                minHeight: 40,
+                borderWidth: 1,
+                borderColor: C.border,
+                borderRadius: 20,
+                paddingHorizontal: 14,
+                paddingVertical: 8,
+              }}
             />
-            <View style={s.replyThread}>
-              <View style={s.connector} />
-              <Reply
-                name="Hương Giang"
-                time="8 phút"
-                mention="@Minh Quân"
-                text="Mình ăn ở quận 1 nha, mình gửi địa chỉ nhé!"
-                likes={6}
-                onReply={() => beginReply('Hương Giang', 'HươngGiang')}
-              />
-              <Text style={s.moreReplies}>Xem thêm 3 phản hồi</Text>
-            </View>
-            <Comment
-              name="Lan Anh"
-              time="12 phút"
-              text="Mình cũng vừa random ra món này hôm qua 😍"
-              likes={5}
-              selected={replying?.name === 'Lan Anh'}
-              onReply={() => beginReply('Lan Anh', 'LanAnh')}
-            />
-            <Comment
-              name="Quang Huy"
-              time="18 phút"
-              text="Bún bò Huế là chân ái luôn! 😋"
-              likes={3}
-              selected={replying?.name === 'Quang Huy'}
-              onReply={() => beginReply('Quang Huy', 'QuangHuy')}
-            />
-            {submitted.map((text, index) => (
-              <Comment
-                key={`${text}-${index}`}
-                name="Bạn"
-                time="Đang gửi"
-                text={text}
-                likes={0}
-                selected={false}
-                onReply={() => beginReply('Bạn', 'Bạn')}
-              />
-            ))}
+            <Pressable
+              onPress={sendComment}
+              style={{
+                width: 40,
+                height: 40,
+                borderRadius: 20,
+                backgroundColor: C.yellow,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Send size={18} />
+            </Pressable>
           </View>
-          <View style={{ height: 90 }} />
-        </ScrollView>
-        <Composer
-          replying={replying}
-          value={value}
-          setValue={setValue}
-          inputRef={inputRef}
-          onCancel={cancelReply}
-          onSend={sendComment}
-        />
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-function Comment({
-  name,
-  time,
-  text,
-  likes,
-  selected,
-  onReply,
-}: {
-  name: string;
-  time: string;
-  text: string;
-  likes: number;
-  selected: boolean;
-  onReply: () => void;
-}) {
-  const [liked, setLiked] = useState(false);
-  return (
-    <View style={[s.comment, selected && s.commentSelected]}>
-      <Image source={avatar} style={s.commentAvatar} />
-      <View style={s.commentContent}>
-        <View style={s.bubble}>
-          <Text style={s.commentName}>{name}</Text>
-          <Text style={s.commentText}>{text}</Text>
-        </View>
-        <View style={s.commentActions}>
-          <Text style={s.time}>{time}</Text>
-          <Pressable onPress={() => setLiked(!liked)}>
-            <Text style={[s.actionText, liked && { color: C.red }]}>Thích</Text>
-          </Pressable>
-          <Text style={s.dot}>·</Text>
-          <Pressable onPress={onReply}>
-            <Text style={s.actionText}>Trả lời</Text>
-          </Pressable>
-          <View style={s.likeCount}>
-            <Heart size={18} color={C.red} fill={C.red} />
-            <Text style={s.time}>{likes + (liked ? 1 : 0)}</Text>
-          </View>
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function Reply({
-  name,
-  time,
-  mention,
-  text,
-  likes,
-  onReply,
-}: {
-  name: string;
-  time: string;
-  mention: string;
-  text: string;
-  likes: number;
-  onReply: () => void;
-}) {
-  return (
-    <View style={s.reply}>
-      <Image source={avatar} style={s.replyAvatar} />
-      <View style={s.commentContent}>
-        <View style={s.replyBubble}>
-          <Text style={s.commentName}>{name}</Text>
-          <Text style={s.commentText}>
-            <Text style={s.mention}>{mention} </Text>
-            {text}
-          </Text>
-        </View>
-        <View style={s.commentActions}>
-          <Text style={s.time}>{time}</Text>
-          <Text style={s.actionText}>Thích</Text>
-          <Text style={s.dot}>·</Text>
-          <Pressable onPress={onReply}>
-            <Text style={s.actionText}>Trả lời</Text>
-          </Pressable>
-          <View style={s.likeCount}>
-            <Heart size={18} color={C.red} fill={C.red} />
-            <Text style={s.time}>{likes}</Text>
-          </View>
-        </View>
-      </View>
-    </View>
-  );
-}
-
-function Composer({
-  replying,
-  value,
-  setValue,
-  inputRef,
-  onCancel,
-  onSend,
-}: {
-  replying: ReplyTarget;
-  value: string;
-  setValue: (v: string) => void;
-  inputRef: React.RefObject<TextInput | null>;
-  onCancel: () => void;
-  onSend: () => void;
-}) {
-  return (
-    <View style={s.composerWrap}>
-      {replying && (
-        <View style={s.replyingBar}>
-          <Text style={s.replyingText}>
-            Đang trả lời <Text style={{ fontWeight: '700' }}>{replying.name}</Text>
-          </Text>
-          <Pressable onPress={onCancel} style={s.smallButton}>
-            <X size={20} />
-          </Pressable>
-        </View>
-      )}
-      <View style={s.composer}>
-        <Image source={avatar} style={s.composerAvatar} />
-        <View style={s.inputWrap}>
-          <TextInput
-            ref={inputRef}
-            value={value}
-            onChangeText={setValue}
-            onSubmitEditing={onSend}
-            style={s.input}
-            placeholder="Viết bình luận..."
-            placeholderTextColor={C.tertiary}
-          />
-          <ImageIcon size={22} color={C.secondary} />
-        </View>
-        <Pressable style={s.smallButton}>
-          <Smile size={25} color={C.secondary} />
-        </Pressable>
-        <Pressable
-          onPress={onSend}
-          disabled={!value.trim()}
-          style={[s.send, !value.trim() && s.sendDisabled]}
-        >
-          <Send size={23} color={C.ink} fill={value.trim() ? C.ink : 'transparent'} />
-        </Pressable>
-      </View>
-    </View>
-  );
-}
-
-const shadow = {
-  shadowColor: '#5D490F',
-  shadowOpacity: 0.08,
-  shadowRadius: 20,
-  shadowOffset: { width: 0, height: 6 },
-  elevation: 3,
-};
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: C.bg },
   flex: { flex: 1 },
   header: {
     height: 56,
-    paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+    gap: 4,
   },
-  iconButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  headerTitle: { fontSize: 20, lineHeight: 26, fontWeight: '700', color: C.ink },
-  headerRight: { flexDirection: 'row' },
-  content: { paddingHorizontal: 14, paddingBottom: 8 },
-  postCard: { backgroundColor: C.white, borderRadius: 20, padding: 14, marginTop: 10, ...shadow },
-  authorRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  authorAvatar: { width: 48, height: 48, borderRadius: 24 },
-  authorName: { fontSize: 16, lineHeight: 21, fontWeight: '600' },
-  time: { fontSize: 12, lineHeight: 17, color: C.tertiary },
-  follow: {
-    height: 42,
-    paddingHorizontal: 16,
-    borderRadius: 999,
-    borderWidth: 1.5,
-    borderColor: C.yellowDark,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-  },
-  followed: { backgroundColor: C.selected },
-  followText: { fontSize: 14, fontWeight: '600' },
-  postText: { fontSize: 16, lineHeight: 24, color: C.ink, marginVertical: 16 },
-  imageWrap: { height: 330, borderRadius: 16, overflow: 'hidden' },
-  postImage: { width: '100%', height: '100%', resizeMode: 'cover' },
-  randomBadge: {
-    position: 'absolute',
-    left: 12,
-    top: 12,
-    height: 36,
-    paddingHorizontal: 14,
-    borderRadius: 999,
-    backgroundColor: C.yellow,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-  },
-  randomText: { fontSize: 13, fontWeight: '500' },
-  stats: {
-    height: 52,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 4,
-  },
-  stat: { flexDirection: 'row', alignItems: 'center', gap: 7 },
-  statText: { fontSize: 14, color: C.secondary },
-  statCount: { fontSize: 14, color: C.secondary },
-  commentsCard: {
-    backgroundColor: C.white,
-    borderRadius: 20,
-    padding: 14,
-    marginTop: 16,
-    ...shadow,
-  },
-  commentsHeader: {
-    height: 50,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  commentsTitle: { fontSize: 20, lineHeight: 26, fontWeight: '700' },
-  sort: { height: 40, paddingHorizontal: 12, flexDirection: 'row', alignItems: 'center', gap: 6 },
-  sortText: { fontSize: 14, color: C.secondary },
-  comment: { flexDirection: 'row', gap: 10, paddingVertical: 10, borderRadius: 16 },
-  commentSelected: { backgroundColor: C.selected, paddingHorizontal: 8 },
-  commentAvatar: { width: 40, height: 40, borderRadius: 20 },
-  commentContent: { flex: 1 },
-  bubble: { backgroundColor: '#F8F8F8', borderRadius: 16, padding: 12 },
-  commentName: { fontSize: 14, lineHeight: 19, fontWeight: '600' },
-  commentText: { fontSize: 15, lineHeight: 22, color: '#282828', marginTop: 4 },
-  commentActions: {
-    height: 34,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingHorizontal: 12,
-  },
-  actionText: { fontSize: 12, lineHeight: 17, fontWeight: '500', color: C.secondary },
-  dot: { color: C.secondary },
-  likeCount: { marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', gap: 5 },
-  replyThread: { marginLeft: 42, position: 'relative' },
-  connector: {
-    position: 'absolute',
-    left: 7,
-    top: -14,
-    bottom: 26,
-    width: 1.5,
-    backgroundColor: C.connector,
-  },
-  reply: { flexDirection: 'row', gap: 10, paddingLeft: 18, paddingTop: 6 },
-  replyAvatar: { width: 32, height: 32, borderRadius: 16 },
-  replyBubble: { backgroundColor: '#F8F8F8', borderRadius: 16, padding: 12 },
-  mention: { fontWeight: '600', color: C.yellowDark },
-  moreReplies: { fontSize: 14, color: C.secondary, marginLeft: 24, marginVertical: 12 },
-  composerWrap: { backgroundColor: C.white, borderTopWidth: 1, borderTopColor: C.border },
-  replyingBar: {
-    height: 42,
-    paddingHorizontal: 20,
-    backgroundColor: C.selected,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  replyingText: { fontSize: 13, color: C.ink },
-  composer: {
-    minHeight: 68,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  composerAvatar: { width: 38, height: 38, borderRadius: 19 },
-  inputWrap: {
-    flex: 1,
-    minHeight: 50,
-    borderWidth: 1,
-    borderColor: C.border,
-    borderRadius: 25,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  input: { flex: 1, fontSize: 15, color: C.ink },
-  smallButton: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  send: {
+  iconButton: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: C.yellow,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  sendDisabled: { backgroundColor: '#EEE9DB' },
 });

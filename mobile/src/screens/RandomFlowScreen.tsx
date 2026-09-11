@@ -1,15 +1,17 @@
 ﻿import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { dishesApi, type RandomResult } from '../services/api/dishes';
 import {
   budgetKeyToDto,
+  getRandomizationContext,
   mealKeyToSlot,
   normalizeImageUrl,
   randomizeDish,
   retryRandomization,
   selectRandomization,
   recordRecommendationEvent,
+  type RandomizationContext,
   type RandomizationResult,
 } from '../services/api/randomization';
+import { formatApiErrorWithCode } from '../lib/api-error';
 import {
   Animated,
   Easing,
@@ -58,34 +60,52 @@ const MUTED = '#686868';
 const EASE = Easing.bezier(0.22, 1, 0.36, 1);
 
 type Props = { onClose: () => void };
-type SheetType = 'needs' | 'location' | 'adjust' | null;
 
-const dishes = [
+const ORBIT_DISHES = [
   { name: 'Phở bò', image: require('../assets/images/random/pho-result.jpg') },
   { name: 'Bún riêu', image: require('../assets/images/random/bun-rieu.jpg') },
   { name: 'Cháo gà', image: require('../assets/images/random/chao-ga.jpg') },
   { name: 'Bánh cuốn', image: require('../assets/images/random/banh-cuon.jpg') },
 ] as const;
 
+function slotToMealKey(slot: string): string {
+  const map: Record<string, string> = {
+    BREAKFAST: 'Sáng',
+    LUNCH: 'Trưa',
+    DINNER: 'Tối',
+    SNACK: 'Bữa phụ',
+    ANY: 'Bất kỳ',
+  };
+  return map[slot] ?? 'Trưa';
+}
+
 export function RandomFlowScreen({ onClose }: Props) {
   const [step, setStep] = useState(0);
   const [meal, setMeal] = useState('Trưa');
-  const [need, setNeed] = useState('Lành mạnh');
   const [budget, setBudget] = useState('40K–80K');
-  const [foodType, setFoodType] = useState('Món nước');
-  const [resultIndex, setResultIndex] = useState(0);
-  const [randomResult, setRandomResult] = useState<RandomResult | null>(null);
-  // BA-006: thêm state cho kết quả mới
   const [ba006Result, setBa006Result] = useState<RandomizationResult | null>(null);
-  const [sheet, setSheet] = useState<SheetType>(null);
-  const [distance, setDistance] = useState('3 km');
-  const [openOnly, setOpenOnly] = useState(true);
-  const [excluded, setExcluded] = useState(['Hải sản', 'Đậu phộng']);
-  const [diet, setDiet] = useState('Không có');
+  const [randomContext, setRandomContext] = useState<RandomizationContext | null>(null);
+  const [noCandidateMessage, setNoCandidateMessage] = useState<string | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [detailPage, setDetailPage] = useState<FoodDetailPage | null>(null);
+  const pendingRetryId = useRef<string | null>(null);
+  const lastDishIdRef = useRef<string | null>(null);
   const transitionX = useRef(new Animated.Value(0)).current;
   const transitionOpacity = useRef(new Animated.Value(1)).current;
   const busy = useRef(false);
+
+  useEffect(() => {
+    getRandomizationContext()
+      .then((ctx) => {
+        setRandomContext(ctx);
+        if (ctx.suggestedMealSlot) {
+          setMeal(slotToMealKey(ctx.suggestedMealSlot));
+        }
+      })
+      .catch(() => {
+        // Context optional — budget/meal still work without it
+      });
+  }, []);
 
   const navigate = (next: number, direction: 1 | -1) => {
     if (busy.current) return;
@@ -127,119 +147,93 @@ export function RandomFlowScreen({ onClose }: Props) {
     else navigate(step - 1, -1);
   };
 
-  // ── fetchRandom phải khai báo TRƯỚC mọi early return (Rules of Hooks) ────
-  const fetchRandom = useCallback(async (retryId?: string) => {
+  const fetchRandom = useCallback(async () => {
+    const retryId = pendingRetryId.current;
+    pendingRetryId.current = null;
+    setFetchError(null);
+    setNoCandidateMessage(null);
+
     try {
-      let result: RandomizationResult;
-      if (retryId) {
-        // BA-006: retry flow
-        result = await retryRandomization(retryId, true);
-      } else {
-        // BA-006: random mới
-        result = await randomizeDish({
-          source: 'RANDOM_FLOW',
-          meal: { slot: mealKeyToSlot(meal), selectionSource: 'USER_SELECTED' },
-          budget: budgetKeyToDto(budget),
-        });
-      }
+      const result = retryId
+        ? await retryRandomization(retryId, true)
+        : await randomizeDish({
+            source: retryId ? 'RANDOM_AGAIN' : 'RANDOM_FLOW',
+            meal: { slot: mealKeyToSlot(meal), selectionSource: 'USER_SELECTED' },
+            budget: budgetKeyToDto(budget),
+            excludeDishIds: lastDishIdRef.current ? [lastDishIdRef.current] : undefined,
+          });
+
+      setBa006Result(result);
 
       if (result?.dish) {
-        setBa006Result(result);
-        // Ghi IMPRESSION event (best-effort)
+        lastDishIdRef.current = result.dish.id;
         if (result.randomizationId) {
           recordRecommendationEvent(result.randomizationId, 'IMPRESSION').catch(() => {});
         }
-      } else {
-        setBa006Result(result); // vẫn set để hiện thông báo no candidate
+        setDetailPage('result');
+        return;
       }
-      // Legacy fallback nếu dish có media
-      setRandomResult(null);
-    } catch {
-      // Fallback về legacy API
-      try {
-        const legacyResult = await dishesApi.getRandom({
-          mealTypeCode: meal === 'Trưa' ? 'LUNCH' : meal === 'Tối' ? 'DINNER' : 'BREAKFAST',
-        });
-        if (legacyResult?.dish) setRandomResult(legacyResult);
-        else setRandomResult(null);
-      } catch {
-        setRandomResult(null);
-      }
+
+      const summary =
+        result?.reason?.summary ??
+        result?.explanation?.summary ??
+        'Không tìm thấy món phù hợp với tiêu chí của bạn.';
+      setNoCandidateMessage(summary);
+      setStep(3);
+    } catch (err) {
+      setFetchError(formatApiErrorWithCode(err));
+      setStep(3);
     }
-    // Sau random → hiển thị ResultScreen (màn 4)
-    setDetailPage('result');
   }, [meal, budget]);
 
-  // currentDishForResult cần được tính TRƯỚC early return detailPage
   const currentDishForResult = (() => {
-    // Ưu tiên BA-006 result
-    if (ba006Result?.dish) {
-      const imgUrl = normalizeImageUrl(ba006Result.dish.imageUrl);
-      return {
-        name: ba006Result.dish.name,
-        image: imgUrl
-          ? { uri: imgUrl }
-          : dishes[resultIndex % dishes.length].image,
-      };
-    }
-    // Fallback về legacy
-    if (randomResult?.dish) {
-      const mediaKey = (randomResult.dish.media ?? [])[0]?.storageKey;
-      return {
-        name: randomResult.dish.name,
-        image: mediaKey
-          ? { uri: `https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/dish-images/${mediaKey}` }
-          : dishes[resultIndex % dishes.length].image,
-      };
-    }
-    return dishes[resultIndex % dishes.length];
+    if (!ba006Result?.dish) return null;
+    const imgUrl = normalizeImageUrl(ba006Result.dish.imageUrl);
+    return {
+      name: ba006Result.dish.name,
+      image: imgUrl ? { uri: imgUrl } : require('../assets/images/random/pho-result.jpg'),
+    };
   })();
 
   // Explanation từ BA-006 (hiển thị trong OverviewPage)
   const currentExplanation = ba006Result?.explanation ?? null;
   const currentRandomizationId = ba006Result?.randomizationId ?? null;
 
-  if (detailPage) {
-    // Lấy thêm priceMin, priceMax, prepTimeMin từ BA-006 result
-    const dish = ba006Result?.dish;
+  if (detailPage && ba006Result?.dish && currentDishForResult) {
+    const dish = ba006Result.dish;
 
     return (
       <FoodDetailFlowScreen
         initialPage={detailPage}
-        dishId={dish?.id}
+        dishId={dish.id}
         dishName={currentDishForResult.name}
         dishImage={currentDishForResult.image}
         meal={meal}
-        priceMin={dish?.priceMin ?? null}
-        priceMax={dish?.priceMax ?? null}
-        prepMinutes={dish?.prepMinutes ?? null}
-        cookMinutes={dish?.cookMinutes ?? null}
-        shortDescription={dish?.shortDescription ?? null}
-        originText={dish?.originText ?? null}
-        nutrition={dish?.nutrition ?? null}
-        ingredients={dish?.ingredients ?? []}
-        allergens={dish?.allergens ?? []}
-        recipeSteps={dish?.recipeSteps ?? []}
-        difficulty={dish?.difficulty ?? null}
+        priceMin={dish.priceMin ?? null}
+        priceMax={dish.priceMax ?? null}
+        prepMinutes={dish.prepMinutes ?? null}
+        cookMinutes={dish.cookMinutes ?? null}
+        shortDescription={dish.shortDescription ?? null}
+        originText={dish.originText ?? null}
+        nutrition={dish.nutrition ?? null}
+        ingredients={dish.ingredients ?? []}
+        allergens={dish.allergens ?? []}
+        recipeSteps={dish.recipeSteps ?? []}
+        difficulty={dish.difficulty ?? null}
         explanation={currentExplanation}
         onClose={() => {
-          // "Random lại" → quay về loading, dùng retry API nếu có randomizationId
-          const retryId = currentRandomizationId ?? undefined;
+          if (currentRandomizationId) {
+            pendingRetryId.current = currentRandomizationId;
+            recordRecommendationEvent(currentRandomizationId, 'RETRY').catch(() => {});
+          }
           setDetailPage(null);
-          setRandomResult(null);
           setBa006Result(null);
-          setResultIndex((c) => (c + 1) % dishes.length);
           setStep(2);
-          setTimeout(() => {
-            if (retryId) {
-              recordRecommendationEvent(retryId, 'RETRY').catch(() => {});
-            }
-          }, 100);
         }}
         onFinish={() => {
           if (currentRandomizationId) {
+            // selectRandomization ghi SELECT event trên BE — không gọi recordRecommendationEvent trùng
             selectRandomization(currentRandomizationId).catch(() => {});
-            recordRecommendationEvent(currentRandomizationId, 'SELECT').catch(() => {});
           }
           onClose();
         }}
@@ -251,10 +245,29 @@ export function RandomFlowScreen({ onClose }: Props) {
     return (
       <LoadingScreen
         meal={meal}
-        need={need}
         budget={budget === '40K–80K' ? '40K–80K' : budget}
         onClose={onClose}
         onDone={() => fetchRandom()}
+      />
+    );
+  }
+
+  if (step === 3) {
+    return (
+      <NoCandidateScreen
+        message={fetchError ?? noCandidateMessage ?? 'Không tìm thấy món phù hợp.'}
+        isError={!!fetchError}
+        onBack={() => {
+          setFetchError(null);
+          setNoCandidateMessage(null);
+          setStep(1);
+        }}
+        onRetry={() => {
+          setFetchError(null);
+          setNoCandidateMessage(null);
+          setStep(2);
+        }}
+        onClose={onClose}
       />
     );
   }
@@ -270,53 +283,17 @@ export function RandomFlowScreen({ onClose }: Props) {
         ]}
       >
         {step === 0 ? (
-          <SelectionStep
-            meal={meal}
-            need={need}
-            onMeal={setMeal}
-            onNeed={setNeed}
-            onOpenMore={() => setSheet('needs')}
-            onNext={() => navigate(1, 1)}
-          />
+          <SelectionStep meal={meal} onMeal={setMeal} onNext={() => navigate(1, 1)} />
         ) : (
           <RefineStep
-            need={need}
             budget={budget}
-            foodType={foodType}
+            context={randomContext}
             onBudget={setBudget}
-            onFoodType={setFoodType}
-            distance={distance}
-            excluded={excluded}
-            onOpenLocation={() => setSheet('location')}
-            onOpenAdjust={() => setSheet('adjust')}
             onSkip={() => navigate(2, 1)}
             onRandom={() => navigate(2, 1)}
           />
         )}
       </Animated.View>
-      <RandomBottomSheet
-        type={sheet}
-        need={need}
-        distance={distance}
-        openOnly={openOnly}
-        excluded={excluded}
-        diet={diet}
-        onClose={() => setSheet(null)}
-        onApplyNeed={(value) => {
-          setNeed(value);
-          setSheet(null);
-        }}
-        onApplyLocation={(nextDistance, nextOpenOnly) => {
-          setDistance(nextDistance);
-          setOpenOnly(nextOpenOnly);
-          setSheet(null);
-        }}
-        onApplyAdjust={(nextExcluded, nextDiet) => {
-          setExcluded(nextExcluded);
-          setDiet(nextDiet);
-          setSheet(null);
-        }}
-      />
     </SafeAreaView>
   );
 }
@@ -402,10 +379,7 @@ function SelectionStep({
   onNext,
 }: {
   meal: string;
-  need: string;
   onMeal: (value: string) => void;
-  onNeed: (value: string) => void;
-  onOpenMore: () => void;
   onNext: () => void;
 }) {
   // Tìm slot đang chọn
@@ -598,25 +572,33 @@ function ChoiceSurface({
 
 function RefineStep({
   budget,
-  distance,
-  excluded,
+  context,
   onBudget,
-  onOpenAdjust,
   onSkip,
   onRandom,
 }: {
-  need: string;
   budget: string;
-  foodType: string;
+  context: RandomizationContext | null;
   onBudget: (value: string) => void;
-  onFoodType: (value: string) => void;
-  distance: string;
-  excluded: string[];
-  onOpenLocation: () => void;
-  onOpenAdjust: () => void;
   onSkip: () => void;
   onRandom: () => void;
 }) {
+  const profile = context?.profileSnapshot;
+  const dietLabels =
+    profile?.hardDietTypeCodes?.length
+      ? profile.hardDietTypeCodes.join(', ')
+      : profile?.dietTypeCodes?.length
+        ? profile.dietTypeCodes.join(', ')
+        : null;
+  const allergenLabels = profile?.allergenCodes?.length
+    ? profile.allergenCodes.join(', ')
+    : null;
+  const goalLabels = profile?.preferenceCodes?.length
+    ? profile.preferenceCodes.join(', ')
+    : context?.availableGoals?.length
+      ? 'Theo hồ sơ'
+      : null;
+
   return (
     <ScrollView
       style={{ flex: 1 }}
@@ -632,40 +614,62 @@ function RefineStep({
         />
         <Text style={styles.stepLabel}>BƯỚC 2/3</Text>
         <Text style={styles.refineTitle}>Mogu sẽ chọn theo hồ sơ này</Text>
-        <Text style={styles.refineSub}>Bạn chỉ cần chỉnh nếu hôm nay có thay đổi.</Text>
+        <Text style={styles.refineSub}>Bạn chỉ cần chỉnh ngân sách nếu hôm nay có thay đổi.</Text>
       </View>
 
       {/* ── Profile summary card ── */}
       <View style={styles.profileCard}>
         <View style={styles.profileCardHeader}>
           <Text style={styles.profileCardTitle}>Đang áp dụng</Text>
-          <Pressable onPress={onOpenAdjust}>
-            <Text style={styles.profileCardEdit}>Chỉnh sửa</Text>
-          </Pressable>
         </View>
-        {/* Mục tiêu */}
         <View style={styles.profileRow}>
           <View style={styles.profileRowIcon}>
             <Sparkles size={18} color={INK} />
           </View>
-          <Text style={styles.profileRowText}>Ăn uống cân bằng</Text>
+          <Text style={styles.profileRowText}>
+            {goalLabels ?? 'Theo mục tiêu trong hồ sơ'}
+          </Text>
         </View>
-        {/* Tránh */}
+        {dietLabels ? (
+          <View style={styles.profileRow}>
+            <View style={styles.profileRowIcon}>
+              <Leaf size={18} color={INK} />
+            </View>
+            <Text style={styles.profileRowText}>Chế độ ăn: {dietLabels}</Text>
+          </View>
+        ) : null}
         <View style={styles.profileRow}>
           <View style={styles.profileRowIcon}>
             <ShieldCheck size={18} color={INK} />
           </View>
           <Text style={styles.profileRowText}>
-            {excluded.length > 0 ? `Tránh ${excluded.join(', ')}` : 'Không loại trừ nguyên liệu'}
+            {allergenLabels ? `Tránh dị ứng: ${allergenLabels}` : 'Không có dị ứng đã lưu'}
           </Text>
         </View>
-        {/* Vị trí */}
         <View style={[styles.profileRow, { borderBottomWidth: 0 }]}>
           <View style={styles.profileRowIcon}>
             <MapPin size={18} color={INK} />
           </View>
-          <Text style={styles.profileRowText}>Trong bán kính {distance}</Text>
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={[styles.profileRowText, { flex: 1 }]}>Khu vực gợi ý</Text>
+            <ComingSoonBadge />
+          </View>
         </View>
+      </View>
+
+      {/* Unwired controls — visible but disabled */}
+      <View style={styles.comingSoonSection}>
+        <Text style={styles.comingSoonTitle}>Tuỳ chọn thêm</Text>
+        {[
+          { icon: <Salad size={18} color={MUTED} />, label: 'Nhu cầu hôm nay' },
+          { icon: <Utensils size={18} color={MUTED} />, label: 'Loại món' },
+        ].map(({ icon, label }) => (
+          <View key={label} style={styles.comingSoonRow}>
+            <View style={styles.profileRowIcon}>{icon}</View>
+            <Text style={styles.comingSoonLabel}>{label}</Text>
+            <ComingSoonBadge />
+          </View>
+        ))}
       </View>
 
       {/* ── Budget section ── */}
@@ -754,6 +758,8 @@ function PrimaryButton({
     </Animated.View>
   );
 }
+
+type SheetType = 'needs' | 'location' | 'adjust' | null;
 
 type BottomSheetProps = {
   type: SheetType;
@@ -1099,6 +1105,45 @@ function SheetPrimaryButton({ label, onPress }: { label: string; onPress: () => 
   );
 }
 
+function ComingSoonBadge() {
+  return (
+    <View style={styles.comingSoonBadge}>
+      <Text style={styles.comingSoonBadgeText}>Sắp có</Text>
+    </View>
+  );
+}
+
+function NoCandidateScreen({
+  message,
+  isError,
+  onBack,
+  onRetry,
+  onClose,
+}: {
+  message: string;
+  isError: boolean;
+  onBack: () => void;
+  onRetry: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <SafeAreaView style={styles.safe}>
+      <Header onBack={onBack} onClose={onClose} />
+      <View style={styles.noCandidateWrap}>
+        <Text style={{ fontSize: 48 }}>{isError ? '⚠️' : '🔍'}</Text>
+        <Text style={styles.noCandidateTitle}>
+          {isError ? 'Không thể random món' : 'Chưa tìm thấy món phù hợp'}
+        </Text>
+        <Text style={styles.noCandidateBody}>{message}</Text>
+        <PrimaryButton label="Thử lại" icon={<RotateCcw size={20} color={INK} />} onPress={onRetry} />
+        <Pressable onPress={onBack} style={styles.skipTouchable}>
+          <Text style={styles.skipText}>Chỉnh tiêu chí</Text>
+        </Pressable>
+      </View>
+    </SafeAreaView>
+  );
+}
+
 function LoadingScreen({
   meal,
   budget,
@@ -1106,7 +1151,6 @@ function LoadingScreen({
   onDone,
 }: {
   meal: string;
-  need: string;
   budget: string;
   onClose: () => void;
   onDone: () => void;
@@ -1197,7 +1241,7 @@ function LoadingScreen({
             },
           ]}
         >
-          {dishes.map((dish, index) => (
+          {ORBIT_DISHES.map((dish, index) => (
             <OrbitDish key={dish.name} dish={dish} index={index} orbit={orbit} />
           ))}
         </Animated.View>
@@ -1237,7 +1281,7 @@ function OrbitDish({
   index,
   orbit,
 }: {
-  dish: (typeof dishes)[number];
+  dish: (typeof ORBIT_DISHES)[number];
   index: number;
   orbit: Animated.Value;
 }) {
@@ -1298,7 +1342,7 @@ function ResultScreen({
   onChoose,
   onDetail,
 }: {
-  dish: (typeof dishes)[number];
+  dish: (typeof ORBIT_DISHES)[number];
   meal: string;
   onBack: () => void;
   onAgain: () => void;
@@ -2137,4 +2181,39 @@ const styles = StyleSheet.create({
   },
   resultStatLabel: { fontSize: 11, color: MUTED },
   resultStatValue: { fontSize: 16, fontWeight: '800', color: INK },
+
+  comingSoonSection: {
+    marginTop: 18,
+    borderRadius: 16,
+    backgroundColor: '#FFF',
+    padding: 14,
+    ...shadow,
+  },
+  comingSoonTitle: { fontSize: 15, fontWeight: '700', color: INK, marginBottom: 8 },
+  comingSoonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F0EBE2',
+  },
+  comingSoonLabel: { flex: 1, fontSize: 14, color: MUTED },
+  comingSoonBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: '#F3F4F6',
+  },
+  comingSoonBadgeText: { fontSize: 11, fontWeight: '700', color: '#6B7280' },
+
+  noCandidateWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+    gap: 14,
+  },
+  noCandidateTitle: { fontSize: 22, fontWeight: '800', color: INK, textAlign: 'center' },
+  noCandidateBody: { fontSize: 15, color: MUTED, textAlign: 'center', lineHeight: 22 },
 });

@@ -3,8 +3,6 @@ import type {
   HomeDashboard,
   RecommendationItem,
   RecommendationListResponse,
-  SaveDishResponse,
-  UnsaveDishResponse,
   NutritionToday,
   UnreadCountResponse,
   NotificationListResponse,
@@ -13,9 +11,20 @@ import type {
   WeatherData,
 } from './types';
 
+export type HomeDashboardParams = {
+  localDate?: string;
+  timezone?: string;
+};
+
 // ─── 1. GET /home — Dashboard BFF ─────────────────────────────────────────────
 export const homeApi = {
-  getDashboard: () => apiRequest<HomeDashboard>('/home'),
+  getDashboard: (params?: HomeDashboardParams) => {
+    const query = new URLSearchParams();
+    if (params?.localDate) query.set('localDate', params.localDate);
+    if (params?.timezone) query.set('timezone', params.timezone);
+    const qs = query.toString();
+    return apiRequest<HomeDashboard>(`/home${qs ? `?${qs}` : ''}`);
+  },
 
   // ─── 2. GET /recommendations/home ────────────────────────────────────────────
   getRecommendations: (params?: { page?: number; limit?: number; goalCode?: string }) => {
@@ -27,15 +36,7 @@ export const homeApi = {
     return apiRequest<RecommendationListResponse>(`/recommendations/home${qs ? `?${qs}` : ''}`);
   },
 
-  // ─── 3. POST /dishes/:id/save ─────────────────────────────────────────────────
-  saveDish: (dishId: string) =>
-    apiRequest<SaveDishResponse>(`/dishes/${dishId}/save`, { method: 'POST', body: '{}' }),
-
-  // ─── 4. DELETE /dishes/:id/save ──────────────────────────────────────────────
-  unsaveDish: (dishId: string) =>
-    apiRequest<UnsaveDishResponse>(`/dishes/${dishId}/save`, { method: 'DELETE' }),
-
-  // ─── 5. GET /nutrition/today ──────────────────────────────────────────────────
+  // ─── 3. GET /nutrition/today ──────────────────────────────────────────────────
   getNutritionToday: (localDate?: string) => {
     const qs = localDate ? `?localDate=${localDate}` : '';
     return apiRequest<NutritionToday>(`/nutrition/today${qs}`);

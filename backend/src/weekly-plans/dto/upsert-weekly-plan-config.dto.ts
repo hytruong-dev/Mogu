@@ -4,20 +4,22 @@ import {
   IsEnum,
   IsArray,
   IsOptional,
+  IsIn,
   Min,
   Max,
   ArrayMinSize,
+  ArrayUnique,
 } from 'class-validator';
 import { WeeklyMealSlot, WeeklyKcalMode } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpsertWeeklyPlanConfigDto {
-  @ApiProperty({ description: 'Tong ngan sach VND/tuan', example: 500000 })
+  @ApiProperty({ description: 'Tong ngan sach VND cho toan ky (durationDays)', example: 500000 })
   @IsInt()
   @Min(1)
   budgetVnd: number;
 
-  @ApiProperty({ description: 'Kcal/ngay muc tieu', example: 2000 })
+  @ApiProperty({ description: 'Kcal/ngay muc tieu (CUSTOM) hoac fallback', example: 2000 })
   @IsInt()
   @Min(800)
   @Max(5000)
@@ -28,12 +30,17 @@ export class UpsertWeeklyPlanConfigDto {
   @IsOptional()
   kcalMode?: WeeklyKcalMode;
 
-  @ApiProperty({ description: 'So ngay (3, 5, 7, 14)', enum: [3, 5, 7, 14], default: 7 })
+  @ApiProperty({ description: 'So ngay', enum: [3, 5, 7, 14], default: 7 })
   @IsInt()
+  @IsIn([3, 5, 7, 14])
   @IsOptional()
   durationDays?: number;
 
-  @ApiProperty({ description: 'So bua/ngay', example: 3 })
+  @ApiProperty({
+    description: 'Deprecated — derive tu enabledSlots unique',
+    example: 3,
+    required: false,
+  })
   @IsInt()
   @Min(1)
   @Max(4)
@@ -41,12 +48,13 @@ export class UpsertWeeklyPlanConfigDto {
   mealsPerDay?: number;
 
   @ApiProperty({
-    description: 'Cac slot bua an duoc kich hoat',
+    description: 'Cac slot bua an duoc kich hoat (unique)',
     enum: WeeklyMealSlot,
     isArray: true,
     example: ['MORNING', 'LUNCH', 'DINNER'],
   })
   @IsArray()
+  @ArrayUnique()
   @IsEnum(WeeklyMealSlot, { each: true })
   @ArrayMinSize(1)
   @IsOptional()

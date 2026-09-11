@@ -12,6 +12,8 @@ import { Queue } from 'bullmq';
 import { WeeklyPlanStatus, WeeklyPlanSlotStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { WeeklyPlanGeneratorService } from './weekly-plan-generator.service';
+import { MealLogsService } from '../../health/meal-logs.service';
+import { DiaryMealSlot } from '@prisma/client';
 import { GenerateWeeklyPlanDto } from '../dto/generate-weekly-plan.dto';
 import { LockWeeklyPlanSlotDto } from '../dto/lock-weekly-plan-slot.dto';
 import { CompleteWeeklyPlanSlotDto } from '../dto/complete-weekly-plan-slot.dto';
@@ -29,6 +31,7 @@ export class WeeklyPlansService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly generator: WeeklyPlanGeneratorService,
+    private readonly mealLogs: MealLogsService,
     @Optional() @Inject(WEEKLY_PLAN_QUEUE_TOKEN) private readonly queue: Queue | null,
   ) {}
 
@@ -66,10 +69,12 @@ export class WeeklyPlansService {
     const configSnapshot = {
       budgetVnd: config.budgetVnd,
       kcalPerDay: config.kcalPerDay,
+      kcalMode: config.kcalMode,
       durationDays: config.durationDays,
       enabledSlots: config.enabledSlots,
       avoidRepeat: config.avoidRepeat,
       calorieTolerancePercent: config.calorieTolerancePercent,
+      mealsPerDay: Array.from(new Set(config.enabledSlots as string[])).length,
     };
 
     // Create plan in GENERATING state
@@ -138,6 +143,14 @@ export class WeeklyPlansService {
     });
     if (generatingPlan) return this.formatPlan(generatingPlan);
 
+    // Trả FAILED mới nhất để mobile hiển thị lỗi thay vì che giấu
+    const failedPlan = await this.prisma.db.weeklyPlan.findFirst({
+      where: { userId, status: WeeklyPlanStatus.FAILED },
+      orderBy: { createdAt: 'desc' },
+      include: this.planInclude(),
+    });
+    if (failedPlan) return this.formatPlan(failedPlan);
+
     return null;
   }
 
@@ -198,36 +211,61 @@ export class WeeklyPlansService {
       throw new ConflictException({ error: { code: WEEKLY_PLAN_ERRORS.PLAN_VERSION_CONFLICT } });
     }
 
-    // Check no existing ACTIVE plan
     const existing = await this.prisma.db.weeklyPlan.findFirst({
       where: { userId, status: WeeklyPlanStatus.ACTIVE, id: { not: planId } },
     });
     if (existing) {
-      throw new ConflictException({ error: { code: WEEKLY_PLAN_ERRORS.PLAN_ALREADY_ACTIVE } });
+      // User explicitly starts a new READY plan → archive previous ACTIVE (BR-04 handoff)
+      await this.prisma.db.weeklyPlan.update({
+        where: { id: existing.id },
+        data: { status: WeeklyPlanStatus.ARCHIVED, archivedAt: new Date() },
+      });
     }
 
-    return this.prisma.db.weeklyPlan.update({
-      where: { id: planId },
-      data: { status: WeeklyPlanStatus.ACTIVE, startedAt: new Date(), version: { increment: 1 } },
+    // CAS: only start if still READY at expected version
+    const result = await this.prisma.db.weeklyPlan.updateMany({
+      where: {
+        id: planId,
+        version: expectedVersion,
+        status: WeeklyPlanStatus.READY,
+      },
+      data: {
+        status: WeeklyPlanStatus.ACTIVE,
+        startedAt: new Date(),
+        version: { increment: 1 },
+      },
     });
+
+    if (result.count === 0) {
+      throw new ConflictException({ error: { code: WEEKLY_PLAN_ERRORS.PLAN_VERSION_CONFLICT } });
+    }
+
+    return this.prisma.db.weeklyPlan.findUniqueOrThrow({ where: { id: planId } });
   }
 
+  /**
+   * BR-04: Do not archive old plan until the new one is READY.
+   * Keep current ACTIVE/READY while generating; return new planId for polling.
+   */
   async regeneratePlan(planId: string, userId: string) {
     const plan = await this.findPlanForUser(planId, userId);
 
-    // Archive old plan
-    await this.prisma.db.weeklyPlan.update({
-      where: { id: planId },
-      data: { status: WeeklyPlanStatus.ARCHIVED, archivedAt: new Date() },
-    });
+    if (
+      plan.status === WeeklyPlanStatus.ARCHIVED ||
+      plan.status === WeeklyPlanStatus.CANCELLED
+    ) {
+      throw new BadRequestException({ error: { code: WEEKLY_PLAN_ERRORS.PLAN_NOT_READY } });
+    }
 
-    // Generate new plan with same config and dates
-    const config = await this.requireConfig(userId);
     const newPlan = await this.generate(userId, {
       startDate: plan.startDate.toISOString().split('T')[0],
     });
 
-    return newPlan;
+    return {
+      ...newPlan,
+      previousPlanId: planId,
+      note: 'Previous plan stays ACTIVE/READY until you start the new plan.',
+    };
   }
 
   async archivePlan(planId: string, userId: string) {
@@ -261,6 +299,11 @@ export class WeeklyPlansService {
       throw new ConflictException({ error: { code: WEEKLY_PLAN_ERRORS.PLAN_VERSION_CONFLICT } });
     }
 
+    // Idempotent: already completed
+    if (slot.status === WeeklyPlanSlotStatus.COMPLETED) {
+      return slot;
+    }
+
     if (slot.status !== WeeklyPlanSlotStatus.PLANNED) {
       throw new BadRequestException({ error: { code: WEEKLY_PLAN_ERRORS.SLOT_NOT_PLANNED } });
     }
@@ -268,24 +311,106 @@ export class WeeklyPlansService {
     const actualCostVnd = dto.actualCostVnd ?? slot.priceSnapshotVnd;
     const actualKcal = dto.actualKcal ?? slot.kcalSnapshot;
 
-    const updatedSlot = await this.prisma.db.weeklyPlanSlot.update({
-      where: { id: slotId },
-      data: {
-        status: WeeklyPlanSlotStatus.COMPLETED,
-        actualCostVnd,
-        actualKcal,
-        completedAt: new Date(),
-        version: { increment: 1 },
-      },
+    const updatedSlot = await this.prisma.db.$transaction(async (tx) => {
+      const cas = await tx.weeklyPlanSlot.updateMany({
+        where: {
+          id: slotId,
+          version: dto.version,
+          status: WeeklyPlanSlotStatus.PLANNED,
+        },
+        data: {
+          status: WeeklyPlanSlotStatus.COMPLETED,
+          actualCostVnd,
+          actualKcal,
+          completedAt: new Date(),
+          version: { increment: 1 },
+        },
+      });
+      if (cas.count === 0) {
+        throw new ConflictException({ error: { code: WEEKLY_PLAN_ERRORS.PLAN_VERSION_CONFLICT } });
+      }
+
+      // Legacy MealLog (dual-read window)
+      await this.upsertMealLogForSlot(tx, userId, slot, actualKcal);
+
+      return tx.weeklyPlanSlot.findUniqueOrThrow({ where: { id: slotId } });
     });
 
-    // Update plan totals
-    await this.updatePlanActuals(planId);
+    // New diary meal log (idempotent on weeklyPlanSlotId)
+    const slotMap: Record<string, DiaryMealSlot> = {
+      MORNING: DiaryMealSlot.BREAKFAST,
+      LUNCH: DiaryMealSlot.LUNCH,
+      DINNER: DiaryMealSlot.DINNER,
+      SNACK: DiaryMealSlot.SNACK,
+    };
+    try {
+      await this.mealLogs.createFromWeeklySlot({
+        userId,
+        weeklyPlanSlotId: slotId,
+        dishId: slot.dishId,
+        dishName: slot.dishNameSnapshot,
+        mealSlot: slotMap[slot.mealSlot] ?? DiaryMealSlot.SNACK,
+        occurredAt: new Date(),
+        timezone: 'Asia/Ho_Chi_Minh',
+        kcal: actualKcal,
+        proteinG: slot.proteinGSnapshot != null ? Number(slot.proteinGSnapshot) : null,
+        carbsG: slot.carbsGSnapshot != null ? Number(slot.carbsGSnapshot) : null,
+        fatG: slot.fatGSnapshot != null ? Number(slot.fatGSnapshot) : null,
+      });
+    } catch (err) {
+      this.logger.warn(`[WeeklyPlans] diary meal log skipped for slot ${slotId}: ${err}`);
+    }
 
-    // Check if all slots completed → plan completed
+    await this.updatePlanActuals(planId);
     await this.checkPlanCompletion(planId);
 
     return updatedSlot;
+  }
+
+  /**
+   * BR-05: COMPLETE → MealLog + actuals (idempotent via note = weekly-slot:{id})
+   */
+  private async upsertMealLogForSlot(
+    tx: any,
+    userId: string,
+    slot: { id: string; date: Date; mealSlot: string },
+    totalKcal: number,
+  ) {
+    const mealTypeMap: Record<string, 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK'> = {
+      MORNING: 'BREAKFAST',
+      LUNCH: 'LUNCH',
+      DINNER: 'DINNER',
+      SNACK: 'SNACK',
+    };
+    const type = mealTypeMap[slot.mealSlot] ?? 'SNACK';
+    const note = `weekly-slot:${slot.id}`;
+
+    const existing = await tx.mealLog.findFirst({
+      where: { userId, note },
+      select: { id: true },
+    });
+    if (existing) return;
+
+    const meal = await tx.meal.upsert({
+      where: {
+        userId_type_date: {
+          userId,
+          type,
+          date: slot.date,
+        },
+      },
+      create: { userId, type, date: slot.date },
+      update: {},
+    });
+
+    await tx.mealLog.create({
+      data: {
+        userId,
+        mealId: meal.id,
+        totalKcal,
+        note,
+      },
+    });
   }
 
   async skipSlot(planId: string, slotId: string, userId: string, version: number) {
@@ -416,6 +541,16 @@ export class WeeklyPlansService {
       createdAt: plan.createdAt,
       startedAt: plan.startedAt,
       completedAt: plan.completedAt,
+      forecast: {
+        spentVnd: plan.actualSpentVnd ?? 0,
+        remainingProjectedVnd: Math.max(
+          0,
+          (plan.projectedCostVnd ?? 0) - (plan.actualSpentVnd ?? 0),
+        ),
+        endOfPeriodProjectedVnd: plan.projectedCostVnd ?? 0,
+        budgetLimitVnd: plan.budgetLimitVnd,
+        remainingBudgetVnd: Math.max(0, plan.budgetLimitVnd - (plan.actualSpentVnd ?? 0)),
+      },
       days,
     };
   }

@@ -88,7 +88,7 @@ export function HealthOverviewScreen({ onBack, total }: { onBack: () => void; to
         <View style={s.bigCard}>
           <View style={s.calorieRing}>
             <Text style={s.ringValue} numberOfLines={1} adjustsFontSizeToFit>
-              {total.toLocaleString('vi-VN')} / 1.850
+              {total > 0 ? total.toLocaleString('vi-VN') : '—'}
             </Text>
             <Text style={s.ringUnit}>kcal</Text>
           </View>
@@ -96,36 +96,31 @@ export function HealthOverviewScreen({ onBack, total }: { onBack: () => void; to
             <Summary
               color={C.yellow}
               label="Đã nạp"
-              value={`${total.toLocaleString('vi-VN')} kcal`}
+              value={total > 0 ? `${total.toLocaleString('vi-VN')} kcal` : '—'}
             />
-            <Summary color="#F5F0E8" label="Còn lại" value={`${Math.max(0, 1850 - total)} kcal`} />
-            <Summary color={C.yellow} label="Đã tiêu hao" value="320 kcal" />
+            <Summary color="#F5F0E8" label="Còn lại" value="—" />
+            <Summary color={C.yellow} label="Đã tiêu hao" value="—" />
           </View>
         </View>
         <Text style={s.sectionTitle}>Phân bố dinh dưỡng</Text>
         <View style={s.macroCard}>
-          <Macro label="Protein" value="68/100g · 68%" percent={68} color={C.yellow} />
-          <Macro label="Tinh bột" value="142/220g · 65%" percent={65} color={C.orange} />
-          <Macro label="Chất béo" value="38/60g · 63%" percent={63} color={C.green} />
+          <Text style={s.meta}>Chi tiết macro sẽ hiển thị khi có nhật ký bữa ăn.</Text>
         </View>
         <Text style={s.sectionTitle}>Phân bố theo bữa</Text>
         <View style={s.mealDistribution}>
           <View style={s.smallRing}>
-            <Text style={s.smallRingValue}>{total.toLocaleString('vi-VN')}</Text>
+            <Text style={s.smallRingValue}>{total > 0 ? total.toLocaleString('vi-VN') : '—'}</Text>
             <Text style={s.ringUnit}>kcal</Text>
           </View>
           <View style={s.distributionList}>
-            <Distribution color={C.yellow} label="Bữa sáng" value="420 kcal" percent="34%" />
-            <Distribution color={C.orange} label="Bữa trưa" value="560 kcal" percent="45%" />
-            <Distribution color="#DDBB84" label="Bữa tối" value="Chưa ghi lại" percent="0%" />
-            <Distribution color={C.green} label="Bữa phụ" value="260 kcal" percent="21%" />
+            <Text style={s.meta}>Mở nhật ký bữa để xem phân bố theo slot.</Text>
           </View>
         </View>
         <Text style={s.sectionTitle}>So với mục tiêu</Text>
         <View style={s.targets}>
-          <TargetItem icon={<Target color={C.yellowDark} />} label="Calo" value="Đúng kế hoạch" />
-          <TargetItem icon={<Dumbbell color={C.orange} />} label="Protein" value="Còn thiếu 32g" />
-          <TargetItem icon={<Droplets color={C.blue} />} label="Nước" value="Còn thiếu 0,8L" />
+          <TargetItem icon={<Target color={C.yellowDark} />} label="Calo" value={total > 0 ? 'Đã có nhật ký' : 'Chưa có dữ liệu'} />
+          <TargetItem icon={<Dumbbell color={C.orange} />} label="Protein" value="—" />
+          <TargetItem icon={<Droplets color={C.blue} />} label="Nước" value="—" />
         </View>
         <View style={s.tip}>
           <Check size={22} color={C.yellowDark} />
@@ -206,82 +201,75 @@ export function MealsScreen({
   onLog,
   onFood,
   total,
+  mealGroups,
 }: {
   onBack: () => void;
   onLog: () => void;
-  onFood: () => void;
+  onFood: (dishId?: string) => void;
   total: number;
+  mealGroups?: Array<{
+    mealSlot: string;
+    totalKcal: number;
+    meals: Array<{
+      id: string;
+      items: Array<{ id: string; displayName: string; referenceId?: string | null; calories: number | null }>;
+      totals: { kcal: number };
+    }>;
+  }>;
 }) {
+  const slotLabel: Record<string, string> = {
+    BREAKFAST: 'Bữa sáng',
+    LUNCH: 'Bữa trưa',
+    DINNER: 'Bữa tối',
+    SNACK: 'Bữa phụ',
+  };
+  const groups = mealGroups ?? [];
+  const hasMeals = groups.some((g) => g.meals.length > 0);
+
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
       <ScrollView contentContainerStyle={s.content}>
         <Header title="Bữa ăn hôm nay" onBack={onBack} />
-        <DatePicker />
         <View style={s.totalCard}>
           <Text style={s.totalText}>
-            Tổng <Text style={s.totalStrong}>{total.toLocaleString('vi-VN')}</Text> / 1.850 kcal
+            Tổng <Text style={s.totalStrong}>{total.toLocaleString('vi-VN')}</Text> kcal
           </Text>
-          <Text style={s.totalText}>
-            Còn lại <Text style={s.totalStrong}>{Math.max(0, 1850 - total)}</Text> kcal
-          </Text>
-          <Progress value={Math.min(100, total / 18.5)} />
+          {!hasMeals ? (
+            <Text style={[s.totalText, { marginTop: 8 }]}>Chưa ghi bữa nào cho ngày này.</Text>
+          ) : null}
         </View>
-        <MealCard
-          icon={<Sun />}
-          title="Bữa sáng"
-          time="07:30"
-          kcal="420 kcal"
-          image={pho}
-          food="Phở bò"
-          serving="1 tô"
-          macros="Protein 28g · Tinh bột 52g · Chất béo 12g"
-          onAdd={onLog}
-          onFood={onFood}
-        />
-        <MealCard
-          icon={<Sun />}
-          title="Bữa trưa"
-          time="12:15"
-          kcal="560 kcal"
-          image={rice}
-          food="Cơm gà Hội An"
-          serving="1 phần"
-          macros="Protein 32g · Tinh bột 58g · Chất béo 16g"
-          onAdd={onLog}
-          onFood={onFood}
-        />
-        <MealCard
-          icon={<Utensils />}
-          title="Bữa phụ"
-          time="15:30"
-          kcal="260 kcal"
-          image={bun}
-          food="Sữa chua trái cây"
-          serving="1 ly"
-          macros="Protein 9g · Tinh bột 30g · Chất béo 6g"
-          onAdd={onLog}
-          onFood={onFood}
-        />
-        <View style={s.emptyDinner}>
-          <View style={[s.mealHeader, s.emptyDinnerHeader]}>
-            <View style={s.mealIcon}>
-              <Moon />
+        {groups.map((g) => (
+          <View key={g.mealSlot} style={s.mealCard}>
+            <View style={s.mealHeader}>
+              <View style={s.mealIcon}>
+                {g.mealSlot === 'DINNER' ? <Moon /> : <Sun />}
+              </View>
+              <View style={s.flex}>
+                <Text style={s.mealTitle}>{slotLabel[g.mealSlot] ?? g.mealSlot}</Text>
+                <Text style={s.meta}>
+                  {g.meals.length === 0 ? 'Chưa ghi lại' : `${g.totalKcal} kcal`}
+                </Text>
+              </View>
+              <Pressable onPress={onLog} style={s.add}>
+                <Plus />
+              </Pressable>
             </View>
-            <View style={s.flex}>
-              <Text style={s.mealTitle}>Bữa tối</Text>
-              <Text style={s.meta}>Chưa ghi lại</Text>
-            </View>
-            <Pressable onPress={onLog} style={s.add}>
-              <Plus />
-            </Pressable>
+            {g.meals.map((m) =>
+              m.items.map((it) => (
+                <Pressable
+                  key={it.id}
+                  onPress={() => onFood(it.referenceId ?? undefined)}
+                  style={{ paddingHorizontal: 16, paddingBottom: 12 }}
+                >
+                  <Text style={s.foodName}>{it.displayName}</Text>
+                  <Text style={s.meta}>
+                    {it.calories != null ? `${it.calories} kcal` : 'Chưa có kcal'}
+                  </Text>
+                </Pressable>
+              )),
+            )}
           </View>
-          <Bell size={42} color="#7B5012" strokeWidth={1.8} style={s.dinnerIcon} />
-          <Text style={s.emptyText}>Bạn chưa ghi lại món ăn cho bữa tối.</Text>
-          <Pressable onPress={onLog} style={s.outlineButton}>
-            <Plus size={20} />
-            <Text style={s.outlineText}>Thêm món</Text>
-          </Pressable>
-        </View>
+        ))}
         <Pressable onPress={onLog} style={s.primary}>
           <Plus />
           <Text style={s.primaryText}>Ghi lại bữa ăn</Text>
@@ -342,16 +330,59 @@ function MealCard({
 export function LogMealScreen({
   onClose,
   onSave,
+  searchDishes,
 }: {
   onClose: () => void;
-  onSave: (calories: number) => void;
+  onSave: (payload: {
+    dishId?: string;
+    mealSlot?: 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK';
+    calories?: number;
+  }) => void | Promise<void>;
+  searchDishes?: (q: string) => Promise<Array<{ id: string; name: string; nutritionProfiles?: any[] }>>;
 }) {
-  const [meal, setMeal] = useState('Bữa tối');
-  const [selected, setSelected] = useState(true);
+  const [meal, setMeal] = useState('Bữa trưa');
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<Array<{ id: string; name: string; kcal?: number | null }>>([]);
+  const [selected, setSelected] = useState<{ id: string; name: string; kcal?: number | null } | null>(
+    null,
+  );
+  const [searching, setSearching] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const mealSlotMap: Record<string, 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK'> = {
+    'Bữa sáng': 'BREAKFAST',
+    'Bữa trưa': 'LUNCH',
+    'Bữa tối': 'DINNER',
+    'Bữa phụ': 'SNACK',
+  };
+
+  const runSearch = async (q: string) => {
+    setQuery(q);
+    if (!searchDishes || q.trim().length < 2) {
+      setResults([]);
+      return;
+    }
+    setSearching(true);
+    try {
+      const rows = await searchDishes(q.trim());
+      setResults(
+        rows.map((d) => ({
+          id: d.id,
+          name: d.name,
+          kcal: d.nutritionProfiles?.[0]?.calories ?? null,
+        })),
+      );
+    } catch {
+      setResults([]);
+    } finally {
+      setSearching(false);
+    }
+  };
+
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
       <ScrollView contentContainerStyle={s.content}>
-        <Header title="Ghi lại bữa ăn" onBack={onClose} close action="Lưu" />
+        <Header title="Ghi lại bữa ăn" onBack={onClose} close />
         <View style={s.selectorCard}>
           <Text style={s.sectionTitleInline}>Chọn bữa</Text>
           <View style={s.mealSelector}>
@@ -366,61 +397,55 @@ export function LogMealScreen({
             ))}
           </View>
         </View>
-        <View style={s.timeCard}>
-          <View style={s.mealIcon}>
-            <Clock3 />
-          </View>
-          <Text style={s.timeLabel}>Thời gian</Text>
-          <Text style={s.timeValue}>19:00</Text>
-          <ChevronRight />
-        </View>
         <View style={s.search}>
           <Search color="#777" />
-          <TextInput style={s.searchInput} placeholder="Tìm món ăn, nguyên liệu..." />
-        </View>
-        <View style={s.quickActions}>
-          <Quick icon={<Camera />} label="Chụp món ăn" sub="Mogu nhận diện" />
-          <Quick icon={<Sparkles />} label="Từ kết quả Random" />
-          <Quick icon={<Plus />} label="Tạo món mới" />
-        </View>
-        <View style={s.suggestionCard}>
-          <Text style={s.sectionTitleInline}>Gợi ý cho bữa tối</Text>
-          <Suggestion
-            image={rice}
-            name="Ức gà áp chảo"
-            meta="1 phần · 320 kcal"
-            onAdd={() => setSelected(true)}
+          <TextInput
+            style={s.searchInput}
+            placeholder="Tìm món ăn..."
+            value={query}
+            onChangeText={runSearch}
           />
-          <Suggestion image={bun} name="Salad cá ngừ" meta="1 tô · 280 kcal" onAdd={() => {}} />
-          <Suggestion image={pho} name="Cơm gạo lứt" meta="1 chén · 210 kcal" onAdd={() => {}} />
         </View>
-        {selected && (
+        {searching ? <Text style={s.meta}>Đang tìm...</Text> : null}
+        {results.map((r) => (
+          <Pressable
+            key={r.id}
+            onPress={() => setSelected(r)}
+            style={[s.suggestionCard, selected?.id === r.id && { borderColor: C.yellow, borderWidth: 2 }]}
+          >
+            <Text style={s.selectedName}>{r.name}</Text>
+            <Text style={s.meta}>{r.kcal != null ? `${r.kcal} kcal` : 'Chưa có kcal'}</Text>
+          </Pressable>
+        ))}
+        {selected ? (
           <View style={s.selectedCard}>
             <Text style={s.sectionTitleInline}>Món đã chọn</Text>
-            <View style={s.selectedFood}>
-              <Image source={rice} style={s.selectedImage} />
-              <View style={s.flex}>
-                <Text style={s.selectedName}>Ức gà áp chảo</Text>
-                <View style={s.quantity}>
-                  <Pressable style={s.qty}>
-                    <Text>−</Text>
-                  </Pressable>
-                  <Text>1 phần</Text>
-                  <Pressable style={s.qty}>
-                    <Plus size={18} />
-                  </Pressable>
-                </View>
-              </View>
-              <Text style={s.selectedKcal}>320 kcal</Text>
-              <Pressable onPress={() => setSelected(false)}>
-                <Trash2 size={20} />
-              </Pressable>
-            </View>
-            <Text style={s.selectedMacros}>Protein 42g · Tinh bột 18g · Chất béo 8g</Text>
+            <Text style={s.selectedName}>{selected.name}</Text>
+            <Text style={s.selectedKcal}>
+              {selected.kcal != null ? `${selected.kcal} kcal` : 'Kcal sẽ lấy từ server'}
+            </Text>
           </View>
+        ) : (
+          <Text style={[s.meta, { marginTop: 12 }]}>Chọn một món từ kết quả tìm kiếm để lưu.</Text>
         )}
-        <Pressable onPress={() => onSave(selected ? 320 : 0)} style={s.primary}>
-          <Text style={s.primaryText}>Lưu bữa ăn · {selected ? 320 : 0} kcal</Text>
+        <Pressable
+          disabled={!selected || saving}
+          onPress={async () => {
+            if (!selected) return;
+            setSaving(true);
+            try {
+              await onSave({
+                dishId: selected.id,
+                mealSlot: mealSlotMap[meal] ?? 'LUNCH',
+                calories: selected.kcal ?? undefined,
+              });
+            } finally {
+              setSaving(false);
+            }
+          }}
+          style={[s.primary, (!selected || saving) && { opacity: 0.5 }]}
+        >
+          <Text style={s.primaryText}>{saving ? 'Đang lưu...' : 'Lưu bữa ăn'}</Text>
         </Pressable>
       </ScrollView>
     </SafeAreaView>

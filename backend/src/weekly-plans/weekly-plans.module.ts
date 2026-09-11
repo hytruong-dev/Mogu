@@ -14,6 +14,8 @@ import { WeeklyPlanSwapService } from './services/weekly-plan-swap.service';
 import { WeeklyPlanCalculatorService } from './services/weekly-plan-calculator.service';
 import { WeeklyPlanProcessor } from './processors/weekly-plan.processor';
 import { PrismaModule } from '../prisma/prisma.module';
+import { DishesModule } from '../dishes/dishes.module';
+import { HealthModule } from '../health/health.module';
 
 const REDIS_URL = process.env.REDIS_URL;
 
@@ -29,6 +31,8 @@ const nullQueueProvider = {
 @Module({
   imports: [
     PrismaModule,
+    DishesModule,
+    HealthModule,
     // Chỉ import BullModule khi Redis được cấu hình
     ...(REDIS_URL ? [BullModule.registerQueue({ name: WEEKLY_PLAN_QUEUE })] : []),
   ],

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Alert, Pressable, Text, View } from 'react-native';
 import { LockKeyhole, User } from 'lucide-react-native';
 import { cn } from '../../lib/utils';
 import { AuthInput } from '../atoms/AuthInput';
@@ -65,14 +65,17 @@ export function LoginForm({ onLogin, compact = false, className }: Props) {
         />
       </View>
       {error ? <Text className="mt-1 text-xs text-red-500">{error}</Text> : null}
-      <Text
-        className={cn(
-          'self-end text-mogu-ink text-sm font-semibold underline',
-          compact ? 'mt-2' : 'mt-2.5',
-        )}
+      <Pressable
+        className={cn('self-end', compact ? 'mt-2' : 'mt-2.5')}
+        onPress={() =>
+          Alert.alert(
+            'Quên mật khẩu?',
+            'Vui lòng liên hệ bộ phận hỗ trợ để được reset mật khẩu. Tính năng tự phục vụ đang được phát triển.',
+          )
+        }
       >
-        Quên mật khẩu?
-      </Text>
+        <Text className="text-mogu-ink text-sm font-semibold underline">Quên mật khẩu?</Text>
+      </Pressable>
       <View className="mt-3">
         <PrimaryButton
           label={loading ? 'Đang đăng nhập...' : 'Đăng nhập'}

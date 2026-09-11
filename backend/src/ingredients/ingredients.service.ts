@@ -93,11 +93,17 @@ export class IngredientsService {
         orderBy: { name: 'asc' },
         skip,
         take,
+        include: {
+          _count: { select: { dishIngredients: true } },
+        },
       }),
     ]);
 
     return {
-      data: items,
+      data: items.map(({ _count, ...item }) => ({
+        ...item,
+        dishCount: _count.dishIngredients,
+      })),
       pagination: { page, limit: take, total, totalPages: Math.ceil(total / take) },
     };
   }

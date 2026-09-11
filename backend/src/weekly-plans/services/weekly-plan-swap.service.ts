@@ -1,7 +1,11 @@
 import { Injectable, BadRequestException, NotFoundException, ConflictException } from '@nestjs/common';
 import { Prisma, WeeklyPlanSlotStatus, WeeklyPlanSwapReason, DishStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
-import { WeeklyPlanCalculatorService } from './weekly-plan-calculator.service';
+import { DishEligibilityService } from '../../dishes/eligibility/dish-eligibility.service';
+import {
+  mapNutritionToPlanServing,
+  planPriceVnd,
+} from '../../dishes/eligibility/dish-nutrition.mapper';
 import { SwapWeeklyPlanSlotDto } from '../dto/swap-weekly-plan-slot.dto';
 import { WEEKLY_PLAN_ERRORS } from '../constants/weekly-plan-errors';
 import { SLOT_MEAL_TAG } from '../constants/weekly-plan-weights';
@@ -10,7 +14,7 @@ import { SLOT_MEAL_TAG } from '../constants/weekly-plan-weights';
 export class WeeklyPlanSwapService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly calculator: WeeklyPlanCalculatorService,
+    private readonly eligibility: DishEligibilityService,
   ) {}
 
   async swap(planId: string, slotId: string, userId: string, dto: SwapWeeklyPlanSlotDto) {
@@ -41,50 +45,47 @@ export class WeeklyPlanSwapService {
       throw new ConflictException({ error: { code: WEEKLY_PLAN_ERRORS.PLAN_VERSION_CONFLICT } });
     }
 
-    const config = slot.plan.config;
     const mealTag = SLOT_MEAL_TAG[slot.mealSlot];
+    const profile = await this.eligibility.loadProfile(userId);
 
-    // Get profile for hard filters
-    const profile = await this.prisma.db.profile.findUnique({
-      where: { userId },
-      include: { userAllergens: { include: { allergen: true } } },
+    const currentSlots = await this.prisma.db.weeklyPlanSlot.findMany({
+      where: { planId, id: { not: slotId } },
+      select: { priceSnapshotVnd: true, kcalSnapshot: true },
     });
+    const spentWithoutSlot = currentSlots.reduce((s, sl) => s + sl.priceSnapshotVnd, 0);
+    const remainingBudget = Math.max(0, slot.plan.budgetLimitVnd - spentWithoutSlot);
 
-    let newDish: any;
+    let newDish: {
+      id: string;
+      name: string;
+      priceMin: Prisma.Decimal | number | null;
+      nutrition: any;
+      media: Array<{ bucket?: string | null; storageKey?: string | null }>;
+    };
 
     if (dto.newDishId) {
-      // User specified a dish
-      newDish = await this.prisma.db.dish.findFirst({
+      await this.eligibility.assertDishEligible(dto.newDishId, profile, 'swap', {
+        requirePrice: true,
+        maxPriceMin: remainingBudget,
+      });
+
+      const found = await this.prisma.db.dish.findFirst({
         where: { id: dto.newDishId, status: DishStatus.PUBLISHED, deletedAt: null },
         include: { nutrition: true, media: { where: { isPrimary: true }, take: 1 } },
       });
 
-      if (!newDish) {
+      if (!found) {
         throw new NotFoundException({ error: { code: WEEKLY_PLAN_ERRORS.SWAP_DISH_NOT_FOUND } });
       }
+      newDish = found;
     } else {
-      // Auto-pick a different dish for the same slot type
-      const allergenCodes = (profile?.userAllergens ?? []).map((a) => a.allergen.code);
-
       const candidates = await this.prisma.db.dish.findMany({
-        where: {
-          status: DishStatus.PUBLISHED,
-          deletedAt: null,
-          id: { not: slot.dishId }, // not current dish
-          mealTypes: {
-            some: {
-              mealTypeTag: {
-                code: mealTag,
-              },
-            },
-          },
-          ...(allergenCodes.length > 0 && {
-            NOT: {
-              dishAllergens: { some: { allergen: { code: { in: allergenCodes } } } },
-            },
-          }),
-          nutrition: { isNot: null },
-        },
+        where: this.eligibility.buildHardWhere(profile, 'swap', {
+          requirePrice: true,
+          maxPriceMin: remainingBudget,
+          mealTypeCodes: [mealTag, 'ANY'],
+          excludeDishIds: [slot.dishId],
+        }),
         include: {
           nutrition: true,
           media: { where: { isPrimary: true }, take: 1 },
@@ -94,70 +95,69 @@ export class WeeklyPlanSwapService {
       });
 
       if (candidates.length === 0) {
-        throw new BadRequestException({ error: { code: WEEKLY_PLAN_ERRORS.INSUFFICIENT_CANDIDATES } });
+        throw new BadRequestException({
+          error: { code: WEEKLY_PLAN_ERRORS.INSUFFICIENT_CANDIDATES },
+        });
       }
-
-      // Pick best by rating, excluding current
       newDish = candidates[0];
     }
 
-    // Recalculate plan totals after swap
-    const currentSlots = await this.prisma.db.weeklyPlanSlot.findMany({
-      where: { planId, id: { not: slotId } },
-      select: { priceSnapshotVnd: true, kcalSnapshot: true },
-    });
+    const newPrice = planPriceVnd(
+      newDish.priceMin != null ? Number(newDish.priceMin) : null,
+    );
+    if (newPrice === null) {
+      throw new BadRequestException({
+        error: { code: 'DISH_PRICE_UNKNOWN' },
+      });
+    }
+    if (newPrice > remainingBudget) {
+      throw new BadRequestException({
+        error: {
+          code: 'BUDGET_EXCEEDED',
+          message: 'Món mới vượt ngân sách còn lại của kế hoạch.',
+        },
+      });
+    }
 
-    const newPriceAvg = newDish.priceMin !== null
-      ? Math.floor((newDish.priceMin + (newDish.priceMax ?? newDish.priceMin)) / 2)
-      : slot.priceSnapshotVnd;
+    const mapped = mapNutritionToPlanServing(newDish.nutrition);
+    const newKcal = mapped.kcal != null ? Math.round(mapped.kcal) : slot.kcalSnapshot;
+    const projectedCost = spentWithoutSlot + newPrice;
+    const projectedKcal =
+      currentSlots.reduce((s, sl) => s + sl.kcalSnapshot, 0) + newKcal;
 
-    const newKcal = Math.round(newDish.nutrition?.calories ?? slot.kcalSnapshot);
-
-    const projectedCost = currentSlots.reduce((s, sl) => s + sl.priceSnapshotVnd, 0) + newPriceAvg;
-
-    // Cảnh báo nếu vượt budget 150%, nhưng vẫn cho swap
-    // (budget là soft limit để UX không bị block)
-    const budgetWarning = projectedCost > slot.plan.budgetLimitVnd * 1.5;
-
-    const projectedKcal = currentSlots.reduce((s, sl) => s + sl.kcalSnapshot, 0) + newKcal;
-
-    // Perform swap in transaction
     const result = await this.prisma.db.$transaction(async (tx) => {
-      // Create swap audit record
       await tx.weeklyPlanSlotSwap.create({
         data: {
           slotId,
           previousDishId: slot.dishId,
           newDishId: newDish.id,
           previousCostVnd: slot.priceSnapshotVnd,
-          newCostVnd: newPriceAvg,
+          newCostVnd: newPrice,
           previousKcal: slot.kcalSnapshot,
           newKcal,
           reason: dto.reason ?? WeeklyPlanSwapReason.USER_REQUEST,
         },
       });
 
-      // Update slot
       const updatedSlot = await tx.weeklyPlanSlot.update({
         where: { id: slotId },
         data: {
           dishId: newDish.id,
           dishNameSnapshot: newDish.name,
-          imageUrlSnapshot: newDish.media?.[0]
+          imageUrlSnapshot: newDish.media?.[0]?.storageKey
             ? `${process.env.SUPABASE_URL}/storage/v1/object/public/${newDish.media[0].bucket ?? 'dish-images'}/${newDish.media[0].storageKey}`
             : null,
-          priceSnapshotVnd: newPriceAvg,
+          priceSnapshotVnd: newPrice,
           kcalSnapshot: newKcal,
-          proteinGSnapshot: newDish.nutrition?.protein !== null ? newDish.nutrition?.protein : undefined,
-          carbsGSnapshot: newDish.nutrition?.carbs !== null ? newDish.nutrition?.carbs : undefined,
-          fatGSnapshot: newDish.nutrition?.fat !== null ? newDish.nutrition?.fat : undefined,
+          proteinGSnapshot: mapped.proteinG ?? undefined,
+          carbsGSnapshot: mapped.carbsG ?? undefined,
+          fatGSnapshot: mapped.fatG ?? undefined,
           swapCount: { increment: 1 },
           version: { increment: 1 },
         },
       });
 
-      // Update plan totals
-      await tx.weeklyPlan.update({
+      const updatedPlan = await tx.weeklyPlan.update({
         where: { id: planId },
         data: {
           projectedCostVnd: projectedCost,
@@ -166,9 +166,17 @@ export class WeeklyPlanSwapService {
         },
       });
 
-      return updatedSlot;
+      return { updatedSlot, updatedPlan };
     });
 
-    return { ...result, budgetWarning };
+    return {
+      ...result.updatedSlot,
+      summary: {
+        projectedCostVnd: result.updatedPlan.projectedCostVnd,
+        projectedKcal: result.updatedPlan.projectedKcal,
+        budgetLimitVnd: slot.plan.budgetLimitVnd,
+        remainingBudgetVnd: Math.max(0, slot.plan.budgetLimitVnd - projectedCost),
+      },
+    };
   }
 }

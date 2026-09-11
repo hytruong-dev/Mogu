@@ -16,13 +16,18 @@ type Options = RequestInit & { auth?: boolean; retry?: boolean };
 async function parseResponse<T>(response: Response): Promise<T> {
   const body = await response.json().catch(() => null);
   if (!response.ok) {
+    const nested = body?.error && typeof body.error === 'object' ? body.error : null;
     const error = body?.message && typeof body.message === 'object' ? body.message : body;
-    throw new ApiError(
-      error?.message ?? body?.message ?? 'Không thể kết nối đến máy chủ.',
-      response.status,
-      error?.code ?? body?.code,
-      body,
-    );
+    const message =
+      (nested && typeof nested.message === 'string' ? nested.message : null) ??
+      error?.message ??
+      (typeof body?.message === 'string' ? body.message : null) ??
+      'Không thể kết nối đến máy chủ.';
+    const code =
+      (nested && typeof nested.code === 'string' ? nested.code : undefined) ??
+      error?.code ??
+      body?.code;
+    throw new ApiError(message, response.status, code, body);
   }
   // TransformInterceptor bọc response trong { success, data, timestamp }
   if (body !== null && typeof body === 'object' && 'success' in body) {

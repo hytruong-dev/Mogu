@@ -49,7 +49,7 @@ type Props = {
 type Tab = 'Dành cho bạn' | 'Món ăn' | 'Bài viết' | 'Cộng đồng';
 
 export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props) {
-  const [detail, setDetail] = useState<ExploreDetailType | null>(null);
+  const [detail, setDetail] = useState<{ type: ExploreDetailType; resourceId: string } | null>(null);
   const [tab, setTab] = useState<Tab>('Dành cho bạn');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -195,7 +195,15 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
           ? 'Tìm người dùng, bài đăng…'
           : 'Tìm món ăn, bài viết, địa điểm…';
 
-  if (detail) return <ExploreDetailScreen type={detail} onBack={() => setDetail(null)} />;
+  if (detail) {
+    return (
+      <ExploreDetailScreen
+        type={detail.type}
+        resourceId={detail.resourceId}
+        onBack={() => setDetail(null)}
+      />
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-mogu-cream" edges={['top', 'left', 'right']}>
@@ -279,7 +287,9 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
                   <>
                     <Heading text="Bài viết nổi bật" />
                     <ArticleCard
-                      onPress={() => setDetail('article')}
+                      onPress={() =>
+                        setDetail({ type: 'article', resourceId: feed.featuredArticle!.id })
+                      }
                       coverImageUrl={feed.featuredArticle.coverImageUrl}
                       title={feed.featuredArticle.title}
                       topic={feed.featuredArticle.topic?.title}
@@ -305,7 +315,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
                       <PostCard
                         key={post.id}
                         post={post}
-                        onPress={() => setDetail('post')}
+                        onPress={() => setDetail({ type: 'post', resourceId: post.id })}
                         onLike={() => handleLikePost(post.id)}
                       />
                     ))}
@@ -344,7 +354,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
                 return (
                   <FoodCard
                     key={dish.id}
-                    onPress={() => setDetail('food')}
+                    onPress={() => setDetail({ type: 'food', resourceId: dish.id })}
                     imageUri={imageUri}
                     fallbackImage={pho}
                     name={dish.name}
@@ -354,30 +364,14 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
                 );
               })
             ) : !dishesLoading ? (
-              // Fallback khi chưa có data
-              <>
-                <FoodCard
-                  onPress={() => setDetail('food')}
-                  fallbackImage={pho}
-                  name="Phở bò"
-                  meta="420 kcal  ·  25 phút  ·  45K–65K"
-                  badge="Phù hợp 92%"
-                />
-                <FoodCard
-                  onPress={() => setDetail('food')}
-                  fallbackImage={bun}
-                  name="Bún bò Huế"
-                  meta="480 kcal  ·  30 phút  ·  50K–70K"
-                  badge="Đang thịnh hành"
-                />
-                <FoodCard
-                  onPress={() => setDetail('food')}
-                  fallbackImage={rice}
-                  name="Cơm gà Hội An"
-                  meta="560 kcal  ·  20 phút  ·  40K–60K"
-                  badge="Gần bạn"
-                />
-              </>
+              <View className="py-10 items-center px-6">
+                <Text className="text-[#161616] font-semibold text-base text-center">
+                  Chưa có món phù hợp
+                </Text>
+                <Text className="text-[#626262] text-sm text-center mt-2">
+                  Thử tìm kiếm khác hoặc quay lại sau.
+                </Text>
+              </View>
             ) : null}
           </>
         )}
@@ -396,7 +390,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
                 {articles.map((article) => (
                   <ArticleCard
                     key={article.id}
-                    onPress={() => setDetail('article')}
+                    onPress={() => setDetail({ type: 'article', resourceId: article.id })}
                     coverImageUrl={article.coverImageUrl}
                     title={article.title}
                     topic={article.topic?.title}
@@ -414,24 +408,14 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
                 ))}
               </>
             ) : (
-              // Fallback khi chưa có bài viết
-              <>
-                <Heading text="Bài viết mới cho bạn" />
-                {[
-                  '10 thực phẩm giúp tăng cường sức đề kháng',
-                  'Ăn sáng thế nào để đủ năng lượng?',
-                  '5 cách nấu ăn nhanh cho người bận rộn',
-                ].map((title, i) => (
-                  <ArticleCard
-                    key={i}
-                    onPress={() => setDetail('article')}
-                    coverImageUrl={null}
-                    title={title}
-                    topic="Dinh dưỡng"
-                    readMinutes={5}
-                  />
-                ))}
-              </>
+              <View className="py-10 items-center px-6">
+                <Text className="text-[#161616] font-semibold text-base text-center">
+                  Chưa có bài viết
+                </Text>
+                <Text className="text-[#626262] text-sm text-center mt-2">
+                  Nội dung sẽ xuất hiện khi có bài đã xuất bản.
+                </Text>
+              </View>
             )}
           </>
         )}
@@ -449,28 +433,19 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
                 <PostCard
                   key={post.id}
                   post={post}
-                  onPress={() => setDetail('post')}
+                  onPress={() => setDetail({ type: 'post', resourceId: post.id })}
                   onLike={() => handleLikePost(post.id)}
                 />
               ))
             ) : (
-              // Fallback
-              <>
-                <PostCard
-                  post={{
-                    id: 'mock-1',
-                    content: 'Hôm nay Mogu chọn món thịt ngon cho mình!',
-                    imageUrls: [],
-                    likeCount: 12,
-                    commentCount: 3,
-                    isLiked: false,
-                    createdAt: new Date().toISOString(),
-                    author: { userId: '', displayName: 'Hương Giang', avatarUrl: null },
-                  }}
-                  onPress={() => setDetail('post')}
-                  onLike={() => {}}
-                />
-              </>
+              <View className="py-10 items-center px-6">
+                <Text className="text-[#161616] font-semibold text-base text-center">
+                  Chưa có bài cộng đồng
+                </Text>
+                <Text className="text-[#626262] text-sm text-center mt-2">
+                  Hãy là người đầu tiên chia sẻ món hôm nay.
+                </Text>
+              </View>
             )}
           </>
         )}

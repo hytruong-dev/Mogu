@@ -1,566 +1,464 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { taxonomyAdminApi, type Category, type MealType, type CreateCategoryDto } from '../api/taxonomy'
+import { useEffect, useMemo, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Info, Pencil, Search, Tag, Trash2, Utensils } from 'lucide-react'
+import {
+  taxonomyAdminApi,
+  type Category,
+  type CreateCategoryDto,
+  type MealType,
+  type UpdateCategoryDto,
+} from '../api/taxonomy'
+import { useFoodDataActions } from '../components/food-data/food-data-context'
+import { FoodDataPagination } from '../components/food-data/FoodDataPagination'
+import { HideConfirmDialog } from '../components/food-data/HideConfirmDialog'
+import { Button } from '../components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../components/ui/dialog'
 import { Input } from '../components/ui/input'
+import { Select } from '../components/ui/select'
+import { Switch } from '../components/ui/switch'
 import { Textarea } from '../components/ui/textarea'
 
-// ─── Badge tương tác (click để chọn) ──────────────────────────────────────────
-function CategoryBadge({
-  item,
-  selected,
-  onSelect,
-  onEdit,
-  onToggle,
-  tone = 'default',
-}: {
-  item: Category | MealType
-  selected: boolean
-  onSelect: () => void
-  onEdit: () => void
-  onToggle: () => void
-  tone?: 'default' | 'meal'
-}) {
-  const [hover, setHover] = useState(false)
+type ListKind = 'category' | 'meal-type'
 
-  const activeColor = tone === 'meal' ? '#3b82f6' : '#f0a500'
-  const activeLight = tone === 'meal' ? '#eff6ff' : '#fffbeb'
-
-  return (
-    <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 6,
-        padding: '6px 14px',
-        borderRadius: 999,
-        border: `1.5px solid ${item.isActive ? (selected ? activeColor : '#d1c9b8') : '#e5e5e5'}`,
-        background: item.isActive
-          ? selected
-            ? activeLight
-            : hover
-            ? '#fafaf8'
-            : '#fff'
-          : '#f5f5f5',
-        cursor: 'pointer',
-        transition: 'all 0.15s',
-        opacity: item.isActive ? 1 : 0.55,
-        position: 'relative',
-        userSelect: 'none',
-      }}
-      onClick={onSelect}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      <span style={{
-        fontSize: 14,
-        fontWeight: selected ? 700 : 500,
-        color: item.isActive ? (selected ? activeColor : '#2c1810') : '#aaa',
-      }}>
-        {item.name}
-      </span>
-      {selected && (
-        <div style={{ display: 'flex', gap: 4, marginLeft: 4 }}>
-          <button
-            onClick={(e) => { e.stopPropagation(); onEdit() }}
-            style={{
-              width: 20, height: 20, borderRadius: '50%',
-              border: 'none', background: activeColor,
-              color: '#fff', cursor: 'pointer', fontSize: 10,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: 0,
-            }}
-            title="Sửa"
-          >Edit</button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onToggle() }}
-            style={{
-              width: 20, height: 20, borderRadius: '50%',
-              border: 'none',
-              background: item.isActive ? '#ef4444' : '#22c55e',
-              color: '#fff', cursor: 'pointer', fontSize: 10,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              padding: 0,
-            }}
-            title={item.isActive ? 'Ẩn' : 'Hiện'}
-          >{item.isActive ? 'Ẩn' : 'Hiện'}</button>
-        </div>
-      )}
-    </div>
-  )
+function slugify(name: string) {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_|_$/g, '')
 }
 
-// ─── Modal thêm/sửa ────────────────────────────────────────────────────────────
-function CategoryModal({
+function TaxonomyFormDialog({
+  open,
+  kind,
   item,
-  type,
-  onClose,
+  onKindChange,
+  onOpenChange,
   onSave,
+  saving,
 }: {
+  open: boolean
+  kind: ListKind
   item?: Category | MealType | null
-  type: 'category' | 'meal-type'
-  onClose: () => void
-  onSave: (dto: CreateCategoryDto) => Promise<void>
+  onKindChange: (kind: ListKind) => void
+  onOpenChange: (open: boolean) => void
+  onSave: (kind: ListKind, dto: CreateCategoryDto) => Promise<void>
+  saving: boolean
 }) {
   const isEdit = !!item
-  const typeLabel = type === 'category' ? 'danh mục' : 'loại bữa ăn'
-
-  const [form, setForm] = useState<CreateCategoryDto>({
-    code: item?.code ?? '',
-    name: item?.name ?? '',
-    description: (item as Category)?.description ?? '',
-    displayOrder: item?.displayOrder ?? 0,
-    isActive: item?.isActive ?? true,
-  })
-  const [saving, setSaving] = useState(false)
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [displayOrder, setDisplayOrder] = useState(0)
+  const [isActive, setIsActive] = useState(true)
   const [error, setError] = useState('')
+  const [localSaving, setLocalSaving] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!form.name.trim()) return setError('Tên không được trống')
-
-    setSaving(true)
+  useEffect(() => {
+    if (!open) return
+    setName(item?.name ?? '')
+    setDescription((item as Category | undefined)?.description ?? '')
+    setDisplayOrder(item?.displayOrder ?? 0)
+    setIsActive(item?.isActive ?? true)
     setError('')
-    try {
-      // Auto-generate code từ name nếu chưa có (chỉ khi tạo mới)
-      const finalDto = {
-        ...form,
-        code: form.code || form.name
-          .toLowerCase()
-          .normalize('NFD')
-          .replace(/[\u0300-\u036f]/g, '')
-          .replace(/đ/g, 'd')
-          .replace(/[^a-z0-9]+/g, '_')
-          .replace(/^_|_$/g, ''),
-      }
-      await onSave(finalDto)
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? err.message ?? 'Lỗi không xác định')
-    } finally {
-      setSaving(false)
-    }
-  }
+  }, [open, item])
+
+  const autoCode = isEdit ? item?.code ?? '' : slugify(name)
+
+  const title =
+    kind === 'category'
+      ? isEdit
+        ? 'Sửa danh mục món ăn'
+        : 'Thêm danh mục món ăn'
+      : isEdit
+        ? 'Sửa loại bữa ăn'
+        : 'Thêm loại bữa ăn'
 
   return (
-    <div
-      style={{
-        position: 'fixed', inset: 0, zIndex: 300,
-        background: 'rgba(0,0,0,0.4)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 24,
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: '#fff', borderRadius: 20, width: '100%', maxWidth: 480,
-          boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
-          padding: '28px 32px',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 style={{ margin: '0 0 20px', fontSize: 18, fontWeight: 700, color: '#2c1810' }}>
-          {isEdit ? `Sửa ${typeLabel}` : `Thêm ${typeLabel} mới`}
-        </h3>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>
-              Tên hiển thị *
-            </label>
-            <Input
-              value={form.name}
-              onChange={(e) => setForm(f => ({ ...f, name: e.target.value }))}
-              placeholder="vd: Cơm, Phở & Bún, Hải sản..."
-              style={{ width: '100%', boxSizing: 'border-box' }}
-              required
-            />
-          </div>
-
-          {type === 'category' && (
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 600, color: '#555', display: 'block', marginBottom: 6 }}>
-                Mô tả
-              </label>
-              <Textarea
-                value={form.description}
-                onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
-                placeholder="Mô tả ngắn về danh mục..."
-                rows={2}
-                style={{ width: '100%', boxSizing: 'border-box', resize: 'vertical', fontFamily: 'inherit' }}
-              />
-            </div>
-          )}
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <input
-              type="checkbox"
-              id="cat-active"
-              checked={form.isActive}
-              onChange={(e) => setForm(f => ({ ...f, isActive: e.target.checked }))}
-              style={{ width: 18, height: 18, cursor: 'pointer' }}
-            />
-            <label htmlFor="cat-active" style={{ fontSize: 14, fontWeight: 500, color: '#333', cursor: 'pointer' }}>
-              Kích hoạt
-            </label>
-          </div>
-
-          {error && (
-            <div style={{
-              background: '#fff0f0', color: '#c0392b', borderRadius: 10,
-              padding: '10px 14px', fontSize: 13,
-            }}>
-              {error}
-            </div>
-          )}
-
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 4 }}>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{
-                padding: '8px 20px', borderRadius: 10, border: '1px solid #ddd',
-                background: '#fff', color: '#555', cursor: 'pointer', fontWeight: 600, fontSize: 14,
-              }}
-            >
-              Hủy
+        {!isEdit && (
+          <div className="fd-segment" style={{ margin: '0 24px 8px' }}>
+            <button type="button" className={kind === 'category' ? 'is-active' : ''} onClick={() => onKindChange('category')}>
+              <Tag size={14} /> Danh mục món ăn
             </button>
-            <button
-              type="submit"
-              disabled={saving}
-              style={{
-                padding: '8px 24px', borderRadius: 10, border: 'none',
-                background: '#f0a500', color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: 14,
-              }}
-            >
-              {saving ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Tạo mới'}
+            <button type="button" className={kind === 'meal-type' ? 'is-active' : ''} onClick={() => onKindChange('meal-type')}>
+              <Utensils size={14} /> Loại bữa ăn
             </button>
           </div>
-        </form>
-      </div>
-    </div>
-  )
-}
+        )}
 
-// ─── Section ───────────────────────────────────────────────────────────────────
-function TaxonomySection({
-  title,
-  subtitle,
-  emoji,
-  items,
-  tone,
-  onAdd,
-  onEdit,
-  onToggle,
-  loading,
-}: {
-  title: string
-  subtitle: string
-  emoji: string
-  items: (Category | MealType)[]
-  tone: 'default' | 'meal'
-  onAdd: () => void
-  onEdit: (item: Category | MealType) => void
-  onToggle: (item: Category | MealType) => void
-  loading: boolean
-}) {
-  const [selected, setSelected] = useState<string | null>(null)
-
-  const active = items.filter(i => i.isActive)
-  const inactive = items.filter(i => !i.isActive)
-
-  return (
-    <div style={{
-      background: '#fff',
-      borderRadius: 20,
-      padding: '24px 28px',
-      boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-      border: '1px solid #f0ebe2',
-    }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-            <span style={{ fontSize: 22 }}>{emoji}</span>
-            <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#2c1810' }}>{title}</h2>
-            <span style={{
-              background: '#f5f0e8', color: '#8b6f47',
-              borderRadius: 20, padding: '2px 10px', fontSize: 13, fontWeight: 600,
-            }}>
-              {active.length} mục
-            </span>
-          </div>
-          <p style={{ margin: 0, fontSize: 13, color: '#999' }}>{subtitle}</p>
-        </div>
-        <button
-          onClick={onAdd}
-          style={{
-            padding: '8px 18px', borderRadius: 999, border: 'none',
-            background: tone === 'meal' ? '#3b82f6' : '#f0a500',
-            color: '#fff', cursor: 'pointer', fontWeight: 700, fontSize: 13,
-            display: 'flex', alignItems: 'center', gap: 6,
+        <form
+          className="fd-modal-body"
+          onSubmit={async (e) => {
+            e.preventDefault()
+            if (!name.trim()) return setError('Tên không được trống')
+            const code = isEdit ? item!.code : slugify(name)
+            if (!code) return setError('Không tạo được mã từ tên')
+            setLocalSaving(true)
+            setError('')
+            try {
+              await onSave(kind, {
+                code,
+                name: name.trim(),
+                description: kind === 'category' ? description.slice(0, 255) || undefined : undefined,
+                displayOrder: Number(displayOrder) || 0,
+                isActive,
+              })
+              onOpenChange(false)
+            } catch (err: any) {
+              setError(
+                err?.response?.data?.message ??
+                  err?.response?.data?.error?.message ??
+                  err?.message ??
+                  'Lỗi không xác định',
+              )
+            } finally {
+              setLocalSaving(false)
+            }
           }}
         >
-          <span style={{ fontSize: 16 }}>+</span>
-          Thêm mới
-        </button>
-      </div>
-
-      {/* Nhãn hướng dẫn */}
-      {items.length > 0 && (
-        <p style={{ margin: '0 0 14px', fontSize: 12, color: '#bbb' }}>
-          💡 Click vào badge để chọn và hiện nút sửa / ẩn
-        </p>
-      )}
-
-      {/* Loading */}
-      {loading && (
-        <div style={{ padding: '20px 0', color: '#aaa', textAlign: 'center', fontSize: 14 }}>
-          Đang tải...
-        </div>
-      )}
-
-      {/* Active badges */}
-      {!loading && active.length > 0 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: inactive.length ? 16 : 0 }}>
-          {active.map(item => (
-            <CategoryBadge
-              key={item.id}
-              item={item}
-              selected={selected === item.id}
-              onSelect={() => setSelected(selected === item.id ? null : item.id)}
-              onEdit={() => onEdit(item)}
-              onToggle={() => onToggle(item)}
-              tone={tone}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Divider + inactive */}
-      {!loading && inactive.length > 0 && (
-        <>
-          <div style={{ borderTop: '1px dashed #eee', paddingTop: 14, marginTop: 4 }}>
-            <p style={{ margin: '0 0 10px', fontSize: 12, color: '#ccc', fontWeight: 600 }}>
-              ĐÃ ẨN ({inactive.length})
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
-              {inactive.map(item => (
-                <CategoryBadge
-                  key={item.id}
-                  item={item}
-                  selected={selected === item.id}
-                  onSelect={() => setSelected(selected === item.id ? null : item.id)}
-                  onEdit={() => onEdit(item)}
-                  onToggle={() => onToggle(item)}
-                  tone={tone}
-                />
-              ))}
+          <div className="fd-form-grid">
+            <div className="fd-field">
+              <label>
+                {kind === 'category' ? 'Tên danh mục' : 'Tên loại bữa'} <span className="req">*</span>
+              </label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={kind === 'category' ? 'Nhập tên danh mục món ăn...' : 'Nhập tên loại bữa ăn...'}
+                required
+              />
             </div>
-          </div>
-        </>
-      )}
 
-      {!loading && items.length === 0 && (
-        <div style={{ padding: '32px 0', textAlign: 'center', color: '#bbb', fontSize: 14 }}>
-          Chưa có dữ liệu. Nhấn <b>+ Thêm mới</b> để bắt đầu.
-        </div>
-      )}
-    </div>
+            <div className="fd-field">
+              <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                {kind === 'category' ? 'Mã danh mục' : 'Mã loại bữa'}
+                <Info size={13} color="#9ca3af" />
+              </label>
+              <Input value={autoCode} readOnly className="fd-code-readonly" />
+              <p className="fd-field-hint">
+                {isEdit
+                  ? 'Mã không thể chỉnh sửa sau khi tạo.'
+                  : 'Mã tự động tạo từ tên danh mục (không thể chỉnh sửa)'}
+              </p>
+            </div>
+
+            {kind === 'category' && (
+              <div className="fd-field">
+                <label>Mô tả</label>
+                <Textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value.slice(0, 255))}
+                  placeholder="Nhập mô tả danh mục món ăn..."
+                  rows={3}
+                />
+                <div className="fd-char-count">{description.length}/255</div>
+              </div>
+            )}
+
+            <div className="fd-field">
+              <label>
+                Thứ tự hiển thị <span className="req">*</span>
+              </label>
+              <Input
+                type="number"
+                min={0}
+                value={displayOrder}
+                onChange={(e) => setDisplayOrder(Number(e.target.value))}
+                placeholder="Nhập thứ tự..."
+                required
+              />
+            </div>
+
+            <div className="fd-switch-row">
+              <Switch checked={isActive} onCheckedChange={setIsActive} aria-label="Kích hoạt" />
+              <div>
+                <strong>Kích hoạt</strong>
+                <span>Bật để hiển thị {kind === 'category' ? 'danh mục' : 'loại bữa'}.</span>
+              </div>
+            </div>
+
+            {error && (
+              <div style={{ background: '#fef2f2', color: '#b91c1c', borderRadius: 10, padding: '10px 12px', fontSize: 13 }}>
+                {error}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="fd-modal-footer">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={saving || localSaving}>
+              Hủy
+            </Button>
+            <Button type="submit" disabled={saving || localSaving}>
+              {saving || localSaving
+                ? 'Đang lưu...'
+                : isEdit
+                  ? 'Lưu thay đổi'
+                  : kind === 'category'
+                    ? 'Tạo danh mục'
+                    : 'Tạo loại bữa'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
-// ─── Main Page ─────────────────────────────────────────────────────────────────
-export default function CategoriesPage() {
+export default function CategoriesPage({
+  embedded = false,
+  isActive = true,
+}: {
+  embedded?: boolean
+  isActive?: boolean
+}) {
   const qc = useQueryClient()
+  const { registerCreateHandler } = useFoodDataActions()
+  const [listKind, setListKind] = useState<ListKind>('category')
+  const [q, setQ] = useState('')
+  const [status, setStatus] = useState<'all' | 'active' | 'inactive'>('all')
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [modalKind, setModalKind] = useState<ListKind>('category')
+  const [editItem, setEditItem] = useState<Category | MealType | null>(null)
+  const [hideItem, setHideItem] = useState<Category | MealType | null>(null)
 
-  // Modal state
-  const [modal, setModal] = useState<{
-    open: boolean
-    type: 'category' | 'meal-type'
-    item: Category | MealType | null
-  }>({ open: false, type: 'category', item: null })
-
-  // Queries
   const { data: categories = [], isLoading: loadingCat } = useQuery({
     queryKey: ['admin-categories'],
     queryFn: taxonomyAdminApi.listCategories,
   })
-
   const { data: mealTypes = [], isLoading: loadingMeal } = useQuery({
     queryKey: ['admin-meal-types'],
     queryFn: taxonomyAdminApi.listMealTypes,
   })
 
-  // Mutations
-  const createCatMut = useMutation({
-    mutationFn: taxonomyAdminApi.createCategory,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-categories'] }),
-  })
-  const updateCatMut = useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: any }) => taxonomyAdminApi.updateCategory(id, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-categories'] }),
-  })
-  const toggleCatMut = useMutation({
-    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
-      taxonomyAdminApi.updateCategory(id, { isActive }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-categories'] }),
-  })
-
-  const createMealMut = useMutation({
-    mutationFn: taxonomyAdminApi.createMealType,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-meal-types'] }),
-  })
-  const updateMealMut = useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: any }) => taxonomyAdminApi.updateMealType(id, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-meal-types'] }),
-  })
-  const toggleMealMut = useMutation({
-    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
-      taxonomyAdminApi.updateMealType(id, { isActive }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-meal-types'] }),
-  })
-
-  // Handlers
-  const handleSave = async (dto: CreateCategoryDto) => {
-    if (modal.type === 'category') {
-      if (modal.item) {
-        await updateCatMut.mutateAsync({ id: modal.item.id, dto })
-      } else {
-        await createCatMut.mutateAsync(dto)
-      }
-    } else {
-      if (modal.item) {
-        await updateMealMut.mutateAsync({ id: modal.item.id, dto })
-      } else {
-        await createMealMut.mutateAsync(dto)
-      }
-    }
-    setModal({ open: false, type: 'category', item: null })
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['admin-categories'] })
+    qc.invalidateQueries({ queryKey: ['admin-meal-types'] })
+    qc.invalidateQueries({ queryKey: ['food-data-tab-count', 'categories'] })
   }
 
-  const handleToggle = (type: 'category' | 'meal-type', item: Category | MealType) => {
-    if (type === 'category') {
-      toggleCatMut.mutate({ id: item.id, isActive: !item.isActive })
+  const createCat = useMutation({ mutationFn: taxonomyAdminApi.createCategory, onSuccess: invalidate })
+  const updateCat = useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateCategoryDto }) => taxonomyAdminApi.updateCategory(id, dto),
+    onSuccess: invalidate,
+  })
+  const createMeal = useMutation({ mutationFn: taxonomyAdminApi.createMealType, onSuccess: invalidate })
+  const updateMeal = useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateCategoryDto }) => taxonomyAdminApi.updateMealType(id, dto),
+    onSuccess: invalidate,
+  })
+
+  useEffect(() => {
+    if (!embedded || !isActive) return
+    registerCreateHandler(() => {
+      setEditItem(null)
+      setModalKind(listKind)
+      setModalOpen(true)
+    })
+    return () => registerCreateHandler(null)
+  }, [embedded, isActive, listKind, registerCreateHandler])
+
+  useEffect(() => {
+    if (isActive) return
+    setModalOpen(false)
+    setEditItem(null)
+    setHideItem(null)
+  }, [isActive])
+
+  const source = listKind === 'category' ? categories : mealTypes
+  const filtered = useMemo(() => {
+    return source
+      .filter((item) => {
+        if (status === 'active' && !item.isActive) return false
+        if (status === 'inactive' && item.isActive) return false
+        if (!q.trim()) return true
+        const needle = q.trim().toLowerCase()
+        return item.name.toLowerCase().includes(needle) || item.code.toLowerCase().includes(needle)
+      })
+      .sort((a, b) => a.displayOrder - b.displayOrder || a.name.localeCompare(b.name, 'vi'))
+  }, [source, q, status])
+
+  const total = filtered.length
+  const totalPages = Math.max(1, Math.ceil(total / limit))
+  const pageSafe = Math.min(page, totalPages)
+  const pageItems = filtered.slice((pageSafe - 1) * limit, pageSafe * limit)
+  const loading = listKind === 'category' ? loadingCat : loadingMeal
+
+  const handleSave = async (kind: ListKind, dto: CreateCategoryDto) => {
+    if (editItem) {
+      const payload: UpdateCategoryDto = {
+        name: dto.name,
+        description: dto.description,
+        displayOrder: dto.displayOrder,
+        isActive: dto.isActive,
+      }
+      if (kind === 'category') await updateCat.mutateAsync({ id: editItem.id, dto: payload })
+      else await updateMeal.mutateAsync({ id: editItem.id, dto: payload })
+    } else if (kind === 'category') {
+      await createCat.mutateAsync(dto)
     } else {
-      toggleMealMut.mutate({ id: item.id, isActive: !item.isActive })
+      await createMeal.mutateAsync(dto)
     }
   }
 
   return (
-    <div style={{ padding: '28px 32px', maxWidth: 1100 }}>
-      {/* Page header */}
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, color: '#2c1810' }}>
-          🏷️ Quản lý danh mục
-        </h1>
-        <p style={{ margin: '6px 0 0', fontSize: 15, color: '#8b6f47' }}>
-          Quản lý danh mục món ăn và loại bữa ăn hiển thị trên ứng dụng
-        </p>
+    <div className={embedded ? 'food-data-embedded categories-panel' : undefined} style={{ padding: embedded ? 0 : '28px 32px' }}>
+      {!embedded && (
+        <div className="fd-panel-heading" style={{ marginBottom: 20 }}>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Danh mục</h1>
+        </div>
+      )}
+
+      <div className="fd-segment">
+        <button type="button" className={listKind === 'category' ? 'is-active' : ''} onClick={() => { setListKind('category'); setPage(1) }}>
+          <Tag size={14} /> Danh mục món ăn
+        </button>
+        <button type="button" className={listKind === 'meal-type' ? 'is-active' : ''} onClick={() => { setListKind('meal-type'); setPage(1) }}>
+          <Utensils size={14} /> Loại bữa ăn
+        </button>
       </div>
 
-      {/* Preview badge strip (giống app mobile) */}
-      <div style={{
-        background: 'linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%)',
-        border: '1px solid #f0ebe2',
-        borderRadius: 16,
-        padding: '20px 24px',
-        marginBottom: 28,
-      }}>
-        <p style={{ margin: '0 0 12px', fontSize: 13, fontWeight: 700, color: '#8b6f47', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-          📱 Preview — Danh mục hiển thị trên app
-        </p>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-          {categories.filter(c => c.isActive).map(c => (
-            <span
-              key={c.id}
-              style={{
-                padding: '5px 14px',
-                borderRadius: 999,
-                border: '1px solid #e5e0d8',
-                background: '#fff',
-                fontSize: 14,
-                fontWeight: 500,
-                color: '#2c1810',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
-              {c.name}
-            </span>
-          ))}
-          {categories.filter(c => c.isActive).length === 0 && (
-            <span style={{ color: '#bbb', fontSize: 14 }}>Chưa có danh mục nào được kích hoạt</span>
-          )}
+      <h2 className="fd-section-title">
+        {listKind === 'category' ? 'Danh sách danh mục' : 'Danh sách loại bữa ăn'}
+      </h2>
+
+      <div className="fd-toolbar">
+        <div className="fd-search" style={{ position: 'relative' }}>
+          <Search size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#9ca3af' }} />
+          <Input
+            value={q}
+            onChange={(e) => { setQ(e.target.value); setPage(1) }}
+            placeholder={listKind === 'category' ? 'Tìm theo tên danh mục...' : 'Tìm theo tên loại bữa...'}
+            style={{ paddingLeft: 34 }}
+          />
+        </div>
+        <div className="fd-toolbar-filters">
+          <Select value={status} onChange={(e) => { setStatus(e.target.value as typeof status); setPage(1) }}>
+            <option value="all">Tất cả trạng thái</option>
+            <option value="active">Đang bật</option>
+            <option value="inactive">Đã ẩn</option>
+          </Select>
         </div>
       </div>
 
-      {/* Sections */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-        <TaxonomySection
-          title="Danh mục món ăn"
-          subtitle="Các loại món ăn: Cơm, Phở & Bún, Bánh, Lẩu..."
-          emoji="🍽️"
-          items={categories}
-          tone="default"
-          loading={loadingCat}
-          onAdd={() => setModal({ open: true, type: 'category', item: null })}
-          onEdit={(item) => setModal({ open: true, type: 'category', item })}
-          onToggle={(item) => handleToggle('category', item)}
-        />
-
-        <TaxonomySection
-          title="Loại bữa ăn"
-          subtitle="Buổi ăn phù hợp: Sáng, Trưa, Tối, Ăn vặt..."
-          emoji="🕐"
-          items={mealTypes}
-          tone="meal"
-          loading={loadingMeal}
-          onAdd={() => setModal({ open: true, type: 'meal-type', item: null })}
-          onEdit={(item) => setModal({ open: true, type: 'meal-type', item })}
-          onToggle={(item) => handleToggle('meal-type', item)}
-        />
+      <div className="fd-table-wrap">
+        <table className="fd-table">
+          <thead>
+            <tr>
+              <th>Tên {listKind === 'category' ? 'danh mục' : 'loại bữa'}</th>
+              <th>Thứ tự hiển thị</th>
+              <th>Kích hoạt</th>
+              <th style={{ width: 150 }}>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && (
+              <tr><td colSpan={4} className="fd-empty">Đang tải...</td></tr>
+            )}
+            {!loading && pageItems.length === 0 && (
+              <tr><td colSpan={4} className="fd-empty">Chưa có dữ liệu</td></tr>
+            )}
+            {pageItems.map((item) => (
+              <tr key={item.id} style={{ cursor: 'default' }}>
+                <td>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div className="fd-cat-icon">
+                      {listKind === 'category' ? <Tag size={14} /> : <Utensils size={14} />}
+                    </div>
+                    <div className="fd-name-cell">
+                      <strong>{item.name}</strong>
+                      <span>
+                        {(item as Category).description || item.code}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                <td>{item.displayOrder}</td>
+                <td>
+                  <span className={`fd-status ${item.isActive ? 'is-on' : 'is-off'}`}>
+                    {item.isActive ? 'Bật' : 'Ẩn'}
+                  </span>
+                </td>
+                <td>
+                  <div className="fd-row-actions">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditItem(item)
+                        setModalKind(listKind)
+                        setModalOpen(true)
+                      }}
+                    >
+                      <Pencil size={13} /> Sửa
+                    </button>
+                    <button
+                      type="button"
+                      className="is-danger"
+                      onClick={() => setHideItem(item)}
+                      disabled={!item.isActive}
+                    >
+                      <Trash2 size={13} /> Xóa
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* Stats */}
-      <div style={{
-        marginTop: 28,
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-        gap: 16,
-      }}>
-        {[
-          { label: 'Danh mục hoạt động', value: categories.filter(c => c.isActive).length, emoji: '✅' },
-          { label: 'Danh mục ẩn', value: categories.filter(c => !c.isActive).length, emoji: '🙈' },
-          { label: 'Loại bữa hoạt động', value: mealTypes.filter(m => m.isActive).length, emoji: '✅' },
-          { label: 'Loại bữa ẩn', value: mealTypes.filter(m => !m.isActive).length, emoji: '🙈' },
-        ].map(stat => (
-          <div
-            key={stat.label}
-            style={{
-              background: '#fff',
-              borderRadius: 14,
-              padding: '16px 20px',
-              border: '1px solid #f0ebe2',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-            }}
-          >
-            <div style={{ fontSize: 24 }}>{stat.emoji}</div>
-            <div style={{ fontSize: 22, fontWeight: 800, color: '#2c1810', marginTop: 4 }}>{stat.value}</div>
-            <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>{stat.label}</div>
-          </div>
-        ))}
-      </div>
+      <FoodDataPagination
+        page={pageSafe}
+        limit={limit}
+        total={total}
+        totalPages={totalPages}
+        itemLabel={listKind === 'category' ? 'danh mục' : 'loại bữa'}
+        onPageChange={setPage}
+        onLimitChange={(next) => { setLimit(next); setPage(1) }}
+      />
 
-      {/* Modal */}
-      {modal.open && (
-        <CategoryModal
-          item={modal.item}
-          type={modal.type}
-          onClose={() => setModal({ open: false, type: 'category', item: null })}
-          onSave={handleSave}
-        />
-      )}
+      <TaxonomyFormDialog
+        open={modalOpen}
+        kind={modalKind}
+        item={editItem}
+        onKindChange={setModalKind}
+        onOpenChange={(open) => {
+          setModalOpen(open)
+          if (!open) setEditItem(null)
+        }}
+        onSave={handleSave}
+        saving={createCat.isPending || updateCat.isPending || createMeal.isPending || updateMeal.isPending}
+      />
+
+      <HideConfirmDialog
+        open={!!hideItem}
+        onOpenChange={(open) => { if (!open) setHideItem(null) }}
+        title={listKind === 'category' ? 'Ẩn danh mục này?' : 'Ẩn loại bữa này?'}
+        description="Dữ liệu sẽ không bị xóa vĩnh viễn. Các món đã liên kết vẫn giữ lịch sử, nhưng mục này không còn hiển thị công khai."
+        itemName={hideItem?.name ?? ''}
+        confirmLabel={listKind === 'category' ? 'Ẩn danh mục' : 'Ẩn loại bữa'}
+        loading={updateCat.isPending || updateMeal.isPending}
+        onConfirm={async () => {
+          if (!hideItem) return
+          if (listKind === 'category') await updateCat.mutateAsync({ id: hideItem.id, dto: { isActive: false } })
+          else await updateMeal.mutateAsync({ id: hideItem.id, dto: { isActive: false } })
+          setHideItem(null)
+        }}
+      />
     </div>
   )
 }

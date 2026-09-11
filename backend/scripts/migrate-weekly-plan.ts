@@ -1,7 +1,7 @@
 /**
- * BA-005: Weekly Meal Plan — Migration Script
- * Runs raw SQL for ENUM types, tables, CHECK constraints, partial unique indexes, RLS.
- * Execute: npx ts-node -r tsconfig-paths/register scripts/migrate-weekly-plan.ts
+ * BA-005: Weekly Meal Plan — DEPRECATED one-off script.
+ * Prefer: `npx prisma migrate deploy` (migration `20260911_weekly_meal_plan`).
+ * Kept for emergency re-run on legacy environments only.
  */
 
 import * as dotenv from 'dotenv';

@@ -31,6 +31,15 @@ export class CommunityController {
     return this.communityService.listPosts(dto, user.id);
   }
 
+  @Get('posts/:id')
+  @ApiOperation({ summary: 'Chi tiết bài đăng cộng đồng' })
+  getPost(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: { id: string },
+  ) {
+    return this.communityService.getPostById(id, user.id);
+  }
+
   @Post('posts')
   @ApiOperation({ summary: 'Tạo bài đăng mới' })
   createPost(

@@ -122,6 +122,12 @@ export const communityApi = {
     apiRequest(`/community/posts/${id}`, { method: 'DELETE' }),
 
   /**
+   * GET /v1/community/posts/:id
+   */
+  getPost: (postId: string): Promise<ExplorePost> =>
+    apiRequest(`/community/posts/${postId}`),
+
+  /**
    * POST /v1/community/posts/:id/like — toggle
    */
   toggleLike: (postId: string): Promise<{ liked: boolean }> =>

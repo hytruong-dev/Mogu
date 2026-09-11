@@ -64,10 +64,12 @@ export type RecommendationItem = {
 };
 
 export type NutritionSummary = {
-  caloriesConsumed: number;
-  calorieTarget: number;
-  proteinG: number;
-  mealsLogged: number;
+  date: string;
+  dataStatus: 'no_data' | 'partial' | 'complete';
+  caloriesConsumed?: number;
+  calorieTarget?: number;
+  proteinG?: number;
+  waterMl?: number;
 };
 
 export type HomeDashboard = {

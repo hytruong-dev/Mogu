@@ -17,16 +17,27 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, ChevronRight, RefreshCw, Sparkles } from 'lucide-react-native';
+import { computeWeeklyForecast } from '../lib/weekly-forecast';
 import {
   getCurrentWeeklyPlan,
   startWeeklyPlan,
   regenerateWeeklyPlan,
   swapSlot,
   generateWeeklyPlan,
-  getWeeklyPlanConfig,
+  completeSlot,
+  skipSlot,
+  lockSlot,
+  pollWeeklyPlan,
   type SwapSlotResult,
 } from '../services/api/weekly-plan';
 import type { WeeklyPlan, WeeklyPlanDay, WeeklyPlanStatus } from '../services/api/types';
+import { formatApiErrorWithCode } from '../lib/api-error';
+import {
+  formatPlanWeekdayFull,
+  formatPlanWeekdayShort,
+  getTodayISO,
+  isTodayISO,
+} from '../lib/dates';
 
 const CREAM = '#F7F2E8';
 const WHITE = '#FFFFFF';
@@ -74,12 +85,7 @@ const SLOT_ICONS: Record<string, string> = {
   MORNING: '☀️', LUNCH: '🌤️', DINNER: '🌙', SNACK: '🍎',
 };
 
-const VN_SHORTS = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-const VN_FULLS = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
-
 const parseDayPlan = (day: WeeklyPlanDay): DayPlan => {
-  const d = new Date(day.date + 'T00:00:00');
-  const dow = d.getDay();
   const meals: Meal[] = day.slots.map(sl => ({
     slotId: sl.id,
     slot: SLOT_LABELS[sl.mealSlot] ?? sl.mealSlot,
@@ -92,33 +98,37 @@ const parseDayPlan = (day: WeeklyPlanDay): DayPlan => {
     status: sl.status,
     isLocked: sl.isLocked,
   }));
+  const [_, monthStr, dayStr] = day.date.split('-');
   return {
-    weekdayShort: VN_SHORTS[dow],
-    weekdayFull: VN_FULLS[dow],
-    date: d.getDate(),
-    month: d.getMonth() + 1,
+    weekdayShort: formatPlanWeekdayShort(day.date),
+    weekdayFull: formatPlanWeekdayFull(day.date),
+    date: Number(dayStr),
+    month: Number(monthStr),
     isoDate: day.date,
     meals,
     estimatedCost: meals.reduce((s, m) => s + m.price, 0),
-    estimatedKcal: meals.reduce((s, m) => s + m.kcal, 0),
+    estimatedKcal: meals.reduce((s, m) => s + (m.kcal ?? 0), 0),
   };
 }
 
 // ── Week skeleton — chỉ tạo khung ngày, KHÔNG có meals (dùng khi chưa có plan) ──
 const buildWeekSkeleton = (): DayPlan[] => {
-  const today = new Date();
-  const dow = today.getDay();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1));
-  const shorts = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-  const fulls = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'];
+  const todayIso = getTodayISO();
+  const [y, m, d] = todayIso.split('-').map(Number);
+  const anchor = new Date(y, m - 1, d);
+  const dow = anchor.getDay();
+  const monday = new Date(anchor);
+  monday.setDate(anchor.getDate() - (dow === 0 ? 6 : dow - 1));
   return Array.from({ length: 7 }, (_, i) => {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
+    const day = new Date(monday);
+    day.setDate(monday.getDate() + i);
+    const iso = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, '0')}-${String(day.getDate()).padStart(2, '0')}`;
     return {
-      weekdayShort: shorts[i], weekdayFull: fulls[i],
-      date: d.getDate(), month: d.getMonth() + 1,
-      isoDate: d.toISOString().split('T')[0],
+      weekdayShort: formatPlanWeekdayShort(iso),
+      weekdayFull: formatPlanWeekdayFull(iso),
+      date: day.getDate(),
+      month: day.getMonth() + 1,
+      isoDate: iso,
       meals: [],
       estimatedCost: 0,
       estimatedKcal: 0,
@@ -133,14 +143,15 @@ type Props = {
 };
 
 export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
-  const today = new Date();
-  const todayDate = today.getDate();
+  const todayIso = getTodayISO();
 
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [actionLoading, setActionLoading] = useState<string | null>(null); // 'start'|'regen'|slotId
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedIdx, setSelectedIdx] = useState(0);
+  const [pollingPlanId, setPollingPlanId] = useState<string | null>(null);
+  const pollRef = useRef<string | null>(null);
 
   // ── Fetch plan ───────────────────────────────────────────────────────────────
   const fetchPlan = useCallback(async (silent = false) => {
@@ -152,8 +163,7 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
       setPlan(p);
       // Auto-select today
       if (p && Array.isArray(p.days) && p.days.length > 0) {
-        const todayISO = today.toISOString().split('T')[0];
-        const idx = p.days.findIndex(d => d.date === todayISO);
+        const idx = p.days.findIndex((d) => d.date === todayIso);
         if (idx >= 0) setSelectedIdx(idx);
       }
     } catch (err: any) {
@@ -180,19 +190,46 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
 
   const safeIdx = Math.min(selectedIdx, Math.max(displayDays.length - 1, 0));
   const selectedDay = displayDays[safeIdx] ?? displayDays[0];
-  const isToday = selectedDay?.date === todayDate;
+  const isToday = selectedDay ? isTodayISO(selectedDay.isoDate) : false;
 
-  // ── Stats ────────────────────────────────────────────────────────────────────
   const planStatus: WeeklyPlanStatus | null = plan?.status ?? null;
   const budget = plan?.budgetLimitVnd ?? 500000;
-  const spent = plan?.actualSpentVnd ?? 0;
-  const projected = plan?.projectedCostVnd ?? 0;
   const calTotal = plan?.targetKcal ?? 14000;
-  const calConsumed = plan?.actualKcal ?? 0;
-  const calProjected = plan?.projectedKcal ?? 0;
-  const budgetPct = Math.min((Math.max(spent, projected) / budget) * 100, 100);
-  const calPct = Math.min(((calConsumed || calProjected) / calTotal) * 100, 100);
-  const budgetLeft = Math.round((budget - Math.max(spent, projected)) / 1000);
+  const {
+    actualCompleted: spent,
+    actualKcalCompleted: calConsumed,
+    forecastSpent: endForecast,
+    forecastKcal: calProjected,
+  } = computeWeeklyForecast(plan ?? {});
+  const remainingProjected = Math.max(0, budget - endForecast);
+  const budgetPct = budget > 0 ? Math.min((endForecast / budget) * 100, 100) : 0;
+  const calPct = calTotal > 0 ? Math.min((calProjected / calTotal) * 100, 100) : 0;
+
+  const waitForPlan = async (planId: string) => {
+    pollRef.current = planId;
+    setPollingPlanId(planId);
+    try {
+      const finalPlan = await pollWeeklyPlan(planId, {
+        onTick: (p) => {
+          if (pollRef.current === planId) setPlan(p);
+        },
+      });
+      setPlan(finalPlan);
+      if (finalPlan.status === 'FAILED') {
+        Alert.alert(
+          'Tạo thất bại',
+          finalPlan.generationErrorCode ?? 'Không thể tạo kế hoạch.',
+        );
+      }
+    } catch (err) {
+      Alert.alert('Lỗi', formatApiErrorWithCode(err));
+    } finally {
+      if (pollRef.current === planId) {
+        pollRef.current = null;
+        setPollingPlanId(null);
+      }
+    }
+  };
 
   // ── Plan info text ───────────────────────────────────────────────────────────
   const durationDays = plan
@@ -208,8 +245,8 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
     try {
       await startWeeklyPlan(plan.id, plan.version);
       await fetchPlan(true);
-    } catch (e: any) {
-      Alert.alert('Lỗi', e?.message ?? 'Không thể bắt đầu kế hoạch.');
+    } catch (e) {
+      Alert.alert('Lỗi', formatApiErrorWithCode(e));
     } finally {
       setActionLoading(null);
     }
@@ -220,14 +257,10 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
       // No plan yet → generate new one
       setActionLoading('regen');
       try {
-        const iso = today.toISOString().split('T')[0];
-        console.log('[WeeklyPlan] Generating plan, startDate=', iso);
-        await generateWeeklyPlan(iso);
-        console.log('[WeeklyPlan] Generate called, waiting 3s then refresh...');
-        Alert.alert('Đang tạo', 'Kế hoạch đang được tạo, vui lòng kéo xuống để làm mới sau vài giây.');
-        setTimeout(() => fetchPlan(true), 3000);
-      } catch (e: any) {
-        Alert.alert('Lỗi', e?.message ?? 'Không thể tạo kế hoạch.');
+        const { planId } = await generateWeeklyPlan(getTodayISO());
+        await waitForPlan(planId);
+      } catch (e) {
+        Alert.alert('Lỗi', formatApiErrorWithCode(e));
       } finally {
         setActionLoading(null);
       }
@@ -244,11 +277,10 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
           onPress: async () => {
             setActionLoading('regen');
             try {
-              await regenerateWeeklyPlan(plan.id);
-              Alert.alert('Đang tạo', 'Kế hoạch mới đang được tạo, kéo xuống để làm mới.');
-              setTimeout(() => fetchPlan(true), 3000);
-            } catch (e: any) {
-              Alert.alert('Lỗi', e?.message ?? 'Không thể tạo lại.');
+              const { planId } = await regenerateWeeklyPlan(plan.id);
+              await waitForPlan(planId);
+            } catch (e) {
+              Alert.alert('Lỗi', formatApiErrorWithCode(e));
             } finally {
               setActionLoading(null);
             }
@@ -270,15 +302,21 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
       const result: SwapSlotResult = await swapSlot(plan.id, meal.slotId, { version: meal.version });
 
       // Chỉ update local state thay vì gọi lại toàn bộ getCurrentWeeklyPlan
-      setPlan(prev => {
+      setPlan((prev) => {
         if (!prev) return prev;
         return {
           ...prev,
-          days: prev.days.map(day => ({
+          ...(result.summary
+            ? {
+                projectedCostVnd: result.summary.projectedCostVnd,
+                projectedKcal: result.summary.projectedKcal,
+                budgetLimitVnd: result.summary.budgetLimitVnd,
+              }
+            : {}),
+          days: prev.days.map((day) => ({
             ...day,
-            slots: day.slots.map(sl => {
+            slots: day.slots.map((sl) => {
               if (sl.id !== meal.slotId) return sl;
-              // Merge slot mới từ response API
               return {
                 ...sl,
                 id: result.id ?? sl.id,
@@ -300,8 +338,55 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
           })),
         };
       });
-    } catch (e: any) {
-      Alert.alert('Lỗi', e?.message ?? 'Không thể đổi món.');
+
+      if (!result.summary) {
+        await fetchPlan(true);
+      }
+
+      if (result.budgetWarning) {
+        Alert.alert('Cảnh báo ngân sách', 'Món mới có thể làm tăng dự toán chi tiêu.');
+      }
+    } catch (e) {
+      Alert.alert('Lỗi', formatApiErrorWithCode(e));
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleComplete = async (meal: Meal) => {
+    if (!plan) return;
+    setActionLoading(`complete-${meal.slotId}`);
+    try {
+      await completeSlot(plan.id, meal.slotId, { version: meal.version });
+      await fetchPlan(true);
+    } catch (e) {
+      Alert.alert('Lỗi', formatApiErrorWithCode(e));
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleSkip = async (meal: Meal) => {
+    if (!plan) return;
+    setActionLoading(`skip-${meal.slotId}`);
+    try {
+      await skipSlot(plan.id, meal.slotId, meal.version);
+      await fetchPlan(true);
+    } catch (e) {
+      Alert.alert('Lỗi', formatApiErrorWithCode(e));
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleLockToggle = async (meal: Meal) => {
+    if (!plan) return;
+    setActionLoading(`lock-${meal.slotId}`);
+    try {
+      await lockSlot(plan.id, meal.slotId, !meal.isLocked, meal.version);
+      await fetchPlan(true);
+    } catch (e) {
+      Alert.alert('Lỗi', formatApiErrorWithCode(e));
     } finally {
       setActionLoading(null);
     }
@@ -372,16 +457,15 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
                 : 'Nhấn "Tạo thực đơn" để bắt đầu'}
             </Text>
 
-            {/* Chi tiêu */}
             <View style={s.statRow}>
               <Text style={{ fontSize: 14 }}>❤️</Text>
               <Text style={s.statLabel}>Chi tiêu</Text>
               <Text style={s.statValue}>
-                {Math.round(Math.max(spent, projected) / 1000)}K / {Math.round(budget / 1000)}K
+                {Math.round(spent / 1000)}K đã chi · ~{Math.round(endForecast / 1000)}K cuối kỳ
               </Text>
-              <View style={[s.badge, { backgroundColor: budgetLeft >= 0 ? '#DCFCE7' : '#FEE2E2' }]}>
-                <Text style={[s.badgeText, { color: budgetLeft >= 0 ? '#15803D' : '#B91C1C' }]}>
-                  {budgetLeft >= 0 ? `Còn ${budgetLeft}K` : `Vượt ${-budgetLeft}K`}
+              <View style={[s.badge, { backgroundColor: remainingProjected >= 0 ? '#DCFCE7' : '#FEE2E2' }]}>
+                <Text style={[s.badgeText, { color: remainingProjected >= 0 ? '#15803D' : '#B91C1C' }]}>
+                  Còn {Math.round(remainingProjected / 1000)}K
                 </Text>
               </View>
             </View>
@@ -394,7 +478,7 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
               <Text style={{ fontSize: 14 }}>🔥</Text>
               <Text style={s.statLabel}>Năng lượng</Text>
               <Text style={s.statValue}>
-                {(calConsumed || calProjected).toLocaleString('vi-VN')} / {calTotal.toLocaleString('vi-VN')} kcal
+                {calConsumed.toLocaleString('vi-VN')} đã nạp · ~{calProjected.toLocaleString('vi-VN')} dự toán
               </Text>
               <View style={[s.badge, { backgroundColor: '#FEE2E2' }]}>
                 <Text style={[s.badgeText, { color: '#B91C1C' }]}>Đạt {Math.round(calPct)}%</Text>
@@ -412,10 +496,10 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
         </View>
 
         {/* ── GENERATING state notice ───────────────────────────────────────── */}
-        {planStatus === 'GENERATING' && (
+        {(planStatus === 'GENERATING' || pollingPlanId) && (
           <View style={s.generatingBanner}>
             <ActivityIndicator size="small" color={YELLOW} />
-            <Text style={s.generatingText}>Mogu đang chọn món cho bạn... Kéo xuống để cập nhật.</Text>
+            <Text style={s.generatingText}>Mogu đang chọn món cho bạn...</Text>
           </View>
         )}
 
@@ -424,7 +508,7 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
           <View style={s.calendarRow}>
             {displayDays.map((day, idx) => {
               const isSelected = idx === safeIdx;
-              const isTodayDay = day.date === todayDate;
+              const isTodayDay = isTodayISO(day.isoDate);
               return (
                 <Pressable
                   key={idx}
@@ -470,8 +554,12 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
                   key={meal.slotId}
                   meal={meal}
                   isReal={true}
+                  busy={!!actionLoading && actionLoading.includes(meal.slotId)}
                   swapping={actionLoading === meal.slotId}
                   onSwap={() => handleSwap(meal)}
+                  onComplete={() => handleComplete(meal)}
+                  onSkip={() => handleSkip(meal)}
+                  onToggleLock={() => handleLockToggle(meal)}
                 />
               ))}
 
@@ -558,13 +646,19 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
 
 // ── MealCard ──────────────────────────────────────────────────────────────────
 function MealCard({
-  meal, isReal, swapping, onSwap,
+  meal, isReal, busy, swapping, onSwap, onComplete, onSkip, onToggleLock,
 }: {
   meal: Meal;
   isReal: boolean;
+  busy: boolean;
   swapping: boolean;
   onSwap: () => void;
+  onComplete: () => void;
+  onSkip: () => void;
+  onToggleLock: () => void;
 }) {
+  const isDone = meal.status === 'COMPLETED';
+  const isSkipped = meal.status === 'SKIPPED';
   const slotColor: Record<string, string> = {
     'Bữa sáng': '#FFFBEB', 'Bữa trưa': '#FFF7F0', 'Bữa tối': '#EEF4FF', 'Bữa phụ': '#F0FFF4',
   };
@@ -586,25 +680,58 @@ function MealCard({
         <View style={s.mealSlotRow}>
           <Text style={{ fontSize: 12 }}>{meal.slotIcon}</Text>
           <Text style={s.mealSlotText}>{meal.slot}</Text>
-          {meal.isLocked && <Text style={{ fontSize: 11, color: '#C08000' }}>🔒</Text>}
+          <TouchableOpacity
+            onPress={onToggleLock}
+            disabled={!isReal || busy || isDone || isSkipped}
+            hitSlop={8}
+            style={s.lockBtn}
+          >
+            <Text style={{ fontSize: 12 }}>{meal.isLocked ? '🔒' : '🔓'}</Text>
+          </TouchableOpacity>
         </View>
         <Text style={s.mealName} numberOfLines={1}>{meal.dishName}</Text>
-        <Text style={s.mealMeta}>{meal.price}K · {meal.kcal} kcal</Text>
+        <Text style={s.mealMeta}>
+          {meal.price > 0 ? `${meal.price}K` : '—'} · {meal.kcal > 0 ? `${meal.kcal} kcal` : '—'}
+        </Text>
+        {isDone && <Text style={s.slotStatusDone}>Đã ăn</Text>}
+        {isSkipped && <Text style={s.slotStatusSkip}>Đã bỏ</Text>}
+        {!isDone && !isSkipped && (
+          <TouchableOpacity onPress={onSkip} disabled={busy} hitSlop={6} style={s.skipLink}>
+            <Text style={s.skipLinkText}>Bỏ qua</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
-      {/* Đổi món button — chỉ khi có plan thật */}
-      <TouchableOpacity
-        style={[s.changeBtn, (!isReal || meal.isLocked) && { opacity: 0.4 }]}
-        activeOpacity={0.8}
-        onPress={onSwap}
-        disabled={!isReal || meal.isLocked || swapping}
-      >
-        {swapping
-          ? <ActivityIndicator size="small" color="#555" />
-          : <RefreshCw size={15} color="#555" strokeWidth={2} />
-        }
-        <Text style={s.changeBtnText}>Đổi món</Text>
-      </TouchableOpacity>
+      {/* Chỉ 2 action chính — tránh clip trong rail hẹp */}
+      <View style={s.mealActions}>
+        <TouchableOpacity
+          style={[s.changeBtn, (!isReal || meal.isLocked || isDone || isSkipped) && { opacity: 0.4 }]}
+          activeOpacity={0.8}
+          onPress={onSwap}
+          disabled={!isReal || meal.isLocked || swapping || isDone || isSkipped}
+        >
+          {swapping
+            ? <ActivityIndicator size="small" color="#555" />
+            : <RefreshCw size={16} color="#555" strokeWidth={2} />
+          }
+          <Text style={s.changeBtnText}>Đổi</Text>
+        </TouchableOpacity>
+        {!isDone && !isSkipped ? (
+          <TouchableOpacity
+            style={[s.completeBtn, busy && { opacity: 0.5 }]}
+            onPress={onComplete}
+            disabled={busy}
+          >
+            <Text style={s.completeBtnText}>✓</Text>
+          </TouchableOpacity>
+        ) : (
+          <View style={[s.completeBtn, { backgroundColor: isDone ? '#DCFCE7' : '#F3F4F6', borderColor: isDone ? '#86EFAC' : BORDER }]}>
+            <Text style={[s.completeBtnText, { color: isDone ? '#15803D' : MUTED }]}>
+              {isDone ? '✓' : '—'}
+            </Text>
+          </View>
+        )}
+      </View>
     </View>
   );
 }
@@ -671,24 +798,73 @@ const s = StyleSheet.create({
   dayHeaderSub: { fontSize: 13, color: MUTED, marginTop: 2 },
 
   mealCard: {
-    backgroundColor: WHITE, borderRadius: 16,
-    flexDirection: 'row', alignItems: 'center',
-    overflow: 'hidden', ...shadow,
-    borderWidth: 1, borderColor: BORDER,
+    backgroundColor: WHITE,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    ...shadow,
+    borderWidth: 1,
+    borderColor: BORDER,
   },
-  mealImage: { width: 88, height: 88, borderRadius: 0, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  mealInfo: { flex: 1, paddingHorizontal: 12, paddingVertical: 12 },
+  mealImage: {
+    width: 88,
+    minHeight: 96,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    borderTopLeftRadius: 15,
+    borderBottomLeftRadius: 15,
+  },
+  mealInfo: { flex: 1, paddingHorizontal: 12, paddingVertical: 12, justifyContent: 'center' },
   mealSlotRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 3 },
   mealSlotText: { fontSize: 12, fontWeight: '600', color: '#C08000' },
+  lockBtn: {
+    marginLeft: 2,
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   mealName: { fontSize: 15, fontWeight: '700', color: INK, letterSpacing: -0.2 },
   mealMeta: { fontSize: 12, color: MUTED, marginTop: 3 },
+  skipLink: { marginTop: 6, alignSelf: 'flex-start' },
+  skipLinkText: { fontSize: 12, fontWeight: '600', color: MUTED, textDecorationLine: 'underline' },
 
-  changeBtn: {
-    flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-    width: 62, height: 88, backgroundColor: '#FAFAF5',
-    borderLeftWidth: 1, borderLeftColor: BORDER, gap: 4,
+  mealActions: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 64,
+    backgroundColor: '#FAFAF5',
+    borderLeftWidth: 1,
+    borderLeftColor: BORDER,
+    gap: 10,
+    paddingVertical: 10,
+    borderTopRightRadius: 15,
+    borderBottomRightRadius: 15,
   },
-  changeBtnText: { fontSize: 11, fontWeight: '600', color: '#555' },
+  changeBtn: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+    paddingHorizontal: 4,
+  },
+  changeBtnText: { fontSize: 10, fontWeight: '600', color: '#555' },
+  completeBtn: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: WHITE,
+    borderWidth: 1,
+    borderColor: BORDER,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  completeBtnText: { fontSize: 14, fontWeight: '700', color: INK },
+  slotStatusDone: { fontSize: 11, color: '#15803D', fontWeight: '700', marginTop: 2 },
+  slotStatusSkip: { fontSize: 11, color: MUTED, fontWeight: '600', marginTop: 2 },
 
   ingredientsRow: {
     backgroundColor: WHITE, borderRadius: 14,

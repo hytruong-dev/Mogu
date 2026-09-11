@@ -1,394 +1,302 @@
-import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Pencil, Eye, EyeOff, X } from 'lucide-react'
-import { taxonomyAdminApi, type DietType, type CreateCategoryDto } from '../api/taxonomy'
+import { useEffect, useMemo, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { EyeOff, Pencil, Search } from 'lucide-react'
+import {
+  taxonomyAdminApi,
+  type CreateCategoryDto,
+  type DietType,
+  type UpdateCategoryDto,
+} from '../api/taxonomy'
+import { useFoodDataActions } from '../components/food-data/food-data-context'
+import { FoodDataPagination } from '../components/food-data/FoodDataPagination'
+import { HideConfirmDialog } from '../components/food-data/HideConfirmDialog'
+import { Button } from '../components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../components/ui/dialog'
 import { Input } from '../components/ui/input'
+import { Select } from '../components/ui/select'
+import { Switch } from '../components/ui/switch'
 import { Textarea } from '../components/ui/textarea'
 
-// ─── Icon map cho từng chế độ ăn ──────────────────────────────────────────────
-const DIET_ICONS: Record<string, string> = {
-  NORMAL: '🍽️',
-  VEGETARIAN: '🥚',
-  VEGAN: '🌱',
-  PESCATARIAN: '🐟',
-  HALAL: '☪️',
-  KETO: '🥑',
-  LOW_CARB: '🥦',
-  HIGH_PROTEIN: '💪',
-  LOW_CALORIE: '⚖️',
-  LOW_FAT: '🫙',
-  LOW_SODIUM: '🧂',
-  GLUTEN_FREE: '🌾',
-}
-
-const DIET_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-  NORMAL:       { bg: '#f8f9fa', border: '#dee2e6', text: '#495057' },
-  VEGETARIAN:   { bg: '#f0fff4', border: '#86efac', text: '#166534' },
-  VEGAN:        { bg: '#ecfdf5', border: '#6ee7b7', text: '#065f46' },
-  PESCATARIAN:  { bg: '#eff6ff', border: '#93c5fd', text: '#1e40af' },
-  HALAL:        { bg: '#fff7ed', border: '#fdba74', text: '#9a3412' },
-  KETO:         { bg: '#fdf4ff', border: '#d8b4fe', text: '#6b21a8' },
-  LOW_CARB:     { bg: '#fefce8', border: '#fde047', text: '#713f12' },
-  HIGH_PROTEIN: { bg: '#fff1f2', border: '#fca5a5', text: '#991b1b' },
-  LOW_CALORIE:  { bg: '#f0f9ff', border: '#7dd3fc', text: '#075985' },
-  LOW_FAT:      { bg: '#f0fdf4', border: '#86efac', text: '#15803d' },
-  LOW_SODIUM:   { bg: '#fafaf9', border: '#d6d3d1', text: '#44403c' },
-  GLUTEN_FREE:  { bg: '#fffbeb', border: '#fcd34d', text: '#92400e' },
-}
-
-function getColor(code: string) {
-  return DIET_COLORS[code] ?? { bg: '#f8f9fa', border: '#dee2e6', text: '#495057' }
-}
-
-// ─── Diet badge ───────────────────────────────────────────────────────────────
-function DietBadge({
+function DietTypeFormDialog({
+  open,
   item,
-  selected,
-  onSelect,
-  onEdit,
-  onToggle,
-}: {
-  item: DietType
-  selected: boolean
-  onSelect: () => void
-  onEdit: () => void
-  onToggle: () => void
-}) {
-  const [hover, setHover] = useState(false)
-  const color = getColor(item.code)
-
-  return (
-    <div
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 8,
-        padding: '8px 16px',
-        borderRadius: 12,
-        border: `1.5px solid ${item.isActive ? (selected ? color.border : '#d1c9b8') : '#e5e5e5'}`,
-        background: item.isActive
-          ? selected ? color.bg : hover ? '#fafaf8' : '#fff'
-          : '#f5f5f5',
-        cursor: 'pointer',
-        transition: 'all 0.15s',
-        opacity: item.isActive ? 1 : 0.5,
-        userSelect: 'none',
-      }}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onClick={onSelect}
-    >
-      <span style={{ fontSize: 18 }}>{DIET_ICONS[item.code] ?? '🍴'}</span>
-      <div>
-        <div style={{ fontWeight: 600, fontSize: 13, color: item.isActive ? color.text : '#999', lineHeight: 1.3 }}>
-          {item.name}
-        </div>
-        <div style={{ fontSize: 11, color: '#9ca3af', fontFamily: 'monospace' }}>{item.code}</div>
-      </div>
-      {/* action buttons */}
-      <div
-        style={{ display: 'flex', gap: 4, marginLeft: 4 }}
-        onClick={e => e.stopPropagation()}
-      >
-        <button
-          title="Chỉnh sửa"
-          onClick={onEdit}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: '#9ca3af', borderRadius: 4 }}
-        >
-          <Pencil size={13} />
-        </button>
-        <button
-          title={item.isActive ? 'Ẩn' : 'Hiện'}
-          onClick={onToggle}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: '#9ca3af', borderRadius: 4 }}
-        >
-          {item.isActive ? <EyeOff size={13} /> : <Eye size={13} />}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-// ─── Modal thêm/sửa ───────────────────────────────────────────────────────────
-function DietTypeModal({
-  item,
-  onClose,
+  onOpenChange,
   onSave,
   saving,
 }: {
-  item: Partial<DietType> | null
-  onClose: () => void
-  onSave: (dto: CreateCategoryDto) => void
+  open: boolean
+  item?: DietType | null
+  onOpenChange: (open: boolean) => void
+  onSave: (dto: CreateCategoryDto) => Promise<void>
   saving: boolean
 }) {
-  const isEdit = !!item?.id
-  const [code, setCode] = useState(item?.code ?? '')
-  const [name, setName] = useState(item?.name ?? '')
-  const [desc, setDesc] = useState(item?.description ?? '')
+  const isEdit = !!item
+  const [code, setCode] = useState('')
+  const [name, setName] = useState('')
+  const [description, setDescription] = useState('')
+  const [isActive, setIsActive] = useState(true)
+  const [error, setError] = useState('')
+  const [localSaving, setLocalSaving] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSave({ code: code.toUpperCase(), name, description: desc || undefined })
-  }
+  useEffect(() => {
+    if (!open) return
+    setCode(item?.code ?? '')
+    setName(item?.name ?? '')
+    setDescription(item?.description ?? '')
+    setIsActive(item?.isActive ?? true)
+    setError('')
+  }, [open, item])
 
   return (
-    <div
-      style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
-    >
-      <div style={{ background: '#fff', borderRadius: 16, padding: 28, width: 440, maxWidth: '95vw', boxShadow: '0 20px 60px rgba(0,0,0,0.18)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <h3 style={{ margin: 0, fontSize: 17, fontWeight: 700 }}>
-            {isEdit ? '✏️ Sửa chế độ ăn' : '➕ Thêm chế độ ăn'}
-          </h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}>
-            <X size={20} />
-          </button>
-        </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>{isEdit ? 'Sửa chế độ ăn' : 'Thêm chế độ ăn'}</DialogTitle>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {!isEdit && (
-            <div>
-              <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 4, display: 'block' }}>
-                Mã (code) <span style={{ color: '#ef4444' }}>*</span>
+        <form
+          className="fd-modal-body"
+          onSubmit={async (e) => {
+            e.preventDefault()
+            if (!isEdit && !code.trim()) return setError('Mã không được trống')
+            if (!name.trim()) return setError('Tên hiển thị không được trống')
+            setLocalSaving(true)
+            setError('')
+            try {
+              await onSave({
+                code: code.toUpperCase(),
+                name: name.trim(),
+                description: description.slice(0, 255) || undefined,
+                isActive,
+              })
+              onOpenChange(false)
+            } catch (err: any) {
+              setError(
+                err?.response?.data?.message ??
+                  err?.response?.data?.error?.message ??
+                  err?.message ??
+                  'Lỗi không xác định',
+              )
+            } finally {
+              setLocalSaving(false)
+            }
+          }}
+        >
+          <div className="fd-form-grid">
+            {!isEdit && (
+              <div className="fd-field">
+                <label>
+                  Mã <span className="req">*</span>
+                </label>
+                <Input
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''))}
+                  placeholder="HIGH_PROTEIN"
+                  required
+                  style={{ fontFamily: 'ui-monospace, monospace' }}
+                />
+                <p className="fd-field-hint">Mã không thể thay đổi sau khi tạo</p>
+              </div>
+            )}
+
+            <div className="fd-field">
+              <label>
+                Tên hiển thị <span className="req">*</span>
               </label>
               <Input
-                placeholder="VD: HIGH_PROTEIN"
-                value={code}
-                onChange={e => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''))}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nhập tên hiển thị"
                 required
-                style={{ fontFamily: 'monospace' }}
               />
-              <small style={{ color: '#9ca3af' }}>Chỉ chữ HOA, số và dấu _. Không thể thay đổi sau khi tạo.</small>
             </div>
-          )}
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 4, display: 'block' }}>
-              Tên hiển thị <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <Input
-              placeholder="VD: Giàu đạm"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', marginBottom: 4, display: 'block' }}>
-              Mô tả ngắn
-            </label>
-            <Textarea
-              placeholder="Mô tả về chế độ ăn này..."
-              value={desc}
-              onChange={e => setDesc(e.target.value)}
-              rows={3}
-            />
-          </div>
 
-          {/* Preview */}
-          {(code || name) && (
-            <div style={{ padding: '10px 14px', background: '#f8f9fa', borderRadius: 8, border: '1px dashed #dee2e6' }}>
-              <small style={{ color: '#9ca3af', display: 'block', marginBottom: 6 }}>Xem trước</small>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', borderRadius: 10, border: `1.5px solid ${getColor(code).border}`, background: getColor(code).bg }}>
-                <span style={{ fontSize: 16 }}>{DIET_ICONS[code] ?? '🍴'}</span>
-                <div>
-                  <div style={{ fontWeight: 600, fontSize: 13, color: getColor(code).text }}>{name || '...'}</div>
-                  <div style={{ fontSize: 11, color: '#9ca3af', fontFamily: 'monospace' }}>{code || '...'}</div>
-                </div>
+            <div className="fd-field">
+              <label>Mô tả</label>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value.slice(0, 255))}
+                placeholder="Nhập mô tả chế độ ăn (tùy chọn)"
+                rows={4}
+              />
+              <div className="fd-char-count">{description.length}/255</div>
+            </div>
+
+            <div className="fd-switch-row">
+              <Switch checked={isActive} onCheckedChange={setIsActive} aria-label="Kích hoạt chế độ ăn" />
+              <div>
+                <strong>Kích hoạt</strong>
+                <span>Chế độ ăn sẽ hiển thị và có thể được sử dụng khi được kích hoạt.</span>
               </div>
             </div>
-          )}
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 4, justifyContent: 'flex-end' }}>
-            <button type="button" onClick={onClose} style={{ padding: '8px 18px', borderRadius: 8, border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: 14 }}>
-              Hủy
-            </button>
-            <button type="submit" disabled={saving} style={{ padding: '8px 22px', borderRadius: 8, border: 'none', background: '#f0a500', color: '#fff', fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer', fontSize: 14, opacity: saving ? 0.7 : 1 }}>
-              {saving ? 'Đang lưu...' : isEdit ? 'Cập nhật' : 'Tạo mới'}
-            </button>
+            {error && (
+              <div style={{ background: '#fef2f2', color: '#b91c1c', borderRadius: 10, padding: '10px 12px', fontSize: 13 }}>
+                {error}
+              </div>
+            )}
           </div>
+
+          <DialogFooter className="fd-modal-footer">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={saving || localSaving}>
+              Hủy
+            </Button>
+            <Button type="submit" disabled={saving || localSaving}>
+              {saving || localSaving ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Tạo chế độ ăn'}
+            </Button>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
-export default function DietTypesPage() {
+export default function DietTypesPage({
+  embedded = false,
+  isActive = true,
+}: {
+  embedded?: boolean
+  isActive?: boolean
+}) {
   const qc = useQueryClient()
-  const [selected, setSelected] = useState<string | null>(null)
-  const [modalItem, setModalItem] = useState<Partial<DietType> | null | false>(false)
-  const [filter, setFilter] = useState<'all' | 'active' | 'inactive'>('all')
+  const { registerCreateHandler } = useFoodDataActions()
+  const [q, setQ] = useState('')
+  const [status, setStatus] = useState<'all' | 'active' | 'inactive'>('all')
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [editItem, setEditItem] = useState<DietType | null>(null)
+  const [hideItem, setHideItem] = useState<DietType | null>(null)
 
   const { data: items = [], isLoading } = useQuery({
     queryKey: ['admin-diet-types'],
-    queryFn: () => taxonomyAdminApi.listDietTypes(),
+    queryFn: taxonomyAdminApi.listDietTypes,
   })
 
-  const createMut = useMutation({
-    mutationFn: (dto: CreateCategoryDto) => taxonomyAdminApi.createDietType(dto),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['admin-diet-types'] }); setModalItem(false) },
-  })
-
-  const updateMut = useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: any }) => taxonomyAdminApi.updateDietType(id, dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-diet-types'] }),
-  })
-
-  const filtered = items.filter(i =>
-    filter === 'all' ? true : filter === 'active' ? i.isActive : !i.isActive
-  )
-
-  const selectedItem = selected ? items.find(i => i.id === selected) : null
-
-  const handleSave = (dto: CreateCategoryDto) => {
-    if (modalItem && 'id' in modalItem && modalItem.id) {
-      updateMut.mutate({ id: modalItem.id, dto: { name: dto.name, description: dto.description } }, {
-        onSuccess: () => setModalItem(false),
-      })
-    } else {
-      createMut.mutate(dto)
-    }
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['admin-diet-types'] })
+    qc.invalidateQueries({ queryKey: ['food-data-tab-count', 'diet-types'] })
   }
 
+  const createMut = useMutation({ mutationFn: taxonomyAdminApi.createDietType, onSuccess: invalidate })
+  const updateMut = useMutation({
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateCategoryDto }) => taxonomyAdminApi.updateDietType(id, dto),
+    onSuccess: invalidate,
+  })
+
+  useEffect(() => {
+    if (!embedded || !isActive) return
+    registerCreateHandler(() => {
+      setEditItem(null)
+      setModalOpen(true)
+    })
+    return () => registerCreateHandler(null)
+  }, [embedded, isActive, registerCreateHandler])
+
+  useEffect(() => {
+    if (isActive) return
+    setModalOpen(false)
+    setEditItem(null)
+    setHideItem(null)
+  }, [isActive])
+
+  const filtered = useMemo(() => {
+    return items.filter((item) => {
+      if (status === 'active' && !item.isActive) return false
+      if (status === 'inactive' && item.isActive) return false
+      if (!q.trim()) return true
+      const needle = q.trim().toLowerCase()
+      return (
+        item.name.toLowerCase().includes(needle) ||
+        item.code.toLowerCase().includes(needle) ||
+        (item.description ?? '').toLowerCase().includes(needle)
+      )
+    })
+  }, [items, q, status])
+
+  const total = filtered.length
+  const totalPages = Math.max(1, Math.ceil(total / limit))
+  const pageSafe = Math.min(page, totalPages)
+  const pageItems = filtered.slice((pageSafe - 1) * limit, pageSafe * limit)
+
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 24 }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>🥗 Chế độ ăn</h1>
-          <p style={{ margin: '4px 0 0', color: '#9ca3af', fontSize: 14 }}>
-            Quản lý các chế độ dinh dưỡng — hiển thị trong onboarding và lọc món ăn
-          </p>
-        </div>
-        <button
-          onClick={() => setModalItem({})}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '9px 18px', borderRadius: 10, border: 'none', background: '#f0a500', color: '#fff', fontWeight: 700, cursor: 'pointer', fontSize: 14 }}
-        >
-          <Plus size={16} /> Thêm mới
-        </button>
-      </div>
-
-      {/* Stats row */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
-        {(['all', 'active', 'inactive'] as const).map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            style={{
-              padding: '6px 16px', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontWeight: filter === f ? 700 : 400,
-              border: `1.5px solid ${filter === f ? '#f0a500' : '#e5e7eb'}`,
-              background: filter === f ? '#fffbeb' : '#fff',
-              color: filter === f ? '#92400e' : '#6b7280',
-            }}
-          >
-            {f === 'all' ? `Tất cả (${items.length})` : f === 'active' ? `Đang hiển thị (${items.filter(i => i.isActive).length})` : `Đã ẩn (${items.filter(i => !i.isActive).length})`}
-          </button>
-        ))}
-      </div>
-
-      {/* Badge grid */}
-      {isLoading ? (
-        <div style={{ textAlign: 'center', padding: 48, color: '#9ca3af' }}>⏳ Đang tải...</div>
-      ) : (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 32 }}>
-          {filtered.map(item => (
-            <DietBadge
-              key={item.id}
-              item={item}
-              selected={selected === item.id}
-              onSelect={() => setSelected(s => s === item.id ? null : item.id)}
-              onEdit={() => setModalItem(item)}
-              onToggle={() => updateMut.mutate({ id: item.id, dto: { isActive: !item.isActive } })}
-            />
-          ))}
-          {filtered.length === 0 && (
-            <div style={{ color: '#9ca3af', fontSize: 14, padding: 24 }}>Không có chế độ ăn nào</div>
-          )}
+    <div className={embedded ? 'food-data-embedded diet-types-panel' : undefined} style={{ padding: embedded ? 0 : '28px 32px' }}>
+      {!embedded && (
+        <div className="fd-panel-heading" style={{ marginBottom: 20 }}>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Chế độ ăn</h1>
         </div>
       )}
 
-      {/* Detail panel (khi chọn) */}
-      {selectedItem && (
-        <div style={{ padding: 24, borderRadius: 14, border: '1px solid #e5e7eb', background: '#fafaf8', marginBottom: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-            <span style={{ fontSize: 32 }}>{DIET_ICONS[selectedItem.code] ?? '🍴'}</span>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 18 }}>{selectedItem.name}</div>
-              <code style={{ fontSize: 12, background: '#f3f4f6', padding: '2px 8px', borderRadius: 6 }}>{selectedItem.code}</code>
-              <span style={{ marginLeft: 8, fontSize: 12, padding: '2px 8px', borderRadius: 6, background: selectedItem.isActive ? '#dcfce7' : '#f3f4f6', color: selectedItem.isActive ? '#166534' : '#6b7280' }}>
-                {selectedItem.isActive ? '✓ Đang hiển thị' : '✗ Đã ẩn'}
-              </span>
-            </div>
-          </div>
-          {selectedItem.description && (
-            <p style={{ margin: '0 0 16px', color: '#4b5563', fontSize: 14, lineHeight: 1.6 }}>
-              {selectedItem.description}
-            </p>
-          )}
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button
-              onClick={() => setModalItem(selectedItem)}
-              style={{ padding: '7px 16px', borderRadius: 8, border: '1.5px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}
-            >
-              <Pencil size={13} /> Chỉnh sửa
-            </button>
-            <button
-              onClick={() => updateMut.mutate({ id: selectedItem.id, dto: { isActive: !selectedItem.isActive } })}
-              style={{ padding: '7px 16px', borderRadius: 8, border: '1.5px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6, color: selectedItem.isActive ? '#dc2626' : '#16a34a' }}
-            >
-              {selectedItem.isActive ? <><EyeOff size={13} /> Ẩn đi</> : <><Eye size={13} /> Hiện lại</>}
-            </button>
-          </div>
-        </div>
-      )}
+      <h2 className="fd-section-title">Danh sách chế độ ăn</h2>
 
-      {/* Summary table */}
-      <div style={{ borderRadius: 12, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+      <div className="fd-toolbar">
+        <div className="fd-search" style={{ position: 'relative' }}>
+          <Search size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#9ca3af' }} />
+          <Input
+            value={q}
+            onChange={(e) => { setQ(e.target.value); setPage(1) }}
+            placeholder="Tìm theo tên, mã..."
+            style={{ paddingLeft: 34 }}
+          />
+        </div>
+        <div className="fd-toolbar-filters">
+          <Select value={status} onChange={(e) => { setStatus(e.target.value as typeof status); setPage(1) }}>
+            <option value="all">Tất cả trạng thái</option>
+            <option value="active">Kích hoạt</option>
+            <option value="inactive">Đã ẩn</option>
+          </Select>
+        </div>
+      </div>
+
+      <div className="fd-table-wrap">
+        <table className="fd-table">
           <thead>
-            <tr style={{ background: '#f8f9fa' }}>
-              <th style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: '#6b7280' }}>Mã</th>
-              <th style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: '#6b7280' }}>Tên</th>
-              <th style={{ padding: '10px 16px', textAlign: 'left', fontWeight: 600, color: '#6b7280' }}>Mô tả</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center', fontWeight: 600, color: '#6b7280' }}>Trạng thái</th>
-              <th style={{ padding: '10px 16px', textAlign: 'center', fontWeight: 600, color: '#6b7280' }}>Hành động</th>
+            <tr>
+              <th>Mã</th>
+              <th>Trạng thái</th>
+              <th style={{ width: 150 }}>Hành động</th>
             </tr>
           </thead>
           <tbody>
-            {items.map((item, idx) => (
-              <tr key={item.id} style={{ borderTop: '1px solid #f3f4f6', background: idx % 2 === 0 ? '#fff' : '#fafafa' }}>
-                <td style={{ padding: '10px 16px' }}>
-                  <code style={{ fontSize: 11, background: '#f3f4f6', padding: '2px 8px', borderRadius: 5 }}>{item.code}</code>
+            {isLoading && <tr><td colSpan={3} className="fd-empty">Đang tải...</td></tr>}
+            {!isLoading && pageItems.length === 0 && <tr><td colSpan={3} className="fd-empty">Không có chế độ ăn nào</td></tr>}
+            {pageItems.map((item) => (
+              <tr key={item.id} style={{ cursor: 'default' }}>
+                <td>
+                  <div className="fd-name-cell">
+                    <strong style={{ fontFamily: 'ui-monospace, monospace' }}>{item.code}</strong>
+                    <span>{item.name}</span>
+                  </div>
                 </td>
-                <td style={{ padding: '10px 16px', fontWeight: 600 }}>
-                  {DIET_ICONS[item.code] ?? '🍴'} {item.name}
-                </td>
-                <td style={{ padding: '10px 16px', color: '#6b7280', maxWidth: 280 }}>
-                  <span style={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {item.description ?? '—'}
+                <td>
+                  <span className={`fd-status ${item.isActive ? 'is-on' : 'is-off'}`}>
+                    {item.isActive ? 'Kích hoạt' : 'Đã ẩn'}
                   </span>
                 </td>
-                <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                  <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 20, fontWeight: 600, background: item.isActive ? '#dcfce7' : '#f3f4f6', color: item.isActive ? '#166534' : '#9ca3af' }}>
-                    {item.isActive ? 'Hiển thị' : 'Đã ẩn'}
-                  </span>
-                </td>
-                <td style={{ padding: '10px 16px', textAlign: 'center' }}>
-                  <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
+                <td>
+                  <div className="fd-row-actions">
                     <button
-                      onClick={() => setModalItem(item)}
-                      title="Sửa"
-                      style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}
+                      type="button"
+                      onClick={() => {
+                        setEditItem(item)
+                        setModalOpen(true)
+                      }}
                     >
-                      <Pencil size={12} /> Sửa
+                      <Pencil size={13} /> Sửa
                     </button>
                     <button
-                      onClick={() => updateMut.mutate({ id: item.id, dto: { isActive: !item.isActive } })}
-                      title={item.isActive ? 'Ẩn' : 'Hiện'}
-                      style={{ padding: '5px 10px', borderRadius: 7, border: '1px solid #e5e7eb', background: '#fff', cursor: 'pointer', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4, color: item.isActive ? '#dc2626' : '#16a34a' }}
+                      type="button"
+                      className="is-danger"
+                      disabled={!item.isActive}
+                      onClick={() => setHideItem(item)}
                     >
-                      {item.isActive ? <><EyeOff size={12} /> Ẩn</> : <><Eye size={12} /> Hiện</>}
+                      <EyeOff size={13} /> Ẩn
                     </button>
                   </div>
                 </td>
@@ -398,15 +306,50 @@ export default function DietTypesPage() {
         </table>
       </div>
 
-      {/* Modal */}
-      {modalItem !== false && (
-        <DietTypeModal
-          item={modalItem}
-          onClose={() => setModalItem(false)}
-          onSave={handleSave}
-          saving={createMut.isPending || updateMut.isPending}
-        />
-      )}
+      <FoodDataPagination
+        page={pageSafe}
+        limit={limit}
+        total={total}
+        totalPages={totalPages}
+        itemLabel="chế độ ăn"
+        onPageChange={setPage}
+        onLimitChange={(next) => { setLimit(next); setPage(1) }}
+      />
+
+      <DietTypeFormDialog
+        open={modalOpen}
+        item={editItem}
+        onOpenChange={(open) => {
+          setModalOpen(open)
+          if (!open) setEditItem(null)
+        }}
+        onSave={async (dto) => {
+          if (editItem) {
+            await updateMut.mutateAsync({
+              id: editItem.id,
+              dto: { name: dto.name, description: dto.description, isActive: dto.isActive },
+            })
+          } else {
+            await createMut.mutateAsync(dto)
+          }
+        }}
+        saving={createMut.isPending || updateMut.isPending}
+      />
+
+      <HideConfirmDialog
+        open={!!hideItem}
+        onOpenChange={(open) => { if (!open) setHideItem(null) }}
+        title="Ẩn chế độ ăn này?"
+        description="Dữ liệu sẽ không bị xóa vĩnh viễn. Các món và hồ sơ đã liên kết vẫn giữ lịch sử, nhưng chế độ ăn không còn hiển thị công khai."
+        itemName={hideItem ? `${hideItem.code} — ${hideItem.name}` : ''}
+        confirmLabel="Ẩn chế độ ăn"
+        loading={updateMut.isPending}
+        onConfirm={async () => {
+          if (!hideItem) return
+          await updateMut.mutateAsync({ id: hideItem.id, dto: { isActive: false } })
+          setHideItem(null)
+        }}
+      />
     </div>
   )
 }

@@ -187,16 +187,18 @@ export async function recordRecommendationEvent(
 
 // ── Image URL helpers ──────────────────────────────────────────────────────────
 
-const SUPABASE_BASE = 'https://lkqvyvllmrbxgaoqrkhd.supabase.co';
+const storageBase = (
+  globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }
+).process?.env?.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, '');
 
 /**
- * Đảm bảo imageUrl luôn là URL đầy đủ.
- * Backend đôi khi trả /storage/v1/... thay vì https://...supabase.co/storage/v1/...
+ * Đảm bảo imageUrl luôn là URL đầy đủ khi có EXPO_PUBLIC_SUPABASE_URL.
+ * Backend thường trả URL đầy đủ; path tương đối chỉ resolve khi env được cấu hình.
  */
 export function normalizeImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
   if (url.startsWith('http')) return url;
-  if (url.startsWith('/storage')) return `${SUPABASE_BASE}${url}`;
+  if (url.startsWith('/storage') && storageBase) return `${storageBase}${url}`;
   return url;
 }
 

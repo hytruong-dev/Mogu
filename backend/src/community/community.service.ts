@@ -59,6 +59,21 @@ export class CommunityService {
     };
   }
 
+  async getPostById(id: string, userId: string) {
+    const post = await this.prisma.db.communityPost.findFirst({
+      where: { id, status: 'ACTIVE' },
+      select: POST_SELECT,
+    });
+    if (!post) throw new NotFoundException('Bài đăng không tồn tại');
+
+    const like = await this.prisma.db.postLike.findUnique({
+      where: { postId_userId: { postId: id, userId } },
+      select: { postId: true },
+    });
+
+    return { ...post, isLiked: Boolean(like) };
+  }
+
   async createPost(authorId: string, dto: CreatePostDto) {
     return this.prisma.db.communityPost.create({
       data: {

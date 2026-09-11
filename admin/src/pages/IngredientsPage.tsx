@@ -1,430 +1,510 @@
-import { useEffect, useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { CloudUpload, EyeOff, Pencil, Search, X } from 'lucide-react'
+import {
+  ingredientsApi,
+  type CreateIngredientDto,
+  type Ingredient,
+  type UpdateIngredientDto,
+} from '../api/ingredients'
+import { taxonomyAdminApi } from '../api/taxonomy'
+import { useFoodDataActions } from '../components/food-data/food-data-context'
+import { FoodDataPagination } from '../components/food-data/FoodDataPagination'
+import { HideConfirmDialog } from '../components/food-data/HideConfirmDialog'
+import { Button } from '../components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../components/ui/dialog'
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
-import { ingredientsApi, type Ingredient, type CreateIngredientDto } from '../api/ingredients'
-import { X, ZoomIn } from 'lucide-react'
+import { Switch } from '../components/ui/switch'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? ''
 
-const ALLERGEN_OPTIONS = [
-  { value: '', label: 'Không có' },
-  { value: 'nut', label: '🥜 Hạt' },
-  { value: 'seafood', label: '🦐 Hải sản' },
-  { value: 'dairy', label: '🥛 Sữa' },
-  { value: 'egg', label: '🥚 Trứng' },
-  { value: 'gluten', label: '🌾 Gluten' },
-  { value: 'soy', label: '🫘 Đậu nành' },
-  { value: 'fish', label: '🐟 Cá' },
-  { value: 'sesame', label: '🌿 Vừng' },
-]
-
-// ─── Image Upload Zone (tái sử dụng pattern từ FoodsPage) ────────────────────
-function ImageUploadZone({
-  preview,
-  onChange,
-  size = 100,
-}: {
-  preview: string
-  onChange: (file: File, previewUrl: string) => void
-  size?: number
-}) {
-  const [hover, setHover] = useState(false)
-
-  return (
-    <div style={{ textAlign: 'center' }}>
-      <label
-        style={{ cursor: 'pointer', display: 'inline-block', position: 'relative' }}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-      >
-        {/* Ảnh / placeholder */}
-        <div style={{ width: size, height: size, borderRadius: 12, overflow: 'hidden', margin: '0 auto', border: '2px dashed #e5e0d8', background: '#faf7f0', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {preview ? (
-            <img src={preview} alt="preview" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          ) : (
-            <span style={{ fontSize: 36 }}>🥦</span>
-          )}
-          {/* Overlay khi hover */}
-          <div style={{
-            position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.45)',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4,
-            borderRadius: 10, opacity: hover ? 1 : 0, transition: 'opacity 0.18s',
-          }}>
-            <ZoomIn size={20} color="#fff" />
-            <span style={{ color: '#fff', fontSize: 11, fontWeight: 600 }}>{preview ? 'Đổi ảnh' : 'Chọn ảnh'}</span>
-          </div>
-        </div>
-        <input
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={e => {
-            const file = e.target.files?.[0]
-            if (!file) return
-            onChange(file, URL.createObjectURL(file))
-          }}
-        />
-      </label>
-      <p style={{ margin: '6px 0 0', fontSize: 12, color: '#aaa' }}>Click để {preview ? 'đổi' : 'chọn'} ảnh</p>
-    </div>
-  )
+const LEGACY_ALLERGEN_LABELS: Record<string, string> = {
+  nut: 'Hạt',
+  seafood: 'Hải sản',
+  dairy: 'Sữa',
+  egg: 'Trứng',
+  gluten: 'Gluten',
+  soy: 'Đậu nành',
+  fish: 'Cá',
+  sesame: 'Vừng',
 }
 
-// ─── Ingredient Modal ─────────────────────────────────────────────────────────
-function IngredientModal({
+function formatDateTime(value?: string) {
+  if (!value) return '—'
+  return new Date(value).toLocaleString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function IngredientFormDialog({
+  open,
   ingredient,
-  onClose,
+  allergenOptions,
+  onOpenChange,
   onSave,
+  saving,
 }: {
+  open: boolean
   ingredient?: Ingredient | null
-  onClose: () => void
-  onSave: (data: CreateIngredientDto, imageFile: File | null) => Promise<void>
+  allergenOptions: Array<{ value: string; label: string }>
+  onOpenChange: (open: boolean) => void
+  onSave: (dto: CreateIngredientDto, imageFile: File | null) => Promise<void>
+  saving: boolean
 }) {
   const isEdit = !!ingredient
   const [form, setForm] = useState<CreateIngredientDto>({
-    code: ingredient?.code ?? '',
-    name: ingredient?.name ?? '',
-    synonyms: ingredient?.synonyms ?? [],
-    unit: ingredient?.unit ?? '',
-    allergenCode: ingredient?.allergenCode ?? '',
-    imageUrl: ingredient?.imageUrl ?? '',
-    isActive: ingredient?.isActive ?? true,
+    code: '',
+    name: '',
+    synonyms: [],
+    unit: '',
+    allergenCode: '',
+    isActive: true,
   })
   const [synonymInput, setSynonymInput] = useState('')
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string>(ingredient?.imageUrl ?? '')
-  const [saving, setSaving] = useState(false)
+  const [imagePreview, setImagePreview] = useState('')
   const [error, setError] = useState('')
+  const [dragOver, setDragOver] = useState(false)
 
-  // Đóng khi Escape
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', handler)
-    document.body.classList.add('modal-open')
-    return () => {
-      window.removeEventListener('keydown', handler)
-      document.body.classList.remove('modal-open')
+    if (!open) return
+    setForm({
+      code: ingredient?.code ?? '',
+      name: ingredient?.name ?? '',
+      synonyms: ingredient?.synonyms ?? [],
+      unit: ingredient?.unit ?? '',
+      allergenCode: ingredient?.allergenCode ?? '',
+      isActive: ingredient?.isActive ?? true,
+    })
+    setSynonymInput('')
+    setImageFile(null)
+    setImagePreview(ingredient?.imageUrl ?? '')
+    setError('')
+  }, [open, ingredient])
+
+  const pickFile = (file?: File | null) => {
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Ảnh tối đa 5MB')
+      return
     }
-  }, [onClose])
+    setImageFile(file)
+    setImagePreview(URL.createObjectURL(file))
+    setError('')
+  }
 
   const addSynonym = () => {
-    const s = synonymInput.trim()
-    if (s && !form.synonyms!.includes(s)) {
-      setForm(f => ({ ...f, synonyms: [...(f.synonyms ?? []), s] }))
+    const value = synonymInput.trim()
+    if (!value) return
+    if (!(form.synonyms ?? []).includes(value)) {
+      setForm((prev) => ({ ...prev, synonyms: [...(prev.synonyms ?? []), value] }))
     }
     setSynonymInput('')
   }
 
-  const removeSynonym = (s: string) => {
-    setForm(f => ({ ...f, synonyms: (f.synonyms ?? []).filter(x => x !== s) }))
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!form.name.trim()) return setError('Tên nguyên liệu không được trống')
-    if (!isEdit && !form.code.trim()) return setError('Mã nguyên liệu không được trống')
-    setSaving(true)
-    setError('')
-    try {
-      await onSave(form, imageFile)
-    } catch (err: any) {
-      setError(err?.response?.data?.message ?? err.message ?? 'Lỗi không xác định')
-    } finally {
-      setSaving(false)
-    }
-  }
+  const [localSaving, setLocalSaving] = useState(false)
+  const busy = saving || localSaving
 
   return (
-    <div
-      onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', backdropFilter: 'blur(4px)', animation: 'fadeIn 0.15s ease' }}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 500, maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,0.22)' }}
-      >
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px 0', borderBottom: '1px solid #f0e8d0', paddingBottom: 16, position: 'sticky', top: 0, background: '#fff', borderRadius: '16px 16px 0 0', zIndex: 1 }}>
-          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#2c1810' }}>
-            {isEdit ? '✏️ Sửa nguyên liệu' : '🥬 Thêm nguyên liệu'}
-          </h2>
-          <button onClick={onClose} style={{ border: 'none', background: '#f5f0e8', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#666' }}>
-            <X size={16} />
-          </button>
-        </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="fd-modal-wide">
+        <DialogHeader>
+          <DialogTitle>{isEdit ? 'Sửa nguyên liệu' : 'Thêm nguyên liệu'}</DialogTitle>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit} style={{ padding: '20px 24px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-          {/* Upload ảnh — tái sử dụng ImageUploadZone */}
-          <ImageUploadZone
-            preview={imagePreview}
-            onChange={(file, previewUrl) => {
-              setImageFile(file)
-              setImagePreview(previewUrl)
-            }}
-          />
-
-          {/* Code */}
-          {!isEdit && (
+        <form
+          className="fd-modal-body"
+          onSubmit={async (e) => {
+            e.preventDefault()
+            if (!isEdit && !form.code.trim()) return setError('Mã nguyên liệu không được trống')
+            if (!form.name.trim()) return setError('Tên nguyên liệu không được trống')
+            setLocalSaving(true)
+            setError('')
+            try {
+              await onSave(
+                {
+                  ...form,
+                  unit: form.unit || undefined,
+                  allergenCode: form.allergenCode || undefined,
+                  synonyms: form.synonyms ?? [],
+                },
+                imageFile,
+              )
+              onOpenChange(false)
+            } catch (err: any) {
+              setError(
+                err?.response?.data?.error?.message ??
+                  err?.response?.data?.message ??
+                  err?.message ??
+                  'Lỗi không xác định',
+              )
+            } finally {
+              setLocalSaving(false)
+            }
+          }}
+        >
+          <div className="fd-ingredient-form">
             <div>
-              <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#555', marginBottom: 6 }}>Mã nguyên liệu *</label>
-              <Input
-                value={form.code}
-                onChange={e => setForm(f => ({ ...f, code: e.target.value }))}
-                placeholder="VD: ga, thit_heo, muoi..."
-                style={{ width: '100%', boxSizing: 'border-box' }}
-                required
-              />
-            </div>
-          )}
-
-          {/* Tên */}
-          <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#555', marginBottom: 6 }}>Tên nguyên liệu *</label>
-            <Input
-              value={form.name}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              placeholder="VD: Thịt gà, Hành tây..."
-              style={{ width: '100%', boxSizing: 'border-box' }}
-              required
-            />
-          </div>
-
-          {/* Đơn vị */}
-          <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#555', marginBottom: 6 }}>Đơn vị</label>
-            <Input
-              value={form.unit}
-              onChange={e => setForm(f => ({ ...f, unit: e.target.value }))}
-              placeholder="VD: g, kg, ml, cái..."
-              style={{ width: '100%', boxSizing: 'border-box' }}
-            />
-          </div>
-
-          {/* Nhóm dị ứng */}
-          <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#555', marginBottom: 6 }}>Nhóm dị ứng</label>
-            <Select
-              value={form.allergenCode}
-              onChange={e => setForm(f => ({ ...f, allergenCode: e.target.value }))}
-              style={{ width: '100%', boxSizing: 'border-box' }}
-            >
-              {ALLERGEN_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </Select>
-          </div>
-
-          {/* Tên đồng nghĩa */}
-          <div>
-            <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#555', marginBottom: 6 }}>Tên đồng nghĩa</label>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <Input
-                value={synonymInput}
-                onChange={e => setSynonymInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addSynonym())}
-                placeholder="Nhập tên và nhấn Enter"
-                style={{ flex: 1 }}
-              />
-              <button
-                type="button"
-                onClick={addSynonym}
-                style={{ background: '#f0a500', color: '#fff', border: 'none', borderRadius: 8, width: 36, height: 42, cursor: 'pointer', fontWeight: 700, fontSize: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
-              >+</button>
-            </div>
-            {(form.synonyms ?? []).length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8 }}>
-                {(form.synonyms ?? []).map(s => (
-                  <span key={s} style={{ background: '#f5f0e8', borderRadius: 20, padding: '3px 10px 3px 12px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                    {s}
-                    <button type="button" onClick={() => removeSynonym(s)} style={{ border: 'none', background: 'rgba(0,0,0,0.1)', borderRadius: '50%', cursor: 'pointer', color: '#666', padding: 0, width: 16, height: 16, fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
-                  </span>
-                ))}
+              <div className="fd-field">
+                <label>Ảnh nguyên liệu</label>
               </div>
-            )}
-          </div>
-
-          {/* Kích hoạt */}
-          <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-            <input
-              type="checkbox"
-              checked={form.isActive}
-              onChange={e => setForm(f => ({ ...f, isActive: e.target.checked }))}
-              style={{ width: 16, height: 16, accentColor: '#f0a500' }}
-            />
-            <span style={{ fontSize: 14, color: '#333' }}>Kích hoạt</span>
-          </label>
-
-          {error && (
-            <div style={{ background: '#fff0f0', color: '#c0392b', borderRadius: 8, padding: '10px 14px', fontSize: 13, border: '1px solid #ffcccc' }}>
-              ⚠️ {error}
+              <label
+                className={`fd-upload-zone${dragOver ? ' is-dragover' : ''}`}
+                onDragOver={(e) => {
+                  e.preventDefault()
+                  setDragOver(true)
+                }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={(e) => {
+                  e.preventDefault()
+                  setDragOver(false)
+                  pickFile(e.dataTransfer.files?.[0])
+                }}
+              >
+                {imagePreview ? (
+                  <>
+                    <img src={imagePreview} alt="" />
+                    <div className="fd-upload-overlay">
+                      <CloudUpload size={22} />
+                      <span>Đổi ảnh</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <CloudUpload size={28} color="#9ca3af" />
+                    <strong style={{ fontSize: 13 }}>Kéo & thả ảnh vào đây</strong>
+                    <span style={{ fontSize: 12, color: '#9ca3af' }}>hoặc Chọn ảnh</span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  hidden
+                  onChange={(e) => pickFile(e.target.files?.[0])}
+                />
+              </label>
+              <p className="fd-upload-hint">
+                JPG, PNG, WEBP. Tối đa 5MB. Ảnh sẽ được tải lên sau khi tạo nguyên liệu.
+              </p>
             </div>
-          )}
 
-          {/* Actions */}
-          <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', paddingTop: 4, borderTop: '1px solid #f5f0e8' }}>
-            <button
-              type="button"
-              onClick={onClose}
-              style={{ background: '#f5f0e8', color: '#555', border: 'none', borderRadius: 8, padding: '9px 20px', cursor: 'pointer', fontWeight: 600, fontSize: 14 }}
-            >Hủy</button>
-            <button
-              type="submit"
-              disabled={saving}
-              style={{ background: saving ? '#ccc' : '#f0a500', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 22px', cursor: saving ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 14 }}
-            >
-              {saving ? '⏳ Đang lưu...' : isEdit ? '💾 Lưu thay đổi' : '+ Thêm nguyên liệu'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  )
-}
+            <div className="fd-form-grid">
+              {!isEdit && (
+                <div className="fd-field">
+                  <label>
+                    Mã nguyên liệu <span className="req">*</span>
+                  </label>
+                  <Input
+                    value={form.code}
+                    onChange={(e) => setForm((f) => ({ ...f, code: e.target.value }))}
+                    placeholder="Nhập mã nguyên liệu"
+                    required
+                  />
+                </div>
+              )}
 
-// ─── Ingredient Detail Dialog ─────────────────────────────────────────────────
-function IngredientDetailDialog({
-  ingredient,
-  onClose,
-  onEdit,
-}: {
-  ingredient: Ingredient
-  onClose: () => void
-  onEdit: (item: Ingredient) => void
-}) {
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', handler)
-    document.body.classList.add('modal-open')
-    return () => {
-      window.removeEventListener('keydown', handler)
-      document.body.classList.remove('modal-open')
-    }
-  }, [onClose])
+              <div className="fd-field">
+                <label>
+                  Tên nguyên liệu <span className="req">*</span>
+                </label>
+                <Input
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  placeholder="Nhập tên nguyên liệu"
+                  required
+                />
+              </div>
 
-  const allergenLabel = ALLERGEN_OPTIONS.find(o => o.value === ingredient.allergenCode)?.label
+              <div className="fd-field">
+                <label>Đơn vị</label>
+                <Input
+                  value={form.unit ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, unit: e.target.value }))}
+                  placeholder="Nhập đơn vị (ví dụ: g, ml, cái...)"
+                />
+              </div>
 
-  return (
-    <div
-      onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', backdropFilter: 'blur(4px)', animation: 'fadeIn 0.15s ease' }}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 460, boxShadow: '0 24px 80px rgba(0,0,0,0.22)', overflow: 'hidden' }}
-      >
-        {/* Hero */}
-        <div style={{ position: 'relative', height: ingredient.imageUrl ? 180 : 0, background: '#f5f0e8', overflow: 'hidden' }}>
-          {ingredient.imageUrl && (
-            <img src={ingredient.imageUrl} alt={ingredient.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          )}
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 55%)' }} />
-          <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.4)', border: 'none', borderRadius: '50%', width: 34, height: 34, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', backdropFilter: 'blur(4px)' }}>
-            <X size={16} />
-          </button>
-          {ingredient.imageUrl && (
-            <div style={{ position: 'absolute', bottom: 14, left: 18 }}>
-              <span style={{ background: ingredient.isActive ? '#d4edda' : '#f8d7da', color: ingredient.isActive ? '#155724' : '#721c24', borderRadius: 12, padding: '3px 12px', fontSize: 12, fontWeight: 600 }}>
-                {ingredient.isActive ? '✓ Hoạt động' : '✗ Tắt'}
-              </span>
-            </div>
-          )}
-        </div>
+              <div className="fd-field">
+                <label>Nhóm dị ứng</label>
+                <Select
+                  value={form.allergenCode ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, allergenCode: e.target.value }))}
+                >
+                  <option value="">Chọn nhóm dị ứng</option>
+                  {allergenOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </Select>
+              </div>
 
-        {/* Body */}
-        <div style={{ padding: '20px 24px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {/* No image placeholder */}
-          {!ingredient.imageUrl && (
-            <div style={{ textAlign: 'center', fontSize: 52, lineHeight: 1 }}>🥦</div>
-          )}
+              <div className="fd-field">
+                <label>Tên đồng nghĩa</label>
+                <div className="fd-synonym-input-row">
+                  <Input
+                    value={synonymInput}
+                    onChange={(e) => setSynonymInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        addSynonym()
+                      }
+                    }}
+                    placeholder="Nhập tên đồng nghĩa và nhấn Enter"
+                  />
+                  <Button type="button" variant="outline" onClick={addSynonym}>
+                    +
+                  </Button>
+                </div>
+                <p className="fd-field-hint">Thêm các tên khác mà nguyên liệu này có thể được gọi.</p>
+                {(form.synonyms ?? []).length > 0 && (
+                  <div className="fd-synonym-list" style={{ marginTop: 8 }}>
+                    {(form.synonyms ?? []).map((s) => (
+                      <span key={s}>
+                        {s}
+                        <button
+                          type="button"
+                          style={{
+                            border: 'none',
+                            background: 'transparent',
+                            cursor: 'pointer',
+                            marginLeft: 4,
+                            color: '#9ca3af',
+                          }}
+                          onClick={() =>
+                            setForm((f) => ({
+                              ...f,
+                              synonyms: (f.synonyms ?? []).filter((x) => x !== s),
+                            }))
+                          }
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
 
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-            <div>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#2c1810' }}>{ingredient.name}</h2>
-              <code style={{ fontSize: 12, background: '#f5f0e8', padding: '2px 8px', borderRadius: 4, color: '#8b6f47', marginTop: 4, display: 'inline-block' }}>{ingredient.code}</code>
-              {!ingredient.imageUrl && (
-                <div style={{ marginTop: 6 }}>
-                  <span style={{ background: ingredient.isActive ? '#d4edda' : '#f8d7da', color: ingredient.isActive ? '#155724' : '#721c24', borderRadius: 12, padding: '2px 10px', fontSize: 12, fontWeight: 600 }}>
-                    {ingredient.isActive ? '✓ Hoạt động' : '✗ Tắt'}
-                  </span>
+              <div className="fd-switch-row">
+                <Switch
+                  checked={!!form.isActive}
+                  onCheckedChange={(checked) => setForm((f) => ({ ...f, isActive: checked }))}
+                  aria-label="Kích hoạt nguyên liệu"
+                />
+                <div>
+                  <strong>Kích hoạt</strong>
+                  <span>Nguyên liệu sẽ hiển thị và sử dụng trong hệ thống.</span>
+                </div>
+              </div>
+
+              {error && (
+                <div style={{ background: '#fef2f2', color: '#b91c1c', borderRadius: 10, padding: '10px 12px', fontSize: 13 }}>
+                  {error}
                 </div>
               )}
             </div>
-            <button
-              onClick={() => { onClose(); onEdit(ingredient) }}
-              style={{ flexShrink: 0, background: '#f0a500', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontWeight: 600, fontSize: 13 }}
-            >
-              ✏️ Sửa
-            </button>
           </div>
 
-          {/* Info grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <div style={{ background: '#faf7f0', borderRadius: 10, padding: '10px 14px', border: '1px solid #f0e8d0' }}>
-              <div style={{ fontSize: 11, color: '#aaa', marginBottom: 3 }}>Đơn vị</div>
-              <div style={{ fontWeight: 600, color: '#2c1810' }}>{ingredient.unit ?? '—'}</div>
-            </div>
-            <div style={{ background: '#faf7f0', borderRadius: 10, padding: '10px 14px', border: '1px solid #f0e8d0' }}>
-              <div style={{ fontSize: 11, color: '#aaa', marginBottom: 3 }}>Nhóm dị ứng</div>
-              <div style={{ fontWeight: 600, color: '#2c1810' }}>{allergenLabel || '—'}</div>
-            </div>
-          </div>
-
-          {/* Synonyms */}
-          {ingredient.synonyms?.length > 0 && (
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: '#555', marginBottom: 8 }}>Tên đồng nghĩa</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {ingredient.synonyms.map(s => (
-                  <span key={s} style={{ background: '#f5f0e8', borderRadius: 20, padding: '3px 12px', fontSize: 13, color: '#6b5230' }}>{s}</span>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Footer */}
-          <div style={{ borderTop: '1px solid #f0e8d0', paddingTop: 12, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 4 }}>
-            <span style={{ fontSize: 11, color: '#ccc' }}>ID: {ingredient.id}</span>
-            <span style={{ fontSize: 11, color: '#ccc' }}>Cập nhật: {new Date(ingredient.updatedAt).toLocaleDateString('vi-VN')}</span>
-          </div>
-        </div>
-      </div>
-    </div>
+          <DialogFooter className="fd-modal-footer">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
+              Hủy
+            </Button>
+            <Button type="submit" disabled={busy}>
+              {busy ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Tạo nguyên liệu'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   )
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
-export default function IngredientsPage() {
+function IngredientDetailDrawer({
+  item,
+  allergenLabel,
+  onClose,
+  onEdit,
+  onHide,
+}: {
+  item: Ingredient
+  allergenLabel?: string
+  onClose: () => void
+  onEdit: () => void
+  onHide: () => void
+}) {
+  const synonyms = item.synonyms ?? []
+  const visibleSynonyms = synonyms.slice(0, 4)
+  const extra = Math.max(0, synonyms.length - visibleSynonyms.length)
+
+  return (
+    <aside className="fd-drawer">
+      <div className="fd-drawer-header">
+        <h3>Chi tiết nguyên liệu</h3>
+        <button type="button" className="fd-icon-btn" onClick={onClose} aria-label="Đóng" style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}>
+          <X size={18} />
+        </button>
+      </div>
+
+      {item.imageUrl ? (
+        <img className="fd-drawer-image" src={item.imageUrl} alt={item.name} />
+      ) : (
+        <div className="fd-drawer-image" style={{ display: 'grid', placeItems: 'center', fontSize: 48 }}>
+          🥦
+        </div>
+      )}
+
+      <div className="fd-drawer-title-row">
+        <h2>{item.name}</h2>
+        <span className={`fd-status ${item.isActive ? 'is-on' : 'is-off'}`}>
+          {item.isActive ? 'Hoạt động' : 'Đã ẩn'}
+        </span>
+      </div>
+
+      <div className="fd-drawer-meta">
+        <div className="fd-drawer-meta-row">
+          <span>Mã nguyên liệu</span>
+          <strong>{item.code}</strong>
+        </div>
+        <div className="fd-drawer-meta-row">
+          <span>Đơn vị tính</span>
+          <strong>{item.unit || '—'}</strong>
+        </div>
+        <div className="fd-drawer-meta-row">
+          <span>Dị ứng</span>
+          <strong>
+            {allergenLabel ? <span className="fd-allergen-tag">{allergenLabel}</span> : '—'}
+          </strong>
+        </div>
+      </div>
+
+      {synonyms.length > 0 && (
+        <div className="fd-drawer-section">
+          <h4>Tên gọi khác</h4>
+          <div className="fd-synonym-list">
+            {visibleSynonyms.map((s) => (
+              <span key={s}>{s}</span>
+            ))}
+            {extra > 0 && <span>+{extra}</span>}
+          </div>
+        </div>
+      )}
+
+      <div className="fd-drawer-section">
+        <h4>Thông tin hệ thống</h4>
+        <div className="fd-drawer-meta">
+          <div className="fd-drawer-meta-row">
+            <span>Ngày tạo</span>
+            <strong>{formatDateTime(item.createdAt)}</strong>
+          </div>
+          <div className="fd-drawer-meta-row">
+            <span>Cập nhật lần cuối</span>
+            <strong>{formatDateTime(item.updatedAt)}</strong>
+          </div>
+          <div className="fd-drawer-meta-row">
+            <span>Số món ăn đang sử dụng</span>
+            <strong>{(item.dishCount ?? 0).toLocaleString('vi-VN')} món</strong>
+          </div>
+        </div>
+      </div>
+
+      <div className="fd-drawer-footer">
+        <Button type="button" variant="outline" onClick={onEdit}>
+          <Pencil size={14} /> Sửa nguyên liệu
+        </Button>
+        <Button type="button" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={onHide}>
+          <EyeOff size={14} /> Ẩn nguyên liệu
+        </Button>
+      </div>
+    </aside>
+  )
+}
+
+export default function IngredientsPage({
+  embedded = false,
+  isActive = true,
+}: {
+  embedded?: boolean
+  isActive?: boolean
+}) {
   const qc = useQueryClient()
+  const { registerCreateHandler } = useFoodDataActions()
   const [q, setQ] = useState('')
   const [filterAllergen, setFilterAllergen] = useState('')
+  const [filterActive, setFilterActive] = useState<'all' | 'true' | 'false'>('all')
   const [page, setPage] = useState(1)
-  const [showModal, setShowModal] = useState(false)
+  const [limit, setLimit] = useState(10)
+  const [modalOpen, setModalOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<Ingredient | null>(null)
   const [detailItem, setDetailItem] = useState<Ingredient | null>(null)
-  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [hideTarget, setHideTarget] = useState<Ingredient | null>(null)
+
+  const { data: allergens = [] } = useQuery({
+    queryKey: ['admin-allergens'],
+    queryFn: taxonomyAdminApi.listAllergens,
+    staleTime: 60_000,
+  })
+
+  const allergenOptions = useMemo(() => {
+    const fromCatalog = allergens
+      .filter((a) => a.active)
+      .map((a) => ({ value: a.code, label: a.name }))
+    if (fromCatalog.length > 0) return fromCatalog
+    return Object.entries(LEGACY_ALLERGEN_LABELS).map(([value, label]) => ({ value, label }))
+  }, [allergens])
+
+  const allergenLabelMap = useMemo(() => {
+    const map: Record<string, string> = { ...LEGACY_ALLERGEN_LABELS }
+    allergens.forEach((a) => {
+      map[a.code] = a.name
+      map[a.code.toLowerCase()] = a.name
+    })
+    return map
+  }, [allergens])
+
+  const resolveAllergenLabel = (code?: string | null) => {
+    if (!code) return undefined
+    return allergenLabelMap[code] ?? allergenLabelMap[code.toLowerCase()] ?? code
+  }
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-ingredients', q, filterAllergen, page],
-    queryFn: () => ingredientsApi.adminList({ q: q || undefined, allergenCode: filterAllergen || undefined, page, limit: 20 }),
+    queryKey: ['admin-ingredients', q, filterAllergen, filterActive, page, limit],
+    queryFn: () =>
+      ingredientsApi.adminList({
+        q: q || undefined,
+        allergenCode: filterAllergen || undefined,
+        isActive: filterActive === 'all' ? undefined : filterActive === 'true',
+        page,
+        limit,
+      }),
   })
 
   const createMut = useMutation({
     mutationFn: ingredientsApi.create,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
-      setShowModal(false)
+      qc.invalidateQueries({ queryKey: ['food-data-tab-count', 'ingredients'] })
     },
   })
 
   const updateMut = useMutation({
-    mutationFn: ({ id, dto }: { id: string; dto: any }) => ingredientsApi.update(id, dto),
-    onSuccess: () => {
+    mutationFn: ({ id, dto }: { id: string; dto: UpdateIngredientDto }) => ingredientsApi.update(id, dto),
+    onSuccess: (updated) => {
       qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
-      setEditTarget(null)
-      setShowModal(false)
+      qc.invalidateQueries({ queryKey: ['food-data-tab-count', 'ingredients'] })
+      setDetailItem((prev) => (prev?.id === updated.id ? { ...prev, ...updated } : prev))
     },
   })
 
@@ -432,193 +512,270 @@ export default function IngredientsPage() {
     mutationFn: ingredientsApi.delete,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
-      setDeleteConfirm(null)
+      qc.invalidateQueries({ queryKey: ['food-data-tab-count', 'ingredients'] })
+      setHideTarget(null)
+      setDetailItem(null)
     },
   })
 
-  // Lưu rồi upload ảnh nếu có
+  useEffect(() => {
+    if (!embedded || !isActive) return
+    registerCreateHandler(() => {
+      setEditTarget(null)
+      setModalOpen(true)
+    })
+    return () => registerCreateHandler(null)
+  }, [embedded, isActive, registerCreateHandler])
+
+  useEffect(() => {
+    if (isActive) return
+    setModalOpen(false)
+    setEditTarget(null)
+    setDetailItem(null)
+    setHideTarget(null)
+  }, [isActive])
+
   const handleSave = async (dto: CreateIngredientDto, imageFile: File | null) => {
-    let savedItem: Ingredient
+    let saved: Ingredient
     if (editTarget) {
-      // Strip `code` khi update vì backend UpdateIngredientDto không cho phép field này
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { code: _code, ...updateDto } = dto
-      savedItem = await updateMut.mutateAsync({ id: editTarget.id, dto: updateDto })
+      void _code
+      saved = await updateMut.mutateAsync({ id: editTarget.id, dto: updateDto })
     } else {
-      savedItem = await createMut.mutateAsync(dto)
+      saved = await createMut.mutateAsync(dto)
     }
 
-    // Upload ảnh sau khi có ID
-    if (imageFile && savedItem?.id) {
+    if (imageFile && saved?.id) {
       try {
-        await ingredientsApi.uploadImage(savedItem.id, imageFile, SUPABASE_URL)
+        await ingredientsApi.uploadImage(saved.id, imageFile, SUPABASE_URL)
         qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
       } catch {
-        // ảnh lỗi vẫn không crash flow
+        // keep record even if image fails
       }
     }
-  }
-
-  const openEdit = (item: Ingredient) => {
-    setEditTarget(item)
-    setShowModal(true)
   }
 
   const items = data?.data ?? []
   const pagination = data?.pagination
 
   return (
-    <div style={{ padding: '28px 32px' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+    <div className={embedded ? 'food-data-embedded ingredients-panel' : undefined} style={{ padding: embedded ? 0 : '28px 32px' }}>
+      {!embedded && (
+        <div className="fd-panel-heading" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+          <div>
+            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Nguyên liệu</h1>
+            <p style={{ margin: '4px 0 0', color: '#8a8a8a', fontSize: 14 }}>Quản lý từ điển nguyên liệu</p>
+          </div>
+          <Button
+            type="button"
+            onClick={() => {
+              setEditTarget(null)
+              setModalOpen(true)
+            }}
+          >
+            + Thêm nguyên liệu
+          </Button>
+        </div>
+      )}
+
+      <div className={`fd-split${detailItem ? ' is-open' : ''}`}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#2c1810', margin: 0 }}>🥬 Nguyên liệu</h1>
-          <p style={{ color: '#8b6f47', fontSize: 14, margin: '4px 0 0' }}>
-            Quản lý từ điển nguyên liệu
-            {pagination && <span style={{ marginLeft: 8, background: '#f5f0e8', borderRadius: 12, padding: '2px 10px', fontSize: 13 }}>{pagination.total} mục</span>}
-          </p>
-        </div>
-        <button
-          onClick={() => { setEditTarget(null); setShowModal(true) }}
-          style={{ background: '#f0a500', color: '#fff', border: 'none', borderRadius: 10, padding: '10px 20px', fontWeight: 700, fontSize: 14, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}
-        >
-          + Thêm nguyên liệu
-        </button>
-      </div>
+          <h2 className="fd-section-title">Danh sách nguyên liệu</h2>
 
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
-        <Input
-          value={q}
-          onChange={e => { setQ(e.target.value); setPage(1) }}
-          placeholder="🔍 Tìm theo tên, mã..."
-          style={{ flex: 1, minWidth: 200, maxWidth: 320 }}
-        />
-        <Select
-          value={filterAllergen}
-          onChange={e => { setFilterAllergen(e.target.value); setPage(1) }}
-          style={{ minWidth: 180 }}
-        >
-          <option value="">Tất cả dị ứng</option>
-          {ALLERGEN_OPTIONS.filter(o => o.value).map(o => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </Select>
-      </div>
-
-      {/* Table */}
-      <div className="table-card">
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th style={{ width: 64, padding: '10px 14px' }}>Ảnh</th>
-              <th style={{ padding: '10px 14px' }}>Tên</th>
-              <th style={{ padding: '10px 14px' }}>Mã</th>
-              <th style={{ padding: '10px 14px' }}>Đơn vị</th>
-              <th style={{ padding: '10px 14px' }}>Dị ứng</th>
-              <th style={{ padding: '10px 14px' }}>Trạng thái</th>
-              <th style={{ width: 120, padding: '10px 14px' }}>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading && (
-              <tr><td colSpan={7} style={{ textAlign: 'center', padding: 40, color: '#aaa' }}>Đang tải...</td></tr>
-            )}
-            {!isLoading && items.length === 0 && (
-              <tr><td colSpan={7} style={{ textAlign: 'center', padding: 40, color: '#aaa' }}>Chưa có nguyên liệu nào</td></tr>
-            )}
-            {items.map(item => (
-              <tr
-                key={item.id}
-                style={{ cursor: 'pointer', transition: 'background 0.12s' }}
-                onClick={e => {
-                  if ((e.target as HTMLElement).closest('button, input, [data-no-detail]')) return
-                  setDetailItem(item)
+          <div className="fd-toolbar">
+            <div className="fd-search" style={{ position: 'relative' }}>
+              <Search size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#9ca3af' }} />
+              <Input
+                value={q}
+                onChange={(e) => {
+                  setQ(e.target.value)
+                  setPage(1)
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = '#faf7f0')}
-                onMouseLeave={e => (e.currentTarget.style.background = '')}
+                placeholder="Tìm theo tên, mã..."
+                style={{ paddingLeft: 34 }}
+              />
+            </div>
+            <div className="fd-toolbar-filters">
+              <Select
+                className="fd-filter-select"
+                value={filterAllergen}
+                onChange={(e) => {
+                  setFilterAllergen(e.target.value)
+                  setPage(1)
+                }}
               >
-                {/* Ảnh */}
-                <td style={{ textAlign: 'center', padding: '8px 14px' }}>
-                  {item.imageUrl ? (
-                    <img src={item.imageUrl} alt={item.name} style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', border: '1px solid #eee' }} />
-                  ) : (
-                    <div style={{ width: 44, height: 44, borderRadius: 8, background: '#f5f0e8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, margin: '0 auto' }}>🥦</div>
-                  )}
-                </td>
-                {/* Tên */}
-                <td style={{ padding: '8px 14px' }}>
-                  <div style={{ fontWeight: 600, color: '#2c1810' }}>{item.name}</div>
-                  {item.synonyms?.length > 0 && (
-                    <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>{item.synonyms.slice(0, 3).join(', ')}</div>
-                  )}
-                </td>
-                {/* Mã */}
-                <td style={{ padding: '8px 14px' }}>
-                  <code style={{ fontSize: 12, background: '#f5f0e8', padding: '2px 6px', borderRadius: 4, color: '#8b6f47' }}>{item.code}</code>
-                </td>
-                {/* Đơn vị */}
-                <td style={{ padding: '8px 14px', color: '#666' }}>{item.unit ?? '—'}</td>
-                {/* Dị ứng */}
-                <td style={{ padding: '8px 14px' }}>
-                  {item.allergenCode ? (
-                    <span style={{ background: '#fff3cd', color: '#856404', borderRadius: 12, padding: '2px 8px', fontSize: 12 }}>
-                      {ALLERGEN_OPTIONS.find(o => o.value === item.allergenCode)?.label ?? item.allergenCode}
-                    </span>
-                  ) : '—'}
-                </td>
-                {/* Trạng thái */}
-                <td style={{ padding: '8px 14px' }}>
-                  <span style={{ background: item.isActive ? '#d4edda' : '#f8d7da', color: item.isActive ? '#155724' : '#721c24', borderRadius: 12, padding: '2px 10px', fontSize: 12, fontWeight: 600 }}>
-                    {item.isActive ? 'Hoạt động' : 'Tắt'}
-                  </span>
-                </td>
-                {/* Hành động */}
-                <td style={{ padding: '8px 14px' }} data-no-detail onClick={e => e.stopPropagation()}>
-                  {deleteConfirm === item.id ? (
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <button style={{ background: '#e74c3c', color: '#fff', border: 'none', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontSize: 12 }} onClick={() => deleteMut.mutate(item.id)}>Xác nhận</button>
-                      <button style={{ background: '#eee', color: '#333', border: 'none', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontSize: 12 }} onClick={() => setDeleteConfirm(null)}>Hủy</button>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      <button style={{ background: '#f5f0e8', border: 'none', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }} onClick={() => openEdit(item)}>Sửa</button>
-                      <button style={{ background: '#fff0f0', color: '#c0392b', border: 'none', borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontSize: 12, fontWeight: 600 }} onClick={() => setDeleteConfirm(item.id)}>Xóa</button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                <option value="">Tất cả dị ứng</option>
+                {allergenOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </Select>
+              <Select
+                className="fd-filter-select"
+                value={filterActive}
+                onChange={(e) => {
+                  setFilterActive(e.target.value as 'all' | 'true' | 'false')
+                  setPage(1)
+                }}
+              >
+                <option value="all">Tất cả trạng thái</option>
+                <option value="true">Hoạt động</option>
+                <option value="false">Đã ẩn</option>
+              </Select>
+            </div>
+          </div>
+
+          <div className="fd-table-wrap">
+            <table className="fd-table">
+              <thead>
+                <tr>
+                  <th style={{ width: 64 }}>Ảnh</th>
+                  <th>Tên</th>
+                  <th>Mã</th>
+                  <th>Đơn vị</th>
+                  <th>Dị ứng</th>
+                  <th>Trạng thái</th>
+                  <th style={{ width: 150 }}>Hành động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading && (
+                  <tr>
+                    <td colSpan={7} className="fd-empty">
+                      Đang tải...
+                    </td>
+                  </tr>
+                )}
+                {!isLoading && items.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="fd-empty">
+                      Chưa có nguyên liệu nào
+                    </td>
+                  </tr>
+                )}
+                {items.map((item) => {
+                  const allergenLabel = resolveAllergenLabel(item.allergenCode)
+                  return (
+                    <tr
+                      key={item.id}
+                      className={detailItem?.id === item.id ? 'is-selected' : ''}
+                      onClick={(e) => {
+                        if ((e.target as HTMLElement).closest('button, [data-no-detail]')) return
+                        setDetailItem(item)
+                      }}
+                    >
+                      <td>
+                        {item.imageUrl ? (
+                          <img className="fd-thumb" src={item.imageUrl} alt="" />
+                        ) : (
+                          <div className="fd-thumb-fallback">🥦</div>
+                        )}
+                      </td>
+                      <td>
+                        <div className="fd-name-cell">
+                          <strong>{item.name}</strong>
+                          {item.synonyms?.[0] && <span>{item.synonyms[0]}</span>}
+                        </div>
+                      </td>
+                      <td>
+                        <code className="fd-code">{item.code}</code>
+                      </td>
+                      <td>{item.unit || '—'}</td>
+                      <td>
+                        {allergenLabel ? <span className="fd-allergen-tag">{allergenLabel}</span> : '—'}
+                      </td>
+                      <td>
+                        <span className={`fd-status ${item.isActive ? 'is-on' : 'is-off'}`}>
+                          {item.isActive ? 'Hoạt động' : 'Đã ẩn'}
+                        </span>
+                      </td>
+                      <td data-no-detail onClick={(e) => e.stopPropagation()}>
+                        <div className="fd-row-actions">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditTarget(item)
+                              setModalOpen(true)
+                            }}
+                          >
+                            <Pencil size={13} /> Sửa
+                          </button>
+                          <button
+                            type="button"
+                            className="is-danger"
+                            onClick={() => setHideTarget(item)}
+                            disabled={!item.isActive}
+                          >
+                            <EyeOff size={13} /> Ẩn
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {pagination && (
+            <FoodDataPagination
+              page={pagination.page}
+              limit={pagination.limit}
+              total={pagination.total}
+              totalPages={pagination.totalPages}
+              itemLabel="nguyên liệu"
+              onPageChange={setPage}
+              onLimitChange={(next) => {
+                setLimit(next)
+                setPage(1)
+              }}
+            />
+          )}
+        </div>
+
+        {detailItem && (
+          <IngredientDetailDrawer
+            item={detailItem}
+            allergenLabel={resolveAllergenLabel(detailItem.allergenCode)}
+            onClose={() => setDetailItem(null)}
+            onEdit={() => {
+              setEditTarget(detailItem)
+              setModalOpen(true)
+            }}
+            onHide={() => setHideTarget(detailItem)}
+          />
+        )}
       </div>
 
-      {/* Pagination */}
-      {pagination && pagination.totalPages > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20 }}>
-          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} style={{ background: '#f5f0e8', border: 'none', borderRadius: 8, padding: '6px 16px', cursor: 'pointer', fontWeight: 600 }}>← Trước</button>
-          <span style={{ padding: '6px 16px', color: '#555', fontSize: 14 }}>Trang {page} / {pagination.totalPages}</span>
-          <button disabled={page >= pagination.totalPages} onClick={() => setPage(p => p + 1)} style={{ background: '#f5f0e8', border: 'none', borderRadius: 8, padding: '6px 16px', cursor: 'pointer', fontWeight: 600 }}>Tiếp →</button>
-        </div>
-      )}
+      <IngredientFormDialog
+        open={modalOpen}
+        ingredient={editTarget}
+        allergenOptions={allergenOptions}
+        onOpenChange={(open) => {
+          setModalOpen(open)
+          if (!open) setEditTarget(null)
+        }}
+        onSave={handleSave}
+        saving={createMut.isPending || updateMut.isPending}
+      />
 
-      {/* Add / Edit Modal */}
-      {showModal && (
-        <IngredientModal
-          ingredient={editTarget}
-          onClose={() => { setShowModal(false); setEditTarget(null) }}
-          onSave={handleSave}
-        />
-      )}
-
-      {/* Detail Dialog */}
-      {detailItem && (
-        <IngredientDetailDialog
-          ingredient={detailItem}
-          onClose={() => setDetailItem(null)}
-          onEdit={item => { setDetailItem(null); openEdit(item) }}
-        />
-      )}
+      <HideConfirmDialog
+        open={!!hideTarget}
+        onOpenChange={(open) => {
+          if (!open) setHideTarget(null)
+        }}
+        title="Ẩn nguyên liệu này?"
+        description="Dữ liệu sẽ không bị xóa vĩnh viễn. Các món đã liên kết vẫn giữ lịch sử, nhưng nguyên liệu không còn xuất hiện trong picker công khai."
+        itemName={hideTarget?.name ?? ''}
+        itemImageUrl={hideTarget?.imageUrl}
+        usageCount={hideTarget?.dishCount}
+        confirmLabel="Ẩn nguyên liệu"
+        loading={deleteMut.isPending}
+        onConfirm={() => {
+          if (hideTarget) deleteMut.mutate(hideTarget.id)
+        }}
+      />
     </div>
   )
 }

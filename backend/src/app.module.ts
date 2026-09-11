@@ -34,6 +34,7 @@ import { AiImportModule } from './ai-import/ai-import.module';
 // BA-005: Weekly Meal Plan
 import { WeeklyPlansModule } from './weekly-plans/weekly-plans.module';
 import { DishFileImportsModule } from './dish-file-imports/dish-file-imports.module';
+import { HealthModule } from './health/health.module';
 import appConfig from './config/app.config';
 
 // Chá»‰ load BullMQ khi REDIS_URL Ä‘Æ°á»£c set rÃµ rÃ ng
@@ -119,6 +120,7 @@ const bullModules: DynamicModule[] = REDIS_URL
     // ── BA-005: Weekly Meal Plan ────────────────────────────────────────────────
     WeeklyPlansModule,
     DishFileImportsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,6 +7,7 @@
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai-import/ai.service';
+import { DishEligibilityService } from '../dishes/eligibility/dish-eligibility.service';
 import {
   BudgetModeEnum,
   MealSlotEnum,
@@ -65,6 +66,7 @@ export class RandomizationService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly aiService: AiService,
+    private readonly eligibility: DishEligibilityService,
   ) {}
 
   // ══════════════════════════════════════════════════════════════════════════════
@@ -181,64 +183,92 @@ export class RandomizationService {
 
     const startMs = Date.now();
 
-    // ── Fetch candidates (cascade relaxation) ───────────────────────────────────
-    type Opts = { withMealType: boolean; withDietType: boolean; withBudget: boolean };
-    const fetchCandidates = async (opts: Opts) => {
-      const where: Prisma.DishWhereInput = {
-        status: 'PUBLISHED',
-        deletedAt: null,
-        dishAllergens: userAllergenCodes.length
-          ? { none: { allergen: { code: { in: userAllergenCodes } }, level: 'CONTAINS' } }
-          : undefined,
-        ...(opts.withDietType && (hardDietTypeCodes.length > 0 || dietTypeCodes.length > 0)
-          ? { dietTypes: { some: { dietType: { code: { in: [...hardDietTypeCodes, ...dietTypeCodes] } } } } }
-          : {}),
-        ...(opts.withMealType && mealSlot && mealSlot !== MealSlotEnum.ANY
-          ? { mealTypes: { some: { mealTypeTag: { code: { in: [mealSlot, 'ANY'] } } } } }
-          : {}),
-        ...(opts.withBudget && budgetMax ? { priceMin: { lte: budgetMax } } : {}),
-        ...(opts.withBudget && budgetMin ? { priceMax: { gte: budgetMin } } : {}),
-      };
-      return this.prisma.db.dish.findMany({
-        where,
-        include: {
-          region: { select: { id: true, name: true } },
-          dishGoals: { include: { goal: true } },
-          mealTypes: { include: { mealTypeTag: { select: { name: true, code: true } } } },
-          nutrition: true,
-          media: {
-            where: { isPrimary: true, moderationStatus: 'APPROVED' },
-            select: { storageKey: true, bucket: true },
-            take: 1,
-          },
-          dishIngredients: {
-            select: {
-              rawText: true, quantity: true, unit: true,
-              groupLabel: true, isOptional: true, sortOrder: true,
-              ingredient: {
-                select: { id: true, name: true, imageUrl: true, imageKey: true },
-              },
-            },
-            orderBy: { sortOrder: 'asc' },
-            take: 20,
-          },
-          dishAllergens: {
-            include: { allergen: { select: { id: true, name: true, code: true } } },
-          },
-          recipeSteps: {
-            select: { stepOrder: true, instruction: true, durationMin: true, imageUrl: true },
-            orderBy: { stepOrder: 'asc' as const },
+    // ── Fetch candidates (cascade: soft only; hard never relaxed) ───────────────
+    const eligibilityProfile = {
+      allergenCodes: userAllergenCodes,
+      hardDietTypeCodes,
+      softDietTypeCodes: dietTypeCodes,
+      avoidedIngredients: userAvoidedIngredients,
+    };
+
+    type SoftOpts = {
+      withMealType: boolean;
+      withSoftDiet: boolean;
+      withBudget: boolean;
+      softExcludeMayContain: boolean;
+    };
+
+    const dishInclude = {
+      region: { select: { id: true, name: true } },
+      dishGoals: { include: { goal: true } },
+      mealTypes: { include: { mealTypeTag: { select: { name: true, code: true } } } },
+      nutrition: true,
+      media: {
+        where: { isPrimary: true, moderationStatus: 'APPROVED' as const },
+        select: { storageKey: true, bucket: true },
+        take: 1,
+      },
+      dishIngredients: {
+        select: {
+          rawText: true,
+          quantity: true,
+          unit: true,
+          groupLabel: true,
+          isOptional: true,
+          sortOrder: true,
+          ingredient: {
+            select: { id: true, name: true, imageUrl: true, imageKey: true },
           },
         },
+        orderBy: { sortOrder: 'asc' as const },
+        take: 20,
+      },
+      dishAllergens: {
+        include: { allergen: { select: { id: true, name: true, code: true } } },
+      },
+      recipeSteps: {
+        select: { stepOrder: true, instruction: true, durationMin: true, imageUrl: true },
+        orderBy: { stepOrder: 'asc' as const },
+      },
+    };
+
+    const fetchCandidates = async (opts: SoftOpts) => {
+      const hardWhere = this.eligibility.buildHardWhere(eligibilityProfile, 'random', {
+        softExcludeMayContain: opts.softExcludeMayContain,
+        maxPriceMin: opts.withBudget && budgetMax ? budgetMax : undefined,
+        mealTypeCodes:
+          opts.withMealType && mealSlot && mealSlot !== MealSlotEnum.ANY
+            ? [mealSlot, 'ANY']
+            : undefined,
+        excludeDishIds: excludeDishIds.length ? excludeDishIds : undefined,
+      });
+
+      const and: Prisma.DishWhereInput[] = [hardWhere];
+      // Soft diet preference (runtime + soft profile) — may be relaxed
+      if (opts.withSoftDiet && dietTypeCodes.length > 0) {
+        and.push({
+          dietTypes: { some: { dietType: { code: { in: dietTypeCodes } } } },
+        });
+      }
+      if (opts.withBudget && budgetMin) {
+        and.push({
+          OR: [{ priceMax: { gte: budgetMin } }, { priceMin: { gte: budgetMin } }],
+        });
+      }
+
+      return this.prisma.db.dish.findMany({
+        where: { AND: and },
+        include: dishInclude,
         take: 500,
       });
     };
 
-    const relaxLevels: Opts[] = [
-      { withMealType: true, withDietType: true, withBudget: true },
-      { withMealType: false, withDietType: true, withBudget: true },
-      { withMealType: false, withDietType: false, withBudget: true },
-      { withMealType: false, withDietType: false, withBudget: false },
+    // Soft cascade only — NEVER drop hard diet / allergen / avoided
+    const relaxLevels: SoftOpts[] = [
+      { withMealType: true, withSoftDiet: true, withBudget: true, softExcludeMayContain: true },
+      { withMealType: false, withSoftDiet: true, withBudget: true, softExcludeMayContain: true },
+      { withMealType: false, withSoftDiet: false, withBudget: true, softExcludeMayContain: false },
+      { withMealType: false, withSoftDiet: false, withBudget: false, softExcludeMayContain: false },
     ];
 
     let candidates: any[] = [];
@@ -248,24 +278,13 @@ export class RandomizationService {
       if (candidates.length > 0) {
         if (i > 0) {
           if (!opts.withMealType) fallbackApplied.push('meal_type');
-          if (!opts.withDietType) fallbackApplied.push('diet_type');
+          if (!opts.withSoftDiet) fallbackApplied.push('soft_diet');
           if (!opts.withBudget) fallbackApplied.push('budget');
+          if (!opts.softExcludeMayContain) fallbackApplied.push('may_contain');
         }
         break;
       }
     }
-
-    // In-memory avoided ingredients filter
-    if (userAvoidedIngredients.length > 0) {
-      const filtered = candidates.filter((d) =>
-        !userAvoidedIngredients.some((a) => d.name.toLowerCase().includes(a)),
-      );
-      if (filtered.length > 0) candidates = filtered;
-    }
-
-    // Remove explicit excludes (retry flow)
-    const withoutExcluded = candidates.filter((d) => !excludeDishIds.includes(d.id));
-    if (withoutExcluded.length > 0) candidates = withoutExcluded;
 
     if (candidates.length === 0) {
       // Ghi nhận thất bại
@@ -331,9 +350,8 @@ export class RandomizationService {
       });
 
       aiExplanation = await this.generateAiExplanation({
-        dish: selected.dish,
+        dish: selected.dish, // PRIVACY-001: no displayName in AI prompt
         profile: {
-          displayName: profileFull?.displayName ?? null,
           age: profileFull?.dateOfBirth
             ? Math.floor((Date.now() - new Date(profileFull.dateOfBirth as any).getTime()) / (365.25 * 86400_000))
             : null,
@@ -693,9 +711,8 @@ export class RandomizationService {
       mealTypes?: Array<{ mealTypeTag: { name: string } }>;
     };
     profile: {
-      displayName?: string | null;
       age?: number | null;
-      goals?: string[];           // tên mục tiêu của user
+      goals?: string[];
       allergenNames?: string[];
       dietTypeNames?: string[];
     };
@@ -716,7 +733,6 @@ export class RandomizationService {
     };
 
     const profileStr = [
-      profile.displayName ? `Tên: ${profile.displayName}` : null,
       profile.age ? `Tuổi: ${profile.age}` : null,
       profile.goals?.length ? `Mục tiêu sức khỏe: ${profile.goals.join(', ')}` : 'Chưa có mục tiêu cụ thể',
       profile.allergenNames?.length ? `Dị ứng/kiêng: ${profile.allergenNames.join(', ')}` : 'Không có dị ứng',

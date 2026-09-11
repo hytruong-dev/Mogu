@@ -27,6 +27,9 @@ import {
   UtensilsCrossed,
 } from 'lucide-react-native';
 import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomNav';
+import { getTodayISO, getDeviceTimeZone } from '../lib/dates';
+import { computeWeeklyForecast } from '../lib/weekly-forecast';
+import { dishesApi } from '../services/api/dishes';
 import { homeApi } from '../services/api/home';
 import type { HomeDashboard, RecommendationItem, WeatherData } from '../services/api/types';
 import { getCurrentWeeklyPlan } from '../services/api/weekly-plan';
@@ -73,7 +76,11 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
 
   const fetchDashboard = useCallback(async () => {
     try {
-      const result = await homeApi.getDashboard();
+      const timezone = getDeviceTimeZone();
+      const result = await homeApi.getDashboard({
+        localDate: getTodayISO(timezone),
+        timezone,
+      });
       setDashboard(result);
     } catch { /* ignore */ } finally {
       setLoading(false);
@@ -100,8 +107,8 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
       };
     });
     try {
-      if (dish.isSaved) await homeApi.unsaveDish(dish.dishId);
-      else await homeApi.saveDish(dish.dishId);
+      if (dish.isSaved) await dishesApi.unsave(dish.dishId);
+      else await dishesApi.save(dish.dishId);
     } catch {
       setDashboard(prev => {
         if (!prev) return prev;
@@ -264,11 +271,10 @@ function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan
       .catch(() => {});
   }, []);
 
-  const hasPlan = plan && plan.status !== 'GENERATING';
+  const hasPlan = plan && plan.status !== 'GENERATING' && plan.status !== 'FAILED';
   const budget = plan?.budgetLimitVnd ?? 500000;
-  const spent = Math.max(plan?.actualSpentVnd ?? 0, plan?.projectedCostVnd ?? 0);
+  const { forecastSpent: spent, forecastKcal: calConsumed } = computeWeeklyForecast(plan ?? {});
   const calTotal = plan?.targetKcal ?? 14000;
-  const calConsumed = Math.max(plan?.actualKcal ?? 0, plan?.projectedKcal ?? 0);
   const budgetPercent = Math.min((spent / budget) * 100, 100);
   const calPercent = Math.min((calConsumed / calTotal) * 100, 100);
   const budgetLeft = Math.round((budget - spent) / 1000);
@@ -278,6 +284,28 @@ function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan
     : 7;
   const mealsPerDay = 3;
   const totalMeals = durationDays * mealsPerDay;
+
+  if (plan?.status === 'FAILED') {
+    return (
+      <View style={{ marginHorizontal: 20, marginTop: 20 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <Text style={{ fontSize: 18, fontWeight: '800', color: '#111', letterSpacing: -0.4 }}>Kế hoạch tuần</Text>
+        </View>
+        <View style={{ borderRadius: 18, backgroundColor: '#fff', overflow: 'hidden', ...cardShadow, padding: 16, alignItems: 'center', gap: 10 }}>
+          <Text style={{ fontSize: 14, fontWeight: '600', color: '#B91C1C' }}>Tạo kế hoạch thất bại</Text>
+          <Text style={{ fontSize: 13, color: '#888', textAlign: 'center' }}>
+            {plan.generationErrorCode ?? 'Không thể tạo kế hoạch. Vui lòng thử lại.'}
+          </Text>
+          <TouchableOpacity
+            onPress={onOpenPlan}
+            style={{ height: 44, borderRadius: 12, borderWidth: 1.5, borderColor: '#F0C040', paddingHorizontal: 24, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#C08000' }}>Thử lại</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
   if (!hasPlan) {
     return (

@@ -20,8 +20,11 @@ import {
   generateWeeklyPlan,
   getWeeklyPlanConfig,
   getCurrentWeeklyPlan,
+  pollWeeklyPlan,
 } from '../services/api/weekly-plan';
 import type { WeeklyMealSlot } from '../services/api/types';
+import { formatApiErrorWithCode } from '../lib/api-error';
+import { getTodayISO } from '../lib/dates';
 
 const CREAM  = '#F7F2E8';
 const WHITE  = '#FFFFFF';
@@ -46,7 +49,6 @@ export type PlanConfig = {
 };
 
 const DAYS_OPTIONS = [3, 5, 7, 14];
-const MEALS_OPTIONS = [2, 3, 4];
 const BUDGET_STEP = 50000;
 const BUDGET_MIN = 100000;
 const BUDGET_MAX = 5000000;
@@ -124,19 +126,21 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
   const [kcal, setKcal] = useState(2000);
   const [kcalMode, setKcalMode] = useState<'profile' | 'custom'>('profile');
   const [days, setDays] = useState(7);
-  const [mealsPerDay, setMealsPerDay] = useState(3);
   const [daysOpen, setDaysOpen] = useState(false);
-  const [mealsOpen, setMealsOpen] = useState(false);
   const [daysAnchor, setDaysAnchor] = useState({ x: 0, y: 0, width: 0 });
-  const [mealsAnchor, setMealsAnchor] = useState({ x: 0, y: 0, width: 0 });
   const [mealSlots, setMealSlots] = useState({
     sang: true, trua: true, toi: true, phu: false,
   });
-  const [saving, setSaving] = useState(false);
+  const [savingConfig, setSavingConfig] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [loadingConfig, setLoadingConfig] = useState(true);
 
-  // ── Load existing config + plan stats từ API ─────────────────────────────
-  const [statsBar, setStatsBar] = useState({ days: 7, spent: 0, budget: 500000, kcal: 0 });
+  const [planForecast, setPlanForecast] = useState({
+    spentVnd: 0,
+    projectedVnd: 0,
+    budgetVnd: 500000,
+    kcalPerDay: 2000,
+  });
 
   useEffect(() => {
     (async () => {
@@ -152,7 +156,6 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
           setKcal(c.kcalPerDay ?? 2000);
           setKcalMode(c.kcalMode === 'CUSTOM' ? 'custom' : 'profile');
           setDays(c.durationDays ?? 7);
-          setMealsPerDay(c.mealsPerDay ?? 3);
           const slots = c.enabledSlots ?? ['MORNING', 'LUNCH', 'DINNER'];
           setMealSlots({
             sang: slots.includes('MORNING'),
@@ -164,14 +167,11 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
 
         if (plan.status === 'fulfilled' && plan.value) {
           const p = plan.value;
-          const d = Math.round(
-            (new Date(p.endDate).getTime() - new Date(p.startDate).getTime()) / 86400000,
-          );
-          setStatsBar({
-            days: d,
-            spent: Math.round(Math.max(p.actualSpentVnd, p.projectedCostVnd) / 1000),
-            budget: Math.round(p.budgetLimitVnd / 1000),
-            kcal: Math.round((p.actualKcal || p.projectedKcal) / 1000),
+          setPlanForecast({
+            spentVnd: p.actualSpentVnd,
+            projectedVnd: p.projectedCostVnd,
+            budgetVnd: p.budgetLimitVnd,
+            kcalPerDay: Math.round(p.targetKcal / Math.max(days, 1)),
           });
         }
       } catch {
@@ -183,74 +183,90 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
   }, []);
 
   const daysRef = useRef<View>(null);
-  const mealsRef = useRef<View>(null);
+
+  const enabledSlots = (): WeeklyMealSlot[] => {
+    const slots: WeeklyMealSlot[] = [];
+    if (mealSlots.sang) slots.push('MORNING');
+    if (mealSlots.trua) slots.push('LUNCH');
+    if (mealSlots.toi) slots.push('DINNER');
+    if (mealSlots.phu) slots.push('SNACK');
+    return slots;
+  };
+
+  const mealsPerDay = enabledSlots().length;
 
   const toggleSlot = (slot: keyof typeof mealSlots) => {
-    setMealSlots(prev => ({ ...prev, [slot]: !prev[slot] }));
+    setMealSlots((prev) => {
+      const next = { ...prev, [slot]: !prev[slot] };
+      const count = Object.values(next).filter(Boolean).length;
+      if (count === 0) return prev;
+      return next;
+    });
   };
 
-  const handleSave = async () => {
-    // Map local mealSlots to API WeeklyMealSlot[]
-    const enabledSlots: WeeklyMealSlot[] = [];
-    if (mealSlots.sang) enabledSlots.push('MORNING');
-    if (mealSlots.trua) enabledSlots.push('LUNCH');
-    if (mealSlots.toi) enabledSlots.push('DINNER');
-    if (mealSlots.phu) enabledSlots.push('SNACK');
-
-    if (enabledSlots.length === 0) {
-      Alert.alert('Lỗi', 'Vui lòng chọn ít nhất một bữa ăn.');
-      return;
+  const buildConfigDto = () => {
+    const slots = enabledSlots();
+    if (slots.length === 0) {
+      throw new Error('Vui lòng chọn ít nhất một bữa ăn.');
     }
+    return {
+      budgetVnd: budget,
+      kcalPerDay: kcal,
+      kcalMode: (kcalMode === 'profile' ? 'PROFILE' : 'CUSTOM') as 'PROFILE' | 'CUSTOM',
+      durationDays: days,
+      mealsPerDay: slots.length,
+      enabledSlots: slots,
+      avoidRepeat: true,
+    };
+  };
 
-    setSaving(true);
+  const handleSaveConfig = async () => {
+    setSavingConfig(true);
     try {
-      // 1. Save config
-      await upsertWeeklyPlanConfig({
-        budgetVnd: budget,
-        kcalPerDay: kcal,
-        kcalMode: kcalMode === 'profile' ? 'PROFILE' : 'CUSTOM',
-        durationDays: days,
-        mealsPerDay,
-        enabledSlots,
-        avoidRepeat: true,
-      });
-
-      // 2. Generate a new plan starting from next Monday (or today)
-      const startDate = getNextStartDate();
-      await generateWeeklyPlan(startDate);
-
-      // 3. Notify parent
+      await upsertWeeklyPlanConfig(buildConfigDto());
       onSave?.({ budget, kcalPerDay: kcal, kcalMode, days, mealsPerDay, mealSlots });
-      onBack();
-    } catch (err: any) {
-      Alert.alert('Lỗi', err?.response?.data?.message ?? 'Không thể lưu kế hoạch. Vui lòng thử lại.');
+      Alert.alert('Đã lưu', 'Cấu hình kế hoạch đã được cập nhật.');
+    } catch (err) {
+      Alert.alert('Lỗi', formatApiErrorWithCode(err));
     } finally {
-      setSaving(false);
+      setSavingConfig(false);
     }
   };
 
-  /** Get ISO date for start: today or next available */
-  function getNextStartDate(): string {
-    const d = new Date();
-    // Use today as start date
-    return d.toISOString().split('T')[0];
-  }
+  const handleGeneratePlan = async () => {
+    setGenerating(true);
+    try {
+      await upsertWeeklyPlanConfig(buildConfigDto());
+      const { planId } = await generateWeeklyPlan(getTodayISO());
+      const finalPlan = await pollWeeklyPlan(planId);
+
+      if (finalPlan.status === 'FAILED') {
+        Alert.alert(
+          'Tạo thất bại',
+          finalPlan.generationErrorCode ?? 'Không thể tạo kế hoạch. Vui lòng thử lại.',
+        );
+        return;
+      }
+
+      onSave?.({ budget, kcalPerDay: kcal, kcalMode, days, mealsPerDay, mealSlots });
+      Alert.alert('Hoàn tất', 'Kế hoạch mới đã sẵn sàng.');
+      onBack();
+    } catch (err) {
+      Alert.alert('Lỗi', formatApiErrorWithCode(err));
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const openDays = () => {
     daysRef.current?.measureInWindow((x, y, width, height) => {
       setDaysAnchor({ x, y: y + height + 4, width });
       setDaysOpen(true);
-      setMealsOpen(false);
     });
   };
 
-  const openMeals = () => {
-    mealsRef.current?.measureInWindow((x, y, width, height) => {
-      setMealsAnchor({ x, y: y + height + 4, width });
-      setMealsOpen(true);
-      setDaysOpen(false);
-    });
-  };
+  const remainingProjected = Math.max(0, budget - planForecast.projectedVnd);
+  const endForecast = planForecast.projectedVnd;
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
@@ -273,9 +289,13 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
           <>
             <Text style={s.statsItem}>{days} ngày · {days * mealsPerDay} bữa</Text>
             <View style={s.statsDivider} />
-            <Text style={s.statsItem}>{statsBar.spent > 0 ? `${statsBar.spent}K / ${statsBar.budget}K` : `${Math.round(budget / 1000)}K`}</Text>
+            <Text style={s.statsItem}>
+              {planForecast.spentVnd > 0
+                ? `${Math.round(planForecast.spentVnd / 1000)}K đã chi`
+                : `${Math.round(budget / 1000)}K ngân sách`}
+            </Text>
             <View style={s.statsDivider} />
-            <Text style={s.statsItem}>{statsBar.kcal > 0 ? `${(statsBar.kcal * 1000).toLocaleString('vi-VN')} kcal` : `${kcal.toLocaleString('vi-VN')} kcal/ngày`}</Text>
+            <Text style={s.statsItem}>{kcal.toLocaleString('vi-VN')} kcal/ngày</Text>
           </>
         )}
       </View>
@@ -286,9 +306,8 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Ngan sach tuan */}
         <View style={s.card}>
-          <Text style={s.cardLabel}>Ngân sách tuần</Text>
+          <Text style={s.cardLabel}>Ngân sách cho {days} ngày</Text>
           <View style={s.stepperRow}>
             <Pressable
               onPress={() => setBudget(prev => Math.max(BUDGET_MIN, prev - BUDGET_STEP))}
@@ -310,10 +329,13 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
             </Pressable>
           </View>
           <Text style={s.estimatedHint}>
-            Dự kiến còn{' '}
+            Đã chi{' '}
+            <Text style={{ fontWeight: '700' }}>{Math.round(planForecast.spentVnd / 1000)}K</Text>
+            {' · '}Dự toán còn{' '}
             <Text style={{ color: '#16A34A', fontWeight: '700' }}>
-              {Math.max(0, Math.round((budget - (statsBar.spent > 0 ? statsBar.spent * 1000 : 0)) / 1000))}K
+              {Math.round(remainingProjected / 1000)}K
             </Text>
+            {' · '}Cuối kỳ ~{Math.round(endForecast / 1000)}K
           </Text>
         </View>
 
@@ -365,9 +387,7 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
         <View style={s.card}>
           <Text style={s.cardLabel}>Lịch ăn</Text>
 
-          {/* Dropdowns row */}
           <View style={s.dropdownRow}>
-            {/* So ngay */}
             <View ref={daysRef} style={{ flex: 1 }}>
               <Pressable onPress={openDays} style={[s.dropdown, daysOpen && s.dropdownOpen]}>
                 <Text style={s.dropdownText}>{days} ngày</Text>
@@ -378,19 +398,13 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
                 />
               </Pressable>
             </View>
-
-            {/* So bua/ngay */}
-            <View ref={mealsRef} style={{ flex: 1 }}>
-              <Pressable onPress={openMeals} style={[s.dropdown, mealsOpen && s.dropdownOpen]}>
-                <Text style={s.dropdownText}>{mealsPerDay} bữa/ngày</Text>
-                <ChevronDown
-                  size={16}
-                  color={MUTED}
-                  style={mealsOpen ? { transform: [{ rotate: '180deg' }] } : undefined}
-                />
-              </Pressable>
+            <View style={[s.dropdown, { flex: 1, opacity: 0.85 }]}>
+              <Text style={s.dropdownText}>{mealsPerDay} bữa/ngày</Text>
             </View>
           </View>
+          <Text style={[s.estimatedHint, { marginTop: 8 }]}>
+            Số bữa/ngày tự động theo các slot đã chọn.
+          </Text>
 
           {/* Meal slot checkboxes */}
           <View style={s.slotsRow}>
@@ -440,12 +454,27 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
         </View>
       </ScrollView>
 
-      {/* Footer */}
       <View style={s.footer}>
-        <TouchableOpacity activeOpacity={0.87} onPress={handleSave} style={[s.saveBtn, saving && { opacity: 0.7 }]} disabled={saving}>
-          {saving
+        <TouchableOpacity
+          activeOpacity={0.87}
+          onPress={handleSaveConfig}
+          style={[s.saveBtn, savingConfig && { opacity: 0.7 }]}
+          disabled={savingConfig || generating}
+        >
+          {savingConfig
             ? <ActivityIndicator size="small" color="#111" />
-            : <Text style={s.saveBtnText}>Lưu thay đổi</Text>
+            : <Text style={s.saveBtnText}>Lưu cấu hình</Text>
+          }
+        </TouchableOpacity>
+        <TouchableOpacity
+          activeOpacity={0.87}
+          onPress={handleGeneratePlan}
+          style={[s.generateBtn, generating && { opacity: 0.7 }]}
+          disabled={generating || savingConfig}
+        >
+          {generating
+            ? <ActivityIndicator size="small" color="#111" />
+            : <Text style={s.generateBtnText}>Tạo lại plan</Text>
           }
         </TouchableOpacity>
         <TouchableOpacity onPress={onBack} style={s.cancelBtn}>
@@ -463,16 +492,6 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
         anchorY={daysAnchor.y}
         anchorX={daysAnchor.x}
         width={daysAnchor.width}
-      />
-      <DropdownModal
-        visible={mealsOpen}
-        options={MEALS_OPTIONS.map(m => `${m} bữa/ngày`)}
-        selectedIdx={MEALS_OPTIONS.indexOf(mealsPerDay)}
-        onSelect={idx => setMealsPerDay(MEALS_OPTIONS[idx])}
-        onClose={() => setMealsOpen(false)}
-        anchorY={mealsAnchor.y}
-        anchorX={mealsAnchor.x}
-        width={mealsAnchor.width}
       />
     </SafeAreaView>
   );
@@ -602,6 +621,16 @@ const s = StyleSheet.create({
   },
   saveBtn: { height: 52, borderRadius: 16, backgroundColor: YELLOW, alignItems: 'center', justifyContent: 'center' },
   saveBtnText: { fontSize: 16, fontWeight: '800', color: INK, letterSpacing: -0.3 },
+  generateBtn: {
+    height: 48,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: '#E0D8C8',
+    backgroundColor: WHITE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  generateBtnText: { fontSize: 15, fontWeight: '700', color: INK },
   cancelBtn: { alignItems: 'center', paddingVertical: 6 },
   cancelBtnText: { fontSize: 14, color: MUTED },
 });

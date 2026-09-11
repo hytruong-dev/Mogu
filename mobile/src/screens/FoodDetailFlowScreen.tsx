@@ -207,6 +207,7 @@ export function FoodDetailFlowScreen({
       <ResultPage
         image={image} dishName={dishName} meal={meal}
         priceLabel={priceLabel} timeLabel={timeLabel}
+        kcal={nutrition?.calories ?? null}
         explanation={explanation}
         compat={compat}
         onBack={onClose}
@@ -239,11 +240,12 @@ export function FoodDetailFlowScreen({
 //  SCREEN 4 — ResultPage  "Món hôm nay của bạn là..."
 // ══════════════════════════════════════════════════════════════════════════════
 function ResultPage({
-  image, dishName, meal, priceLabel, timeLabel, explanation, compat,
+  image, dishName, meal, priceLabel, timeLabel, kcal, explanation, compat,
   onBack, onAgain, onChoose,
 }: {
   image: ImageSourcePropType;
   dishName: string; meal: string; priceLabel: string; timeLabel: string;
+  kcal: number | null;
   explanation?: Explanation; compat?: number | null;
   onBack(): void; onAgain(): void; onChoose(): void;
 }) {
@@ -263,8 +265,7 @@ function ResultPage({
   // Lấy factors trực tiếp từ explanation (không cần parse lại)
   const factors = explanation?.factors ?? [];
 
-  // Tính kcal từ explanation summary nếu có (fallback hiển thị)
-  const kcalDisplay = '420 kcal';
+  const kcalDisplay = kcal != null ? `${Math.round(kcal)} kcal` : '—';
 
   return (
     <SafeAreaView style={s.safe}>

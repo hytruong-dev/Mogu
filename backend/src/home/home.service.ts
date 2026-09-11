@@ -1,31 +1,72 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { DishEligibilityService } from '../dishes/eligibility/dish-eligibility.service';
 import {
   GreetingDto,
   HomeDashboardResponseDto,
   NutritionSummaryDto,
   RecommendationCardDto,
 } from './dto/home-dashboard.dto';
+import { HomeQueryDto } from './dto/home-query.dto';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/** Lấy giờ hiện tại theo múi giờ Asia/Ho_Chi_Minh */
-function getVNHour(): number {
-  const now = new Date();
-  const vnTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
-  return vnTime.getHours();
+const DEFAULT_TIMEZONE = 'Asia/Ho_Chi_Minh';
+
+function resolveTimezone(timezone?: string): string {
+  if (!timezone?.trim()) return DEFAULT_TIMEZONE;
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: timezone.trim() });
+    return timezone.trim();
+  } catch {
+    return DEFAULT_TIMEZONE;
+  }
 }
 
-/** Ngày local VN theo định dạng YYYY-MM-DD */
-function getVNLocalDate(): string {
-  const now = new Date();
-  const vnTime = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
-  return vnTime.toISOString().slice(0, 10);
+/** Ngày local theo IANA timezone, định dạng YYYY-MM-DD */
+function getLocalDateInTimezone(timezone: string): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(new Date());
+}
+
+/** Giờ local (0–23) theo IANA timezone */
+function getLocalHourInTimezone(timezone: string): number {
+  const hour = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    hour: 'numeric',
+    hour12: false,
+  }).format(new Date());
+  return Number(hour);
+}
+
+function getTimezoneOffsetMs(timeZone: string, date: Date): number {
+  const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
+  const tzDate = new Date(date.toLocaleString('en-US', { timeZone }));
+  return tzDate.getTime() - utcDate.getTime();
+}
+
+function zonedLocalTimeToUtc(localDate: string, localTime: string, timeZone: string): Date {
+  const [year, month, day] = localDate.split('-').map(Number);
+  const [hour, minute, second = 0] = localTime.split(':').map(Number);
+  const utcGuess = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+  const offset = getTimezoneOffsetMs(timeZone, utcGuess);
+  return new Date(utcGuess.getTime() - offset);
+}
+
+function addDaysToDateString(localDate: string, days: number): string {
+  const [year, month, day] = localDate.split('-').map(Number);
+  const d = new Date(Date.UTC(year, month - 1, day + days));
+  return d.toISOString().slice(0, 10);
+}
+
+function getDayBounds(localDate: string, timezone: string): { gte: Date; lt: Date } {
+  const gte = zonedLocalTimeToUtc(localDate, '00:00:00', timezone);
+  const lt = zonedLocalTimeToUtc(addDaysToDateString(localDate, 1), '00:00:00', timezone);
+  return { gte, lt };
 }
 
 /** HOME-BR-002: Greeting theo giờ */
-function buildGreeting(displayName: string | null | undefined): GreetingDto {
-  const hour = getVNHour();
+function buildGreeting(displayName: string | null | undefined, timezone: string): GreetingDto {
+  const hour = getLocalHourInTimezone(timezone);
   let phrase: string;
   if (hour >= 5 && hour < 11) phrase = 'Chào buổi sáng';
   else if (hour >= 11 && hour < 14) phrase = 'Chào buổi trưa';
@@ -51,10 +92,14 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 export class HomeService {
   private readonly logger = new Logger(HomeService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eligibility: DishEligibilityService,
+  ) {}
 
-  async getDashboard(userId: string): Promise<HomeDashboardResponseDto> {
-    const localDate = getVNLocalDate();
+  async getDashboard(userId: string, query: HomeQueryDto = {}): Promise<HomeDashboardResponseDto> {
+    const timezone = resolveTimezone(query.timezone);
+    const localDate = query.localDate ?? getLocalDateInTimezone(timezone);
 
     // ── 1. Load profile ────────────────────────────────────────────────────
     const profile = await this.prisma.db.profile.findUnique({
@@ -63,6 +108,8 @@ export class HomeService {
         displayName: true,
         profileVersion: true,
         userAllergens: { select: { allergen: { select: { code: true } } } },
+        userDietTypes: { select: { isHard: true, dietType: { select: { code: true } } } },
+        userAvoidedIngredients: { select: { ingredientName: true } },
         userGoals: {
           select: { goal: { select: { code: true } }, priority: true },
         },
@@ -72,19 +119,35 @@ export class HomeService {
 
     const profileVersion = profile?.profileVersion ?? 1;
     const allergenCodes = (profile?.userAllergens ?? []).map((ua) => ua.allergen.code);
+    const hardDietTypeCodes = (profile?.userDietTypes ?? [])
+      .filter((d) => d.isHard)
+      .map((d) => d.dietType.code);
+    const avoidedIngredients = (profile?.userAvoidedIngredients ?? []).map((i) =>
+      i.ingredientName.trim().toLowerCase(),
+    );
     const goalCodes = (profile?.userGoals ?? []).map((ug) => ug.goal.code);
 
     // ── 2. Parallel widget loading (HOME-BR-019: widget isolation) ─────────
     const TIMEOUT_MS = 1500;
 
     const [recResult, nutritionResult, notifResult] = await Promise.allSettled([
-      withTimeout(this.getTopRecommendations(userId, allergenCodes, goalCodes), TIMEOUT_MS),
-      withTimeout(this.getNutritionSummary(userId, localDate, profile?.goalKcal ?? null), TIMEOUT_MS),
+      withTimeout(
+        this.getTopRecommendations(userId, {
+          allergenCodes,
+          hardDietTypeCodes,
+          avoidedIngredients,
+        }, goalCodes),
+        TIMEOUT_MS,
+      ),
+      withTimeout(
+        this.getNutritionSummary(userId, localDate, timezone, profile?.goalKcal ?? null),
+        TIMEOUT_MS,
+      ),
       withTimeout(this.getUnreadCount(userId), TIMEOUT_MS),
     ]);
 
     // ── 3. Assemble response ───────────────────────────────────────────────
-    const greeting = buildGreeting(profile?.displayName);
+    const greeting = buildGreeting(profile?.displayName, timezone);
 
     // Recommendations
     let recommendationsStatus: 'ok' | 'error' | 'empty' = 'error';
@@ -136,7 +199,11 @@ export class HomeService {
 
   private async getTopRecommendations(
     userId: string,
-    allergenCodes: string[],
+    eligibilityProfile: {
+      allergenCodes: string[];
+      hardDietTypeCodes: string[];
+      avoidedIngredients: string[];
+    },
     goalCodes: string[] = [],
   ): Promise<RecommendationCardDto[]> {
     // Lấy danh sách món đã lưu (bảng saved_dishes có thể chưa migrate)
@@ -151,23 +218,8 @@ export class HomeService {
       // bảng saved_dishes chưa tồn tại — bỏ qua, isSaved = false
     }
 
-    // Lấy món PUBLISHED với allergen hard-filter (BA-004)
     const allDishes = await this.prisma.db.dish.findMany({
-      where: {
-        status: 'PUBLISHED',
-        deletedAt: null,
-        // Hard-filter: loại bỏ cứng các món CONTAINS allergen của user
-        ...(allergenCodes.length > 0
-          ? {
-              dishAllergens: {
-                none: {
-                  allergen: { code: { in: allergenCodes } },
-                  level: 'CONTAINS',
-                },
-              },
-            }
-          : {}),
-      },
+      where: this.eligibility.buildHardWhere(eligibilityProfile, 'home'),
       select: {
         id: true,
         name: true,
@@ -182,7 +234,6 @@ export class HomeService {
           take: 1,
         },
         nutrition: { select: { calories: true } },
-        // Include dish goals để tính score
         dishGoals: {
           include: { goal: { select: { code: true } } },
         },
@@ -247,16 +298,16 @@ export class HomeService {
   private async getNutritionSummary(
     userId: string,
     localDate: string,
+    timezone: string,
     goalKcal: number | null,
   ): Promise<NutritionSummaryDto> {
-    // Query meal logs for today (HOME-BR-011: localDate)
+    const { gte, lt } = getDayBounds(localDate, timezone);
+
+    // Query meal logs for today (HOME-BR-011: localDate + timezone)
     const logs = await this.prisma.db.mealLog.findMany({
       where: {
         userId,
-        loggedAt: {
-          gte: new Date(`${localDate}T00:00:00+07:00`),
-          lt: new Date(`${localDate}T23:59:59+07:00`),
-        },
+        loggedAt: { gte, lt },
       },
       select: { totalKcal: true },
     });

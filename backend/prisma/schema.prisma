@@ -278,6 +278,8 @@ model Profile {
   postComments           PostComment[]
   weeklyPlanConfig       WeeklyPlanConfig?
   weeklyPlans            WeeklyPlan[]
+  diaryMealLogs          DiaryMealLog[]
+  waterLogs              WaterLog[]
 
   @@map("profiles")
 }
@@ -1683,4 +1685,112 @@ model DishEditorAuditLog {
 
   @@index([dishId, createdAt])
   @@map("dish_editor_audit_logs")
+}
+
+// ── Health diary (docs 01 / 03) — separate from legacy Meal/MealLog ────────────
+
+enum DiaryMealSlot {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+
+  @@map("diary_meal_slot")
+}
+
+enum DiaryMealSourceType {
+  DISH
+  INGREDIENT
+  CUSTOM
+  RANDOM
+  WEEKLY_PLAN
+  CAMERA
+  MANUAL
+
+  @@map("diary_meal_source_type")
+}
+
+enum DiaryItemReferenceType {
+  DISH
+  INGREDIENT
+  CUSTOM_FOOD
+
+  @@map("diary_item_reference_type")
+}
+
+model DiaryMealLog {
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   String  @map("user_id") @db.Uuid
+  profile  Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  mealSlot   DiaryMealSlot @map("meal_slot")
+  occurredAt DateTime      @map("occurred_at")
+  localDate  DateTime      @map("local_date") @db.Date
+  timezone   String        @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
+
+  sourceType         DiaryMealSourceType @map("source_type")
+  randomizationId    String?             @map("randomization_id") @db.Uuid
+  weeklyPlanSlotId   String?             @map("weekly_plan_slot_id") @db.Uuid
+  note               String?
+
+  totalKcal    Int      @default(0) @map("total_kcal")
+  totalProteinG Decimal? @map("total_protein_g") @db.Decimal(8, 2)
+  totalCarbsG   Decimal? @map("total_carbs_g") @db.Decimal(8, 2)
+  totalFatG     Decimal? @map("total_fat_g") @db.Decimal(8, 2)
+  nutritionCoverage Decimal? @map("nutrition_coverage") @db.Decimal(5, 4)
+
+  version   Int       @default(1)
+  deletedAt DateTime? @map("deleted_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  items DiaryMealLogItem[]
+
+  @@unique([weeklyPlanSlotId])
+  @@index([userId, localDate, occurredAt])
+  @@index([userId, occurredAt(sort: Desc)])
+  @@map("diary_meal_logs")
+}
+
+model DiaryMealLogItem {
+  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mealLogId  String       @map("meal_log_id") @db.Uuid
+  mealLog    DiaryMealLog @relation(fields: [mealLogId], references: [id], onDelete: Cascade)
+
+  referenceType DiaryItemReferenceType @map("reference_type")
+  referenceId   String?                @map("reference_id") @db.Uuid
+  displayName   String                 @map("display_name") @db.VarChar(200)
+
+  quantity       Decimal  @db.Decimal(10, 3)
+  unitCode       String   @default("SERVING") @map("unit_code") @db.VarChar(32)
+  gramEquivalent Decimal? @map("gram_equivalent") @db.Decimal(10, 3)
+
+  caloriesSnapshot Decimal? @map("calories_snapshot") @db.Decimal(8, 2)
+  proteinGSnapshot Decimal? @map("protein_g_snapshot") @db.Decimal(8, 2)
+  carbsGSnapshot   Decimal? @map("carbs_g_snapshot") @db.Decimal(8, 2)
+  fatGSnapshot     Decimal? @map("fat_g_snapshot") @db.Decimal(8, 2)
+  nutritionBasis   String?  @map("nutrition_basis") @db.VarChar(32)
+
+  sortOrder Int @default(0) @map("sort_order")
+
+  @@index([mealLogId])
+  @@map("diary_meal_log_items")
+}
+
+model WaterLog {
+  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId   String  @map("user_id") @db.Uuid
+  profile  Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  amountMl   Int      @map("amount_ml")
+  occurredAt DateTime @map("occurred_at")
+  localDate  DateTime @map("local_date") @db.Date
+  timezone   String   @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
+  source     String   @default("MANUAL") @db.VarChar(32)
+  idempotencyKey String? @unique @map("idempotency_key") @db.VarChar(128)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, localDate, occurredAt])
+  @@map("water_logs")
 }
