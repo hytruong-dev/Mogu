@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Patch } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Patch, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ProfileService } from './profile.service';
@@ -8,83 +8,93 @@ import { UpdatePreferencesDto } from './dto/update-preferences.dto';
 
 @ApiTags('Profile')
 @ApiBearerAuth()
-@Controller('profile')
+@Controller()
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
-  /**
-   * GET /v1/profile/me — Lấy thông tin profile đầy đủ
-   */
-  @Get('me')
+  @Get(['profile/me', 'me/profile'])
   @ApiOperation({ summary: 'Lấy thông tin profile đầy đủ' })
-  getProfile(@CurrentUser() user: { sub: string }) {
-    return this.profileService.getProfile(user.sub);
+  getProfile(@CurrentUser() user: { sub: string; id?: string }) {
+    const userId = user.sub ?? user.id!;
+    return this.profileService.getProfile(userId);
   }
 
-  /**
-   * PATCH /v1/profile/basic — Cập nhật tên, ngày sinh, giới tính
-   */
-  @Patch('basic')
+  @Patch('profile/basic')
   @ApiOperation({
-    summary: 'Cập nhật thông tin cơ bản',
-    description: 'Cập nhật displayName, dateOfBirth, gender. Tăng profileVersion.',
+    summary: 'Cập nhật thông tin cơ bản (yêu cầu If-Match)',
   })
   @ApiHeader({
-    name: 'x-profile-version',
-    description: 'Profile version hiện tại (để phát hiện conflict)',
+    name: 'If-Match',
+    description: 'ETag/Profile version hiện tại',
     required: false,
   })
   updateBasic(
-    @CurrentUser() user: { sub: string },
+    @CurrentUser() user: { sub: string; id?: string },
     @Body() dto: UpdateBasicDto,
+    @Headers('if-match') ifMatch?: string,
     @Headers('x-profile-version') profileVersionHeader?: string,
   ) {
-    const profileVersion = profileVersionHeader ? parseInt(profileVersionHeader, 10) : 1;
-    return this.profileService.updateBasic(user.sub, dto, profileVersion);
+    const userId = user.sub ?? user.id!;
+    return this.profileService.updateBasic(
+      userId,
+      dto,
+      ifMatch ?? profileVersionHeader,
+    );
   }
 
-  /**
-   * PATCH /v1/profile/health — Cập nhật chiều cao, cân nặng
-   */
-  @Patch('health')
+  @Patch('profile/health')
   @ApiOperation({
-    summary: 'Cập nhật thông số sức khỏe',
-    description: 'Cập nhật heightCm, weightKg. Chỉ dùng để cá nhân hóa — không phải đánh giá y khoa.',
+    summary: 'Cập nhật thông số sức khỏe (yêu cầu If-Match)',
   })
   @ApiHeader({
-    name: 'x-profile-version',
-    description: 'Profile version hiện tại',
+    name: 'If-Match',
+    description: 'ETag/Profile version hiện tại',
     required: false,
   })
   updateHealth(
-    @CurrentUser() user: { sub: string },
+    @CurrentUser() user: { sub: string; id?: string },
     @Body() dto: UpdateHealthDto,
+    @Headers('if-match') ifMatch?: string,
     @Headers('x-profile-version') profileVersionHeader?: string,
   ) {
-    const profileVersion = profileVersionHeader ? parseInt(profileVersionHeader, 10) : 1;
-    return this.profileService.updateHealth(user.sub, dto, profileVersion);
+    const userId = user.sub ?? user.id!;
+    return this.profileService.updateHealth(
+      userId,
+      dto,
+      ifMatch ?? profileVersionHeader,
+    );
   }
 
-  /**
-   * PATCH /v1/profile/preferences — Cập nhật mục tiêu, sở thích, dị ứng
-   */
-  @Patch('preferences')
+  @Patch('profile/preferences')
   @ApiOperation({
-    summary: 'Cập nhật mục tiêu và sở thích',
-    description:
-      'Cập nhật goals, dietary preferences, allergens, avoid ingredients. Thay đổi dị ứng có hiệu lực ngay.',
+    summary: 'Cập nhật mục tiêu và sở thích (yêu cầu If-Match)',
   })
   @ApiHeader({
-    name: 'x-profile-version',
-    description: 'Profile version hiện tại',
+    name: 'If-Match',
+    description: 'ETag/Profile version hiện tại',
     required: false,
   })
   updatePreferences(
-    @CurrentUser() user: { sub: string },
+    @CurrentUser() user: { sub: string; id?: string },
     @Body() dto: UpdatePreferencesDto,
+    @Headers('if-match') ifMatch?: string,
     @Headers('x-profile-version') profileVersionHeader?: string,
   ) {
-    const profileVersion = profileVersionHeader ? parseInt(profileVersionHeader, 10) : 1;
-    return this.profileService.updatePreferences(user.sub, dto, profileVersion);
+    const userId = user.sub ?? user.id!;
+    return this.profileService.updatePreferences(
+      userId,
+      dto,
+      ifMatch ?? profileVersionHeader,
+    );
+  }
+
+  @Get('me/journey')
+  @ApiOperation({ summary: 'Lấy hành trình cá nhân của tôi' })
+  getJourney(
+    @CurrentUser() user: { sub: string; id?: string },
+    @Query('month') month?: string,
+  ) {
+    const userId = user.sub ?? user.id!;
+    return this.profileService.getJourney(userId, month);
   }
 }

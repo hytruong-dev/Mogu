@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { getDeviceTimeZone, getTodayISO } from '../../lib/dates';
 import { clearSession, getSession, saveSession } from './storage';
 import { ApiError, type Session } from './types';
 
@@ -17,19 +18,19 @@ async function parseResponse<T>(response: Response): Promise<T> {
   const body = await response.json().catch(() => null);
   if (!response.ok) {
     const nested = body?.error && typeof body.error === 'object' ? body.error : null;
-    const error = body?.message && typeof body.message === 'object' ? body.message : body;
+    const errorObj = body?.message && typeof body.message === 'object' ? body.message : body;
     const message =
       (nested && typeof nested.message === 'string' ? nested.message : null) ??
-      error?.message ??
+      errorObj?.message ??
       (typeof body?.message === 'string' ? body.message : null) ??
       'Không thể kết nối đến máy chủ.';
     const code =
       (nested && typeof nested.code === 'string' ? nested.code : undefined) ??
-      error?.code ??
+      errorObj?.code ??
       body?.code;
     throw new ApiError(message, response.status, code, body);
   }
-  // TransformInterceptor bọc response trong { success, data, timestamp }
+  // Standard success envelope: { success: true, data: ... }
   if (body !== null && typeof body === 'object' && 'success' in body) {
     return body.data as T;
   }
@@ -43,31 +44,25 @@ async function refreshSession(refreshToken: string): Promise<Session> {
     body: JSON.stringify({ refreshToken }),
   });
   const result = await parseResponse<{ session: Session }>(response);
-  // Lưu expiresAt để proactive refresh lần sau
   const session: Session = {
     ...result.session,
-    expiresAt: Date.now() + (result.session.expiresIn - 60) * 1000, // buffer 60s
+    expiresAt: Date.now() + (result.session.expiresIn - 60) * 1000,
   };
   await saveSession(session);
   return session;
 }
 
-/**
- * Kiểm tra token có cần refresh không (hết hạn hoặc sắp hết hạn trong 2 phút)
- */
 function isTokenExpiredOrExpiringSoon(session: Session): boolean {
-  if (!session.expiresAt) return false; // không có expiresAt → assume vẫn valid
-  return Date.now() >= session.expiresAt - 120_000; // 2 phút buffer
+  if (!session.expiresAt) return false;
+  return Date.now() >= session.expiresAt - 120_000;
 }
 
-// Mutex để tránh nhiều request cùng lúc đều trigger refresh
 let refreshPromise: Promise<Session> | null = null;
 
 async function getValidSession(): Promise<Session | null> {
   const session = await getSession();
   if (!session) return null;
 
-  // Proactive refresh nếu token sắp hết hạn
   if (isTokenExpiredOrExpiringSoon(session) && session.refreshToken) {
     if (!refreshPromise) {
       refreshPromise = refreshSession(session.refreshToken).finally(() => {
@@ -88,20 +83,28 @@ async function getValidSession(): Promise<Session | null> {
 export async function apiRequest<T>(path: string, options: Options = {}): Promise<T> {
   const { auth = true, retry = true, headers, ...requestOptions } = options;
   const session = auth ? await getValidSession() : null;
+  const tz = getDeviceTimeZone();
+  const todayDate = getTodayISO(tz);
+  const requestId =
+    typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
+      : Math.random().toString(36).substring(2, 15);
 
   const response = await fetch(`${API_URL}${path}`, {
     ...requestOptions,
     headers: {
       Accept: 'application/json',
       'Content-Type': 'application/json',
-      'x-platform': Platform.OS,
-      'x-app-version': '1.0.0',
+      'X-Timezone': tz,
+      'X-Local-Date': todayDate,
+      'X-Request-Id': requestId,
+      'X-Platform': Platform.OS,
+      'X-App-Version': '1.4.0',
       ...(session?.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {}),
       ...headers,
     },
   });
 
-  // Reactive refresh: nếu vẫn 401 sau proactive (token bị revoke, v.v.)
   if (response.status === 401 && auth && retry && session?.refreshToken) {
     try {
       const newSession = await refreshSession(session.refreshToken);

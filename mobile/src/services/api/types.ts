@@ -72,11 +72,60 @@ export type NutritionSummary = {
   waterMl?: number;
 };
 
+export type HomeWidgets = {
+  greeting?: {
+    status: 'ok' | 'unavailable' | 'no_data' | 'error';
+    data?: { text: string; timeOfDay: string } | null;
+  };
+  weather?: {
+    status: 'ok' | 'unavailable' | 'no_data' | 'error';
+    data?: { condition: string; temperatureC: number; suggestionText: string } | null;
+  };
+  weeklyPlan?: {
+    status: 'ok' | 'unavailable' | 'no_data' | 'error';
+    data?: {
+      planId?: string;
+      status?: string;
+      todayMealsCount: number;
+      completedMealsCount: number;
+      remainingBudgetVnd: number;
+    } | null;
+  };
+  nutrition?: {
+    status: 'ok' | 'unavailable' | 'no_data' | 'error';
+    data?: {
+      consumedKcal: number;
+      targetKcal: number;
+      remainingKcal: number;
+      waterMl: number;
+      waterTargetMl: number;
+    } | null;
+  };
+  recommendations?: {
+    status: 'ok' | 'unavailable' | 'no_data' | 'error';
+    data?: Array<{
+      id: string;
+      name: string;
+      imageUrl?: string;
+      energyKcal: number;
+      priceMin?: number;
+      cookingTimeMinutes: number;
+      isSaved: boolean;
+    }> | null;
+  };
+  notifications?: {
+    status: 'ok' | 'unavailable' | 'no_data' | 'error';
+    data?: { unreadCount: number } | null;
+  };
+};
+
 export type HomeDashboard = {
   generatedAt: string;
   localDate: string;
   cacheTtl: number;
   profileVersion: number;
+
+  widgets?: HomeWidgets;
 
   greetingStatus: 'ok' | 'error';
   greeting: Greeting | null;

@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -19,7 +20,6 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { ReviewsService } from './reviews.service';
 
-// ── Public: xem đánh giá ─────────────────────────────────────────────────────
 @ApiTags('reviews')
 @Controller('dishes/:dishId/reviews')
 export class ReviewsController {
@@ -38,26 +38,31 @@ export class ReviewsController {
     return this.reviewsService.listByDish(dishId, { cursor, limit: limit ? Number(limit) : 20 });
   }
 
+  @Put('me')
+  @Post('me')
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Tạo/cập nhật đánh giá của bạn' })
+  @ApiOperation({ summary: 'Tạo/cập nhật đánh giá của bạn (PUT/POST)' })
   upsertReview(
     @Param('dishId') dishId: string,
     @Body() dto: CreateReviewDto,
-    @CurrentUser('sub') userId: string,
+    @CurrentUser() user: any,
   ) {
+    const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
     return this.reviewsService.upsertReview(dishId, userId, dto);
   }
 
+  @Delete('me')
   @Delete('mine')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Xóa đánh giá của bạn' })
   deleteMyReview(
     @Param('dishId') dishId: string,
-    @CurrentUser('sub') userId: string,
+    @CurrentUser() user: any,
   ) {
+    const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
     return this.reviewsService.deleteMyReview(dishId, userId);
   }
 }

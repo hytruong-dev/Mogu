@@ -595,4 +595,32 @@ export class WeeklyPlansService {
       });
     }
   }
+
+  async getGenerationStatus(planId: string, userId: string) {
+    const plan = await this.prisma.db.weeklyPlan.findFirst({
+      where: { id: planId, userId },
+      include: {
+        slots: { select: { id: true, dishId: true } },
+      },
+    });
+
+    if (!plan) {
+      throw new NotFoundException(WEEKLY_PLAN_ERRORS.PLAN_NOT_FOUND);
+    }
+
+    const totalSlots = plan.slots.length;
+    const completedSlots = plan.slots.filter((s) => s.dishId != null).length;
+    const percent = totalSlots > 0 ? Math.round((completedSlots / totalSlots) * 100) : 0;
+
+    return {
+      planId: plan.id,
+      status: plan.status,
+      progress: {
+        totalSlots,
+        completedSlots,
+        percent,
+      },
+      error: plan.generationErrorCode ?? null,
+    };
+  }
 }

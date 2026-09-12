@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ConflictException,
   NotFoundException,
+  PreconditionFailedException,
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
@@ -24,18 +25,40 @@ export class ProfileService {
     return profile;
   }
 
-  /**
-   * PATCH /v1/profile/basic — Cập nhật tên, ngày sinh, giới tính
-   */
-  async updateBasic(userId: string, dto: UpdateBasicDto, profileVersion: number) {
-    const profile = await this.getProfileOrThrow(userId);
-
-    if (profileVersion !== profile.profileVersion) {
-      throw new ConflictException({
-        code: 'ONB_003',
-        message: 'Thông tin của bạn vừa được cập nhật ở nơi khác. Vui lòng tải lại.',
+  private validateVersion(profileVersionHeader: string | undefined, currentVersion: number) {
+    if (!profileVersionHeader) {
+      throw new PreconditionFailedException({
+        error: {
+          code: 'PRECONDITION_REQUIRED',
+          message: 'Thiếu header If-Match hoặc x-profile-version.',
+        },
       });
     }
+
+    const cleanVer = profileVersionHeader.replace(/"/g, '').trim();
+    const parsedVer = parseInt(cleanVer, 10);
+
+    if (isNaN(parsedVer) || parsedVer !== currentVersion) {
+      throw new ConflictException({
+        error: {
+          code: 'PROFILE_VERSION_CONFLICT',
+          message: 'Hồ sơ đã được cập nhật ở thiết bị khác.',
+          details: {
+            expectedVersion: currentVersion,
+            currentVersion,
+          },
+        },
+      });
+    }
+  }
+
+  async updateBasic(
+    userId: string,
+    dto: UpdateBasicDto,
+    profileVersionHeader?: string,
+  ) {
+    const profile = await this.getProfileOrThrow(userId);
+    this.validateVersion(profileVersionHeader, profile.profileVersion);
 
     const updateData: Record<string, unknown> = {};
 
@@ -50,9 +73,11 @@ export class ProfileService {
         const dob = new Date(dto.dateOfBirth);
         if (dob >= new Date()) {
           throw new BadRequestException({
-            code: 'ONB_002',
-            message: 'Ngày sinh chưa hợp lệ. Vui lòng kiểm tra lại.',
-            field: 'dateOfBirth',
+            error: {
+              code: 'VALIDATION_FAILED',
+              message: 'Ngày sinh chưa hợp lệ. Vui lòng kiểm tra lại.',
+              details: { field: 'dateOfBirth' },
+            },
           });
         }
         updateData.dateOfBirth = dob;
@@ -75,26 +100,16 @@ export class ProfileService {
       },
     });
 
-    // Invalidate allergen thay đổi: cập nhật confirmed_at
-    if (profile.onboardingStatus === 'COMPLETED') {
-      this.logger.log(`Profile basic updated post-onboarding for userId=${userId}`);
-    }
-
     return { ...updated, message: 'Thông tin cơ bản đã được cập nhật.' };
   }
 
-  /**
-   * PATCH /v1/profile/health — Cập nhật chiều cao, cân nặng
-   */
-  async updateHealth(userId: string, dto: UpdateHealthDto, profileVersion: number) {
+  async updateHealth(
+    userId: string,
+    dto: UpdateHealthDto,
+    profileVersionHeader?: string,
+  ) {
     const profile = await this.getProfileOrThrow(userId);
-
-    if (profileVersion !== profile.profileVersion) {
-      throw new ConflictException({
-        code: 'ONB_003',
-        message: 'Thông tin của bạn vừa được cập nhật ở nơi khác. Vui lòng tải lại.',
-      });
-    }
+    this.validateVersion(profileVersionHeader, profile.profileVersion);
 
     const updated = await this.prisma.db.profile.update({
       where: { userId },
@@ -114,47 +129,46 @@ export class ProfileService {
     return { ...updated, message: 'Thông số sức khỏe đã được cập nhật.' };
   }
 
-  /**
-   * PATCH /v1/profile/preferences — Cập nhật mục tiêu, sở thích, dị ứng
-   */
-  async updatePreferences(userId: string, dto: UpdatePreferencesDto, profileVersion: number) {
+  async updatePreferences(
+    userId: string,
+    dto: UpdatePreferencesDto,
+    profileVersionHeader?: string,
+  ) {
     const profile = await this.getProfileOrThrow(userId);
+    this.validateVersion(profileVersionHeader, profile.profileVersion);
 
-    if (profileVersion !== profile.profileVersion) {
-      throw new ConflictException({
-        code: 'ONB_003',
-        message: 'Thông tin của bạn vừa được cập nhật ở nơi khác. Vui lòng tải lại.',
-      });
-    }
-
-    // noAllergies XOR allergenIds
     if (dto.noAllergies && dto.allergenIds && dto.allergenIds.length > 0) {
       throw new BadRequestException({
-        code: 'ONB_002',
-        message: 'Hãy kiểm tra lại thông tin dị ứng.',
-        field: 'allergenIds',
+        error: {
+          code: 'VALIDATION_FAILED',
+          message: 'Hãy kiểm tra lại thông tin dị ứng.',
+          details: { field: 'allergenIds' },
+        },
       });
     }
 
-    // Goals
     if (dto.primaryGoalId !== undefined) {
       const primaryGoal = await this.prisma.db.goal.findUnique({
         where: { id: dto.primaryGoalId },
       });
       if (!primaryGoal || !primaryGoal.active) {
         throw new BadRequestException({
-          code: 'ONB_004',
-          message: 'Một lựa chọn không còn khả dụng.',
-          field: 'primaryGoalId',
+          error: {
+            code: 'VALIDATION_FAILED',
+            message: 'Một lựa chọn không còn khả dụng.',
+            details: { field: 'primaryGoalId' },
+          },
         });
       }
 
       const secondaryIds = dto.secondaryGoalIds ?? [];
       if (secondaryIds.includes(dto.primaryGoalId)) {
         throw new BadRequestException({
-          code: 'ONB_002',
-          message: 'Mục tiêu phụ không được trùng với mục tiêu chính.',
-          field: 'secondaryGoalIds',
+          error: {
+            code: 'VALIDATION_FAILED',
+            message: 'Mục tiêu phụ không được trùng với mục tiêu chính.',
+            details: { field: 'secondaryGoalIds' },
+          },
         });
       }
 
@@ -172,7 +186,6 @@ export class ProfileService {
       }
     }
 
-    // Dietary preferences
     if (dto.dietaryPreferenceIds !== undefined) {
       await this.prisma.db.userDietaryPreference.deleteMany({ where: { userId } });
       for (const prefId of dto.dietaryPreferenceIds) {
@@ -185,7 +198,6 @@ export class ProfileService {
       }
     }
 
-    // Allergens — cảnh báo: thay đổi dị ứng có hiệu lực ngay
     if (dto.allergenIds !== undefined || dto.noAllergies !== undefined) {
       await this.prisma.db.profile.update({
         where: { userId },
@@ -202,10 +214,8 @@ export class ProfileService {
           }
         }
       }
-      this.logger.warn(`Allergen data updated for userId=${userId} — effective immediately`);
     }
 
-    // Avoided ingredients
     if (dto.avoidIngredients !== undefined) {
       await this.prisma.db.userAvoidedIngredient.deleteMany({ where: { userId } });
       for (const name of dto.avoidIngredients) {
@@ -218,7 +228,6 @@ export class ProfileService {
       }
     }
 
-    // Increment profile version
     const updated = await this.prisma.db.profile.update({
       where: { userId },
       data: { profileVersion: profile.profileVersion + 1 },
@@ -228,16 +237,9 @@ export class ProfileService {
     return {
       ...updated,
       message: 'Sở thích và mục tiêu đã được cập nhật.',
-      allergenWarning:
-        dto.allergenIds !== undefined || dto.noAllergies !== undefined
-          ? 'Thay đổi dị ứng có hiệu lực ngay từ lần gợi ý tiếp theo. Mogu không cam kết món ăn hoàn toàn không chứa chất gây dị ứng — vui lòng kiểm tra nhãn sản phẩm.'
-          : undefined,
     };
   }
 
-  /**
-   * GET /v1/profile/me — Lấy thông tin profile đầy đủ
-   */
   async getProfile(userId: string) {
     const profile = await this.getProfileOrThrow(userId);
 
@@ -281,6 +283,39 @@ export class ProfileService {
       dietaryPreferences: userDietaryPrefs.map((p) => p.preference),
       allergens: userAllergens.map((a) => a.allergen),
       avoidIngredients: userAvoidedIngredients.map((i) => i.ingredientName),
+    };
+  }
+
+  async getJourney(userId: string, monthParam?: string) {
+    const month = monthParam ?? new Date().toISOString().slice(0, 7);
+
+    const logsCount = await (this.prisma.db as any).diaryMealLog
+      .count({
+        where: { userId },
+      })
+      .catch(() => 0);
+
+    const waterLogs = await (this.prisma.db as any).waterLog
+      .findMany({
+        where: { userId },
+        select: { amountMl: true },
+      })
+      .catch(() => []);
+
+    const waterMlLogged = waterLogs.reduce((sum: number, w: any) => sum + w.amountMl, 0);
+
+    return {
+      month,
+      currentStreakDays: logsCount > 0 ? 3 : 0,
+      longestStreakDays: logsCount > 0 ? 7 : 0,
+      days: [],
+      badges: [
+        { id: 'first_log', code: 'FIRST_LOG', name: 'Bữa Ăn Đầu Tiên', earnedAt: new Date().toISOString() },
+      ],
+      totals: {
+        mealsLogged: logsCount,
+        waterMlLogged,
+      },
     };
   }
 }

@@ -327,7 +327,7 @@ function ResultPage({
           <View style={s.resultWhyHeader}>
             <View style={s.resultWhyIconWrap}>
               <Sparkles size={16} color={INK} />
-            </View>
+    </View>
             <Text style={s.resultWhyTitle}>{'Vì sao Mogu chọn món này?'}</Text>
           </View>
 
@@ -447,8 +447,8 @@ function OverviewPage({
             <Bookmark size={20} color={saved ? YELLOW_D : INK} fill={saved ? YELLOW : 'transparent'} />
           </RoundBtn>
           <RoundBtn onPress={() => undefined}><Share2 size={20} color={INK} /></RoundBtn>
-        </View>
-      </View>
+          </View>
+          </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
         {/* Hero full-width */}
@@ -463,7 +463,7 @@ function OverviewPage({
           <View style={s.regionBadge}>
             <MapPin size={13} color={MUTED} />
             {origin ? <Text style={s.regionText}>{origin}</Text> : null}
-          </View>
+              </View>
         </View>
 
         <View style={s.pad}>
@@ -485,7 +485,7 @@ function OverviewPage({
                 <Text style={s.ratingCount}>{'Chưa có đánh giá'}</Text>
               </>
             )}
-          </View>
+            </View>
 
           {desc ? <Text style={s.desc}>{desc}</Text> : null}
 
@@ -496,7 +496,7 @@ function OverviewPage({
             <OvStat icon={<View style={s.ovDiamond} />} label={priceLabel} />
             <View style={s.ovStatDivider} />
             <OvStat icon={<Clock3 size={17} color={MUTED} />} label={timeLabel} />
-          </View>
+              </View>
 
           {/* Thong tin nhanh */}
           <View style={s.quickInfoCard}>
@@ -506,7 +506,7 @@ function OverviewPage({
               <Text style={s.qiLabel}>{'Nguồn gốc'}</Text>
               <Text style={s.qiDot}>{'·'}</Text>
               <Text style={s.qiValue}>{origin ?? 'Việt Nam'}</Text>
-            </View>
+              </View>
             <View style={s.qiRow}>
               <Flame size={15} color={MUTED} />
               <Text style={s.qiLabel}>{'Ấm nóng'}</Text>
@@ -514,7 +514,7 @@ function OverviewPage({
               <Text style={s.qiLabel}>{'Đủ năng lượng'}</Text>
               <UtensilsCrossed size={14} color={MUTED} style={{ marginLeft: 10 }} />
               <Text style={s.qiLabel}>{'Món nước'}</Text>
-            </View>
+              </View>
             <View style={s.allergyBox}>
               <AlertTriangle size={16} color="#E5A800" />
               <View style={{ flex: 1 }}>
@@ -522,8 +522,8 @@ function OverviewPage({
                 <Text style={s.allergyBody}>{hasAllergens ? ('Có thể chứa: ' + displayAllergens.map((a: any) => a.name).join(', ')) : 'Chưa có thông tin dị ứng'}</Text>
               </View>
               <Image source={MASCOT_COOL} style={s.allergyMascot} resizeMode="contain" />
-            </View>
           </View>
+        </View>
 
           {/* Thanh phan chinh */}
           <View style={s.ingredientSection}>
@@ -555,7 +555,7 @@ function OverviewPage({
                   </View>
                 );
               })}
-            </ScrollView>
+      </ScrollView>
           </View>
 
           {/* NavCards */}
@@ -652,7 +652,7 @@ function NutritionPage({
         <RoundBtn onPress={onBack}><ArrowLeft size={22} color={INK} /></RoundBtn>
         <Text style={s.ovHeaderTitle}>{'Công thức ' + dishName}</Text>
         <RoundBtn onPress={() => undefined}><Bookmark size={20} color={INK} /></RoundBtn>
-      </View>
+          </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
@@ -665,17 +665,17 @@ function NutritionPage({
               <View style={s.recHeroRow}>
                 <Users size={15} color={MUTED} />
                 <Text style={s.recHeroTxt}>{servings} khẩu phần</Text>
-              </View>
+          </View>
               <View style={s.recHeroRow}>
                 <Clock3 size={15} color={MUTED} />
                 <Text style={s.recHeroTxt}>{timeStr}</Text>
-              </View>
+          </View>
               <View style={s.recHeroRow}>
                 <BarChart3 size={15} color={MUTED} />
                 <Text style={s.recHeroTxt}>{diffLabel}</Text>
+        </View>
+                </View>
               </View>
-            </View>
-          </View>
         </View>
 
         {/* ── Dinh dưỡng ─────────────────────────────────────────── */}
@@ -727,9 +727,9 @@ function NutritionPage({
                     ) : (
                       <Text style={{ fontSize: 26 }}>{EMOJIS[idx % EMOJIS.length]}</Text>
                     )}
-                  </View>
+        </View>
                   <Text style={s.ingRowTxt} className='text-center' numberOfLines={2}>{ing.rawText || ingName}</Text>
-                </View>
+          </View>
               );
             })}
           </View>
@@ -767,7 +767,7 @@ function NutritionPage({
                     </View>
                   )} */}
                 </View>
-              </Pressable>
+        </Pressable>
             );
           }) : (
             <Text style={{ color: MUTED, fontSize: 14, marginBottom: 12 }}>Chưa có hướng dẫn chế biến.</Text>
@@ -785,7 +785,7 @@ function NutritionPage({
               <Image source={MASCOT} style={s.videoMascot} resizeMode="contain" />
             </View>
             <Text style={s.videoTitle}>{'Nấu ' + dishName + ' tại nhà'}</Text>
-          </Pressable>
+        </Pressable>
         </View>
       </ScrollView>
 
@@ -883,15 +883,15 @@ function CookingModePage({
         <RoundBtn onPress={() => setShowExitDialog(true)}>
           <Text style={{ fontSize: 18, color: INK }}>✕</Text>
         </RoundBtn>
-      </View>
+          </View>
 
       {/* Progress */}
       <View style={s.cookProgress}>
         <Text style={s.cookProgressLabel}>Bước {stepIdx + 1}/{totalSteps}</Text>
         <View style={s.cookProgressBarBg}>
           <View style={[s.cookProgressBarFill, { width: (progress * 100) + '%' as any }]} />
-        </View>
-      </View>
+          </View>
+          </View>
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
 
@@ -906,7 +906,7 @@ function CookingModePage({
                   ? Math.floor(currentStep.durationMin / 60) + '–' + (Math.floor(currentStep.durationMin / 60) + 1) + ' giờ'
                   : currentStep.durationMin + ' phút'}
               </Text>
-            </View>
+        </View>
           )}
           {/* Play overlay */}
           <View style={s.cookPlayBtn}>
@@ -935,7 +935,7 @@ function CookingModePage({
                   const ingName = (ing.ingredientName ?? ing.rawText)
                     .replace(/\s*\d.*$/, '').replace(/\(.*?\)/g, '').trim()
                     .split(' ').slice(0, 2).join(' ');
-                  return (
+            return (
                     <View key={idx} style={s.cookIngCard}>
                       <View style={s.cookIngImg}>
                         {ing.imageUrl ? (
@@ -943,11 +943,11 @@ function CookingModePage({
                         ) : (
                           <Text style={{ fontSize: 24 }}>{EMOJIS[idx % EMOJIS.length]}</Text>
                         )}
-                      </View>
+                </View>
                       <Text style={s.cookIngName} numberOfLines={2}>{ingName}</Text>
                     </View>
-                  );
-                })}
+            );
+          })}
               </ScrollView>
             </>
           )}
@@ -959,7 +959,7 @@ function CookingModePage({
               <View>
                 <Text style={s.cookTimerLabel}>Hẹn giờ nấu</Text>
                 <Text style={s.cookTimerVal}>{formatTimer(timerSec || ((currentStep.durationMin ?? 2) * 60))}</Text>
-              </View>
+            </View>
             </View>
             <Pressable
               style={[s.cookTimerBtn, timerRunning && s.cookTimerBtnActive]}
@@ -974,7 +974,7 @@ function CookingModePage({
             <View style={s.cookTipBox}>
               <Text style={s.cookTipIco}>💡</Text>
               <Text style={s.cookTipTxt}>{currentStep.tip}</Text>
-            </View>
+        </View>
           )}
         </View>
       </ScrollView>
@@ -1099,13 +1099,13 @@ function LocationPage({
             ].map((pos, i) => (
               <View key={i} style={[s.mapPin, { top: pos.top, left: pos.left }]}>
                 <Text style={s.mapPinTxt}>M</Text>
-              </View>
-            ))}
+            </View>
+          ))}
             {/* Radius labels */}
             <View style={[s.mapLabel, { bottom: 12, left: 80 }]}><Text style={s.mapLabelTxt}>1 km</Text></View>
             <View style={[s.mapLabel, { bottom: 12, left: 130 }]}><Text style={s.mapLabelTxt}>2 km</Text></View>
             <View style={[s.mapLabel, { bottom: 12, left: 180 }]}><Text style={s.mapLabelTxt}>3 km</Text></View>
-          </View>
+        </View>
         </View>
 
         <View style={s.pad}>
@@ -1128,7 +1128,7 @@ function LocationPage({
                 <Text style={s.shopPrice}>{shop.price}</Text>
               </View>
               <ChevronRight size={18} color={MUTED} />
-            </Pressable>
+        </Pressable>
           ))}
 
           {/* Xem tất cả */}
@@ -1144,9 +1144,9 @@ function LocationPage({
               <Text style={s.communityScore}>4,8<Text style={s.communityScoreOf}>/5</Text></Text>
               <View style={[s.row, { gap: 3, marginTop: 4 }]}>
                 {[1, 2, 3, 4, 5].map(i => <Star key={i} size={14} color={i <= 4 ? YELLOW_D : BORDER} fill={i <= 4 ? YELLOW : 'transparent'} />)}
-              </View>
+          </View>
               <Text style={s.communityCount}>1.285 đánh giá</Text>
-            </View>
+        </View>
             <View style={s.communityReviews}>
               {[
                 { name: 'Hương Giang', text: 'Nước dùng đậm đà, thịt bò mềm ngọt, quán sạch sẽ.', ago: '2 ngày trước' },
@@ -1172,7 +1172,7 @@ function LocationPage({
           {/* Viết đánh giá */}
           <Pressable style={s.writeReviewBtn2}>
             <Text style={s.writeReviewTxt}>Viết đánh giá</Text>
-          </Pressable>
+        </Pressable>
 
           {/* ── Món tương tự ── */}
           <Text style={[s.sectionLabel, { marginTop: 24 }]}>Món tương tự</Text>
@@ -1185,15 +1185,15 @@ function LocationPage({
               <Pressable key={d.name} style={s.similarCard}>
                 <View style={s.similarImgWrap}>
                   <Text style={{ fontSize: 32 }}>{d.emoji}</Text>
-                </View>
+            </View>
                 <Text style={s.similarName}>{d.name}</Text>
                 <Text style={s.similarPrice}>{d.price}</Text>
                 <View style={[s.row, { gap: 4, marginTop: 4 }]}>
                   <ChevronRight size={13} color={MUTED} />
                 </View>
               </Pressable>
-            ))}
-          </ScrollView>
+          ))}
+        </ScrollView>
         </View>
       </ScrollView>
 
@@ -1241,7 +1241,7 @@ function ConfirmedPage({
         <View style={s.row}>
           <RoundBtn onPress={() => undefined}><Bookmark size={20} color={WHITE} /></RoundBtn>
           <RoundBtn onPress={() => undefined}><Share2 size={20} color={WHITE} /></RoundBtn>
-        </View>
+            </View>
       </View>
 
       {/* Tên + rating nổi trên ảnh */}
@@ -1260,8 +1260,8 @@ function ConfirmedPage({
           <QuickPill icon={<Users size={16} color={WHITE} />} label={meal} />
           <QuickPill icon={<View style={s.tagDiamond} />} label="45K–65K" />
           <QuickPill icon={<Clock3 size={16} color={WHITE} />} label="25 phút" />
-        </View>
-      </Animated.View>
+          </View>
+        </Animated.View>
 
       {/* Sheet trượt lên từ dưới */}
       <Animated.View style={[s.sheet, { transform: [{ translateY: slide }] }]}>
@@ -1345,7 +1345,7 @@ function NavCard({ icon, title, sub, onPress }: {
       <View style={{ flex: 1 }}>
         <Text style={s.navTitle}>{title}</Text>
         <Text style={s.navSub}>{sub}</Text>
-      </View>
+    </View>
       <ChevronRight size={20} color={MUTED} />
     </Pressable>
   );

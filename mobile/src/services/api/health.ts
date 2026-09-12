@@ -44,28 +44,55 @@ export const healthApi = {
       `/health/days/${localDate}?timezone=${encodeURIComponent(timezone)}`,
     ),
 
+  getCalendar: (month?: string, timezone?: string) => {
+    const query = new URLSearchParams();
+    if (month) query.set('month', month);
+    if (timezone) query.set('timezone', timezone);
+    const qs = query.toString();
+    return apiRequest<{ month: string; days: Array<any> }>(`/health/calendar${qs ? `?${qs}` : ''}`);
+  },
+
   listMealLogs: (localDate: string, timezone: string) =>
     apiRequest<{ items: MealLog[] }>(
       `/meal-logs?localDate=${localDate}&timezone=${encodeURIComponent(timezone)}`,
     ),
 
-  createMealLog: (body: {
-    mealSlot: 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK';
-    timezone?: string;
-    occurredAt?: string;
-    source?: { type: string; randomizationId?: string; weeklyPlanSlotId?: string };
-    items: Array<{
-      referenceType: 'DISH' | 'INGREDIENT' | 'CUSTOM_FOOD';
-      referenceId?: string;
-      displayName?: string;
-      quantity: number;
-      unitCode?: string;
-    }>;
-  }) =>
+  createMealLog: (
+    body: {
+      mealSlot: 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK';
+      timezone?: string;
+      occurredAt?: string;
+      source?: { type: string; randomizationId?: string; weeklyPlanSlotId?: string };
+      items: Array<{
+        referenceType: 'DISH' | 'INGREDIENT' | 'CUSTOM_FOOD';
+        referenceId?: string;
+        displayName?: string;
+        quantity: number;
+        unitCode?: string;
+      }>;
+    },
+    idempotencyKey?: string,
+  ) =>
     apiRequest<MealLog>('/meal-logs', {
       method: 'POST',
       body: JSON.stringify(body),
-      headers: { 'Idempotency-Key': `meal-${Date.now()}-${Math.random().toString(36).slice(2, 8)}` },
+      headers: {
+        'Idempotency-Key':
+          idempotencyKey || `meal-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      },
+    }),
+
+  updateMealLog: (id: string, body: any, version: number = 1) =>
+    apiRequest<MealLog>(`/meal-logs/${id}`, {
+      method: 'PATCH',
+      headers: { 'If-Match': `"${version}"` },
+      body: JSON.stringify(body),
+    }),
+
+  deleteMealLog: (id: string, version: number = 1) =>
+    apiRequest<{ deleted: boolean }>(`/meal-logs/${id}`, {
+      method: 'DELETE',
+      headers: { 'If-Match': `"${version}"` },
     }),
 
   addWater: (amountMl: number, localDate: string, timezone: string, idempotencyKey?: string) =>
@@ -78,6 +105,58 @@ export const healthApi = {
       },
     }),
 
-  deleteWater: (id: string) =>
-    apiRequest(`/water-logs/${id}`, { method: 'DELETE' }),
+  deleteWater: (id: string, version: number = 1) =>
+    apiRequest(`/water-logs/${id}`, {
+      method: 'DELETE',
+      headers: { 'If-Match': `"${version}"` },
+    }),
+
+  // Custom foods
+  getCustomFoods: () => apiRequest<{ items: Array<any> }>('/me/custom-foods'),
+
+  createCustomFood: (dto: { name: string; calories: number }, idempotencyKey?: string) =>
+    apiRequest('/me/custom-foods', {
+      method: 'POST',
+      headers: {
+        'Idempotency-Key': idempotencyKey || `cfood-${Date.now()}`,
+      },
+      body: JSON.stringify(dto),
+    }),
+
+  updateCustomFood: (id: string, dto: any, version: number = 1) =>
+    apiRequest(`/me/custom-foods/${id}`, {
+      method: 'PATCH',
+      headers: { 'If-Match': `"${version}"` },
+      body: JSON.stringify(dto),
+    }),
+
+  deleteCustomFood: (id: string, version: number = 1) =>
+    apiRequest(`/me/custom-foods/${id}`, {
+      method: 'DELETE',
+      headers: { 'If-Match': `"${version}"` },
+    }),
+
+  // Measurements & Health Targets
+  createMeasurement: (dto: { type: 'HEIGHT_CM' | 'WEIGHT_KG'; value: number; unit?: string }) =>
+    apiRequest('/me/measurements', {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    }),
+
+  listMeasurements: (type?: string, limit?: number) => {
+    const query = new URLSearchParams();
+    if (type) query.set('type', type);
+    if (limit) query.set('limit', String(limit));
+    const qs = query.toString();
+    return apiRequest<{ items: Array<any> }>(`/me/measurements${qs ? `?${qs}` : ''}`);
+  },
+
+  getHealthTarget: () => apiRequest<any>('/me/health-targets'),
+
+  updateHealthTarget: (dto: any, version: number = 1) =>
+    apiRequest('/me/health-targets', {
+      method: 'PUT',
+      headers: { 'If-Match': `"${version}"` },
+      body: JSON.stringify(dto),
+    }),
 };

@@ -530,4 +530,54 @@ export class DishQueryService {
       items: [...grouped.values()].sort((a, b) => b.count - a.count),
     };
   }
+
+  async getSimilarDishes(idOrSlug: string, limit = 5) {
+    const dish = await this.prisma.db.dish.findFirst({
+      where: {
+        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        status: 'PUBLISHED',
+        deletedAt: null,
+      },
+      include: {
+        categories: { select: { categoryId: true } },
+      },
+    });
+
+    if (!dish) {
+      throw new NotFoundException({ error: { code: 'DISH_NOT_FOUND', message: 'Không tìm thấy món ăn.' } });
+    }
+
+    const categoryIds = dish.categories.map((c) => c.categoryId);
+
+    const similar = await this.prisma.db.dish.findMany({
+      where: {
+        id: { not: dish.id },
+        status: 'PUBLISHED',
+        deletedAt: null,
+        ...(categoryIds.length > 0
+          ? { categories: { some: { categoryId: { in: categoryIds } } } }
+          : {}),
+      },
+      take: Math.min(limit, 20),
+      include: {
+        media: {
+          where: { isPrimary: true, moderationStatus: 'APPROVED' },
+          take: 1,
+        },
+        nutrition: { select: { calories: true } },
+      },
+      orderBy: { ratingAvg: 'desc' },
+    });
+
+    return {
+      items: this.withPublicUrl(similar).map((d) => ({
+        id: d.id,
+        name: d.name,
+        imageUrl: d.media?.[0]?.publicUrl,
+        energyKcal: Number(d.nutrition?.calories ?? 0),
+        priceMin: d.priceMin,
+        cookingTimeMinutes: d.prepMinutes ?? 0,
+      })),
+    };
+  }
 }

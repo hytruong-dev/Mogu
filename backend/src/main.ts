@@ -25,28 +25,28 @@ async function bootstrap() {
   // ── Logger (Pino) ──────────────────────────────────────────────────────────
   app.useLogger(app.get(Logger));
 
-  // ── x-trace-id header (gắn vào mọi response) ─────────────────────────────
+  // ── x-trace-id & X-Request-Id header ─────────────────────────────────────
   const fastifyInstance = app.getHttpAdapter().getInstance();
   fastifyInstance.addHook('onRequest', async (request: any, reply: any) => {
-    const traceId =
-      request.headers['x-correlation-id'] ??
+    const requestId =
       request.headers['x-request-id'] ??
+      request.headers['x-correlation-id'] ??
       crypto.randomUUID();
-    request.traceId = traceId;
-    reply.header('x-trace-id', traceId);
+    request.traceId = requestId;
+    reply.header('x-trace-id', requestId);
+    reply.header('X-Request-Id', requestId);
   });
 
-  // ── WebSocket (socket.io) — phải gắn trước các middleware khác ───────────
+  // ── WebSocket (socket.io) ──────────────────────────────────────────────────
   app.useWebSocketAdapter(new IoAdapter(app));
 
   // ── Global Exception Filter ────────────────────────────────────────────────
-  // Thứ tự: PrismaTableNotFound bắt trước, GlobalException bắt sau
   app.useGlobalFilters(new GlobalExceptionFilter(), new PrismaTableNotFoundFilter());
 
   // ── Global Response Interceptor ────────────────────────────────────────────
   app.useGlobalInterceptors(new TransformInterceptor());
 
-  // ── Global JWT Guard (dùng @Public() để bỏ qua) ───────────────────────────
+  // ── Global JWT Guard ───────────────────────────────────────────────────────
   const reflector = app.get(Reflector);
   const configService = app.get(ConfigService);
   app.useGlobalGuards(new JwtAuthGuard(reflector, configService));
@@ -54,9 +54,9 @@ async function bootstrap() {
   // ── Global Validation Pipe ─────────────────────────────────────────────────
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,         // strip unknown fields
+      whitelist: true,
       forbidNonWhitelisted: true,
-      transform: true,         // auto-transform to DTO types
+      transform: true,
       transformOptions: { enableImplicitConversion: true },
       exceptionFactory: (errors) => {
         const details = formatValidationErrors(errors);
@@ -87,14 +87,18 @@ async function bootstrap() {
       'Authorization',
       'Accept',
       'If-Match',
+      'Idempotency-Key',
       'x-idempotency-key',
       'x-profile-version',
       'x-platform',
       'x-app-version',
       'x-correlation-id',
+      'x-request-id',
+      'x-timezone',
+      'x-local-date',
     ],
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-    exposedHeaders: ['x-profile-version', 'x-trace-id'],
+    exposedHeaders: ['x-profile-version', 'x-trace-id', 'X-Request-Id'],
   });
 
   // ── Swagger / OpenAPI ──────────────────────────────────────────────────────
@@ -122,4 +126,3 @@ bootstrap().catch(err => {
   console.error('[bootstrap] Fatal error:', err);
   process.exit(1);
 });
-

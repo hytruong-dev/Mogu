@@ -127,6 +127,50 @@ export class CommunityService {
     }
   }
 
+  async likePost(postId: string, userId: string) {
+    const post = await this.prisma.db.communityPost.findUnique({
+      where: { id: postId },
+    });
+    if (!post) throw new NotFoundException('Bài đăng không tồn tại');
+
+    const existing = await this.prisma.db.postLike.findUnique({
+      where: { postId_userId: { postId, userId } },
+    });
+
+    if (!existing) {
+      await this.prisma.db.postLike.create({ data: { postId, userId } });
+      await this.prisma.db.communityPost.update({
+        where: { id: postId },
+        data: { likeCount: { increment: 1 } },
+      });
+    }
+
+    return { liked: true };
+  }
+
+  async unlikePost(postId: string, userId: string) {
+    const post = await this.prisma.db.communityPost.findUnique({
+      where: { id: postId },
+    });
+    if (!post) throw new NotFoundException('Bài đăng không tồn tại');
+
+    const existing = await this.prisma.db.postLike.findUnique({
+      where: { postId_userId: { postId, userId } },
+    });
+
+    if (existing) {
+      await this.prisma.db.postLike.delete({
+        where: { postId_userId: { postId, userId } },
+      });
+      await this.prisma.db.communityPost.update({
+        where: { id: postId },
+        data: { likeCount: { decrement: 1 } },
+      });
+    }
+
+    return { liked: false };
+  }
+
   // ─── Comments ─────────────────────────────────────────────────────────────
   async listComments(postId: string) {
     const post = await this.prisma.db.communityPost.findUnique({

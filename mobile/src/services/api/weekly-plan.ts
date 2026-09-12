@@ -18,18 +18,30 @@ export async function getWeeklyPlanConfig(): Promise<WeeklyPlanConfig> {
   return apiRequest<WeeklyPlanConfig>('/weekly-plan-config');
 }
 
-export async function upsertWeeklyPlanConfig(dto: UpsertWeeklyPlanConfigDto): Promise<WeeklyPlanConfig> {
+export async function upsertWeeklyPlanConfig(
+  dto: UpsertWeeklyPlanConfigDto,
+  version: number = 1,
+): Promise<WeeklyPlanConfig> {
   return apiRequest<WeeklyPlanConfig>('/weekly-plan-config', {
     method: 'PUT',
+    headers: {
+      'If-Match': `"${version}"`,
+      'x-profile-version': String(version),
+    },
     body: JSON.stringify(dto),
   });
 }
 
 // ── Plans ─────────────────────────────────────────────────────────────────────
 
-export async function generateWeeklyPlan(startDate: string): Promise<WeeklyPlanGenerateResponse> {
+export async function generateWeeklyPlan(
+  startDate: string,
+  idempotencyKey?: string,
+): Promise<WeeklyPlanGenerateResponse> {
+  const key = idempotencyKey ?? `gen-plan-${startDate}-${Date.now()}`;
   return apiRequest<WeeklyPlanGenerateResponse>('/weekly-plans/generate', {
     method: 'POST',
+    headers: { 'Idempotency-Key': key },
     body: JSON.stringify({ startDate }),
   });
 }
@@ -47,6 +59,15 @@ export async function getWeeklyPlanById(planId: string): Promise<WeeklyPlan> {
   return apiRequest<WeeklyPlan>(`/weekly-plans/${planId}`);
 }
 
+export async function getWeeklyPlanGenerationStatus(planId: string): Promise<{
+  planId: string;
+  status: string;
+  progress: { totalSlots: number; completedSlots: number; percent: number };
+  error?: string | null;
+}> {
+  return apiRequest(`/weekly-plans/${planId}/generation`);
+}
+
 export async function listWeeklyPlans(cursor?: string, limit?: number): Promise<WeeklyPlanListResponse> {
   const params = new URLSearchParams();
   if (cursor) params.set('cursor', cursor);
@@ -58,7 +79,7 @@ export async function listWeeklyPlans(cursor?: string, limit?: number): Promise<
 export async function startWeeklyPlan(planId: string, version: number): Promise<WeeklyPlan> {
   return apiRequest<WeeklyPlan>(`/weekly-plans/${planId}/start`, {
     method: 'POST',
-    headers: { 'If-Match': String(version) },
+    headers: { 'If-Match': `"${version}"` },
   });
 }
 
@@ -108,7 +129,6 @@ export type SlotActionResult = {
 
 const PLAN_TERMINAL: Set<string> = new Set(['READY', 'FAILED', 'CANCELLED']);
 
-/** Poll plan by id until READY/FAILED or timeout. */
 export async function pollWeeklyPlan(
   planId: string,
   opts?: { intervalMs?: number; maxAttempts?: number; onTick?: (plan: WeeklyPlan) => void },
@@ -130,9 +150,16 @@ export async function swapSlot(
   planId: string,
   slotId: string,
   dto: WeeklyPlanSlotSwapDto,
+  version: number = 1,
+  idempotencyKey?: string,
 ): Promise<SwapSlotResult> {
+  const key = idempotencyKey ?? `swap-${slotId}-${Date.now()}`;
   return apiRequest<SwapSlotResult>(`/weekly-plans/${planId}/slots/${slotId}/swap`, {
     method: 'POST',
+    headers: {
+      'If-Match': `"${version}"`,
+      'Idempotency-Key': key,
+    },
     body: JSON.stringify(dto),
   });
 }
@@ -145,6 +172,7 @@ export async function lockSlot(
 ): Promise<any> {
   return apiRequest<any>(`/weekly-plans/${planId}/slots/${slotId}/lock`, {
     method: 'PATCH',
+    headers: { 'If-Match': `"${version}"` },
     body: JSON.stringify({ isLocked, version }),
   });
 }
@@ -153,9 +181,15 @@ export async function completeSlot(
   planId: string,
   slotId: string,
   opts: { actualCostVnd?: number; actualKcal?: number; version: number },
+  idempotencyKey?: string,
 ): Promise<any> {
+  const key = idempotencyKey ?? `comp-${slotId}-${Date.now()}`;
   return apiRequest<any>(`/weekly-plans/${planId}/slots/${slotId}/complete`, {
     method: 'POST',
+    headers: {
+      'If-Match': `"${opts.version}"`,
+      'Idempotency-Key': key,
+    },
     body: JSON.stringify(opts),
   });
 }
@@ -167,6 +201,6 @@ export async function skipSlot(
 ): Promise<any> {
   return apiRequest<any>(`/weekly-plans/${planId}/slots/${slotId}/skip`, {
     method: 'POST',
-    headers: { 'If-Match': String(version) },
+    headers: { 'If-Match': `"${version}"` },
   });
 }

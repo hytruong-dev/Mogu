@@ -6,6 +6,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -63,9 +64,30 @@ export class CommunityController {
   @ApiOperation({ summary: 'Like/unlike bài đăng (idempotent toggle)' })
   toggleLike(
     @Param('id', ParseUUIDPipe) id: string,
-    @CurrentUser() user: { id: string },
+    @CurrentUser() user: any,
   ) {
-    return this.communityService.toggleLike(id, user.id);
+    const userId = typeof user === 'string' ? user : (user.id ?? user.sub);
+    return this.communityService.toggleLike(id, userId);
+  }
+
+  @Put('posts/:id/likes/me')
+  @ApiOperation({ summary: 'Thích bài đăng (Docs 02 contract)' })
+  likePost(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: any,
+  ) {
+    const userId = typeof user === 'string' ? user : (user.id ?? user.sub);
+    return this.communityService.likePost(id, userId);
+  }
+
+  @Delete('posts/:id/likes/me')
+  @ApiOperation({ summary: 'Bỏ thích bài đăng (Docs 02 contract)' })
+  unlikePost(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: any,
+  ) {
+    const userId = typeof user === 'string' ? user : (user.id ?? user.sub);
+    return this.communityService.unlikePost(id, userId);
   }
 
   // ─── Comments ─────────────────────────────────────────────────────────────

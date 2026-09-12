@@ -16,6 +16,18 @@ export class DishesController {
     return this.dishQueryService.searchPublic(query);
   }
 
+  @Get(':idOrSlug/similar')
+  @ApiOperation({ summary: 'Lấy các món tương tự' })
+  getSimilar(
+    @Param('idOrSlug') idOrSlug: string,
+    @Query('limit') limit?: number,
+  ) {
+    return this.dishQueryService.getSimilarDishes(
+      idOrSlug,
+      limit ? Number(limit) : 5,
+    );
+  }
+
   @Get(':idOrSlug/variants')
   @ApiOperation({ summary: 'Danh sách biến thể của món ăn (chỉ PUBLISHED)' })
   getVariants(@Param('idOrSlug') idOrSlug: string) {
@@ -28,4 +40,3 @@ export class DishesController {
     return this.dishQueryService.findPublicDetail(idOrSlug);
   }
 }
-

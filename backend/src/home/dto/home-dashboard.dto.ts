@@ -1,17 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-// ─── Widget status ──────────────────────────────────────────────────────────
-
-export class WidgetErrorDto {
-  @ApiProperty({ example: 'error' })
-  status: 'ok' | 'error' | 'empty';
-
-  @ApiPropertyOptional({ example: 'SERVICE_TIMEOUT' })
-  errorCode?: string;
-}
-
-// ─── Greeting ────────────────────────────────────────────────────────────────
-
 export class GreetingDto {
   @ApiProperty({ example: 'Chào buổi sáng' })
   phrase: string;
@@ -22,8 +10,6 @@ export class GreetingDto {
   @ApiProperty({ example: 'Chào buổi sáng, Huy!' })
   full: string;
 }
-
-// ─── Recommendation Card ─────────────────────────────────────────────────────
 
 export class RecommendationCardDto {
   @ApiProperty()
@@ -51,8 +37,6 @@ export class RecommendationCardDto {
   isSaved: boolean;
 }
 
-// ─── Nutrition Summary ───────────────────────────────────────────────────────
-
 export class NutritionSummaryDto {
   @ApiProperty({ example: '2026-08-12' })
   date: string;
@@ -73,7 +57,60 @@ export class NutritionSummaryDto {
   waterMl?: number;
 }
 
-// ─── Home Dashboard ──────────────────────────────────────────────────────────
+// ─── Widgets Contract (§4) ───────────────────────────────────────────────────
+
+export class WidgetEnvelopeDto<T> {
+  @ApiProperty({ enum: ['ok', 'unavailable', 'no_data', 'error'] })
+  status: 'ok' | 'unavailable' | 'no_data' | 'error';
+
+  @ApiPropertyOptional()
+  data?: T | null;
+}
+
+export class HomeWidgetsDto {
+  greeting: WidgetEnvelopeDto<{
+    text: string;
+    timeOfDay: 'MORNING' | 'NOON' | 'AFTERNOON' | 'EVENING';
+  }>;
+
+  weather: WidgetEnvelopeDto<{
+    condition: string;
+    temperatureC: number;
+    suggestionText: string;
+  }>;
+
+  weeklyPlan: WidgetEnvelopeDto<{
+    planId?: string;
+    status?: string;
+    todayMealsCount: number;
+    completedMealsCount: number;
+    remainingBudgetVnd: number;
+  } | null>;
+
+  nutrition: WidgetEnvelopeDto<{
+    consumedKcal: number;
+    targetKcal: number;
+    remainingKcal: number;
+    waterMl: number;
+    waterTargetMl: number;
+  } | null>;
+
+  recommendations: WidgetEnvelopeDto<
+    Array<{
+      id: string;
+      name: string;
+      imageUrl?: string;
+      energyKcal: number;
+      priceMin?: number;
+      cookingTimeMinutes: number;
+      isSaved: boolean;
+    }>
+  >;
+
+  notifications: WidgetEnvelopeDto<{
+    unreadCount: number;
+  }>;
+}
 
 export class HomeDashboardResponseDto {
   @ApiProperty({ example: '2026-08-12T03:00:00.000Z' })
@@ -85,31 +122,34 @@ export class HomeDashboardResponseDto {
   @ApiProperty({ example: 300 })
   cacheTtl: number;
 
+  @ApiProperty({ example: 300 })
+  cacheTtlSec: number;
+
   @ApiProperty({ example: 2 })
   profileVersion: number;
 
-  // Greeting widget
+  // Widgets envelope object (§4)
+  widgets: HomeWidgetsDto;
+
+  // Legacy top-level fields for backwards compatibility
   @ApiProperty({ enum: ['ok', 'error'] })
   greetingStatus: 'ok' | 'error';
 
   @ApiPropertyOptional({ type: GreetingDto })
   greeting?: GreetingDto;
 
-  // Recommendations widget
   @ApiProperty({ enum: ['ok', 'error', 'empty'] })
   recommendationsStatus: 'ok' | 'error' | 'empty';
 
   @ApiPropertyOptional({ type: [RecommendationCardDto] })
   recommendations?: RecommendationCardDto[];
 
-  // Nutrition widget
   @ApiProperty({ enum: ['ok', 'error', 'empty'] })
   nutritionStatus: 'ok' | 'error' | 'empty';
 
   @ApiPropertyOptional({ type: NutritionSummaryDto })
   nutritionSummary?: NutritionSummaryDto;
 
-  // Notification widget
   @ApiProperty({ enum: ['ok', 'error'] })
   notificationStatus: 'ok' | 'error';
 

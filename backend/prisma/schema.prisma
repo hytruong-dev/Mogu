@@ -280,6 +280,10 @@ model Profile {
   weeklyPlans            WeeklyPlan[]
   diaryMealLogs          DiaryMealLog[]
   waterLogs              WaterLog[]
+  customFoods            CustomFood[]
+  measurements           ProfileMeasurement[]
+  healthTargets          HealthTarget[]
+  activityBuckets        ActivityBucket[]
 
   @@map("profiles")
 }
@@ -1793,4 +1797,80 @@ model WaterLog {
 
   @@index([userId, localDate, occurredAt])
   @@map("water_logs")
+}
+
+model CustomFood {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
+  profile     Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  name        String   @db.VarChar(200)
+  calories    Decimal  @db.Decimal(8, 2)
+  proteinG    Decimal? @map("protein_g") @db.Decimal(8, 2)
+  fatG        Decimal? @map("fat_g") @db.Decimal(8, 2)
+  carbsG      Decimal? @map("carbs_g") @db.Decimal(8, 2)
+  servingSize String?  @map("serving_size") @db.VarChar(100)
+  version     Int      @default(1)
+
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  archivedAt DateTime? @map("archived_at")
+
+  @@index([userId, name])
+  @@map("custom_foods")
+}
+
+model ProfileMeasurement {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  profile      Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  type         String   @db.VarChar(32)
+  valueDecimal Decimal  @map("value_decimal") @db.Decimal(8, 2)
+  unit         String   @default("kg") @db.VarChar(16)
+
+  measuredAt DateTime @default(now()) @map("measured_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([userId, type, measuredAt(sort: Desc)])
+  @@map("profile_measurements")
+}
+
+model HealthTarget {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  profile    Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  mode       String   @default("SYSTEM_ESTIMATED") @db.VarChar(32)
+  energyKcal Int?     @map("energy_kcal")
+  proteinG   Float?   @map("protein_g")
+  carbsG     Float?   @map("carbs_g")
+  fatG       Float?   @map("fat_g")
+  waterMl    Int?     @map("water_ml")
+  steps      Int?
+  version    Int      @default(1)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("health_targets")
+}
+
+model ActivityBucket {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  profile   Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  provider  String   @db.VarChar(64)
+  type      String   @db.VarChar(32)
+  startAt   DateTime @map("start_at")
+  endAt     DateTime @map("end_at")
+  value     Decimal  @db.Decimal(12, 2)
+  dedupeKey String?  @map("dedupe_key") @db.VarChar(128)
+
+  syncedAt  DateTime @default(now()) @map("synced_at")
+
+  @@unique([userId, provider, type, startAt, endAt, dedupeKey])
+  @@map("activity_buckets")
 }

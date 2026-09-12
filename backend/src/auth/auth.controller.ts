@@ -2,8 +2,10 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   Body,
   Param,
+  Query,
   Req,
   UseGuards,
   HttpCode,
@@ -24,6 +26,12 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LogoutDto } from './dto/logout.dto';
 import { AdminResetPasswordDto } from './dto/admin-reset-password.dto';
 import { ChangeTemporaryPasswordDto } from './dto/change-temporary-password.dto';
+import {
+  PasswordResetRequestDto,
+  PasswordResetConfirmationDto,
+  EmailVerificationDto,
+  PasswordChangeDto,
+} from './dto/password-recovery.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Public } from './decorators/public.decorator';
@@ -42,7 +50,9 @@ export class AuthController {
     return {
       correlationId: req.headers['x-correlation-id'] as string,
       platform: req.headers['x-platform'] as string,
-      ipHash: ip ? Buffer.from(ip).toString('base64url').slice(0, 16) : undefined,
+      ipHash: ip
+        ? Buffer.from(ip).toString('base64url').slice(0, 16)
+        : undefined,
     };
   }
 
@@ -50,10 +60,13 @@ export class AuthController {
   @Public()
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
-  @ApiOperation({ summary: 'UC-AUTH-01: Đăng ký tài khoản mới bằng username + password' })
-  @ApiResponse({ status: 201, description: 'Đăng ký và đăng nhập thành công — trả session ngay' })
-  @ApiResponse({ status: 400, description: 'Validation thất bại' })
-  @ApiResponse({ status: 409, description: 'Username đã tồn tại' })
+  @ApiOperation({
+    summary: 'UC-AUTH-01: Đăng ký tài khoản mới',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Đăng ký và đăng nhập thành công — trả session ngay',
+  })
   register(@Body() dto: RegisterDto, @Req() req: FastifyRequest) {
     return this.authService.register(dto, this.extractMeta(req));
   }
@@ -62,9 +75,11 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'UC-AUTH-02: Đăng nhập bằng username + password' })
-  @ApiResponse({ status: 200, description: 'Đăng nhập thành công — trả session' })
-  @ApiResponse({ status: 401, description: 'Sai thông tin / tài khoản bị khóa' })
+  @ApiOperation({ summary: 'UC-AUTH-02: Đăng nhập bằng identifier + password' })
+  @ApiResponse({
+    status: 200,
+    description: 'Đăng nhập thành công — trả session',
+  })
   login(@Body() dto: LoginDto, @Req() req: FastifyRequest) {
     return this.authService.login(dto, this.extractMeta(req));
   }
@@ -74,8 +89,6 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Làm mới access token' })
-  @ApiResponse({ status: 200, description: 'Token mới' })
-  @ApiResponse({ status: 401, description: 'Refresh token hết hạn hoặc đã bị thu hồi' })
   refresh(@Body() dto: RefreshTokenDto, @Req() req: FastifyRequest) {
     return this.authService.refreshToken(dto, this.extractMeta(req));
   }
@@ -84,8 +97,6 @@ export class AuthController {
   @Get('me')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Lấy thông tin user hiện tại + onboarding status' })
-  @ApiResponse({ status: 200, description: 'User profile' })
-  @ApiResponse({ status: 401, description: 'Chưa đăng nhập' })
   getMe(@CurrentUser() user: User) {
     return this.authService.getMe(user.id);
   }
@@ -94,17 +105,58 @@ export class AuthController {
   @Get('me/roles')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Lấy danh sách roles của user hiện tại' })
-  @ApiResponse({ status: 200, description: 'Danh sách roles' })
   getMyRoles(@CurrentUser() user: User) {
     return this.authService.getMyRoles(user.id);
+  }
+
+  // ── Password recovery & verification endpoints (§2) ────────────────────────
+  @Public()
+  @Post('password-reset-requests')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Yêu cầu đặt lại mật khẩu' })
+  passwordResetRequest(@Body() dto: PasswordResetRequestDto) {
+    return this.authService.passwordResetRequest(dto);
+  }
+
+  @Public()
+  @Post('password-reset-confirmations')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xác nhận đặt lại mật khẩu' })
+  passwordResetConfirm(@Body() dto: PasswordResetConfirmationDto) {
+    return this.authService.passwordResetConfirm(dto);
+  }
+
+  @Public()
+  @Post('email-verifications')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Xác minh email' })
+  verifyEmail(@Body() dto: EmailVerificationDto) {
+    return this.authService.verifyEmail(dto);
+  }
+
+  @Post('password-change')
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Đổi mật khẩu người dùng' })
+  passwordChange(
+    @CurrentUser() user: User,
+    @Body() dto: PasswordChangeDto,
+    @Req() req: FastifyRequest,
+  ) {
+    return this.authService.passwordChange(
+      user.id,
+      dto,
+      this.extractMeta(req),
+    );
   }
 
   // ── POST /auth/forgot-password ───────────────────────────────────────────
   @Public()
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'UC-AUTH-03: Yêu cầu hỗ trợ đặt lại mật khẩu (liên hệ Admin)' })
-  @ApiResponse({ status: 200, description: 'Thông báo hướng dẫn chung' })
+  @ApiOperation({
+    summary: 'UC-AUTH-03: Yêu cầu hỗ trợ đặt lại mật khẩu (liên hệ Admin)',
+  })
   forgotPassword(@Body() dto: ForgotPasswordDto, @Req() req: FastifyRequest) {
     return this.authService.forgotPassword(dto, this.extractMeta(req));
   }
@@ -114,14 +166,17 @@ export class AuthController {
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Đổi mật khẩu tạm sau khi Admin reset' })
-  @ApiResponse({ status: 200, description: 'Mật khẩu đã được cập nhật — trả session mới' })
-  @ApiResponse({ status: 401, description: 'Mật khẩu tạm không đúng' })
   changeTemporaryPassword(
     @CurrentUser() user: User,
     @Req() req: FastifyRequest & { accessToken: string },
     @Body() dto: ChangeTemporaryPasswordDto,
   ) {
-    return this.authService.changeTemporaryPassword(user.id, req.accessToken, dto, this.extractMeta(req));
+    return this.authService.changeTemporaryPassword(
+      user.id,
+      req.accessToken,
+      dto,
+      this.extractMeta(req),
+    );
   }
 
   // ── POST /auth/logout ────────────────────────────────────────────────────
@@ -129,17 +184,60 @@ export class AuthController {
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'UC-AUTH-05: Đăng xuất' })
-  @ApiResponse({ status: 200, description: 'Đăng xuất thành công' })
   logout(
     @CurrentUser() user: User,
     @Req() req: FastifyRequest & { accessToken: string },
     @Body() dto: LogoutDto,
   ) {
-    return this.authService.logout(user.id, req.accessToken, dto, this.extractMeta(req));
+    return this.authService.logout(
+      user.id,
+      req.accessToken,
+      dto,
+      this.extractMeta(req),
+    );
   }
 }
 
-// ── Admin: Reset password (tách controller riêng cho admin namespace) ────────
+// ── Sessions Management Controller (§2) ──────────────────────────────────────
+@ApiTags('Sessions')
+@Controller('me/sessions')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+export class SessionsController {
+  constructor(private readonly authService: AuthService) {}
+
+  private extractMeta(req: FastifyRequest) {
+    return {
+      platform: req.headers['x-platform'] as string,
+    };
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Lấy danh sách phiên đăng nhập của tôi' })
+  getSessions(@CurrentUser() user: User, @Req() req: FastifyRequest) {
+    return this.authService.getSessions(user.id, this.extractMeta(req));
+  }
+
+  @Delete(':sessionId')
+  @ApiOperation({ summary: 'Đóng một phiên đăng nhập theo ID' })
+  deleteSession(
+    @CurrentUser() user: User,
+    @Param('sessionId') sessionId: string,
+  ) {
+    return this.authService.deleteSession(user.id, sessionId);
+  }
+
+  @Delete()
+  @ApiOperation({ summary: 'Đóng tất cả các phiên ngoại trừ phiên hiện tại' })
+  deleteAllSessionsExceptCurrent(
+    @CurrentUser() user: User,
+    @Query('exceptCurrent') exceptCurrent?: boolean,
+  ) {
+    return this.authService.deleteAllSessionsExceptCurrent(user.id);
+  }
+}
+
+// ── Admin: Reset password ──────────────────────────────────────────────────
 @ApiTags('Admin / Accounts')
 @Controller('admin/accounts')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -152,23 +250,27 @@ export class AdminAccountController {
     return {
       correlationId: req.headers['x-correlation-id'] as string,
       platform: req.headers['x-platform'] as string,
-      ipHash: ip ? Buffer.from(ip).toString('base64url').slice(0, 16) : undefined,
+      ipHash: ip
+        ? Buffer.from(ip).toString('base64url').slice(0, 16)
+        : undefined,
     };
   }
 
   @Post(':userId/reset-password')
   @Roles(SystemRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '[Super Admin] Reset mật khẩu người dùng — cấp mật khẩu tạm' })
-  @ApiResponse({ status: 200, description: 'Mật khẩu tạm đã được cấp, session cũ đã thu hồi' })
-  @ApiResponse({ status: 403, description: 'Chỉ Super Admin được phép' })
-  @ApiResponse({ status: 404, description: 'Không tìm thấy người dùng' })
+  @ApiOperation({ summary: '[Super Admin] Reset mật khẩu người dùng' })
   adminResetPassword(
     @Param('userId') targetUserId: string,
     @Body() dto: AdminResetPasswordDto,
     @CurrentUser() actor: User,
     @Req() req: FastifyRequest,
   ) {
-    return this.authService.adminResetPassword(targetUserId, dto, actor.id, this.extractMeta(req));
+    return this.authService.adminResetPassword(
+      targetUserId,
+      dto,
+      actor.id,
+      this.extractMeta(req),
+    );
   }
 }

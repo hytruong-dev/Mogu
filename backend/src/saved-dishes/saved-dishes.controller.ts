@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -26,24 +27,28 @@ export class SavedDishesController {
   @ApiQuery({ name: 'cursor', required: false })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   list(
-    @CurrentUser('sub') userId: string,
+    @CurrentUser() user: any,
     @Query('cursor') cursor?: string,
     @Query('limit') limit?: number,
   ) {
+    const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
     return this.savedDishesService.list(userId, cursor, limit);
   }
 
+  @Put(':dishId')
   @Post(':dishId')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Lưu món (idempotent)' })
-  save(@CurrentUser('sub') userId: string, @Param('dishId') dishId: string) {
+  @ApiOperation({ summary: 'Lưu món (idempotent PUT/POST)' })
+  save(@CurrentUser() user: any, @Param('dishId') dishId: string) {
+    const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
     return this.savedDishesService.save(userId, dishId);
   }
 
   @Delete(':dishId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Bỏ lưu món (idempotent)' })
-  unsave(@CurrentUser('sub') userId: string, @Param('dishId') dishId: string) {
+  unsave(@CurrentUser() user: any, @Param('dishId') dishId: string) {
+    const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
     return this.savedDishesService.unsave(userId, dishId);
   }
 }

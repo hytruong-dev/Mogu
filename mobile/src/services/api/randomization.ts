@@ -146,9 +146,14 @@ export async function getRandomizationContext(): Promise<RandomizationContext> {
 }
 
 /** BA-006 §4.2 — Random món ăn */
-export async function randomizeDish(dto: RandomizationRequestDto): Promise<RandomizationResult> {
+export async function randomizeDish(
+  dto: RandomizationRequestDto,
+  idempotencyKey?: string,
+): Promise<RandomizationResult> {
+  const key = idempotencyKey ?? `rand-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   return apiRequest<RandomizationResult>('/dish-randomizations', {
     method: 'POST',
+    headers: { 'Idempotency-Key': key },
     body: JSON.stringify(dto),
   });
 }

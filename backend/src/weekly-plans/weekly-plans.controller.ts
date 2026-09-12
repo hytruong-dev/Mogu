@@ -43,6 +43,15 @@ export class WeeklyPlansController {
     return this.svc.listPlans(userId, query);
   }
 
+  @Get(':planId/generation')
+  @ApiOperation({ summary: 'Theo doi tien trinh sinh ke hoach' })
+  getGenerationStatus(
+    @CurrentUser('sub') userId: string,
+    @Param('planId') planId: string,
+  ) {
+    return this.svc.getGenerationStatus(planId, userId);
+  }
+
   @Get(':planId')
   @ApiOperation({ summary: 'Chi tiet ke hoach theo ID, slots grouped by day' })
   getById(@CurrentUser('sub') userId: string, @Param('planId') planId: string) {

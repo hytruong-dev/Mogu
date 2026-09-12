@@ -1,4 +1,4 @@
-﻿import { Module, DynamicModule } from '@nestjs/common';
+import { Module, DynamicModule } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
@@ -35,6 +35,7 @@ import { AiImportModule } from './ai-import/ai-import.module';
 import { WeeklyPlansModule } from './weekly-plans/weekly-plans.module';
 import { DishFileImportsModule } from './dish-file-imports/dish-file-imports.module';
 import { HealthModule } from './health/health.module';
+import { SettingsModule } from './settings/settings.module';
 import appConfig from './config/app.config';
 
 // Chá»‰ load BullMQ khi REDIS_URL Ä‘Æ°á»£c set rÃµ rÃ ng
@@ -121,6 +122,7 @@ const bullModules: DynamicModule[] = REDIS_URL
     WeeklyPlansModule,
     DishFileImportsModule,
     HealthModule,
+    SettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

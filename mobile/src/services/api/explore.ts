@@ -134,6 +134,18 @@ export const communityApi = {
     apiRequest(`/community/posts/${postId}/like`, { method: 'POST' }),
 
   /**
+   * PUT /v1/community/posts/:id/likes/me — explicit like
+   */
+  likePost: (postId: string): Promise<{ liked: boolean }> =>
+    apiRequest(`/community/posts/${postId}/likes/me`, { method: 'PUT' }),
+
+  /**
+   * DELETE /v1/community/posts/:id/likes/me — explicit unlike
+   */
+  unlikePost: (postId: string): Promise<{ liked: boolean }> =>
+    apiRequest(`/community/posts/${postId}/likes/me`, { method: 'DELETE' }),
+
+  /**
    * GET /v1/community/posts/:id/comments
    */
   listComments: (postId: string): Promise<PostComment[]> =>

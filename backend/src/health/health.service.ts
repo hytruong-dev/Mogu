@@ -26,8 +26,7 @@ export class HealthService {
     const fatG = meals.items.reduce((s, m) => s + (m.totals.fatG || 0), 0);
 
     const targetKcal = profile?.goalKcal ?? null;
-    const hasAny =
-      meals.items.length > 0 || water.totalMl > 0;
+    const hasAny = meals.items.length > 0 || water.totalMl > 0;
 
     const mealGroups = (['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'] as const).map((slot) => {
       const slotMeals = meals.items.filter((m) => m.mealSlot === slot);
@@ -66,6 +65,82 @@ export class HealthService {
         macros: meals.items.some((m) => m.totals.proteinG != null) ? 0.8 : 0,
         micronutrients: 0,
       },
+    };
+  }
+
+  async getCalendar(userId: string, monthParam?: string, timezone = 'Asia/Ho_Chi_Minh') {
+    const month = monthParam ?? new Date().toISOString().slice(0, 7);
+    const [yearStr, mStr] = month.split('-');
+    const year = parseInt(yearStr, 10);
+    const m = parseInt(mStr, 10);
+
+    const startDate = new Date(Date.UTC(year, m - 1, 1));
+    const endDate = new Date(Date.UTC(year, m, 1));
+
+    const mealLogs = await (this.prisma.db as any).diaryMealLog.findMany({
+      where: {
+        userId,
+        localDate: {
+          gte: startDate,
+          lt: endDate,
+        },
+      },
+      select: { localDate: true },
+    });
+
+    const waterLogs = await (this.prisma.db as any).waterLog.findMany({
+      where: {
+        userId,
+        localDate: {
+          gte: startDate,
+          lt: endDate,
+        },
+      },
+      select: { localDate: true },
+    });
+
+    const dateMap = new Map<string, { mealCount: number; waterCount: number }>();
+
+    for (const log of mealLogs) {
+      const dateStr = log.localDate.toISOString().slice(0, 10);
+      const existing = dateMap.get(dateStr) ?? { mealCount: 0, waterCount: 0 };
+      existing.mealCount++;
+      dateMap.set(dateStr, existing);
+    }
+
+    for (const log of waterLogs) {
+      const dateStr = log.localDate.toISOString().slice(0, 10);
+      const existing = dateMap.get(dateStr) ?? { mealCount: 0, waterCount: 0 };
+      existing.waterCount++;
+      dateMap.set(dateStr, existing);
+    }
+
+    const days: Array<{
+      localDate: string;
+      hasMealLog: boolean;
+      hasWaterLog: boolean;
+      completionRatio: number;
+    }> = [];
+
+    dateMap.forEach((val, dateStr) => {
+      const completionRatio = Math.min(
+        1.0,
+        (val.mealCount > 0 ? 0.7 : 0) + (val.waterCount > 0 ? 0.3 : 0),
+      );
+      days.push({
+        localDate: dateStr,
+        hasMealLog: val.mealCount > 0,
+        hasWaterLog: val.waterCount > 0,
+        completionRatio,
+      });
+    });
+
+    days.sort((a, b) => a.localDate.localeCompare(b.localDate));
+
+    return {
+      month,
+      timezone,
+      days,
     };
   }
 }
