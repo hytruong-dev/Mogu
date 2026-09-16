@@ -144,9 +144,14 @@ export class WeeklyPlanSwapService {
         data: {
           dishId: newDish.id,
           dishNameSnapshot: newDish.name,
-          imageUrlSnapshot: newDish.media?.[0]?.storageKey
-            ? `${process.env.SUPABASE_URL}/storage/v1/object/public/${newDish.media[0].bucket ?? 'dish-images'}/${newDish.media[0].storageKey}`
-            : null,
+          imageUrlSnapshot: (() => {
+            const key = newDish.media?.[0]?.storageKey;
+            if (!key) return null;
+            const base = (process.env.SUPABASE_URL ?? '').replace(/\/$/, '');
+            if (!base) return null;
+            const bucket = newDish.media[0].bucket ?? 'dish-images';
+            return `${base}/storage/v1/object/public/${bucket}/${key}`;
+          })(),
           priceSnapshotVnd: newPrice,
           kcalSnapshot: newKcal,
           proteinGSnapshot: mapped.proteinG ?? undefined,

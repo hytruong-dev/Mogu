@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   ArrowLeft,
@@ -23,6 +23,8 @@ import {
   Utensils,
   X,
 } from 'lucide-react-native';
+import { Input } from '../components/ui/input';
+import { Progress as UiProgress } from '../components/ui/progress';
 
 const C = {
   bg: '#FFF9E8',
@@ -40,6 +42,8 @@ const pho = require('../assets/images/random/pho-result.jpg');
 const rice = require('../assets/images/random/chao-ga.jpg');
 const bun = require('../assets/images/random/bun-rieu.jpg');
 const mascot = require('../assets/images/random/thumb.png');
+
+let mealSearchSeq = 0;
 
 function Header({
   title,
@@ -72,10 +76,16 @@ function DatePicker() {
   );
 }
 function Progress({ value, color = C.yellow }: { value: number; color?: string }) {
+  const indicatorClass =
+    color === C.blue
+      ? 'bg-blue-500'
+      : color === C.orange
+        ? 'bg-orange-500'
+        : color === '#34C759'
+          ? 'bg-green-500'
+          : 'bg-primary';
   return (
-    <View style={s.progress}>
-      <View style={[s.progressFill, { width: `${value}%`, backgroundColor: color }]} />
-    </View>
+    <UiProgress value={value} className="h-2.5 bg-[#F0E9D0]" indicatorClassName={indicatorClass} />
   );
 }
 
@@ -348,6 +358,7 @@ export function LogMealScreen({
   );
   const [searching, setSearching] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   const mealSlotMap: Record<string, 'BREAKFAST' | 'LUNCH' | 'DINNER' | 'SNACK'> = {
     'Bữa sáng': 'BREAKFAST',
@@ -358,24 +369,40 @@ export function LogMealScreen({
 
   const runSearch = async (q: string) => {
     setQuery(q);
+    setSearchError(null);
     if (!searchDishes || q.trim().length < 2) {
       setResults([]);
       return;
     }
+    const seq = ++mealSearchSeq;
     setSearching(true);
     try {
       const rows = await searchDishes(q.trim());
+      if (seq !== mealSearchSeq) return;
       setResults(
-        rows.map((d) => ({
-          id: d.id,
-          name: d.name,
-          kcal: d.nutritionProfiles?.[0]?.calories ?? null,
-        })),
+        (rows ?? []).map((d) => {
+          const rawKcal =
+            d.nutritionProfiles?.[0]?.calories ??
+            (d as any).nutrition?.calories ??
+            (d as any).calories ??
+            null;
+          const kcalNum =
+            rawKcal == null || rawKcal === ''
+              ? null
+              : Number(typeof rawKcal === 'object' ? (rawKcal as any).toString?.() ?? rawKcal : rawKcal);
+          return {
+            id: String(d.id),
+            name: String(d.name ?? 'Món ăn'),
+            kcal: Number.isFinite(kcalNum as number) ? (kcalNum as number) : null,
+          };
+        }),
       );
-    } catch {
+    } catch (e: any) {
+      if (seq !== mealSearchSeq) return;
       setResults([]);
+      setSearchError(e?.message ?? 'Không tìm được món.');
     } finally {
-      setSearching(false);
+      if (seq === mealSearchSeq) setSearching(false);
     }
   };
 
@@ -399,14 +426,15 @@ export function LogMealScreen({
         </View>
         <View style={s.search}>
           <Search color="#777" />
-          <TextInput
-            style={s.searchInput}
+          <Input
+            className="h-auto flex-1 border-0 bg-transparent p-0 shadow-none"
             placeholder="Tìm món ăn..."
             value={query}
             onChangeText={runSearch}
           />
         </View>
         {searching ? <Text style={s.meta}>Đang tìm...</Text> : null}
+        {searchError ? <Text style={[s.meta, { color: '#E53E3E' }]}>{searchError}</Text> : null}
         {results.map((r) => (
           <Pressable
             key={r.id}

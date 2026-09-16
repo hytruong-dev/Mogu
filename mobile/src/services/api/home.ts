@@ -46,10 +46,11 @@ export const homeApi = {
   getUnreadCount: () => apiRequest<UnreadCountResponse>('/notifications/unread-count'),
 
   // ─── 7. GET /notifications ────────────────────────────────────────────────────
-  getNotifications: (params?: { page?: number; limit?: number }) => {
+  getNotifications: (params?: { page?: number; limit?: number; cursor?: string }) => {
     const query = new URLSearchParams();
     if (params?.page) query.set('page', String(params.page));
     if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.cursor) query.set('cursor', params.cursor);
     const qs = query.toString();
     return apiRequest<NotificationListResponse>(`/notifications${qs ? `?${qs}` : ''}`);
   },
@@ -60,6 +61,18 @@ export const homeApi = {
       method: 'PATCH',
       body: '{}',
     }),
+
+  markAllNotificationsRead: () =>
+    apiRequest<{ updated: number }>('/notifications/read-all', { method: 'POST' }),
+
+  registerPushInstallation: (dto: { token: string; platform: string; appVersion?: string }) =>
+    apiRequest('/me/push-installations', {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    }),
+
+  unregisterPushInstallation: (id: string) =>
+    apiRequest(`/me/push-installations/${id}`, { method: 'DELETE' }),
 
   // ─── 9. GET /catalogs/goals ───────────────────────────────────────────────────
   getGoals: () => apiRequest<GoalCatalogResponse>('/catalogs/goals'),

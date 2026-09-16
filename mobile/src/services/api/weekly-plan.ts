@@ -10,6 +10,7 @@ import type {
   WeeklyPlanListResponse,
   WeeklyPlanSlotSwapDto,
   UpsertWeeklyPlanConfigDto,
+  DayIngredientsResponse,
 } from './types';
 
 // ── Config ─────────────────────────────────────────────────────────────────────
@@ -57,6 +58,15 @@ export async function getCurrentWeeklyPlan(): Promise<WeeklyPlan | null> {
 
 export async function getWeeklyPlanById(planId: string): Promise<WeeklyPlan> {
   return apiRequest<WeeklyPlan>(`/weekly-plans/${planId}`);
+}
+
+export async function getDayIngredients(
+  planId: string,
+  date: string,
+): Promise<DayIngredientsResponse> {
+  return apiRequest<DayIngredientsResponse>(
+    `/weekly-plans/${planId}/days/${date}/ingredients`,
+  );
 }
 
 export async function getWeeklyPlanGenerationStatus(planId: string): Promise<{

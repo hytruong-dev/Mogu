@@ -1,4 +1,4 @@
-﻿import {
+import {
   BadRequestException,
   Injectable,
   Logger,
@@ -22,7 +22,6 @@ import {
 const ALGORITHM_VERSION = 'rule-v2.0.0';
 const RECENT_EXCLUSION_DAYS = 7;
 
-// Đọc lazily để đảm bảo env đã được inject bởi NestJS ConfigModule
 function buildImageUrl(media: { storageKey?: string | null; bucket?: string | null } | undefined | null): string | null {
   if (!media?.storageKey) return null;
   const supabaseUrl = (process.env.SUPABASE_URL ?? '').replace(/\/$/, '');
@@ -31,11 +30,50 @@ function buildImageUrl(media: { storageKey?: string | null; bucket?: string | nu
   return `${supabaseUrl}/storage/v1/object/public/${bucket}/${media.storageKey}`;
 }
 
+type DishMediaRow = {
+  storageKey?: string | null;
+  bucket?: string | null;
+  isPrimary?: boolean;
+  moderationStatus?: string | null;
+};
+
+/** Ưu tiên primary + approved, rồi primary, rồi bất kỳ media có storageKey. */
+function pickDishMedia(media: DishMediaRow[] | undefined | null): DishMediaRow | null {
+  if (!media?.length) return null;
+  return (
+    media.find((m) => m.isPrimary && m.moderationStatus === 'APPROVED' && m.storageKey) ??
+    media.find((m) => m.isPrimary && m.storageKey) ??
+    media.find((m) => m.moderationStatus === 'APPROVED' && m.storageKey) ??
+    media.find((m) => !!m.storageKey) ??
+    null
+  );
+}
+
+/** Giờ địa phương Việt Nam (không phụ thuộc timezone máy chủ). */
+function vietnamHour(now = new Date()): number {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    hour: 'numeric',
+    hour12: false,
+  }).formatToParts(now);
+  const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
+  // en-GB + hour12:false can yield "24" for midnight in some engines
+  return hour === 24 ? 0 : hour;
+}
+
+/**
+ * Khung giờ gợi ý bữa (giờ VN):
+ * - Sáng: 05:00–10:00
+ * - Trưa: 10:00–14:00
+ * - Bữa phụ: 14:00–17:00
+ * - Tối: 17:00–24:00
+ * - Ngoài khung (00:00–05:00): ANY
+ */
 function inferMealSlot(hour: number): MealSlotEnum {
-  if (hour >= 6 && hour < 10) return MealSlotEnum.BREAKFAST;
+  if (hour >= 5 && hour < 10) return MealSlotEnum.BREAKFAST;
   if (hour >= 10 && hour < 14) return MealSlotEnum.LUNCH;
   if (hour >= 14 && hour < 17) return MealSlotEnum.SNACK;
-  if (hour >= 17 && hour < 22) return MealSlotEnum.DINNER;
+  if (hour >= 17 && hour <= 23) return MealSlotEnum.DINNER;
   return MealSlotEnum.ANY;
 }
 
@@ -99,7 +137,7 @@ export class RandomizationService {
       }),
     ]);
 
-    const currentHour = new Date().getHours();
+    const currentHour = vietnamHour();
     const currentMealSlot = inferMealSlot(currentHour);
 
     // Thống kê recent
@@ -144,7 +182,7 @@ export class RandomizationService {
       dto.meal?.slot ??
       (dto.mealTypeCode && Object.values(MealSlotEnum).includes(dto.mealTypeCode as MealSlotEnum)
         ? (dto.mealTypeCode as MealSlotEnum)
-        : inferMealSlot(new Date().getHours()));
+        : inferMealSlot(vietnamHour()));
 
     const goalCodes: string[] = dto.runtimeOverrides?.goalCodes ?? dto.goalCodes ?? [];
     const dietTypeCodes: string[] = dto.runtimeOverrides?.dietTypeCodes ?? dto.dietTypeCodes ?? [];
@@ -204,9 +242,14 @@ export class RandomizationService {
       mealTypes: { include: { mealTypeTag: { select: { name: true, code: true } } } },
       nutrition: true,
       media: {
-        where: { isPrimary: true, moderationStatus: 'APPROVED' as const },
-        select: { storageKey: true, bucket: true },
-        take: 1,
+        orderBy: [{ isPrimary: 'desc' as const }, { sortOrder: 'asc' as const }],
+        select: {
+          storageKey: true,
+          bucket: true,
+          isPrimary: true,
+          moderationStatus: true,
+        },
+        take: 5,
       },
       dishIngredients: {
         select: {
@@ -320,7 +363,7 @@ export class RandomizationService {
     }
 
     // ── Score ────────────────────────────────────────────────────────────────────
-    const currentHour = new Date().getHours();
+    const currentHour = vietnamHour();
     const scored = candidates.map((dish) => {
       const breakdown = this.scoreCandidate(dish, {
         goalCodes, currentHour, weatherCode, recentDishIds, budgetMax,
@@ -369,6 +412,17 @@ export class RandomizationService {
 
     // ── Save history ─────────────────────────────────────────────────────────────
     const durationMs = Date.now() - startMs;
+    const rawMealSource = dto.meal?.selectionSource;
+    const mealSelectionSource =
+      rawMealSource === 'USER_SELECTED' ||
+      rawMealSource === 'AUTO_TIME' ||
+      rawMealSource === 'PROFILE_DEFAULT' ||
+      rawMealSource === 'SYSTEM_DEFAULT'
+        ? rawMealSource
+        : rawMealSource === 'AUTO_SUGGESTED'
+          ? 'AUTO_TIME'
+          : 'AUTO_TIME';
+
     const history = await this.prisma.db.randomHistory.create({
       data: {
         userId,
@@ -380,7 +434,7 @@ export class RandomizationService {
         status: 'COMPLETED',
         source: source as any,
         mealSlot,
-        mealSelectionSource: dto.meal?.selectionSource ?? ('AUTO_TIME' as any),
+        mealSelectionSource: mealSelectionSource as any,
         budgetMode: budgetMode as any,
         budgetMinVnd: budgetMin ?? null,
         budgetMaxVnd: budgetMax ?? null,
@@ -410,7 +464,7 @@ export class RandomizationService {
     } catch (_) {}
 
     // ── Format dish ───────────────────────────────────────────────────────────────
-    const imageUrl = buildImageUrl(selected.dish.media?.[0]);
+    const imageUrl = buildImageUrl(pickDishMedia(selected.dish.media));
     const d = selected.dish as any;
     const nutrition = d.nutrition;
 
@@ -580,12 +634,42 @@ export class RandomizationService {
   // ══════════════════════════════════════════════════════════════════════════════
   // GET /me/random-history  (BA-006 §4.6)
   // ══════════════════════════════════════════════════════════════════════════════
+  private encodeHistoryCursor(createdAt: Date, id: string) {
+    return Buffer.from(`${createdAt.toISOString()}|${id}`, 'utf8').toString('base64url');
+  }
+
+  private decodeHistoryCursor(cursor?: string): { createdAt: Date; id: string } | null {
+    if (!cursor) return null;
+    try {
+      const raw = Buffer.from(cursor, 'base64url').toString('utf8');
+      const [iso, id] = raw.split('|');
+      if (!iso || !id) return null;
+      return { createdAt: new Date(iso), id };
+    } catch {
+      return null;
+    }
+  }
+
   async getHistory(userId: string, query: RandomHistoryQueryDto) {
     const take = Math.min(query.limit ?? 20, 50);
+    const decoded = this.decodeHistoryCursor(query.cursor);
+    const outcome = (query.outcome ?? '').toUpperCase();
+
     const where: Prisma.RandomHistoryWhereInput = {
       userId,
-      ...(query.cursor ? { id: { lt: query.cursor } } : {}),
-      ...(query.selectedOnly ? { isSelected: true } : {}),
+      ...(query.selectedOnly || outcome === 'SELECTED'
+        ? { isSelected: true }
+        : outcome === 'SKIPPED'
+          ? { isSelected: false }
+          : {}),
+      ...(decoded
+        ? {
+            OR: [
+              { createdAt: { lt: decoded.createdAt } },
+              { createdAt: decoded.createdAt, id: { lt: decoded.id } },
+            ],
+          }
+        : {}),
     };
 
     const rows = await this.prisma.db.randomHistory.findMany({
@@ -595,28 +679,74 @@ export class RandomizationService {
           select: {
             id: true, name: true, slug: true, status: true,
             media: {
-              where: { isPrimary: true, moderationStatus: 'APPROVED' },
-              select: { storageKey: true, bucket: true },
-              take: 1,
+              orderBy: [{ isPrimary: 'desc' as const }, { sortOrder: 'asc' as const }],
+              select: {
+                storageKey: true,
+                bucket: true,
+                isPrimary: true,
+                moderationStatus: true,
+              },
+              take: 5,
             },
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: take + 1,
     });
 
     const hasNextPage = rows.length > take;
     const data = hasNextPage ? rows.slice(0, take) : rows;
+    const last = data[data.length - 1];
 
     return {
       data: data.map((r) => ({
-        ...r,
+        id: r.id,
+        createdAt: r.createdAt,
+        outcome: r.isSelected ? 'SELECTED' : 'SKIPPED',
+        isSelected: r.isSelected,
+        mealSlot: r.mealSlot,
         dish: r.dish
-          ? { ...r.dish, imageUrl: buildImageUrl(r.dish.media?.[0]) }
+          ? { ...r.dish, imageUrl: buildImageUrl(pickDishMedia(r.dish.media)) }
           : null,
       })),
-      pageInfo: { nextCursor: hasNextPage ? data[data.length - 1]?.id : null, hasNextPage },
+      items: data.map((r) => ({
+        id: r.id,
+        createdAt: r.createdAt,
+        outcome: r.isSelected ? 'SELECTED' : 'SKIPPED',
+        isSelected: r.isSelected,
+        mealSlot: r.mealSlot,
+        dish: r.dish
+          ? { ...r.dish, imageUrl: buildImageUrl(pickDishMedia(r.dish.media)) }
+          : null,
+      })),
+      pageInfo: {
+        nextCursor:
+          hasNextPage && last
+            ? this.encodeHistoryCursor(last.createdAt, last.id)
+            : null,
+        hasNextPage,
+      },
+    };
+  }
+
+  async getHistorySummary(userId: string) {
+    const [total, selected, last7] = await Promise.all([
+      this.prisma.db.randomHistory.count({ where: { userId } }),
+      this.prisma.db.randomHistory.count({ where: { userId, isSelected: true } }),
+      this.prisma.db.randomHistory.count({
+        where: {
+          userId,
+          createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) },
+        },
+      }),
+    ]);
+    return {
+      totalRuns: total,
+      selectedCount: selected,
+      skippedCount: Math.max(total - selected, 0),
+      runsLast7Days: last7,
+      definitionVersion: 'random-history-summary-v1',
     };
   }
 
@@ -641,10 +771,10 @@ export class RandomizationService {
     // Time suitability 0-10
     const mealCodes: string[] = dish.mealTypes?.map((mt: any) => mt.mealTypeTag.code) ?? [];
     let timeSuitability = 5;
-    if (currentHour >= 6 && currentHour < 10 && mealCodes.includes('BREAKFAST')) timeSuitability = 10;
+    if (currentHour >= 5 && currentHour < 10 && mealCodes.includes('BREAKFAST')) timeSuitability = 10;
     if (currentHour >= 10 && currentHour < 14 && mealCodes.includes('LUNCH')) timeSuitability = 10;
-    if (currentHour >= 17 && currentHour < 22 && mealCodes.includes('DINNER')) timeSuitability = 10;
     if (currentHour >= 14 && currentHour < 17 && mealCodes.includes('SNACK')) timeSuitability = 10;
+    if (currentHour >= 17 && mealCodes.includes('DINNER')) timeSuitability = 10;
 
     // Popularity 0-10
     const popularity = dish.isFeatured ? 10 : 5;

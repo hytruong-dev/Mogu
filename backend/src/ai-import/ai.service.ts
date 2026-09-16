@@ -51,6 +51,26 @@ export interface AiNutritionResult {
   servingG: number;
 }
 
+/**
+ * Domain ẩm thực Việt uy tín — ưu tiên lấy ảnh món ăn từ đây.
+ * Có thể override qua env AI_IMPORT_IMAGE_TRUSTED_DOMAINS (phân cách bằng dấu phẩy).
+ */
+const DEFAULT_TRUSTED_VN_FOOD_DOMAINS = [
+  'vnexpress.net',        // VnExpress — chuyên mục Nấu ăn
+  'dienmayxanh.com',      // Vào bếp — thư viện công thức lớn nhất VN
+  'cooky.vn',             // Cộng đồng công thức Việt
+  'monngonmoingay.com',   // Món ngon mỗi ngày
+  'huongnghiepaau.com',   // Hướng Nghiệp Á Âu — công thức chuẩn
+];
+
+const envTrustedDomains = (process.env.AI_IMPORT_IMAGE_TRUSTED_DOMAINS ?? '')
+  .split(',')
+  .map((d) => d.trim())
+  .filter(Boolean);
+
+const TRUSTED_VN_FOOD_DOMAINS =
+  envTrustedDomains.length > 0 ? envTrustedDomains : DEFAULT_TRUSTED_VN_FOOD_DOMAINS;
+
 @Injectable()
 export class AiService implements AiImportProvider {
   private readonly logger = new Logger(AiService.name);
@@ -76,16 +96,16 @@ Từ khóa: ${(request.relatedKeywords ?? []).join(', ') || 'không có'}
 
 Taxonomy candidate được phép dùng:
 ${JSON.stringify({
-  regions: request.taxonomy.regions,
-  provinces: request.taxonomy.provinces,
-  categories: request.taxonomy.categories,
-  mealTypes: request.taxonomy.mealTypes,
-  goals: request.taxonomy.goals,
-  dietTypes: request.taxonomy.dietTypes,
-  flavors: request.taxonomy.flavors,
-  dishTypes: request.taxonomy.dishTypes,
-  units: request.taxonomy.units,
-})}
+      regions: request.taxonomy.regions,
+      provinces: request.taxonomy.provinces,
+      categories: request.taxonomy.categories,
+      mealTypes: request.taxonomy.mealTypes,
+      goals: request.taxonomy.goals,
+      dietTypes: request.taxonomy.dietTypes,
+      flavors: request.taxonomy.flavors,
+      dishTypes: request.taxonomy.dishTypes,
+      units: request.taxonomy.units,
+    })}
 
 Contract bắt buộc:
 {
@@ -246,27 +266,45 @@ Trả về JSON thuần (không có markdown):
    */
   /**
    * Tìm ảnh đại diện cho món ăn.
-   * Ưu tiên: Unsplash (nếu có key) → Wikipedia VI → Wikipedia EN → null
+   * Ưu tiên: Wikipedia VI/EN (EXACT title — tránh nhận bài sai topic)
+   *        → Tavily image search (giống Google Images, query tiếng Việt)
+   *        → Unsplash (chỉ nhận khi mô tả khớp ≥ 1 từ khóa)
+   *        → null (để admin tự chọn, còn hơn ảnh sai)
    */
   async searchDishImage(dishName: string): Promise<string | null> {
     // Chuẩn bị English query (chuẩn hơn cho Unsplash)
     const enQuery = this.toEnglishQuery(dishName);
 
-    // 1️⃣ Wikipedia VI — chính xác nhất vì bài viết khớp đúng tên món
-    const viImg = await this.searchWikipediaImage(dishName, 'vi');
+    // 1️⃣ Tavily giới hạn domain ẩm thực Việt uy tín (VnExpress, Điện máy Xanh...)
+    //    — ảnh từ bài công thức thật nên chuẩn nhất cho món Việt
+    const trustedImg = await this.searchTavilyImage(dishName, TRUSTED_VN_FOOD_DOMAINS);
+    if (trustedImg) {
+      this.logger.debug(`Using trusted VN food site image for "${dishName}"`);
+      return trustedImg;
+    }
+
+    // 2️⃣ Wikipedia VI — CHỈ nhận khi title khớp tên món (tránh vụ "Xôi mặn" → bài cá sấu)
+    const viImg = await this.searchWikipediaImageExact(dishName, 'vi');
     if (viImg) {
       this.logger.debug(`Using Wikipedia VI image for "${dishName}"`);
       return viImg;
     }
 
-    // 2️⃣ Wikipedia EN — dùng tên đã romanize/map
-    const enImg = await this.searchWikipediaImage(enQuery, 'en');
+    // 3️⃣ Wikipedia EN — exact title với tên đã romanize/map
+    const enImg = await this.searchWikipediaImageExact(enQuery, 'en');
     if (enImg) {
       this.logger.debug(`Using Wikipedia EN image for "${dishName}"`);
       return enImg;
     }
 
-    // 3️⃣ Unsplash — fallback cuối, tìm bằng English query cụ thể
+    // 4️⃣ Tavily toàn web — cho món không có trên các trang trusted
+    const tavilyImg = await this.searchTavilyImage(dishName);
+    if (tavilyImg) {
+      this.logger.debug(`Using Tavily image for "${dishName}"`);
+      return tavilyImg;
+    }
+
+    // 5️⃣ Unsplash — fallback cuối, tìm bằng English query cụ thể
     const unsplashKey = this.config.get<string>('UNSPLASH_ACCESS_KEY');
     if (unsplashKey) {
       try {
@@ -285,69 +323,112 @@ Trả về JSON thuần (không có markdown):
             }>;
           };
           const results = data.results ?? [];
-          // Ưu tiên ảnh có alt_description/description chứa từ khóa món ăn
-          const keywords = dishName.toLowerCase().split(' ');
+          // Score theo keyword của cả tên VI lẫn English query
+          const keywords = [
+            ...dishName.toLowerCase().split(' '),
+            ...enQuery.toLowerCase().split(' '),
+          ].filter(k => k.length > 2);
           const scored = results.map(r => {
             const desc = ((r.alt_description ?? '') + ' ' + (r.description ?? '')).toLowerCase();
             const score = keywords.filter(k => desc.includes(k)).length;
             return { img: r.urls?.regular, score };
           }).filter(r => r.img);
 
-          // Chọn ảnh có score cao nhất
+          // CHỈ nhận ảnh có score ≥ 1 — score 0 nghĩa là ảnh không liên quan
           scored.sort((a, b) => b.score - a.score);
-          const best = scored[0]?.img;
-          if (best) {
-            this.logger.debug(`Unsplash fallback: found for "${dishName}" (score: ${scored[0]?.score})`);
-            return best;
+          const best = scored.find(r => r.score >= 1);
+          if (best?.img) {
+            this.logger.debug(`Unsplash fallback: found for "${dishName}" (score: ${best.score})`);
+            return best.img;
           }
+          this.logger.debug(`Unsplash: no relevant match for "${dishName}" — skipping`);
         }
       } catch (e) {
         this.logger.warn(`Unsplash failed: ${(e as Error).message}`);
       }
     }
 
+    // Không tìm được ảnh đáng tin — trả null để admin tự chọn (tốt hơn ảnh sai)
+    this.logger.warn(`No trusted image found for "${dishName}"`);
     return null;
   }
 
-  private async searchWikipediaImage(query: string, lang: 'vi' | 'en'): Promise<string | null> {
+  /**
+   * Tavily image search — trả ảnh từ kết quả web thật (bài viết công thức,
+   * báo ẩm thực...) nên độ khớp cao với món Việt, kể cả món không có Wikipedia.
+   * @param includeDomains giới hạn tìm trong các domain uy tín (VD: VnExpress)
+   */
+  private async searchTavilyImage(
+    dishName: string,
+    includeDomains?: string[],
+  ): Promise<string | null> {
+    const tavilyKey = this.config.get<string>('TAVILY_API_KEY');
+    if (!tavilyKey) return null;
     try {
-      const q = encodeURIComponent(query);
-      // Bước 1: tìm tên bài chính xác nhất
-      const searchUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${q}&srlimit=1&format=json&origin=*`;
-      const searchRes = await fetch(searchUrl);
-      if (!searchRes.ok) return null;
-      const searchData = await searchRes.json() as {
-        query?: { search?: Array<{ title: string }> };
-      };
-      const title = searchData.query?.search?.[0]?.title;
-      if (!title) return null;
-
-      // Bước 2: lấy ảnh thumbnail của bài
-      const imgUrl = `https://${lang}.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(title)}&prop=pageimages&format=json&pithumbsize=800&origin=*`;
-      const imgRes = await fetch(imgUrl);
-      if (!imgRes.ok) return null;
-      const imgData = await imgRes.json() as {
-        query?: { pages?: Record<string, { thumbnail?: { source?: string } }> };
-      };
-      const pages = imgData.query?.pages ?? {};
-      const thumb = Object.values(pages)[0]?.thumbnail?.source;
-      if (thumb) {
-        this.logger.debug(`Wikipedia (${lang}): found image for "${query}"`);
-        return thumb;
+      const res = await fetch('https://api.tavily.com/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${tavilyKey}`,
+        },
+        body: JSON.stringify({
+          query: includeDomains
+            ? `cách làm món ${dishName}`
+            : `món ${dishName} Việt Nam`,
+          search_depth: 'basic',
+          include_images: true,
+          include_image_descriptions: true,
+          max_results: 3,
+          ...(includeDomains ? { include_domains: includeDomains } : {}),
+        }),
+      });
+      if (!res.ok) {
+        this.logger.warn(`Tavily image search HTTP ${res.status}`);
+        return null;
       }
+      const data = await res.json() as {
+        images?: Array<string | { url?: string; description?: string }>;
+      };
+      const images = (data.images ?? []).map((img) =>
+        typeof img === 'string'
+          ? { url: img, description: '' }
+          : { url: img.url ?? '', description: (img.description ?? '').toLowerCase() },
+      ).filter(i => i.url);
+      if (images.length === 0) return null;
+
+      // Score theo description (nếu có) — ưu tiên ảnh mô tả khớp tên món
+      const keywords = this.normalizeViet(dishName).split(' ').filter(k => k.length > 1);
+      const scored = images
+        .map(i => {
+          const desc = this.normalizeViet(i.description);
+          const score = keywords.filter(k => desc.includes(k)).length;
+          return { ...i, score };
+        })
+        .sort((a, b) => b.score - a.score);
+
+      // Có description → yêu cầu khớp ≥ 1 từ; không có description → tin kết quả đầu
+      const hasDescriptions = images.some(i => i.description);
+      const best = hasDescriptions ? scored.find(i => i.score >= 1) : scored[0];
+      return best?.url ?? null;
     } catch (e) {
-      this.logger.warn(`Wikipedia (${lang}) failed: ${(e as Error).message}`);
+      this.logger.warn(`Tavily image search failed: ${(e as Error).message}`);
+      return null;
     }
-    return null;
+  }
+
+  /** Bỏ dấu tiếng Việt + lowercase để so khớp từ khóa ổn định */
+  private normalizeViet(s: string): string {
+    return s
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd');
   }
 
   /** Map tên món Việt → Wikipedia article title + Unsplash query chính xác */
   /**
-   * Tìm ảnh NGUYÊN LIỆU — chuẩn xác cho food/cooking.
-   * Chiến lược mới:
-   *   1️⃣ Unsplash (scoring theo keyword) — chuẩn nhất cho thực phẩm
-   *   2️⃣ Wikipedia VI (exact title search — tránh nhận nhầm bài)
-   *   3️⃣ Wikipedia EN (exact title)
+   * @deprecated Prefer IngredientImageEnrichmentService / Wikimedia+Openverse queue.
+   * Kept only for legacy callers; do not write returned URLs as approved Ingredient.imageUrl.
    */
   async searchIngredientImage(ingredientName: string): Promise<string | null> {
     const enQuery = this.toEnglishIngredientQuery(ingredientName);
@@ -400,7 +481,10 @@ Trả về JSON thuần (không có markdown):
 
   /**
    * Wikipedia search với EXACT title check — tránh nhận bài sai topic.
-   * Chỉ trả ảnh nếu title tìm được chứa ít nhất 1 từ khóa chính.
+   * Điều kiện khớp (sau khi bỏ dấu + lowercase):
+   *   - Từ ĐẦU TIÊN của query (loại món: xôi/bún/cơm/phở...) phải có trong title
+   *   - VÀ ≥ 50% số từ của query xuất hiện trong title
+   * Ví dụ: "Xôi mặn" sẽ KHÔNG khớp "Cá sấu nước mặn" (thiếu "xôi").
    */
   private async searchWikipediaImageExact(query: string, lang: 'vi' | 'en'): Promise<string | null> {
     try {
@@ -414,11 +498,14 @@ Trả về JSON thuần (không có markdown):
       const results = searchData.query?.search ?? [];
       if (results.length === 0) return null;
 
-      // Verify: title phải chứa ít nhất 1 từ khóa chính của query
-      const queryWords = query.toLowerCase().split(' ').filter(w => w.length > 2);
+      // Verify: từ đầu tiên phải khớp + đa số từ khớp (so sánh không dấu)
+      const queryWords = this.normalizeViet(query).split(' ').filter(w => w.length > 1);
+      if (queryWords.length === 0) return null;
       const matchedTitle = results.find(r => {
-        const titleLower = r.title.toLowerCase();
-        return queryWords.some(w => titleLower.includes(w));
+        const titleNorm = this.normalizeViet(r.title);
+        if (!titleNorm.includes(queryWords[0])) return false;
+        const hits = queryWords.filter(w => titleNorm.includes(w)).length;
+        return hits / queryWords.length >= 0.5;
       });
       if (!matchedTitle) {
         this.logger.debug(`Wikipedia (${lang}): no exact title match for "${query}" (got: ${results[0]?.title})`);
@@ -568,7 +655,7 @@ Trả về JSON thuần (không có markdown):
     const romanized = name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/gi, 'd').trim();
     return `${romanized} food ingredient cooking`;
   }
-private toEnglishQuery(name: string): string {
+  private toEnglishQuery(name: string): string {
     const map: Array<{ keys: string[]; wiki: string }> = [
       // Phở
       { keys: ['phở bò'], wiki: 'Pho bo Vietnamese beef noodle soup' },

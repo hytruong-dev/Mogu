@@ -19,6 +19,7 @@ export function RegisterForm({ onLogin, onRegister, compact = false, className }
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -34,6 +35,7 @@ export function RegisterForm({ onLogin, onRegister, compact = false, className }
       !/\d/.test(password)
     )
       return setError('Mật khẩu cần ít nhất 8 ký tự, gồm chữ hoa, chữ thường và số.');
+    if (!acceptedTerms) return setError('Vui lòng đồng ý Điều khoản và Chính sách bảo mật.');
     setLoading(true);
     setError('');
     try {
@@ -87,7 +89,11 @@ export function RegisterForm({ onLogin, onRegister, compact = false, className }
         />
       </View>
       {error ? <Text className="mt-1 text-xs text-red-500">{error}</Text> : null}
-      <CheckboxRow className="mt-2.5" />
+      <CheckboxRow
+        className="mt-2.5"
+        checked={acceptedTerms}
+        onCheckedChange={setAcceptedTerms}
+      />
       <View className="mt-[11px]">
         <PrimaryButton
           label={loading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}

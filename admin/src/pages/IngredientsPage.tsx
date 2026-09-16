@@ -12,6 +12,7 @@ import { useFoodDataActions } from '../components/food-data/food-data-context'
 import { FoodDataPagination } from '../components/food-data/FoodDataPagination'
 import { HideConfirmDialog } from '../components/food-data/HideConfirmDialog'
 import { Button } from '../components/ui/button'
+import { TableSkeleton } from '../components/ui/page-skeleton'
 import {
   Dialog,
   DialogContent,
@@ -338,12 +339,34 @@ function IngredientDetailDrawer({
   onClose,
   onEdit,
   onHide,
+  onApprove,
+  onReject,
+  imageCandidates,
+  imageBusy,
+  onSearchImages,
+  onApproveCandidate,
 }: {
   item: Ingredient
   allergenLabel?: string
   onClose: () => void
   onEdit: () => void
   onHide: () => void
+  onApprove: () => void
+  onReject: () => void
+  imageCandidates: Array<{
+    id: string
+    provider: string
+    sourcePageUrl: string
+    author?: string | null
+    licenseCode: string
+    score: number
+    publicUrl?: string | null
+    previewUrl?: string | null
+    originalUrl: string
+  }>
+  imageBusy: boolean
+  onSearchImages: () => void
+  onApproveCandidate: (candidateId: string) => void
 }) {
   const synonyms = item.synonyms ?? []
   const visibleSynonyms = synonyms.slice(0, 4)
@@ -362,14 +385,14 @@ function IngredientDetailDrawer({
         <img className="fd-drawer-image" src={item.imageUrl} alt={item.name} />
       ) : (
         <div className="fd-drawer-image" style={{ display: 'grid', placeItems: 'center', fontSize: 48 }}>
-          🥦
+          —
         </div>
       )}
 
       <div className="fd-drawer-title-row">
         <h2>{item.name}</h2>
-        <span className={`fd-status ${item.isActive ? 'is-on' : 'is-off'}`}>
-          {item.isActive ? 'Hoạt động' : 'Đã ẩn'}
+        <span className={`fd-status ${item.status === 'PENDING_REVIEW' ? 'is-off' : item.isActive ? 'is-on' : 'is-off'}`}>
+          {item.status === 'PENDING_REVIEW' ? 'Cần duyệt' : item.isActive ? 'Hoạt động' : 'Đã ẩn'}
         </span>
       </div>
 
@@ -385,8 +408,12 @@ function IngredientDetailDrawer({
         <div className="fd-drawer-meta-row">
           <span>Dị ứng</span>
           <strong>
-            {allergenLabel ? <span className="fd-allergen-tag">{allergenLabel}</span> : '—'}
+            {allergenLabel ? <span className="fd-allergen-tag">{allergenLabel}</span> : 'Chưa xác minh'}
           </strong>
+        </div>
+        <div className="fd-drawer-meta-row">
+          <span>Ảnh</span>
+          <strong>{item.imageStatus || '—'}</strong>
         </div>
       </div>
 
@@ -401,6 +428,45 @@ function IngredientDetailDrawer({
           </div>
         </div>
       )}
+
+      <div className="fd-drawer-section">
+        <h4>Ảnh ứng viên</h4>
+        <Button type="button" variant="outline" disabled={imageBusy} onClick={onSearchImages}>
+          {imageBusy ? 'Đang tìm...' : 'Tìm lại ảnh'}
+        </Button>
+        <div style={{ display: 'grid', gap: 10, marginTop: 12 }}>
+          {imageCandidates.length === 0 && (
+            <p style={{ fontSize: 13, color: '#888', margin: 0 }}>Chưa có candidate.</p>
+          )}
+          {imageCandidates.map((c) => (
+            <div
+              key={c.id}
+              style={{
+                border: '1px solid #eee',
+                borderRadius: 10,
+                padding: 10,
+                display: 'flex',
+                gap: 10,
+                alignItems: 'center',
+              }}
+            >
+              <img
+                src={c.publicUrl || c.previewUrl || c.originalUrl}
+                alt=""
+                style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8 }}
+              />
+              <div style={{ flex: 1, minWidth: 0, fontSize: 12 }}>
+                <div><strong>{c.provider}</strong> · score {c.score}</div>
+                <div style={{ color: '#666' }}>{c.licenseCode}{c.author ? ` · ${c.author}` : ''}</div>
+                <a href={c.sourcePageUrl} target="_blank" rel="noreferrer">Nguồn</a>
+              </div>
+              <Button type="button" onClick={() => onApproveCandidate(c.id)} disabled={imageBusy}>
+                Chọn
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className="fd-drawer-section">
         <h4>Thông tin hệ thống</h4>
@@ -421,6 +487,21 @@ function IngredientDetailDrawer({
       </div>
 
       <div className="fd-drawer-footer">
+        {item.status === 'PENDING_REVIEW' && (
+          <>
+            <Button type="button" onClick={onApprove}>
+              Duyệt ACTIVE
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="text-red-600 border-red-200 hover:bg-red-50"
+              onClick={onReject}
+            >
+              Từ chối
+            </Button>
+          </>
+        )}
         <Button type="button" variant="outline" onClick={onEdit}>
           <Pencil size={14} /> Sửa nguyên liệu
         </Button>
@@ -444,12 +525,27 @@ export default function IngredientsPage({
   const [q, setQ] = useState('')
   const [filterAllergen, setFilterAllergen] = useState('')
   const [filterActive, setFilterActive] = useState<'all' | 'true' | 'false'>('all')
+  const [filterStatus, setFilterStatus] = useState<'all' | 'PENDING_REVIEW' | 'ACTIVE'>('all')
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [modalOpen, setModalOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<Ingredient | null>(null)
   const [detailItem, setDetailItem] = useState<Ingredient | null>(null)
   const [hideTarget, setHideTarget] = useState<Ingredient | null>(null)
+  const [imageCandidates, setImageCandidates] = useState<
+    Array<{
+      id: string
+      provider: string
+      sourcePageUrl: string
+      author?: string | null
+      licenseCode: string
+      score: number
+      publicUrl?: string | null
+      previewUrl?: string | null
+      originalUrl: string
+    }>
+  >([])
+  const [imageBusy, setImageBusy] = useState(false)
 
   const { data: allergens = [] } = useQuery({
     queryKey: ['admin-allergens'],
@@ -480,16 +576,36 @@ export default function IngredientsPage({
   }
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-ingredients', q, filterAllergen, filterActive, page, limit],
+    queryKey: ['admin-ingredients', q, filterAllergen, filterActive, filterStatus, page, limit],
     queryFn: () =>
       ingredientsApi.adminList({
         q: q || undefined,
         allergenCode: filterAllergen || undefined,
         isActive: filterActive === 'all' ? undefined : filterActive === 'true',
+        status: filterStatus === 'all' ? undefined : filterStatus,
         page,
         limit,
       }),
   })
+
+  useEffect(() => {
+    if (!detailItem?.id) {
+      setImageCandidates([])
+      return
+    }
+    let cancelled = false
+    void ingredientsApi
+      .listImageCandidates(detailItem.id)
+      .then((res) => {
+        if (!cancelled) setImageCandidates(res.candidates)
+      })
+      .catch(() => {
+        if (!cancelled) setImageCandidates([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [detailItem?.id])
 
   const createMut = useMutation({
     mutationFn: ingredientsApi.create,
@@ -619,9 +735,21 @@ export default function IngredientsPage({
                   setPage(1)
                 }}
               >
-                <option value="all">Tất cả trạng thái</option>
+                <option value="all">Tất cả (active)</option>
                 <option value="true">Hoạt động</option>
                 <option value="false">Đã ẩn</option>
+              </Select>
+              <Select
+                className="fd-filter-select"
+                value={filterStatus}
+                onChange={(e) => {
+                  setFilterStatus(e.target.value as 'all' | 'PENDING_REVIEW' | 'ACTIVE')
+                  setPage(1)
+                }}
+              >
+                <option value="all">Mọi status</option>
+                <option value="PENDING_REVIEW">Nguyên liệu cần duyệt</option>
+                <option value="ACTIVE">ACTIVE</option>
               </Select>
             </div>
           </div>
@@ -642,8 +770,8 @@ export default function IngredientsPage({
               <tbody>
                 {isLoading && (
                   <tr>
-                    <td colSpan={7} className="fd-empty">
-                      Đang tải...
+                    <td colSpan={7} className="fd-empty p-0">
+                      <TableSkeleton rows={5} cols={5} />
                     </td>
                   </tr>
                 )}
@@ -686,8 +814,12 @@ export default function IngredientsPage({
                         {allergenLabel ? <span className="fd-allergen-tag">{allergenLabel}</span> : '—'}
                       </td>
                       <td>
-                        <span className={`fd-status ${item.isActive ? 'is-on' : 'is-off'}`}>
-                          {item.isActive ? 'Hoạt động' : 'Đã ẩn'}
+                        <span className={`fd-status ${item.status === 'PENDING_REVIEW' ? 'is-off' : item.isActive ? 'is-on' : 'is-off'}`}>
+                          {item.status === 'PENDING_REVIEW'
+                            ? 'Cần duyệt'
+                            : item.isActive
+                              ? 'Hoạt động'
+                              : item.status || 'Đã ẩn'}
                         </span>
                       </td>
                       <td data-no-detail onClick={(e) => e.stopPropagation()}>
@@ -744,6 +876,42 @@ export default function IngredientsPage({
               setModalOpen(true)
             }}
             onHide={() => setHideTarget(detailItem)}
+            imageCandidates={imageCandidates}
+            imageBusy={imageBusy}
+            onApprove={async () => {
+              const updated = await ingredientsApi.approve(detailItem.id, {
+                allergenCode: detailItem.allergenCode,
+                synonyms: detailItem.synonyms,
+              })
+              setDetailItem({ ...detailItem, ...updated })
+              qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
+            }}
+            onReject={async () => {
+              const updated = await ingredientsApi.reject(detailItem.id)
+              setDetailItem({ ...detailItem, ...updated })
+              qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
+            }}
+            onSearchImages={async () => {
+              setImageBusy(true)
+              try {
+                await ingredientsApi.enqueueImageSearch(detailItem.id)
+                const res = await ingredientsApi.listImageCandidates(detailItem.id)
+                setImageCandidates(res.candidates)
+                setDetailItem({ ...detailItem, ...res.ingredient })
+              } finally {
+                setImageBusy(false)
+              }
+            }}
+            onApproveCandidate={async (candidateId) => {
+              setImageBusy(true)
+              try {
+                const updated = await ingredientsApi.setImage(detailItem.id, { candidateId })
+                setDetailItem({ ...detailItem, ...updated })
+                qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
+              } finally {
+                setImageBusy(false)
+              }
+            }}
           />
         )}
       </div>

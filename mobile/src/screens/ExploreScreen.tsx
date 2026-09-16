@@ -2,12 +2,10 @@ import { useRef, useState, type ReactNode } from 'react';
 import {
   Animated,
   Image,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -29,6 +27,17 @@ import {
   Utensils,
   X,
 } from 'lucide-react-native';
+import { Button } from '../components/ui/button';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from '../components/ui/drawer';
+import { Input } from '../components/ui/input';
+import { Text as UiText } from '../components/ui/text';
 
 const CREAM = '#FFF9E8';
 const WHITE = '#FFFFFF';
@@ -119,12 +128,12 @@ export function ExploreScreen({ onBack }: Props) {
         </Animated.View>
         <View style={styles.searchBox}>
           <Search size={22} color={SECONDARY} />
-          <TextInput
+          <Input
             value={query}
             onChangeText={setQuery}
             placeholder="Tìm món ăn, bài viết, địa điểm…"
             placeholderTextColor={MUTED}
-            style={styles.searchInput}
+            className="h-auto flex-1 border-0 bg-transparent p-0 shadow-none"
           />
         </View>
         <ScrollView
@@ -375,32 +384,35 @@ function CommunityCard({
 }
 function CreateSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.modalRoot}>
-        <Pressable style={styles.overlay} onPress={onClose} />
-        <View style={styles.createSheet}>
-          <View style={styles.sheetHandle} />
-          <View style={styles.sheetHeader}>
-            <Text style={styles.sheetTitle}>Tạo nội dung</Text>
-            <Pressable onPress={onClose}>
-              <X size={25} />
-            </Pressable>
-          </View>
-          <Text style={styles.sheetSub}>Chia sẻ điều thú vị của bạn với cộng đồng Mogu.</Text>
-          {[
-            ['Viết bài viết', <PenLine size={23} />],
-            ['Chia sẻ kết quả Random', <Sparkles size={23} />],
-            ['Đăng ảnh món ăn', <Utensils size={23} />],
-          ].map(([label, icon]) => (
-            <Pressable key={label as string} style={styles.createOption} onPress={onClose}>
-              <View style={styles.createIcon}>{icon as ReactNode}</View>
-              <Text style={styles.createLabel}>{label as string}</Text>
-              <ChevronRight size={20} color={MUTED} />
-            </Pressable>
-          ))}
+    <Drawer open={visible} onOpenChange={(open) => !open && onClose()} snapHeight={360}>
+      <DrawerHeader className="flex-row items-start justify-between px-5">
+        <View className="flex-1">
+          <DrawerTitle>Tạo nội dung</DrawerTitle>
+          <DrawerDescription>Chia sẻ điều thú vị của bạn với cộng đồng Mogu.</DrawerDescription>
         </View>
-      </View>
-    </Modal>
+        <DrawerClose onPress={onClose} />
+      </DrawerHeader>
+      <DrawerContent className="gap-2 px-4 pb-6">
+        {[
+          ['Viết bài viết', <PenLine size={23} key="pen" />],
+          ['Chia sẻ kết quả Random', <Sparkles size={23} key="spark" />],
+          ['Đăng ảnh món ăn', <Utensils size={23} key="food" />],
+        ].map(([label, icon]) => (
+          <Button
+            key={label as string}
+            variant="outline"
+            onPress={onClose}
+            className="h-14 justify-start gap-3 rounded-2xl px-3"
+          >
+            <View style={styles.createIcon}>{icon as ReactNode}</View>
+            <UiText className="flex-1 text-left font-semibold text-foreground">
+              {label as string}
+            </UiText>
+            <ChevronRight size={20} color={MUTED} />
+          </Button>
+        ))}
+      </DrawerContent>
+    </Drawer>
   );
 }
 

@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -48,6 +49,16 @@ export class CommunityController {
     @Body() dto: CreatePostDto,
   ) {
     return this.communityService.createPost(user.id, dto);
+  }
+
+  @Patch('posts/:id')
+  @ApiOperation({ summary: 'Cập nhật bài đăng của mình' })
+  updatePost(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: { id: string },
+    @Body() dto: { content?: string; imageUrls?: string[]; status?: string },
+  ) {
+    return this.communityService.updatePost(id, user.id, dto);
   }
 
   @Delete('posts/:id')
@@ -115,5 +126,65 @@ export class CommunityController {
     @CurrentUser() user: { id: string },
   ) {
     return this.communityService.deleteComment(id, commentId, user.id);
+  }
+
+  // ─── Follow / Save ────────────────────────────────────────────────────────
+  @Put('users/:userId/follow/me')
+  @ApiOperation({ summary: 'Theo dõi người dùng' })
+  followUser(
+    @Param('userId', ParseUUIDPipe) targetUserId: string,
+    @CurrentUser() user: any,
+  ) {
+    const userId = typeof user === 'string' ? user : (user.id ?? user.sub);
+    return this.communityService.followUser(userId, targetUserId);
+  }
+
+  @Delete('users/:userId/follow/me')
+  @ApiOperation({ summary: 'Bỏ theo dõi người dùng' })
+  unfollowUser(
+    @Param('userId', ParseUUIDPipe) targetUserId: string,
+    @CurrentUser() user: any,
+  ) {
+    const userId = typeof user === 'string' ? user : (user.id ?? user.sub);
+    return this.communityService.unfollowUser(userId, targetUserId);
+  }
+
+  @Put('posts/:id/saves/me')
+  @ApiOperation({ summary: 'Lưu bài đăng' })
+  savePost(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: any,
+  ) {
+    const userId = typeof user === 'string' ? user : (user.id ?? user.sub);
+    return this.communityService.savePost(userId, id);
+  }
+
+  @Delete('posts/:id/saves/me')
+  @ApiOperation({ summary: 'Bỏ lưu bài đăng' })
+  unsavePost(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: any,
+  ) {
+    const userId = typeof user === 'string' ? user : (user.id ?? user.sub);
+    return this.communityService.unsavePost(userId, id);
+  }
+}
+
+@ApiTags('me')
+@ApiBearerAuth()
+@Controller('me')
+export class MeCommunityController {
+  constructor(private readonly communityService: CommunityService) {}
+
+  @Get('saved-posts')
+  @ApiOperation({ summary: 'Danh sách bài đăng đã lưu' })
+  listSavedPosts(
+    @CurrentUser() user: any,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: number,
+    @Query('q') q?: string,
+  ) {
+    const userId = typeof user === 'string' ? user : (user.id ?? user.sub);
+    return this.communityService.listSavedPosts(userId, cursor, limit, q);
   }
 }

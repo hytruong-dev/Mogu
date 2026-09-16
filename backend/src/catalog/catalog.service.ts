@@ -70,4 +70,75 @@ export class CatalogService {
       allergens,
     };
   }
+
+  async getRegions(q?: string, limit = 20) {
+    const take = Math.min(Math.max(limit, 1), 50);
+    const items = await this.prisma.db.region.findMany({
+      where: {
+        isActive: true,
+        ...(q
+          ? {
+              OR: [
+                { name: { contains: q, mode: 'insensitive' } },
+                { code: { contains: q, mode: 'insensitive' } },
+              ],
+            }
+          : {}),
+      },
+      orderBy: { name: 'asc' },
+      take,
+      select: { id: true, code: true, name: true },
+    });
+    return {
+      version: CatalogService.CATALOG_VERSION,
+      items: items.map((r) => ({
+        ...r,
+        countryCode: 'VN',
+        parentId: null,
+        type: 'REGION',
+      })),
+    };
+  }
+
+  async getAllergens() {
+    const items = await this.prisma.db.allergen.findMany({
+      where: { active: true },
+      orderBy: { displayOrder: 'asc' },
+      select: { id: true, code: true, name: true, description: true, displayOrder: true },
+    });
+    return { version: CatalogService.CATALOG_VERSION, items };
+  }
+
+  async getDietaryPreferences(type?: string) {
+    const items = await this.prisma.db.dietaryPreference.findMany({
+      where: {
+        active: true,
+        ...(type ? { type: type.toUpperCase() as any } : {}),
+      },
+      orderBy: { displayOrder: 'asc' },
+      select: { id: true, code: true, type: true, name: true, displayOrder: true },
+    });
+    return { version: CatalogService.CATALOG_VERSION, items };
+  }
+
+  async getSelectionPriorities() {
+    try {
+      const items = await this.prisma.db.selectionPriorityCatalog.findMany({
+        where: { active: true },
+        orderBy: { displayOrder: 'asc' },
+        select: { id: true, code: true, name: true, description: true, displayOrder: true },
+      });
+      return { version: CatalogService.CATALOG_VERSION, items };
+    } catch {
+      return {
+        version: CatalogService.CATALOG_VERSION,
+        items: [
+          { id: null, code: 'PRICE', name: 'Giá cả', description: null, displayOrder: 1 },
+          { id: null, code: 'TIME', name: 'Thời gian', description: null, displayOrder: 2 },
+          { id: null, code: 'HEALTH', name: 'Sức khỏe', description: null, displayOrder: 3 },
+          { id: null, code: 'TASTE', name: 'Khẩu vị', description: null, displayOrder: 4 },
+        ],
+      };
+    }
+  }
 }

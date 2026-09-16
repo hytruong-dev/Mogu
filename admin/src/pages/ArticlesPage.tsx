@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { articlesAdminApi, topicsAdminApi, type Article, type Topic } from '../api/explore'
+import { TableSkeleton } from '../components/ui/page-skeleton'
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
   DRAFT: { label: 'Nháp', cls: 'bg-gray-100 text-gray-600' },
@@ -147,9 +148,7 @@ export default function ArticlesPage() {
 
       {/* Table */}
       {loading ? (
-        <div className="flex justify-center py-16">
-          <div className="w-8 h-8 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin" />
-        </div>
+        <TableSkeleton rows={6} cols={5} />
       ) : (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <table className="w-full">

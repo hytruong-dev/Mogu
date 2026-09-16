@@ -1,65 +1,35 @@
-import { TextInput, View, Text, type TextInputProps } from 'react-native'
-import type { ComponentType } from 'react'
-import type { LucideProps } from 'lucide-react-native'
-import { cn } from '../../lib/utils'
+import { cn } from '@/lib/utils';
+import * as React from 'react';
+import { Platform, TextInput } from 'react-native';
 
-interface InputProps extends TextInputProps {
-  label?: string
-  error?: string
-  /** Icon component (Lucide) hiển thị bên trái */
-  icon?: ComponentType<LucideProps>
-  leftIcon?: React.ReactNode
-  rightIcon?: React.ReactNode
-  /** Alias cho secureTextEntry */
-  secure?: boolean
-  containerClassName?: string
-  inputClassName?: string
-}
-
-export function Input({
-  label,
-  error,
-  icon: IconComponent,
-  leftIcon,
-  rightIcon,
-  secure,
-  containerClassName,
-  inputClassName,
-  editable = true,
-  secureTextEntry,
-  ...props
-}: InputProps) {
-  const renderLeftIcon = leftIcon ?? (IconComponent ? <IconComponent size={18} color="#A8A29E" /> : null)
-
+const Input = React.forwardRef<
+  React.ElementRef<typeof TextInput>,
+  React.ComponentProps<typeof TextInput>
+>(({ className, ...props }, ref) => {
   return (
-    <View className={cn('gap-1.5', containerClassName)}>
-      {label ? (
-        <Text className="text-sm font-medium text-foreground">{label}</Text>
-      ) : null}
-      <View
-        className={cn(
-          'flex-row items-center rounded-xl border border-border bg-card px-3.5',
-          'min-h-[46px]',
-          error ? 'border-destructive' : '',
-          !editable && 'opacity-50',
-        )}
-      >
-        {renderLeftIcon ? <View className="mr-2">{renderLeftIcon}</View> : null}
-        <TextInput
-          className={cn(
-            'flex-1 text-base text-foreground py-2.5',
-            inputClassName,
-          )}
-          placeholderTextColor="#A8A29E"
-          editable={editable}
-          secureTextEntry={secure ?? secureTextEntry}
-          {...props}
-        />
-        {rightIcon ? <View className="ml-2">{rightIcon}</View> : null}
-      </View>
-      {error ? (
-        <Text className="text-xs text-destructive">{error}</Text>
-      ) : null}
-    </View>
-  )
-}
+    <TextInput
+      ref={ref}
+      className={cn(
+        'dark:bg-input/30 border-input bg-background text-foreground flex h-10 w-full min-w-0 flex-row items-center rounded-md border px-3 py-1 text-base leading-5 shadow-sm shadow-black/5 sm:h-9',
+        props.editable === false &&
+          cn(
+            'opacity-50',
+            Platform.select({ web: 'disabled:pointer-events-none disabled:cursor-not-allowed' }),
+          ),
+        Platform.select({
+          web: cn(
+            'placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground outline-none transition-[color,box-shadow] md:text-sm',
+            'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+            'aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive',
+          ),
+          native: 'placeholder:text-muted-foreground/50',
+        }),
+        className,
+      )}
+      {...props}
+    />
+  );
+});
+Input.displayName = 'Input';
+
+export { Input };

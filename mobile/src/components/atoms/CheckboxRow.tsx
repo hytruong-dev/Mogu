@@ -1,33 +1,42 @@
 import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { Check } from 'lucide-react-native';
+import { Checkbox } from '../ui/checkbox';
 import { cn } from '../../lib/utils';
 
-type Props = {
+export function CheckboxRow({
+  className,
+  checked,
+  onCheckedChange,
+}: {
   className?: string;
-};
+  checked?: boolean;
+  onCheckedChange?: (next: boolean) => void;
+}) {
+  const [internal, setInternal] = useState(false);
+  const isChecked = checked ?? internal;
 
-export function CheckboxRow({ className }: Props) {
-  const [checked, setChecked] = useState(false);
+  const toggle = () => {
+    const next = !isChecked;
+    if (checked === undefined) setInternal(next);
+    onCheckedChange?.(next);
+  };
 
   return (
-    <Pressable
-      className={cn('flex-row items-start gap-2.5', className)}
-      onPress={() => setChecked((v) => !v)}
-    >
-      <View
-        className={cn(
-          'w-5 h-5 rounded-md border-[1.5px] items-center justify-center mt-px',
-          checked ? 'bg-mogu-yellow border-[#E8B400]' : 'border-gray-400',
-        )}
-      >
-        {checked && <Check size={14} color="#111" strokeWidth={3} />}
-      </View>
+    <View className={cn('flex-row items-start gap-2.5', className)}>
+      <Checkbox
+        checked={isChecked}
+        onCheckedChange={(val) => {
+          if (checked === undefined) setInternal(val);
+          onCheckedChange?.(val);
+        }}
+      />
 
-      <Text className="flex-1 text-mogu-ink text-xs leading-[17px]">
-        Tôi đồng ý với <Text className="text-mogu-coral">Điều khoản sử dụng</Text> và{' '}
-        <Text className="text-mogu-coral">Chính sách bảo mật</Text>
-      </Text>
-    </Pressable>
+      <Pressable onPress={toggle} className="flex-1">
+        <Text className="text-mogu-ink text-xs leading-[17px]">
+          Tôi đồng ý với <Text className="text-mogu-coral font-medium">Điều khoản sử dụng</Text> và{' '}
+          <Text className="text-mogu-coral font-medium">Chính sách bảo mật</Text>
+        </Text>
+      </Pressable>
+    </View>
   );
 }

@@ -9,6 +9,9 @@ import { View, Text, ActivityIndicator } from 'react-native';
 import { Home, Compass, Shuffle, Heart, User } from 'lucide-react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { PortalHost } from '@rn-primitives/portal';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from './src/lib/query-client';
 
 import { SplashScreen } from './src/screens/SplashScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
@@ -19,10 +22,12 @@ import { ExploreScreenV2 as ExploreScreen } from './src/screens/ExploreScreenV2'
 import { HealthScreen } from './src/screens/HealthScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
 import { NotificationScreen } from './src/screens/NotificationScreen';
-import FoodDetailScreen from './src/screens/FoodDetailScreen';
+import DishDetailLoaderScreen from './src/screens/DishDetailLoaderScreen';
+import { DayIngredientsScreen } from './src/screens/DayIngredientsScreen';
 
 import { WeeklyPlanScreen } from './src/screens/WeeklyPlanScreen';
 import { EditPlanScreen } from './src/screens/EditPlanScreen';
+import { ScreenFadeTransition } from './src/components/ui/screen-transition';
 
 import { authApi } from './src/services/api/auth';
 import { getSession } from './src/services/api/storage';
@@ -34,9 +39,10 @@ type RootParamList = {
   Onboarding: undefined;
   Main: undefined;
   Notification: undefined;
-  FoodDetail: { dishId: string; title?: string };
+  FoodDetail: { dishId: string; title?: string; mealLabel?: string };
   WeeklyPlan: undefined;
   EditPlan: undefined;
+  DayIngredients: { planId: string; date: string; title?: string };
 };
 
 type AuthParamList = {
@@ -87,7 +93,7 @@ function AuthNavigator({ navigation }: { navigation: any }) {
   );
 
   return (
-    <AuthNav.Navigator screenOptions={{ headerShown: false }}>
+    <AuthNav.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
       <AuthNav.Screen name="Login">
         {({ navigation: authNav }) => (
           <LoginScreen
@@ -128,15 +134,17 @@ function MainNavigator({ navigation }: { navigation: any }) {
         }}
       >
         {({ navigation: tabNav }) => (
-          <HomeScreen
-            onRandom={() => tabNav.navigate('Random')}
-            onExplore={() => tabNav.navigate('Explore')}
-            onHealth={() => tabNav.navigate('Health')}
-            onProfile={() => tabNav.navigate('Profile')}
-            onNotification={() => navigation.navigate('Notification')}
-            onWeeklyPlan={() => navigation.navigate('WeeklyPlan')}
-            onEditPlan={() => navigation.navigate('EditPlan')}
-          />
+          <ScreenFadeTransition>
+            <HomeScreen
+              onRandom={() => tabNav.navigate('Random')}
+              onExplore={() => tabNav.navigate('Explore')}
+              onHealth={() => tabNav.navigate('Health')}
+              onProfile={() => tabNav.navigate('Profile')}
+              onNotification={() => navigation.navigate('Notification')}
+              onWeeklyPlan={() => navigation.navigate('WeeklyPlan')}
+              onEditPlan={() => navigation.navigate('EditPlan')}
+            />
+          </ScreenFadeTransition>
         )}
       </MainTab.Screen>
 
@@ -148,12 +156,14 @@ function MainNavigator({ navigation }: { navigation: any }) {
         }}
       >
         {({ navigation: tabNav }) => (
-          <ExploreScreen
-            onBack={() => tabNav.navigate('Home')}
-            onHealth={() => tabNav.navigate('Health')}
-            onProfile={() => tabNav.navigate('Profile')}
-            onRandom={() => tabNav.navigate('Random')}
-          />
+          <ScreenFadeTransition>
+            <ExploreScreen
+              onBack={() => tabNav.navigate('Home')}
+              onHealth={() => tabNav.navigate('Health')}
+              onProfile={() => tabNav.navigate('Profile')}
+              onRandom={() => tabNav.navigate('Random')}
+            />
+          </ScreenFadeTransition>
         )}
       </MainTab.Screen>
 
@@ -165,7 +175,9 @@ function MainNavigator({ navigation }: { navigation: any }) {
         }}
       >
         {({ navigation: tabNav }) => (
-          <RandomFlowScreen onClose={() => tabNav.navigate('Home')} />
+          <ScreenFadeTransition>
+            <RandomFlowScreen onClose={() => tabNav.navigate('Home')} />
+          </ScreenFadeTransition>
         )}
       </MainTab.Screen>
 
@@ -177,12 +189,14 @@ function MainNavigator({ navigation }: { navigation: any }) {
         }}
       >
         {({ navigation: tabNav }) => (
-          <HealthScreen
-            onHome={() => tabNav.navigate('Home')}
-            onExplore={() => tabNav.navigate('Explore')}
-            onRandom={() => tabNav.navigate('Random')}
-            onProfile={() => tabNav.navigate('Profile')}
-          />
+          <ScreenFadeTransition>
+            <HealthScreen
+              onHome={() => tabNav.navigate('Home')}
+              onExplore={() => tabNav.navigate('Explore')}
+              onRandom={() => tabNav.navigate('Random')}
+              onProfile={() => tabNav.navigate('Profile')}
+            />
+          </ScreenFadeTransition>
         )}
       </MainTab.Screen>
 
@@ -194,12 +208,18 @@ function MainNavigator({ navigation }: { navigation: any }) {
         }}
       >
         {({ navigation: tabNav }) => (
-          <ProfileScreen
-            onHome={() => tabNav.navigate('Home')}
-            onExplore={() => tabNav.navigate('Explore')}
-            onRandom={() => tabNav.navigate('Random')}
-            onHealth={() => tabNav.navigate('Health')}
-          />
+          <ScreenFadeTransition>
+            <ProfileScreen
+              onHome={() => tabNav.navigate('Home')}
+              onExplore={() => tabNav.navigate('Explore')}
+              onRandom={() => tabNav.navigate('Random')}
+              onHealth={() => tabNav.navigate('Health')}
+              onNotification={() => tabNav.getParent()?.navigate('Notification')}
+              onLoggedOut={() =>
+                tabNav.getParent()?.reset({ index: 0, routes: [{ name: 'Auth' }] })
+              }
+            />
+          </ScreenFadeTransition>
         )}
       </MainTab.Screen>
     </MainTab.Navigator>
@@ -247,7 +267,7 @@ function RootNavigator() {
       <Root.Screen
         name="FoodDetail"
         options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
-        component={FoodDetailScreen}
+        component={DishDetailLoaderScreen}
       />
       <Root.Screen
         name="Notification"
@@ -266,6 +286,26 @@ function RootNavigator() {
           <WeeklyPlanScreen
             onBack={() => navigation.goBack()}
             onEditPlan={() => navigation.navigate('EditPlan')}
+            onOpenDish={(dishId, title, mealLabel) =>
+              navigation.navigate('FoodDetail', { dishId, title, mealLabel })
+            }
+            onOpenIngredients={(planId, date, title) =>
+              navigation.navigate('DayIngredients', { planId, date, title })
+            }
+          />
+        )}
+      </Root.Screen>
+
+      <Root.Screen
+        name="DayIngredients"
+        options={{ animation: 'slide_from_right' }}
+      >
+        {({ navigation, route }) => (
+          <DayIngredientsScreen
+            planId={route.params.planId}
+            date={route.params.date}
+            title={route.params.title}
+            onBack={() => navigation.goBack()}
           />
         )}
       </Root.Screen>
@@ -290,13 +330,16 @@ function RootNavigator() {
 
 export default function App() {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
-        <StatusBar style="dark" />
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
+          <StatusBar style="dark" />
+          <NavigationContainer>
+            <RootNavigator />
+          </NavigationContainer>
+          <PortalHost />
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }

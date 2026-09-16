@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="512" height="512" viewBox="0 0 512 512" fill="none">
+  <title>Mogu Cooking — layered animated source</title>
+  <desc>Transparent, editable SVG with named layers and a seamless 2.4 second SMIL loop for Lottie Creator.</desc>
+
+  <defs>
+    <linearGradient id="moguYellow" x1="170" y1="190" x2="315" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE05A"/>
+      <stop offset="0.48" stop-color="#FFC51A"/>
+      <stop offset="1" stop-color="#F6A900"/>
+    </linearGradient>
+    <linearGradient id="panFill" x1="331" y1="270" x2="408" y2="346" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5B5D65"/>
+      <stop offset="1" stop-color="#232428"/>
+    </linearGradient>
+    <linearGradient id="hatFill" x1="220" y1="92" x2="252" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#F5EBDD"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 01. Ground shadow: separate so it can squash with the body. -->
+  <g id="ground-shadow" opacity=".28">
+    <ellipse cx="242" cy="448" rx="116" ry="17" fill="#A98C50">
+      <animate attributeName="rx" values="116;103;116;106;116" keyTimes="0;.25;.5;.75;1" dur="2.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values=".7;.45;.7;.5;.7" keyTimes="0;.25;.5;.75;1" dur="2.4s" repeatCount="indefinite"/>
+    </ellipse>
+  </g>
+
+  <!-- 02. Whole mascot bounce. Children remain independently editable. -->
+  <g id="mogu-character">
+    <animateTransform attributeName="transform" type="translate" values="0 0;0 -8;0 0;0 -6;0 0" keyTimes="0;.25;.5;.75;1" dur="2.4s" repeatCount="indefinite"/>
+
+    <g id="back-arm" transform="rotate(-22 176 326)">
+      <ellipse cx="176" cy="326" rx="66" ry="28" fill="url(#moguYellow)" stroke="#282018" stroke-width="7"/>
+      <animateTransform attributeName="transform" type="rotate" values="-22 176 326;-35 176 326;-22 176 326;-32 176 326;-22 176 326" keyTimes="0;.25;.5;.75;1" dur="2.4s" repeatCount="indefinite"/>
+    </g>
+
+    <g id="body">
+      <path d="M154 282C154 220 194 183 248 183C310 183 344 229 344 298V352C344 409 305 443 245 443C183 443 145 407 145 348L154 282Z" fill="url(#moguYellow)" stroke="#282018" stroke-width="8"/>
+      <ellipse cx="201" cy="239" rx="30" ry="15" fill="#FFF3A4" opacity=".42" transform="rotate(-25 201 239)"/>
+    </g>
+
+    <g id="left-foot">
+      <path d="M181 406C153 413 137 438 148 457C158 476 194 467 211 438L181 406Z" fill="url(#moguYellow)" stroke="#282018" stroke-width="7"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 190 416;-7 190 416;0 190 416;-5 190 416;0 190 416" keyTimes="0;.25;.5;.75;1" dur="2.4s" repeatCount="indefinite"/>
+    </g>
+    <g id="right-foot">
+      <path d="M274 412C300 416 320 440 311 459C301 478 265 469 247 441L274 412Z" fill="url(#moguYellow)" stroke="#282018" stroke-width="7"/>
+      <animateTransform attributeName="transform" type="rotate" values="0 269 416;6 269 416;0 269 416;4 269 416;0 269 416" keyTimes="0;.25;.5;.75;1" dur="2.4s" repeatCount="indefinite"/>
+    </g>
+
+    <g id="apron">
+      <path d="M174 326C201 308 282 309 314 328L321 430C285 450 196 449 161 426L174 326Z" fill="#29292E" stroke="#17171A" stroke-width="7"/>
+      <path d="M205 369H277V418C258 428 224 428 205 416V369Z" fill="#35363C" stroke="#17171A" stroke-width="5"/>
+      <path d="M151 348C190 367 294 367 332 346" stroke="#17171A" stroke-width="13" stroke-linecap="round"/>
+      <circle cx="188" cy="337" r="7" fill="#FFC51A" stroke="#17171A" stroke-width="3"/>
+      <circle cx="298" cy="337" r="7" fill="#FFC51A" stroke="#17171A" stroke-width="3"/>
+    </g>
+
+    <!-- Hat components are grouped for a delayed soft bounce. -->
+    <g id="chef-hat">
+      <animateTransform attributeName="transform" type="translate" values="0 0;0 -3;0 1;0 -2;0 0" keyTimes="0;.30;.55;.80;1" dur="2.4s" repeatCount="indefinite"/>
+      <rect x="188" y="153" width="120" height="60" rx="25" fill="url(#hatFill)" stroke="#282018" stroke-width="7"/>
+      <circle cx="196" cy="145" r="40" fill="url(#hatFill)" stroke="#282018" stroke-width="7"/>
+      <circle cx="246" cy="122" r="48" fill="url(#hatFill)" stroke="#282018" stroke-width="7"/>
+      <circle cx="295" cy="145" r="40" fill="url(#hatFill)" stroke="#282018" stroke-width="7"/>
+      <path d="M197 183H299" stroke="#E6D6C3" stroke-width="6" stroke-linecap="round"/>
+    </g>
+
+    <g id="face">
+      <g id="left-eye">
+        <ellipse cx="213" cy="268" rx="11" ry="17" fill="#282018"/>
+        <circle cx="209" cy="263" r="3.5" fill="white"/>
+        <animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 .12;1 1;1 1" keyTimes="0;.38;.42;.46;1" dur="2.4s" repeatCount="indefinite" additive="sum"/>
+      </g>
+      <g id="right-eye">
+        <ellipse cx="278" cy="268" rx="11" ry="17" fill="#282018"/>
+        <circle cx="274" cy="263" r="3.5" fill="white"/>
+        <animateTransform attributeName="transform" type="scale" values="1 1;1 1;1 .12;1 1;1 1" keyTimes="0;.38;.42;.46;1" dur="2.4s" repeatCount="indefinite" additive="sum"/>
+      </g>
+      <ellipse id="left-cheek" cx="187" cy="299" rx="18" ry="10" fill="#FF8155" opacity=".82"/>
+      <ellipse id="right-cheek" cx="304" cy="299" rx="18" ry="10" fill="#FF8155" opacity=".82"/>
+      <path id="mouth" d="M223 294C233 306 259 306 270 294C270 318 259 330 246 330C233 330 223 316 223 294Z" fill="#4A2018" stroke="#282018" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M232 315C241 308 253 308 262 315C258 323 253 326 246 326C240 326 235 322 232 315Z" fill="#FF6B59"/>
+    </g>
+
+    <!-- Spoon arm: pivot placed at the shoulder. -->
+    <g id="spoon-arm">
+      <animateTransform attributeName="transform" type="rotate" values="0 176 326;-10 176 326;4 176 326;-8 176 326;0 176 326" keyTimes="0;.25;.5;.75;1" dur="2.4s" repeatCount="indefinite"/>
+      <ellipse cx="184" cy="340" rx="60" ry="28" transform="rotate(15 184 340)" fill="url(#moguYellow)" stroke="#282018" stroke-width="7"/>
+      <g id="wooden-spoon" transform="rotate(-26 222 320)">
+        <rect x="213" y="267" width="18" height="126" rx="9" fill="#9B5A24" stroke="#542E14" stroke-width="5"/>
+        <ellipse cx="222" cy="260" rx="20" ry="28" fill="#B96E2E" stroke="#542E14" stroke-width="5"/>
+      </g>
+    </g>
+
+    <!-- Pan arm and pan use matching timing to preserve the grip. -->
+    <g id="pan-arm">
+      <animateTransform attributeName="transform" type="rotate" values="0 307 326;-15 307 326;0 307 326;-11 307 326;0 307 326" keyTimes="0;.25;.5;.75;1" dur="2.4s" repeatCount="indefinite"/>
+      <ellipse cx="324" cy="331" rx="61" ry="29" transform="rotate(-18 324 331)" fill="url(#moguYellow)" stroke="#282018" stroke-width="7"/>
+    </g>
+  </g>
+
+  <!-- 03. Pan is outside body group so it can travel farther than the character bounce. -->
+  <g id="frying-pan">
+    <animateTransform attributeName="transform" type="rotate" values="-5 363 307;-17 363 307;-5 363 307;-14 363 307;-5 363 307" keyTimes="0;.25;.5;.75;1" dur="2.4s" repeatCount="indefinite"/>
+    <ellipse cx="369" cy="302" rx="85" ry="31" fill="url(#panFill)" stroke="#17171A" stroke-width="7"/>
+    <ellipse cx="369" cy="291" rx="77" ry="16" fill="#70737C" stroke="#17171A" stroke-width="6"/>
+    <path d="M435 315L496 342" stroke="#27282D" stroke-width="22" stroke-linecap="round"/>
+    <path d="M439 310L494 334" stroke="#5A5C64" stroke-width="6" stroke-linecap="round" opacity=".5"/>
+  </g>
+
+  <!-- 04. Ingredients have individual arcs and spin. -->
+  <g id="tomato">
+    <ellipse cx="0" cy="0" rx="18" ry="12" fill="#F24A3F" stroke="#A92522" stroke-width="4"/>
+    <path d="M-4-11L0-18L5-11" fill="#4BAE52" stroke="#267D35" stroke-width="3"/>
+    <animateMotion path="M338 280 C315 194 326 154 360 145 C398 153 406 215 371 281" dur="2.4s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="rotate" values="0;360" dur="2.4s" repeatCount="indefinite" additive="sum"/>
+  </g>
+  <g id="herbs">
+    <path d="M0-19C17-12 22 3 5 18C-12 13-18-3 0-19Z" fill="#4FB451" stroke="#267D35" stroke-width="4"/>
+    <path d="M0-14L2 15" stroke="#267D35" stroke-width="3" stroke-linecap="round"/>
+    <animateMotion path="M377 282 C370 172 398 125 421 164 C441 199 423 248 396 284" dur="2.4s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="rotate" values="0;-300" dur="2.4s" repeatCount="indefinite" additive="sum"/>
+  </g>
+  <g id="carrot-slice">
+    <ellipse cx="0" cy="0" rx="16" ry="11" fill="#FF9C27" stroke="#C95C16" stroke-width="4"/>
+    <path d="M-9 0H9M0-7V7" stroke="#FFD66B" stroke-width="2" stroke-linecap="round"/>
+    <animateMotion path="M414 286 C455 221 452 180 421 166 C386 170 371 228 401 285" dur="2.4s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="rotate" values="0;420" dur="2.4s" repeatCount="indefinite" additive="sum"/>
+  </g>
+  <g id="noodles" stroke="#F2C65D" stroke-width="7" stroke-linecap="round" fill="none">
+    <path d="M345 266C355 246 367 250 376 266"/>
+    <path d="M363 270C375 244 390 248 400 270"/>
+    <animate attributeName="opacity" values="1;.75;1;.8;1" keyTimes="0;.25;.5;.75;1" dur="2.4s" repeatCount="indefinite"/>
+  </g>
+
+  <!-- 05. Alternating steam curls. -->
+  <g id="steam-01" stroke="white" stroke-width="9" stroke-linecap="round" fill="none">
+    <path d="M342 247C322 224 367 213 345 182C330 161 356 146 351 126"/>
+    <animateTransform attributeName="transform" type="translate" values="0 15;5 -30;0 15" keyTimes="0;.5;1" dur="2.4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;.8;0;0;.7;0" keyTimes="0;.18;.46;.52;.73;1" dur="2.4s" repeatCount="indefinite"/>
+  </g>
+  <g id="steam-02" stroke="white" stroke-width="8" stroke-linecap="round" fill="none">
+    <path d="M397 246C418 222 376 206 404 177C421 159 399 142 408 120"/>
+    <animateTransform attributeName="transform" type="translate" values="0 14;-5 -34;0 14" keyTimes="0;.5;1" dur="2.4s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0;.62;0;0;.75;0" keyTimes="0;.14;.4;.48;.7;1" dur="2.4s" repeatCount="indefinite"/>
+  </g>
+
+  <!-- 06. Energy sparks remain simple shape layers after import. -->
+  <g id="motion-sparks" fill="#FFC51A">
+    <path d="M101 264L76 248L89 278Z"/>
+    <path d="M116 230L95 205L104 241Z"/>
+    <path d="M459 182L482 163L470 194Z"/>
+    <animate attributeName="opacity" values=".45;1;.45;1;.45" keyTimes="0;.25;.5;.75;1" dur="2.4s" repeatCount="indefinite"/>
+  </g>
+</svg>

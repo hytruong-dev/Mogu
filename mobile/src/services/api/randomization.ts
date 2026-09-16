@@ -169,10 +169,10 @@ export async function retryRandomization(
   });
 }
 
-/** BA-006 §4.4 — Xác nhận chọn món */
+/** Docs 02 — Xác nhận chọn món (PUT selection) */
 export async function selectRandomization(randomizationId: string): Promise<{ success: boolean }> {
-  return apiRequest<{ success: boolean }>(`/dish-randomizations/${randomizationId}/select`, {
-    method: 'POST',
+  return apiRequest<{ success: boolean }>(`/dish-randomizations/${randomizationId}/selection`, {
+    method: 'PUT',
     body: JSON.stringify({}),
   });
 }
@@ -192,19 +192,35 @@ export async function recordRecommendationEvent(
 
 // ── Image URL helpers ──────────────────────────────────────────────────────────
 
-const storageBase = (
-  globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }
-).process?.env?.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, '');
-
 /**
  * Đảm bảo imageUrl luôn là URL đầy đủ khi có EXPO_PUBLIC_SUPABASE_URL.
  * Backend thường trả URL đầy đủ; path tương đối chỉ resolve khi env được cấu hình.
  */
 export function normalizeImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
-  if (url.startsWith('http')) return url;
-  if (url.startsWith('/storage') && storageBase) return `${storageBase}${url}`;
-  return url;
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+
+  const storageBase = (
+    (globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }).process?.env
+      ?.EXPO_PUBLIC_SUPABASE_URL ?? 'https://lkqvyvllmrbxgaoqrkhd.supabase.co'
+  ).replace(/\/$/, '');
+
+  if (trimmed.startsWith('/storage/')) {
+    return `${storageBase}${trimmed}`;
+  }
+  if (trimmed.startsWith('storage/')) {
+    return `${storageBase}/${trimmed}`;
+  }
+  if (trimmed.startsWith('dishes/')) {
+    return `${storageBase}/storage/v1/object/public/dish-images/${trimmed}`;
+  }
+  if (trimmed.startsWith('ingredient-images/') || trimmed.startsWith('ingredients/')) {
+    const subPath = trimmed.replace(/^ingredient-images\//, '');
+    return `${storageBase}/storage/v1/object/public/ingredient-images/${subPath}`;
+  }
+  return trimmed;
 }
 
 // ── Meal slot helpers ──────────────────────────────────────────────────────────

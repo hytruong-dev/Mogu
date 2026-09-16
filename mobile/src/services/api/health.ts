@@ -151,12 +151,30 @@ export const healthApi = {
     return apiRequest<{ items: Array<any> }>(`/me/measurements${qs ? `?${qs}` : ''}`);
   },
 
+  deleteMeasurement: (id: string) =>
+    apiRequest<{ deleted: boolean }>(`/me/measurements/${id}`, { method: 'DELETE' }),
+
   getHealthTarget: () => apiRequest<any>('/me/health-targets'),
 
   updateHealthTarget: (dto: any, version: number = 1) =>
     apiRequest('/me/health-targets', {
       method: 'PUT',
       headers: { 'If-Match': `"${version}"` },
+      body: JSON.stringify(dto),
+    }),
+
+  syncActivity: (dto: {
+    provider: string;
+    buckets: Array<{
+      type: string;
+      startAt: string;
+      endAt: string;
+      value: number;
+      dedupeKey?: string;
+    }>;
+  }) =>
+    apiRequest('/activity-sync', {
+      method: 'POST',
       body: JSON.stringify(dto),
     }),
 };

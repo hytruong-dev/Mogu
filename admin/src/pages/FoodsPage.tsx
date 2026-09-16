@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import {
@@ -26,6 +26,7 @@ import { useAdminDish, useAdminDishes, useCreateDish, useDeleteDish, useDishLife
 import { useCategories, useGoals, useMealTypes, useRegions } from '../hooks/useTaxonomy'
 import { useAuth } from '../providers/AuthProvider'
 import { TagSelect } from '../components/ui/tag-select'
+import { PageSkeleton, TableSkeleton } from '../components/ui/page-skeleton'
 import IngredientPicker from '../components/ui/ingredient-picker'
 import type { AdminDishQuery, RecipeStepPayload } from '../api/dishes'
 import { Textarea } from '../components/ui/textarea'
@@ -124,9 +125,7 @@ function VariantsSection({ dishId }: { dishId: string }) {
       .finally(() => setLoading(false))
   }, [dishId])
 
-  if (loading) return (
-    <div style={{ fontSize: 13, color: '#888', padding: '6px 0' }}>Đang tải biến thể...</div>
-  )
+  if (loading) return <TableSkeleton rows={2} cols={3} />
   if (variants.length === 0) return null
 
   return (
@@ -228,9 +227,8 @@ function DishDetailDialog({ dish, onClose, onEdit }: { dish: Dish; onClose: () =
 
           {/* Loading overlay */}
           {isLoading && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#888', fontSize: 13, padding: '4px 0' }}>
-              <div style={{ width: 16, height: 16, border: '2px solid #f0a500', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-              Đang tải chi tiết...
+            <div style={{ padding: '8px 0' }}>
+              <TableSkeleton rows={2} cols={3} />
             </div>
           )}
 
@@ -669,8 +667,22 @@ const CREATE_TABS = [
 ] as const
 type CreateTab = typeof CREATE_TABS[number]['id']
 
-interface IngredientRow { _id: number; name: string; ingredientId?: string; quantity: string; unit: string }
-const emptyIngredient = (): IngredientRow => ({ _id: Date.now() + Math.random(), name: '', ingredientId: undefined, quantity: '', unit: 'g' })
+interface IngredientRow {
+  _id: number
+  name: string
+  ingredientId?: string
+  ingredientImageUrl?: string
+  ingredientStatus?: string
+  quantity: string
+  unit: string
+}
+const emptyIngredient = (): IngredientRow => ({
+  _id: Date.now() + Math.random(),
+  name: '',
+  ingredientId: undefined,
+  quantity: '',
+  unit: 'g',
+})
 
 
 
@@ -756,7 +768,9 @@ function EditDishModal({
       setIngredients(raw.map(ing => ({
         _id: Date.now() + Math.random(),
         name: ing.rawText ?? ing.ingredient?.name ?? '',
-        ingredientId: ing.ingredientId ?? undefined,
+        ingredientId: ing.ingredient?.id ?? ing.ingredientId ?? undefined,
+        ingredientImageUrl: ing.ingredient?.imageUrl ?? undefined,
+        ingredientStatus: ing.ingredient?.status,
         quantity: String(ing.quantity ?? ''),
         unit: ing.unit ?? 'g',
       })))
@@ -892,7 +906,15 @@ function EditDishModal({
       // Build ingredients
       const ingredientPayload = ingredients
         .filter(i => i.name.trim())
-        .map((i, idx) => ({ rawText: i.name.trim(), quantity: i.quantity ? Number(i.quantity) : undefined, unit: i.unit || undefined, sortOrder: idx + 1 }))
+        .map((i, idx) => ({
+          clientRef: `foods-${i._id}`,
+          rawText: i.name.trim(),
+          canonicalNameCandidate: i.name.trim(),
+          quantity: i.quantity ? Number(i.quantity) : undefined,
+          unit: i.unit || undefined,
+          ingredientId: i.ingredientId,
+          sortOrder: idx + 1,
+        }))
 
       // Build recipeSteps
       const stepsPayload = recipeSteps
@@ -903,6 +925,7 @@ function EditDishModal({
         id: dish.id,
         dto: {
           name: form.name,
+          createMissingIngredients: true,
           shortDescription: form.shortDescription || undefined,
           fullDescription: (form as any).fullDescription || undefined,
           difficulty: form.difficulty,
@@ -1155,7 +1178,25 @@ function EditDishModal({
                       <IngredientPicker
                         value={ing.name}
                         ingredientId={ing.ingredientId}
-                        onChange={(name, ingredient) => updateIngredient(ing._id, { name, ingredientId: ingredient?.id })}
+                        ingredientImageUrl={ing.ingredientImageUrl}
+                        ingredientStatus={ing.ingredientStatus as any}
+                        resolutionStatus={
+                          ing.ingredientId
+                            ? ing.ingredientStatus === 'PENDING_REVIEW'
+                              ? 'PENDING_REVIEW'
+                              : 'LINKED'
+                            : ing.name.trim()
+                              ? 'NOT_FOUND'
+                              : 'EMPTY'
+                        }
+                        onChange={(name, ingredient) =>
+                          updateIngredient(ing._id, {
+                            name,
+                            ingredientId: ingredient?.id,
+                            ingredientImageUrl: ingredient?.imageUrl,
+                            ingredientStatus: ingredient?.status,
+                          })
+                        }
                         placeholder="Tìm nguyên liệu..."
                       />
                       <Input placeholder="Số lượng" value={ing.quantity} onChange={(e) => updateIngredient(ing._id, { quantity: e.target.value })} style={{ flex: 1 }} />
@@ -1508,9 +1549,8 @@ function OpenEditById({
   const { data: dish, isLoading } = useAdminDish(dishId)
   if (isLoading) return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 400, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ background: '#fff', borderRadius: 16, padding: '32px 48px', textAlign: 'center' }}>
-        <div style={{ fontSize: 32, marginBottom: 12 }}>⏳</div>
-        <p>Đang tải dữ liệu món ăn...</p>
+      <div style={{ background: '#fff', borderRadius: 16, width: 'min(520px, 92vw)', overflow: 'hidden' }}>
+        <PageSkeleton rows={5} withAvatar />
       </div>
     </div>
   )
@@ -1688,7 +1728,7 @@ export default function FoodsPage() {
           </div>
         )}
         {isLoading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Đang tải...</div>
+          <TableSkeleton rows={8} cols={6} />
         ) : (
           <table>
             <thead>

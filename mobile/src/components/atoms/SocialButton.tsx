@@ -1,6 +1,7 @@
 import { type ComponentType } from 'react';
-import { Pressable, Text } from 'react-native';
 import { type LucideProps } from 'lucide-react-native';
+import { Button } from '../ui/button';
+import { Text } from '../ui/text';
 import { cn } from '../../lib/utils';
 
 type Props = {
@@ -21,17 +22,14 @@ export function SocialButton({
   onPress,
 }: Props) {
   return (
-    <Pressable
+    <Button
+      variant="outline"
       onPress={onPress}
       className={cn(
-        'flex-1 min-w-0 border border-gray-400 bg-white rounded-[14px]',
-        'flex-row items-center justify-center',
+        'min-w-0 flex-1 rounded-[14px] border-gray-400 bg-white',
         compact ? 'h-[47px] gap-2' : 'h-[50px] gap-2.5',
         className,
       )}
-      style={({ pressed }) => [
-        pressed && { transform: [{ scale: 0.98 }], backgroundColor: '#FAFAFA' },
-      ]}
     >
       {google ? (
         <Text className={cn('font-black text-[#4285F4]', compact ? 'text-xl' : 'text-[22px]')}>
@@ -40,10 +38,9 @@ export function SocialButton({
       ) : Icon ? (
         <Icon size={23} color="#050505" fill="#050505" />
       ) : null}
-
-      <Text className={cn('text-mogu-ink font-semibold', compact ? 'text-sm' : 'text-[15px]')}>
+      <Text className={cn('font-semibold text-foreground', compact ? 'text-sm' : 'text-[15px]')}>
         {label}
       </Text>
-    </Pressable>
+    </Button>
   );
 }

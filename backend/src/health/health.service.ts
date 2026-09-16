@@ -17,6 +17,13 @@ export class HealthService {
       select: { goalKcal: true },
     });
 
+    const healthTarget = await (this.prisma.db as any).healthTarget
+      .findFirst({
+        where: { userId },
+        orderBy: { updatedAt: 'desc' },
+      })
+      .catch(() => null);
+
     const meals = await this.mealLogs.list(userId, localDate, timezone);
     const water = await this.waterLogs.list(userId, localDate);
 
@@ -25,7 +32,8 @@ export class HealthService {
     const carbsG = meals.items.reduce((s, m) => s + (m.totals.carbsG || 0), 0);
     const fatG = meals.items.reduce((s, m) => s + (m.totals.fatG || 0), 0);
 
-    const targetKcal = profile?.goalKcal ?? null;
+    const targetKcal = healthTarget?.energyKcal ?? profile?.goalKcal ?? null;
+    const waterTargetMl = healthTarget?.waterMl ?? null;
     const hasAny = meals.items.length > 0 || water.totalMl > 0;
 
     const mealGroups = (['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'] as const).map((slot) => {
@@ -49,15 +57,29 @@ export class HealthService {
         burnedKcal: null,
       },
       macros: {
-        protein: { consumedG: hasAny ? proteinG : null, targetG: null },
-        carbs: { consumedG: hasAny ? carbsG : null, targetG: null },
-        fat: { consumedG: hasAny ? fatG : null, targetG: null },
+        protein: {
+          consumedG: hasAny ? proteinG : null,
+          targetG: healthTarget?.proteinG ?? null,
+        },
+        carbs: {
+          consumedG: hasAny ? carbsG : null,
+          targetG: healthTarget?.carbsG ?? null,
+        },
+        fat: {
+          consumedG: hasAny ? fatG : null,
+          targetG: healthTarget?.fatG ?? null,
+        },
       },
       water: {
         consumedMl: hasAny ? water.totalMl : null,
-        targetMl: 2000,
+        targetMl: waterTargetMl,
       },
-      steps: { count: null, target: null, source: null, syncedAt: null },
+      steps: {
+        count: null,
+        target: healthTarget?.steps ?? null,
+        source: null,
+        syncedAt: null,
+      },
       mealGroups,
       tips: [],
       coverage: {

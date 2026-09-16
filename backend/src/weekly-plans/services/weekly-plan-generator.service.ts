@@ -18,12 +18,13 @@ import {
   DEFAULT_KCAL_TOLERANCE,
 } from '../constants/weekly-plan-weights';
 
-const SUPABASE_URL = process.env.SUPABASE_URL ?? '';
-
+/** Lazy env read — module-load time is before Nest ConfigModule loads `.env.local`. */
 function buildStorageUrl(media: { bucket?: string; storageKey?: string } | null): string | null {
   if (!media?.storageKey) return null;
+  const supabaseUrl = (process.env.SUPABASE_URL ?? '').replace(/\/$/, '');
+  if (!supabaseUrl) return null;
   const bucket = media.bucket ?? 'dish-images';
-  return `${SUPABASE_URL}/storage/v1/object/public/${bucket}/${media.storageKey}`;
+  return `${supabaseUrl}/storage/v1/object/public/${bucket}/${media.storageKey}`;
 }
 
 interface DishCandidate {
@@ -173,26 +174,13 @@ export class WeeklyPlanGeneratorService {
       }
     }
 
-    // Prefetch counts → process hardest (fewest candidates) first
-    for (const task of slotTasks) {
-      const count = await this.prisma.db.dish.count({
-        where: this.eligibility.buildHardWhere(
-          {
-            allergenCodes: profileSnapshot.allergenCodes,
-            hardDietTypeCodes: profileSnapshot.hardDietTypeCodes,
-            avoidedIngredients: profileSnapshot.avoidedIngredients,
-          },
-          'weekly',
-          {
-            requirePrice: true,
-            mealTypeCodes: [SLOT_MEAL_TAG[task.slot], 'ANY'],
-            excludeDishIds: Array.from(recentDishIds),
-          },
-        ),
-      });
-      task.candidateCount = count;
-    }
-    slotTasks.sort((a, b) => a.candidateCount - b.candidateCount);
+    // Chronological order (day then slot) — avoid depleting one meal-type pool first
+    const SLOT_ORDER: WeeklyMealSlot[] = ['MORNING', 'LUNCH', 'DINNER', 'SNACK'];
+    slotTasks.sort((a, b) => {
+      const byDate = a.date.getTime() - b.date.getTime();
+      if (byDate !== 0) return byDate;
+      return SLOT_ORDER.indexOf(a.slot) - SLOT_ORDER.indexOf(b.slot);
+    });
 
     const chosenSlots: Array<{ task: SlotTask; dish: DishCandidate }> = [];
     const chosenDishIds = new Set<string>(recentDishIds);
@@ -200,11 +188,41 @@ export class WeeklyPlanGeneratorService {
     let remainingSlots = slotTasks.length;
     let tolerancePercent = Math.min(Math.max(config.calorieTolerancePercent, 0), 30);
 
+    // Preflight: published priced dishes under hard constraints
+    const hardPoolCount = await this.prisma.db.dish.count({
+      where: this.eligibility.buildHardWhere(
+        {
+          allergenCodes: profileSnapshot.allergenCodes,
+          hardDietTypeCodes: profileSnapshot.hardDietTypeCodes,
+          avoidedIngredients: profileSnapshot.avoidedIngredients,
+        },
+        'weekly',
+        { requirePrice: true },
+      ),
+    });
+    if (hardPoolCount === 0) {
+      await this.failPlan(planId, 'INSUFFICIENT_CANDIDATES', {
+        reason: 'EMPTY_CATALOG',
+        message: 'Không có món đã duyệt đủ giá trong kho.',
+        hardPoolCount: 0,
+        slotsNeeded: slotTasks.length,
+      });
+      return;
+    }
+
     for (const task of slotTasks) {
       const slotBudgetCap = Math.min(
         task.budgetVnd,
         Math.max(0, Math.floor(remainingBudget / Math.max(remainingSlots, 1))),
       );
+
+      // Same-day dishes already picked — always exclude to avoid duplicate in one day
+      const sameDayDishIds = new Set(
+        chosenSlots
+          .filter((c) => c.task.date.getTime() === task.date.getTime())
+          .map((c) => c.dish.id),
+      );
+      const uniqueExcludes = new Set([...chosenDishIds, ...sameDayDishIds]);
 
       let candidates = await this.queryCandidates(
         task.slot,
@@ -212,7 +230,7 @@ export class WeeklyPlanGeneratorService {
         task.kcal,
         tolerancePercent,
         profileSnapshot,
-        chosenDishIds,
+        uniqueExcludes,
         true,
       );
       const relaxations: string[] = [];
@@ -225,7 +243,7 @@ export class WeeklyPlanGeneratorService {
           task.kcal,
           tolerancePercent,
           profileSnapshot,
-          new Set(chosenSlots.map((c) => c.dish.id)),
+          new Set([...sameDayDishIds, ...chosenSlots.map((c) => c.dish.id)]),
           true,
         );
       }
@@ -242,12 +260,12 @@ export class WeeklyPlanGeneratorService {
           task.kcal,
           tolerancePercent,
           profileSnapshot,
-          new Set(chosenSlots.map((c) => c.dish.id)),
+          new Set([...sameDayDishIds, ...chosenSlots.map((c) => c.dish.id)]),
           true,
         );
       }
 
-      // Soft: drop meal type filter but KEEP hard eligibility + price
+      // Soft: drop meal type filter but KEEP hard eligibility + price + kcal band
       if (candidates.length === 0) {
         relaxations.push('meal_type');
         candidates = await this.queryCandidates(
@@ -256,18 +274,55 @@ export class WeeklyPlanGeneratorService {
           task.kcal,
           tolerancePercent,
           profileSnapshot,
-          new Set(chosenSlots.map((c) => c.dish.id)),
+          new Set([...sameDayDishIds, ...chosenSlots.map((c) => c.dish.id)]),
           true,
           true,
         );
       }
 
-      // Allow 1–2 candidates (do not require MIN_CANDIDATES)
+      // Soft: drop kcal band (ADR: kcal is soft) — still score by kcal fit
+      if (candidates.length === 0) {
+        relaxations.push('kcal_band');
+        candidates = await this.queryCandidates(
+          task.slot,
+          slotBudgetCap,
+          task.kcal,
+          tolerancePercent,
+          profileSnapshot,
+          new Set([...sameDayDishIds, ...chosenSlots.map((c) => c.dish.id)]),
+          true,
+          true,
+          true,
+        );
+      }
+
+      // Soft: allow reuse across days when catalog < slots (keep same-day unique)
+      if (candidates.length === 0) {
+        relaxations.push('allow_reuse');
+        candidates = await this.queryCandidates(
+          task.slot,
+          slotBudgetCap,
+          task.kcal,
+          tolerancePercent,
+          profileSnapshot,
+          sameDayDishIds,
+          true,
+          true,
+          true,
+        );
+      }
+
       if (candidates.length === 0) {
         await this.failPlan(planId, 'INSUFFICIENT_CANDIDATES', {
+          reason: 'NO_DISH_FOR_SLOT',
           slot: task.slot,
           date: task.date,
           relaxations,
+          slotBudgetCap,
+          targetSlotKcal: task.kcal,
+          hardPoolCount,
+          slotsNeeded: slotTasks.length,
+          chosenSoFar: chosenSlots.length,
         });
         return;
       }
@@ -422,6 +477,7 @@ export class WeeklyPlanGeneratorService {
     excludeIds: Set<string>,
     applyExclusions: boolean,
     ignoreMealType = false,
+    ignoreKcalBand = false,
   ): Promise<DishCandidate[]> {
     const mealTag = SLOT_MEAL_TAG[slot];
     const kcalLo = targetKcal * (1 - tolerancePercent / 100);
@@ -436,7 +492,7 @@ export class WeeklyPlanGeneratorService {
       'weekly',
       {
         requirePrice: true,
-        maxPriceMin: budgetVnd,
+        maxPriceMin: budgetVnd > 0 ? budgetVnd : undefined,
         mealTypeCodes: ignoreMealType ? undefined : [mealTag, 'ANY'],
         excludeDishIds: applyExclusions && excludeIds.size > 0 ? Array.from(excludeIds) : undefined,
       },
@@ -446,12 +502,16 @@ export class WeeklyPlanGeneratorService {
       where: {
         AND: [
           hardWhere,
-          {
-            OR: [
-              { nutrition: { calories: { gte: kcalLo, lte: kcalHi } } },
-              { nutrition: null },
-            ],
-          },
+          ...(ignoreKcalBand
+            ? []
+            : [
+                {
+                  OR: [
+                    { nutrition: { calories: { gte: kcalLo, lte: kcalHi } } },
+                    { nutrition: null },
+                  ],
+                },
+              ]),
         ],
       },
       include: {
@@ -469,7 +529,6 @@ export class WeeklyPlanGeneratorService {
         const price = planPriceVnd(d.priceMin != null ? Number(d.priceMin) : null);
         if (price === null) return null;
 
-        const kcal = mapped.kcal ?? 0;
         const goalMatchScore =
           profile.goalCodes.length > 0
             ? d.dishGoals.filter((g) => profile.goalCodes.includes(g.goal.code)).length /
@@ -479,7 +538,7 @@ export class WeeklyPlanGeneratorService {
         const kcalFit = mapped.kcal != null
           ? this.calculator.kcalFitScore(mapped.kcal, targetKcal)
           : 0.3;
-        const budgetFit = this.calculator.budgetFitScore(price, budgetVnd);
+        const budgetFit = this.calculator.budgetFitScore(price, Math.max(budgetVnd, 1));
         const ratingNorm = Number(d.ratingAvg) / 5;
         const score = goalMatchScore * 0.3 + kcalFit * 0.25 + budgetFit * 0.2 + ratingNorm * 0.25;
 

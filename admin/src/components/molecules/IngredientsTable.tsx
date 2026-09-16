@@ -8,8 +8,20 @@ import { cn } from '@/lib/utils'
 
 export interface DishIngredientRow {
   id: number
+  clientRef: string
   name: string
   ingredientId?: string
+  ingredientImageUrl?: string
+  ingredientStatus?: 'PENDING_REVIEW' | 'ACTIVE' | 'INACTIVE' | 'REJECTED' | 'MERGED'
+  resolutionStatus:
+    | 'EMPTY'
+    | 'SEARCHING'
+    | 'LINKED'
+    | 'NOT_FOUND'
+    | 'PROVISIONING'
+    | 'PENDING_REVIEW'
+    | 'AMBIGUOUS'
+    | 'ERROR'
   qty: string
   unit: string
   prep: string
@@ -18,7 +30,9 @@ export interface DishIngredientRow {
 
 export const emptyDishIngredient = (): DishIngredientRow => ({
   id: Date.now() + Math.random(),
+  clientRef: `row-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
   name: '',
+  resolutionStatus: 'EMPTY',
   qty: '',
   unit: '',
   prep: '',
@@ -119,7 +133,7 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm nguyên liệu chuẩn hóa..."
+            placeholder="Lọc trong danh sách thành phần..."
             className="h-11 w-full rounded-xl border border-black/10 bg-white pl-10 pr-4 text-sm outline-none focus:border-mogu-yellow"
           />
         </div>
@@ -158,8 +172,26 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
                 <IngredientPicker
                   value={row.name}
                   ingredientId={row.ingredientId}
-                  onChange={(name, ingredient) =>
-                    update(row.id, { name, ingredientId: ingredient?.id, unit: ingredient?.unit || row.unit })
+                  ingredientImageUrl={row.ingredientImageUrl}
+                  ingredientStatus={row.ingredientStatus}
+                  resolutionStatus={row.resolutionStatus}
+                  onChange={(name, ingredient, meta) =>
+                    update(row.id, {
+                      name,
+                      ingredientId: ingredient?.id,
+                      ingredientImageUrl: ingredient?.imageUrl,
+                      ingredientStatus: ingredient?.status as DishIngredientRow['ingredientStatus'],
+                      resolutionStatus:
+                        meta?.resolutionStatus ??
+                        (ingredient?.id
+                          ? ingredient.status === 'PENDING_REVIEW'
+                            ? 'PENDING_REVIEW'
+                            : 'LINKED'
+                          : name.trim()
+                            ? 'NOT_FOUND'
+                            : 'EMPTY'),
+                      unit: ingredient?.unit || row.unit,
+                    })
                   }
                   placeholder="Tìm nguyên liệu..."
                   style={{ flex: 'unset', width: '100%' }}

@@ -33,7 +33,7 @@ export class WeeklyPlansService {
     private readonly generator: WeeklyPlanGeneratorService,
     private readonly mealLogs: MealLogsService,
     @Optional() @Inject(WEEKLY_PLAN_QUEUE_TOKEN) private readonly queue: Queue | null,
-  ) {}
+  ) { }
 
   // ── Config helpers ─────────────────────────────────────────────────────────
 
@@ -91,6 +91,21 @@ export class WeeklyPlansService {
       },
     });
 
+    // Minimal transactional outbox for generation tracking
+    await (this.prisma.db as any).outboxEvent
+      .create({
+        data: {
+          userId,
+          eventType: 'WEEKLY_PLAN_GENERATE',
+          aggregateId: plan.id,
+          payload: { planId: plan.id, startDate: dto.startDate },
+          status: 'PENDING',
+        },
+      })
+      .catch((err: Error) =>
+        this.logger.warn(`[WeeklyPlans] outbox create failed: ${err.message}`),
+      );
+
     // Enqueue generation job — nếu có Redis thì async, không có thì chạy đồng bộ ngay
     if (this.queue) {
       await this.queue.add(
@@ -110,8 +125,24 @@ export class WeeklyPlansService {
       this.logger.warn(`[WeeklyPlans] Redis not configured — running generator synchronously for plan ${plan.id}`);
       try {
         await this.generator.run(plan.id);
+        await (this.prisma.db as any).outboxEvent
+          .updateMany({
+            where: { aggregateId: plan.id, eventType: 'WEEKLY_PLAN_GENERATE' },
+            data: { status: 'PROCESSED', processedAt: new Date() },
+          })
+          .catch(() => null);
         this.logger.log(`[WeeklyPlans] Synchronous generation completed for plan ${plan.id}`);
       } catch (err) {
+        await (this.prisma.db as any).outboxEvent
+          .updateMany({
+            where: { aggregateId: plan.id, eventType: 'WEEKLY_PLAN_GENERATE' },
+            data: {
+              status: 'FAILED',
+              lastError: err instanceof Error ? err.message : String(err),
+              attempts: { increment: 1 },
+            },
+          })
+          .catch(() => null);
         this.logger.error(`[WeeklyPlans] Synchronous generation failed for plan ${plan.id}`, err);
       }
     }
@@ -165,6 +196,165 @@ export class WeeklyPlansService {
     }
 
     return this.formatPlan(plan);
+  }
+
+  /**
+   * Gom nguyên liệu các món trong 1 ngày của plan (bỏ slot SKIPPED).
+   * Gộp theo ingredientId hoặc tên chuẩn hóa; cộng dồn quantity cùng đơn vị.
+   */
+  async getDayIngredients(planId: string, userId: string, date: string) {
+    const plan = await this.prisma.db.weeklyPlan.findUnique({
+      where: { id: planId },
+      select: { id: true, userId: true },
+    });
+    if (!plan || plan.userId !== userId) {
+      throw new NotFoundException({ error: { code: WEEKLY_PLAN_ERRORS.PLAN_NOT_FOUND } });
+    }
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      throw new BadRequestException({
+        error: { code: 'INVALID_DATE', message: 'date must be YYYY-MM-DD' },
+      });
+    }
+
+    const dayStart = new Date(`${date}T00:00:00.000Z`);
+    const dayEnd = new Date(`${date}T23:59:59.999Z`);
+
+    const slots = await this.prisma.db.weeklyPlanSlot.findMany({
+      where: {
+        planId,
+        date: { gte: dayStart, lte: dayEnd },
+        status: { not: WeeklyPlanSlotStatus.SKIPPED },
+      },
+      select: {
+        mealSlot: true,
+        dishId: true,
+        dishNameSnapshot: true,
+      },
+      orderBy: { mealSlot: 'asc' },
+    });
+
+    const dishIds = [...new Set(slots.map((s) => s.dishId).filter(Boolean))] as string[];
+    if (dishIds.length === 0) {
+      return { date, planId, totalCount: 0, dishes: [], items: [] };
+    }
+
+    const rows = await this.prisma.db.dishIngredient.findMany({
+      where: { dishId: { in: dishIds } },
+      include: {
+        ingredient: {
+          select: { id: true, name: true, imageUrl: true, imageKey: true, unit: true },
+        },
+      },
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    const dishNameById = new Map(
+      slots.map((s) => [s.dishId, s.dishNameSnapshot] as const),
+    );
+
+    type Agg = {
+      key: string;
+      ingredientId: string | null;
+      name: string;
+      imageUrl: string | null;
+      quantity: number | null;
+      unit: string | null;
+      isOptional: boolean;
+      usedInDishes: string[];
+    };
+
+    const agg = new Map<string, Agg>();
+
+    for (const row of rows) {
+      const name =
+        row.ingredient?.name?.trim() ||
+        row.parsedName?.trim() ||
+        row.rawText.trim() ||
+        'Nguyên liệu';
+      const unit = row.unit ?? row.ingredient?.unit ?? null;
+      const qty = row.quantity != null ? Number(row.quantity) : null;
+      const keyBase = row.ingredientId ?? this.normalizeIngredientKey(name);
+      const key = `${keyBase}|${(unit ?? '').toLowerCase()}`;
+
+      const dishName = dishNameById.get(row.dishId) ?? 'Món';
+      const existing = agg.get(key);
+      if (!existing) {
+        agg.set(key, {
+          key,
+          ingredientId: row.ingredientId,
+          name,
+          imageUrl: this.buildIngredientImageUrl(
+            row.ingredient?.imageUrl,
+            row.ingredient?.imageKey,
+          ),
+          quantity: qty,
+          unit,
+          isOptional: row.isOptional,
+          usedInDishes: [dishName],
+        });
+      } else {
+        if (qty != null && existing.quantity != null) {
+          existing.quantity += qty;
+        } else if (qty != null && existing.quantity == null) {
+          existing.quantity = qty;
+        }
+        existing.isOptional = existing.isOptional && row.isOptional;
+        if (!existing.usedInDishes.includes(dishName)) {
+          existing.usedInDishes.push(dishName);
+        }
+        if (!existing.imageUrl) {
+          existing.imageUrl = this.buildIngredientImageUrl(
+            row.ingredient?.imageUrl,
+            row.ingredient?.imageKey,
+          );
+        }
+      }
+    }
+
+    const items = Array.from(agg.values())
+      .map(({ key: _k, ...rest }) => rest)
+      .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+
+    const dishes = slots.map((s) => ({
+      dishId: s.dishId,
+      mealSlot: s.mealSlot,
+      name: s.dishNameSnapshot,
+    }));
+
+    return {
+      date,
+      planId,
+      totalCount: items.length,
+      dishes,
+      items,
+    };
+  }
+
+  private normalizeIngredientKey(name: string): string {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  private buildIngredientImageUrl(
+    imageUrl: string | null | undefined,
+    imageKey: string | null | undefined,
+  ): string | null {
+    const base = (process.env.SUPABASE_URL ?? '').replace(/\/$/, '');
+    if (imageUrl) {
+      if (imageUrl.startsWith('http')) return imageUrl;
+      if (imageUrl.startsWith('/storage') && base) return `${base}${imageUrl}`;
+      if (base) return `${base}/storage/v1/object/public/ingredients/${imageUrl}`;
+    }
+    if (imageKey && base) {
+      return `${base}/storage/v1/object/public/ingredients/${imageKey}`;
+    }
+    return null;
   }
 
   async listPlans(userId: string, query: WeeklyPlanQueryDto) {
@@ -480,9 +670,28 @@ export class WeeklyPlansService {
 
   private buildImageUrl(storageKey: string | null | undefined, bucket: string | null | undefined): string | null {
     if (!storageKey) return null;
+    const base = (process.env.SUPABASE_URL ?? '').replace(/\/$/, '');
+    if (!base) return null;
     const b = bucket ?? 'dish-images';
-    const base = process.env.SUPABASE_URL ?? '';
     return `${base}/storage/v1/object/public/${b}/${storageKey}`;
+  }
+
+  /** Snapshot may be relative (`/storage/...`) if generated before SUPABASE_URL was available. */
+  private resolveSlotImageUrl(
+    snapshot: string | null | undefined,
+    storageKey: string | null | undefined,
+    bucket: string | null | undefined,
+  ): string | null {
+    if (snapshot) {
+      if (snapshot.startsWith('http://') || snapshot.startsWith('https://')) return snapshot;
+      if (snapshot.startsWith('/storage')) {
+        const base = (process.env.SUPABASE_URL ?? '').replace(/\/$/, '');
+        return base ? `${base}${snapshot}` : null;
+      }
+      // Treat bare storage key as storageKey
+      return this.buildImageUrl(snapshot, bucket);
+    }
+    return this.buildImageUrl(storageKey, bucket);
   }
 
   private formatPlan(plan: any) {
@@ -506,11 +715,11 @@ export class WeeklyPlansService {
         dish: {
           id: s.dishId,
           name: s.dishNameSnapshot,
-          imageUrl: s.imageUrlSnapshot
-            ?? this.buildImageUrl(
-                s.dish?.media?.[0]?.storageKey,
-                s.dish?.media?.[0]?.bucket,
-              ),
+          imageUrl: this.resolveSlotImageUrl(
+            s.imageUrlSnapshot,
+            s.dish?.media?.[0]?.storageKey,
+            s.dish?.media?.[0]?.bucket,
+          ),
           priceVnd: s.priceSnapshotVnd,
           kcal: s.kcalSnapshot,
           proteinG: s.proteinGSnapshot,

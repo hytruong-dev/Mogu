@@ -63,8 +63,13 @@ export class ArticlesService {
 
     return {
       data: data.map(this.formatArticle),
+      items: data.map(this.formatArticle),
       nextCursor: hasMore ? data[data.length - 1].id : null,
       hasMore,
+      pageInfo: {
+        nextCursor: hasMore ? data[data.length - 1].id : null,
+        hasMore,
+      },
     };
   }
 
@@ -146,6 +151,24 @@ export class ArticlesService {
   async remove(id: string) {
     const article = await this.getArticleOrThrow(id);
     return this.prisma.db.article.delete({ where: { id: article.id } });
+  }
+
+  async saveArticle(userId: string, articleId: string) {
+    const article = await this.getArticleOrThrow(articleId);
+    await (this.prisma.db as any).savedArticle.upsert({
+      where: { userId_articleId: { userId, articleId: article.id } },
+      create: { userId, articleId: article.id },
+      update: {},
+    });
+    return { saved: true };
+  }
+
+  async unsaveArticle(userId: string, articleId: string) {
+    const article = await this.getArticleOrThrow(articleId);
+    await (this.prisma.db as any).savedArticle
+      .delete({ where: { userId_articleId: { userId, articleId: article.id } } })
+      .catch(() => null);
+    return { saved: false };
   }
 
   private async getArticleOrThrow(id: string) {

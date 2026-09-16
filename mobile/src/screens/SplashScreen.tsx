@@ -1,11 +1,9 @@
 ﻿import { useCallback, useRef, useState } from 'react';
 import {
   Image,
-  Modal,
   Pressable,
   ScrollView,
   Text,
-  TextInput,
   useWindowDimensions,
   View,
 } from 'react-native';
@@ -36,6 +34,15 @@ import {
   Zap,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
+import { Input } from '../components/ui/input';
+import { Separator } from '../components/ui/separator';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
 import Animated, {
   Easing,
   runOnJS,
@@ -487,20 +494,20 @@ function ProfileStep({
 
         {/* Tên bạn */}
         <ProfileSectionLabel icon="👤" label="Tên bạn" />
-        <View style={{ borderWidth: 1, borderColor: '#EAE6DF', borderRadius: 14, marginTop: 8 }}>
-          <TextInput
+        <View style={{ marginTop: 8 }}>
+          <Input
             value={displayName}
             onChangeText={onDisplayName}
             placeholder="Ví dụ: Minh, An, Huy..."
             placeholderTextColor="#BBBAB5"
-            style={{ fontSize: 16, fontWeight: '500', color: '#111', paddingVertical: 14, paddingHorizontal: 14 }}
+            className="h-12 rounded-xl border border-[#EAE6DF] bg-white px-3.5 text-base font-medium text-[#111]"
             maxLength={40}
             returnKeyType="next"
           />
         </View>
         <Text style={{ fontSize: 12, color: '#AAA5A0', marginTop: 4 }}>Không bắt buộc</Text>
 
-        <View style={{ height: 1, backgroundColor: '#F0EBE3', marginVertical: 14 }} />
+        <Separator className="my-3.5 bg-[#F0EBE3]" />
 
         {/* Ngày sinh */}
         <ProfileSectionLabel icon="📅" label="Ngày sinh" />
@@ -510,7 +517,7 @@ function ProfileStep({
           onDay={onBirthDay} onMonth={onBirthMonth} onYear={onBirthYear}
         />
 
-        <View style={{ height: 1, backgroundColor: '#F0EBE3', marginVertical: 14 }} />
+        <Separator className="my-3.5 bg-[#F0EBE3]" />
 
         {/* Giới tính */}
         <ProfileSectionLabel icon="⚥" label="Giới tính" />
@@ -557,7 +564,7 @@ function ProfileSectionLabel({ icon, label }: { icon: string; label: string }) {
   );
 }
 
-// ─── DatePickerRow ────────────────────────────────────────────────────────────
+// ─── DatePickerRow (react-native-reusables Select) ───────────────────────────
 
 function DatePickerRow({
   day, month, year, dobLabel,
@@ -566,132 +573,67 @@ function DatePickerRow({
   day: number; month: number; year: number; dobLabel: string;
   onDay: (v: number) => void; onMonth: (v: number) => void; onYear: (v: number) => void;
 }) {
-  const [picker, setPicker] = useState<'day' | 'month' | 'year' | null>(null);
+  const dayOpts = Array.from({ length: 31 }, (_, i) => ({ value: String(i + 1), label: `Ngày ${i + 1}` }));
+  const monthOpts = Array.from({ length: 12 }, (_, i) => ({ value: String(i + 1), label: `Tháng ${i + 1}` }));
+  const yearOpts = Array.from({ length: 100 }, (_, i) => {
+    const y = new Date().getFullYear() - 5 - i;
+    return { value: String(y), label: `Năm ${y}` };
+  });
 
   return (
-    <>
-      <Pressable
-        onPress={() => setPicker('day')}
-        style={({ pressed }) => ({
-          marginTop: 10, flexDirection: 'row', alignItems: 'center',
-          borderWidth: 1, borderColor: '#EAE6DF', borderRadius: 14,
-          paddingHorizontal: 14, paddingVertical: 14,
-          backgroundColor: pressed ? '#FFFAE8' : '#FFF',
-        })}
-      >
-        <Calendar size={20} color="#888" strokeWidth={1.8} style={{ marginRight: 10 }} />
-        <Text style={{ flex: 1, fontSize: 16, fontWeight: '500', color: '#111' }}>{dobLabel}</Text>
-        <ChevronRight size={18} color="#AAA" />
-      </Pressable>
-
-      {/* Day picker modal */}
-      <PickerModal
-        visible={picker === 'day'}
-        title="Chọn ngày"
-        value={day}
-        options={Array.from({ length: 31 }, (_, i) => ({ value: i + 1, label: `Ngày ${i + 1}` }))}
-        onSelect={(v) => { onDay(v); setPicker(null); }}
-        onClose={() => setPicker(null)}
-      />
-      <PickerModal
-        visible={picker === 'month'}
-        title="Chọn tháng"
-        value={month}
-        options={Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: `Tháng ${i + 1}` }))}
-        onSelect={(v) => { onMonth(v); setPicker('day'); }}
-        onClose={() => setPicker(null)}
-      />
-      <PickerModal
-        visible={picker === 'year'}
-        title="Chọn năm"
-        value={year}
-        options={Array.from({ length: 100 }, (_, i) => {
-          const y = new Date().getFullYear() - 5 - i;
-          return { value: y, label: `Năm ${y}` };
-        })}
-        onSelect={(v) => { onYear(v); setPicker(null); }}
-        onClose={() => setPicker(null)}
-      />
-    </>
-  );
-}
-
-
-// ─── PickerModal ──────────────────────────────────────────────────────────────
-
-const ITEM_H = 52;
-
-function PickerModal({
-  visible, title, value, options, onSelect, onClose,
-}: {
-  visible: boolean;
-  title: string;
-  value: number;
-  options: { value: number; label: string }[];
-  onSelect: (v: number) => void;
-  onClose: () => void;
-}) {
-  const { bottom } = useSafeAreaInsets();
-  const scrollRef = useRef<ScrollView>(null);
-  const sheetOffset = useSharedValue(500);
-  const overlayOpacity = useSharedValue(0);
-
-  const sheetStyle = useAnimatedStyle(() => ({ transform: [{ translateY: sheetOffset.value }] }));
-  const overlayStyle = useAnimatedStyle(() => ({ opacity: overlayOpacity.value }));
-
-  const handleShow = () => {
-    sheetOffset.value = 500;
-    overlayOpacity.value = 0;
-    overlayOpacity.value = withTiming(1, { duration: 200 });
-    sheetOffset.value = withSpring(0, { damping: 28, stiffness: 280, mass: 0.8 });
-    const idx = options.findIndex((o) => o.value === value);
-    if (idx > 0) {
-      setTimeout(() => scrollRef.current?.scrollTo({ y: idx * ITEM_H, animated: false }), 80);
-    }
-  };
-
-  const handleClose = () => {
-    overlayOpacity.value = withTiming(0, { duration: 160 });
-    sheetOffset.value = withTiming(500, { duration: 220 }, (done) => {
-      if (done) runOnJS(onClose)();
-    });
-  };
-
-  return (
-    <Modal visible={visible} transparent animationType="none" statusBarTranslucent onRequestClose={handleClose} onShow={handleShow}>
-      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        <Animated.View style={[{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.45)' }, overlayStyle]}>
-          <Pressable style={{ flex: 1 }} onPress={handleClose} />
-        </Animated.View>
-        <Animated.View style={[{ backgroundColor: '#FFF', borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingBottom: bottom + 16, overflow: 'hidden' }, sheetStyle]}>
-          <View style={{ width: 40, height: 4, backgroundColor: '#D1CBBF', borderRadius: 99, alignSelf: 'center', marginTop: 12, marginBottom: 8 }} />
-          <Text style={{ textAlign: 'center', fontSize: 16, fontWeight: '800', color: '#111', marginBottom: 8 }}>{title}</Text>
-          <View style={{ height: 1, backgroundColor: '#F0EBE3', marginHorizontal: 20, marginBottom: 4 }} />
-          <ScrollView ref={scrollRef} style={{ height: ITEM_H * 5 }} showsVerticalScrollIndicator={false} bounces={false}>
-            <View style={{ height: ITEM_H }} />
-            {options.map((opt) => {
-              const sel = opt.value === value;
-              return (
-                <Pressable
-                  key={opt.value}
-                  onPress={() => onSelect(opt.value)}
-                  style={{
-                    height: ITEM_H, alignItems: 'center', justifyContent: 'center',
-                    marginHorizontal: 12, borderRadius: 12,
-                    backgroundColor: sel ? '#FFF5D6' : 'transparent',
-                  }}
-                >
-                  <Text style={{ fontSize: sel ? 18 : 16, fontWeight: sel ? '900' : '400', color: sel ? '#111' : '#888' }}>
-                    {opt.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
-            <View style={{ height: ITEM_H * 2 }} />
-          </ScrollView>
-        </Animated.View>
+    <View style={{ marginTop: 10, gap: 10 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+        <Calendar size={18} color="#888" strokeWidth={1.8} />
+        <Text style={{ fontSize: 14, color: '#666' }}>{dobLabel}</Text>
       </View>
-    </Modal>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <View style={{ flex: 1 }}>
+          <Select
+            value={{ value: String(day), label: `Ngày ${day}` }}
+            onValueChange={(opt) => { if (opt?.value) onDay(Number(opt.value)); }}
+          >
+            <SelectTrigger className="h-12 rounded-xl border border-[#EAE6DF] bg-white">
+              <SelectValue placeholder="Ngày" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              {dayOpts.map((o) => (
+                <SelectItem key={o.value} value={o.value} label={o.label}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </View>
+        <View style={{ flex: 1.1 }}>
+          <Select
+            value={{ value: String(month), label: `Tháng ${month}` }}
+            onValueChange={(opt) => { if (opt?.value) onMonth(Number(opt.value)); }}
+          >
+            <SelectTrigger className="h-12 rounded-xl border border-[#EAE6DF] bg-white">
+              <SelectValue placeholder="Tháng" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              {monthOpts.map((o) => (
+                <SelectItem key={o.value} value={o.value} label={o.label}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </View>
+        <View style={{ flex: 1.2 }}>
+          <Select
+            value={{ value: String(year), label: `Năm ${year}` }}
+            onValueChange={(opt) => { if (opt?.value) onYear(Number(opt.value)); }}
+          >
+            <SelectTrigger className="h-12 rounded-xl border border-[#EAE6DF] bg-white">
+              <SelectValue placeholder="Năm" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              {yearOpts.map((o) => (
+                <SelectItem key={o.value} value={o.value} label={o.label}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </View>
+      </View>
+    </View>
   );
 }
 
@@ -748,7 +690,7 @@ function BodyCard({
 }) {
   const [editing, setEditing] = useState(false);
   const [raw, setRaw] = useState('');
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<any>(null);
 
   const clamp = (v: number) => Math.max(min, Math.min(max, v));
 
@@ -775,7 +717,7 @@ function BodyCard({
       {/* Big number */}
       <Pressable onPress={startEdit} style={{ width: '100%', alignItems: 'center', minHeight: 60, justifyContent: 'center' }}>
         {editing ? (
-          <TextInput
+          <Input
             ref={inputRef}
             value={raw}
             onChangeText={(t) => setRaw(t.replace(/[^0-9]/g, ''))}
@@ -785,6 +727,7 @@ function BodyCard({
             returnKeyType="done"
             autoFocus
             maxLength={3}
+            className="border-0 bg-transparent p-0 text-center shadow-none"
             style={{ fontSize: 52, fontWeight: '900', color: '#111', textAlign: 'center', width: '100%' }}
           />
         ) : (
@@ -996,12 +939,13 @@ function TagSearchBox({
 
         {/* Text input khi open */}
         {open && (
-          <TextInput
+          <Input
             autoFocus
             value={query}
             onChangeText={setQuery}
             placeholder={placeholder}
             placeholderTextColor="#BBBAB5"
+            className="border-0 bg-transparent p-0 shadow-none"
             style={{ flex: 1, fontSize: 14, color: '#111', paddingVertical: 0, minWidth: 80 }}
           />
         )}

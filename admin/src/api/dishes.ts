@@ -46,6 +46,7 @@ function toBackendBody(dto: Partial<CreateDishDto>) {
     dietTypeIds: d.dietTypeIds ?? d.dietTypeIds,
     goalIds: (d.goalIds ?? []).map((g: any) => (typeof g === 'string' ? { goalId: g } : g)),
     parentDishId: d.parentDishId ?? d.parentDishId,
+    createMissingIngredients: d.createMissingIngredients,
     nutrition: d.nutrition
       ? {
           calories: d.nutrition.calories,
@@ -59,6 +60,8 @@ function toBackendBody(dto: Partial<CreateDishDto>) {
         }
       : undefined,
     ingredients: d.ingredients?.map((i: any) => ({
+      clientRef: i.clientRef,
+      canonicalNameCandidate: i.canonicalNameCandidate ?? i.rawText,
       ingredientId: i.ingredientId,
       rawText: i.rawText ?? i.rawText,
       quantity: i.quantity,
@@ -139,6 +142,7 @@ export interface CreateDishDto {
   shortDescription?: string
   fullDescription?: string
   parentDishId?: string
+  createMissingIngredients?: boolean
   nutrition?: NutritionPayload
   ingredients?: IngredientRow[]
   recipeSteps?: RecipeStepPayload[]

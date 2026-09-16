@@ -1,5 +1,5 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiOkResponse, ApiQuery } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CatalogService } from './catalog.service';
 
@@ -10,10 +10,6 @@ import { CatalogService } from './catalog.service';
 export class CatalogController {
   constructor(private readonly catalog: CatalogService) {}
 
-  /**
-   * GET /v1/catalogs/goals
-   * Danh sách quick goals cho Home (HOME-BR-007: chỉ là context phiên, không đổi profile).
-   */
   @Get('goals')
   @ApiOperation({
     summary: 'Danh sách goals active cho trang chủ',
@@ -27,11 +23,6 @@ export class CatalogController {
     return this.catalog.getActiveGoals();
   }
 
-  /**
-   * GET /v1/catalogs/onboarding
-   * Trả về danh sách goals, dietary preferences, allergens để hiển thị trong onboarding.
-   * Client nên cache theo catalog version.
-   */
   @Get('onboarding')
   @ApiOperation({
     summary: 'Lấy catalog cho onboarding',
@@ -40,5 +31,32 @@ export class CatalogController {
   })
   getOnboardingCatalog() {
     return this.catalog.getOnboardingCatalog();
+  }
+
+  @Get('regions')
+  @ApiOperation({ summary: 'Catalog khu vực' })
+  @ApiQuery({ name: 'q', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  getRegions(@Query('q') q?: string, @Query('limit') limit?: string) {
+    return this.catalog.getRegions(q, Number(limit) || 20);
+  }
+
+  @Get('allergens')
+  @ApiOperation({ summary: 'Catalog dị ứng' })
+  getAllergens() {
+    return this.catalog.getAllergens();
+  }
+
+  @Get('dietary-preferences')
+  @ApiOperation({ summary: 'Catalog sở thích / chế độ ăn' })
+  @ApiQuery({ name: 'type', required: false })
+  getDietaryPreferences(@Query('type') type?: string) {
+    return this.catalog.getDietaryPreferences(type);
+  }
+
+  @Get('selection-priorities')
+  @ApiOperation({ summary: 'Catalog ưu tiên chọn món' })
+  getSelectionPriorities() {
+    return this.catalog.getSelectionPriorities();
   }
 }

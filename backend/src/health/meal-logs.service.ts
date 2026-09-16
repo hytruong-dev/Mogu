@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  PreconditionFailedException,
 } from '@nestjs/common';
 import {
   DiaryItemReferenceType,
@@ -112,6 +113,91 @@ export class MealLogsService {
     });
     if (!log) throw new NotFoundException({ error: { code: 'MEAL_LOG_NOT_FOUND' } });
     return this.format(log);
+  }
+
+  async update(
+    userId: string,
+    id: string,
+    dto: Partial<CreateMealLogDto> & { items?: CreateMealLogDto['items'] },
+    ifMatch?: string,
+  ) {
+    if (!ifMatch) {
+      throw new PreconditionFailedException({
+        error: { code: 'PRECONDITION_REQUIRED', message: 'Thiếu header If-Match.' },
+      });
+    }
+    const expectedVersion = parseInt(ifMatch.replace(/"/g, '').trim(), 10);
+
+    const existing = await this.prisma.db.diaryMealLog.findFirst({
+      where: { id, userId, deletedAt: null },
+      include: { items: true },
+    });
+    if (!existing) {
+      throw new NotFoundException({ error: { code: 'MEAL_LOG_NOT_FOUND' } });
+    }
+    if (isNaN(expectedVersion) || existing.version !== expectedVersion) {
+      throw new ConflictException({
+        error: {
+          code: 'VERSION_CONFLICT',
+          message: 'Meal log đã được cập nhật ở nơi khác.',
+          details: { expectedVersion: existing.version },
+        },
+      });
+    }
+
+    const resolvedItems = dto.items
+      ? await this.resolveItems(dto.items)
+      : null;
+
+    const totals = resolvedItems
+      ? resolvedItems.reduce(
+          (acc, it) => {
+            acc.kcal += Number(it.caloriesSnapshot ?? 0) * Number(it.quantity);
+            acc.protein += Number(it.proteinGSnapshot ?? 0) * Number(it.quantity);
+            acc.carbs += Number(it.carbsGSnapshot ?? 0) * Number(it.quantity);
+            acc.fat += Number(it.fatGSnapshot ?? 0) * Number(it.quantity);
+            return acc;
+          },
+          { kcal: 0, protein: 0, carbs: 0, fat: 0 },
+        )
+      : null;
+
+    const updated = await this.prisma.db.$transaction(async (tx) => {
+      if (resolvedItems) {
+        await tx.diaryMealLogItem.deleteMany({ where: { mealLogId: id } });
+        await tx.diaryMealLogItem.createMany({
+          data: resolvedItems.map((it, idx) => ({
+            mealLogId: id,
+            ...it,
+            sortOrder: idx,
+          })),
+        });
+      }
+
+      return tx.diaryMealLog.update({
+        where: { id },
+        data: {
+          ...(dto.mealSlot ? { mealSlot: dto.mealSlot } : {}),
+          ...(dto.note !== undefined ? { note: dto.note } : {}),
+          ...(dto.occurredAt ? { occurredAt: new Date(dto.occurredAt) } : {}),
+          ...(totals
+            ? {
+                totalKcal: Math.round(totals.kcal),
+                totalProteinG: totals.protein,
+                totalCarbsG: totals.carbs,
+                totalFatG: totals.fat,
+                nutritionCoverage: resolvedItems!.every((i) => i.caloriesSnapshot != null)
+                  ? 1
+                  : 0.5,
+              }
+            : {}),
+          version: { increment: 1 },
+        },
+        include: { items: { orderBy: { sortOrder: 'asc' } } },
+      });
+    });
+
+    return this.format(updated);
   }
 
   async remove(userId: string, id: string, expectedVersion?: number) {

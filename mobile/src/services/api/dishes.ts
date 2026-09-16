@@ -51,8 +51,31 @@ export const dishesApi = {
       body: JSON.stringify(body),
     }),
 
-  getRandomHistory: (limit = 10) =>
-    apiRequest<DishListResponse>(`/me/random-history?limit=${limit}`),
+  getRandomHistory: (limit = 20, cursor?: string) => {
+    const query = new URLSearchParams();
+    query.set('limit', String(limit));
+    if (cursor) query.set('cursor', cursor);
+    return apiRequest<{
+      data: Array<{
+        id: string;
+        createdAt: string;
+        outcome: string;
+        isSelected: boolean;
+        mealSlot: string | null;
+        dish: { id: string; name: string; imageUrl?: string | null } | null;
+      }>;
+      pageInfo: { nextCursor: string | null; hasNextPage: boolean };
+    }>(`/me/random-history?${query.toString()}`);
+  },
+
+  getRandomHistorySummary: () =>
+    apiRequest<{
+      totalRuns: number;
+      selectedCount: number;
+      skippedCount: number;
+      runsLast7Days: number;
+      definitionVersion: string;
+    }>('/me/random-history/summary'),
 
   save: (dishId: string) =>
     apiRequest<SaveDishResponse>(`/me/saved-dishes/${dishId}`, {
@@ -65,9 +88,10 @@ export const dishesApi = {
       method: 'DELETE',
     }),
 
-  getSaved: (cursor?: string, limit = 20) => {
+  getSaved: (cursor?: string, limit = 20, q?: string) => {
     const query = new URLSearchParams();
     if (cursor) query.set('cursor', cursor);
+    if (q) query.set('q', q);
     query.set('limit', String(limit));
     return apiRequest<SavedDishesResponse>(`/me/saved-dishes?${query.toString()}`);
   },

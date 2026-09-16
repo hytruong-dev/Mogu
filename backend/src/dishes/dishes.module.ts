@@ -7,8 +7,10 @@ import { DishQueryService } from './services/dish-query.service';
 import { DishesService } from './dishes.service';
 import { DishEligibilityService } from './eligibility/dish-eligibility.service';
 import { DishNutritionMapperService } from './eligibility/dish-nutrition-mapper.service';
+import { IngredientsModule } from '../ingredients/ingredients.module';
 
 @Module({
+  imports: [IngredientsModule],
   controllers: [DishesController, AdminDishesController, FoodLookupController],
   providers: [
     DishQueryService,

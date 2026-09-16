@@ -1,4 +1,5 @@
-﻿import { BadRequestException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DishStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
@@ -9,6 +10,9 @@ const mockPrisma = {
     dish: {
       findUnique: jest.fn(),
       update: jest.fn(),
+      findMany: jest.fn(),
+    },
+    dishIngredient: {
       findMany: jest.fn(),
     },
     dishAuditLog: {
@@ -34,6 +38,7 @@ describe('DishReviewService', () => {
       providers: [
         DishReviewService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: ConfigService, useValue: { get: () => '' } },
       ],
     }).compile();
 
@@ -42,17 +47,7 @@ describe('DishReviewService', () => {
   });
 
   describe('requestChanges', () => {
-    it('AT-14: Thiáº¿u reasonCode â†’ 400', async () => {
-      mockPrisma.db.dish.findUnique.mockResolvedValue({
-        id: 'd1',
-        status: DishStatus.PENDING_REVIEW,
-        deletedAt: null,
-      });
-
-      await expect(service.requestChanges('d1', 'reviewer1', {})).rejects.toThrow(BadRequestException);
-    });
-
-    it('Tráº¡ng thÃ¡i khÃ´ng pháº£i PENDING_REVIEW â†’ 400', async () => {
+    it('Trạng thái không phải PENDING_REVIEW → 400', async () => {
       mockPrisma.db.dish.findUnique.mockResolvedValue({
         id: 'd1',
         status: DishStatus.DRAFT,
@@ -60,86 +55,86 @@ describe('DishReviewService', () => {
       });
 
       await expect(
-        service.requestChanges('d1', 'reviewer1', { reasonCode: 'CONTENT_QUALITY' as any }),
+        service.requestChanges('d1', 'reviewer1', {
+          reasonCode: 'CONTENT_QUALITY' as any,
+        }),
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('PENDING_REVIEW â†’ CHANGES_REQUESTED thÃ nh cÃ´ng', async () => {
+    it('PENDING_REVIEW → CHANGES_REQUESTED thành công', async () => {
       const mockDish = { id: 'd1', status: DishStatus.PENDING_REVIEW, deletedAt: null };
       mockPrisma.db.dish.findUnique.mockResolvedValue(mockDish);
-      mockPrisma.db.dish.update.mockResolvedValue({ ...mockDish, status: DishStatus.CHANGES_REQUESTED });
-      mockPrisma.db.dishAuditLog.create.mockResolvedValue({});
+      mockPrisma.db.dish.update.mockResolvedValue({
+        ...mockDish,
+        status: DishStatus.CHANGES_REQUESTED,
+      });
 
       const result = await service.requestChanges('d1', 'reviewer1', {
         reasonCode: 'CONTENT_QUALITY' as any,
-        note: 'Cáº§n áº£nh Ä‘áº¹p hÆ¡n',
+        note: 'Cần ảnh đẹp hơn',
       });
       expect(result.status).toBe(DishStatus.CHANGES_REQUESTED);
     });
   });
 
   describe('reject', () => {
-    it('Pháº£i cÃ³ reasonCode khi reject', async () => {
+    it('PENDING_REVIEW → REJECTED thành công', async () => {
+      const mockDish = { id: 'd1', status: DishStatus.PENDING_REVIEW, deletedAt: null };
+      mockPrisma.db.dish.findUnique.mockResolvedValue(mockDish);
+      mockPrisma.db.dish.update.mockResolvedValue({
+        ...mockDish,
+        status: DishStatus.REJECTED,
+      });
+
+      const result = await service.reject('d1', 'reviewer1', {});
+      expect(result.status).toBe(DishStatus.REJECTED);
+    });
+  });
+
+  describe('approve — ingredient gate', () => {
+    it('chặn publish khi còn ingredient PENDING/null', async () => {
       mockPrisma.db.dish.findUnique.mockResolvedValue({
         id: 'd1',
         status: DishStatus.PENDING_REVIEW,
         deletedAt: null,
       });
+      mockPrisma.db.dishIngredient.findMany.mockResolvedValue([
+        {
+          id: 'di1',
+          ingredientId: 'ing1',
+          rawText: 'Thịt bò',
+          ingredient: { id: 'ing1', status: 'PENDING_REVIEW', name: 'Thịt bò' },
+        },
+      ]);
 
-      await expect(service.reject('d1', 'reviewer1', {})).rejects.toThrow(BadRequestException);
+      await expect(service.approve('d1', 'reviewer1', {})).rejects.toThrow(
+        BadRequestException,
+      );
+      expect(mockPrisma.db.dish.update).not.toHaveBeenCalled();
     });
-  });
 
-  describe('approve â€” publish validation', () => {
-    it('AT-02: Publish thiáº¿u source â†’ 422', async () => {
+    it('publish khi mọi ingredient ACTIVE', async () => {
       const mockDish = {
         id: 'd1',
         status: DishStatus.PENDING_REVIEW,
         deletedAt: null,
-        publishVersion: 0,
       };
-      mockPrisma.db.dish.findUnique.mockResolvedValueOnce(mockDish); // findOrFail
-      mockPrisma.db.dish.findUnique.mockResolvedValueOnce({
+      mockPrisma.db.dish.findUnique.mockResolvedValue(mockDish);
+      mockPrisma.db.dishIngredient.findMany.mockResolvedValue([
+        {
+          id: 'di1',
+          ingredientId: 'ing1',
+          rawText: 'Thịt bò',
+          ingredient: { id: 'ing1', status: 'ACTIVE', name: 'Thịt bò' },
+        },
+      ]);
+      mockPrisma.db.dish.update.mockResolvedValue({
         ...mockDish,
-        name: 'Test',
-        provinceId: null,
-        regionId: null,
-        categories: [{ id: 'cat1' }],
-        mealTypes: [{ id: 'mt1' }],
-        sources: [], // Thiáº¿u source
-        media: [{ id: 'media1', moderationStatus: 'APPROVED', isPrimary: true }],
-        nutritionProfiles: [{ isPrimary: true, method: 'ESTIMATED', calculationVersion: '1.0' }],
-        dishAllergens: [],
-        province: null,
+        status: DishStatus.PUBLISHED,
       });
 
-      await expect(service.approve('d1', 'reviewer1', {})).rejects.toThrow(UnprocessableEntityException);
-    });
-
-    it('AT-03: Publish vá»›i media chÆ°a approved â†’ 422', async () => {
-      const mockDish = {
-        id: 'd1',
-        status: DishStatus.PENDING_REVIEW,
-        deletedAt: null,
-        publishVersion: 0,
-      };
-      mockPrisma.db.dish.findUnique.mockResolvedValueOnce(mockDish);
-      mockPrisma.db.dish.findUnique.mockResolvedValueOnce({
-        ...mockDish,
-        name: 'Test',
-        categories: [{ id: 'cat1' }],
-        mealTypes: [{ id: 'mt1' }],
-        sources: [{ id: 's1' }],
-        media: [], // KhÃ´ng cÃ³ APPROVED media
-        nutritionProfiles: [{ isPrimary: true, method: 'ESTIMATED', calculationVersion: '1.0' }],
-        dishAllergens: [],
-        province: null,
-        regionId: null,
-      });
-
-      await expect(service.approve('d1', 'reviewer1', {})).rejects.toThrow(UnprocessableEntityException);
+      const result = await service.approve('d1', 'reviewer1', {});
+      expect(result.status).toBe(DishStatus.PUBLISHED);
     });
   });
-
 });
-

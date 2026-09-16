@@ -85,6 +85,33 @@ export class DishReviewService {
       });
     }
 
+    const ingredients = await this.prisma.db.dishIngredient.findMany({
+      where: { dishId },
+      include: { ingredient: { select: { id: true, status: true, name: true } } },
+    });
+
+    const unresolved = ingredients.filter(
+      (row) =>
+        !row.ingredientId ||
+        !row.ingredient ||
+        row.ingredient.status !== 'ACTIVE',
+    );
+    if (unresolved.length) {
+      throw new BadRequestException({
+        message: 'Còn nguyên liệu chưa liên kết hoặc chưa duyệt ACTIVE.',
+        error: {
+          code: 'INGREDIENTS_NOT_READY',
+          message: 'Còn nguyên liệu chưa liên kết hoặc chưa duyệt ACTIVE.',
+          unresolved: unresolved.map((r) => ({
+            dishIngredientId: r.id,
+            rawText: r.rawText,
+            ingredientId: r.ingredientId,
+            status: r.ingredient?.status ?? null,
+          })),
+        },
+      });
+    }
+
     const updated = await this.prisma.db.dish.update({
       where: { id: dishId },
       data: {
@@ -95,6 +122,12 @@ export class DishReviewService {
         publishVersion: { increment: 1 },
         version: { increment: 1 },
       },
+    });
+
+    // Tự động duyệt media PENDING của món khi publish
+    await this.prisma.db.dishMedia.updateMany({
+      where: { dishId, moderationStatus: 'PENDING' },
+      data: { moderationStatus: 'APPROVED' },
     });
 
     return updated;

@@ -5,13 +5,20 @@ import { PrismaService } from '../prisma/prisma.service';
 export class SavedDishesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(userId: string, cursor?: string, limit = 20) {
+  async list(userId: string, cursor?: string, limit = 20, q?: string) {
     const take = Math.min(limit, 100);
 
     const saved = await this.prisma.db.savedDish.findMany({
       where: {
         userId,
-        ...(cursor ? { id: { gt: cursor } } : {}),
+        ...(cursor ? { id: { lt: cursor } } : {}),
+        ...(q
+          ? {
+              dish: {
+                name: { contains: q, mode: 'insensitive' },
+              },
+            }
+          : {}),
       },
       include: {
         dish: {
@@ -23,6 +30,11 @@ export class SavedDishesService {
             status: true,
             priceMin: true,
             priceMax: true,
+            prepMinutes: true,
+            cookMinutes: true,
+            nutrition: {
+              select: { calories: true },
+            },
             media: {
               where: { isPrimary: true, moderationStatus: 'APPROVED' },
               select: { id: true, storageKey: true, bucket: true },
@@ -31,7 +43,7 @@ export class SavedDishesService {
           },
         },
       },
-      orderBy: { savedAt: 'desc' },
+      orderBy: [{ savedAt: 'desc' }, { id: 'desc' }],
       take: take + 1,
     });
 
@@ -39,16 +51,22 @@ export class SavedDishesService {
     const data = hasNextPage ? saved.slice(0, take) : saved;
     const nextCursor = hasNextPage ? data[data.length - 1]?.id : null;
 
+    const mapRow = (s: (typeof data)[number]) => ({
+      id: s.id,
+      dishId: s.dishId,
+      savedAt: s.savedAt,
+      dish: {
+        ...s.dish,
+        kcal: s.dish.nutrition?.calories != null ? Number(s.dish.nutrition.calories) : null,
+        cookTimeMinutes:
+          (s.dish.cookMinutes ?? 0) + (s.dish.prepMinutes ?? 0) || null,
+        isAvailable: s.dish.status === 'PUBLISHED',
+      },
+    });
+
     return {
-      data: data.map((s) => ({
-        id: s.id,
-        dishId: s.dishId,
-        savedAt: s.savedAt,
-        dish: {
-          ...s.dish,
-          isAvailable: s.dish.status === 'PUBLISHED',
-        },
-      })),
+      data: data.map(mapRow),
+      items: data.map(mapRow),
       pageInfo: { nextCursor, hasNextPage },
     };
   }

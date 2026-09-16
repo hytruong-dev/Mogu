@@ -11,6 +11,7 @@ import { useFoodDataActions } from '../components/food-data/food-data-context'
 import { FoodDataPagination } from '../components/food-data/FoodDataPagination'
 import { HideConfirmDialog } from '../components/food-data/HideConfirmDialog'
 import { Button } from '../components/ui/button'
+import { TableSkeleton } from '../components/ui/page-skeleton'
 import {
   Dialog,
   DialogContent,
@@ -264,7 +265,7 @@ export default function DietTypesPage({
             </tr>
           </thead>
           <tbody>
-            {isLoading && <tr><td colSpan={3} className="fd-empty">Đang tải...</td></tr>}
+            {isLoading && <tr><td colSpan={3} className="fd-empty p-0"><TableSkeleton rows={5} cols={3} /></td></tr>}
             {!isLoading && pageItems.length === 0 && <tr><td colSpan={3} className="fd-empty">Không có chế độ ăn nào</td></tr>}
             {pageItems.map((item) => (
               <tr key={item.id} style={{ cursor: 'default' }}>

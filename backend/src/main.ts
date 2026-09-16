@@ -8,7 +8,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { ConfigService } from '@nestjs/config';
 import { IoAdapter } from '@nestjs/platform-socket.io';
-import { AppModule } from './app.module';
+import { probeAndConfigureRedis } from './common/redis/redis-env';
 import { GlobalExceptionFilter } from './common/filters/http-exception.filter';
 import { PrismaTableNotFoundFilter } from './common/filters/prisma-table-not-found.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
@@ -16,6 +16,10 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { formatValidationErrors } from './common/utils/validation-error.util';
 
 async function bootstrap() {
+  // Probe Redis BEFORE importing AppModule so BullMQ is not registered when down.
+  await probeAndConfigureRedis();
+  const { AppModule } = await import('./app.module');
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({ logger: false }),
@@ -78,9 +82,14 @@ async function bootstrap() {
   app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1' });
 
   // ── CORS ──────────────────────────────────────────────────────────────────
-  const corsOrigins = process.env.CORS_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean);
+  const isDev = process.env.NODE_ENV !== 'production';
+  const corsOrigins: (string | RegExp)[] =
+    process.env.CORS_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) ?? [];
+  if (isDev) {
+    corsOrigins.push(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/);
+  }
   app.enableCors({
-    origin: corsOrigins && corsOrigins.length > 0 ? corsOrigins : false,
+    origin: corsOrigins.length > 0 ? corsOrigins : false,
     credentials: true,
     allowedHeaders: [
       'Content-Type',

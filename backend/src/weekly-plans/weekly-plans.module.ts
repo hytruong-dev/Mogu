@@ -16,8 +16,9 @@ import { WeeklyPlanProcessor } from './processors/weekly-plan.processor';
 import { PrismaModule } from '../prisma/prisma.module';
 import { DishesModule } from '../dishes/dishes.module';
 import { HealthModule } from '../health/health.module';
+import { getRedisUrl } from '../common/redis/redis-env';
 
-const REDIS_URL = process.env.REDIS_URL;
+const REDIS_URL = getRedisUrl();
 
 /**
  * Khi không có Redis, cung cấp null token để @Optional() @Inject() trong

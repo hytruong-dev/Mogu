@@ -11,6 +11,7 @@ import { CreateDishDto } from '../dto/create-dish.dto';
 import { DishSourceItemDto } from '../dto/dish-source.dto';
 import { UpdateDishDto } from '../dto/update-dish.dto';
 import { DishQueryService } from './dish-query.service';
+import { IngredientCatalogService } from '../../ingredients/ingredient-catalog.service';
 
 export interface DishDraftAggregate {
   name: string;
@@ -109,7 +110,62 @@ export class DishCommandService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly dishQuery: DishQueryService,
+    private readonly ingredientCatalog: IngredientCatalogService,
   ) { }
+
+  private async resolveIngredientRows(
+    ingredients: CreateDishDto['ingredients'] | undefined,
+    createMissing: boolean,
+  ) {
+    if (!ingredients?.length) return [];
+
+    const needResolve = ingredients.map((ing, idx) => ({
+      idx,
+      ing,
+      clientRef: ing.clientRef ?? `row-${idx}`,
+      rawName: (ing.canonicalNameCandidate || ing.rawText || '').trim(),
+    }));
+
+    const toResolve = needResolve.filter((r) => !r.ing.ingredientId && r.rawName);
+    const batch = toResolve.length
+      ? await this.ingredientCatalog.resolveOrProvisionBatch(
+          toResolve.map((r) => ({
+            clientRef: r.clientRef,
+            rawName: r.rawName,
+            unit: r.ing.unit,
+          })),
+          { createMissing, enqueueImageEnrichment: true },
+        )
+      : null;
+
+    return needResolve.map(({ idx, ing, clientRef }) => {
+      const hit = batch?.byClientRef.get(clientRef);
+      const ingredientId = ing.ingredientId ?? hit?.ingredientId ?? null;
+      return {
+        ingredientId,
+        rawText: ing.rawText,
+        quantity: ing.quantity?.toString(),
+        unit: ing.unit,
+        preparation: ing.preparation,
+        isOptional: ing.isOptional ?? false,
+        groupLabel: ing.groupLabel,
+        sortOrder: ing.sortOrder ?? idx,
+        needsReview: !ingredientId || hit?.outcome === 'CREATED_PENDING',
+        resolutionMethod:
+          hit?.outcome === 'EXISTING_EXACT'
+            ? ('EXACT' as const)
+            : hit?.outcome === 'EXISTING_SYNONYM'
+              ? ('ALIAS' as const)
+              : hit?.outcome === 'CREATED_PENDING'
+                ? ('NORMALIZED' as const)
+                : ingredientId
+                  ? ('EXACT' as const)
+                  : ('NONE' as const),
+        resolutionConfidence: ingredientId ? (hit?.isNew ? 80 : 100) : 0,
+        resolutionCandidates: hit?.candidates?.length ? hit.candidates : undefined,
+      };
+    });
+  }
 
   /**
    * Domain persistence primitive for importers. The caller owns the transaction,
@@ -224,6 +280,10 @@ export class DishCommandService {
   async create(dto: CreateDishDto, actorId: string) {
     const name = (dto.name ?? '').trim() || 'Bản nháp chưa đặt tên';
     const slug = await this.generateSlug(dto.slug || name);
+    const resolvedIngredients = await this.resolveIngredientRows(
+      dto.ingredients,
+      dto.createMissingIngredients ?? true,
+    );
 
     const dish = await this.prisma.db.dish.create({
       data: {
@@ -264,17 +324,23 @@ export class DishCommandService {
             })),
           }
           : undefined,
-        dishIngredients: dto.ingredients?.length
+        dishIngredients: resolvedIngredients.length
           ? {
-            create: dto.ingredients.map((ing, idx) => ({
+            create: resolvedIngredients.map((ing) => ({
               ingredientId: ing.ingredientId,
               rawText: ing.rawText,
-              quantity: ing.quantity?.toString(),
+              quantity: ing.quantity,
               unit: ing.unit,
               preparation: ing.preparation,
-              isOptional: ing.isOptional ?? false,
+              isOptional: ing.isOptional,
               groupLabel: ing.groupLabel,
-              sortOrder: ing.sortOrder ?? idx,
+              sortOrder: ing.sortOrder,
+              needsReview: ing.needsReview,
+              resolutionMethod: ing.resolutionMethod,
+              resolutionConfidence: ing.resolutionConfidence,
+              resolutionCandidates: ing.resolutionCandidates
+                ? (JSON.parse(JSON.stringify(ing.resolutionCandidates)) as Prisma.InputJsonValue)
+                : undefined,
             })),
           }
           : undefined,
@@ -320,6 +386,14 @@ export class DishCommandService {
       });
     }
 
+    const resolvedIngredients =
+      dto.ingredients !== undefined
+        ? await this.resolveIngredientRows(
+            dto.ingredients,
+            dto.createMissingIngredients ?? true,
+          )
+        : undefined;
+
     try {
       const updated = await this.prisma.db.$transaction(async (tx) => {
         const dish = await tx.dish.findUnique({ where: { id } });
@@ -346,9 +420,14 @@ export class DishCommandService {
           'CHANGES_REQUESTED',
           'FAILED',
           'REJECTED',
+          'PENDING_REVIEW',
+          // Admin CMS: cho phép chỉnh nội dung món đã xuất bản / gỡ xuất bản
+          'PUBLISHED',
+          'UNPUBLISHED',
         ];
         if (!editableStatuses.includes(dish.status)) {
           throw new BadRequestException({
+            message: `Không thể sửa món ở trạng thái ${dish.status}.`,
             error: {
               code: 'DISH_NOT_EDITABLE',
               message: `Không thể sửa món ở trạng thái ${dish.status}.`,
@@ -428,18 +507,24 @@ export class DishCommandService {
           };
         }
 
-        if (dto.ingredients !== undefined) {
+        if (resolvedIngredients !== undefined) {
           updateData.dishIngredients = {
             deleteMany: {},
-            create: dto.ingredients.map((ing, idx) => ({
+            create: resolvedIngredients.map((ing) => ({
               ingredientId: ing.ingredientId,
               rawText: ing.rawText,
-              quantity: ing.quantity?.toString(),
+              quantity: ing.quantity,
               unit: ing.unit,
               preparation: ing.preparation,
-              isOptional: ing.isOptional ?? false,
+              isOptional: ing.isOptional,
               groupLabel: ing.groupLabel,
-              sortOrder: ing.sortOrder ?? idx,
+              sortOrder: ing.sortOrder,
+              needsReview: ing.needsReview,
+              resolutionMethod: ing.resolutionMethod,
+              resolutionConfidence: ing.resolutionConfidence,
+              resolutionCandidates: ing.resolutionCandidates
+                ? (JSON.parse(JSON.stringify(ing.resolutionCandidates)) as Prisma.InputJsonValue)
+                : undefined,
             })),
           };
         }
@@ -597,13 +682,13 @@ export class DishCommandService {
   async restore(id: string, actorId: string) {
     const dish = await this.prisma.db.dish.findUnique({ where: { id } });
     if (!dish) throw new NotFoundException({ error: { code: 'DISH_NOT_FOUND', message: 'Không tìm thấy.' } });
-    if (dish.status !== 'ARCHIVED') {
-      throw new BadRequestException({ error: { code: 'NOT_ARCHIVED', message: 'Chỉ khôi phục được món ARCHIVED.' } });
+    if (dish.status !== 'ARCHIVED' && !dish.deletedAt) {
+      throw new BadRequestException({ error: { code: 'NOT_ARCHIVED', message: 'Chỉ khôi phục được món ARCHIVED hoặc đã bị xóa.' } });
     }
 
     return this.prisma.db.dish.update({
       where: { id },
-      data: { status: 'DRAFT', archivedAt: null, updatedBy: actorId },
+      data: { status: 'DRAFT', archivedAt: null, deletedAt: null, updatedBy: actorId },
     });
   }
 

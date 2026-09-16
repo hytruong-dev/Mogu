@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -22,9 +23,11 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { IngredientQueryDto } from './dto/ingredient-query.dto';
 import { CreateIngredientDto, UpdateIngredientDto } from './dto/create-ingredient.dto';
+import { ResolveBatchDto } from './dto/resolve-batch.dto';
 import { IngredientsService } from './ingredients.service';
+import { IngredientCatalogService } from './ingredient-catalog.service';
+import { IngredientEnrichmentQueue } from './ingredient-enrichment.queue';
 
-// ── Public: tìm kiếm từ điển ─────────────────────────────────────────────────
 @ApiTags('ingredients')
 @Public()
 @Controller('ingredients')
@@ -38,13 +41,16 @@ export class IngredientsController {
   }
 }
 
-// ── Admin: CRUD + presign ─────────────────────────────────────────────────────
 @ApiTags('admin/ingredients')
 @Controller('admin/ingredients')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @ApiBearerAuth()
 export class AdminIngredientsController {
-  constructor(private readonly ingredientsService: IngredientsService) {}
+  constructor(
+    private readonly ingredientsService: IngredientsService,
+    private readonly catalog: IngredientCatalogService,
+    private readonly enrichmentQueue: IngredientEnrichmentQueue,
+  ) {}
 
   @Get()
   @Roles(SystemRole.CONTENT_ADMIN, SystemRole.REVIEWER, SystemRole.SUPER_ADMIN)
@@ -52,12 +58,14 @@ export class AdminIngredientsController {
   @ApiQuery({ name: 'q', required: false })
   @ApiQuery({ name: 'allergenCode', required: false })
   @ApiQuery({ name: 'isActive', required: false, type: Boolean })
+  @ApiQuery({ name: 'status', required: false })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   adminList(
     @Query('q') q?: string,
     @Query('allergenCode') allergenCode?: string,
     @Query('isActive') isActive?: string,
+    @Query('status') status?: string,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
@@ -65,9 +73,21 @@ export class AdminIngredientsController {
       q,
       allergenCode,
       isActive: isActive !== undefined ? isActive === 'true' : undefined,
+      status,
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 20,
     });
+  }
+
+  @Post('resolve-batch')
+  @Roles(SystemRole.CONTENT_ADMIN, SystemRole.SUPER_ADMIN)
+  @ApiOperation({ summary: '[Admin] Resolve/provision batch nguyên liệu' })
+  async resolveBatch(@Body() dto: ResolveBatchDto) {
+    const result = await this.catalog.resolveOrProvisionBatch(dto.items, {
+      createMissing: dto.createMissing ?? true,
+      enqueueImageEnrichment: true,
+    });
+    return { items: result.items, createdIds: result.createdIds };
   }
 
   @Post()
@@ -84,6 +104,23 @@ export class AdminIngredientsController {
     return this.ingredientsService.update(id, dto);
   }
 
+  @Post(':id/approve')
+  @Roles(SystemRole.CONTENT_ADMIN, SystemRole.REVIEWER, SystemRole.SUPER_ADMIN)
+  @ApiOperation({ summary: '[Admin] Duyệt nguyên liệu → ACTIVE' })
+  approve(
+    @Param('id') id: string,
+    @Body() body?: { allergenCode?: string | null; synonyms?: string[] },
+  ) {
+    return this.catalog.approveIngredient(id, body);
+  }
+
+  @Post(':id/reject')
+  @Roles(SystemRole.CONTENT_ADMIN, SystemRole.REVIEWER, SystemRole.SUPER_ADMIN)
+  @ApiOperation({ summary: '[Admin] Từ chối nguyên liệu' })
+  reject(@Param('id') id: string) {
+    return this.catalog.rejectIngredient(id);
+  }
+
   @Delete(':id')
   @Roles(SystemRole.CONTENT_ADMIN, SystemRole.SUPER_ADMIN)
   @ApiOperation({ summary: '[Admin] Deactivate nguyên liệu (soft delete)' })
@@ -96,5 +133,38 @@ export class AdminIngredientsController {
   @ApiOperation({ summary: '[Admin] Lấy signed URL để upload ảnh nguyên liệu' })
   presignUpload(@Param('id') id: string) {
     return this.ingredientsService.presignIngredientImage(id);
+  }
+
+  @Post(':id/image-searches')
+  @Roles(SystemRole.CONTENT_ADMIN, SystemRole.REVIEWER, SystemRole.SUPER_ADMIN)
+  @ApiOperation({ summary: '[Admin] Enqueue tìm ảnh nguyên liệu' })
+  async enqueueImageSearch(@Param('id') id: string) {
+    await this.enrichmentQueue.enqueueNewIngredients([id]);
+    return { ingredientId: id, queued: true };
+  }
+
+  @Get(':id/image-candidates')
+  @Roles(SystemRole.CONTENT_ADMIN, SystemRole.REVIEWER, SystemRole.SUPER_ADMIN)
+  @ApiOperation({ summary: '[Admin] Danh sách image candidates' })
+  listImageCandidates(@Param('id') id: string) {
+    return this.ingredientsService.listImageCandidates(id);
+  }
+
+  @Put(':id/image')
+  @Roles(SystemRole.CONTENT_ADMIN, SystemRole.REVIEWER, SystemRole.SUPER_ADMIN)
+  @ApiOperation({ summary: '[Admin] Chọn/approve ảnh nguyên liệu' })
+  setImage(
+    @Param('id') id: string,
+    @Body()
+    body: { candidateId?: string; imageUrl?: string; imageKey?: string },
+  ) {
+    return this.ingredientsService.approveImage(id, body);
+  }
+
+  @Delete(':id/image')
+  @Roles(SystemRole.CONTENT_ADMIN, SystemRole.REVIEWER, SystemRole.SUPER_ADMIN)
+  @ApiOperation({ summary: '[Admin] Gỡ ảnh nguyên liệu' })
+  clearImage(@Param('id') id: string) {
+    return this.ingredientsService.clearImage(id);
   }
 }

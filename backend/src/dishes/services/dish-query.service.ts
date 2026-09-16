@@ -77,18 +77,18 @@ export class DishQueryService {
         : {}),
     };
 
-    // Full-text search với unaccent
+    // Full-text search với unaccent (cột + query đều bỏ dấu)
     if (q) {
       const dishes = await this.prisma.db.$queryRaw<{ id: string }[]>`
         SELECT id FROM dishes
         WHERE status = 'PUBLISHED'
           AND deleted_at IS NULL
           AND (
-            search_text ILIKE '%' || unaccent(${q.toLowerCase()}) || '%'
-            OR search_text % unaccent(${q.toLowerCase()})
+            unaccent(COALESCE(search_text, '')) ILIKE '%' || unaccent(${q.toLowerCase()}) || '%'
+            OR unaccent(COALESCE(search_text, '')) % unaccent(${q.toLowerCase()})
           )
         ORDER BY
-          similarity(search_text, unaccent(${q.toLowerCase()})) DESC,
+          similarity(unaccent(COALESCE(search_text, '')), unaccent(${q.toLowerCase()})) DESC,
           published_at DESC
         LIMIT ${take + 1}
       `;
@@ -139,7 +139,36 @@ export class DishQueryService {
       });
     }
 
-    return dish;
+    const supabaseUrl = (this.supabaseUrl ?? '').replace(/\/$/, '');
+    const media = (dish.media ?? []).map((m) => ({
+      ...m,
+      publicUrl: this.buildPublicUrl(m.storageKey, m.bucket),
+    }));
+
+    const dishIngredients = (dish.dishIngredients ?? []).map((ing) => {
+      const raw = ing.ingredient?.imageUrl ?? null;
+      let imageUrl: string | null = null;
+      if (raw) {
+        if (raw.startsWith('http')) imageUrl = raw;
+        else if (raw.startsWith('/storage') && supabaseUrl) imageUrl = `${supabaseUrl}${raw}`;
+        else if (supabaseUrl) {
+          imageUrl = `${supabaseUrl}/storage/v1/object/public/ingredients/${raw}`;
+        }
+      }
+      return {
+        ...ing,
+        ingredient: ing.ingredient
+          ? { ...ing.ingredient, imageUrl: imageUrl ?? ing.ingredient.imageUrl }
+          : null,
+      };
+    });
+
+    return {
+      ...dish,
+      media,
+      dishIngredients,
+      imageUrl: media[0]?.publicUrl ?? null,
+    };
   }
 
   /** Admin list — tất cả trạng thái + summary kho món */
@@ -327,6 +356,22 @@ export class DishQueryService {
     });
 
     if (!dish) {
+      const deletedDish = await this.prisma.db.dish.findFirst({
+        where: { OR: [{ id }, { slug: id }] },
+        select: { id: true, name: true, deletedAt: true },
+      });
+
+      if (deletedDish?.deletedAt) {
+        throw new NotFoundException({
+          error: {
+            code: 'DISH_DELETED',
+            message: `Món ăn "${deletedDish.name}" đã bị xóa. Bạn có thể khôi phục lại món này.`,
+            dishId: deletedDish.id,
+            deletedAt: deletedDish.deletedAt,
+          },
+        });
+      }
+
       throw new NotFoundException({
         error: { code: 'DISH_NOT_FOUND', message: 'Không tìm thấy món ăn.' },
       });
@@ -397,8 +442,9 @@ export class DishQueryService {
       recipeSteps: { orderBy: { stepOrder: 'asc' as const } },
       sources: { orderBy: { createdAt: 'asc' as const } },
       media: {
-        where: { moderationStatus: ModerationStatus.APPROVED },
+        // Cover của món PUBLISHED — ưu tiên primary; không chặn PENDING để ảnh AI-import vẫn hiện
         orderBy: [{ isPrimary: 'desc' as const }, { sortOrder: 'asc' as const }],
+        take: 5,
       },
       variants: {
         where: { status: DishStatus.PUBLISHED, deletedAt: null },

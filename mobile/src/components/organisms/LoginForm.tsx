@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
-import { LockKeyhole, User } from 'lucide-react-native';
+import { Pressable, View } from 'react-native';
+import { Info, LockKeyhole, User } from 'lucide-react-native';
 import { cn } from '../../lib/utils';
 import { AuthInput } from '../atoms/AuthInput';
 import { PrimaryButton } from '../atoms/PrimaryButton';
+import { ConfirmDialog } from '../ui/confirm-dialog';
+import { Text } from '../ui/text';
 
 type Props = {
   onLogin: (username: string, password: string) => Promise<void>;
@@ -16,6 +18,7 @@ export function LoginForm({ onLogin, compact = false, className }: Props) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [forgotVisible, setForgotVisible] = useState(false);
 
   const submit = async () => {
     if (!username.trim() || !password) return setError('Vui lòng nhập tên đăng nhập và mật khẩu.');
@@ -64,17 +67,12 @@ export function LoginForm({ onLogin, compact = false, className }: Props) {
           onChangeText={setPassword}
         />
       </View>
-      {error ? <Text className="mt-1 text-xs text-red-500">{error}</Text> : null}
+      {error ? <Text className="mt-1 text-xs text-destructive">{error}</Text> : null}
       <Pressable
         className={cn('self-end', compact ? 'mt-2' : 'mt-2.5')}
-        onPress={() =>
-          Alert.alert(
-            'Quên mật khẩu?',
-            'Vui lòng liên hệ bộ phận hỗ trợ để được reset mật khẩu. Tính năng tự phục vụ đang được phát triển.',
-          )
-        }
+        onPress={() => setForgotVisible(true)}
       >
-        <Text className="text-mogu-ink text-sm font-semibold underline">Quên mật khẩu?</Text>
+        <Text className="text-sm font-semibold text-foreground underline">Quên mật khẩu?</Text>
       </Pressable>
       <View className="mt-3">
         <PrimaryButton
@@ -83,6 +81,17 @@ export function LoginForm({ onLogin, compact = false, className }: Props) {
           disabled={loading}
         />
       </View>
+
+      <ConfirmDialog
+        visible={forgotVisible}
+        tone="info"
+        title="Quên mật khẩu?"
+        description="Vui lòng liên hệ bộ phận hỗ trợ để được reset mật khẩu. Tính năng tự phục vụ đang được phát triển."
+        confirmLabel="Đã hiểu"
+        cancelLabel="Đóng"
+        onCancel={() => setForgotVisible(false)}
+        onConfirm={() => setForgotVisible(false)}
+      />
     </View>
   );
 }

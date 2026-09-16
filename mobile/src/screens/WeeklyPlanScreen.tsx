@@ -17,9 +17,15 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, ChevronRight, RefreshCw, Sparkles } from 'lucide-react-native';
+import { ConfirmDialog } from '../components/ui/confirm-dialog';
+import { Badge } from '../components/ui/badge';
+import { Progress } from '../components/ui/progress';
+import { Text as UiText } from '../components/ui/text';
+import { AppImage } from '../components/ui/app-image';
 import { computeWeeklyForecast } from '../lib/weekly-forecast';
 import {
   getCurrentWeeklyPlan,
+  getWeeklyPlanConfig,
   startWeeklyPlan,
   regenerateWeeklyPlan,
   swapSlot,
@@ -30,14 +36,16 @@ import {
   pollWeeklyPlan,
   type SwapSlotResult,
 } from '../services/api/weekly-plan';
-import type { WeeklyPlan, WeeklyPlanDay, WeeklyPlanStatus } from '../services/api/types';
-import { formatApiErrorWithCode } from '../lib/api-error';
+import type { WeeklyPlan, WeeklyPlanConfig, WeeklyPlanDay, WeeklyPlanStatus } from '../services/api/types';
+import { formatApiErrorWithCode, formatWeeklyPlanGenerationError } from '../lib/api-error';
+import { normalizeImageUrl } from '../services/api/randomization';
 import {
   formatPlanWeekdayFull,
   formatPlanWeekdayShort,
   getTodayISO,
   isTodayISO,
 } from '../lib/dates';
+import { WeeklyPlanSkeleton } from '../components/skeletons/ScreenSkeletons';
 
 const CREAM = '#F7F2E8';
 const WHITE = '#FFFFFF';
@@ -56,6 +64,7 @@ const shadow = {
 
 type Meal = {
   slotId: string;
+  dishId: string;
   slot: string;
   slotIcon: string;
   dishName: string;
@@ -88,10 +97,11 @@ const SLOT_ICONS: Record<string, string> = {
 const parseDayPlan = (day: WeeklyPlanDay): DayPlan => {
   const meals: Meal[] = day.slots.map(sl => ({
     slotId: sl.id,
+    dishId: sl.dish.id,
     slot: SLOT_LABELS[sl.mealSlot] ?? sl.mealSlot,
     slotIcon: SLOT_ICONS[sl.mealSlot] ?? '🍽️',
     dishName: sl.dish.name,
-    imageUrl: sl.dish.imageUrl,
+    imageUrl: normalizeImageUrl(sl.dish.imageUrl),
     price: Math.round(sl.dish.priceVnd / 1000),
     kcal: sl.dish.kcal,
     version: sl.version,
@@ -140,39 +150,43 @@ type Props = {
   onBack: () => void;
   onEditPlan: () => void;
   onMore?: () => void;
+  onOpenDish?: (dishId: string, title?: string, mealLabel?: string) => void;
+  onOpenIngredients?: (planId: string, date: string, title?: string) => void;
 };
 
-export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
+export function WeeklyPlanScreen({ onBack, onEditPlan, onMore, onOpenDish, onOpenIngredients }: Props) {
   const todayIso = getTodayISO();
 
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
+  const [config, setConfig] = useState<WeeklyPlanConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [pollingPlanId, setPollingPlanId] = useState<string | null>(null);
+  const [regenConfirmVisible, setRegenConfirmVisible] = useState(false);
   const pollRef = useRef<string | null>(null);
 
-  // ── Fetch plan ───────────────────────────────────────────────────────────────
+  // ── Fetch plan + config ─────────────────────────────────────────────────────
   const fetchPlan = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      console.log('[WeeklyPlan] Fetching plan from API...');
-      const p = await getCurrentWeeklyPlan();
-      console.log('[WeeklyPlan] Plan result:', p ? `status=${p.status}, days=${p.days?.length ?? 0}` : 'null');
+      const [p, cfg] = await Promise.all([
+        getCurrentWeeklyPlan(),
+        getWeeklyPlanConfig().catch(() => null),
+      ]);
       setPlan(p);
-      // Auto-select today
+      if (cfg) setConfig(cfg);
       if (p && Array.isArray(p.days) && p.days.length > 0) {
         const idx = p.days.findIndex((d) => d.date === todayIso);
         if (idx >= 0) setSelectedIdx(idx);
       }
     } catch (err: any) {
       console.log('[WeeklyPlan] API error:', err?.message ?? err);
-      // fallback to mock
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [todayIso]);
 
   useEffect(() => { fetchPlan(); }, [fetchPlan]);
 
@@ -193,8 +207,15 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
   const isToday = selectedDay ? isTodayISO(selectedDay.isoDate) : false;
 
   const planStatus: WeeklyPlanStatus | null = plan?.status ?? null;
-  const budget = plan?.budgetLimitVnd ?? 500000;
-  const calTotal = plan?.targetKcal ?? 14000;
+  // Config = ngân sách hiện tại; plan.budgetLimitVnd = snapshot lúc tạo plan.
+  // Khi FAILED / chưa có slot → ưu tiên config (user vừa chỉnh 1.3M).
+  const budget =
+    planStatus === 'FAILED' || !hasRealDays
+      ? (config?.budgetVnd ?? plan?.budgetLimitVnd ?? 500000)
+      : (plan?.budgetLimitVnd ?? config?.budgetVnd ?? 500000);
+  const calTotal =
+    plan?.targetKcal ??
+    (config?.kcalPerDay ? config.kcalPerDay * (config.durationDays ?? 7) : 14000);
   const {
     actualCompleted: spent,
     actualKcalCompleted: calConsumed,
@@ -218,7 +239,7 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
       if (finalPlan.status === 'FAILED') {
         Alert.alert(
           'Tạo thất bại',
-          finalPlan.generationErrorCode ?? 'Không thể tạo kế hoạch.',
+          formatWeeklyPlanGenerationError(finalPlan.generationErrorCode),
         );
       }
     } catch (err) {
@@ -243,7 +264,9 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
     if (!plan) return;
     setActionLoading('start');
     try {
-      await startWeeklyPlan(plan.id, plan.version);
+      // Refresh version trước khi start để tránh conflict do dữ liệu cũ trên client
+      const latest = (await getCurrentWeeklyPlan().catch(() => null)) ?? plan;
+      await startWeeklyPlan(latest.id, latest.version);
       await fetchPlan(true);
     } catch (e) {
       Alert.alert('Lỗi', formatApiErrorWithCode(e));
@@ -252,42 +275,29 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
     }
   };
 
-  const handleRegenerate = async () => {
-    if (!plan) {
-      // No plan yet → generate new one
-      setActionLoading('regen');
-      try {
-        const { planId } = await generateWeeklyPlan(getTodayISO());
-        await waitForPlan(planId);
-      } catch (e) {
-        Alert.alert('Lỗi', formatApiErrorWithCode(e));
-      } finally {
-        setActionLoading(null);
-      }
+  const requestRegenerate = () => {
+    if (plan) {
+      setRegenConfirmVisible(true);
       return;
     }
-    Alert.alert(
-      'Tạo lại thực đơn',
-      'Kế hoạch hiện tại sẽ bị lưu trữ và tạo mới. Tiếp tục?',
-      [
-        { text: 'Huỷ', style: 'cancel' },
-        {
-          text: 'Tạo lại',
-          style: 'destructive',
-          onPress: async () => {
-            setActionLoading('regen');
-            try {
-              const { planId } = await regenerateWeeklyPlan(plan.id);
-              await waitForPlan(planId);
-            } catch (e) {
-              Alert.alert('Lỗi', formatApiErrorWithCode(e));
-            } finally {
-              setActionLoading(null);
-            }
-          },
-        },
-      ],
-    );
+    void runRegenerate();
+  };
+
+  const runRegenerate = async () => {
+    setRegenConfirmVisible(false);
+    setActionLoading('regen');
+    try {
+      const { planId } = plan
+        ? await regenerateWeeklyPlan(plan.id)
+        : await generateWeeklyPlan(getTodayISO());
+      await waitForPlan(planId);
+      const cfg = await getWeeklyPlanConfig().catch(() => null);
+      if (cfg) setConfig(cfg);
+    } catch (e) {
+      Alert.alert('Lỗi', formatApiErrorWithCode(e));
+    } finally {
+      setActionLoading(null);
+    }
   };
 
   const handleSwap = async (meal: Meal) => {
@@ -308,10 +318,10 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
           ...prev,
           ...(result.summary
             ? {
-                projectedCostVnd: result.summary.projectedCostVnd,
-                projectedKcal: result.summary.projectedKcal,
-                budgetLimitVnd: result.summary.budgetLimitVnd,
-              }
+              projectedCostVnd: result.summary.projectedCostVnd,
+              projectedKcal: result.summary.projectedKcal,
+              budgetLimitVnd: result.summary.budgetLimitVnd,
+            }
             : {}),
           days: prev.days.map((day) => ({
             ...day,
@@ -326,7 +336,7 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
                   ...sl.dish,
                   id: result.dishId ?? sl.dish.id,
                   name: result.dishNameSnapshot ?? sl.dish.name,
-                  imageUrl: result.imageUrlSnapshot ?? sl.dish.imageUrl,
+                  imageUrl: normalizeImageUrl(result.imageUrlSnapshot ?? sl.dish.imageUrl),
                   priceVnd: result.priceSnapshotVnd ?? sl.dish.priceVnd,
                   kcal: result.kcalSnapshot ?? sl.dish.kcal,
                   proteinG: result.proteinGSnapshot ?? sl.dish.proteinG,
@@ -395,9 +405,15 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
   // ── Loading screen ───────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <SafeAreaView style={[s.safe, { alignItems: 'center', justifyContent: 'center' }]}>
-        <ActivityIndicator size="large" color={YELLOW} />
-        <Text style={{ color: MUTED, marginTop: 12 }}>Đang tải kế hoạch...</Text>
+      <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
+        <View style={s.header}>
+          <Pressable onPress={onBack} style={s.iconBtn} hitSlop={8}>
+            <ArrowLeft size={22} color={INK} strokeWidth={2} />
+          </Pressable>
+          <Text style={s.headerTitle}>Thực đơn tuần</Text>
+          <View style={s.iconBtn} />
+        </View>
+        <WeeklyPlanSkeleton />
       </SafeAreaView>
     );
   }
@@ -431,68 +447,87 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
 
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 130 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 8 }}
         showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={YELLOW} colors={[YELLOW]} />
         }
       >
         {/* ── Summary card ─────────────────────────────────────────────────── */}
         <View style={s.summaryCard}>
-          <Image
-            source={require('../assets/images/home/mogu-budget.png')}
-            resizeMode="contain"
-            style={s.summaryMascot}
-          />
-          <View style={s.summaryInfo}>
-            <View style={s.summaryTitleRow}>
-              <Sparkles size={14} color="#F0A500" fill="#F0A500" />
-              <Text style={s.summaryTitle}>
-                {planStatus ? (STATUS_LABEL[planStatus] ?? 'Kế hoạch của bạn') : 'Chưa có kế hoạch'}
-              </Text>
-            </View>
-            <Text style={s.summarySubtitle}>
-              {plan
-                ? `${durationDays} ngày · ${totalSlots} bữa · ${mealsPerDay} bữa/ngày`
-                : 'Nhấn "Tạo thực đơn" để bắt đầu'}
-            </Text>
-
-            <View style={s.statRow}>
-              <Text style={{ fontSize: 14 }}>❤️</Text>
-              <Text style={s.statLabel}>Chi tiêu</Text>
-              <Text style={s.statValue}>
-                {Math.round(spent / 1000)}K đã chi · ~{Math.round(endForecast / 1000)}K cuối kỳ
-              </Text>
-              <View style={[s.badge, { backgroundColor: remainingProjected >= 0 ? '#DCFCE7' : '#FEE2E2' }]}>
-                <Text style={[s.badgeText, { color: remainingProjected >= 0 ? '#15803D' : '#B91C1C' }]}>
-                  Còn {Math.round(remainingProjected / 1000)}K
+          <View style={s.summaryTop}>
+            <Image
+              source={require('../assets/images/home/mogu-budget.png')}
+              resizeMode="contain"
+              style={s.summaryMascot}
+            />
+            <View style={s.summaryInfo}>
+              <View style={s.summaryTitleRow}>
+                <Sparkles size={13} color="#F0A500" fill="#F0A500" />
+                <Text style={s.summaryTitle} numberOfLines={1}>
+                  {planStatus ? (STATUS_LABEL[planStatus] ?? 'Kế hoạch của bạn') : 'Chưa có kế hoạch'}
                 </Text>
               </View>
-            </View>
-            <View style={s.progressBar}>
-              <View style={[s.progressFill, { width: `${budgetPct}%` as any, backgroundColor: YELLOW }]} />
-            </View>
-
-            {/* Năng lượng */}
-            <View style={[s.statRow, { marginTop: 7 }]}>
-              <Text style={{ fontSize: 14 }}>🔥</Text>
-              <Text style={s.statLabel}>Năng lượng</Text>
-              <Text style={s.statValue}>
-                {calConsumed.toLocaleString('vi-VN')} đã nạp · ~{calProjected.toLocaleString('vi-VN')} dự toán
+              <Text style={s.summarySubtitle} numberOfLines={1}>
+                {plan
+                  ? `${durationDays} ngày · ${totalSlots} bữa · ${mealsPerDay} bữa/ngày`
+                  : 'Nhấn "Tạo thực đơn" để bắt đầu'}
               </Text>
-              <View style={[s.badge, { backgroundColor: '#FEE2E2' }]}>
-                <Text style={[s.badgeText, { color: '#B91C1C' }]}>Đạt {Math.round(calPct)}%</Text>
-              </View>
-            </View>
-            <View style={s.progressBar}>
-              <View style={[s.progressFill, { width: `${calPct}%` as any, backgroundColor: '#FF6030' }]} />
-            </View>
 
-            <TouchableOpacity onPress={onEditPlan} activeOpacity={0.8} style={s.editPlanBtn}>
-              <Text style={{ fontSize: 13 }}>✏️</Text>
-              <Text style={s.editPlanText}>Chỉnh kế hoạch</Text>
-            </TouchableOpacity>
+              <View style={s.statRow}>
+                <Text style={s.statIcon}>❤️</Text>
+                <Text style={s.statValue} numberOfLines={1}>
+                  {Math.round(spent / 1000)}K đã chi · ~{Math.round(endForecast / 1000)}K cuối kỳ
+                </Text>
+                <Badge
+                  className={
+                    remainingProjected >= 0
+                      ? 'border-transparent bg-[#DCFCE7]'
+                      : 'border-transparent bg-[#FEE2E2]'
+                  }
+                >
+                  <UiText
+                    className={
+                      remainingProjected >= 0
+                        ? 'text-[10px] font-bold text-[#15803D]'
+                        : 'text-[10px] font-bold text-[#B91C1C]'
+                    }
+                  >
+                    Còn {Math.round(remainingProjected / 1000)}K
+                  </UiText>
+                </Badge>
+              </View>
+              <Progress
+                value={budgetPct}
+                className="h-1 bg-[#F0E9D0]"
+                indicatorClassName="bg-primary"
+              />
+
+              <View style={[s.statRow, { marginTop: 1 }]}>
+                <Text style={s.statIcon}>🔥</Text>
+                <Text style={s.statValue} numberOfLines={1}>
+                  {calConsumed.toLocaleString('vi-VN')} đã nạp · ~{calProjected.toLocaleString('vi-VN')} dự toán
+                </Text>
+                <Badge className="border-transparent bg-[#FEE2E2]">
+                  <UiText className="text-[10px] font-bold text-[#B91C1C]">
+                    Đạt {Math.round(calPct)}%
+                  </UiText>
+                </Badge>
+              </View>
+              <Progress
+                value={calPct}
+                className="h-1 bg-[#F0E9D0]"
+                indicatorClassName="bg-[#FF6030]"
+              />
+            </View>
           </View>
+
+          <TouchableOpacity onPress={onEditPlan} activeOpacity={0.8} style={s.editPlanBtn}>
+            <Text style={{ fontSize: 12 }}>✏️</Text>
+            <Text style={s.editPlanText}>Chỉnh kế hoạch</Text>
+          </TouchableOpacity>
         </View>
 
         {/* ── GENERATING state notice ───────────────────────────────────────── */}
@@ -546,7 +581,7 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
         )}
 
         {/* ── Meal cards hoặc Empty state ───────────────────────────────────── */}
-        <View style={{ paddingHorizontal: 16, gap: 10 }}>
+        <View style={s.mealsSection}>
           {hasRealDays ? (
             <>
               {selectedDay.meals.map((meal) => (
@@ -560,11 +595,26 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
                   onComplete={() => handleComplete(meal)}
                   onSkip={() => handleSkip(meal)}
                   onToggleLock={() => handleLockToggle(meal)}
+                  onOpenDish={
+                    meal.dishId
+                      ? () => onOpenDish?.(meal.dishId, meal.dishName, meal.slot)
+                      : undefined
+                  }
                 />
               ))}
 
               {/* Nguyên liệu — chỉ hiện khi có plan */}
-              <Pressable style={s.ingredientsRow}>
+              <Pressable
+                style={s.ingredientsRow}
+                onPress={() => {
+                  if (!plan?.id || !selectedDay.isoDate) return;
+                  onOpenIngredients?.(
+                    plan.id,
+                    selectedDay.isoDate,
+                    `Nguyên liệu · ${selectedDay.weekdayFull}`,
+                  );
+                }}
+              >
                 <View style={s.ingredientIcon}>
                   <Text style={{ fontSize: 22 }}>🥬</Text>
                 </View>
@@ -572,7 +622,7 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
                   <Text style={s.ingredientTitle}>Nguyên liệu hôm nay</Text>
                   <View style={{ flexDirection: 'row', gap: 4, marginTop: 2, alignItems: 'center' }}>
                     <Text style={s.ingredientCount}>
-                      {selectedDay.meals.length * 4} nguyên liệu
+                      Xem danh sách nguyên liệu
                     </Text>
                     <Text style={{ fontSize: 12, color: MUTED }}>·</Text>
                     <Text style={s.ingredientLink}>Xem danh sách</Text>
@@ -618,7 +668,7 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
           <TouchableOpacity
             activeOpacity={0.87}
             style={s.startBtn}
-            onPress={handleRegenerate}
+            onPress={requestRegenerate}
             disabled={actionLoading === 'regen'}
           >
             {actionLoading === 'regen'
@@ -630,7 +680,7 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
 
         <TouchableOpacity
           style={s.recreateBtn}
-          onPress={handleRegenerate}
+          onPress={requestRegenerate}
           disabled={!!actionLoading}
           className='group'
         >
@@ -640,13 +690,27 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore }: Props) {
           }
         </TouchableOpacity>
       </View>
+
+      <ConfirmDialog
+        visible={regenConfirmVisible}
+        tone="warning"
+        title="Tạo lại thực đơn?"
+        description="Kế hoạch hiện tại sẽ bị lưu trữ và tạo mới với cấu hình mới nhất. Tiếp tục?"
+        confirmLabel="Tạo lại"
+        cancelLabel="Huỷ"
+        onConfirm={() => {
+          setRegenConfirmVisible(false);
+          void runRegenerate();
+        }}
+        onCancel={() => setRegenConfirmVisible(false)}
+      />
     </SafeAreaView>
   );
 }
 
 // ── MealCard ──────────────────────────────────────────────────────────────────
 function MealCard({
-  meal, isReal, busy, swapping, onSwap, onComplete, onSkip, onToggleLock,
+  meal, isReal, busy, swapping, onSwap, onComplete, onSkip, onToggleLock, onOpenDish,
 }: {
   meal: Meal;
   isReal: boolean;
@@ -656,6 +720,7 @@ function MealCard({
   onComplete: () => void;
   onSkip: () => void;
   onToggleLock: () => void;
+  onOpenDish?: () => void;
 }) {
   const isDone = meal.status === 'COMPLETED';
   const isSkipped = meal.status === 'SKIPPED';
@@ -666,43 +731,56 @@ function MealCard({
 
   return (
     <View style={s.mealCard}>
-      {/* Ảnh món ăn */}
-      <View style={[s.mealImage, { backgroundColor: bg, overflow: 'hidden' }]}>
-        {meal.imageUrl ? (
-          <Image source={{ uri: meal.imageUrl }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
-        ) : (
-          <Text style={{ fontSize: 30 }}>{meal.slotIcon}</Text>
-        )}
-      </View>
-
-      {/* Info */}
-      <View style={s.mealInfo}>
-        <View style={s.mealSlotRow}>
-          <Text style={{ fontSize: 12 }}>{meal.slotIcon}</Text>
-          <Text style={s.mealSlotText}>{meal.slot}</Text>
-          <TouchableOpacity
-            onPress={onToggleLock}
-            disabled={!isReal || busy || isDone || isSkipped}
-            hitSlop={8}
-            style={s.lockBtn}
-          >
-            <Text style={{ fontSize: 12 }}>{meal.isLocked ? '🔒' : '🔓'}</Text>
-          </TouchableOpacity>
+      {/* Ảnh + info — tap mở chi tiết món */}
+      <Pressable
+        style={s.mealPressable}
+        onPress={onOpenDish}
+        disabled={!onOpenDish}
+      >
+        <View style={[s.mealImage, { backgroundColor: bg }]}>
+          {meal.imageUrl ? (
+            <AppImage
+              uri={meal.imageUrl}
+              style={s.mealImageSource}
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              transition={200}
+              showLoader
+              fallbackIcon={<Text style={{ fontSize: 32 }}>{meal.slotIcon}</Text>}
+            />
+          ) : (
+            <Text style={{ fontSize: 32 }}>{meal.slotIcon}</Text>
+          )}
         </View>
-        <Text style={s.mealName} numberOfLines={1}>{meal.dishName}</Text>
-        <Text style={s.mealMeta}>
-          {meal.price > 0 ? `${meal.price}K` : '—'} · {meal.kcal > 0 ? `${meal.kcal} kcal` : '—'}
-        </Text>
-        {isDone && <Text style={s.slotStatusDone}>Đã ăn</Text>}
-        {isSkipped && <Text style={s.slotStatusSkip}>Đã bỏ</Text>}
-        {!isDone && !isSkipped && (
-          <TouchableOpacity onPress={onSkip} disabled={busy} hitSlop={6} style={s.skipLink}>
-            <Text style={s.skipLinkText}>Bỏ qua</Text>
-          </TouchableOpacity>
-        )}
-      </View>
 
-      {/* Chỉ 2 action chính — tránh clip trong rail hẹp */}
+        <View style={s.mealInfo}>
+          <View style={s.mealSlotRow}>
+            <Text style={{ fontSize: 12 }}>{meal.slotIcon}</Text>
+            <Text style={s.mealSlotText}>{meal.slot}</Text>
+            <TouchableOpacity
+              onPress={onToggleLock}
+              disabled={!isReal || busy || isDone || isSkipped}
+              hitSlop={8}
+              style={s.lockBtn}
+            >
+              <Text style={{ fontSize: 12 }}>{meal.isLocked ? '🔒' : '🔓'}</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={s.mealName} numberOfLines={1}>{meal.dishName}</Text>
+          <Text style={s.mealMeta}>
+            {meal.price > 0 ? `${meal.price}K` : '—'} · {meal.kcal > 0 ? `${meal.kcal.toLocaleString('vi-VN')} kcal` : '—'}
+          </Text>
+          {isDone && <Text style={s.slotStatusDone}>Đã ăn</Text>}
+          {isSkipped && <Text style={s.slotStatusSkip}>Đã bỏ</Text>}
+          {!isDone && !isSkipped && (
+            <TouchableOpacity onPress={onSkip} disabled={busy} hitSlop={6} style={s.skipLink}>
+              <Text style={s.skipLinkText}>Bỏ qua</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </Pressable>
+
+      {/* 2 action buttons */}
       <View style={s.mealActions}>
         <TouchableOpacity
           style={[s.changeBtn, (!isReal || meal.isLocked || isDone || isSkipped) && { opacity: 0.4 }]}
@@ -712,7 +790,7 @@ function MealCard({
         >
           {swapping
             ? <ActivityIndicator size="small" color="#555" />
-            : <RefreshCw size={16} color="#555" strokeWidth={2} />
+            : <RefreshCw size={15} color="#555" strokeWidth={2} />
           }
           <Text style={s.changeBtnText}>Đổi</Text>
         </TouchableOpacity>
@@ -740,41 +818,43 @@ const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: CREAM },
 
   header: {
-    height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: BORDER, backgroundColor: CREAM,
   },
-  headerTitle: { fontSize: 17, fontWeight: '700', color: INK, letterSpacing: -0.3 },
-  iconBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  headerTitle: { fontSize: 16, fontWeight: '700', color: INK, letterSpacing: -0.3 },
+  iconBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
 
   summaryCard: {
-    marginHorizontal: 16, marginTop: 16, borderRadius: 20, backgroundColor: WHITE,
-    flexDirection: 'row', alignItems: 'flex-start', padding: 16, gap: 12, ...shadow,
+    marginHorizontal: 16, marginTop: 6, marginBottom: 10, borderRadius: 14, backgroundColor: WHITE,
+    padding: 10, gap: 6, ...shadow,
   },
-  summaryMascot: { width: 150, height: 170, flexShrink: 0 },
-  summaryInfo: { flex: 1, gap: 2 },
-  summaryTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginBottom: 2 },
-  summaryTitle: { fontSize: 13, fontWeight: '800', color: INK, letterSpacing: -0.2, flexShrink: 1 },
-  summarySubtitle: { fontSize: 11, color: MUTED, marginBottom: 7 },
+  summaryTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  summaryMascot: { width: 52, height: 60, flexShrink: 0 },
+  summaryInfo: { flex: 1, minWidth: 0, gap: 2 },
+  summaryTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 0 },
+  summaryTitle: { fontSize: 14, fontWeight: '800', color: INK, letterSpacing: -0.2, flexShrink: 1 },
+  summarySubtitle: { fontSize: 11.5, color: MUTED, marginBottom: 3 },
 
   statRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  statLabel: { fontSize: 11, fontWeight: '600', color: '#444', flex: 1 },
-  statValue: { fontSize: 10, color: '#555', fontWeight: '500' },
-  badge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 20 },
-  badgeText: { fontSize: 9, fontWeight: '700' },
-  progressBar: { height: 5, borderRadius: 3, backgroundColor: '#F0E9D0', overflow: 'hidden', marginTop: 3, marginBottom: 1 },
-  progressFill: { height: '100%', borderRadius: 3 },
+  statIcon: { fontSize: 12, lineHeight: 14 },
+  statLabel: { fontSize: 11, fontWeight: '600', color: '#444' },
+  statValue: { flex: 1, fontSize: 11.5, color: '#555', fontWeight: '500', minWidth: 0 },
+  badge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 20, flexShrink: 0 },
+  badgeText: { fontSize: 10, fontWeight: '700' },
+  progressBar: { height: 4, borderRadius: 2, backgroundColor: '#F0E9D0', overflow: 'hidden', marginTop: 2 },
+  progressFill: { height: '100%', borderRadius: 2 },
 
   editPlanBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
-    height: 34, borderRadius: 10, borderWidth: 1.5, borderColor: '#E5E0D4',
-    backgroundColor: WHITE, marginTop: 10,
+    height: 30, borderRadius: 9, borderWidth: 1.2, borderColor: '#E5E0D4',
+    backgroundColor: WHITE,
   },
-  editPlanText: { fontSize: 13, fontWeight: '600', color: INK },
+  editPlanText: { fontSize: 12.5, fontWeight: '600', color: INK },
 
   generatingBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    marginHorizontal: 16, marginTop: 12, padding: 14,
-    backgroundColor: '#FFFBE6', borderRadius: 14,
+    marginHorizontal: 16, marginTop: 8, padding: 10,
+    backgroundColor: '#FFFBE6', borderRadius: 12,
     borderWidth: 1, borderColor: '#FDE68A',
   },
   generatingText: { flex: 1, fontSize: 13, color: '#92400E' },
@@ -782,116 +862,136 @@ const s = StyleSheet.create({
   calendarRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
+    paddingHorizontal: 12,
+    paddingTop: 4,
+    paddingBottom: 8,
   },
-  calDay: { flex: 1, borderRadius: 12, alignItems: 'center', paddingVertical: 8, marginHorizontal: 2 },
+  calDay: { flex: 1, borderRadius: 9, alignItems: 'center', paddingVertical: 4, marginHorizontal: 2 },
   calDaySelected: { backgroundColor: YELLOW },
-  calDayLabel: { fontSize: 11, fontWeight: '600', color: MUTED },
+  calDayLabel: { fontSize: 10, fontWeight: '600', color: MUTED },
   calDayLabelSelected: { color: INK },
-  calDayDate: { fontSize: 18, fontWeight: '800', color: '#333', marginTop: 2 },
+  calDayDate: { fontSize: 14, fontWeight: '800', color: '#333', marginTop: 0 },
   calDayDateSelected: { color: INK },
-  todayDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: YELLOW, marginTop: 3 },
+  todayDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: YELLOW, marginTop: 1 },
 
-  dayHeader: { paddingHorizontal: 16, paddingBottom: 12, paddingTop: 2 },
-  dayHeaderTitle: { fontSize: 17, fontWeight: '800', color: INK, letterSpacing: -0.3 },
-  dayHeaderSub: { fontSize: 13, color: MUTED, marginTop: 2 },
+  dayHeader: { paddingHorizontal: 16, paddingBottom: 6, paddingTop: 4 },
+  dayHeaderTitle: { fontSize: 14, fontWeight: '800', color: INK, letterSpacing: -0.3 },
+  dayHeaderSub: { fontSize: 11.5, color: MUTED, marginTop: 2 },
+
+  mealsSection: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingBottom: 4,
+    gap: 6,
+    justifyContent: 'flex-start',
+  },
 
   mealCard: {
     backgroundColor: WHITE,
-    borderRadius: 16,
+    borderRadius: 12,
     flexDirection: 'row',
-    alignItems: 'stretch',
+    alignItems: 'center',
+    padding: 10,
+    gap: 10,
     ...shadow,
     borderWidth: 1,
     borderColor: BORDER,
   },
+  mealPressable: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    minWidth: 0,
+    gap: 10,
+  },
   mealImage: {
-    width: 88,
-    minHeight: 96,
+    width: 64,
+    height: 64,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
     flexShrink: 0,
-    borderTopLeftRadius: 15,
-    borderBottomLeftRadius: 15,
   },
-  mealInfo: { flex: 1, paddingHorizontal: 12, paddingVertical: 12, justifyContent: 'center' },
-  mealSlotRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 3 },
-  mealSlotText: { fontSize: 12, fontWeight: '600', color: '#C08000' },
+  mealImageSource: {
+    width: 64,
+    height: 64,
+    borderRadius: 10,
+  },
+  mealInfo: { flex: 1, minWidth: 0, justifyContent: 'center' },
+  mealSlotRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 2 },
+  mealSlotText: { fontSize: 12, fontWeight: '700', color: '#C08000' },
   lockBtn: {
     marginLeft: 2,
-    width: 22,
-    height: 22,
-    borderRadius: 6,
+    width: 18,
+    height: 18,
+    borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  mealName: { fontSize: 15, fontWeight: '700', color: INK, letterSpacing: -0.2 },
-  mealMeta: { fontSize: 12, color: MUTED, marginTop: 3 },
-  skipLink: { marginTop: 6, alignSelf: 'flex-start' },
-  skipLinkText: { fontSize: 12, fontWeight: '600', color: MUTED, textDecorationLine: 'underline' },
+  mealName: { fontSize: 15.5, fontWeight: '700', color: INK, letterSpacing: -0.2 },
+  mealMeta: { fontSize: 12.5, color: MUTED, marginTop: 2 },
+  skipLink: { marginTop: 2, alignSelf: 'flex-start' },
+  skipLinkText: { fontSize: 11, fontWeight: '600', color: MUTED, textDecorationLine: 'underline' },
 
   mealActions: {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 64,
-    backgroundColor: '#FAFAF5',
-    borderLeftWidth: 1,
-    borderLeftColor: BORDER,
-    gap: 10,
-    paddingVertical: 10,
-    borderTopRightRadius: 15,
-    borderBottomRightRadius: 15,
+    gap: 6,
+    flexShrink: 0,
   },
   changeBtn: {
-    flexDirection: 'column',
+    width: 36,
+    height: 36,
+    borderRadius: 9,
+    backgroundColor: '#F8F5EC',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 2,
-    paddingHorizontal: 4,
+    gap: 1,
   },
-  changeBtnText: { fontSize: 10, fontWeight: '600', color: '#555' },
+  changeBtnText: { fontSize: 9, fontWeight: '700', color: '#666' },
   completeBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 9,
     backgroundColor: WHITE,
-    borderWidth: 1,
+    borderWidth: 1.2,
     borderColor: BORDER,
     alignItems: 'center',
     justifyContent: 'center',
   },
   completeBtnText: { fontSize: 14, fontWeight: '700', color: INK },
-  slotStatusDone: { fontSize: 11, color: '#15803D', fontWeight: '700', marginTop: 2 },
-  slotStatusSkip: { fontSize: 11, color: MUTED, fontWeight: '600', marginTop: 2 },
+  slotStatusDone: { fontSize: 12, color: '#15803D', fontWeight: '700', marginTop: 2 },
+  slotStatusSkip: { fontSize: 12, color: MUTED, fontWeight: '600', marginTop: 2 },
 
   ingredientsRow: {
-    backgroundColor: WHITE, borderRadius: 14,
+    backgroundColor: WHITE, borderRadius: 12,
     flexDirection: 'row', alignItems: 'center',
-    padding: 14, gap: 12, ...shadow,
+    padding: 12, gap: 10, ...shadow,
     borderWidth: 1, borderColor: BORDER,
+    marginTop: 2,
   },
-  ingredientIcon: { width: 44, height: 44, borderRadius: 12, backgroundColor: '#F0FFF4', alignItems: 'center', justifyContent: 'center' },
+  ingredientIcon: { width: 40, height: 40, borderRadius: 10, backgroundColor: '#F0FFF4', alignItems: 'center', justifyContent: 'center' },
   ingredientTitle: { fontSize: 14, fontWeight: '600', color: INK },
   ingredientCount: { fontSize: 12, color: MUTED },
   ingredientLink: { fontSize: 12, color: '#F0A500', fontWeight: '600' },
 
   emptyState: {
+    flex: 1,
     alignItems: 'center', justifyContent: 'center',
-    paddingVertical: 48, gap: 10,
+    paddingVertical: 28, gap: 6,
   },
-  emptyTitle: { fontSize: 17, fontWeight: '700', color: INK, textAlign: 'center' },
-  emptySubtitle: { fontSize: 14, color: MUTED, textAlign: 'center', lineHeight: 22 },
+  emptyTitle: { fontSize: 15, fontWeight: '700', color: INK, textAlign: 'center' },
+  emptySubtitle: { fontSize: 12.5, color: MUTED, textAlign: 'center', lineHeight: 18 },
 
   footer: {
-    position: 'absolute', left: 0, right: 0, bottom: 0,
     backgroundColor: CREAM,
-    paddingHorizontal: 16, paddingTop: 12, paddingBottom: 28,
-    borderTopWidth: 1, borderTopColor: BORDER, gap: 6,
+    paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12,
+    borderTopWidth: 1, borderTopColor: BORDER, gap: 2,
   },
-  startBtn: { height: 52, borderRadius: 16, backgroundColor: YELLOW, alignItems: 'center', justifyContent: 'center' },
-  startBtnText: { fontSize: 16, fontWeight: '800', color: INK, letterSpacing: -0.3 },
-  recreateBtn: { alignItems: 'center', paddingVertical: 4 },
-  recreateBtnText: { fontSize: 14, color: MUTED },
+  startBtn: { height: 48, borderRadius: 14, backgroundColor: YELLOW, alignItems: 'center', justifyContent: 'center' },
+  startBtnText: { fontSize: 15, fontWeight: '800', color: INK, letterSpacing: -0.3 },
+  recreateBtn: { alignItems: 'center', paddingVertical: 2 },
+  recreateBtnText: { fontSize: 12.5, color: MUTED },
 });

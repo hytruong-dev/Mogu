@@ -259,7 +259,10 @@ export class AdminAccountController {
   @Post(':userId/reset-password')
   @Roles(SystemRole.SUPER_ADMIN)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '[Super Admin] Reset mật khẩu người dùng' })
+  @ApiOperation({
+    summary: '[Deprecated] Reset mật khẩu tạm — dùng POST /admin/users/:userId/password-reset-requests',
+    deprecated: true,
+  })
   adminResetPassword(
     @Param('userId') targetUserId: string,
     @Body() dto: AdminResetPasswordDto,

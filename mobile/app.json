@@ -5,13 +5,26 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "android": {
       "package": "com.mogu.app"
     },
     "ios": {
       "bundleIdentifier": "com.mogu.app"
     },
-    "plugins": ["expo-status-bar"]
+    "plugins": [
+      "expo-status-bar",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Mogu cần quyền truy cập thư viện để bạn chọn ảnh đại diện.",
+          "cameraPermission": "Mogu cần quyền camera để bạn chụp ảnh đại diện.",
+          "microphonePermission": false
+        }
+      ],
+      "expo-image"
+    ]
   }
 }

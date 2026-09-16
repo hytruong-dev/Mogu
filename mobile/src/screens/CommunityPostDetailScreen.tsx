@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -8,7 +7,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -22,6 +20,9 @@ import {
   X,
 } from 'lucide-react-native';
 import { communityApi, type ExplorePost, type PostComment } from '../services/api/explore';
+import { DetailSkeleton } from '../components/skeletons/ScreenSkeletons';
+import { AvatarImage } from '../components/organisms/AvatarImage';
+import { Input } from '../components/ui/input';
 
 const C = {
   bg: '#FFF9E8',
@@ -34,7 +35,6 @@ const C = {
   yellowDark: '#E6A700',
   red: '#FF5F57',
 };
-const avatar = require('../assets/images/home/avatar.jpg');
 
 type ReplyTarget = { name: string; mention: string } | null;
 
@@ -55,7 +55,7 @@ export function CommunityPostDetailScreen({
   const [likeCount, setLikeCount] = useState(0);
   const [replying, setReplying] = useState<ReplyTarget>(null);
   const [value, setValue] = useState('');
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<React.ElementRef<typeof Input>>(null);
 
   useEffect(() => {
     if (!postId) {
@@ -126,9 +126,12 @@ export function CommunityPostDetailScreen({
   if (loading) {
     return (
       <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
-        <View style={[s.header, { justifyContent: 'center' }]}>
-          <ActivityIndicator color={C.yellowDark} />
+        <View style={s.header}>
+          <Pressable onPress={onBack} style={s.iconButton}>
+            <ArrowLeft size={27} />
+          </Pressable>
         </View>
+        <DetailSkeleton />
       </SafeAreaView>
     );
   }
@@ -174,7 +177,11 @@ export function CommunityPostDetailScreen({
           </Pressable>
         </View>
 
-        <ScrollView contentContainerStyle={{ paddingBottom: 100 }} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           <View
             style={{
               flexDirection: 'row',
@@ -184,10 +191,7 @@ export function CommunityPostDetailScreen({
               marginTop: 8,
             }}
           >
-            <Image
-              source={post.author?.avatarUrl ? { uri: post.author.avatarUrl } : avatar}
-              style={{ width: 44, height: 44, borderRadius: 22 }}
-            />
+            <AvatarImage uri={post.author?.avatarUrl} size={44} />
             <View style={{ flex: 1 }}>
               <Text style={{ fontWeight: '700', color: C.ink }}>{authorName}</Text>
               <Text style={{ color: C.tertiary, fontSize: 12 }}>
@@ -308,20 +312,12 @@ export function CommunityPostDetailScreen({
             </View>
           ) : null}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-            <TextInput
+            <Input
               ref={inputRef}
               value={value}
               onChangeText={setValue}
               placeholder="Viết bình luận..."
-              style={{
-                flex: 1,
-                minHeight: 40,
-                borderWidth: 1,
-                borderColor: C.border,
-                borderRadius: 20,
-                paddingHorizontal: 14,
-                paddingVertical: 8,
-              }}
+              className="min-h-10 flex-1 rounded-full px-3.5"
             />
             <Pressable
               onPress={sendComment}

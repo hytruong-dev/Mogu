@@ -6,10 +6,11 @@ import {
   Headers,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiHeader, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { MealLogsService } from './meal-logs.service';
 import { CreateMealLogDto } from './dto/health.dto';
@@ -48,11 +49,27 @@ export class MealLogsController {
     return this.mealLogs.getById(user.id, id);
   }
 
+  @Patch(':id')
+  @ApiOperation({ summary: 'Cập nhật meal log (If-Match version)' })
+  @ApiHeader({ name: 'If-Match', required: true })
+  update(
+    @CurrentUser() user: { id: string },
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: Partial<CreateMealLogDto>,
+    @Headers('if-match') ifMatch?: string,
+  ) {
+    return this.mealLogs.update(user.id, id, dto, ifMatch);
+  }
+
   @Delete(':id')
   remove(
     @CurrentUser() user: { id: string },
     @Param('id', ParseUUIDPipe) id: string,
+    @Headers('if-match') ifMatch?: string,
   ) {
-    return this.mealLogs.remove(user.id, id);
+    const version = ifMatch
+      ? parseInt(ifMatch.replace(/"/g, '').trim(), 10)
+      : undefined;
+    return this.mealLogs.remove(user.id, id, version);
   }
 }

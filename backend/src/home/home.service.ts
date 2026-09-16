@@ -35,32 +35,6 @@ function getLocalHourInTimezone(timezone: string): number {
   return Number(hour);
 }
 
-function getTimezoneOffsetMs(timeZone: string, date: Date): number {
-  const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
-  const tzDate = new Date(date.toLocaleString('en-US', { timeZone }));
-  return tzDate.getTime() - utcDate.getTime();
-}
-
-function zonedLocalTimeToUtc(localDate: string, localTime: string, timeZone: string): Date {
-  const [year, month, day] = localDate.split('-').map(Number);
-  const [hour, minute, second = 0] = localTime.split(':').map(Number);
-  const utcGuess = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
-  const offset = getTimezoneOffsetMs(timeZone, utcGuess);
-  return new Date(utcGuess.getTime() - offset);
-}
-
-function addDaysToDateString(localDate: string, days: number): string {
-  const [year, month, day] = localDate.split('-').map(Number);
-  const d = new Date(Date.UTC(year, month - 1, day + days));
-  return d.toISOString().slice(0, 10);
-}
-
-function getDayBounds(localDate: string, timezone: string): { gte: Date; lt: Date } {
-  const gte = zonedLocalTimeToUtc(localDate, '00:00:00', timezone);
-  const lt = zonedLocalTimeToUtc(addDaysToDateString(localDate, 1), '00:00:00', timezone);
-  return { gte, lt };
-}
-
 function buildGreeting(displayName: string | null | undefined, timezone: string): GreetingDto {
   const hour = getLocalHourInTimezone(timezone);
   let phrase: string;
@@ -352,13 +326,16 @@ export class HomeService {
     goalKcal: number | null,
     goalWaterMl: number = 2000,
   ): Promise<NutritionSummaryDto> {
-    const { gte, lt } = getDayBounds(localDate, timezone);
+    const dayStart = new Date(`${localDate}T00:00:00.000Z`);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setUTCDate(dayEnd.getUTCDate() + 1);
 
     const logs = await (this.prisma.db as any).diaryMealLog
       .findMany({
         where: {
           userId,
-          loggedAt: { gte, lt },
+          deletedAt: null,
+          localDate: { gte: dayStart, lt: dayEnd },
         },
         select: { totalKcal: true },
       })
@@ -368,7 +345,7 @@ export class HomeService {
       .findMany({
         where: {
           userId,
-          loggedAt: { gte, lt },
+          localDate: { gte: dayStart, lt: dayEnd },
         },
         select: { amountMl: true },
       })
@@ -404,7 +381,12 @@ export class HomeService {
         orderBy: { createdAt: 'desc' },
         include: {
           slots: {
-            select: { planDate: true, slotStatus: true, dish: { select: { priceMin: true } } },
+            select: {
+              date: true,
+              status: true,
+              priceSnapshotVnd: true,
+              actualCostVnd: true,
+            },
           },
         },
       });
@@ -413,21 +395,28 @@ export class HomeService {
 
       const todaySlots = plan.slots.filter(
         (s: any) =>
-          s.planDate &&
-          s.planDate.toISOString().slice(0, 10) === localDate,
+          s.date &&
+          (s.date instanceof Date
+            ? s.date.toISOString().slice(0, 10)
+            : String(s.date).slice(0, 10)) === localDate,
       );
       const completedMealsCount = todaySlots.filter(
-        (s: any) => s.slotStatus === 'COMPLETED',
+        (s: any) => s.status === 'COMPLETED',
       ).length;
 
-      let spent = 0;
+      // Forecast: actualCompleted + expectedPending (never treat priceMin as spent)
+      let actualCompleted = 0;
+      let expectedPending = 0;
       for (const s of plan.slots) {
-        if (s.slotStatus === 'COMPLETED' && s.dish?.priceMin) {
-          spent += s.dish.priceMin;
+        if (s.status === 'COMPLETED') {
+          actualCompleted += Number(s.actualCostVnd ?? s.priceSnapshotVnd ?? 0);
+        } else if (s.status !== 'SKIPPED') {
+          expectedPending += Number(s.priceSnapshotVnd ?? 0);
         }
       }
-      const totalBudget = plan.totalBudgetVnd ?? 0;
-      const remainingBudgetVnd = Math.max(0, totalBudget - spent);
+      const forecastEnd = actualCompleted + expectedPending;
+      const budgetLimit = Number(plan.budgetLimitVnd ?? plan.totalBudgetVnd ?? 0);
+      const remainingBudgetVnd = Math.max(0, budgetLimit - actualCompleted);
 
       return {
         status: 'ok' as const,
@@ -437,6 +426,12 @@ export class HomeService {
           todayMealsCount: todaySlots.length,
           completedMealsCount,
           remainingBudgetVnd,
+          forecast: {
+            actualCompletedVnd: actualCompleted,
+            expectedPendingVnd: expectedPending,
+            endOfPeriodProjectedVnd: forecastEnd,
+            budgetLimitVnd: budgetLimit,
+          },
         },
       };
     } catch {

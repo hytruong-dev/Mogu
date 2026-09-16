@@ -26,13 +26,15 @@ export class SavedDishesController {
   @ApiOperation({ summary: 'Danh sách món đã lưu' })
   @ApiQuery({ name: 'cursor', required: false })
   @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'q', required: false })
   list(
     @CurrentUser() user: any,
     @Query('cursor') cursor?: string,
     @Query('limit') limit?: number,
+    @Query('q') q?: string,
   ) {
     const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
-    return this.savedDishesService.list(userId, cursor, limit);
+    return this.savedDishesService.list(userId, cursor, limit, q);
   }
 
   @Put(':dishId')
@@ -45,10 +47,10 @@ export class SavedDishesController {
   }
 
   @Delete(':dishId')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Bỏ lưu món (idempotent)' })
-  unsave(@CurrentUser() user: any, @Param('dishId') dishId: string) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Bỏ lưu món (idempotent, 204)' })
+  async unsave(@CurrentUser() user: any, @Param('dishId') dishId: string) {
     const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
-    return this.savedDishesService.unsave(userId, dishId);
+    await this.savedDishesService.unsave(userId, dishId);
   }
 }

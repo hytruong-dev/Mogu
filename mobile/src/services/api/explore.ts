@@ -101,10 +101,19 @@ export const communityApi = {
   /**
    * GET /v1/community/posts
    */
-  listPosts: (params?: { cursor?: string; limit?: number }) => {
+  listPosts: (params?: {
+    cursor?: string;
+    limit?: number;
+    scope?: string;
+    status?: string;
+    q?: string;
+  }) => {
     const query = new URLSearchParams();
     if (params?.cursor) query.set('cursor', params.cursor);
     if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.scope) query.set('scope', params.scope);
+    if (params?.status) query.set('status', params.status);
+    if (params?.q) query.set('q', params.q);
     const qs = query.toString();
     return apiRequest<PostListResponse>(`/community/posts${qs ? `?${qs}` : ''}`);
   },
@@ -145,20 +154,32 @@ export const communityApi = {
   unlikePost: (postId: string): Promise<{ liked: boolean }> =>
     apiRequest(`/community/posts/${postId}/likes/me`, { method: 'DELETE' }),
 
+  followUser: (userId: string): Promise<{ following: boolean }> =>
+    apiRequest(`/community/users/${userId}/follow/me`, { method: 'PUT' }),
+
+  unfollowUser: (userId: string): Promise<{ following: boolean }> =>
+    apiRequest(`/community/users/${userId}/follow/me`, { method: 'DELETE' }),
+
+  savePost: (postId: string): Promise<{ saved: boolean }> =>
+    apiRequest(`/community/posts/${postId}/saves/me`, { method: 'PUT' }),
+
+  unsavePost: (postId: string): Promise<{ saved: boolean }> =>
+    apiRequest(`/community/posts/${postId}/saves/me`, { method: 'DELETE' }),
+
+  /**
+   * POST /v1/community/posts/:id/comments — supports parentCommentId reply
+   */
+  addComment: (postId: string, content: string, parentCommentId?: string): Promise<PostComment> =>
+    apiRequest(`/community/posts/${postId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ content, parentCommentId }),
+    }),
+
   /**
    * GET /v1/community/posts/:id/comments
    */
   listComments: (postId: string): Promise<PostComment[]> =>
     apiRequest(`/community/posts/${postId}/comments`),
-
-  /**
-   * POST /v1/community/posts/:id/comments
-   */
-  addComment: (postId: string, content: string): Promise<PostComment> =>
-    apiRequest(`/community/posts/${postId}/comments`, {
-      method: 'POST',
-      body: JSON.stringify({ content }),
-    }),
 
   /**
    * DELETE /v1/community/posts/:id/comments/:commentId

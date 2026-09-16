@@ -22,7 +22,7 @@ import { WeeklyPlanQueryDto } from './dto/weekly-plan-query.dto';
 @UseGuards(JwtAuthGuard)
 @Controller('weekly-plans')
 export class WeeklyPlansController {
-  constructor(private readonly svc: WeeklyPlansService) {}
+  constructor(private readonly svc: WeeklyPlansService) { }
 
   @Post('generate')
   @HttpCode(HttpStatus.ACCEPTED)
@@ -52,6 +52,16 @@ export class WeeklyPlansController {
     return this.svc.getGenerationStatus(planId, userId);
   }
 
+  @Get(':planId/days/:date/ingredients')
+  @ApiOperation({ summary: 'Danh sach nguyen lieu gom cua 1 ngay trong plan' })
+  getDayIngredients(
+    @CurrentUser('sub') userId: string,
+    @Param('planId') planId: string,
+    @Param('date') date: string,
+  ) {
+    return this.svc.getDayIngredients(planId, userId, date);
+  }
+
   @Get(':planId')
   @ApiOperation({ summary: 'Chi tiet ke hoach theo ID, slots grouped by day' })
   getById(@CurrentUser('sub') userId: string, @Param('planId') planId: string) {
@@ -66,8 +76,8 @@ export class WeeklyPlansController {
     @Param('planId') planId: string,
     @Headers('if-match') ifMatch: string,
   ) {
-    const version = parseInt(ifMatch ?? '0', 10);
-    return this.svc.startPlan(planId, userId, version);
+    const version = parseInt(String(ifMatch ?? '0').replace(/"/g, '').trim(), 10);
+    return this.svc.startPlan(planId, userId, Number.isFinite(version) ? version : 0);
   }
 
   @Post(':planId/regenerate')

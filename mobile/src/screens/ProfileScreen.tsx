@@ -1,19 +1,60 @@
-import { useState, type ComponentType } from 'react';
-import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { useCallback, useEffect, useState, type ComponentType, type ReactNode } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  Alert,
+  BackHandler,
+  Image,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  View,
+  type ImageSourcePropType,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { cn } from '../lib/utils';
 import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomNav';
+import { ImageUploadField, type UploadImage } from '../components/organisms/ImageUploadField';
+import { AvatarImage } from '../components/organisms/AvatarImage';
+import { profileApi, type ProfileDashboard } from '../services/api/profile';
+import { useProfileDashboard } from '../hooks/useProfileDashboard';
+import { authApi } from '../services/api/auth';
+import { clearSession } from '../services/api/storage';
+import { dishesApi } from '../services/api/dishes';
+import { healthApi } from '../services/api/health';
+import { communityApi, type ExplorePost } from '../services/api/explore';
+import { onboardingApi } from '../services/api/onboarding';
+import { normalizeImageUrl } from '../services/api/randomization';
+import { ConfirmDialog } from '../components/ui/confirm-dialog';
+import { ScreenSlideTransition } from '../components/ui/screen-transition';
+import { Input } from '../components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../components/ui/select';
+import { Switch } from '../components/ui/switch';
+import { Textarea } from '../components/ui/textarea';
+import { cn } from '../lib/utils';
+import { uploadSignedImage, type SignedImageUpload } from '../services/uploads/signed-image';
+import { getDeviceTimeZone, getTodayISO } from '../lib/dates';
+import type { CatalogItem, SavedDishItem } from '../services/api/types';
+import {
+  FormRowsSkeleton,
+  JourneySkeleton,
+  ListSkeleton,
+  ProfileEditSkeleton,
+  ProfileMainSkeleton,
+} from '../components/skeletons/ScreenSkeletons';
 import {
   ArrowLeft,
   Bell,
   Bookmark,
   CalendarDays,
-  Camera,
   Check,
   ChevronRight,
   Compass,
-  Dumbbell,
-  Flame,
   Footprints,
   Globe2,
   HeartPulse,
@@ -22,12 +63,10 @@ import {
   Info,
   Leaf,
   LockKeyhole,
-  LogOut,
   MapPin,
   NotebookTabs,
   Pencil,
   Plus,
-  Scale,
   Search,
   Settings,
   ShieldCheck,
@@ -35,7 +74,6 @@ import {
   Target,
   Trash2,
   UserRound,
-  Utensils,
   Volume2,
 } from 'lucide-react-native';
 
@@ -49,18 +87,137 @@ const CLR = {
   danger: '#FF4D3D',
 };
 
-const shadow = {
-  shadowColor: '#5D490F',
-  shadowOpacity: 0.08,
-  shadowRadius: 20,
-  shadowOffset: { width: 0, height: 6 },
-  elevation: 3,
-};
-const avatar = require('../assets/images/home/avatar.jpg');
-const pho = require('../assets/images/random/pho-result.jpg');
-const bun = require('../assets/images/random/bun-rieu.jpg');
-const rice = require('../assets/images/random/chao-ga.jpg');
-const salad = require('../assets/images/random/banh-cuon.jpg');
+const dishPlaceholder = require('../assets/images/random/pho-result.jpg');
+
+function errMsg(e: unknown, fallback = 'Đã xảy ra lỗi.') {
+  return (e as { message?: string })?.message ?? fallback;
+}
+
+const GENDER_OPTIONS = ['Nam', 'Nữ', 'Khác', 'Không muốn nói'] as const;
+
+type ConfirmState = {
+  visible: boolean;
+  title: string;
+  description: string;
+  confirmLabel: string;
+  tone: 'warning' | 'danger';
+  onConfirm: () => void;
+} | null;
+
+let setGlobalConfirmState: ((s: ConfirmState) => void) | null = null;
+
+function confirmAction(
+  title: string,
+  message: string,
+  onConfirm: () => void,
+  confirmText = 'Xác nhận',
+  tone: 'warning' | 'danger' = 'danger',
+) {
+  if (setGlobalConfirmState) {
+    setGlobalConfirmState({
+      visible: true,
+      title,
+      description: message,
+      confirmLabel: confirmText,
+      tone,
+      onConfirm,
+    });
+  } else {
+    Alert.alert(title, message, [
+      { text: 'Hủy', style: 'cancel' },
+      { text: confirmText, style: 'destructive', onPress: onConfirm },
+    ]);
+  }
+}
+
+function formatGender(g?: string | null) {
+  if (g === 'MALE') return 'Nam';
+  if (g === 'FEMALE') return 'Nữ';
+  if (g === 'OTHER') return 'Khác';
+  if (g === 'PREFER_NOT_TO_SAY') return 'Không muốn nói';
+  return g ? String(g) : '—';
+}
+
+function parseGenderLabel(label: string): string | null {
+  if (label === 'Nam') return 'MALE';
+  if (label === 'Nữ') return 'FEMALE';
+  if (label === 'Khác') return 'OTHER';
+  if (label === 'Không muốn nói') return 'PREFER_NOT_TO_SAY';
+  return null;
+}
+
+function formatDob(iso?: string | null) {
+  if (!iso) return '';
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!m) return iso;
+  return `${m[3]}/${m[2]}/${m[1]}`;
+}
+
+function parseDobInput(text: string): string | null {
+  const t = text.trim();
+  if (!t) return null;
+  const dmy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(t);
+  if (dmy) {
+    const dd = dmy[1].padStart(2, '0');
+    const mm = dmy[2].padStart(2, '0');
+    return `${dmy[3]}-${mm}-${dd}`;
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(t)) return t;
+  return null;
+}
+
+function dishImageSource(url?: string | null, media?: Array<{ storageKey?: string; bucket?: string; publicUrl?: string }>): ImageSourcePropType {
+  const normalized = normalizeImageUrl(url);
+  if (normalized) return { uri: normalized };
+  const primary = media?.[0];
+  if (primary?.publicUrl) {
+    const u = normalizeImageUrl(primary.publicUrl);
+    if (u) return { uri: u };
+  }
+  if (primary?.storageKey) {
+    const base = (
+      globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }
+    ).process?.env?.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, '');
+    if (base) {
+      const bucket = primary.bucket ?? 'dish-images';
+      return { uri: `${base}/storage/v1/object/public/${bucket}/${primary.storageKey}` };
+    }
+  }
+  return dishPlaceholder;
+}
+
+function formatPriceRange(min?: number | null, max?: number | null) {
+  if (min == null && max == null) return null;
+  const fmt = (n: number) => `${Math.round(n / 1000)}K`;
+  if (min != null && max != null) return `${fmt(min)}–${fmt(max)}`;
+  if (min != null) return `Từ ${fmt(min)}`;
+  return `Đến ${fmt(max!)}`;
+}
+
+function mealSlotLabel(slot?: string | null) {
+  const s = (slot ?? '').toUpperCase();
+  if (s === 'BREAKFAST') return 'Bữa sáng';
+  if (s === 'LUNCH') return 'Bữa trưa';
+  if (s === 'DINNER') return 'Bữa tối';
+  if (s === 'SNACK') return 'Bữa phụ';
+  return slot || 'Bữa ăn';
+}
+
+function activityLabel(code?: string | null) {
+  const c = (code ?? '').toUpperCase();
+  if (c === 'SEDENTARY' || c === 'LOW') return 'Ít vận động';
+  if (c === 'MODERATE' || c === 'MEDIUM') return 'Vừa phải';
+  if (c === 'ACTIVE' || c === 'HIGH' || c === 'VERY_ACTIVE') return 'Năng động';
+  return code || '—';
+}
+
+function formatRelTime(iso?: string) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  return d.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+}
+
 type Page =
   | 'main'
   | 'settings'
@@ -79,20 +236,90 @@ type Props = {
   onExplore: () => void;
   onRandom: () => void;
   onHealth: () => void;
+  onNotification?: () => void;
+  onLoggedOut?: () => void;
 };
 
 export function ProfileScreen(props: Props) {
   const [page, setPage] = useState<Page>('main');
-  if (page !== 'main') return <SubScreen page={page} onBack={() => setPage('main')} />;
-  return <ProfileMain {...props} open={setPage} />;
+  const [confirmState, setConfirmState] = useState<ConfirmState>(null);
+
+  useEffect(() => {
+    setGlobalConfirmState = setConfirmState;
+    return () => {
+      setGlobalConfirmState = null;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (page === 'main') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      setPage('main');
+      return true;
+    });
+    return () => sub.remove();
+  }, [page]);
+
+  return (
+    <>
+      <View style={{ flex: 1 }}>
+        <ProfileMain {...props} open={setPage} />
+      </View>
+      <ScreenSlideTransition
+        visible={page !== 'main'}
+        direction="right"
+        onBack={() => setPage('main')}
+      >
+        {page !== 'main' ? (
+          <SubScreen page={page} onBack={() => setPage('main')} onLoggedOut={props.onLoggedOut} />
+        ) : null}
+      </ScreenSlideTransition>
+      {confirmState ? (
+        <ConfirmDialog
+          visible={confirmState.visible}
+          title={confirmState.title}
+          description={confirmState.description}
+          confirmLabel={confirmState.confirmLabel}
+          cancelLabel="Huỷ"
+          tone={confirmState.tone}
+          onConfirm={() => {
+            const action = confirmState.onConfirm;
+            setConfirmState(null);
+            action();
+          }}
+          onCancel={() => setConfirmState(null)}
+        />
+      ) : null}
+    </>
+  );
 }
 
-function ProfileMain({ open, ...nav }: Props & { open: (page: Page) => void }) {
+function ProfileMain({ open, onNotification, onLoggedOut, ...nav }: Props & { open: (page: Page) => void }) {
+  const { dash, isInitialLoading, isRefetching, error, refetch } = useProfileDashboard();
+
+  const weekdayLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+  const displayName =
+    dash?.profile.displayName?.trim() || dash?.profile.username || '—';
+  const username = dash?.profile.username ? `@${dash.profile.username}` : '—';
+  const goalName = dash?.profile.primaryGoal?.name ?? 'Chưa đặt mục tiêu';
+  const avatarUri = dash?.profile.avatar.url;
+  const monthLabel = new Date().toLocaleDateString('vi-VN', { month: 'long' });
+
+  const errorMessage = error instanceof Error ? error.message : error ? String(error) : null;
+
   return (
     <SafeAreaView className="flex-1 bg-[#FFF9E8]" edges={['top', 'left', 'right']}>
       <ScrollView
-        contentContainerStyle={{ padding: 20, paddingBottom: 122, gap: 16 }}
+        contentContainerStyle={{ padding: 20, paddingBottom: 168, gap: 16 }}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={() => void refetch()}
+            tintColor="#FFD54F"
+            colors={['#FFD54F']}
+          />
+        }
       >
         <View className="h-[68px] flex-row items-center justify-between">
           <Text className="text-[32px] font-bold text-[#161616]" style={{ lineHeight: 40 }}>
@@ -100,117 +327,145 @@ function ProfileMain({ open, ...nav }: Props & { open: (page: Page) => void }) {
           </Text>
           <View className="flex-row gap-1.5">
             <IconButton onPress={() => open('settings')} icon={Settings} />
-            <IconButton icon={Bell} />
+            <IconButton onPress={onNotification} icon={Bell} />
           </View>
         </View>
-        <Card>
-          <View className="flex-row items-center gap-3.5">
-            <Image
-              source={avatar}
-              className="w-24 h-24 rounded-[48px]"
-              style={{ width: 96, height: 96, borderRadius: 48 }}
-            />
-            <View className="flex-1">
-              <Text className="text-[23px] font-bold text-[#161616]">Huy Trương</Text>
-              <Text className="text-[15px] text-[#747474] mt-0.5">@huytruong</Text>
-              <Pressable
-                onPress={() => open('edit')}
-                className="border border-[#F5BD18] rounded-[13px] px-3 py-2 self-start mt-2.5"
-              >
-                <Text className="text-[#D89A00] text-[14px]">Chỉnh sửa hồ sơ</Text>
-              </Pressable>
-            </View>
-            <View className="absolute right-0 top-0 flex-row gap-[5px] bg-[#FFF8E6] p-2 rounded-[14px]">
-              <Target size={17} color={CLR.yellowDark} />
-              <Text className="text-[11px] text-[#161616]">Mục tiêu: Ăn cân bằng</Text>
-            </View>
-          </View>
-          <View className="flex-row mt-[18px] pt-[14px] border-t border-[#E8E4DC]">
-            {[
-              ['24', 'Bài viết'],
-              ['128', 'Món đã lưu'],
-              ['18', 'Người theo dõi'],
-            ].map(([v, l], i) => (
-              <View
-                key={l}
-                className={
-                  i > 0 ? 'flex-1 items-center border-l border-[#E8E4DC]' : 'flex-1 items-center'
-                }
-              >
-                <Text className="text-[19px] font-bold text-[#161616]">{v}</Text>
-                <Text className="text-[13px] text-[#747474] mt-0.5 text-center">{l}</Text>
-              </View>
-            ))}
-          </View>
-        </Card>
-        <Card>
-          <View className="flex-row justify-between items-center">
-            <Text className="text-[19px] font-bold text-[#161616]">Hành trình của bạn</Text>
-            <Pressable onPress={() => open('journey')}>
-              <Text className="text-[15px] text-[#D99A00]">Chi tiết</Text>
+
+        {isInitialLoading && !dash && <ProfileMainSkeleton />}
+
+        {!dash && Boolean(errorMessage) && (
+          <Card>
+            <Text className="text-[#FF4D3D] text-center">{errorMessage}</Text>
+            <Pressable
+              className="mt-3 border border-[#F5BD18] rounded-[13px] px-3 py-2 self-center"
+              onPress={() => void refetch()}
+            >
+              <Text className="text-[#D89A00]">Thử lại</Text>
             </Pressable>
-          </View>
-          <View className="flex-row mt-4">
-            {[
-              ['12', 'ngày liên tiếp'],
-              ['36', 'bữa đã ghi'],
-              ['8', 'món mới'],
-            ].map(([v, l], i) => (
-              <View
-                key={l}
-                className={
-                  i > 0 ? 'flex-1 items-center border-l border-[#E8E4DC]' : 'flex-1 items-center'
-                }
-              >
-                <Text className="text-[19px] font-bold text-[#161616]">{v}</Text>
-                <Text className="text-[13px] text-[#747474] mt-0.5 text-center">{l}</Text>
-              </View>
-            ))}
-          </View>
-          <View className="mt-3.5 bg-[#FFF9E9] rounded-[16px] p-3 flex-row justify-between">
-            {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map((d, i) => (
-              <View key={d} className="items-center gap-[5px]">
-                <View
-                  className={
-                    i < 6
-                      ? 'w-7 h-7 rounded-[14px] bg-[#FFD54F] items-center justify-center'
-                      : 'w-7 h-7 rounded-[14px] border border-[#F5BD18] items-center justify-center'
-                  }
-                >
-                  {i < 6 && <Check size={18} color="#fff" strokeWidth={3} />}
+          </Card>
+        )}
+
+        {dash ? (
+          <>
+            <Card>
+              <View className="flex-row items-start gap-3.5">
+                <AvatarImage uri={avatarUri} size={96} />
+                <View className="flex-1 gap-2">
+                  <View className="self-start flex-row items-center gap-[5px] bg-[#FFF8E6] px-2 py-1.5 rounded-[14px] max-w-full">
+                    <Target size={17} color={CLR.yellowDark} />
+                    <Text className="text-[11px] text-[#161616] flex-shrink" numberOfLines={2}>
+                      Mục tiêu: {goalName}
+                    </Text>
+                  </View>
+                  <Text className="text-[23px] font-bold text-[#161616]" numberOfLines={2}>
+                    {displayName}
+                  </Text>
+                  <Text className="text-[15px] text-[#747474]">{username}</Text>
+                  <Pressable
+                    onPress={() => open('edit')}
+                    className="border border-[#F5BD18] rounded-[13px] px-3 py-2 self-start"
+                  >
+                    <Text className="text-[#D89A00] text-[14px]">Chỉnh sửa hồ sơ</Text>
+                  </Pressable>
                 </View>
-                <Text className="text-xs">{d}</Text>
               </View>
-            ))}
-          </View>
-        </Card>
-        <Text className="text-[20px] font-bold text-[#161616] my-1">Của bạn</Text>
-        <View className="flex-row flex-wrap gap-3">
-          <Shortcut
-            icon={Bookmark}
-            title="Món đã lưu"
-            sub="128 món"
-            onPress={() => open('saved')}
-          />
-          <Shortcut
-            icon={Sparkles}
-            title="Lịch sử Random"
-            sub="24 lần"
-            onPress={() => open('history')}
-          />
-          <Shortcut
-            icon={NotebookTabs}
-            title="Nhật ký bữa ăn"
-            sub="Tháng 8"
-            onPress={() => open('diary')}
-          />
-          <Shortcut
-            icon={Pencil}
-            title="Bài viết của tôi"
-            sub="24 bài"
-            onPress={() => open('posts')}
-          />
-        </View>
+              <View className="flex-row mt-[18px] pt-[14px] border-t border-[#E8E4DC]">
+                {[
+                  [String(dash.socialStats.publishedPostCount), 'Bài viết'],
+                  [String(dash.socialStats.savedDishCount), 'Món đã lưu'],
+                  [String(dash.socialStats.followerCount), 'Người theo dõi'],
+                ].map(([v, l], i) => (
+                  <View
+                    key={l}
+                    className={
+                      i > 0
+                        ? 'flex-1 items-center border-l border-[#E8E4DC]'
+                        : 'flex-1 items-center'
+                    }
+                  >
+                    <Text className="text-[19px] font-bold text-[#161616]">{v}</Text>
+                    <Text className="text-[13px] text-[#747474] mt-0.5 text-center">{l}</Text>
+                  </View>
+                ))}
+              </View>
+            </Card>
+            <Card>
+              <View className="flex-row justify-between items-center">
+                <Text className="text-[19px] font-bold text-[#161616]">Hành trình của bạn</Text>
+                <Pressable onPress={() => open('journey')}>
+                  <Text className="text-[15px] text-[#D99A00]">Chi tiết</Text>
+                </Pressable>
+              </View>
+              <View className="flex-row mt-4">
+                {[
+                  [String(dash.journeyPreview.currentStreakDays), 'ngày liên tiếp'],
+                  [String(dash.journeyPreview.mealsLoggedThisMonth), 'bữa đã ghi'],
+                  [String(dash.journeyPreview.newDishesThisMonth), 'món mới'],
+                ].map(([v, l], i) => (
+                  <View
+                    key={l}
+                    className={
+                      i > 0
+                        ? 'flex-1 items-center border-l border-[#E8E4DC]'
+                        : 'flex-1 items-center'
+                    }
+                  >
+                    <Text className="text-[19px] font-bold text-[#161616]">{v}</Text>
+                    <Text className="text-[13px] text-[#747474] mt-0.5 text-center">{l}</Text>
+                  </View>
+                ))}
+              </View>
+              <View className="mt-3.5 bg-[#FFF9E9] rounded-[16px] p-3 flex-row justify-between">
+                {dash.journeyPreview.recentDays.map((day, i) => {
+                  const done =
+                    day.status === 'COMPLETED' || day.status === 'IN_PROGRESS';
+                  return (
+                    <View key={day.localDate} className="items-center gap-[5px]">
+                      <View
+                        className={
+                          done
+                            ? 'w-7 h-7 rounded-[14px] bg-[#FFD54F] items-center justify-center'
+                            : 'w-7 h-7 rounded-[14px] border border-[#F5BD18] items-center justify-center'
+                        }
+                      >
+                        {done && <Check size={18} color="#fff" strokeWidth={3} />}
+                      </View>
+                      <Text className="text-xs">{weekdayLabels[i] ?? ''}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </Card>
+            <Text className="text-[20px] font-bold text-[#161616] my-1">Của bạn</Text>
+            <View className="flex-row flex-wrap gap-2.5">
+              <Shortcut
+                icon={Bookmark}
+                title="Món đã lưu"
+                sub={`${dash.shortcuts.savedDishes} món`}
+                onPress={() => open('saved')}
+              />
+              <Shortcut
+                icon={Sparkles}
+                title="Lịch sử Random"
+                sub={`${dash.shortcuts.randomRuns} lần`}
+                onPress={() => open('history')}
+              />
+              <Shortcut
+                icon={NotebookTabs}
+                title="Nhật ký bữa ăn"
+                sub={monthLabel}
+                onPress={() => open('diary')}
+              />
+              <Shortcut
+                icon={Pencil}
+                title="Bài viết của tôi"
+                sub={`${dash.shortcuts.myPublishedPosts} bài`}
+                onPress={() => open('posts')}
+              />
+            </View>
+          </>
+        ) : null}
+
         <Card noPadding>
           <Row icon={HeartPulse} title="Thông tin sức khỏe" onPress={() => open('health')} />
           <Row icon={Target} title="Mục tiêu & sở thích" onPress={() => open('preferences')} />
@@ -222,7 +477,21 @@ function ProfileMain({ open, ...nav }: Props & { open: (page: Page) => void }) {
             last
           />
         </Card>
-        <Pressable className="py-3">
+        <Pressable
+          className="py-3"
+          onPress={() =>
+            confirmAction('Đăng xuất?', 'Bạn sẽ cần đăng nhập lại để tiếp tục dùng app.', () => {
+              void (async () => {
+                try {
+                  await authApi.logout('current');
+                } catch {
+                  await clearSession();
+                }
+                onLoggedOut?.();
+              })();
+            }, 'Đăng xuất', 'warning')
+          }
+        >
           <Text className="text-[16px] text-[#FF4D3D] text-center">Đăng xuất</Text>
         </Pressable>
       </ScrollView>
@@ -231,7 +500,15 @@ function ProfileMain({ open, ...nav }: Props & { open: (page: Page) => void }) {
   );
 }
 
-function SubScreen({ page, onBack }: { page: Exclude<Page, 'main'>; onBack: () => void }) {
+function SubScreen({
+  page,
+  onBack,
+  onLoggedOut,
+}: {
+  page: Exclude<Page, 'main'>;
+  onBack: () => void;
+  onLoggedOut?: () => void;
+}) {
   const titles: Record<Exclude<Page, 'main'>, string> = {
     settings: 'Cài đặt',
     edit: 'Chỉnh sửa hồ sơ',
@@ -249,11 +526,16 @@ function SubScreen({ page, onBack }: { page: Exclude<Page, 'main'>; onBack: () =
     <SafeAreaView className="flex-1 bg-[#FFF9E8]">
       <Header title={titles[page]} onBack={onBack} />
       <ScrollView
-        contentContainerStyle={{ padding: 20, paddingBottom: 44, gap: 16 }}
+        contentContainerStyle={
+          page === 'edit'
+            ? { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 16, gap: 8 }
+            : { padding: 20, paddingBottom: 44, gap: 16 }
+        }
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {page === 'settings' ? (
-          <SettingsPage />
+          <SettingsPage onLoggedOut={onLoggedOut} />
         ) : page === 'edit' ? (
           <EditPage />
         ) : page === 'journey' ? (
@@ -280,149 +562,710 @@ function SubScreen({ page, onBack }: { page: Exclude<Page, 'main'>; onBack: () =
   );
 }
 
-function SettingsPage() {
+function LoadBlock({
+  loading,
+  error,
+  onRetry,
+  empty,
+  emptyText,
+  skeleton = 'form',
+  children,
+}: {
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+  empty?: boolean;
+  emptyText?: string;
+  skeleton?: 'edit' | 'form' | 'list' | 'journey';
+  children: ReactNode;
+}) {
+  if (loading) {
+    if (skeleton === 'edit') return <ProfileEditSkeleton />;
+    if (skeleton === 'list') return <ListSkeleton rows={5} />;
+    if (skeleton === 'journey') return <JourneySkeleton />;
+    return <FormRowsSkeleton rows={5} />;
+  }
+  if (error) {
+    return (
+      <Card>
+        <Text style={{ color: CLR.danger, textAlign: 'center' }}>{error}</Text>
+        <Pressable
+          onPress={onRetry}
+          style={{
+            marginTop: 12,
+            alignSelf: 'center',
+            borderWidth: 1,
+            borderColor: '#F5BD18',
+            borderRadius: 13,
+            paddingHorizontal: 14,
+            paddingVertical: 8,
+          }}
+        >
+          <Text style={{ color: '#D89A00' }}>Thử lại</Text>
+        </Pressable>
+      </Card>
+    );
+  }
+  if (empty) {
+    return (
+      <Card>
+        <Text style={{ color: '#747474', textAlign: 'center', paddingVertical: 16 }}>
+          {emptyText ?? 'Chưa có dữ liệu.'}
+        </Text>
+      </Card>
+    );
+  }
+  return <>{children}</>;
+}
+
+type MeProfile = {
+  version?: number;
+  profileVersion?: number;
+  basic?: {
+    displayName?: string | null;
+    username?: string | null;
+    dateOfBirth?: string | null;
+    gender?: string | null;
+    bio?: string | null;
+    region?: { id: string; code: string; name: string } | null;
+    timezone?: string | null;
+  };
+  avatar?: { url?: string | null; thumbnailUrl?: string | null };
+  preferences?: {
+    primaryGoal?: { id: string; code: string; name: string } | null;
+    tastePreferences?: CatalogItem[];
+    dietTypes?: CatalogItem[];
+    selectionPriorities?: Array<{ code: string; weight: number }>;
+    allergens?: CatalogItem[];
+    avoidedIngredients?: Array<{
+      id?: string;
+      name?: string;
+      ingredientName?: string;
+      ingredientId?: string | null;
+      text?: string;
+    }>;
+  };
+  displayName?: string | null;
+  avatarUrl?: string | null;
+};
+
+function SettingsPage({ onLoggedOut }: { onLoggedOut?: () => void }) {
+  const [me, setMe] = useState<MeProfile | null>(null);
+  const [settings, setSettings] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setActionError(null);
+    try {
+      const [profile, s] = await Promise.all([
+        profileApi.me<MeProfile>(),
+        profileApi.getSettings<any>(),
+      ]);
+      setMe(profile);
+      setSettings(s);
+    } catch (e) {
+      setError(errMsg(e, 'Không tải được cài đặt.'));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const patchSettings = async (patch: Record<string, unknown>) => {
+    if (!settings) return;
+    setBusy(true);
+    setActionError(null);
+    try {
+      const next = await profileApi.updateSettings(patch, settings.version ?? 1);
+      setSettings(next);
+    } catch (e) {
+      setActionError(errMsg(e, 'Không lưu được cài đặt.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const name = me?.basic?.displayName ?? me?.displayName ?? '—';
+  const username = me?.basic?.username ? `@${me.basic.username}` : '—';
+  const avatarUri = me?.avatar?.url ?? me?.avatar?.thumbnailUrl ?? me?.avatarUrl;
+  const themeLabel =
+    settings?.theme === 'DARK' || settings?.appTheme === 'DARK'
+      ? 'Tối'
+      : settings?.theme === 'SYSTEM' || settings?.appTheme === 'SYSTEM'
+        ? 'Hệ thống'
+        : 'Sáng';
+  const lang = settings?.language === 'en' ? 'English' : 'Tiếng Việt';
+
   return (
-    <>
+    <LoadBlock loading={loading} error={error} onRetry={load} skeleton="form">
       <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-        <Image source={avatar} style={{ width: 80, height: 80, borderRadius: 40 }} />
+        <AvatarImage uri={avatarUri} size={80} />
         <View style={{ flex: 1 }}>
-          <Text style={{ fontSize: 23, fontWeight: '700', color: '#161616' }}>{'Huy Trường'}</Text>
-          <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>@huytruong</Text>
+          <Text style={{ fontSize: 23, fontWeight: '700', color: '#161616' }}>{name}</Text>
+          <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>{username}</Text>
         </View>
         <ChevronRight />
       </Card>
       <Card noPadding>
-        <Row icon={Bell} title="Thông báo" sub="Bữa ăn, cộng đồng và nhắc nhở" />
-        <Row icon={Pencil} title="Giao diện" sub="Sáng" />
-        <Row icon={Globe2} title="Ngôn ngữ" sub="Tiếng Việt" />
-        <Row icon={ShieldCheck} title="Đồng bộ dữ liệu" sub="Đã bật" last />
+        <Row
+          icon={Bell}
+          title="Thông báo"
+          sub={
+            settings?.notifications?.pushEnabled
+              ? 'Bữa ăn, cộng đồng và nhắc nhở'
+              : 'Đang tắt'
+          }
+        />
+        <Row icon={Pencil} title="Giao diện" sub={themeLabel} />
+        <Row icon={Globe2} title="Ngôn ngữ" sub={lang} />
+        <Row
+          icon={ShieldCheck}
+          title="Đồng bộ dữ liệu"
+          sub={settings?.privacy?.analyticsEnabled ? 'Đã bật' : 'Đang tắt'}
+          last
+        />
       </Card>
       <Card noPadding>
-        <ToggleRow icon={Volume2} title="Âm thanh" initial />
-        <ToggleRow icon={Footprints} title="Rung" initial last />
+        <ToggleRow
+          icon={Volume2}
+          title="Thông báo đẩy"
+          value={!!settings?.notifications?.pushEnabled}
+          disabled={busy}
+          onChange={(v) => patchSettings({ pushNotificationsEnabled: v })}
+        />
+        <ToggleRow
+          icon={Footprints}
+          title="Nhắc bữa ăn"
+          value={!!settings?.notifications?.mealReminders}
+          disabled={busy}
+          onChange={(v) => patchSettings({ mealRemindersEnabled: v })}
+          last
+        />
       </Card>
-      <Text style={{ fontSize: 16, color: '#FF4D3D', textAlign: 'center', paddingVertical: 12 }}>
-        Đăng xuất
-      </Text>
-    </>
+      {actionError ? (
+        <Text style={{ color: CLR.danger, textAlign: 'center' }}>{actionError}</Text>
+      ) : null}
+      <Pressable
+        style={{ paddingVertical: 12 }}
+        onPress={() =>
+          confirmAction('Đăng xuất?', 'Bạn sẽ cần đăng nhập lại để tiếp tục dùng app.', () => {
+            void (async () => {
+              try {
+                await authApi.logout('current');
+              } catch {
+                await clearSession();
+              }
+              onLoggedOut?.();
+            })();
+          }, 'Đăng xuất', 'warning')
+        }
+      >
+        <Text style={{ fontSize: 16, color: '#FF4D3D', textAlign: 'center' }}>Đăng xuất</Text>
+      </Pressable>
+    </LoadBlock>
   );
 }
+
 function EditPage() {
+  const { updateDashboardCache, invalidateDashboard } = useProfileDashboard();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [version, setVersion] = useState(1);
+  const [avatarUri, setAvatarUri] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState('');
+  const [username, setUsername] = useState('');
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('');
+  const [bio, setBio] = useState('');
+  const [regionName, setRegionName] = useState('');
+  const [regionId, setRegionId] = useState<string | null>(null);
+  const [regions, setRegions] = useState<Array<{ id: string; name: string }>>([]);
+  const [saveMsg, setSaveMsg] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setSaveMsg(null);
+    try {
+      const [me, regionRes] = await Promise.all([
+        profileApi.me<MeProfile>(),
+        profileApi.getRegions(undefined, 50).catch(() => ({ items: [] as Array<{ id: string; name: string }> })),
+      ]);
+      setVersion(me.version ?? me.profileVersion ?? 1);
+      setAvatarUri(me.avatar?.url ?? me.avatar?.thumbnailUrl ?? me.avatarUrl ?? null);
+      setDisplayName(me.basic?.displayName ?? me.displayName ?? '');
+      setUsername(me.basic?.username ?? '');
+      setDob(formatDob(me.basic?.dateOfBirth));
+      setGender(formatGender(me.basic?.gender));
+      setBio(me.basic?.bio ?? '');
+      setRegionName(me.basic?.region?.name ?? '');
+      setRegionId(me.basic?.region?.id ?? null);
+      setRegions(regionRes.items ?? []);
+    } catch (e) {
+      setError(errMsg(e, 'Không tải được hồ sơ.'));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const save = async () => {
+    setSaving(true);
+    setSaveMsg(null);
+    setError(null);
+    try {
+      const body: Record<string, unknown> = {
+        displayName: displayName.trim() || null,
+        bio: bio.trim() || null,
+        gender: parseGenderLabel(gender),
+        regionId,
+      };
+      const dobIso = parseDobInput(dob);
+      if (dob.trim() && !dobIso) {
+        setError('Ngày sinh chưa đúng định dạng (dd/mm/yyyy).');
+        setSaving(false);
+        return;
+      }
+      body.dateOfBirth = dobIso;
+      const updated = await profileApi.updateBasic<MeProfile>(body, version);
+      setVersion(updated.version ?? updated.profileVersion ?? version + 1);
+      updateDashboardCache((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          profile: {
+            ...prev.profile,
+            displayName: displayName.trim() || prev.profile.displayName,
+          },
+        };
+      });
+      void invalidateDashboard();
+      setSaveMsg('Đã lưu thay đổi.');
+    } catch (e) {
+      setError(errMsg(e, 'Không lưu được hồ sơ.'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const uploadAvatar = async (image: UploadImage, onProgress: (percent: number) => void) => {
+    const intent = await profileApi.createAvatarIntent<{
+      mediaId: string;
+      upload: SignedImageUpload;
+    }>({
+      mimeType: image.mimeType,
+      sizeBytes: image.sizeBytes,
+      width: image.width,
+      height: image.height,
+    });
+    await uploadSignedImage(image, intent.upload, onProgress);
+    const avatar = await profileApi.finalizeAvatar<{ url: string }>(intent.mediaId);
+    setAvatarUri(avatar.url);
+    updateDashboardCache((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        profile: {
+          ...prev.profile,
+          avatar: {
+            ...prev.profile.avatar,
+            url: avatar.url,
+          },
+        },
+      };
+    });
+    void invalidateDashboard();
+    try {
+      const me = await profileApi.me<MeProfile>();
+      setVersion(me.version ?? me.profileVersion ?? version + 1);
+    } catch {
+      setVersion((current) => current + 1);
+    }
+    return avatar.url;
+  };
+
+  const removeAvatar = async () => {
+    await profileApi.deleteAvatar(version);
+    setAvatarUri(null);
+    updateDashboardCache((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        profile: {
+          ...prev.profile,
+          avatar: {
+            ...prev.profile.avatar,
+            url: null,
+          },
+        },
+      };
+    });
+    void invalidateDashboard();
+    try {
+      const me = await profileApi.me<MeProfile>();
+      setVersion(me.version ?? me.profileVersion ?? version + 1);
+    } catch {
+      setVersion((current) => current + 1);
+    }
+  };
+
+  const textFields: Array<{
+    label: string;
+    value: string;
+    setValue: (v: string) => void;
+    icon: ComponentType<any>;
+    multiline?: boolean;
+  }> = [
+    { label: 'Họ và tên', value: displayName, setValue: setDisplayName, icon: UserRound },
+    { label: 'Tên người dùng', value: username, setValue: setUsername, icon: Info },
+    { label: 'Ngày sinh', value: dob, setValue: setDob, icon: CalendarDays },
+    { label: 'Giới thiệu', value: bio, setValue: setBio, icon: Pencil, multiline: true },
+  ];
+
   return (
-    <>
-      <View style={{ alignItems: 'center', paddingVertical: 8 }}>
-        <Image source={avatar} style={{ width: 154, height: 154, borderRadius: 77 }} />
-        <View
+    <LoadBlock loading={loading} error={error && !displayName ? error : null} onRetry={load} skeleton="edit">
+      <View style={{ paddingVertical: 2 }}>
+        <ImageUploadField
+          value={avatarUri}
+          variant="avatar"
+          label="Ảnh đại diện"
+          onUpload={uploadAvatar}
+          onRemove={avatarUri ? removeAvatar : undefined}
+          confirmRemove
+        />
+      </View>
+      {textFields.map((f) => (
+        <Card
+          key={f.label}
           style={{
-            position: 'absolute',
-            right: '27%',
-            bottom: 34,
-            width: 44,
-            height: 44,
-            borderRadius: 22,
-            backgroundColor: '#FFD54F',
+            minHeight: 54,
+            flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'center',
+            gap: 10,
+            paddingVertical: 8,
+            paddingHorizontal: 12,
+            borderRadius: 16,
           }}
         >
-          <Camera size={22} />
-        </View>
-        <Text style={{ fontSize: 15, color: '#D99A00' }}>Thay ảnh</Text>
-      </View>
-      {[
-        ['Họ và tên', 'Huy Trương', UserRound],
-        ['Tên người dùng', '@huytruong', Info],
-        ['Ngày sinh', '12/03/2000', CalendarDays],
-        ['Giới tính', 'Nam', UserRound],
-        ['Giới thiệu', 'Yêu món Việt và thích khám phá món mới.', Pencil],
-        ['Khu vực', 'TP. Hồ Chí Minh', MapPin],
-      ].map(([a, b, I]) => (
-        <Card
-          key={a as string}
-          style={{ minHeight: 78, flexDirection: 'row', alignItems: 'center', gap: 14 }}
-        >
-          <SoftIcon icon={I as ComponentType<any>} />
-          <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 14, color: '#747474', marginTop: 2 }}>{a as string}</Text>
-            <Text style={{ fontSize: 18, color: '#161616', marginTop: 4 }}>{b as string}</Text>
+          <SoftIcon icon={f.icon} compact />
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <Text style={{ fontSize: 12, color: '#747474' }}>{f.label}</Text>
+            {f.multiline ? (
+              <Textarea
+                value={f.value}
+                onChangeText={f.setValue}
+                editable={f.label !== 'Tên người dùng'}
+                placeholder="—"
+                placeholderTextColor="#A0A0A0"
+                numberOfLines={2}
+                className="mt-0.5 min-h-[28px] max-h-[52px] border-0 bg-transparent p-0 text-[15px] shadow-none"
+              />
+            ) : (
+              <Input
+                value={f.value}
+                onChangeText={f.setValue}
+                editable={f.label !== 'Tên người dùng'}
+                placeholder="—"
+                placeholderTextColor="#A0A0A0"
+                className={cn(
+                  'mt-0.5 h-7 border-0 bg-transparent p-0 text-[15px] shadow-none',
+                  f.label === 'Tên người dùng' && 'text-muted-foreground',
+                )}
+              />
+            )}
           </View>
-          <ChevronRight />
         </Card>
       ))}
-      <PrimaryButton text="Lưu thay đổi" />
-    </>
+      <Card
+        style={{
+          minHeight: 54,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+          paddingVertical: 8,
+          paddingHorizontal: 12,
+          borderRadius: 16,
+        }}
+      >
+        <SoftIcon icon={UserRound} compact />
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={{ fontSize: 12, color: '#747474' }}>Giới tính</Text>
+          <Select
+            value={
+              gender && gender !== '—'
+                ? { value: gender, label: gender }
+                : undefined
+            }
+            onValueChange={(opt) => {
+              if (opt?.value) setGender(opt.value);
+            }}
+          >
+            <SelectTrigger className="mt-0.5 h-7 border-0 bg-transparent p-0 shadow-none">
+              <SelectValue placeholder="Chọn giới tính" className="text-[15px] font-medium" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              {GENDER_OPTIONS.map((label) => (
+                <SelectItem key={label} value={label} label={label}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </View>
+      </Card>
+
+      <Card
+        style={{
+          minHeight: 54,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 10,
+          paddingVertical: 8,
+          paddingHorizontal: 12,
+          borderRadius: 16,
+        }}
+      >
+        <SoftIcon icon={MapPin} compact />
+        <View style={{ flex: 1, minWidth: 0 }}>
+          <Text style={{ fontSize: 12, color: '#747474' }}>Khu vực</Text>
+          <Select
+            value={
+              regionId
+                ? { value: regionId, label: regionName || 'Đã chọn' }
+                : undefined
+            }
+            onValueChange={(opt) => {
+              if (!opt || !opt.value || opt.value === '__none__') {
+                setRegionId(null);
+                setRegionName('');
+                return;
+              }
+              const found = regions.find((r) => r.id === opt.value);
+              setRegionId(opt.value);
+              setRegionName(found?.name ?? opt.label);
+            }}
+          >
+            <SelectTrigger className="mt-0.5 h-7 border-0 bg-transparent p-0 shadow-none">
+              <SelectValue placeholder="Chọn khu vực" className="text-[15px] font-medium" />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl">
+              <SelectItem value="__none__" label="Không chọn">
+                Không chọn
+              </SelectItem>
+              {regions.map((r) => (
+                <SelectItem key={r.id} value={r.id} label={r.name}>
+                  {r.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </View>
+      </Card>
+      {error ? <Text style={{ color: CLR.danger, textAlign: 'center', fontSize: 13 }}>{error}</Text> : null}
+      {saveMsg ? <Text style={{ color: '#2F9E44', textAlign: 'center', fontSize: 13 }}>{saveMsg}</Text> : null}
+      <PrimaryButton text={saving ? 'Đang lưu…' : 'Lưu thay đổi'} onPress={save} disabled={saving} compact />
+    </LoadBlock>
   );
 }
+
 function JourneyPage() {
+  const tz = getDeviceTimeZone();
+  const month = getTodayISO(tz).slice(0, 7);
+
+  const { data, isLoading, error: queryError, refetch } = useQuery<any>({
+    queryKey: ['profile', 'journey', month, tz],
+    queryFn: () => profileApi.getJourney<any>(month, tz),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const loading = isLoading && !data;
+  const error = queryError ? errMsg(queryError, 'Không tải được hành trình.') : null;
+  const load = useCallback(() => void refetch(), [refetch]);
+
+  const streak = data?.streak?.currentDays ?? data?.currentStreakDays ?? 0;
+  const longest = data?.streak?.longestDays ?? data?.longestStreakDays ?? 0;
+  const achievements: Array<any> = data?.achievements ?? [];
+  const monthlyGoals: Array<any> = data?.monthlyGoals ?? [];
+  const days: Array<{ localDate: string; status: string }> = data?.days ?? [];
+
   return (
-    <>
+    <LoadBlock loading={loading} error={error} onRetry={load} skeleton="journey">
       <Card
         style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 24 }}
       >
         <Sparkles size={60} color={CLR.yellowDark} fill={CLR.yellow} />
         <View>
           <Text style={{ fontSize: 30, fontWeight: '700', color: '#161616' }}>
-            12{' '}
+            {streak}{' '}
             <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>
               ngày liên tiếp
             </Text>
           </Text>
           <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>
-            Kỷ lục dài nhất: 18 ngày
+            Kỷ lục dài nhất: {longest} ngày
           </Text>
         </View>
       </Card>
-      <MonthCalendar />
+      <MonthCalendar month={data?.month ?? month} days={days} />
       <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
         Thành tích
       </Text>
-      <Card style={{ flexDirection: 'row' }}>
-        {[
-          ['Người khám phá', '8 món mới'],
-          ['Chăm ghi bữa', '36 bữa'],
-          ['Cân bằng', '5 ngày đạt mục tiêu'],
-        ].map(([a, b]) => (
-          <View key={a} style={{ flex: 1, alignItems: 'center', gap: 7 }}>
-            <Sparkles color={CLR.yellowDark} />
-            <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>{a}</Text>
-            <Text style={{ fontSize: 14, color: '#747474', marginTop: 2 }}>{b}</Text>
-          </View>
-        ))}
-      </Card>
+      {achievements.length === 0 ? (
+        <Card>
+          <Text style={{ color: '#747474', textAlign: 'center' }}>Chưa có thành tích.</Text>
+        </Card>
+      ) : (
+        <Card style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+          {achievements.slice(0, 3).map((a) => (
+            <View key={a.id ?? a.code} style={{ flex: 1, minWidth: '30%', alignItems: 'center', gap: 7, paddingVertical: 4 }}>
+              <Sparkles color={CLR.yellowDark} />
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616', textAlign: 'center' }}>
+                {a.name}
+              </Text>
+              <Text style={{ fontSize: 14, color: '#747474', marginTop: 2, textAlign: 'center' }}>
+                {a.progress ?? 0}/{a.target ?? '—'}
+              </Text>
+            </View>
+          ))}
+        </Card>
+      )}
       <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
         Tiến độ tháng này
       </Text>
       <Card>
-        {['Ghi bữa ăn  36/60', 'Thử món mới  8/10', 'Uống đủ nước  12/31 ngày'].map((x) => (
-          <View key={x} style={{ paddingVertical: 12, gap: 8 }}>
-            <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>{x}</Text>
-            <View
-              style={{
-                height: 9,
-                borderRadius: 5,
-                backgroundColor: '#F1EEE7',
-                overflow: 'hidden',
-                marginTop: 10,
-              }}
-            >
-              <View
-                style={{
-                  height: '100%',
-                  borderRadius: 5,
-                  backgroundColor: '#FFD54F',
-                  width: '68%',
-                }}
-              />
-            </View>
-          </View>
-        ))}
+        {monthlyGoals.length === 0 ? (
+          <Text style={{ color: '#747474' }}>Chưa có mục tiêu tháng.</Text>
+        ) : (
+          monthlyGoals.map((g) => {
+            const current = Number(g.current ?? 0);
+            const target = Math.max(Number(g.target ?? 1), 1);
+            const pct = Math.min(100, Math.round((current / target) * 100));
+            return (
+              <View key={g.code ?? g.label} style={{ paddingVertical: 12, gap: 8 }}>
+                <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>
+                  {g.label}  {current}/{target}
+                </Text>
+                <View
+                  style={{
+                    height: 9,
+                    borderRadius: 5,
+                    backgroundColor: '#F1EEE7',
+                    overflow: 'hidden',
+                    marginTop: 10,
+                  }}
+                >
+                  <View
+                    style={{
+                      height: '100%',
+                      borderRadius: 5,
+                      backgroundColor: '#FFD54F',
+                      width: `${pct}%`,
+                    }}
+                  />
+                </View>
+              </View>
+            );
+          })
+        )}
       </Card>
-    </>
+    </LoadBlock>
   );
 }
+
 function HealthPage() {
+  const [data, setData] = useState<any>(null);
+  const [version, setVersion] = useState(1);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [hp, me] = await Promise.all([
+        profileApi.getHealthProfile<any>(),
+        profileApi.me<MeProfile>(),
+      ]);
+      setData(hp);
+      setVersion(me.version ?? me.profileVersion ?? 1);
+      setHeight(
+        hp?.latestMeasurements?.height?.value != null
+          ? String(hp.latestMeasurements.height.value)
+          : '',
+      );
+      setWeight(
+        hp?.latestMeasurements?.weight?.value != null
+          ? String(hp.latestMeasurements.weight.value)
+          : '',
+      );
+    } catch (e) {
+      setError(errMsg(e, 'Không tải được thông tin sức khỏe.'));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const save = async () => {
+    setSaving(true);
+    setMsg(null);
+    setError(null);
+    try {
+      const h = height.trim() ? Number(height.replace(',', '.')) : null;
+      const w = weight.trim() ? Number(weight.replace(',', '.')) : null;
+      if (h != null && Number.isFinite(h)) {
+        await healthApi.createMeasurement({ type: 'HEIGHT_CM', value: h, unit: 'cm' });
+      }
+      if (w != null && Number.isFinite(w)) {
+        await healthApi.createMeasurement({ type: 'WEIGHT_KG', value: w, unit: 'kg' });
+      }
+      const updated = await profileApi.updateHealth(
+        {
+          heightCm: h != null && Number.isFinite(h) ? h : undefined,
+          weightKg: w != null && Number.isFinite(w) ? w : undefined,
+        },
+        version,
+      );
+      setVersion((updated as any)?.profileVersion ?? version + 1);
+      setMsg('Đã cập nhật.');
+      await load();
+    } catch (e) {
+      setError(errMsg(e, 'Không cập nhật được.'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const bmi =
+    data?.bmi?.status === 'AVAILABLE' && data?.bmi?.value != null
+      ? Number(data.bmi.value).toFixed(1).replace('.', ',')
+      : '—';
+  const targetWeight =
+    data?.targetWeight?.value != null ? `${data.targetWeight.value} kg` : '—';
+  const activity = activityLabel(data?.activityLevel);
+  const targets = data?.dailyTargets;
+
   return (
-    <>
+    <LoadBlock loading={loading} error={error && !data ? error : null} onRetry={load} skeleton="form">
       <Card
         style={{
           flexDirection: 'row',
@@ -444,25 +1287,41 @@ function HealthPage() {
       </Card>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
         {[
-          ['Chiều cao', '170 cm'],
-          ['Cân nặng', '65 kg'],
-          ['BMI', '22,5'],
-          ['Mục tiêu cân nặng', '62 kg'],
-        ].map(([a, b]) => (
-          <Card key={a} style={{ width: '48%', minHeight: 130, justifyContent: 'center' }}>
-            <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>{a}</Text>
-            <Text style={{ fontSize: 30, fontWeight: '700', color: '#161616' }}>{b}</Text>
+          ['Chiều cao', height, setHeight, 'cm'],
+          ['Cân nặng', weight, setWeight, 'kg'],
+        ].map(([a, v, setV, unit]) => (
+          <Card key={a as string} style={{ width: '48%', minHeight: 130, justifyContent: 'center' }}>
+            <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>{a as string}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 6 }}>
+              <Input
+                value={v as string}
+                onChangeText={setV as (t: string) => void}
+                keyboardType="decimal-pad"
+                placeholder="—"
+                placeholderTextColor="#A0A0A0"
+                className="h-auto flex-1 border-0 bg-transparent p-0 text-[30px] font-bold shadow-none"
+              />
+              <Text style={{ fontSize: 14, color: '#747474', marginBottom: 6 }}>{unit as string}</Text>
+            </View>
           </Card>
         ))}
+        <Card style={{ width: '48%', minHeight: 130, justifyContent: 'center' }}>
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>BMI</Text>
+          <Text style={{ fontSize: 30, fontWeight: '700', color: '#161616' }}>{bmi}</Text>
+        </Card>
+        <Card style={{ width: '48%', minHeight: 130, justifyContent: 'center' }}>
+          <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>Mục tiêu cân nặng</Text>
+          <Text style={{ fontSize: 30, fontWeight: '700', color: '#161616' }}>{targetWeight}</Text>
+        </Card>
       </View>
       <Card>
         <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
           Mức độ vận động
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
-          <Chip text="Ít vận động" />
-          <Chip text="Vừa phải" active />
-          <Chip text="Năng động" />
+          {['Ít vận động', 'Vừa phải', 'Năng động'].map((t) => (
+            <Chip key={t} text={t} active={activity === t} />
+          ))}
         </View>
       </Card>
       <Card>
@@ -471,10 +1330,18 @@ function HealthPage() {
         </Text>
         <View style={{ flexDirection: 'row', marginTop: 15 }}>
           {[
-            ['Năng lượng', '1.850 kcal'],
-            ['Protein', '100 g'],
-            ['Nước', '2 L'],
-            ['Bước', '8.000'],
+            ['Năng lượng', targets?.energyKcal != null ? `${targets.energyKcal} kcal` : '—'],
+            ['Protein', targets?.proteinG != null ? `${targets.proteinG} g` : '—'],
+            [
+              'Nước',
+              targets?.waterMl != null
+                ? `${(targets.waterMl / 1000).toLocaleString('vi-VN')} L`
+                : '—',
+            ],
+            [
+              'Bước',
+              targets?.steps != null ? Number(targets.steps).toLocaleString('vi-VN') : '—',
+            ],
           ].map(([a, b]) => (
             <View key={a} style={{ flex: 1, alignItems: 'center' }}>
               <Text style={{ fontSize: 14, color: '#747474', marginTop: 2 }}>{a}</Text>
@@ -483,47 +1350,221 @@ function HealthPage() {
           ))}
         </View>
       </Card>
-      <PrimaryButton text="Cập nhật thông tin" />
-    </>
+      {error ? <Text style={{ color: CLR.danger, textAlign: 'center' }}>{error}</Text> : null}
+      {msg ? <Text style={{ color: '#2F9E44', textAlign: 'center' }}>{msg}</Text> : null}
+      <PrimaryButton
+        text={saving ? 'Đang cập nhật…' : 'Cập nhật thông tin'}
+        onPress={save}
+        disabled={saving}
+      />
+    </LoadBlock>
   );
 }
+
 function PreferencesPage() {
-  const [goal, setGoal] = useState('Ăn cân bằng');
+  const { invalidateDashboard } = useProfileDashboard();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [version, setVersion] = useState(1);
+  const [goals, setGoals] = useState<CatalogItem[]>([]);
+  const [tastes, setTastes] = useState<CatalogItem[]>([]);
+  const [diets, setDiets] = useState<CatalogItem[]>([]);
+  const [goalId, setGoalId] = useState<string | null>(null);
+  const [tasteIds, setTasteIds] = useState<string[]>([]);
+  const [dietIds, setDietIds] = useState<string[]>([]);
+  const [priorities, setPriorities] = useState<Record<string, boolean>>({
+    HEALTHY: false,
+    ECONOMY: false,
+    QUICK: false,
+    NOVELTY: false,
+  });
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [me, catalog] = await Promise.all([
+        profileApi.me<MeProfile>(),
+        onboardingApi.catalog(),
+      ]);
+      setVersion(me.version ?? me.profileVersion ?? 1);
+      setGoals(catalog.goals ?? []);
+      setTastes(catalog.dietaryPreferences?.taste ?? []);
+      setDiets(catalog.dietaryPreferences?.diet ?? []);
+      setGoalId(me.preferences?.primaryGoal?.id ?? null);
+      setTasteIds((me.preferences?.tastePreferences ?? []).map((x) => x.id));
+      setDietIds((me.preferences?.dietTypes ?? []).map((x) => x.id));
+      const pri: Record<string, boolean> = {
+        HEALTHY: false,
+        ECONOMY: false,
+        QUICK: false,
+        NOVELTY: false,
+      };
+      for (const p of me.preferences?.selectionPriorities ?? []) {
+        if (p.code in pri) pri[p.code] = (p.weight ?? 0) > 0.3;
+      }
+      setPriorities(pri);
+    } catch (e) {
+      setError(errMsg(e, 'Không tải được sở thích.'));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const save = async () => {
+    setSaving(true);
+    setMsg(null);
+    setError(null);
+    try {
+      const updated = await profileApi.updatePreferences(
+        {
+          primaryGoalId: goalId ?? undefined,
+          dietaryPreferenceIds: [...tasteIds, ...dietIds],
+        },
+        version,
+      );
+      setVersion((updated as any)?.profileVersion ?? (updated as any)?.version ?? version + 1);
+      void invalidateDashboard();
+      setMsg('Đã lưu thay đổi.');
+    } catch (e) {
+      setError(errMsg(e, 'Không lưu được sở thích.'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleId = (list: string[], id: string, setList: (v: string[]) => void) => {
+    setList(list.includes(id) ? list.filter((x) => x !== id) : [...list, id]);
+  };
+
   return (
-    <>
-      <ChoiceCard
+    <LoadBlock loading={loading} error={error && goals.length === 0 ? error : null} onRetry={load} skeleton="form">
+      <IdChoiceCard
         title="Mục tiêu chính"
-        items={['Ăn cân bằng', 'Giảm cân', 'Tăng cơ', 'Duy trì cân nặng']}
-        value={goal}
-        setValue={setGoal}
+        items={goals}
+        value={goalId}
+        setValue={setGoalId}
       />
-      <ChoiceCard
+      <IdChoiceCard
         title="Khẩu vị yêu thích"
-        items={['Đậm đà', 'Thanh nhẹ', 'Cay', 'Ít ngọt', 'Chua', 'Béo']}
+        items={tastes}
         multi
+        values={tasteIds}
+        toggle={(id) => toggleId(tasteIds, id, setTasteIds)}
       />
-      <ChoiceCard
+      <IdChoiceCard
         title="Ẩm thực yêu thích"
-        items={['Món Việt', 'Món Á', 'Món Âu', 'Ăn chay']}
+        items={diets}
         multi
+        values={dietIds}
+        toggle={(id) => toggleId(dietIds, id, setDietIds)}
       />
       <Card>
         <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
           Ưu tiên khi chọn món
         </Text>
-        <ToggleRow icon={HeartPulse} title="Lành mạnh" initial />
-        <ToggleRow icon={Bookmark} title="Tiết kiệm" initial />
-        <ToggleRow icon={History} title="Nhanh gọn" />
-        <ToggleRow icon={Sparkles} title="Thử món mới" initial last />
+        <Text style={{ fontSize: 13, color: '#747474', marginBottom: 8 }}>
+          Đang xem trạng thái hiện tại. Lưu ưu tiên chưa có trên API — thay đổi tại đây sẽ không
+          được gửi khi bấm Lưu.
+        </Text>
+        <ToggleRow
+          icon={HeartPulse}
+          title="Lành mạnh"
+          value={priorities.HEALTHY}
+          disabled
+          onChange={() => undefined}
+        />
+        <ToggleRow
+          icon={Bookmark}
+          title="Tiết kiệm"
+          value={priorities.ECONOMY}
+          disabled
+          onChange={() => undefined}
+        />
+        <ToggleRow
+          icon={History}
+          title="Nhanh gọn"
+          value={priorities.QUICK}
+          disabled
+          onChange={() => undefined}
+        />
+        <ToggleRow
+          icon={Sparkles}
+          title="Thử món mới"
+          value={priorities.NOVELTY}
+          disabled
+          onChange={() => undefined}
+          last
+        />
       </Card>
-      <PrimaryButton text="Lưu thay đổi" />
-    </>
+      {error ? <Text style={{ color: CLR.danger, textAlign: 'center' }}>{error}</Text> : null}
+      {msg ? <Text style={{ color: '#2F9E44', textAlign: 'center' }}>{msg}</Text> : null}
+      <PrimaryButton text={saving ? 'Đang lưu…' : 'Lưu thay đổi'} onPress={save} disabled={saving} />
+    </LoadBlock>
   );
 }
+
 function AvoidPage() {
-  const [tags, setTags] = useState(['Hải sản', 'Đậu phộng', 'Sữa bò', 'Rau mùi', 'Hành sống']);
+  const SUGGESTIONS = ['Trứng', 'Gluten', 'Đậu nành', 'Nấm', 'Thịt bò', 'Thịt heo'];
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
+  const [query, setQuery] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const me = await profileApi.me<MeProfile>();
+      const avoided = (me.preferences?.avoidedIngredients ?? []).map(
+        (x) => x.name ?? x.ingredientName ?? x.text ?? '',
+      );
+      setTags(avoided.filter(Boolean));
+    } catch (e) {
+      setError(errMsg(e, 'Không tải được danh sách tránh.'));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const addTag = (t: string) => {
+    const name = t.trim();
+    if (!name) return;
+    if (tags.some((x) => x.toLowerCase() === name.toLowerCase())) return;
+    setTags([...tags, name]);
+    setQuery('');
+  };
+
+  const save = async () => {
+    setSaving(true);
+    setMsg(null);
+    setError(null);
+    try {
+      await profileApi.putAvoidances({
+        items: tags.map((text) => ({ text, mode: 'HARD' })),
+      });
+      setMsg('Đã lưu lựa chọn.');
+    } catch (e) {
+      setError(errMsg(e, 'Không lưu được.'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <>
+    <LoadBlock loading={loading} error={error && tags.length === 0 ? error : null} onRetry={load} skeleton="form">
       <Card
         style={{
           flexDirection: 'row',
@@ -552,36 +1593,50 @@ function AvoidPage() {
         }}
       >
         <Search color={CLR.secondary} />
-        <TextInput
+        <Input
           placeholder="Tìm nguyên liệu..."
-          style={{ flex: 1, fontSize: 15, color: '#161616' }}
+          value={query}
+          onChangeText={setQuery}
+          onSubmitEditing={() => addTag(query)}
+          className="h-auto flex-1 border-0 bg-transparent p-0 text-[15px] shadow-none"
         />
+        {query.trim() ? (
+          <Pressable onPress={() => addTag(query)}>
+            <Plus color={CLR.yellowDark} />
+          </Pressable>
+        ) : null}
       </View>
       <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
         Đã chọn
       </Text>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
-        {tags.map((x) => (
-          <Pressable
-            key={x}
-            style={{
-              paddingHorizontal: 16,
-              paddingVertical: 12,
-              borderRadius: 16,
-              borderWidth: 1,
-              borderColor: '#F4D99C',
-            }}
-            onPress={() => setTags(tags.filter((t) => t !== x))}
-          >
-            <Text>{x} ×</Text>
-          </Pressable>
-        ))}
-      </View>
+      {tags.length === 0 ? (
+        <Text style={{ color: '#747474' }}>Chưa chọn nguyên liệu nào.</Text>
+      ) : (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+          {tags.map((x) => (
+            <Pressable
+              key={x}
+              style={{
+                paddingHorizontal: 16,
+                paddingVertical: 12,
+                borderRadius: 16,
+                borderWidth: 1,
+                borderColor: '#F4D99C',
+              }}
+              onPress={() => setTags(tags.filter((t) => t !== x))}
+            >
+              <Text>
+                {x} ×
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      )}
       <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
         Gợi ý phổ biến
       </Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-        {['Trứng', 'Gluten', 'Đậu nành', 'Nấm', 'Thịt bò', 'Thịt heo'].map((x) => (
+        {SUGGESTIONS.map((x) => (
           <Pressable
             key={x}
             style={{
@@ -599,18 +1654,44 @@ function AvoidPage() {
               shadowOffset: { width: 0, height: 6 },
               elevation: 3,
             }}
-            onPress={() => setTags([...tags, x])}
+            onPress={() => addTag(x)}
           >
             <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>{x}</Text>
             <Plus color={CLR.yellowDark} />
           </Pressable>
         ))}
       </View>
-      <PrimaryButton text={`Lưu ${tags.length} lựa chọn`} />
-    </>
+      {error ? <Text style={{ color: CLR.danger, textAlign: 'center' }}>{error}</Text> : null}
+      {msg ? <Text style={{ color: '#2F9E44', textAlign: 'center' }}>{msg}</Text> : null}
+      <PrimaryButton
+        text={saving ? 'Đang lưu…' : `Lưu ${tags.length} lựa chọn`}
+        onPress={save}
+        disabled={saving}
+      />
+    </LoadBlock>
   );
 }
+
 function SavedPage() {
+  const [query, setQuery] = useState('');
+  const [qApplied, setQApplied] = useState('');
+
+  const { data: items = [], isLoading, error: queryError, refetch } = useQuery({
+    queryKey: ['profile', 'savedDishes', qApplied],
+    queryFn: async () => {
+      const res = await dishesApi.getSaved(undefined, 40, qApplied || undefined);
+      return (res.data ?? (res as any).items ?? []) as SavedDishItem[];
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const loading = isLoading && items.length === 0;
+  const error = queryError ? errMsg(queryError, 'Không tải được món đã lưu.') : null;
+  const load = useCallback((q?: string) => {
+    if (q !== undefined) setQApplied(q);
+    void refetch();
+  }, [refetch]);
+
   return (
     <>
       <View
@@ -627,47 +1708,239 @@ function SavedPage() {
         }}
       >
         <Search />
-        <TextInput
+        <Input
           placeholder="Tìm trong món đã lưu..."
-          style={{ flex: 1, fontSize: 15, color: '#161616' }}
+          value={query}
+          onChangeText={setQuery}
+          onSubmitEditing={() => {
+            setQApplied(query.trim());
+            load(query.trim());
+          }}
+          className="h-auto flex-1 border-0 bg-transparent p-0 text-[15px] shadow-none"
         />
       </View>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 }}>
-        <Chip text="Tất cả" active />
-        <Chip text="Bữa sáng" />
-        <Chip text="Lành mạnh" />
-        <Chip text="Dưới 50K" />
-      </View>
-      <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>128 món đã lưu</Text>
-      {[
-        [pho, 'Phở bò', '420 kcal · 25 phút · 45K–65K'],
-        [rice, 'Cơm gà Hội An', '560 kcal · 20 phút · 40K–60K'],
-        [salad, 'Salad ức gà', '320 kcal · 15 phút · 50K–70K'],
-        [bun, 'Bún bò Huế', '520 kcal · 30 phút · 40K–60K'],
-      ].map(([im, n, m]) => (
-        <FoodRow key={n as string} image={im as number} name={n as string} meta={m as string} />
-      ))}
+      <LoadBlock
+        loading={loading}
+        error={error}
+        onRetry={() => load(qApplied)}
+        empty={!loading && !error && items.length === 0}
+        emptyText="Chưa có món đã lưu."
+        skeleton="list"
+      >
+        <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>
+          {items.length} món đã lưu
+        </Text>
+        {items.map((row) => {
+          const dish = row.dish ?? (row as any);
+          const kcal = dish.kcal ?? dish.nutrition?.calories ?? dish.calories;
+          const minutes = dish.cookTimeMinutes ?? dish.prepMinutes ?? dish.cookMinutes;
+          const price = formatPriceRange(dish.priceMin, dish.priceMax);
+          const meta = [kcal != null ? `${kcal} kcal` : null, minutes != null ? `${minutes} phút` : null, price]
+            .filter(Boolean)
+            .join(' · ');
+          return (
+            <FoodRow
+              key={row.id ?? dish.id}
+              image={dishImageSource(dish.thumbnailUrl, dish.media)}
+              name={dish.name ?? 'Món ăn'}
+              meta={meta || '—'}
+            />
+          );
+        })}
+      </LoadBlock>
     </>
   );
 }
+
 function PrivacyPage() {
+  const [settings, setSettings] = useState<any>(null);
+  const [sessions, setSessions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [pwdCurrent, setPwdCurrent] = useState('');
+  const [pwdNew, setPwdNew] = useState('');
+  const [showPwd, setShowPwd] = useState(false);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setActionError(null);
+    try {
+      const [s, sess] = await Promise.all([
+        profileApi.getSettings<any>(),
+        authApi.getSessions().catch(() => ({ items: [] })),
+      ]);
+      setSettings(s);
+      setSessions(sess.items ?? []);
+    } catch (e) {
+      setError(errMsg(e, 'Không tải được quyền riêng tư.'));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const patch = async (body: Record<string, unknown>) => {
+    if (!settings) return;
+    setBusy(true);
+    setMsg(null);
+    setActionError(null);
+    try {
+      const next = await profileApi.updateSettings(body, settings.version ?? 1);
+      setSettings(next);
+      setMsg('Đã cập nhật.');
+    } catch (e) {
+      setActionError(errMsg(e, 'Không cập nhật được.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const runAction = async (fn: () => Promise<unknown>, ok: string) => {
+    setBusy(true);
+    setMsg(null);
+    setActionError(null);
+    try {
+      await fn();
+      setMsg(ok);
+    } catch (e) {
+      setActionError(errMsg(e, 'Thao tác thất bại.'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
-    <>
-      {[
-        ['Bảo mật tài khoản', ['Đổi mật khẩu', 'Xác thực sinh trắc học', 'Thiết bị đã đăng nhập']],
-        ['Quyền riêng tư', ['Hồ sơ công khai', 'Hiển thị hoạt động ăn uống', 'Cho phép bình luận']],
-        ['Dữ liệu của bạn', ['Tải dữ liệu của tôi', 'Xóa lịch sử Random', 'Xóa dữ liệu sức khỏe']],
-        ['Quyền truy cập', ['Vị trí', 'Thông báo', 'Ảnh & Camera']],
-      ].map(([h, rows]) => (
-        <Card key={h as string}>
-          <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
-            {h as string}
-          </Text>
-          {(rows as string[]).map((r, i) => (
-            <Row key={r} icon={LockKeyhole} title={r} last={i === (rows as string[]).length - 1} />
-          ))}
-        </Card>
-      ))}
+    <LoadBlock loading={loading} error={error} onRetry={load} skeleton="form">
+      <Card>
+        <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
+          Bảo mật tài khoản
+        </Text>
+        <Row
+          icon={LockKeyhole}
+          title="Đổi mật khẩu"
+          onPress={() => setShowPwd(!showPwd)}
+        />
+        {showPwd ? (
+          <View style={{ paddingHorizontal: 16, paddingBottom: 12, gap: 8 }}>
+            <Input
+              placeholder="Mật khẩu hiện tại"
+              secureTextEntry
+              value={pwdCurrent}
+              onChangeText={setPwdCurrent}
+              className="h-11 rounded-xl"
+            />
+            <Input
+              placeholder="Mật khẩu mới"
+              secureTextEntry
+              value={pwdNew}
+              onChangeText={setPwdNew}
+              className="h-11 rounded-xl"
+            />
+            <PrimaryButton
+              text={busy ? 'Đang đổi…' : 'Xác nhận đổi mật khẩu'}
+              disabled={busy || !pwdCurrent || !pwdNew}
+              onPress={() =>
+                runAction(
+                  () => authApi.changePassword(pwdCurrent, pwdNew),
+                  'Đã đổi mật khẩu.',
+                )
+              }
+            />
+          </View>
+        ) : null}
+        <Row
+          icon={LockKeyhole}
+          title={`Thiết bị đã đăng nhập (${sessions.length})`}
+          last
+          onPress={() =>
+            confirmAction(
+              'Đăng xuất thiết bị khác?',
+              'Các phiên đăng nhập khác sẽ bị hủy. Phiên hiện tại vẫn giữ.',
+              () =>
+                void runAction(
+                  () => authApi.deleteAllSessionsExceptCurrent(),
+                  'Đã đăng xuất các thiết bị khác.',
+                ),
+              'Đăng xuất hết',
+            )
+          }
+        />
+      </Card>
+      <Card>
+        <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
+          Quyền riêng tư
+        </Text>
+        <ToggleRow
+          icon={LockKeyhole}
+          title="Hồ sơ công khai"
+          value={(settings?.privacy?.profileVisibility ?? 'PUBLIC') === 'PUBLIC'}
+          disabled={busy}
+          onChange={(v) => patch({ profileVisibility: v ? 'PUBLIC' : 'PRIVATE' })}
+        />
+        <ToggleRow
+          icon={LockKeyhole}
+          title="Hiển thị hoạt động ăn uống"
+          value={!!settings?.privacy?.showDietActivity}
+          disabled={busy}
+          onChange={(v) => patch({ showDietActivity: v })}
+        />
+        <ToggleRow
+          icon={LockKeyhole}
+          title="Cho phép bình luận"
+          value={settings?.privacy?.allowComments !== false}
+          disabled={busy}
+          onChange={(v) => patch({ allowComments: v })}
+          last
+        />
+      </Card>
+      <Card>
+        <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
+          Dữ liệu của bạn
+        </Text>
+        <Row
+          icon={LockKeyhole}
+          title="Tải dữ liệu của tôi"
+          onPress={() =>
+            runAction(() => profileApi.requestDataExport(), 'Đã tạo yêu cầu xuất dữ liệu.')
+          }
+        />
+        <Row
+          icon={LockKeyhole}
+          title="Xóa lịch sử Random"
+          onPress={() =>
+            confirmAction(
+              'Xóa lịch sử Random?',
+              'Toàn bộ lịch sử Random sẽ bị xóa và không hoàn tác được.',
+              () => void runAction(() => profileApi.clearHistory(), 'Đã xóa lịch sử Random.'),
+              'Xóa',
+            )
+          }
+        />
+        <Row
+          icon={LockKeyhole}
+          title="Xóa dữ liệu sức khỏe"
+          last
+          onPress={() =>
+            confirmAction(
+              'Xóa dữ liệu sức khỏe?',
+              'Các chỉ số và dữ liệu sức khỏe đã lưu sẽ bị xóa.',
+              () => void runAction(() => profileApi.clearHealth(), 'Đã xóa dữ liệu sức khỏe.'),
+              'Xóa',
+            )
+          }
+        />
+      </Card>
+      {actionError ? (
+        <Text style={{ color: CLR.danger, textAlign: 'center' }}>{actionError}</Text>
+      ) : null}
+      {msg ? <Text style={{ color: '#2F9E44', textAlign: 'center' }}>{msg}</Text> : null}
       <Pressable
         style={{
           height: 58,
@@ -678,20 +1951,68 @@ function PrivacyPage() {
           alignItems: 'center',
           justifyContent: 'center',
           gap: 10,
+          opacity: busy ? 0.6 : 1,
         }}
+        disabled={busy}
+        onPress={() =>
+          confirmAction(
+            'Xóa tài khoản?',
+            'Yêu cầu xóa tài khoản sẽ được gửi. Hành động này có thể không hoàn tác.',
+            () =>
+              void runAction(
+                () => profileApi.requestAccountDeletion(),
+                'Đã gửi yêu cầu xóa tài khoản.',
+              ),
+            'Gửi yêu cầu',
+          )
+        }
       >
         <Trash2 color={CLR.danger} />
         <Text style={{ color: '#FF4D3D', fontWeight: '600' }}>Xóa tài khoản</Text>
       </Pressable>
-    </>
+    </LoadBlock>
   );
 }
+
 function HistoryPage() {
+  const { data, isLoading, error: queryError, refetch } = useQuery({
+    queryKey: ['profile', 'randomHistory'],
+    queryFn: async () => {
+      const [sum, hist] = await Promise.all([
+        dishesApi.getRandomHistorySummary(),
+        dishesApi.getRandomHistory(30),
+      ]);
+      return {
+        summary: sum,
+        items: (hist.data ?? (hist as any).items ?? []) as any[],
+      };
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const summary = data?.summary ?? null;
+  const items = data?.items ?? [];
+  const loading = isLoading && !data;
+  const error = queryError ? errMsg(queryError, 'Không tải được lịch sử Random.') : null;
+  const load = useCallback(() => void refetch(), [refetch]);
+
+  const total = summary?.totalRuns ?? 0;
+  const selected = summary?.selectedCount ?? 0;
+  const skipped = summary?.skippedCount ?? Math.max(total - selected, 0);
+  const rate = total > 0 ? Math.round((selected / total) * 100) : 0;
+
   return (
-    <>
+    <LoadBlock
+      loading={loading}
+      error={error}
+      onRetry={load}
+      empty={!loading && !error && items.length === 0 && total === 0}
+      emptyText="Chưa có lần Random nào."
+      skeleton="list"
+    >
       <Card style={{ alignItems: 'center' }}>
         <Sparkles color={CLR.yellowDark} />
-        <Text style={{ fontSize: 30, fontWeight: '700', color: '#161616' }}>24</Text>
+        <Text style={{ fontSize: 30, fontWeight: '700', color: '#161616' }}>{total}</Text>
         <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>lần Random</Text>
         <View
           style={{
@@ -703,48 +2024,90 @@ function HistoryPage() {
           }}
         >
           <View style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>18</Text>
+            <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>{selected}</Text>
             <Text style={{ fontSize: 13, color: '#747474', marginTop: 3, textAlign: 'center' }}>
               món đã chọn
             </Text>
           </View>
           <View style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>6</Text>
+            <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>{skipped}</Text>
             <Text style={{ fontSize: 13, color: '#747474', marginTop: 3, textAlign: 'center' }}>
               Random lại
             </Text>
           </View>
           <View style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>75%</Text>
+            <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>{rate}%</Text>
             <Text style={{ fontSize: 13, color: '#747474', marginTop: 3, textAlign: 'center' }}>
               tỷ lệ chọn
             </Text>
           </View>
         </View>
       </Card>
-      {[
-        [pho, 'Phở bò', '12:10'],
-        [bun, 'Bún bò Huế', '19:15'],
-        [salad, 'Salad cá ngừ', '12:40'],
-        [rice, 'Cơm gà Hội An', '19:05'],
-      ].map(([im, n, t]) => (
-        <FoodRow
-          key={n as string}
-          image={im as number}
-          name={n as string}
-          meta={`${t} · Phù hợp 90%`}
-        />
-      ))}
-    </>
+      {items.length === 0 ? (
+        <Text style={{ color: '#747474', textAlign: 'center' }}>Chưa có lịch sử chi tiết.</Text>
+      ) : (
+        items.map((row) => {
+          const dish = row.dish;
+          const time = formatRelTime(row.createdAt);
+          const outcome = row.isSelected || row.outcome === 'SELECTED' ? 'Đã chọn' : 'Bỏ qua';
+          return (
+            <FoodRow
+              key={row.id}
+              image={dishImageSource(dish?.imageUrl, dish?.media)}
+              name={dish?.name ?? 'Món không còn khả dụng'}
+              meta={`${time} · ${outcome}`}
+            />
+          );
+        })
+      )}
+    </LoadBlock>
   );
 }
+
 function PostsPage() {
+  const [tab, setTab] = useState<'ACTIVE' | 'DRAFT'>('ACTIVE');
+  const [query, setQuery] = useState('');
+  const [appliedQuery, setAppliedQuery] = useState('');
+
+  const { data, isLoading, error: queryError, refetch } = useQuery({
+    queryKey: ['profile', 'myPosts', appliedQuery],
+    queryFn: async () => {
+      const [pub, draft] = await Promise.all([
+        communityApi.listPosts({ scope: 'ME', status: 'ACTIVE', limit: 50, q: appliedQuery || undefined }),
+        communityApi.listPosts({ scope: 'ME', status: 'DRAFT', limit: 50, q: appliedQuery || undefined }),
+      ]);
+      return {
+        pubItems: (pub.data ?? []) as ExplorePost[],
+        draftItems: (draft.data ?? []) as ExplorePost[],
+      };
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const pubItems = data?.pubItems ?? [];
+  const draftItems = data?.draftItems ?? [];
+  const counts = { active: pubItems.length, draft: draftItems.length };
+  const posts = tab === 'ACTIVE' ? pubItems : draftItems;
+  const loading = isLoading && !data;
+  const error = queryError ? errMsg(queryError, 'Không tải được bài viết.') : null;
+  const load = (_status: 'ACTIVE' | 'DRAFT', q?: string) => {
+    if (q !== undefined) setAppliedQuery(q);
+    void refetch();
+  };
+
   return (
     <>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-        <Chip text="Đã đăng 24" active />
-        <Chip text="Bản nháp 3" />
-        <Chip text="Đã lưu 12" />
+        <Chip
+          text={`Đã đăng ${counts.active}`}
+          active={tab === 'ACTIVE'}
+          onPress={() => setTab('ACTIVE')}
+        />
+        <Chip
+          text={`Bản nháp ${counts.draft}`}
+          active={tab === 'DRAFT'}
+          onPress={() => setTab('DRAFT')}
+        />
       </View>
       <View
         style={{
@@ -760,40 +2123,97 @@ function PostsPage() {
         }}
       >
         <Search />
-        <TextInput
+        <Input
           placeholder="Tìm bài viết..."
-          style={{ flex: 1, fontSize: 15, color: '#161616' }}
+          value={query}
+          onChangeText={setQuery}
+          onSubmitEditing={() => load(tab, query.trim() || undefined)}
+          className="h-auto flex-1 border-0 bg-transparent p-0 text-[15px] shadow-none"
         />
       </View>
-      {[
-        [pho, 'Hôm nay Mogu chọn Phở bò cho mình!'],
-        [salad, 'Bữa trưa lành mạnh của mình hôm nay'],
-        [rice, '5 cách ăn uống cân bằng hơn'],
-      ].map(([im, t]) => (
-        <Card key={t as string}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-            <Image source={avatar} style={{ width: 44, height: 44, borderRadius: 22 }} />
-            <View>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>Huy Trương</Text>
-              <Text style={{ fontSize: 14, color: '#747474', marginTop: 2 }}>Hôm nay · 12:20</Text>
-            </View>
-          </View>
-          <Text style={{ fontSize: 18, fontWeight: '600', marginVertical: 14 }}>{t as string}</Text>
-          <Image source={im as number} style={{ width: '100%', height: 210, borderRadius: 16 }} />
-          <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>
-            ♡ 128 lượt thích · ◯ 24 bình luận
-          </Text>
-        </Card>
-      ))}
+      <LoadBlock
+        loading={loading}
+        error={error}
+        onRetry={() => load(tab, query.trim() || undefined)}
+        empty={!loading && !error && posts.length === 0}
+        emptyText="Chưa có bài viết."
+        skeleton="list"
+      >
+        {posts.map((p) => {
+          const avatarUri = p.author?.avatarUrl;
+          const img = p.imageUrls?.[0];
+          return (
+            <Card key={p.id}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                <AvatarImage uri={avatarUri} size={44} />
+                <View>
+                  <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>
+                    {p.author?.displayName ?? 'Bạn'}
+                  </Text>
+                  <Text style={{ fontSize: 14, color: '#747474', marginTop: 2 }}>
+                    {formatRelTime(p.createdAt)}
+                  </Text>
+                </View>
+              </View>
+              <Text style={{ fontSize: 18, fontWeight: '600', marginVertical: 14 }}>
+                {p.content}
+              </Text>
+              {img ? (
+                <Image
+                  source={{ uri: img }}
+                  style={{ width: '100%', height: 210, borderRadius: 16 }}
+                />
+              ) : null}
+              <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>
+                ♡ {p.likeCount ?? 0} lượt thích · ◯ {p.commentCount ?? 0} bình luận
+              </Text>
+            </Card>
+          );
+        })}
+      </LoadBlock>
     </>
   );
 }
+
 function DiaryPage() {
+  const tz = getDeviceTimeZone();
+  const today = getTodayISO(tz);
+
+  const { data, isLoading, error: queryError, refetch } = useQuery({
+    queryKey: ['profile', 'diary', today, tz],
+    queryFn: async () => {
+      const [d, meals] = await Promise.all([
+        healthApi.getDay(today, tz),
+        healthApi.listMealLogs(today, tz),
+      ]);
+      return { day: d, logs: (meals.items ?? []) as any[] };
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const day = data?.day ?? null;
+  const logs = data?.logs ?? [];
+  const loading = isLoading && !data;
+  const error = queryError ? errMsg(queryError, 'Không tải được nhật ký.') : null;
+  const load = useCallback(() => void refetch(), [refetch]);
+
+  const consumed = day?.energy?.consumedKcal;
+  const target = day?.energy?.targetKcal;
+  const pct =
+    consumed != null && target != null && target > 0
+      ? Math.min(100, Math.round((consumed / target) * 100))
+      : 0;
+  const slots = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'];
+  const loggedSlots = new Set(logs.map((l) => String(l.mealSlot).toUpperCase()));
+
   return (
-    <>
+    <LoadBlock loading={loading} error={error} onRetry={load} skeleton="list">
       <Card>
         <Text style={{ fontSize: 30, fontWeight: '700', color: '#161616' }}>
-          1.240 <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>/ 1.850 kcal</Text>
+          {consumed != null ? Number(consumed).toLocaleString('vi-VN') : '—'}{' '}
+          <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>
+            / {target != null ? Number(target).toLocaleString('vi-VN') : '—'} kcal
+          </Text>
         </Text>
         <View
           style={{
@@ -805,7 +2225,12 @@ function DiaryPage() {
           }}
         >
           <View
-            style={{ height: '100%', borderRadius: 5, backgroundColor: '#FFD54F', width: '67%' }}
+            style={{
+              height: '100%',
+              borderRadius: 5,
+              backgroundColor: '#FFD54F',
+              width: `${pct}%`,
+            }}
           />
         </View>
         <View
@@ -818,9 +2243,20 @@ function DiaryPage() {
           }}
         >
           {[
-            ['68g', 'Protein'],
-            ['142g', 'Tinh bột'],
-            ['38g', 'Chất béo'],
+            [
+              day?.macros?.protein?.consumedG != null
+                ? `${day.macros.protein.consumedG}g`
+                : '—',
+              'Protein',
+            ],
+            [
+              day?.macros?.carbs?.consumedG != null ? `${day.macros.carbs.consumedG}g` : '—',
+              'Tinh bột',
+            ],
+            [
+              day?.macros?.fat?.consumedG != null ? `${day.macros.fat.consumedG}g` : '—',
+              'Chất béo',
+            ],
           ].map(([v, l]) => (
             <View key={l} style={{ flex: 1, alignItems: 'center' }}>
               <Text style={{ fontSize: 13, color: '#747474', marginTop: 3, textAlign: 'center' }}>
@@ -831,20 +2267,42 @@ function DiaryPage() {
           ))}
         </View>
       </Card>
-      {[
-        [pho, 'Bữa sáng · 07:30', 'Phở bò · 420 kcal'],
-        [rice, 'Bữa trưa · 12:15', 'Cơm gà Hội An · 560 kcal'],
-        [salad, 'Bữa phụ · 15:30', 'Sữa chua trái cây · 260 kcal'],
-      ].map(([im, n, m]) => (
-        <FoodRow key={n as string} image={im as number} name={n as string} meta={m as string} />
-      ))}
-      <Card style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>Bữa tối</Text>
-        <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>Chưa ghi lại</Text>
-        <Plus color={CLR.yellowDark} />
-      </Card>
-      <PrimaryButton text="＋ Ghi lại bữa ăn" />
-    </>
+      {logs.length === 0 ? (
+        <Card>
+          <Text style={{ color: '#747474', textAlign: 'center' }}>
+            Hôm nay chưa ghi bữa ăn nào.
+          </Text>
+        </Card>
+      ) : (
+        logs.map((log) => {
+          const first = log.items?.[0];
+          const name = first?.displayName ?? mealSlotLabel(log.mealSlot);
+          const kcal = log.totals?.kcal;
+          return (
+            <FoodRow
+              key={log.id}
+              image={dishPlaceholder}
+              name={`${mealSlotLabel(log.mealSlot)}`}
+              meta={`${name}${kcal != null ? ` · ${kcal} kcal` : ''}`}
+            />
+          );
+        })
+      )}
+      {slots
+        .filter((s) => !loggedSlots.has(s))
+        .map((s) => (
+          <Card
+            key={s}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
+          >
+            <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>
+              {mealSlotLabel(s)}
+            </Text>
+            <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>Chưa ghi lại</Text>
+            <Plus color={CLR.yellowDark} />
+          </Card>
+        ))}
+    </LoadBlock>
   );
 }
 
@@ -885,13 +2343,30 @@ function IconButton({ icon: Icon, onPress }: { icon: ComponentType<any>; onPress
     </Pressable>
   );
 }
-function SoftIcon({ icon: Icon }: { icon: ComponentType<any> }) {
+function SoftIcon({ icon: Icon, compact }: { icon: ComponentType<any>; compact?: boolean }) {
+  if (compact) {
+    return (
+      <View
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 10,
+          backgroundColor: '#FFF7DF',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Icon size={18} color="#805B0A" />
+      </View>
+    );
+  }
   return (
     <View className="w-11 h-11 rounded-[13px] bg-[#FFF7DF] items-center justify-center">
       <Icon size={24} color="#805B0A" />
     </View>
   );
 }
+
 function Row({
   icon,
   title,
@@ -931,14 +2406,21 @@ function ToggleRow({
   icon,
   title,
   initial,
+  value,
+  onChange,
+  disabled,
   last,
 }: {
   icon: ComponentType<any>;
   title: string;
   initial?: boolean;
+  value?: boolean;
+  onChange?: (v: boolean) => void;
+  disabled?: boolean;
   last?: boolean;
 }) {
   const [on, setOn] = useState(!!initial);
+  const checked = value !== undefined ? value : on;
   return (
     <View
       style={{
@@ -949,30 +2431,19 @@ function ToggleRow({
         borderBottomWidth: last ? 0 : 1,
         borderBottomColor: '#E8E4DC',
         paddingHorizontal: 16,
+        opacity: disabled ? 0.6 : 1,
       }}
     >
       <SoftIcon icon={icon} />
       <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616', flex: 1 }}>{title}</Text>
-      <Pressable
-        onPress={() => setOn(!on)}
-        style={{
-          width: 52,
-          height: 30,
-          borderRadius: 15,
-          backgroundColor: on ? '#FFD54F' : '#E6E6E6',
-          padding: 3,
+      <Switch
+        checked={checked}
+        disabled={disabled}
+        onCheckedChange={(next) => {
+          if (value === undefined) setOn(next);
+          onChange?.(next);
         }}
-      >
-        <View
-          style={{
-            width: 24,
-            height: 24,
-            borderRadius: 12,
-            backgroundColor: '#fff',
-            alignSelf: on ? 'flex-end' : 'flex-start',
-          }}
-        />
-      </Pressable>
+      />
     </View>
   );
 }
@@ -991,13 +2462,14 @@ function Shortcut({
     <Pressable
       style={{
         width: '48%',
-        minHeight: 84,
+        minHeight: 74,
         backgroundColor: '#fff',
         borderRadius: 18,
-        padding: 14,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 11,
+        gap: 8,
         shadowColor: '#5D490F',
         shadowOpacity: 0.08,
         shadowRadius: 20,
@@ -1006,37 +2478,71 @@ function Shortcut({
       }}
       onPress={onPress}
     >
-      <SoftIcon icon={icon} />
-      <View>
-        <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>{title}</Text>
-        <Text style={{ fontSize: 14, color: '#747474', marginTop: 2 }}>{sub}</Text>
+      <SoftIcon icon={icon} compact />
+      <View style={{ flex: 1, minWidth: 0, justifyContent: 'center' }}>
+        <Text
+          style={{ fontSize: 13.5, fontWeight: '700', color: '#161616' }}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.85}
+        >
+          {title}
+        </Text>
+        <Text style={{ fontSize: 12, color: '#747474', marginTop: 2 }} numberOfLines={1}>
+          {sub}
+        </Text>
       </View>
     </Pressable>
   );
 }
-function PrimaryButton({ text }: { text: string }) {
+function PrimaryButton({
+  text,
+  onPress,
+  disabled,
+  compact,
+}: {
+  text: string;
+  onPress?: () => void;
+  disabled?: boolean;
+  compact?: boolean;
+}) {
   return (
     <Pressable
+      disabled={disabled}
+      onPress={onPress}
       style={{
-        height: 56,
-        borderRadius: 16,
+        height: compact ? 48 : 56,
+        borderRadius: compact ? 14 : 16,
         backgroundColor: '#FFD54F',
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: '#5D490F',
-        shadowOpacity: 0.08,
-        shadowRadius: 20,
-        shadowOffset: { width: 0, height: 6 },
-        elevation: 3,
+        shadowOpacity: compact ? 0.05 : 0.08,
+        shadowRadius: compact ? 12 : 20,
+        shadowOffset: { width: 0, height: compact ? 3 : 6 },
+        elevation: compact ? 2 : 3,
+        opacity: disabled ? 0.6 : 1,
+        marginTop: compact ? 4 : 0,
       }}
     >
-      <Text className="text-[17px] font-bold text-[#161616]">{text}</Text>
+      <Text className={compact ? 'text-[16px] font-bold text-[#161616]' : 'text-[17px] font-bold text-[#161616]'}>
+        {text}
+      </Text>
     </Pressable>
   );
 }
-function Chip({ text, active }: { text: string; active?: boolean }) {
+function Chip({
+  text,
+  active,
+  onPress,
+}: {
+  text: string;
+  active?: boolean;
+  onPress?: () => void;
+}) {
   return (
     <Pressable
+      onPress={onPress}
       style={{
         minHeight: 40,
         paddingHorizontal: 16,
@@ -1054,20 +2560,33 @@ function Chip({ text, active }: { text: string; active?: boolean }) {
     </Pressable>
   );
 }
-function ChoiceCard({
+function IdChoiceCard({
   title,
   items,
   value,
   setValue,
   multi,
+  values,
+  toggle,
 }: {
   title: string;
-  items: string[];
-  value?: string;
+  items: CatalogItem[];
+  value?: string | null;
   setValue?: (x: string) => void;
   multi?: boolean;
+  values?: string[];
+  toggle?: (id: string) => void;
 }) {
-  const [selected, setSelected] = useState<string[]>(multi ? [items[0]] : []);
+  if (items.length === 0) {
+    return (
+      <Card>
+        <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
+          {title}
+        </Text>
+        <Text style={{ color: '#747474', marginTop: 8 }}>Chưa có lựa chọn từ catalog.</Text>
+      </Card>
+    );
+  }
   return (
     <Card>
       <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
@@ -1075,10 +2594,10 @@ function ChoiceCard({
       </Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
         {items.map((x) => {
-          const active = multi ? selected.includes(x) : value === x;
+          const active = multi ? (values ?? []).includes(x.id) : value === x.id;
           return (
             <Pressable
-              key={x}
+              key={x.id}
               style={{
                 width: '48%',
                 minHeight: 72,
@@ -1089,14 +2608,13 @@ function ChoiceCard({
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 6,
+                paddingHorizontal: 8,
               }}
-              onPress={() =>
-                multi
-                  ? setSelected(active ? selected.filter((y) => y !== x) : [...selected, x])
-                  : setValue?.(x)
-              }
+              onPress={() => (multi ? toggle?.(x.id) : setValue?.(x.id))}
             >
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>{x}</Text>
+              <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616', textAlign: 'center' }}>
+                {x.name}
+              </Text>
               {active && <Check color="#fff" />}
             </Pressable>
           );
@@ -1105,7 +2623,15 @@ function ChoiceCard({
     </Card>
   );
 }
-function FoodRow({ image, name, meta }: { image: number; name: string; meta: string }) {
+function FoodRow({
+  image,
+  name,
+  meta,
+}: {
+  image: ImageSourcePropType;
+  name: string;
+  meta: string;
+}) {
   return (
     <View
       style={{
@@ -1133,93 +2659,46 @@ function FoodRow({ image, name, meta }: { image: number; name: string; meta: str
     </View>
   );
 }
-function MonthCalendar() {
+function MonthCalendar({
+  month,
+  days,
+}: {
+  month: string;
+  days: Array<{ localDate: string; status: string }>;
+}) {
+  const [y, m] = month.split('-').map(Number);
+  const label = Number.isFinite(y) && Number.isFinite(m)
+    ? `Tháng ${m}, ${y}`
+    : month;
+  const dayMap = new Map(days.map((d) => [d.localDate, d.status]));
+  const daysInMonth =
+    Number.isFinite(y) && Number.isFinite(m) ? new Date(y, m, 0).getDate() : 31;
+
   return (
     <Card>
-      <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>Tháng 8, 2026</Text>
+      <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>{label}</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 18 }}>
-        {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-          <View
-            key={d}
-            style={{
-              width: '11.5%',
-              aspectRatio: 1,
-              borderRadius: 22,
-              backgroundColor: d <= 21 ? '#FFD54F' : '#FFF8E6',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Text style={{ fontSize: 12 }}>{d}</Text>
-          </View>
-        ))}
-      </View>
-    </Card>
-  );
-}
-function BottomNav({ onHome, onExplore, onRandom, onHealth }: Props) {
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        left: 18,
-        right: 18,
-        bottom: 12,
-        height: 88,
-        borderRadius: 30,
-        backgroundColor: '#fff',
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 8,
-        shadowColor: '#5D490F',
-        shadowOpacity: 0.08,
-        shadowRadius: 20,
-        shadowOffset: { width: 0, height: 6 },
-        elevation: 3,
-      }}
-    >
-      {[
-        [Home, 'Trang chủ', onHome],
-        [Compass, 'Khám phá', onExplore],
-        [Sparkles, 'Random', onRandom],
-        [HeartPulse, 'Sức khỏe', onHealth],
-        [UserRound, 'Cá nhân', undefined],
-      ].map(([I, l, fn], i) => {
-        const Icon = I as ComponentType<any>;
-        return (
-          <Pressable
-            key={l as string}
-            style={{ flex: 1, alignItems: 'center', gap: 4 }}
-            onPress={fn as any}
-          >
+        {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((d) => {
+          const iso = `${month}-${String(d).padStart(2, '0')}`;
+          const status = dayMap.get(iso) ?? 'EMPTY';
+          const done = status === 'QUALIFIED' || status === 'COMPLETED' || status === 'IN_PROGRESS';
+          return (
             <View
+              key={d}
               style={{
-                width: 42,
-                height: 42,
-                borderRadius: 21,
-                backgroundColor: i === 2 ? '#FFD54F' : 'transparent',
+                width: '11.5%',
+                aspectRatio: 1,
+                borderRadius: 22,
+                backgroundColor: done ? '#FFD54F' : '#FFF8E6',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Icon
-                size={25}
-                color={i === 4 ? CLR.ink : CLR.secondary}
-                fill={i === 4 ? CLR.yellow : 'transparent'}
-              />
+              <Text style={{ fontSize: 12 }}>{d}</Text>
             </View>
-            <Text
-              style={{
-                fontSize: 11,
-                color: i === 4 ? '#161616' : '#747474',
-                fontWeight: i === 4 ? '700' : '400',
-              }}
-            >
-              {l as string}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
+          );
+        })}
+      </View>
+    </Card>
   );
 }

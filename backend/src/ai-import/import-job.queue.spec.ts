@@ -36,4 +36,16 @@ describe('ImportJobQueue', () => {
       }),
     ).resolves.toBe(false);
   });
+
+  it('trả false khi queue.add thất bại (Redis down)', async () => {
+    const queue = { add: jest.fn().mockRejectedValue(new Error('Connection is closed')) };
+    const service = new ImportJobQueue(queue as never);
+    await expect(
+      service.enqueue({
+        jobId: 'job-2',
+        actorId: 'actor-1',
+        request: { query: 'Cơm tấm' },
+      }),
+    ).resolves.toBe(false);
+  });
 });

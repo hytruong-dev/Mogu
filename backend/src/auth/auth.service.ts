@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createHash, randomBytes } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto, RefreshTokenDto } from './dto/login.dto';
@@ -143,10 +144,13 @@ export class AuthService {
         where: { username: dto.username.toLowerCase() },
         create: {
           username: dto.username.toLowerCase(),
+          userId: signUpData.user!.id,
           passwordHash: signUpData.user!.id,
           mustChangePassword: false,
         },
-        update: {},
+        update: {
+          userId: signUpData.user!.id,
+        },
       });
     });
 
@@ -169,6 +173,8 @@ export class AuthService {
       result: 'SUCCESS',
       ...meta,
     });
+
+    await this.trackSession(signUpData.user.id, loginData.session.refresh_token, meta);
 
     return {
       session: {
@@ -263,6 +269,8 @@ export class AuthService {
       ...meta,
     });
 
+    await this.trackSession(data.user.id, data.session.refresh_token, meta);
+
     return {
       session: {
         accessToken: data.session.access_token,
@@ -297,6 +305,10 @@ export class AuthService {
       result: 'SUCCESS',
       ...meta,
     });
+
+    if (data.user?.id) {
+      await this.trackSession(data.user.id, data.session.refresh_token, meta);
+    }
 
     return {
       session: {
@@ -343,23 +355,167 @@ export class AuthService {
   }
 
   // ── Password recovery ─────────────────────────────────────────────────────
+  private hashToken(raw: string): string {
+    return createHash('sha256').update(raw).digest('hex');
+  }
+
+  private async findAccountByUserId(userId: string) {
+    const byUserId = await this.prisma.db.account.findFirst({
+      where: { userId },
+    });
+    if (byUserId) return byUserId;
+    return this.prisma.db.account.findFirst({
+      where: { passwordHash: userId },
+    });
+  }
+
+  private async trackSession(
+    userId: string,
+    refreshToken: string | undefined,
+    meta: RequestMeta,
+  ) {
+    if (!refreshToken) return;
+    try {
+      const account = await this.findAccountByUserId(userId);
+      if (!account) return;
+      const tokenHash = this.hashToken(refreshToken);
+      await (this.prisma.db as any).refreshSession.upsert({
+        where: { tokenHash },
+        create: {
+          accountId: account.id,
+          tokenHash,
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          installationId: meta.installationId ?? null,
+          platform: meta.platform ?? null,
+          deviceLabel: meta.platform ? `${meta.platform} device` : 'Mobile Device',
+          lastUsedAt: new Date(),
+        },
+        update: {
+          lastUsedAt: new Date(),
+          installationId: meta.installationId ?? undefined,
+          platform: meta.platform ?? undefined,
+          revokedAt: null,
+        },
+      });
+    } catch (err) {
+      this.logger.warn(`trackSession failed: ${(err as Error).message}`);
+    }
+  }
+
   async passwordResetRequest(dto: PasswordResetRequestDto) {
-    return {
+    const neutral = {
       message:
         'Nếu tài khoản tồn tại trong hệ thống, hướng dẫn đặt lại mật khẩu đã được gửi.',
     };
+
+    try {
+      const isEmail = dto.identifier.includes('@');
+      let userId: string | null = null;
+
+      if (isEmail) {
+        const { data } = await this.supabase.auth.admin.listUsers({ perPage: 1000 });
+        const found = data.users.find(
+          (u) => u.email?.toLowerCase() === dto.identifier.toLowerCase(),
+        );
+        userId = found?.id ?? null;
+      } else {
+        const account = await this.prisma.db.account.findUnique({
+          where: { username: dto.identifier.toLowerCase() },
+        });
+        userId = account?.passwordHash ?? null;
+      }
+
+      if (!userId) return neutral;
+
+      const rawToken = randomBytes(32).toString('hex');
+      const tokenHash = this.hashToken(rawToken);
+      await (this.prisma.db as any).passwordResetToken.create({
+        data: {
+          userId,
+          tokenHash,
+          expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+        },
+      });
+
+      const nodeEnv = this.config.get<string>('NODE_ENV') ?? process.env.NODE_ENV;
+      if (nodeEnv !== 'production') {
+        this.logger.log(`[DEV] password reset token for ${userId}: ${rawToken}`);
+      }
+      // Production email send would go here when SMTP is configured.
+    } catch (err) {
+      this.logger.warn(`passwordResetRequest: ${(err as Error).message}`);
+    }
+
+    return neutral;
   }
 
   async passwordResetConfirm(dto: PasswordResetConfirmationDto) {
+    const tokenHash = this.hashToken(dto.tokenOrOtp);
+    const row = await (this.prisma.db as any).passwordResetToken.findUnique({
+      where: { tokenHash },
+    });
+
+    if (!row || row.usedAt || row.expiresAt < new Date()) {
+      throw new BadRequestException({
+        code: 'RESET_TOKEN_INVALID',
+        message: 'Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.',
+      });
+    }
+
+    const { error } = await this.supabase.auth.admin.updateUserById(row.userId, {
+      password: dto.newPassword,
+    });
+    if (error) {
+      throw new BadRequestException({
+        code: 'RESET_FAILED',
+        message: error.message,
+      });
+    }
+
+    await (this.prisma.db as any).passwordResetToken.update({
+      where: { id: row.id },
+      data: { usedAt: new Date() },
+    });
+
+    await this.supabase.auth.admin.signOut(row.userId, 'global');
+
+    const account = await this.findAccountByUserId(row.userId);
+    if (account) {
+      await this.prisma.db.refreshSession.updateMany({
+        where: { accountId: account.id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+    }
+
     return {
       message: 'Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập lại.',
     };
   }
 
   async verifyEmail(dto: EmailVerificationDto) {
-    return {
-      message: 'Xác minh email thành công.',
-    };
+    const tokenHash = this.hashToken(dto.tokenOrOtp);
+    const row = await (this.prisma.db as any).emailVerificationToken.findUnique({
+      where: { tokenHash },
+    });
+
+    if (!row || row.usedAt || row.expiresAt < new Date()) {
+      throw new BadRequestException({
+        code: 'VERIFY_TOKEN_INVALID',
+        message: 'Mã xác minh email không hợp lệ hoặc đã hết hạn.',
+      });
+    }
+
+    await (this.prisma.db as any).emailVerificationToken.update({
+      where: { id: row.id },
+      data: { usedAt: new Date() },
+    });
+
+    await this.prisma.db.profile.update({
+      where: { userId: row.userId },
+      data: { accountStatus: 'ACTIVE' },
+    });
+
+    return { message: 'Xác minh email thành công.' };
   }
 
   async passwordChange(
@@ -414,27 +570,58 @@ export class AuthService {
 
   // ── Sessions Management ──────────────────────────────────────────────────
   async getSessions(userId: string, meta: RequestMeta) {
+    const account = await this.findAccountByUserId(userId);
+    if (!account) {
+      return { items: [] };
+    }
+
+    const sessions = await this.prisma.db.refreshSession.findMany({
+      where: {
+        accountId: account.id,
+        revokedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { lastUsedAt: 'desc' },
+      take: 50,
+    });
+
     return {
-      items: [
-        {
-          sessionId: 'current-session',
-          deviceLabel: meta.platform ?? 'Mobile Device',
-          platform: meta.platform ?? 'mobile',
-          lastSeenAt: new Date().toISOString(),
-          isCurrent: true,
-        },
-      ],
+      items: sessions.map((s) => ({
+        sessionId: s.id,
+        deviceLabel: (s as any).deviceLabel ?? 'Mobile Device',
+        platform: (s as any).platform ?? meta.platform ?? 'mobile',
+        installationId: (s as any).installationId ?? null,
+        lastSeenAt: (s.lastUsedAt ?? s.createdAt).toISOString(),
+        isCurrent:
+          !!meta.installationId &&
+          (s as any).installationId === meta.installationId,
+      })),
     };
   }
 
   async deleteSession(userId: string, sessionId: string) {
-    if (sessionId === 'current-session') {
-      await this.supabase.auth.admin.signOut(userId, 'global');
-    }
+    const account = await this.findAccountByUserId(userId);
+    if (!account) return { success: true };
+
+    await this.prisma.db.refreshSession.updateMany({
+      where: { id: sessionId, accountId: account.id, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
     return { success: true };
   }
 
-  async deleteAllSessionsExceptCurrent(userId: string) {
+  async deleteAllSessionsExceptCurrent(userId: string, currentSessionId?: string) {
+    const account = await this.findAccountByUserId(userId);
+    if (!account) return { success: true };
+
+    await this.prisma.db.refreshSession.updateMany({
+      where: {
+        accountId: account.id,
+        revokedAt: null,
+        ...(currentSessionId ? { id: { not: currentSessionId } } : {}),
+      },
+      data: { revokedAt: new Date() },
+    });
     return { success: true };
   }
 
@@ -685,4 +872,5 @@ interface RequestMeta {
   deviceIdHash?: string;
   platform?: string;
   correlationId?: string;
+  installationId?: string;
 }

@@ -4,7 +4,6 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import {
-  ActivityIndicator,
   Image,
   Pressable,
   ScrollView,
@@ -29,6 +28,12 @@ import {
 } from 'lucide-react-native';
 import { dishesApi } from '../services/api/dishes';
 import type { Dish as DishDetail } from '../services/api/types';
+import { DetailSkeleton } from '../components/skeletons/ScreenSkeletons';
+import { Card } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Separator } from '../components/ui/separator';
+import { AppImage } from '../components/ui/app-image';
 
 type Props = {
   route: { params: { dishId: string; title?: string } };
@@ -105,13 +110,13 @@ function StepItem({ index, instruction, durationMin }: { index: number; instruct
 
 function SectionCard({ children, style }: { children: React.ReactNode; style?: any }) {
   return (
-    <View style={[{
+    <Card style={[{
       backgroundColor: WHITE, borderRadius: 16, padding: 16, marginBottom: 14,
       shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, shadowOffset: { width: 0, height: 2 },
       elevation: 2,
     }, style]}>
       {children}
-    </View>
+    </Card>
   );
 }
 
@@ -157,9 +162,7 @@ export default function FoodDetailScreen({ route, navigation }: Props) {
   if (loading) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: CREAM }} edges={['top']}>
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator size="large" color={YELLOW} />
-        </View>
+        <DetailSkeleton />
       </SafeAreaView>
     );
   }
@@ -228,13 +231,19 @@ export default function FoodDetailScreen({ route, navigation }: Props) {
           <SectionCard style={{ padding: 0, overflow: 'hidden' }}>
             {/* Cover */}
             <View style={{ position: 'relative' }}>
-              {imageUrl ? (
-                <Image source={{ uri: imageUrl }} style={{ width: '100%', height: 200, backgroundColor: '#EDE9E1' }} resizeMode="cover" />
-              ) : (
-                <View style={{ width: '100%', height: 200, backgroundColor: '#EDE9E1', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 56 }}>🍽️</Text>
-                </View>
-              )}
+              <AppImage
+                uri={imageUrl}
+                style={{ width: '100%', height: 200, backgroundColor: '#EDE9E1' }}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                transition={250}
+                showLoader
+                fallbackIcon={
+                  <View style={{ width: '100%', height: 200, backgroundColor: '#EDE9E1', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 56 }}>🍽️</Text>
+                  </View>
+                }
+              />
               {/* Match badge */}
               <View style={{ position: 'absolute', top: 12, left: 12, backgroundColor: YELLOW, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4, flexDirection: 'row', gap: 4 }}>
                 <Star size={12} color={INK} fill={INK} />
@@ -257,7 +266,7 @@ export default function FoodDetailScreen({ route, navigation }: Props) {
                 {priceStr !== '' && (
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: '#F0FFF4', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 }}>
                     <Text style={{ fontSize: 12 }}>💰</Text>
-                    <Text style={{ fontSize: 12, color: '#276749', fontWeight: '600' }}>{priceStr}K</Text>
+                    <Text style={{ fontSize: 12, color: '#276749', fontWeight: '600' }}>{priceStr}</Text>
                   </View>
                 )}
                 {totalMinutes > 0 && (
@@ -387,13 +396,19 @@ export default function FoodDetailScreen({ route, navigation }: Props) {
           <View style={{ marginBottom: 14 }}>
             <Text style={{ fontSize: 15, fontWeight: '700', color: INK, marginBottom: 10 }}>Video hướng dẫn</Text>
             <View style={{ borderRadius: 14, overflow: 'hidden', position: 'relative' }}>
-              {imageUrl ? (
-                <Image source={{ uri: imageUrl }} style={{ width: '100%', height: 180 }} resizeMode="cover" />
-              ) : (
-                <View style={{ width: '100%', height: 180, backgroundColor: '#222', alignItems: 'center', justifyContent: 'center' }}>
-                  <Text style={{ fontSize: 40 }}>🎬</Text>
-                </View>
-              )}
+              <AppImage
+                uri={imageUrl}
+                style={{ width: '100%', height: 180 }}
+                contentFit="cover"
+                cachePolicy="memory-disk"
+                transition={250}
+                showLoader
+                fallbackIcon={
+                  <View style={{ width: '100%', height: 180, backgroundColor: '#222', alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={{ fontSize: 40 }}>🎬</Text>
+                  </View>
+                }
+              />
               {/* Overlay gradient + play */}
               <View style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.35)', alignItems: 'center', justifyContent: 'center' }}>
                 <View style={{ width: 52, height: 52, borderRadius: 26, backgroundColor: YELLOW, alignItems: 'center', justifyContent: 'center' }}>
@@ -459,24 +474,27 @@ export default function FoodDetailScreen({ route, navigation }: Props) {
                 <Text style={{ fontSize: 12, color: '#866A00', fontWeight: '600' }}>{(dish as any).region.name}</Text>
               </View>
             )}
-            {((dish as any).categories ?? []).map((c: any) => (
-              <View key={c.name ?? c.code} style={{ backgroundColor: '#F0FFF4', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 }}>
-                <Text style={{ fontSize: 12, color: '#276749', fontWeight: '600' }}>{c.name}</Text>
-              </View>
-            ))}
+            {((dish as any).categories ?? []).map((c: any, i: number) => {
+              const name = c.category?.name ?? c.name ?? c.code;
+              if (!name) return null;
+              return (
+                <View key={c.categoryId ?? c.id ?? `${name}-${i}`} style={{ backgroundColor: '#F0FFF4', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5 }}>
+                  <Text style={{ fontSize: 12, color: '#276749', fontWeight: '600' }}>{name}</Text>
+                </View>
+              );
+            })}
           </View>
         </View>
       </ScrollView>
 
       {/* ── Bottom CTA ────────────────────────────────────────────────────────── */}
       <View style={{ paddingHorizontal: 16, paddingBottom: 16, paddingTop: 8, backgroundColor: CREAM, borderTopWidth: 1, borderTopColor: BORDER }}>
-        <TouchableOpacity style={{
-          backgroundColor: YELLOW, borderRadius: 14, paddingVertical: 16,
-          alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8,
-        }}>
+        <Button
+          className="h-14 rounded-2xl bg-mogu-yellow flex-row items-center justify-center gap-2"
+        >
           <Utensils size={18} color={INK} />
           <Text style={{ fontSize: 16, fontWeight: '800', color: INK }}>Chọn món này</Text>
-        </TouchableOpacity>
+        </Button>
       </View>
     </SafeAreaView>
   );

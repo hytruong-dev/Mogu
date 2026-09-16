@@ -5,6 +5,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -77,10 +78,23 @@ export class RandomizationController {
   // ── BA-006 §4.4 ─────────────────────────────────────────────────────────────
   @Post('dish-randomizations/:id/select')
   @ApiOperation({
-    summary: 'Xác nhận chọn món từ kết quả random',
-    description: 'Cập nhật isSelected=true và ghi RecommendationEvent SELECT.',
+    summary: '[Deprecated] Xác nhận chọn món — dùng PUT .../selection',
+    deprecated: true,
   })
   markSelected(
+    @CurrentUser('sub') userId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: SelectRandomizationDto,
+  ) {
+    return this.randomizationService.markSelected(id, userId, dto);
+  }
+
+  @Put('dish-randomizations/:id/selection')
+  @ApiOperation({
+    summary: 'Xác nhận chọn món từ kết quả random (Docs 02)',
+    description: 'Idempotent PUT. Cập nhật isSelected=true và ghi RecommendationEvent SELECT.',
+  })
+  putSelection(
     @CurrentUser('sub') userId: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: SelectRandomizationDto,
@@ -114,5 +128,11 @@ export class RandomizationController {
     @Query() query: RandomHistoryQueryDto,
   ) {
     return this.randomizationService.getHistory(userId, query);
+  }
+
+  @Get('me/random-history/summary')
+  @ApiOperation({ summary: 'Tóm tắt lịch sử random' })
+  historySummary(@CurrentUser('sub') userId: string) {
+    return this.randomizationService.getHistorySummary(userId);
   }
 }

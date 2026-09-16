@@ -19,6 +19,7 @@ import {
 import { CheckCircle2 } from 'lucide-react'
 import { AuthProvider, useAuth, type AdminRole } from './providers/AuthProvider'
 import { Input } from './components/ui/input'
+import { PageSkeleton } from './components/ui/page-skeleton'
 import './App.css'
 
 // ─── Lazy pages ───────────────────────────────────────────────────────────────
@@ -185,8 +186,8 @@ function PublicRoute() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'var(--text-muted)' }}>
-        Đang tải...
+      <div style={{ minHeight: '100vh', background: 'var(--bg, #faf8f3)' }}>
+        <PageSkeleton rows={5} withAvatar className="max-w-md mx-auto pt-24" />
       </div>
     )
   }
@@ -201,8 +202,8 @@ function AppRoutes() {
   return (
     <Suspense
       fallback={
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', color: 'var(--text-muted)' }}>
-          Đang tải trang...
+        <div style={{ minHeight: '60vh', padding: 24 }}>
+          <PageSkeleton rows={6} />
         </div>
       }
     >

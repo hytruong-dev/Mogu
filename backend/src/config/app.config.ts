@@ -18,6 +18,7 @@ export default registerAs('app', () => ({
   },
 
   redis: {
-    url: process.env.REDIS_URL ?? 'redis://localhost:6379',
+    // Do not invent a localhost default — missing URL means queues off.
+    url: process.env.REDIS_AVAILABLE === '0' ? undefined : process.env.REDIS_URL,
   },
 }));

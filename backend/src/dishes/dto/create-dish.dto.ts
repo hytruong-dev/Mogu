@@ -1,8 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { DishDifficulty } from '@prisma/client';
-import { Type } from 'class-transformer';
+import { Type, Transform } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsEnum,
   IsInt,
   IsNumber,
@@ -16,8 +17,21 @@ import {
 
 // ── Nguyên liệu ────────────────────────────────────────────────────────────
 export class CreateDishIngredientDto {
+  @ApiPropertyOptional({ description: 'Client row ref for resolve-batch' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  clientRef?: string;
+
+  @ApiPropertyOptional({ description: 'Canonical name candidate when ingredientId missing' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  canonicalNameCandidate?: string;
+
   @ApiPropertyOptional({ description: 'UUID nguyên liệu từ từ điển (nếu đã map)' })
   @IsOptional()
+  @Transform(({ value }) => (value === null || value === '' ? undefined : value))
   @IsUUID()
   ingredientId?: string;
 
@@ -38,10 +52,10 @@ export class CreateDishIngredientDto {
   @MaxLength(50)
   unit?: string;
 
-  @ApiPropertyOptional({ description: 'Cách chế biến' })
+  @ApiPropertyOptional({ description: 'Cách chế biến / ghi chú sơ chế' })
   @IsOptional()
   @IsString()
-  @MaxLength(100)
+  @MaxLength(500)
   preparation?: string;
 
   @ApiPropertyOptional({ default: false })
@@ -167,11 +181,13 @@ export class CreateDishDto {
 
   @ApiPropertyOptional({ description: 'UUID vùng miền' })
   @IsOptional()
+  @Transform(({ value }) => (value === null || value === '' ? undefined : value))
   @IsUUID()
   regionId?: string;
 
   @ApiPropertyOptional({ description: 'UUID tỉnh/thành' })
   @IsOptional()
+  @Transform(({ value }) => (value === null || value === '' ? undefined : value))
   @IsUUID()
   provinceId?: string;
 
@@ -244,6 +260,11 @@ export class CreateDishDto {
   @IsOptional()
   @IsArray()
   goalIds?: Array<{ goalId: string; score?: number }>;
+
+  @ApiPropertyOptional({ description: 'Tự tạo nguyên liệu PENDING nếu chưa có trong catalog' })
+  @IsOptional()
+  @IsBoolean()
+  createMissingIngredients?: boolean;
 
   @ApiPropertyOptional({ description: 'Nguyên liệu', isArray: true, type: [CreateDishIngredientDto] })
   @IsOptional()

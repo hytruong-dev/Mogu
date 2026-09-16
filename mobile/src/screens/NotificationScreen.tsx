@@ -11,6 +11,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, Bell, Gift, Megaphone, Trophy, Zap } from 'lucide-react-native';
 import { homeApi } from '../services/api/home';
 import type { NotificationItem } from '../services/api/types';
+import { ListSkeleton } from '../components/skeletons/ScreenSkeletons';
+import { Card } from '../components/ui/card';
 
 type Props = {
   onBack: () => void;
@@ -110,9 +112,7 @@ export function NotificationScreen({ onBack }: Props) {
       </View>
 
       {loading ? (
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="large" color="#FFC51A" />
-        </View>
+        <ListSkeleton rows={8} />
       ) : notifications.length === 0 ? (
         <View className="flex-1 items-center justify-center gap-3 px-8">
           <View className="w-16 h-16 rounded-full bg-[#FFF2C9] items-center justify-center">
@@ -170,47 +170,48 @@ function NotifCard({
   const timeAgo = formatTimeAgo(notif.createdAt);
 
   return (
-    <Pressable
-      onPress={() => onPress(notif)}
-      className={`mx-4 mb-2 rounded-[18px] p-4 flex-row gap-3 ${isUnread ? 'bg-white' : 'bg-[#FAFAF7]'}`}
-      style={
-        isUnread
-          ? {
-            shadowColor: '#B19B66',
-            shadowOpacity: 0.1,
-            shadowRadius: 10,
-            shadowOffset: { width: 0, height: 4 },
-            elevation: 2,
-          }
-          : {}
-      }
-    >
-      {/* Icon badge */}
-      <View
-        className="w-11 h-11 rounded-2xl items-center justify-center flex-shrink-0"
-        style={{ backgroundColor: meta.bg }}
+    <Pressable onPress={() => onPress(notif)}>
+      <Card
+        className={`mx-4 mb-2 rounded-[18px] p-4 flex-row gap-3 border-0 ${isUnread ? 'bg-white' : 'bg-[#FAFAF7]'}`}
+        style={
+          isUnread
+            ? {
+              shadowColor: '#B19B66',
+              shadowOpacity: 0.1,
+              shadowRadius: 10,
+              shadowOffset: { width: 0, height: 4 },
+              elevation: 2,
+            }
+            : {}
+        }
       >
-        <Icon size={22} color={meta.color} strokeWidth={2} />
-      </View>
-
-      {/* Content */}
-      <View className="flex-1 gap-[3px]">
-        <View className="flex-row items-start justify-between gap-2">
-          <Text
-            className={`flex-1 text-[15px] ${isUnread ? 'font-bold text-[#111]' : 'font-semibold text-[#444]'}`}
-            numberOfLines={2}
-          >
-            {notif.title}
-          </Text>
-          {isUnread && (
-            <View className="w-2 h-2 rounded-full bg-[#FF5A42] mt-1 flex-shrink-0" />
-          )}
+        {/* Icon badge */}
+        <View
+          className="w-11 h-11 rounded-2xl items-center justify-center flex-shrink-0"
+          style={{ backgroundColor: meta.bg }}
+        >
+          <Icon size={22} color={meta.color} strokeWidth={2} />
         </View>
-        <Text className="text-[#666] text-[13px]" style={{ lineHeight: 18 }} numberOfLines={2}>
-          {notif.body}
-        </Text>
-        <Text className="text-[#AAA] text-xs mt-1">{timeAgo}</Text>
-      </View>
+
+        {/* Content */}
+        <View className="flex-1 gap-[3px]">
+          <View className="flex-row items-start justify-between gap-2">
+            <Text
+              className={`flex-1 text-[15px] ${isUnread ? 'font-bold text-[#111]' : 'font-semibold text-[#444]'}`}
+              numberOfLines={2}
+            >
+              {notif.title}
+            </Text>
+            {isUnread && (
+              <View className="w-2 h-2 rounded-full bg-[#FF5A42] mt-1 flex-shrink-0" />
+            )}
+          </View>
+          <Text className="text-[#666] text-[13px]" style={{ lineHeight: 18 }} numberOfLines={2}>
+            {notif.body}
+          </Text>
+          <Text className="text-[#AAA] text-xs mt-1">{timeAgo}</Text>
+        </View>
+      </Card>
     </Pressable>
   );
 }

@@ -497,6 +497,7 @@ export class DishFileImportsService {
         const created = await this.dishes.create(
           {
             name,
+            createMissingIngredients: true,
             shortDescription: row.mapped.shortDescription,
             prepMinutes: row.mapped.prepMinutes ? Number(row.mapped.prepMinutes) : undefined,
             cookMinutes: row.mapped.cookMinutes ? Number(row.mapped.cookMinutes) : undefined,
@@ -514,7 +515,12 @@ export class DishFileImportsService {
               .split(/;|\n/)
               .map((x) => x.trim())
               .filter(Boolean)
-              .map((rawText, idx) => ({ rawText, sortOrder: idx })),
+              .map((rawText, idx) => ({
+                rawText,
+                canonicalNameCandidate: rawText,
+                clientRef: `file-${row.rowNumber}-${idx}`,
+                sortOrder: idx,
+              })),
           },
           actorId,
         )

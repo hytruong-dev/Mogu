@@ -36,10 +36,12 @@ import { WeeklyPlansModule } from './weekly-plans/weekly-plans.module';
 import { DishFileImportsModule } from './dish-file-imports/dish-file-imports.module';
 import { HealthModule } from './health/health.module';
 import { SettingsModule } from './settings/settings.module';
+import { AdminUsersModule } from './admin-users/admin-users.module';
 import appConfig from './config/app.config';
+import { getRedisUrl } from './common/redis/redis-env';
 
-// Chá»‰ load BullMQ khi REDIS_URL Ä‘Æ°á»£c set rÃµ rÃ ng
-const REDIS_URL = process.env.REDIS_URL;
+// Chỉ load BullMQ khi Redis reachable (probe trong main.ts set REDIS_AVAILABLE)
+const REDIS_URL = getRedisUrl();
 const bullModules: DynamicModule[] = REDIS_URL
   ? [
       BullModule.forRoot({
@@ -48,7 +50,8 @@ const bullModules: DynamicModule[] = REDIS_URL
           maxRetriesPerRequest: null,
           enableReadyCheck: false,
           lazyConnect: true,
-          retryStrategy: (times: number) => (times > 3 ? null : Math.min(times * 500, 2000)),
+          enableOfflineQueue: false,
+          retryStrategy: (times: number) => (times > 2 ? null : Math.min(times * 200, 1000)),
         },
       }),
     ]
@@ -123,6 +126,7 @@ const bullModules: DynamicModule[] = REDIS_URL
     DishFileImportsModule,
     HealthModule,
     SettingsModule,
+    AdminUsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

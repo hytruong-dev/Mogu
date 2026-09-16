@@ -6,6 +6,8 @@ Mục tiêu tài liệu: chỉ ra phần chưa ổn/chưa hợp lý, giải thí
 
 Trạng thái: review và đề xuất triển khai; chưa sửa logic ứng dụng. Bản bổ sung ngày 2026-09-11 ở mục 10–17 hiệu chỉnh những nhận định cũ và bổ sung bằng chứng.
 
+Tài liệu triển khai backend cho toàn bộ giao diện mobile đã được tách thành bộ đặc tả tại [`docs/mobile-backend/README.md`](./mobile-backend/README.md). Tài liệu hiện tại tập trung vào bằng chứng và lỗi của random/weekly; bộ đặc tả mới là trạng thái đích cho API, dữ liệu, thuật toán và tiêu chí nghiệm thu.
+
 ### Cách đọc tài liệu
 
 - Đọc mục 10 trước để biết các hiệu chỉnh và giới hạn xác minh.

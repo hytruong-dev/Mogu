@@ -7,28 +7,47 @@ import { UpdateSettingsDto } from './dto/settings.dto';
 
 @Injectable()
 export class SettingsService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
-  async getSettings(userId: string) {
-    const profile = await this.prisma.db.profile.findUnique({
-      where: { userId },
-      select: { profileVersion: true },
-    });
-
+  private format(row: any) {
     return {
-      version: profile?.profileVersion ?? 1,
+      version: row.version,
       notifications: {
-        pushEnabled: true,
-        mealReminders: true,
-        waterReminders: true,
+        pushEnabled: row.pushEnabled,
+        mealReminders: row.mealReminders,
+        waterReminders: row.waterReminders,
+        weeklyPlanNotif: row.weeklyPlanNotif ?? true,
+        communityNotif: row.communityNotif ?? true,
+        marketingNotif: row.marketingNotif ?? false,
       },
       privacy: {
-        shareData: false,
-        analytics: true,
+        shareData: row.shareData,
+        analytics: row.analyticsEnabled,
+        analyticsEnabled: row.analyticsEnabled,
+        profileVisibility: row.profileVisibility ?? 'PUBLIC',
+        showDietActivity: row.showDietActivity ?? true,
+        allowComments: row.allowComments ?? true,
       },
-      appTheme: 'system',
-      language: 'vi',
+      theme: row.appTheme,
+      appTheme: row.appTheme,
+      language: row.language,
     };
+  }
+
+  async getOrCreate(userId: string) {
+    const existing = await this.prisma.db.userSetting.findUnique({
+      where: { userId },
+    });
+    if (existing) return existing;
+
+    return this.prisma.db.userSetting.create({
+      data: { userId },
+    });
+  }
+
+  async getSettings(userId: string) {
+    const row = await this.getOrCreate(userId);
+    return this.format(row);
   }
 
   async updateSettings(
@@ -45,17 +64,62 @@ export class SettingsService {
       });
     }
 
-    const current = await this.getSettings(userId);
-    return {
-      ...current,
-      notifications: {
-        pushEnabled: dto.pushNotificationsEnabled ?? current.notifications.pushEnabled,
-        mealReminders: dto.mealRemindersEnabled ?? current.notifications.mealReminders,
-        waterReminders: dto.waterRemindersEnabled ?? current.notifications.waterReminders,
+    const cleanVer = ifMatch.replace(/"/g, '').trim();
+    const expectedVer = parseInt(cleanVer, 10);
+    const current = await this.getOrCreate(userId);
+
+    if (isNaN(expectedVer) || current.version !== expectedVer) {
+      throw new PreconditionFailedException({
+        error: {
+          code: 'SETTINGS_VERSION_CONFLICT',
+          message: 'Cài đặt đã được cập nhật ở nơi khác.',
+          details: { expectedVersion: current.version },
+        },
+      });
+    }
+
+    const theme = dto.theme ?? dto.appTheme;
+
+    const updated = await this.prisma.db.userSetting.update({
+      where: { userId },
+      data: {
+        ...(dto.pushNotificationsEnabled !== undefined
+          ? { pushEnabled: dto.pushNotificationsEnabled }
+          : {}),
+        ...(dto.mealRemindersEnabled !== undefined
+          ? { mealReminders: dto.mealRemindersEnabled }
+          : {}),
+        ...(dto.waterRemindersEnabled !== undefined
+          ? { waterReminders: dto.waterRemindersEnabled }
+          : {}),
+        ...(dto.weeklyPlanNotif !== undefined
+          ? { weeklyPlanNotif: dto.weeklyPlanNotif }
+          : {}),
+        ...(dto.communityNotif !== undefined
+          ? { communityNotif: dto.communityNotif }
+          : {}),
+        ...(dto.marketingNotif !== undefined
+          ? { marketingNotif: dto.marketingNotif }
+          : {}),
+        ...(dto.shareData !== undefined ? { shareData: dto.shareData } : {}),
+        ...(dto.analyticsEnabled !== undefined
+          ? { analyticsEnabled: dto.analyticsEnabled }
+          : {}),
+        ...(dto.profileVisibility !== undefined
+          ? { profileVisibility: dto.profileVisibility }
+          : {}),
+        ...(dto.showDietActivity !== undefined
+          ? { showDietActivity: dto.showDietActivity }
+          : {}),
+        ...(dto.allowComments !== undefined
+          ? { allowComments: dto.allowComments }
+          : {}),
+        ...(theme ? { appTheme: theme } : {}),
+        ...(dto.language ? { language: dto.language } : {}),
+        version: { increment: 1 },
       },
-      appTheme: dto.theme ?? current.appTheme,
-      language: dto.language ?? current.language,
-      message: 'Cài đặt đã được cập nhật.',
-    };
+    });
+
+    return this.format(updated);
   }
 }

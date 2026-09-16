@@ -49,7 +49,6 @@ export function LiquidGlassBottomNav({ active, ...actions }: Props) {
         <BlurView
           intensity={32}
           tint="light"
-          experimentalBlurMethod="dimezisBlurView"
           className="flex-1 rounded-[32px] overflow-visible"
           style={{
             borderWidth: 1,

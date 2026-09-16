@@ -201,7 +201,7 @@ export class RandomHistoryQueryDto {
   @Max(50)
   limit?: number = 20;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({ description: 'Opaque cursor (createdAt,id) base64url' })
   @IsOptional()
   @IsString()
   cursor?: string;
@@ -210,6 +210,11 @@ export class RandomHistoryQueryDto {
   @IsOptional()
   @IsBoolean()
   selectedOnly?: boolean;
+
+  @ApiPropertyOptional({ description: 'SELECTED | SKIPPED | ALL' })
+  @IsOptional()
+  @IsString()
+  outcome?: string;
 }
 
 export class RetryRandomizationDto {

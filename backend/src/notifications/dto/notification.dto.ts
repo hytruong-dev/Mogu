@@ -1,9 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class NotificationQueryDto {
-  @ApiPropertyOptional({ example: 1, default: 1 })
+  @ApiPropertyOptional({ example: 1, deprecated: true })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
@@ -17,6 +17,11 @@ export class NotificationQueryDto {
   @Min(1)
   @Max(100)
   limit?: number = 20;
+
+  @ApiPropertyOptional({ description: 'Cursor = notification id' })
+  @IsOptional()
+  @IsString()
+  cursor?: string;
 }
 
 export class NotificationDto {
@@ -32,7 +37,7 @@ export class NotificationDto {
   @ApiProperty({ example: 'Hôm nay thử Phở bò nhé?' })
   body: string;
 
-  @ApiPropertyOptional({ example: '/dishes/abc-123' })
+  @ApiPropertyOptional({ example: 'mogu://dishes/abc-123' })
   deepLink?: string;
 
   @ApiPropertyOptional()
@@ -49,7 +54,7 @@ export class NotificationDto {
 }
 
 export class UnreadCountResponseDto {
-  @ApiProperty({ example: 3, description: 'Số thông báo chưa đọc (raw count, client hiển thị 99+ nếu > 99)' })
+  @ApiProperty({ example: 3 })
   count: number;
 }
 
@@ -57,12 +62,36 @@ export class NotificationListResponseDto {
   @ApiProperty({ type: [NotificationDto] })
   data: NotificationDto[];
 
-  @ApiProperty({ example: 1 })
-  page: number;
+  @ApiProperty({ type: [NotificationDto] })
+  items: NotificationDto[];
+
+  @ApiPropertyOptional()
+  page?: number;
 
   @ApiProperty({ example: 20 })
   limit: number;
 
   @ApiProperty({ example: false })
   hasMore: boolean;
+
+  @ApiPropertyOptional()
+  nextCursor?: string | null;
+
+  @ApiPropertyOptional()
+  pageInfo?: { nextCursor: string | null; hasMore: boolean };
+}
+
+export class RegisterPushInstallationDto {
+  @ApiProperty()
+  @IsString()
+  token: string;
+
+  @ApiProperty({ example: 'ios' })
+  @IsString()
+  platform: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  appVersion?: string;
 }

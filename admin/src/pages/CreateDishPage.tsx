@@ -18,6 +18,7 @@ import { MediaPreviewPanel } from '../components/molecules/MediaPreviewPanel'
 import { ReviewDishPanel } from '../components/molecules/ReviewDishPanel'
 import { ReviewSidePanel } from '../components/molecules/ReviewSidePanel'
 import { SubmitSuccessModal } from '../components/molecules/SubmitSuccessModal'
+import { PageSkeleton } from '../components/ui/page-skeleton'
 import { useAdminDish, useCreateDish, useDishLifecycle, useUpdateDish } from '../hooks/useDishes'
 import { useCategories, useDietTypes, useGoals, useMealTypes, useProvinces, useRegions } from '../hooks/useTaxonomy'
 import { dishesApi, type CreateDishDto, type NutritionPayload, type DishValidationResult } from '../api/dishes'
@@ -83,8 +84,11 @@ function buildDishPayload(args: {
     priceMin: classification.priceFrom ? Number(classification.priceFrom.replace(/\D/g, '')) : undefined,
     priceMax: classification.priceTo ? Number(classification.priceTo.replace(/\D/g, '')) : undefined,
     nutrition: Object.keys(nutritionPayload).length ? nutritionPayload : undefined,
+    createMissingIngredients: true,
     ingredients: ingredients.filter((i) => i.name.trim()).map((i, idx) => ({
+      clientRef: i.clientRef,
       rawText: i.name.trim(),
+      canonicalNameCandidate: i.name.trim(),
       quantity: i.qty ? Number(i.qty) : undefined,
       unit: i.unit || undefined,
       preparation: i.prep || undefined,
@@ -363,8 +367,14 @@ export default function CreateDishPage() {
     if (dish.dishIngredients?.length) {
       setIngredients(dish.dishIngredients.map((i: any) => ({
         id: Date.now() + Math.random(),
+        clientRef: `edit-${i.id ?? Date.now()}`,
         name: i.parsedName ?? i.ingredient?.name ?? i.rawText ?? '',
-        ingredientId: i.ingredientId,
+        ingredientId: i.ingredient?.id ?? i.ingredientId,
+        ingredientImageUrl: i.ingredient?.imageUrl ?? undefined,
+        ingredientStatus: i.ingredient?.status,
+        resolutionStatus: (i.ingredient?.id ?? i.ingredientId)
+          ? (i.ingredient?.status === 'PENDING_REVIEW' ? 'PENDING_REVIEW' : 'LINKED')
+          : 'NOT_FOUND',
         qty: i.quantity != null ? String(i.quantity) : '',
         unit: ({
           G: 'g',
@@ -592,6 +602,10 @@ export default function CreateDishPage() {
     !existing.isLoading &&
     !existing.isFetching &&
     (existing.isError || (!existing.data && existing.isFetched))
+  const errData = (existing.error as any)?.response?.data?.error
+  const isDeleted = errData?.code === 'DISH_DELETED'
+  const isNotFound = errData?.code === 'DISH_NOT_FOUND'
+  const editErrMsg = errData?.message || 'Không tải được món ăn.'
 
   return (
     <div className="flex min-h-full flex-col bg-mogu-cream">
@@ -650,21 +664,46 @@ export default function CreateDishPage() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-8 py-6">
-        {isLoadingEdit && (
-          <div className="rounded-2xl border border-black/10 bg-white p-12 text-center text-gray-500">
-            Đang tải dữ liệu món ăn...
-          </div>
-        )}
+        {isLoadingEdit && <PageSkeleton rows={6} withAvatar />}
         {loadEditFailed && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-700">
-            Không tải được món ăn.{' '}
-            <button
-              type="button"
-              className="font-semibold underline"
-              onClick={() => void existing.refetch()}
-            >
-              Thử lại
-            </button>
+          <div className="mx-auto max-w-lg rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-700">
+            <p className="mb-2 text-base font-semibold">
+              {isDeleted ? 'Món ăn đã bị xóa' : isNotFound ? 'Không tìm thấy món ăn' : 'Không tải được món ăn'}
+            </p>
+            <p className="mb-4 text-sm text-red-600">{editErrMsg}</p>
+            <div className="flex items-center justify-center gap-3">
+              {isDeleted && (
+                <button
+                  type="button"
+                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 disabled:opacity-50"
+                  disabled={lifecycle.restore.isPending}
+                  onClick={async () => {
+                    if (queryDishId) {
+                      await lifecycle.restore.mutateAsync(queryDishId)
+                      void existing.refetch()
+                    }
+                  }}
+                >
+                  {lifecycle.restore.isPending ? 'Đang khôi phục...' : 'Khôi phục món ăn'}
+                </button>
+              )}
+              <button
+                type="button"
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+                onClick={() => navigate('/foods')}
+              >
+                Về danh sách món
+              </button>
+              {!isDeleted && !isNotFound && (
+                <button
+                  type="button"
+                  className="rounded-lg bg-red-100 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-200"
+                  onClick={() => void existing.refetch()}
+                >
+                  Thử lại
+                </button>
+              )}
+            </div>
           </div>
         )}
         {!isLoadingEdit && !loadEditFailed && phase === 'review' && (

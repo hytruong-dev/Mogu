@@ -1,18 +1,27 @@
-﻿import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
-  ActivityIndicator,
   Alert,
   Animated,
+  Dimensions,
   Image,
   ImageSourcePropType,
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
-  TextInput,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
+import { Switch } from '../components/ui/switch';
+import { Progress } from '../components/ui/progress';
+import { AppImage } from '../components/ui/app-image';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from '../components/ui/drawer';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
@@ -66,6 +75,9 @@ const shadow = {
   shadowRadius: 16, shadowOffset: { width: 0, height: 5 }, elevation: 3,
 };
 
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const ING_CARD_WIDTH = Math.floor((SCREEN_WIDTH - 32 - 16) / 3);
+
 // ── Types ────────────────────────────────────────────────────────────────────
 export type FoodDetailPage = 'overview' | 'nutrition' | 'recipe' | 'community' | 'confirmed' | 'location' | 'result' | 'cooking';
 
@@ -106,6 +118,8 @@ type Props = {
   mealTypes?: Array<{ code: string; name: string }>;
   explanation?: Explanation;
   onClose: () => void;
+  /** Quay lại bước random / random lại (khác với đóng về Home) */
+  onRandomAgain?: () => void;
   onFinish?: () => void;
 };
 
@@ -113,11 +127,11 @@ type Props = {
 export function FoodDetailFlowScreen({
   initialPage = 'overview',
   dishId,
-  dishName = 'Phở bò',
+  dishName = 'Món ăn',
   dishImage,
   ratingAvg,
   ratingCount,
-  meal = 'Bữa trưa',
+  meal = 'Bữa ăn',
   priceMin,
   priceMax,
   prepMinutes,
@@ -132,12 +146,12 @@ export function FoodDetailFlowScreen({
   mealTypes = [],
   explanation,
   onClose,
+  onRandomAgain,
   onFinish,
 }: Props) {
   const [page, setPage] = useState<FoodDetailPage>(initialPage);
   const history = useRef<FoodDetailPage[]>([]);
-  const image: ImageSourcePropType =
-    dishImage ?? require('../assets/images/random/pho-result.jpg');
+  const image: ImageSourcePropType | undefined = dishImage;
 
   const go = (next: FoodDetailPage) => { history.current.push(page); setPage(next); };
   const back = () => {
@@ -146,12 +160,17 @@ export function FoodDetailFlowScreen({
     else onClose();
   };
 
-  // Shared dish info
+  // Shared dish info — chỉ hiển thị khi có dữ liệu thật
   const totalPrepMin = (prepMinutes ?? 0) + (cookMinutes ?? 0);
-  const priceLabel = priceMin && priceMax
-    ? `${Math.round(priceMin / 1000)}K–${Math.round(priceMax / 1000)}K`
-    : priceMax ? `${Math.round(priceMax / 1000)}K` : '45K–65K';
-  const timeLabel = totalPrepMin > 0 ? `${totalPrepMin} phút` : '25 phút';
+  const priceLabel =
+    priceMin != null && priceMax != null
+      ? `${Math.round(priceMin / 1000)}K–${Math.round(priceMax / 1000)}K`
+      : priceMax != null
+        ? `~${Math.round(priceMax / 1000)}K`
+        : priceMin != null
+          ? `~${Math.round(priceMin / 1000)}K`
+          : '—';
+  const timeLabel = totalPrepMin > 0 ? `${totalPrepMin} phút` : '—';
   const compat = explanation?.compatibilityPercent;
 
   if (page === 'confirmed') {
@@ -211,7 +230,7 @@ export function FoodDetailFlowScreen({
         explanation={explanation}
         compat={compat}
         onBack={onClose}
-        onAgain={onClose}
+        onAgain={onRandomAgain ?? onClose}
         onChoose={() => go('overview')}
       />
     );
@@ -243,7 +262,7 @@ function ResultPage({
   image, dishName, meal, priceLabel, timeLabel, kcal, explanation, compat,
   onBack, onAgain, onChoose,
 }: {
-  image: ImageSourcePropType;
+  image?: ImageSourcePropType;
   dishName: string; meal: string; priceLabel: string; timeLabel: string;
   kcal: number | null;
   explanation?: Explanation; compat?: number | null;
@@ -301,7 +320,7 @@ function ResultPage({
 
         {/* ── Ảnh món ── */}
         <Animated.View style={[s.resultPhotoWrap, { transform: [{ scale: imgScale }] }]}>
-          <Image source={image} style={s.resultPhoto} resizeMode="cover" />
+          <DishHeroImage image={image} style={s.resultPhoto} />
           {compat != null && (
             <View style={s.resultMatchBadge}>
               <Sparkles size={13} color={INK} />
@@ -379,7 +398,7 @@ function ResultPage({
           <RotateCcw size={18} color={INK} />
           <Text style={s.againTxt}>{'Random lại'}</Text>
         </Pressable>
-        <View style={{ flex: 1 }}>
+        <View style={s.chooseBtnWrap}>
           <PrimaryBtn label={'Chọn món này'} icon={<Check size={18} color={INK} />} onPress={onChoose} />
         </View>
       </View>
@@ -398,11 +417,33 @@ function Res4Stat({ icon, top, bot }: { icon: ReactNode; top: string; bot: strin
   );
 }
 
+function DishHeroImage({
+  image,
+  style,
+  resizeMode = 'cover',
+}: {
+  image?: ImageSourcePropType;
+  style?: object;
+  resizeMode?: 'cover' | 'contain';
+}) {
+  return (
+    <AppImage
+      source={image}
+      style={style as any}
+      resizeMode={resizeMode}
+      contentFit={resizeMode === 'contain' ? 'contain' : 'cover'}
+      cachePolicy="memory-disk"
+      transition={250}
+      showLoader
+    />
+  );
+}
+
 function FactorChip({ label }: { label: string }) {
   return (
     <View style={s.factorChip}>
       <Text style={s.factorChipTxt}>{label}</Text>
-    </View>
+          </View>
   );
 }
 
@@ -416,7 +457,7 @@ function OverviewPage({
   explanation, compat,
   onBack, onNutrition, onLocation, onChoose,
 }: {
-  image: ImageSourcePropType; dishId?: string; dishName: string; meal: string;
+  image?: ImageSourcePropType; dishId?: string; dishName: string; meal: string;
   ratingAvg?: number; ratingCount?: number; priceLabel: string; timeLabel: string;
   shortDescription?: string | null; originText?: string | null;
   nutrition?: DishNutrition | null; ingredients?: DishIngredient[]; allergens?: DishAllergen[];
@@ -427,17 +468,17 @@ function OverviewPage({
   const displayRating = ratingAvg != null && ratingAvg > 0 ? ratingAvg : null;
   const displayCount = ratingCount ?? 0;
 
-  // Data thuc tu API
+  // Data thuc tu API — không fallback mock
   const desc = shortDescription ?? null;
   const origin = originText ?? null;
   const kcalNum = nutrition?.calories ?? null;
-  const kcalStr = kcalNum ? (Math.round(Number(kcalNum)) + ' kcal') : '420 kcal';
-  const displayIngredients = (ingredients ?? []).slice(0, 6);
+  const kcalStr = kcalNum != null ? `${Math.round(Number(kcalNum))} kcal` : null;
+  const displayIngredients = (ingredients ?? []).slice(0, 8);
   const displayAllergens = allergens ?? [];
   const hasAllergens = displayAllergens.length > 0;
 
   return (
-    <SafeAreaView style={s.safe}>
+    <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
       {/* Header */}
       <View style={s.ovHeader}>
         <RoundBtn onPress={onBack}><ArrowLeft size={22} color={INK} /></RoundBtn>
@@ -450,126 +491,128 @@ function OverviewPage({
           </View>
           </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 110 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+        overScrollMode="never"
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+      >
         {/* Hero full-width */}
         <View style={s.heroWrap}>
-          <Image source={image} style={s.heroImg} />
+          <DishHeroImage image={image} style={s.heroImg} />
           {compat != null && (
             <View style={s.ovMatchBadge}>
               <Sparkles size={12} color={INK} />
               <Text style={s.matchText}>{`Phù hợp ${compat}%`}</Text>
             </View>
           )}
-          <View style={s.regionBadge}>
-            <MapPin size={13} color={MUTED} />
-            {origin ? <Text style={s.regionText}>{origin}</Text> : null}
-              </View>
+          {origin ? (
+            <View style={s.regionBadge}>
+              <MapPin size={13} color={MUTED} />
+              <Text style={s.regionText}>{origin}</Text>
+            </View>
+          ) : null}
         </View>
 
-        <View style={s.pad}>
-          <Text style={s.dishTitle}>{dishName}</Text>
+        <View style={[s.pad, s.ovBody]}>
+          <View>
+            <Text style={s.dishTitle}>{dishName}</Text>
 
-          {/* Rating */}
-          <View style={[s.row, { gap: 5, marginTop: 6 }]}>
-            {displayRating != null ? (
-              <>
-                <Star size={17} color={YELLOW_D} fill={YELLOW} />
-                <Text style={s.ratingNum}>{displayRating.toFixed(1)}</Text>
-                <Text style={s.ratingCount}>{'· ' + displayCount.toLocaleString() + ' đánh giá'}</Text>
-              </>
-            ) : (
-              <>
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} size={15} color={i <= 4 ? YELLOW_D : BORDER} fill={i <= 4 ? YELLOW : 'transparent'} />
-                ))}
+            {/* Rating */}
+            <View style={[s.row, { gap: 5, marginTop: 4 }]}>
+              {displayRating != null ? (
+                <>
+                  <Star size={14} color={YELLOW_D} fill={YELLOW} />
+                  <Text style={s.ratingNum}>{displayRating.toFixed(1)}</Text>
+                  <Text style={s.ratingCount}>{'· ' + displayCount.toLocaleString() + ' đánh giá'}</Text>
+                </>
+              ) : (
                 <Text style={s.ratingCount}>{'Chưa có đánh giá'}</Text>
-              </>
-            )}
+              )}
             </View>
 
-          {desc ? <Text style={s.desc}>{desc}</Text> : null}
+            {desc ? <Text style={s.desc} numberOfLines={2}>{desc}</Text> : null}
 
-          {/* 3 stat chips */}
-          <View style={s.ov3Stats}>
-            <OvStat icon={<Sun size={17} color={MUTED} />} label={meal} />
-            <View style={s.ovStatDivider} />
-            <OvStat icon={<View style={s.ovDiamond} />} label={priceLabel} />
-            <View style={s.ovStatDivider} />
-            <OvStat icon={<Clock3 size={17} color={MUTED} />} label={timeLabel} />
-              </View>
+            {/* 3 stat chips */}
+            <View style={s.ov3Stats}>
+              <OvStat icon={<Sun size={15} color={MUTED} />} label={meal} />
+              <View style={s.ovStatDivider} />
+              <OvStat icon={<View style={s.ovDiamond} />} label={priceLabel} />
+              <View style={s.ovStatDivider} />
+              <OvStat icon={<Clock3 size={15} color={MUTED} />} label={timeLabel} />
+            </View>
 
-          {/* Thong tin nhanh */}
-          <View style={s.quickInfoCard}>
-            <Text style={s.quickInfoTitle}>{'Thông tin nhanh'}</Text>
-            <View style={s.qiRow}>
-              <MapPin size={15} color={MUTED} />
-              <Text style={s.qiLabel}>{'Nguồn gốc'}</Text>
-              <Text style={s.qiDot}>{'·'}</Text>
-              <Text style={s.qiValue}>{origin ?? 'Việt Nam'}</Text>
+            {/* Thong tin nhanh */}
+            <View style={s.quickInfoCard}>
+              <Text style={s.quickInfoTitle}>{'Thông tin nhanh'}</Text>
+              {origin ? (
+                <View style={s.qiRow}>
+                  <MapPin size={15} color={MUTED} />
+                  <Text style={s.qiLabel}>{'Nguồn gốc'}</Text>
+                  <Text style={s.qiDot}>{'·'}</Text>
+                  <Text style={s.qiValue}>{origin}</Text>
+                </View>
+              ) : null}
+              {kcalStr ? (
+                <View style={s.qiRow}>
+                  <Flame size={15} color={MUTED} />
+                  <Text style={s.qiLabel}>{kcalStr}</Text>
+                </View>
+              ) : null}
+              <View style={s.allergyBox}>
+                <AlertTriangle size={16} color="#E5A800" />
+                <View style={{ flex: 1 }}>
+                  <Text style={s.allergyTitle}>{'Lưu ý dị ứng'}</Text>
+                  <Text style={s.allergyBody}>{hasAllergens ? ('Có thể chứa: ' + displayAllergens.map((a: any) => a.name).filter(Boolean).join(', ')) : 'Chưa có thông tin dị ứng'}</Text>
+                </View>
+                <Image source={MASCOT_COOL} style={s.allergyMascot} resizeMode="contain" />
               </View>
-            <View style={s.qiRow}>
-              <Flame size={15} color={MUTED} />
-              <Text style={s.qiLabel}>{'Ấm nóng'}</Text>
-              <Zap size={14} color={MUTED} style={{ marginLeft: 10 }} />
-              <Text style={s.qiLabel}>{'Đủ năng lượng'}</Text>
-              <UtensilsCrossed size={14} color={MUTED} style={{ marginLeft: 10 }} />
-              <Text style={s.qiLabel}>{'Món nước'}</Text>
-              </View>
-            <View style={s.allergyBox}>
-              <AlertTriangle size={16} color="#E5A800" />
-              <View style={{ flex: 1 }}>
-                <Text style={s.allergyTitle}>{'Lưu ý dị ứng'}</Text>
-                <Text style={s.allergyBody}>{hasAllergens ? ('Có thể chứa: ' + displayAllergens.map((a: any) => a.name).join(', ')) : 'Chưa có thông tin dị ứng'}</Text>
-              </View>
-              <Image source={MASCOT_COOL} style={s.allergyMascot} resizeMode="contain" />
+            </View>
+
+            {/* Thanh phan chinh */}
+            <View style={s.ingredientSection}>
+              <Text style={s.sectionLabel}>{'Thành phần chính'}</Text>
+              {displayIngredients.length === 0 ? (
+                <Text style={[s.desc, { marginTop: 6 }]}>Chưa có dữ liệu nguyên liệu</Text>
+              ) : (
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 8 }}>
+                  {displayIngredients.map((ing: any, idx: number) => {
+                    const ingName = (ing.ingredientName ?? ing.rawText ?? '')
+                      .replace(/\s*\d.*$/, '').replace(/\(.*\)/, '').trim() || 'Nguyên liệu';
+                    return (
+                      <View key={idx} style={s.ingCard}>
+                        <View style={s.ingCircle}>
+                          {ing.imageUrl ? (
+                            <Image
+                              source={{ uri: ing.imageUrl }}
+                              style={{ width: 44, height: 44, borderRadius: 22 }}
+                              resizeMode="cover"
+                            />
+                          ) : (
+                            <Leaf size={16} color="#7CB342" strokeWidth={1.6} />
+                          )}
+                        </View>
+                        <Text style={s.ingName} numberOfLines={1}>{ingName}</Text>
+                      </View>
+                    );
+                  })}
+                </ScrollView>
+              )}
+            </View>
           </View>
-        </View>
 
-          {/* Thanh phan chinh */}
-          <View style={s.ingredientSection}>
-            <Text style={s.sectionLabel}>{'Thành phần chính'}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 14 }}>
-              {(displayIngredients.length > 0 ? displayIngredients : [
-                { rawText: 'Banh', imageUrl: null }, { rawText: 'Thit', imageUrl: null },
-                { rawText: 'Rau', imageUrl: null }, { rawText: 'Gia vi', imageUrl: null },
-              ]).map((ing: any, idx: number) => {
-                const ingName = (ing.ingredientName ?? ing.rawText)
-                  .replace(/\s*\d.*$/, '').replace(/\(.*\)/, '').trim();
-                const EMOJIS = ['🍜', '🥩', '🌿', '🫙',
-                  '🧂', '🥚', '🧅', '🌶',
-                  '🫒', '🍋', '🦶', '🍌'];
-                return (
-                  <View key={idx} style={s.ingCard}>
-                    <View style={s.ingCircle}>
-                      {ing.imageUrl ? (
-                        <Image
-                          source={{ uri: ing.imageUrl }}
-                          style={{ width: 60, height: 60, borderRadius: 30 }}
-                          resizeMode="cover"
-                        />
-                      ) : (
-                        <Text style={s.ingEmoji}>{EMOJIS[idx % EMOJIS.length]}</Text>
-                      )}
-                    </View>
-                    <Text style={s.ingName} numberOfLines={2}>{ingName}</Text>
-                  </View>
-                );
-              })}
-      </ScrollView>
-          </View>
-
-          {/* NavCards */}
-          <View style={{ gap: 10, marginTop: 8 }}>
+          {/* NavCards — đẩy xuống đáy màn */}
+          <View style={{ gap: 8, marginTop: 12 }}>
             <NavCard
-              icon={<View style={s.navIco}><BarChart3 size={20} color={INK} /></View>}
+              icon={<View style={s.navIco}><BarChart3 size={18} color={INK} /></View>}
               title={'Dinh dưỡng & cách nấu'}
-              sub={kcalStr + ' · Xem cách chế biến'}
+              sub={kcalStr ? `${kcalStr} · Xem cách chế biến` : 'Xem cách chế biến'}
               onPress={onNutrition}
             />
             <NavCard
-              icon={<View style={s.navIco}><MapPin size={20} color={INK} /></View>}
+              icon={<View style={s.navIco}><MapPin size={18} color={INK} /></View>}
               title={'Địa điểm gần bạn'}
-              sub={'12 quán · Gần nhất 1,2 km'}
+              sub={'Xem gợi ý quanh bạn'}
               onPress={onLocation}
             />
           </View>
@@ -592,6 +635,49 @@ function OvStat({ icon, label }: { icon: ReactNode; label: string }) {
 //  SCREEN 2 — NutritionPage "Dinh dưỡng & cách nấu"
 // ══════════════════════════════════════════════════════════════════════════════
 // ─────────────────────────────────────────────────────────────────────────────
+//  Helper: parse & scale ingredient for display
+// ─────────────────────────────────────────────────────────────────────────────
+function parseIngredientDisplay(ing: DishIngredient, servings: number) {
+  const baseServings = 4;
+  const factor = servings / baseServings;
+
+  const raw = (ing.rawText || ing.ingredientName || '').trim();
+
+  // Extract note inside parentheses: e.g. (đã cắt miếng vừa ăn, ngâm muối...)
+  let note = '';
+  const parenMatch = raw.match(/\(([^)]+)\)/);
+  if (parenMatch) {
+    note = parenMatch[1].trim();
+  }
+
+  // Clean name
+  let name = (ing.ingredientName || raw).replace(/\(.*?\)/g, '').trim();
+  // Strip leading numbers or quantity units if name was rawText
+  name = name.replace(/^[\d.,\/\s]+(g|kg|ml|l|muỗng canh|muỗng cà phê|thìa|trái|quả|củ|tép|lá|gói|bát|chén|lát|khoanh)?\s*/i, '').trim();
+  if (!name) name = ing.ingredientName || raw || 'Nguyên liệu';
+
+  // Quantity & Unit
+  let qtyDisplay = '';
+  if (ing.quantity != null && Number.isFinite(Number(ing.quantity))) {
+    const scaled = Math.round(Number(ing.quantity) * factor * 10) / 10;
+    const unitStr = ing.unit ? (ing.unit.length <= 2 ? ing.unit : ' ' + ing.unit) : '';
+    qtyDisplay = `${scaled}${unitStr}`;
+  } else {
+    const match = raw.match(/^([\d.,]+)\s*(g|kg|ml|l|muỗng canh|muỗng cà phê|thìa|trái|quả|củ|tép|lá|gói|bát|chén|lát|khoanh)?/i);
+    if (match) {
+      const parsedNum = parseFloat(match[1].replace(',', '.'));
+      if (!isNaN(parsedNum)) {
+        const scaled = Math.round(parsedNum * factor * 10) / 10;
+        const unit = match[2] ? (match[2].length <= 2 ? match[2] : ' ' + match[2]) : '';
+        qtyDisplay = `${scaled}${unit}`;
+      }
+    }
+  }
+
+  return { name, note, qtyDisplay };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  SCREEN 2 - NutritionPage  "Công thức [món]"  (Recipe Overview)
 // ─────────────────────────────────────────────────────────────────────────────
 function NutritionPage({
@@ -600,7 +686,7 @@ function NutritionPage({
   prepMinutes, cookMinutes,
   onBack, onLocation, onChoose, onCook,
 }: {
-  image: ImageSourcePropType; dishName: string; priceLabel: string; timeLabel: string;
+  image?: ImageSourcePropType; dishName: string; priceLabel: string; timeLabel: string;
   nutrition?: DishNutrition | null;
   ingredients?: DishIngredient[];
   recipeSteps?: DishRecipeStep[];
@@ -611,13 +697,13 @@ function NutritionPage({
 }) {
   const [servings, setServings] = useState(4);
   const [checkedSteps, setCheckedSteps] = useState<number[]>([]);
+  const [checkedIngredients, setCheckedIngredients] = useState<number[]>([]);
 
   const kcal = nutrition?.calories ? Math.round(Number(nutrition.calories)) : null;
   const protein = nutrition?.proteinG ? Math.round(Number(nutrition.proteinG)) : null;
   const carbs = nutrition?.carbsG ? Math.round(Number(nutrition.carbsG)) : null;
   const fat = nutrition?.fatG ? Math.round(Number(nutrition.fatG)) : null;
   const fiber = nutrition?.fiberG ? Math.round(Number(nutrition.fiberG)) : null;
-  const serving = nutrition?.servingName ?? `${servings} khẩu phần`;
   const totalMin = (prepMinutes ?? 0) + (cookMinutes ?? 0);
   const timeStr = totalMin > 0
     ? (totalMin >= 60 ? Math.floor(totalMin / 60) + 'h' + (totalMin % 60 > 0 ? ' ' + (totalMin % 60) + ' phút' : '') : totalMin + ' phút')
@@ -640,6 +726,9 @@ function NutritionPage({
   const toggleStep = (n: number) =>
     setCheckedSteps((prev) => prev.includes(n) ? prev.filter((x) => x !== n) : [...prev, n]);
 
+  const toggleIngredient = (idx: number) =>
+    setCheckedIngredients((prev) => prev.includes(idx) ? prev.filter((i) => i !== idx) : [...prev, idx]);
+
   const completedCount = checkedSteps.length;
   const totalSteps = steps.length;
 
@@ -652,30 +741,30 @@ function NutritionPage({
         <RoundBtn onPress={onBack}><ArrowLeft size={22} color={INK} /></RoundBtn>
         <Text style={s.ovHeaderTitle}>{'Công thức ' + dishName}</Text>
         <RoundBtn onPress={() => undefined}><Bookmark size={20} color={INK} /></RoundBtn>
-          </View>
+      </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 72 }}>
 
         {/* ── Dish Hero Card ─────────────────────────────────────── */}
         <View style={s.recHeroCard}>
-          <Image source={image} style={s.recHeroImg} resizeMode="cover" />
+          <DishHeroImage image={image} style={s.recHeroImg} />
           <View style={s.recHeroInfo}>
-            <Text style={s.recHeroName}>{dishName}</Text>
-            <View style={{ gap: 6 }}>
-              <View style={s.recHeroRow}>
-                <Users size={15} color={MUTED} />
-                <Text style={s.recHeroTxt}>{servings} khẩu phần</Text>
-          </View>
-              <View style={s.recHeroRow}>
-                <Clock3 size={15} color={MUTED} />
-                <Text style={s.recHeroTxt}>{timeStr}</Text>
-          </View>
-              <View style={s.recHeroRow}>
-                <BarChart3 size={15} color={MUTED} />
-                <Text style={s.recHeroTxt}>{diffLabel}</Text>
-        </View>
-                </View>
+            <Text style={s.recHeroName} numberOfLines={2}>{dishName}</Text>
+            <View style={s.recHeroBadgeRow}>
+              <View style={s.recHeroBadge}>
+                <Users size={12} color="#666" />
+                <Text style={s.recHeroBadgeTxt}>{servings} khẩu phần</Text>
               </View>
+              <View style={s.recHeroBadge}>
+                <Clock3 size={12} color="#666" />
+                <Text style={s.recHeroBadgeTxt}>{timeStr}</Text>
+              </View>
+              <View style={s.recHeroBadge}>
+                <BarChart3 size={12} color="#666" />
+                <Text style={s.recHeroBadgeTxt}>{diffLabel}</Text>
+              </View>
+            </View>
+          </View>
         </View>
 
         {/* ── Dinh dưỡng ─────────────────────────────────────────── */}
@@ -683,25 +772,31 @@ function NutritionPage({
           <Text style={s.sectionLabel}>Dinh dưỡng tham khảo</Text>
           <View style={s.nutCard}>
             <View style={s.nutKcalRow}>
-              <View className='flex flex-col items-center justify-center'>
-                <Text style={s.nutKcalBig}>{kcal ?? '420'}</Text>
-                <Text style={s.nutKcalUnit} className='text-center w-full'>kcal</Text>
+              <View style={s.nutKcalBox}>
+                <Text style={s.nutKcalVal}>{kcal ?? '—'}</Text>
+                <Text style={s.nutKcalLbl}>kcal / phần</Text>
               </View>
-              <View style={s.nutMacroRow}>
-                <NutMacro label="Protein" value={protein != null ? protein + 'g' : '28g'} color="#E06B6B" />
-                <NutMacro label="Tinh bột" value={carbs != null ? carbs + 'g' : '52g'} color="#E5A800" />
-                <NutMacro label="Chất béo" value={fat != null ? fat + 'g' : '12g'} color="#F07A35" />
-                <NutMacro label="Chất xơ" value={fiber != null ? fiber + 'g' : '4g'} color="#4CAF50" />
+              <View style={s.nutDivider} />
+              <View style={s.nutMacroGrid}>
+                <NutMacro label="Protein" value={protein != null ? protein + 'g' : '—'} color="#E06B6B" />
+                <NutMacro label="Tinh bột" value={carbs != null ? carbs + 'g' : '—'} color="#E5A800" />
+                <NutMacro label="Chất béo" value={fat != null ? fat + 'g' : '—'} color="#F07A35" />
+                <NutMacro label="Chất xơ" value={fiber != null ? fiber + 'g' : '—'} color="#4CAF50" />
               </View>
             </View>
             <View style={s.nutDisclaimer}>
-              <Text style={s.nutDisclaimerTxt}>ⓘ Giá trị có thể thay đổi theo khẩu phần.</Text>
+              <Text style={s.nutDisclaimerTxt}>ⓘ Giá trị ước tính theo 1 khẩu phần tiêu chuẩn.</Text>
             </View>
           </View>
 
           {/* ── Nguyên liệu ─────────────────────────────────────── */}
-          <View style={[s.row, { justifyContent: 'space-between', marginTop: 24, marginBottom: 14 }]}>
-            <Text style={s.sectionLabel}>Nguyên liệu</Text>
+          <View style={[s.row, { justifyContent: 'space-between', marginTop: 18, marginBottom: 8 }]}>
+            <View style={[s.row, { gap: 6 }]}>
+              <Text style={s.sectionLabel}>Nguyên liệu</Text>
+              <View style={s.countBadge}>
+                <Text style={s.countBadgeTxt}>{ingredients.length} loại</Text>
+              </View>
+            </View>
             <View style={s.servingCtrl}>
               <Pressable style={s.servingBtn} onPress={() => setServings(Math.max(1, servings - 1))}>
                 <Text style={s.servingBtnTxt}>−</Text>
@@ -712,86 +807,144 @@ function NutritionPage({
               </Pressable>
             </View>
           </View>
-          <View className='grid grid-cols-4 gap-2'>
-            {(ingredients.length > 0 ? ingredients : [
-              { rawText: '500g bánh phở', ingredientName: 'Bánh phở', imageUrl: null, quantity: 500, unit: 'g', groupLabel: null, isOptional: false },
-              { rawText: '400g thịt bò', ingredientName: 'Thịt bò', imageUrl: null, quantity: 400, unit: 'g', groupLabel: null, isOptional: false },
-              { rawText: '1,5 lít nước dùng', ingredientName: null, imageUrl: null, quantity: null, unit: null, groupLabel: null, isOptional: false },
-            ]).map((ing: DishIngredient, idx: number) => {
-              const ingName = (ing.ingredientName ?? ing.rawText).replace(/\(.*?\)/g, '').trim();
-              return (
-                <View key={idx} className='flex items-center justify-center flex-col gap-1 border border-primary rounded-lg p-2 ' >
-                  <View style={s.ingRowImg}>
-                    {ing.imageUrl ? (
-                      <Image source={{ uri: ing.imageUrl }} style={{ width: 48, height: 48, borderRadius: 12 }} resizeMode="cover" />
-                    ) : (
-                      <Text style={{ fontSize: 26 }}>{EMOJIS[idx % EMOJIS.length]}</Text>
+
+          {ingredients.length === 0 ? (
+            <View style={s.ingEmptyWrap}>
+              <Text style={[s.desc, { padding: 14 }]}>Chưa có dữ liệu nguyên liệu</Text>
+            </View>
+          ) : (
+            <View style={s.ingGridWrap}>
+              {ingredients.map((ing: DishIngredient, idx: number) => {
+                const { name, qtyDisplay } = parseIngredientDisplay(ing, servings);
+                const isChecked = checkedIngredients.includes(idx);
+                return (
+                  <Pressable
+                    key={idx}
+                    style={[
+                      s.ingGridCard,
+                      { width: ING_CARD_WIDTH },
+                      isChecked && s.ingGridCardChecked,
+                    ]}
+                    onPress={() => toggleIngredient(idx)}
+                  >
+                    {/* [Ảnh] */}
+                    <View style={s.ingGridThumb}>
+                      {ing.imageUrl ? (
+                        <AppImage
+                          uri={ing.imageUrl}
+                          style={s.ingGridThumbImg}
+                          contentFit="cover"
+                          showLoader={false}
+                          fallbackIcon={<Text style={s.ingGridEmoji}>{EMOJIS[idx % EMOJIS.length]}</Text>}
+                        />
+                      ) : (
+                        <Text style={s.ingGridEmoji}>{EMOJIS[idx % EMOJIS.length]}</Text>
+                      )}
+                    </View>
+
+                    {/* [Tên] */}
+                    <Text
+                      style={[s.ingGridName, isChecked && s.ingGridNameDone]}
+                      numberOfLines={1}
+                    >
+                      {name}
+                    </Text>
+
+                    {/* [Số lượng] */}
+                    {!!qtyDisplay && (
+                      <View style={[s.ingGridQtyBadge, isChecked && s.ingGridQtyBadgeChecked]}>
+                        <Text style={[s.ingGridQtyTxt, isChecked && s.ingGridQtyTxtChecked]}>
+                          {qtyDisplay}
+                        </Text>
+                      </View>
                     )}
-        </View>
-                  <Text style={s.ingRowTxt} className='text-center' numberOfLines={2}>{ing.rawText || ingName}</Text>
-          </View>
-              );
-            })}
-          </View>
+
+                    {isChecked && (
+                      <View style={s.ingGridCheckBadge}>
+                        <Check size={8} color="#fff" strokeWidth={3.5} />
+                      </View>
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
 
           {/* ── Cách chế biến ───────────────────────────────────── */}
-          <View style={[s.row, { justifyContent: 'space-between', marginTop: 28, marginBottom: 14 }]}>
+          <View style={[s.row, { justifyContent: 'space-between', marginTop: 22, marginBottom: 10 }]}>
             <Text style={s.sectionLabel}>Cách chế biến</Text>
-            <Text style={s.stepProgress}>{completedCount}/{totalSteps} bước hoàn thành</Text>
+            <View style={s.stepProgressBadge}>
+              <Text style={s.stepProgressTxt}>{completedCount}/{totalSteps} bước</Text>
+            </View>
           </View>
 
-          {steps.length > 0 ? steps.map((step, idx) => {
-            const isLast = idx === steps.length - 1;
-            const done = checkedSteps.includes(step.n);
-            return (
-              <Pressable key={step.n} style={s.recStep} onPress={() => toggleStep(step.n)}>
-                {/* Timeline line */}
-                <View style={s.recStepLeft}>
-                  <View style={[s.recStepDot, done && s.recStepDotDone]}>
-                    <Text style={[s.recStepN, done && { color: '#fff' }]}>{step.n}</Text>
-                  </View>
-                  {!isLast && <View style={s.recStepLine} />}
-                </View>
-                <View style={[s.recStepBody, !isLast && { paddingBottom: 24 }]}>
-                  <Text style={[s.recStepTitle, done && { color: MUTED }]}>{step.title}</Text>
-                  {/* {!!step.body && <Text style={s.recStepDesc}>{step.body}</Text>} */}
-                  {step.durationMin != null && (
-                    <View style={[s.row, { gap: 4, marginTop: 6 }]}>
-                      <Clock3 size={13} color={MUTED} />
-                      <Text style={s.recStepTime}>{step.durationMin} phút</Text>
+          {steps.length > 0 ? (
+            <View style={s.recStepContainer}>
+              {steps.map((step, idx) => {
+                const isLast = idx === steps.length - 1;
+                const done = checkedSteps.includes(step.n);
+                return (
+                  <Pressable key={step.n} style={s.recStep} onPress={() => toggleStep(step.n)}>
+                    {/* Timeline line */}
+                    <View style={s.recStepLeft}>
+                      <View style={[s.recStepDot, done && s.recStepDotDone]}>
+                        {done ? (
+                          <Check size={12} color="#fff" strokeWidth={3} />
+                        ) : (
+                          <Text style={s.recStepN}>{step.n}</Text>
+                        )}
+                      </View>
+                      {!isLast && <View style={s.recStepLine} />}
                     </View>
-                  )}
-                  {/* {!!step.tip && (
-                    <View style={s.recStepTip}>
-                      <Text style={s.recStepTipTxt}>💡 {step.tip}</Text>
+                    <View style={[s.recStepBody, !isLast && { paddingBottom: 14 }]}>
+                      <View style={s.recStepHeader}>
+                        <Text
+                          style={[s.recStepTitle, done && s.recStepTitleDone]}
+                          numberOfLines={2}
+                        >
+                          {step.title}
+                        </Text>
+                        {step.durationMin != null && (
+                          <View style={s.recStepTimeBadge}>
+                            <Clock3 size={11} color="#92400E" />
+                            <Text style={s.recStepTime}>{step.durationMin} phút</Text>
+                          </View>
+                        )}
+                      </View>
                     </View>
-                  )} */}
-                </View>
-        </Pressable>
-            );
-          }) : (
-            <Text style={{ color: MUTED, fontSize: 14, marginBottom: 12 }}>Chưa có hướng dẫn chế biến.</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          ) : (
+            <Text style={{ color: MUTED, fontSize: 13, marginBottom: 12 }}>Chưa có hướng dẫn chế biến.</Text>
           )}
 
           {/* ── Video hướng dẫn ─────────────────────────────────── */}
-          <Text style={[s.sectionLabel, { marginTop: 28 }]}>Video hướng dẫn</Text>
-          <Pressable style={[s.videoCard, { marginTop: 12 }]}>
-            <Image source={image} style={s.videoImg} />
+          <Text style={[s.sectionLabel, { marginTop: 22 }]}>Video hướng dẫn</Text>
+          <Pressable style={[s.videoCard, { marginTop: 10, height: 140 }]}>
+            <DishHeroImage image={image} style={s.videoImg} />
             <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,.28)' }]} />
             <View style={s.playBtn}>
-              <Play size={24} color="#fff" fill="#fff" />
+              <Play size={22} color="#fff" fill="#fff" />
             </View>
             <View style={s.videoMascotWrap}>
               <Image source={MASCOT} style={s.videoMascot} resizeMode="contain" />
             </View>
             <Text style={s.videoTitle}>{'Nấu ' + dishName + ' tại nhà'}</Text>
-        </Pressable>
+          </Pressable>
         </View>
       </ScrollView>
 
-      {/* Footer – Bắt đầu nấu */}
-      <View style={s.footer}>
-        <PrimaryBtn label="Bắt đầu nấu" icon={<UtensilsCrossed size={18} color={INK} />} onPress={onCook} />
+      {/* Footer – Bắt đầu nấu ăn (giống nút hình 2) */}
+      <View style={s.recipeFooter}>
+        <TouchableOpacity
+          activeOpacity={0.87}
+          style={s.startCookBtn}
+          onPress={onCook}
+        >
+          <Text style={s.startCookTxt}>Bắt đầu nấu ăn</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -804,14 +957,13 @@ function CookingModePage({
   image, dishName, ingredients = [], recipeSteps = [],
   onBack, onFinish,
 }: {
-  image: ImageSourcePropType; dishName: string;
+  image?: ImageSourcePropType; dishName: string;
   ingredients?: DishIngredient[];
   recipeSteps?: DishRecipeStep[];
   onBack(): void; onFinish(): void;
 }) {
   const [stepIdx, setStepIdx] = useState(0);
   const [showStepList, setShowStepList] = useState(false);
-  const [showExitDialog, setShowExitDialog] = useState(false);
   const [timerSec, setTimerSec] = useState(0);
   const [timerRunning, setTimerRunning] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -826,15 +978,26 @@ function CookingModePage({
     return { n: rs.stepOrder, title, body, tip, durationMin: rs.durationMin, imageUrl: rs.imageUrl };
   });
 
-  const fallbackSteps = steps.length > 0 ? steps : [
-    { n: 1, title: 'Sơ chế nguyên liệu', body: 'Chuẩn bị và sơ chế các nguyên liệu cần thiết.', tip: null, durationMin: 15, imageUrl: null },
-    { n: 2, title: 'Chế biến', body: 'Thực hiện nấu theo hướng dẫn.', tip: null, durationMin: 30, imageUrl: null },
-    { n: 3, title: 'Hoàn thiện và trình bày', body: 'Nêm nếm lại và trình bày món ăn.', tip: null, durationMin: 5, imageUrl: null },
-  ];
+  const fallbackSteps = steps;
 
   const currentStep = fallbackSteps[stepIdx] ?? fallbackSteps[0];
   const totalSteps = fallbackSteps.length;
-  const progress = (stepIdx + 1) / totalSteps;
+  const progress = totalSteps > 0 ? (stepIdx + 1) / totalSteps : 0;
+
+  if (totalSteps === 0) {
+  return (
+      <SafeAreaView style={s.safe}>
+        <View style={s.ovHeader}>
+          <RoundBtn onPress={onBack}><ArrowLeft size={22} color={INK} /></RoundBtn>
+          <Text style={s.ovHeaderTitle}>Nấu {dishName}</Text>
+          <View style={{ width: 40 }} />
+          </View>
+        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <Text style={{ color: MUTED, textAlign: 'center' }}>Chưa có bước nấu cho món này</Text>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   // Timer
   useEffect(() => {
@@ -868,7 +1031,7 @@ function CookingModePage({
     else onFinish();
   };
 
-  const stepImage: ImageSourcePropType = currentStep.imageUrl
+  const stepImage: ImageSourcePropType | undefined = currentStep.imageUrl
     ? { uri: currentStep.imageUrl }
     : image;
 
@@ -880,24 +1043,26 @@ function CookingModePage({
       <View style={s.ovHeader}>
         <RoundBtn onPress={onBack}><ArrowLeft size={22} color={INK} /></RoundBtn>
         <Text style={s.ovHeaderTitle}>Đang nấu</Text>
-        <RoundBtn onPress={() => setShowExitDialog(true)}>
+        <RoundBtn onPress={onBack}>
           <Text style={{ fontSize: 18, color: INK }}>✕</Text>
         </RoundBtn>
-          </View>
+      </View>
 
       {/* Progress */}
       <View style={s.cookProgress}>
         <Text style={s.cookProgressLabel}>Bước {stepIdx + 1}/{totalSteps}</Text>
-        <View style={s.cookProgressBarBg}>
-          <View style={[s.cookProgressBarFill, { width: (progress * 100) + '%' as any }]} />
-          </View>
-          </View>
+        <Progress
+          value={progress * 100}
+          className="h-1 bg-border"
+          indicatorClassName="bg-primary"
+        />
+      </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 85 }}>
 
         {/* Step image/video */}
         <View style={s.cookImgWrap}>
-          <Image source={stepImage} style={s.cookImg} resizeMode="cover" />
+          <DishHeroImage image={stepImage} style={s.cookImg} />
           {/* Duration badge */}
           {currentStep.durationMin && (
             <View style={s.cookDurBadge}>
@@ -906,17 +1071,17 @@ function CookingModePage({
                   ? Math.floor(currentStep.durationMin / 60) + '–' + (Math.floor(currentStep.durationMin / 60) + 1) + ' giờ'
                   : currentStep.durationMin + ' phút'}
               </Text>
-        </View>
+            </View>
           )}
           {/* Play overlay */}
           <View style={s.cookPlayBtn}>
-            <Play size={28} color="#fff" fill="#fff" />
+            <Play size={20} color="#fff" fill="#fff" />
           </View>
         </View>
 
         <View style={s.pad}>
           {/* Step title + body */}
-          <View style={[s.row, { gap: 14, marginTop: 20, alignItems: 'flex-start' }]}>
+          <View style={[s.row, { gap: 10, marginTop: 10, alignItems: 'center' }]}>
             <View style={s.cookStepBadge}>
               <Text style={s.cookStepBadgeTxt}>{currentStep.n}</Text>
             </View>
@@ -929,25 +1094,31 @@ function CookingModePage({
           {/* Ingredients for this step */}
           {ingredients.length > 0 && (
             <>
-              <Text style={[s.sectionLabel, { marginTop: 20 }]}>Nguyên liệu cho bước này</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 12 }}>
+              <Text style={[s.sectionLabel, { marginTop: 10, fontSize: 13 }]}>Nguyên liệu cho bước này</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 6 }}>
                 {ingredients.slice(0, 8).map((ing, idx) => {
                   const ingName = (ing.ingredientName ?? ing.rawText)
                     .replace(/\s*\d.*$/, '').replace(/\(.*?\)/g, '').trim()
                     .split(' ').slice(0, 2).join(' ');
-            return (
+                  return (
                     <View key={idx} style={s.cookIngCard}>
                       <View style={s.cookIngImg}>
                         {ing.imageUrl ? (
-                          <Image source={{ uri: ing.imageUrl }} style={{ width: 52, height: 52, borderRadius: 10 }} resizeMode="cover" />
+                          <AppImage
+                            uri={ing.imageUrl}
+                            style={{ width: 42, height: 42, borderRadius: 8 }}
+                            contentFit="cover"
+                            showLoader={false}
+                            fallbackIcon={<Text style={{ fontSize: 20 }}>{EMOJIS[idx % EMOJIS.length]}</Text>}
+                          />
                         ) : (
-                          <Text style={{ fontSize: 24 }}>{EMOJIS[idx % EMOJIS.length]}</Text>
+                          <Text style={{ fontSize: 20 }}>{EMOJIS[idx % EMOJIS.length]}</Text>
                         )}
-                </View>
+                      </View>
                       <Text style={s.cookIngName} numberOfLines={2}>{ingName}</Text>
                     </View>
-            );
-          })}
+                  );
+                })}
               </ScrollView>
             </>
           )}
@@ -955,11 +1126,11 @@ function CookingModePage({
           {/* Timer */}
           <View style={s.cookTimerCard}>
             <View style={s.cookTimerLeft}>
-              <Clock3 size={22} color={MUTED} />
+              <Clock3 size={18} color={MUTED} />
               <View>
                 <Text style={s.cookTimerLabel}>Hẹn giờ nấu</Text>
                 <Text style={s.cookTimerVal}>{formatTimer(timerSec || ((currentStep.durationMin ?? 2) * 60))}</Text>
-            </View>
+              </View>
             </View>
             <Pressable
               style={[s.cookTimerBtn, timerRunning && s.cookTimerBtnActive]}
@@ -970,11 +1141,11 @@ function CookingModePage({
           </View>
 
           {/* Tip */}
-          {!!currentStep.tip && (
+          {!!currentStep.tip && !currentStep.body?.includes(currentStep.tip) && (
             <View style={s.cookTipBox}>
               <Text style={s.cookTipIco}>💡</Text>
               <Text style={s.cookTipTxt}>{currentStep.tip}</Text>
-        </View>
+            </View>
           )}
         </View>
       </ScrollView>
@@ -993,52 +1164,59 @@ function CookingModePage({
         </Pressable>
       </View>
 
-      {/* Step list modal */}
-      {showStepList && (
-        <Pressable style={s.cookModalBackdrop} onPress={() => setShowStepList(false)}>
-          <Pressable style={s.cookStepListModal} onPress={(e) => e.stopPropagation()}>
-            <View style={[s.row, { justifyContent: 'space-between', marginBottom: 16 }]}>
-              <Text style={{ fontSize: 17, fontWeight: '700', color: INK }}>Các bước thực hiện</Text>
-              <Pressable onPress={() => setShowStepList(false)}>
-                <Text style={{ fontSize: 18, color: MUTED }}>✕</Text>
-              </Pressable>
-            </View>
+      {/* Step list drawer */}
+      <Drawer open={showStepList} onOpenChange={setShowStepList} snapHeight={480}>
+        <DrawerHeader className="flex-row items-center justify-between px-4">
+          <DrawerTitle>Các bước thực hiện</DrawerTitle>
+          <DrawerClose onPress={() => setShowStepList(false)} />
+        </DrawerHeader>
+        <DrawerContent className="max-h-[400px] px-4 pb-6">
+          <ScrollView showsVerticalScrollIndicator={false}>
             {fallbackSteps.map((st, idx) => (
               <Pressable
                 key={st.n}
                 style={[s.cookListItem, idx === stepIdx && s.cookListItemActive]}
-                onPress={() => { setStepIdx(idx); setShowStepList(false); }}
+                onPress={() => {
+                  setStepIdx(idx);
+                  setShowStepList(false);
+                }}
               >
-                <View style={[s.recStepDot, idx < stepIdx && s.recStepDotDone, idx === stepIdx && s.recStepDotActive]}>
-                  <Text style={[s.recStepN, (idx <= stepIdx) && { color: idx === stepIdx ? INK : '#fff' }]}>{st.n}</Text>
+                <View
+                  style={[
+                    s.recStepDot,
+                    idx < stepIdx && s.recStepDotDone,
+                    idx === stepIdx && s.recStepDotActive,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      s.recStepN,
+                      idx <= stepIdx && { color: idx === stepIdx ? INK : '#fff' },
+                    ]}
+                  >
+                    {st.n}
+                  </Text>
                 </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={[s.recStepTitle, idx < stepIdx && { color: MUTED }]}>{st.title}</Text>
-                  {st.durationMin && <Text style={s.recStepTime}>{st.durationMin} phút</Text>}
+                <View style={s.cookItemInfo}>
+                  <Text
+                    style={[
+                      s.cookItemTitle,
+                      idx === stepIdx && s.cookItemTitleActive,
+                      idx < stepIdx && s.cookItemTitleDone,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {st.title}
+                  </Text>
+                  {st.durationMin != null && (
+                    <Text style={s.cookItemTime}>{st.durationMin} phút</Text>
+                  )}
                 </View>
               </Pressable>
             ))}
-          </Pressable>
-        </Pressable>
-      )}
-
-      {/* Exit dialog */}
-      {showExitDialog && (
-        <Pressable style={s.cookModalBackdrop} onPress={() => setShowExitDialog(false)}>
-          <Pressable style={s.cookExitDialog} onPress={(e) => e.stopPropagation()}>
-            <Text style={s.cookExitTitle}>Bạn muốn lưu tiến độ nấu hiện tại?</Text>
-            <Pressable style={s.cookExitSave} onPress={() => { setShowExitDialog(false); onBack(); }}>
-              <Text style={s.cookExitSaveTxt}>Lưu và thoát</Text>
-            </Pressable>
-            <Pressable style={s.cookExitContinue} onPress={() => setShowExitDialog(false)}>
-              <Text style={s.cookExitContinueTxt}>Tiếp tục nấu</Text>
-            </Pressable>
-            <Pressable style={s.cookExitDiscard} onPress={() => { setShowExitDialog(false); onBack(); }}>
-              <Text style={s.cookExitDiscardTxt}>Thoát không lưu</Text>
-            </Pressable>
-          </Pressable>
-        </Pressable>
-      )}
+          </ScrollView>
+        </DrawerContent>
+      </Drawer>
     </SafeAreaView>
   );
 }
@@ -1058,7 +1236,7 @@ function NutMacro({ label, value, color }: { label: string; value: string; color
 function LocationPage({
   image, dishName, onBack, onChoose,
 }: {
-  image: ImageSourcePropType; dishName: string; onBack(): void; onChoose(): void;
+  image?: ImageSourcePropType; dishName: string; onBack(): void; onChoose(): void;
 }) {
   const reviews: Review[] = [];
   return (
@@ -1073,7 +1251,7 @@ function LocationPage({
         {/* ── Mini dish card ── */}
         <View style={[s.pad, { marginTop: 8 }]}>
           <View style={s.locDishCard}>
-            <Image source={image} style={s.locDishImg} resizeMode="cover" />
+            <DishHeroImage image={image} style={s.locDishImg} />
             <View style={{ flex: 1 }}>
               <Text style={s.locDishName}>{dishName}</Text>
             </View>
@@ -1116,7 +1294,7 @@ function LocationPage({
             { name: 'Phở Gia Truyền', rating: 4.6, dist: '2,4 km', price: '45K–60K', open: true },
           ].map((shop) => (
             <Pressable key={shop.name} style={s.shopCard}>
-              <Image source={image} style={s.shopImg} resizeMode="cover" />
+              <DishHeroImage image={image} style={s.shopImg} />
               <View style={{ flex: 1 }}>
                 <Text style={s.shopName}>{shop.name}</Text>
                 <View style={[s.row, { gap: 6, marginTop: 3 }]}>
@@ -1211,7 +1389,7 @@ function LocationPage({
 function ConfirmedPage({
   image, dishName, meal, onClose, onChange,
 }: {
-  image: ImageSourcePropType; dishName: string; meal: string;
+  image?: ImageSourcePropType; dishName: string; meal: string;
   onClose(): void; onChange(): void;
 }) {
   const [time, setTime] = useState('Bây giờ');
@@ -1230,7 +1408,7 @@ function ConfirmedPage({
     <SafeAreaView style={s.safe}>
       {/* Background: ảnh món mờ + overlay ở phần trên */}
       <View style={StyleSheet.absoluteFill}>
-        <Image source={image} style={{ width: '100%', height: '55%' }} resizeMode="cover" />
+        <DishHeroImage image={image} style={{ width: '100%', height: '55%' }} />
         <View style={[StyleSheet.absoluteFill, { height: '55%', backgroundColor: 'rgba(0,0,0,0.38)' }]} />
       </View>
 
@@ -1290,11 +1468,7 @@ function ConfirmedPage({
         {/* Remind toggle */}
         <View style={s.remindRow}>
           <Text style={s.remindLabel}>Nhắc tôi ghi lại bữa ăn</Text>
-          <Switch
-            value={remind} onValueChange={setRemind}
-            trackColor={{ false: '#E0DDD5', true: '#34C759' }}
-            thumbColor={WHITE}
-          />
+          <Switch checked={remind} onCheckedChange={setRemind} />
         </View>
 
         {/* Buttons */}
@@ -1358,8 +1532,8 @@ function PrimaryBtn({ label, icon, onPress }: { label: string; icon?: ReactNode;
       onPress={onPress}
       style={({ pressed }) => [s.primaryBtn, pressed && { opacity: 0.88, transform: [{ scale: 0.98 }] }]}
     >
-      <LinearGradient colors={['#FFD12F', '#FFD94F', '#FFD12F']} style={s.primaryGrad} className='flex flex-row gap-2 items-center justify-center'>
-        {icon && <View >{icon}</View>}
+      <LinearGradient colors={['#FFD12F', '#FFD94F', '#FFD12F']} style={s.primaryGrad}>
+        {icon ? <View>{icon}</View> : null}
         <Text style={s.primaryTxt}>{label}</Text>
       </LinearGradient>
     </Pressable>
@@ -1393,21 +1567,21 @@ const s = StyleSheet.create({
   matchText: { fontSize: 12, fontWeight: '600', color: INK },
 
   /* hero (overview) */
-  heroWrap: { height: 300, marginHorizontal: 0, overflow: 'hidden' },
+  heroWrap: { height: 168, marginHorizontal: 0, overflow: 'hidden' },
   heroImg: { width: '100%', height: '100%', resizeMode: 'cover' },
   regionBadge: {
-    position: 'absolute', right: 14, bottom: 14,
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    backgroundColor: 'rgba(255,255,255,0.88)', borderRadius: 14,
-    paddingHorizontal: 12, paddingVertical: 6,
+    position: 'absolute', right: 12, bottom: 10,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: 'rgba(255,255,255,0.88)', borderRadius: 12,
+    paddingHorizontal: 10, paddingVertical: 4,
   },
-  regionText: { fontSize: 13, fontWeight: '500', color: MUTED },
+  regionText: { fontSize: 12, fontWeight: '500', color: MUTED },
 
   /* overview text */
-  dishTitle: { fontSize: 28, lineHeight: 36, fontWeight: '800', color: INK, marginTop: 18 },
-  ratingNum: { fontSize: 16, fontWeight: '700', color: INK },
-  ratingCount: { fontSize: 14, color: MUTED },
-  desc: { fontSize: 14, lineHeight: 22, color: '#555', marginVertical: 10 },
+  dishTitle: { fontSize: 20, lineHeight: 24, fontWeight: '800', color: INK, marginTop: 10 },
+  ratingNum: { fontSize: 14, fontWeight: '700', color: INK },
+  ratingCount: { fontSize: 12.5, color: MUTED },
+  desc: { fontSize: 12.5, lineHeight: 17, color: '#555', marginVertical: 6 },
 
   /* 4-stat row */
   statsRow: { flexDirection: 'row', gap: 8, marginVertical: 8 },
@@ -1446,17 +1620,17 @@ const s = StyleSheet.create({
 
   /* nav card */
   navCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    borderRadius: 16, borderWidth: 1, borderColor: BORDER,
-    backgroundColor: WHITE, paddingHorizontal: 14, paddingVertical: 14,
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    borderRadius: 14, borderWidth: 1, borderColor: BORDER,
+    backgroundColor: WHITE, paddingHorizontal: 12, paddingVertical: 12,
     marginBottom: 0, ...shadow,
   },
   navIco: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 36, height: 36, borderRadius: 10,
     backgroundColor: YELLOW_L, alignItems: 'center', justifyContent: 'center',
   },
-  navTitle: { fontSize: 15, fontWeight: '600', color: INK },
-  navSub: { fontSize: 13, color: MUTED, marginTop: 2 },
+  navTitle: { fontSize: 14, fontWeight: '700', color: INK },
+  navSub: { fontSize: 12, color: MUTED, marginTop: 1 },
 
   /* footer */
   footer: {
@@ -1468,9 +1642,21 @@ const s = StyleSheet.create({
   footerRow: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
   },
-  primaryBtn: { height: 54, borderRadius: 18, overflow: 'hidden', ...shadow },
-  primaryGrad: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  primaryTxt: { fontSize: 17, fontWeight: '700', color: INK },
+  primaryBtn: {
+    height: 54,
+    borderRadius: 18,
+    overflow: 'hidden',
+    width: '100%',
+    ...shadow,
+  },
+  primaryGrad: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  primaryTxt: { fontSize: 15, fontWeight: '700', color: INK },
 
   randomBtnFlex: {
     height: 56, borderRadius: 18,
@@ -1731,7 +1917,7 @@ const s = StyleSheet.create({
     position: 'absolute', left: 0, right: 0, bottom: 0,
     paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24,
     backgroundColor: CREAM, borderTopWidth: 1, borderTopColor: BORDER,
-    flexDirection: 'row', gap: 10,
+    flexDirection: 'row', alignItems: 'center', gap: 10,
   },
   againBtn: {
     flex: 1, height: 54, borderRadius: 18, borderWidth: 1.5, borderColor: '#C8C0B4',
@@ -1739,66 +1925,70 @@ const s = StyleSheet.create({
     gap: 8, ...shadow,
   },
   againTxt: { fontSize: 15, fontWeight: '700', color: INK },
+  chooseBtnWrap: { flex: 1 },
 
   // ── OverviewPage ──
   ovHeader: {
-    height: 60, paddingHorizontal: 12,
+    height: 52, paddingHorizontal: 12,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
   },
-  ovHeaderTitle: { fontSize: 17, fontWeight: '700', color: INK },
+  ovHeaderTitle: { fontSize: 16.5, fontWeight: '700', color: INK },
+  ovBody: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    paddingBottom: 8,
+  },
   ovMatchBadge: {
-    position: 'absolute', top: 14, left: 14,
-    flexDirection: 'row', alignItems: 'center', gap: 5,
-    backgroundColor: YELLOW, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6,
+    position: 'absolute', top: 12, left: 12,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: YELLOW, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5,
   },
   ov3Stats: {
-    backgroundColor: WHITE, borderRadius: 20, borderWidth: 1, borderColor: BORDER,
+    backgroundColor: WHITE, borderRadius: 12, borderWidth: 1, borderColor: BORDER,
     flexDirection: 'row', alignItems: 'center',
-    marginVertical: 14, paddingVertical: 14, ...shadow,
+    marginVertical: 8, paddingVertical: 10, ...shadow,
   },
-  ovStat: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
-  ovStatLabel: { fontSize: 14, fontWeight: '600', color: INK },
-  ovStatDivider: { width: 1, height: 30, backgroundColor: BORDER },
+  ovStat: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 },
+  ovStatLabel: { fontSize: 12, fontWeight: '600', color: INK },
+  ovStatDivider: { width: 1, height: 18, backgroundColor: BORDER },
 
   quickInfoCard: {
-    backgroundColor: WHITE, borderRadius: 20, borderWidth: 1, borderColor: BORDER,
-    padding: 16, gap: 10, ...shadow, marginBottom: 16,
+    backgroundColor: WHITE, borderRadius: 12, borderWidth: 1, borderColor: BORDER,
+    padding: 12, gap: 6, ...shadow, marginBottom: 10,
   },
-  quickInfoTitle: { fontSize: 15, fontWeight: '700', color: INK, marginBottom: 2 },
-  quickInfoRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  quickInfoLabel: { fontSize: 14, color: MUTED, flex: 1 },
-  quickInfoValue: { fontSize: 14, fontWeight: '600', color: INK },
+  quickInfoTitle: { fontSize: 13.5, fontWeight: '700', color: INK, marginBottom: 2 },
+  quickInfoRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  quickInfoLabel: { fontSize: 12, color: MUTED, flex: 1 },
+  quickInfoValue: { fontSize: 12, fontWeight: '600', color: INK },
   quickInfoChip: {
     backgroundColor: '#F0F7FF', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3,
   },
-  quickInfoChipTxt: { fontSize: 12, color: '#2979FF', fontWeight: '500' },
+  quickInfoChipTxt: { fontSize: 11.5, color: '#2979FF', fontWeight: '500' },
 
   allergyBox: {
-    backgroundColor: '#FFF8E1', borderRadius: 14, borderWidth: 1, borderColor: '#FFE082',
-    flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, marginTop: 4,
+    backgroundColor: '#FFF8E1', borderRadius: 10, borderWidth: 1, borderColor: '#FFE082',
+    flexDirection: 'row', alignItems: 'center', gap: 8, padding: 8, marginTop: 4,
   },
-  allergyTitle: { fontSize: 14, fontWeight: '700', color: '#5D490F', marginBottom: 2 },
-  allergyBody: { fontSize: 13, color: '#7A6120' },
-  allergyMascot: { width: 44, height: 44 },
+  allergyTitle: { fontSize: 12, fontWeight: '700', color: '#5D490F', marginBottom: 1 },
+  allergyBody: { fontSize: 11.5, color: '#7A6120', lineHeight: 15 },
+  allergyMascot: { width: 30, height: 30 },
 
-  ingredientSection: { marginBottom: 16 },
-  sectionLabel: { fontSize: 16, fontWeight: '700', color: INK },
-  ingCard: { alignItems: 'center', marginRight: 14, width: 72 },
+  ingredientSection: { marginBottom: 4 },
+  sectionLabel: { fontSize: 14.5, fontWeight: '700', color: INK },
+  ingCard: { alignItems: 'center', marginRight: 10, width: 58 },
   ingImgWrap: {
-    width: 64, height: 64, borderRadius: 32,
+    width: 44, height: 44, borderRadius: 22,
     backgroundColor: WHITE, borderWidth: 1, borderColor: BORDER,
     alignItems: 'center', justifyContent: 'center', ...shadow,
   },
-  ingName: { fontSize: 12, color: INK, textAlign: 'center', marginTop: 6, fontWeight: '500' },
-
-  // ingCircle: round white bg like design (dùng thay ingImgWrap)
   ingCircle: {
-    width: 68, height: 68, borderRadius: 34,
-    backgroundColor: WHITE, borderWidth: 1.5, borderColor: BORDER,
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: WHITE, borderWidth: 1.2, borderColor: BORDER,
     alignItems: 'center', justifyContent: 'center', ...shadow,
     overflow: 'hidden',
   },
-  ingEmoji: { fontSize: 32 },
+  ingEmoji: { fontSize: 20 },
+  ingName: { fontSize: 11, color: INK, textAlign: 'center', marginTop: 4, fontWeight: '500' },
 
   // qiRow: inline row cho Thông tin nhanh
   qiRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'nowrap', overflow: 'hidden' },
@@ -1833,18 +2023,20 @@ const s = StyleSheet.create({
     backgroundColor: YELLOW_L, alignItems: 'center', justifyContent: 'center',
   },
   nutCard: {
-    backgroundColor: WHITE, borderRadius: 20, borderWidth: 1, borderColor: BORDER,
-    marginTop: 12, ...shadow,
+    backgroundColor: WHITE, borderRadius: 14, borderWidth: 1, borderColor: BORDER,
+    marginTop: 8, ...shadow,
   },
-  nutKcalRow: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 0 },
-  nutKcal: { fontSize: 52, fontWeight: '800', color: INK, lineHeight: 58 },
-  nutKcalUnit: { fontSize: 16, color: MUTED, alignSelf: 'flex-end' },
-  nutMacroRow: { flex: 1, flexDirection: 'row' },
-  nutMacroCell: { flex: 1, alignItems: 'center', gap: 2 },
-  nutMacroVal: { fontSize: 18, fontWeight: '700' },
-  nutMacroLbl: { fontSize: 11, color: MUTED },
-  nutDisclaimer: { borderTopWidth: 1, borderTopColor: BORDER, paddingHorizontal: 16, paddingVertical: 10 },
-  nutDisclaimerTxt: { fontSize: 12, color: MUTED },
+  nutKcalRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 10 },
+  nutKcalBox: { alignItems: 'center', justifyContent: 'center', paddingHorizontal: 8 },
+  nutKcalVal: { fontSize: 26, fontWeight: '800', color: INK, lineHeight: 30 },
+  nutKcalLbl: { fontSize: 10, fontWeight: '600', color: MUTED, marginTop: 1 },
+  nutDivider: { width: 1, height: 34, backgroundColor: BORDER, marginHorizontal: 6 },
+  nutMacroGrid: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around' },
+  nutMacroCell: { alignItems: 'center', gap: 2 },
+  nutMacroVal: { fontSize: 14, fontWeight: '700' },
+  nutMacroLbl: { fontSize: 10, color: MUTED },
+  nutDisclaimer: { borderTopWidth: 1, borderTopColor: '#F2EFE8', paddingHorizontal: 12, paddingVertical: 6 },
+  nutDisclaimerTxt: { fontSize: 10.5, color: MUTED },
 
   nutStep: {
     flexDirection: 'row', gap: 14, paddingVertical: 14,
@@ -1996,130 +2188,277 @@ const s = StyleSheet.create({
 
   /* ── Recipe Overview (NutritionPage redesign) ─────────────────────────── */
   recHeroCard: {
-    flexDirection: 'row', alignItems: 'flex-start',
-    backgroundColor: WHITE, margin: 16, borderRadius: 16,
-    padding: 12, gap: 12,
-    shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 }, elevation: 2,
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: WHITE, marginHorizontal: 16, marginTop: 10, marginBottom: 4,
+    borderRadius: 14, padding: 10, gap: 10,
+    borderWidth: 1, borderColor: BORDER, ...shadow,
   },
-  recHeroImg: { width: 100, height: 100, borderRadius: 12 },
-  recHeroInfo: { flex: 1, gap: 8 },
-  recHeroName: { fontSize: 16, fontWeight: '700', color: INK, lineHeight: 22 },
-  recHeroRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  recHeroTxt: { fontSize: 13, color: MUTED },
-  recHeroChevron: { padding: 4 },
+  recHeroImg: { width: 72, height: 72, borderRadius: 10 },
+  recHeroInfo: { flex: 1, gap: 5 },
+  recHeroName: { fontSize: 15, fontWeight: '700', color: INK, lineHeight: 20 },
+  recHeroBadgeRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 5 },
+  recHeroBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: '#F8F5EC', paddingHorizontal: 7, paddingVertical: 3, borderRadius: 6,
+  },
+  recHeroBadgeTxt: { fontSize: 11, fontWeight: '600', color: '#555' },
+
+  /* Count badge */
+  countBadge: {
+    backgroundColor: '#F0EFEA', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6,
+  },
+  countBadgeTxt: { fontSize: 11, fontWeight: '600', color: MUTED },
 
   /* Serving control */
-  servingCtrl: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: WHITE, borderRadius: 20, paddingHorizontal: 8, paddingVertical: 4, borderWidth: 1, borderColor: BORDER },
-  servingBtn: { width: 28, height: 28, borderRadius: 14, backgroundColor: CREAM, alignItems: 'center', justifyContent: 'center' },
-  servingBtnTxt: { fontSize: 16, fontWeight: '600', color: INK },
-  servingCount: { fontSize: 13, fontWeight: '600', color: INK, minWidth: 60, textAlign: 'center' },
+  servingCtrl: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: WHITE, borderRadius: 16,
+    paddingHorizontal: 6, paddingVertical: 2,
+    borderWidth: 1, borderColor: BORDER,
+  },
+  servingBtn: {
+    width: 24, height: 24, borderRadius: 12,
+    backgroundColor: CREAM, alignItems: 'center', justifyContent: 'center',
+  },
+  servingBtnTxt: { fontSize: 14, fontWeight: '600', color: INK },
+  servingCount: { fontSize: 12, fontWeight: '600', color: INK, minWidth: 50, textAlign: 'center' },
 
-  /* Ingredient row (list style) */
-  ingRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: BORDER },
-  ingRowImg: { width: 48, height: 48, borderRadius: 12, backgroundColor: CREAM, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  ingRowTxt: { flex: 1, fontSize: 14, color: INK, lineHeight: 20 },
-  ingRowCheck: { width: 24, height: 24, borderRadius: 12, borderWidth: 1.5, borderColor: BORDER, alignItems: 'center', justifyContent: 'center' },
-  ingCheckCircle: { width: 10, height: 10, borderRadius: 5 },
+  /* Ingredients Grid */
+  ingEmptyWrap: {
+    backgroundColor: WHITE,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: BORDER,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    ...shadow,
+  },
+  ingGridWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 4,
+  },
+  ingGridCard: {
+    backgroundColor: WHITE,
+    borderRadius: 12,
+    borderWidth: 1.2,
+    borderColor: '#EFEAE0',
+    paddingVertical: 10,
+    paddingHorizontal: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+    ...shadow,
+  },
+  ingGridCardChecked: {
+    backgroundColor: '#F7F6F2',
+    borderColor: '#81C784',
+  },
+  ingGridThumb: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    backgroundColor: '#FFF9E8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  ingGridThumbImg: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+  },
+  ingGridEmoji: {
+    fontSize: 20,
+  },
+  ingGridName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: INK,
+    textAlign: 'center',
+    marginTop: 5,
+  },
+  ingGridNameDone: {
+    color: MUTED,
+    textDecorationLine: 'line-through',
+  },
+  ingGridQtyBadge: {
+    backgroundColor: '#FFF8E7',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginTop: 4,
+  },
+  ingGridQtyBadgeChecked: {
+    backgroundColor: '#EAE8E2',
+  },
+  ingGridQtyTxt: {
+    fontSize: 10.5,
+    fontWeight: '800',
+    color: '#B45309',
+    textAlign: 'center',
+  },
+  ingGridQtyTxtChecked: {
+    color: MUTED,
+  },
+  ingGridCheckBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#4CAF50',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
-  /* Step progress */
-  stepProgress: { fontSize: 12, color: MUTED, fontWeight: '500' },
+  /* Step progress badge */
+  stepProgressBadge: {
+    backgroundColor: '#EFF6FF', paddingHorizontal: 7, paddingVertical: 2.5, borderRadius: 6,
+  },
+  stepProgressTxt: { fontSize: 11, fontWeight: '700', color: '#2563EB' },
 
-  /* Recipe step (timeline) */
-  recStep: { flexDirection: 'row', gap: 12 },
-  recStepLeft: { alignItems: 'center', width: 36 },
+  /* Recipe step (timeline) - Compact: only title & duration */
+  recStepContainer: {
+    marginTop: 2,
+  },
+  recStep: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
+  recStepLeft: { alignItems: 'center', width: 26 },
   recStepDot: {
-    width: 36, height: 36, borderRadius: 18,
+    width: 24, height: 24, borderRadius: 12,
     backgroundColor: YELLOW, alignItems: 'center', justifyContent: 'center',
   },
   recStepDotDone: { backgroundColor: '#4CAF50' },
   recStepDotActive: { backgroundColor: YELLOW_D },
-  recStepN: { fontSize: 15, fontWeight: '700', color: INK },
-  recStepLine: { width: 2, flex: 1, backgroundColor: BORDER, marginVertical: 4 },
-  recStepBody: { flex: 1, paddingBottom: 4 },
-  recStepTitle: { fontSize: 15, fontWeight: '700', color: INK, lineHeight: 22 },
-  recStepDesc: { fontSize: 13, color: '#444', lineHeight: 20, marginTop: 4 },
-  recStepTime: { fontSize: 12, color: MUTED },
-  recStepTip: { backgroundColor: '#FFFBEC', borderRadius: 10, padding: 10, marginTop: 8, borderLeftWidth: 3, borderLeftColor: YELLOW_D },
-  recStepTipTxt: { fontSize: 12, color: '#6B4F00', lineHeight: 18 },
+  recStepN: { fontSize: 12, fontWeight: '800', color: INK },
+  recStepLine: { width: 2, flex: 1, minHeight: 14, backgroundColor: BORDER, marginVertical: 2 },
+  recStepBody: { flex: 1, paddingBottom: 12 },
+  recStepHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    minHeight: 24,
+  },
+  recStepTitle: { fontSize: 13.5, fontWeight: '700', color: INK, flex: 1 },
+  recStepTitleDone: { color: MUTED, textDecorationLine: 'line-through' },
+  recStepTimeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    backgroundColor: '#FFF8E7',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    flexShrink: 0,
+  },
+  recStepTime: { fontSize: 11, fontWeight: '700', color: '#92400E' },
 
-  /* Kcal big */
-  nutKcalBig: { fontSize: 40, fontWeight: '800', color: INK, lineHeight: 56 },
+  /* Recipe Footer (giống nút hình 2) */
+  recipeFooter: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: CREAM,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 14,
+    borderTopWidth: 1,
+    borderTopColor: BORDER,
+  },
+  startCookBtn: {
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: YELLOW,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  startCookTxt: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: INK,
+    letterSpacing: -0.3,
+  },
 
   /* ── Cooking Mode ──────────────────────────────────────────────────────── */
-  cookProgress: { paddingHorizontal: 16, paddingVertical: 8, gap: 6 },
-  cookProgressLabel: { fontSize: 12, fontWeight: '600', color: MUTED },
-  cookProgressBarBg: { height: 6, borderRadius: 3, backgroundColor: BORDER },
-  cookProgressBarFill: { height: 6, borderRadius: 3, backgroundColor: YELLOW_D },
+  cookProgress: { paddingHorizontal: 16, paddingVertical: 4, gap: 4 },
+  cookProgressLabel: { fontSize: 11.5, fontWeight: '600', color: MUTED },
+  cookProgressBarBg: { height: 4, borderRadius: 2, backgroundColor: BORDER },
+  cookProgressBarFill: { height: 4, borderRadius: 2, backgroundColor: YELLOW_D },
 
-  cookImgWrap: { height: 240, position: 'relative', overflow: 'hidden' },
+  cookImgWrap: { height: 145, position: 'relative', overflow: 'hidden' },
   cookImg: { width: '100%', height: '100%', resizeMode: 'cover' },
   cookDurBadge: {
-    position: 'absolute', top: 12, right: 12,
-    backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: 20,
-    paddingHorizontal: 12, paddingVertical: 5,
+    position: 'absolute', top: 8, right: 10,
+    backgroundColor: 'rgba(0,0,0,0.55)', borderRadius: 14,
+    paddingHorizontal: 8, paddingVertical: 3,
   },
-  cookDurTxt: { color: '#fff', fontSize: 13, fontWeight: '600' },
+  cookDurTxt: { color: '#fff', fontSize: 11.5, fontWeight: '600' },
   cookPlayBtn: {
     position: 'absolute', top: '50%', left: '50%',
-    width: 56, height: 56, borderRadius: 28,
+    width: 44, height: 44, borderRadius: 22,
     backgroundColor: YELLOW, alignItems: 'center', justifyContent: 'center',
-    marginTop: -28, marginLeft: -28,
+    marginTop: -22, marginLeft: -22,
   },
 
   cookStepBadge: {
-    width: 40, height: 40, borderRadius: 20,
+    width: 30, height: 30, borderRadius: 15,
     backgroundColor: YELLOW, alignItems: 'center', justifyContent: 'center',
     flexShrink: 0,
   },
-  cookStepBadgeTxt: { fontSize: 18, fontWeight: '800', color: INK },
-  cookStepTitle: { flex: 1, fontSize: 22, fontWeight: '800', color: INK, lineHeight: 28, paddingTop: 6 },
-  cookStepBody: { fontSize: 14, color: '#333', lineHeight: 22, marginTop: 12 },
+  cookStepBadgeTxt: { fontSize: 14, fontWeight: '800', color: INK },
+  cookStepTitle: { flex: 1, fontSize: 17, fontWeight: '800', color: INK, lineHeight: 22, paddingTop: 2 },
+  cookStepBody: { fontSize: 13, color: '#333', lineHeight: 18.5, marginTop: 6 },
 
   /* Cook ingredient chips */
-  cookIngCard: { alignItems: 'center', marginRight: 14, width: 68 },
-  cookIngImg: { width: 56, height: 56, borderRadius: 12, backgroundColor: CREAM, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 6 },
-  cookIngName: { fontSize: 11, color: INK, textAlign: 'center', lineHeight: 15 },
+  cookIngCard: { alignItems: 'center', marginRight: 10, width: 54 },
+  cookIngImg: { width: 44, height: 44, borderRadius: 10, backgroundColor: CREAM, alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 4 },
+  cookIngName: { fontSize: 10.5, color: INK, textAlign: 'center', lineHeight: 14 },
 
   /* Timer */
   cookTimerCard: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: WHITE, borderRadius: 14, padding: 16, marginTop: 16,
+    backgroundColor: WHITE, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 8, marginTop: 8,
     shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
   },
-  cookTimerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  cookTimerLabel: { fontSize: 12, color: MUTED, marginBottom: 2 },
-  cookTimerVal: { fontSize: 28, fontWeight: '800', color: INK, letterSpacing: 1 },
+  cookTimerLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  cookTimerLabel: { fontSize: 11, color: MUTED },
+  cookTimerVal: { fontSize: 18, fontWeight: '800', color: INK, letterSpacing: 0.5 },
   cookTimerBtn: {
-    paddingHorizontal: 14, paddingVertical: 9, borderRadius: 20,
+    paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16,
     borderWidth: 1.5, borderColor: BORDER, backgroundColor: WHITE,
   },
   cookTimerBtnActive: { backgroundColor: YELLOW, borderColor: YELLOW_D },
-  cookTimerBtnTxt: { fontSize: 13, fontWeight: '600', color: INK },
+  cookTimerBtnTxt: { fontSize: 11.5, fontWeight: '600', color: INK },
 
   /* Tip box */
-  cookTipBox: { flexDirection: 'row', gap: 8, backgroundColor: '#FFFBEC', borderRadius: 12, padding: 12, marginTop: 14, borderWidth: 1, borderColor: '#F0D890' },
-  cookTipIco: { fontSize: 16 },
-  cookTipTxt: { flex: 1, fontSize: 13, color: '#6B4F00', lineHeight: 19 },
+  cookTipBox: { flexDirection: 'row', gap: 6, backgroundColor: '#FFFBEC', borderRadius: 10, padding: 8, marginTop: 8, borderWidth: 1, borderColor: '#F0D890' },
+  cookTipIco: { fontSize: 14 },
+  cookTipTxt: { flex: 1, fontSize: 12, color: '#6B4F00', lineHeight: 16 },
 
   /* Cook footer */
   cookFooter: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
     flexDirection: 'row', alignItems: 'center',
     backgroundColor: WHITE, borderTopWidth: 1, borderTopColor: BORDER,
-    paddingHorizontal: 16, paddingVertical: 12, paddingBottom: 28, gap: 12,
+    paddingHorizontal: 16, paddingTop: 10, paddingBottom: 22, gap: 10,
   },
   cookStepListBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 14, paddingVertical: 12, borderRadius: 12,
+    paddingHorizontal: 12, paddingVertical: 10, borderRadius: 12,
     borderWidth: 1.5, borderColor: BORDER,
   },
-  cookStepListTxt: { fontSize: 14, fontWeight: '600', color: INK },
+  cookStepListTxt: { fontSize: 13.5, fontWeight: '600', color: INK },
   cookNextBtn: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    height: 50, borderRadius: 14, backgroundColor: YELLOW, gap: 6,
+    height: 48, borderRadius: 14, backgroundColor: YELLOW, gap: 6,
   },
-  cookNextTxt: { fontSize: 15, fontWeight: '700', color: INK },
+  cookNextTxt: { fontSize: 14.5, fontWeight: '700', color: INK },
 
   /* Modal backdrop */
   cookModalBackdrop: {
@@ -2130,25 +2469,27 @@ const s = StyleSheet.create({
   /* Step list modal */
   cookStepListModal: {
     backgroundColor: WHITE, borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    padding: 20, paddingBottom: 40,
+    padding: 18, paddingBottom: 32,
   },
   cookListItem: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: BORDER,
+    paddingVertical: 10, paddingHorizontal: 8, borderBottomWidth: 1, borderBottomColor: '#F2EFE9',
   },
-  cookListItemActive: { backgroundColor: YELLOW_L, borderRadius: 10, paddingHorizontal: 8, borderBottomWidth: 0 },
-
-  /* Exit dialog */
-  cookExitDialog: {
-    backgroundColor: WHITE, borderTopLeftRadius: 24, borderTopRightRadius: 24,
-    padding: 24, paddingBottom: 40, gap: 10,
+  cookListItemActive: { backgroundColor: '#FFF8E1', borderRadius: 12, borderBottomWidth: 0 },
+  cookItemInfo: {
+    flex: 1, minWidth: 0, justifyContent: 'center', gap: 2,
   },
-  cookExitTitle: { fontSize: 17, fontWeight: '700', color: INK, textAlign: 'center', marginBottom: 8 },
-  cookExitSave: { height: 50, borderRadius: 14, backgroundColor: YELLOW, alignItems: 'center', justifyContent: 'center' },
-  cookExitSaveTxt: { fontSize: 15, fontWeight: '700', color: INK },
-  cookExitContinue: { height: 50, borderRadius: 14, backgroundColor: CREAM, borderWidth: 1.5, borderColor: BORDER, alignItems: 'center', justifyContent: 'center' },
-  cookExitContinueTxt: { fontSize: 15, fontWeight: '600', color: INK },
-  cookExitDiscard: { height: 50, alignItems: 'center', justifyContent: 'center' },
-  cookExitDiscardTxt: { fontSize: 14, color: '#E53935' },
+  cookItemTitle: {
+    fontSize: 14, fontWeight: '700', color: INK, lineHeight: 20, includeFontPadding: false,
+  },
+  cookItemTitleActive: {
+    color: INK, fontWeight: '800',
+  },
+  cookItemTitleDone: {
+    color: MUTED,
+  },
+  cookItemTime: {
+    fontSize: 11.5, fontWeight: '600', color: '#B45309', lineHeight: 16, includeFontPadding: false,
+  },
 
 });

@@ -1,9 +1,22 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Image, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CommunityPostDetailScreen } from './CommunityPostDetailScreen';
 import FoodDetailScreen from './FoodDetailScreen';
 import { articlesApi } from '../services/api/explore';
+import { DetailSkeleton } from '../components/skeletons/ScreenSkeletons';
+import { Button } from '../components/ui/button';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from '../components/ui/drawer';
+import { Progress } from '../components/ui/progress';
+import { Text as UiText } from '../components/ui/text';
 import {
   ArrowLeft,
   Bookmark,
@@ -151,9 +164,7 @@ function ArticleDetailLoaded({
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
       <Header onBack={onBack} saved={saved} onSave={() => setSaved((s) => !s)} />
       {loading ? (
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-          <ActivityIndicator color={C.primaryDark} />
-        </View>
+        <DetailSkeleton />
       ) : error || !article ? (
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <Text style={{ color: C.ink, fontWeight: '700', textAlign: 'center' }}>
@@ -378,27 +389,25 @@ function Similar({ image, name, note }: { image: number; name: string; note: str
 
 function ConfirmSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <View style={styles.modalRoot}>
-        <Pressable style={styles.overlay} onPress={onClose} />
-        <View style={styles.sheet}>
-          <View style={styles.handle} />
-          <Pressable onPress={onClose} style={styles.sheetClose}>
-            <X size={24} />
-          </Pressable>
-          <View style={styles.checkCircle}>
-            <Text style={styles.check}>✓</Text>
-          </View>
-          <Text style={styles.sheetTitle}>Đã chọn Phở bò!</Text>
-          <Text style={styles.sheetSubtitle}>
-            Mogu đã thêm món này vào bữa trưa hôm nay của bạn.
-          </Text>
-          <Pressable style={styles.primaryButton} onPress={onClose}>
-            <Text style={styles.primaryText}>Hoàn tất</Text>
-          </Pressable>
+    <Drawer open={visible} onOpenChange={(open) => !open && onClose()} snapHeight={320}>
+      <DrawerHeader className="items-center px-5 pt-2">
+        <View className="absolute right-4 top-0">
+          <DrawerClose onPress={onClose} />
         </View>
-      </View>
-    </Modal>
+        <View style={styles.checkCircle}>
+          <Text style={styles.check}>✓</Text>
+        </View>
+        <DrawerTitle className="mt-3 text-center">Đã chọn Phở bò!</DrawerTitle>
+        <DrawerDescription className="text-center">
+          Mogu đã thêm món này vào bữa trưa hôm nay của bạn.
+        </DrawerDescription>
+      </DrawerHeader>
+      <DrawerFooter className="px-5">
+        <Button onPress={onClose} className="h-12 rounded-2xl bg-primary">
+          <UiText className="font-extrabold text-foreground">Hoàn tất</UiText>
+        </Button>
+      </DrawerFooter>
+    </Drawer>
   );
 }
 
@@ -409,9 +418,11 @@ function ArticleDetail({ onBack }: { onBack: () => void }) {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
       <Header onBack={onBack} saved={saved} onSave={() => setSaved(!saved)} more />
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${Math.max(8, progress * 100)}%` }]} />
-      </View>
+      <Progress
+        value={Math.max(8, progress * 100)}
+        className="h-1 rounded-none bg-border"
+        indicatorClassName="bg-primary"
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.articleContent}

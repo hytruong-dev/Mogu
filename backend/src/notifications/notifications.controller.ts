@@ -1,4 +1,17 @@
-import { Controller, Get, HttpCode, HttpStatus, Param, Patch, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiForbiddenResponse,
@@ -15,22 +28,19 @@ import {
   NotificationDto,
   NotificationListResponseDto,
   NotificationQueryDto,
+  RegisterPushInstallationDto,
   UnreadCountResponseDto,
 } from './dto/notification.dto';
 
 @ApiTags('Notifications')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('notifications')
+@Controller()
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
-  @Get('unread-count')
-  @ApiOperation({
-    summary: 'Đếm thông báo chưa đọc',
-    description:
-      'Trả về raw count. Client tự hiển thị "99+" nếu count > 99 (HOME-BR-013). Dùng cho badge trên tab bar.',
-  })
+  @Get('notifications/unread-count')
+  @ApiOperation({ summary: 'Đếm thông báo chưa đọc' })
   @ApiOkResponse({ type: UnreadCountResponseDto })
   async getUnreadCount(
     @CurrentUser('sub') userId: string,
@@ -38,11 +48,8 @@ export class NotificationsController {
     return this.notificationsService.getUnreadCount(userId);
   }
 
-  @Get()
-  @ApiOperation({
-    summary: 'Danh sách thông báo',
-    description: 'Phân trang, sắp xếp mới nhất trước.',
-  })
+  @Get('notifications')
+  @ApiOperation({ summary: 'Danh sách thông báo (cursor + page compat)' })
   @ApiOkResponse({ type: NotificationListResponseDto })
   async getNotifications(
     @CurrentUser('sub') userId: string,
@@ -51,12 +58,16 @@ export class NotificationsController {
     return this.notificationsService.getNotifications(userId, query);
   }
 
-  @Patch(':id/read')
+  @Post('notifications/read-all')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Đánh dấu đã đọc',
-    description: 'Idempotent — thông báo đã đọc vẫn trả 200. Validate ownership bằng userId.',
-  })
+  @ApiOperation({ summary: 'Đánh dấu tất cả thông báo đã đọc' })
+  async markAllRead(@CurrentUser('sub') userId: string) {
+    return this.notificationsService.markAllRead(userId);
+  }
+
+  @Patch('notifications/:id/read')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Đánh dấu đã đọc' })
   @ApiParam({ name: 'id', description: 'UUID của thông báo' })
   @ApiOkResponse({ type: NotificationDto })
   @ApiNotFoundResponse({ description: 'Thông báo không tồn tại' })
@@ -66,5 +77,23 @@ export class NotificationsController {
     @Param('id') notificationId: string,
   ): Promise<NotificationDto> {
     return this.notificationsService.markAsRead(userId, notificationId);
+  }
+
+  @Post('me/push-installations')
+  @ApiOperation({ summary: 'Đăng ký push token' })
+  registerPush(
+    @CurrentUser('sub') userId: string,
+    @Body() dto: RegisterPushInstallationDto,
+  ) {
+    return this.notificationsService.registerPushInstallation(userId, dto);
+  }
+
+  @Delete('me/push-installations/:id')
+  @ApiOperation({ summary: 'Hủy đăng ký push token' })
+  unregisterPush(
+    @CurrentUser('sub') userId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.notificationsService.unregisterPushInstallation(userId, id);
   }
 }

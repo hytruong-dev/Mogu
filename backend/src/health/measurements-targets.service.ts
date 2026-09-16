@@ -73,28 +73,33 @@ export class MeasurementsTargetsService {
   }
 
   async getHealthTarget(userId: string) {
-    let target = await (this.prisma.db as any).healthTarget.findFirst({
+    const target = await (this.prisma.db as any).healthTarget.findFirst({
       where: { userId },
       orderBy: { updatedAt: 'desc' },
     });
 
     if (!target) {
-      target = await (this.prisma.db as any).healthTarget.create({
-        data: {
-          userId,
-          mode: 'SYSTEM_ESTIMATED',
-          energyKcal: 2000,
-          proteinG: 120,
-          carbsG: 225,
-          fatG: 65,
-          waterMl: 2000,
-          steps: 8000,
-          version: 1,
-        },
+      const profile = await this.prisma.db.profile.findUnique({
+        where: { userId },
+        select: { dateOfBirth: true, activityLevel: true, heightCm: true, weightKg: true },
       });
+      const missingInputs: string[] = [];
+      if (!profile?.dateOfBirth) missingInputs.push('dateOfBirth');
+      if (!profile?.activityLevel) missingInputs.push('activityLevel');
+      if (!profile?.heightCm) missingInputs.push('heightCm');
+      if (!profile?.weightKg) missingInputs.push('weightKg');
+
+      return {
+        status: 'INSUFFICIENT_INPUT',
+        missingInputs: missingInputs.length
+          ? missingInputs
+          : ['energyTargetNotConfigured'],
+        dailyTargets: null,
+      };
     }
 
     return {
+      status: 'AVAILABLE',
       id: target.id,
       userId: target.userId,
       mode: target.mode,
@@ -106,6 +111,104 @@ export class MeasurementsTargetsService {
       steps: target.steps,
       version: target.version,
       updatedAt: target.updatedAt.toISOString(),
+      dailyTargets: {
+        energyKcal: target.energyKcal,
+        proteinG: target.proteinG,
+        carbsG: target.carbsG,
+        fatG: target.fatG,
+        waterMl: target.waterMl,
+        steps: target.steps,
+        mode: target.mode,
+        version: target.version,
+      },
+    };
+  }
+
+  async recalculateHealthTarget(userId: string) {
+    const profile = await this.prisma.db.profile.findUnique({
+      where: { userId },
+      select: {
+        dateOfBirth: true,
+        activityLevel: true,
+        heightCm: true,
+        weightKg: true,
+        gender: true,
+      },
+    });
+
+    const missingInputs: string[] = [];
+    if (!profile?.dateOfBirth) missingInputs.push('dateOfBirth');
+    if (!profile?.activityLevel) missingInputs.push('activityLevel');
+    if (!profile?.heightCm) missingInputs.push('heightCm');
+    if (!profile?.weightKg) missingInputs.push('weightKg');
+    if (missingInputs.length) {
+      return {
+        status: 'INSUFFICIENT_INPUT',
+        missingInputs,
+        dailyTargets: null,
+      };
+    }
+
+    const activityMultiplier: Record<string, number> = {
+      SEDENTARY: 1.2,
+      LIGHT: 1.375,
+      MODERATE: 1.55,
+      ACTIVE: 1.725,
+      VERY_ACTIVE: 1.9,
+    };
+    const age =
+      new Date().getFullYear() - new Date(profile!.dateOfBirth!).getFullYear();
+    const weight = profile!.weightKg!;
+    const height = profile!.heightCm!;
+    const isMale = profile!.gender === 'MALE';
+    const bmr = isMale
+      ? 10 * weight + 6.25 * height - 5 * age + 5
+      : 10 * weight + 6.25 * height - 5 * age - 161;
+    const multiplier =
+      activityMultiplier[profile!.activityLevel ?? 'MODERATE'] ?? 1.55;
+    const energyKcal = Math.round(bmr * multiplier);
+    const proteinG = Math.round(weight * 1.6);
+    const fatG = Math.round((energyKcal * 0.25) / 9);
+    const carbsG = Math.round((energyKcal - proteinG * 4 - fatG * 9) / 4);
+
+    const existing = await (this.prisma.db as any).healthTarget.findFirst({
+      where: { userId },
+      orderBy: { updatedAt: 'desc' },
+    });
+
+    const data = {
+      mode: 'SYSTEM_ESTIMATED',
+      energyKcal,
+      proteinG,
+      carbsG,
+      fatG,
+      waterMl: 2000,
+      steps: 8000,
+    };
+
+    const target = existing
+      ? await (this.prisma.db as any).healthTarget.update({
+          where: { id: existing.id },
+          data: { ...data, version: { increment: 1 } },
+        })
+      : await (this.prisma.db as any).healthTarget.create({
+          data: { userId, ...data, version: 1 },
+        });
+
+    return {
+      status: 'AVAILABLE',
+      method: 'MIFFLIN_ST_JEOR_V1',
+      formulaVersion: '1.0',
+      dailyTargets: {
+        energyKcal: target.energyKcal,
+        proteinG: target.proteinG,
+        carbsG: target.carbsG,
+        fatG: target.fatG,
+        waterMl: target.waterMl,
+        steps: target.steps,
+        mode: target.mode,
+        version: target.version,
+      },
     };
   }
 
@@ -167,5 +270,79 @@ export class MeasurementsTargetsService {
       version: updated.version,
       updatedAt: updated.updatedAt.toISOString(),
     };
+  }
+
+  async deleteMeasurement(userId: string, id: string) {
+    const existing = await (this.prisma.db as any).profileMeasurement.findFirst({
+      where: { id, userId },
+    });
+    if (!existing) {
+      throw new NotFoundException({
+        error: { code: 'MEASUREMENT_NOT_FOUND', message: 'Không tìm thấy chỉ số.' },
+      });
+    }
+    await (this.prisma.db as any).profileMeasurement.delete({ where: { id } });
+    return { deleted: true };
+  }
+
+  async syncActivity(
+    userId: string,
+    dto: {
+      provider: string;
+      buckets: Array<{
+        type: string;
+        startAt: string;
+        endAt: string;
+        value: number;
+        dedupeKey?: string;
+      }>;
+    },
+  ) {
+    let upserted = 0;
+    for (const b of dto.buckets ?? []) {
+      const dedupeKey = b.dedupeKey ?? `${b.type}:${b.startAt}:${b.endAt}`;
+      try {
+        await (this.prisma.db as any).activityBucket.upsert({
+          where: {
+            userId_provider_type_startAt_endAt_dedupeKey: {
+              userId,
+              provider: dto.provider,
+              type: b.type,
+              startAt: new Date(b.startAt),
+              endAt: new Date(b.endAt),
+              dedupeKey,
+            },
+          },
+          create: {
+            userId,
+            provider: dto.provider,
+            type: b.type,
+            startAt: new Date(b.startAt),
+            endAt: new Date(b.endAt),
+            value: b.value,
+            dedupeKey,
+          },
+          update: {
+            value: b.value,
+            syncedAt: new Date(),
+          },
+        });
+        upserted += 1;
+      } catch {
+        // Fallback create-only if unique composite naming differs
+        await (this.prisma.db as any).activityBucket.create({
+          data: {
+            userId,
+            provider: dto.provider,
+            type: b.type,
+            startAt: new Date(b.startAt),
+            endAt: new Date(b.endAt),
+            value: b.value,
+            dedupeKey,
+          },
+        }).catch(() => null);
+      }
+    }
+    return { upserted, provider: dto.provider };
   }
 }

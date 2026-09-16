@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { useEffect, useState } from "react";
+import { View } from "react-native";
+import { BootSkeleton } from "../components/skeletons/ScreenSkeletons";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -95,6 +96,9 @@ function MainNavigator({ navigation: rootNav }: any) {
             onExplore={() => n.navigate("Explore")}
             onRandom={() => n.navigate("Random")}
             onHealth={() => n.navigate("Health")}
+            onLoggedOut={() =>
+              n.getParent()?.reset({ index: 0, routes: [{ name: "Auth" }] })
+            }
           />
         )}
       </MainTab.Screen>
@@ -119,8 +123,8 @@ export function RootNavigator() {
 
   if (!ready) {
     return (
-      <View style={{ flex: 1, backgroundColor: "#FFFBF0", alignItems: "center", justifyContent: "center" }}>
-        <ActivityIndicator size="large" color="#FFD83E" />
+      <View style={{ flex: 1, backgroundColor: "#FFFBF0" }}>
+        <BootSkeleton />
       </View>
     );
   }

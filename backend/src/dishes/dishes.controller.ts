@@ -1,7 +1,6 @@
 import { Controller, Delete, HttpCode, HttpStatus, Param, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
-  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -13,6 +12,10 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { DishesService } from './dishes.service';
 import { SaveDishResponseDto, UnsaveDishResponseDto } from './dto/dish.dto';
 
+/**
+ * Legacy dish save routes — deprecated in favor of /me/saved-dishes (Docs 02).
+ * Kept as temporary proxies so older clients do not hard-fail; prefer /me/saved-dishes.
+ */
 @ApiTags('Dishes')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
@@ -23,8 +26,8 @@ export class DishesController {
   @Post(':id/save')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Lưu món ăn',
-    description: 'Lưu món vào danh sách yêu thích. Idempotent — gọi nhiều lần không tạo bản sao.',
+    summary: '[Deprecated] Dùng PUT /me/saved-dishes/:dishId',
+    deprecated: true,
   })
   @ApiParam({ name: 'id', description: 'UUID của món ăn' })
   @ApiOkResponse({ type: SaveDishResponseDto })
@@ -39,12 +42,11 @@ export class DishesController {
   @Delete(':id/save')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Bỏ lưu món ăn',
-    description: 'Xóa món khỏi danh sách yêu thích. Idempotent — nếu chưa lưu thì không báo lỗi.',
+    summary: '[Deprecated] Dùng DELETE /me/saved-dishes/:dishId',
+    deprecated: true,
   })
   @ApiParam({ name: 'id', description: 'UUID của món ăn' })
   @ApiOkResponse({ type: UnsaveDishResponseDto })
-  @ApiNotFoundResponse({ description: 'Món không tồn tại' })
   async unsaveDish(
     @CurrentUser('sub') userId: string,
     @Param('id') dishId: string,

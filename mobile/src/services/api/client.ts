@@ -3,14 +3,37 @@ import { getDeviceTimeZone, getTodayISO } from '../../lib/dates';
 import { clearSession, getSession, saveSession } from './storage';
 import { ApiError, type Session } from './types';
 
-const fallbackHost = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
 const expoEnvironment = (
   globalThis as typeof globalThis & {
     process?: { env?: Record<string, string | undefined> };
   }
 ).process?.env;
-export const API_URL =
-  expoEnvironment?.EXPO_PUBLIC_API_URL?.replace(/\/$/, '') ?? `http://${fallbackHost}:3001/v1`;
+
+function resolveApiUrl(): string {
+  const envUrl = expoEnvironment?.EXPO_PUBLIC_API_URL?.replace(/\/$/, '');
+
+  // If no env var, use fallback based on platform
+  if (!envUrl) {
+    const fallbackHost = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
+    return `http://${fallbackHost}:3001/v1`;
+  }
+
+  // 10.0.2.2 is the Android Emulator loopback alias to host machine.
+  // In a web browser or iOS simulator, connecting to 10.0.2.2 will fail.
+  if (Platform.OS === 'web' || Platform.OS !== 'android') {
+    if (envUrl.includes('10.0.2.2')) {
+      const webHost =
+        typeof window !== 'undefined' && window.location?.hostname
+          ? window.location.hostname
+          : 'localhost';
+      return envUrl.replace('10.0.2.2', webHost);
+    }
+  }
+
+  return envUrl;
+}
+
+export const API_URL = resolveApiUrl();
 
 type Options = RequestInit & { auth?: boolean; retry?: boolean };
 
@@ -90,11 +113,24 @@ export async function apiRequest<T>(path: string, options: Options = {}): Promis
       ? crypto.randomUUID()
       : Math.random().toString(36).substring(2, 15);
 
+  const method = String(requestOptions.method ?? 'GET').toUpperCase();
+  // Fastify rejects empty body when Content-Type is application/json.
+  // POST/PUT/PATCH without body → send "{}" so Content-Type is valid.
+  const hasBody =
+    requestOptions.body !== undefined &&
+    requestOptions.body !== null &&
+    requestOptions.body !== '';
+  const body =
+    !hasBody && ['POST', 'PUT', 'PATCH'].includes(method)
+      ? '{}'
+      : requestOptions.body;
+
   const response = await fetch(`${API_URL}${path}`, {
     ...requestOptions,
+    body,
     headers: {
       Accept: 'application/json',
-      'Content-Type': 'application/json',
+      ...(body != null ? { 'Content-Type': 'application/json' } : {}),
       'X-Timezone': tz,
       'X-Local-Date': todayDate,
       'X-Request-Id': requestId,
@@ -107,7 +143,12 @@ export async function apiRequest<T>(path: string, options: Options = {}): Promis
 
   if (response.status === 401 && auth && retry && session?.refreshToken) {
     try {
-      const newSession = await refreshSession(session.refreshToken);
+      if (!refreshPromise) {
+        refreshPromise = refreshSession(session.refreshToken).finally(() => {
+          refreshPromise = null;
+        });
+      }
+      const newSession = await refreshPromise;
       if (!newSession?.accessToken) {
         await clearSession();
         throw new ApiError('Phiên đăng nhập hết hạn, vui lòng đăng nhập lại.', 401);

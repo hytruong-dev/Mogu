@@ -68,7 +68,7 @@ export class WeeklyPlanSlotsController {
     @Param('slotId') slotId: string,
     @Headers('if-match') ifMatch: string,
   ) {
-    const version = parseInt(ifMatch ?? '0', 10);
-    return this.plansSvc.skipSlot(planId, slotId, userId, version);
+    const version = parseInt(String(ifMatch ?? '0').replace(/"/g, '').trim(), 10);
+    return this.plansSvc.skipSlot(planId, slotId, userId, Number.isFinite(version) ? version : 0);
   }
 }

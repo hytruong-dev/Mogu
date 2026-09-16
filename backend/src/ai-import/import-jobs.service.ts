@@ -18,6 +18,7 @@ import { CrossFieldValidatorService, RecipeValidatorService } from './validators
 import { TargetedRepairService } from './targeted-repair.service';
 import { DishExtractionV11, IngredientCandidate } from './ai-import.types';
 import { DishExtractionV11Schema } from './dish-extraction.schema';
+import { IngredientCatalogService } from '../ingredients/ingredient-catalog.service';
 
 const STEPS = [
   { index: 1, key: 'SEARCHING', name: 'Tìm nguồn', pct: 0 },
@@ -53,6 +54,7 @@ export class ImportJobsService {
     private readonly recipeValidator: RecipeValidatorService,
     private readonly crossFieldValidator: CrossFieldValidatorService,
     private readonly targetedRepair: TargetedRepairService,
+    private readonly ingredientCatalog: IngredientCatalogService,
   ) {
     this.supabase = createClient(
       this.config.getOrThrow('SUPABASE_URL'),
@@ -254,16 +256,22 @@ export class ImportJobsService {
         this.log(id, 'RECONCILING', 4, 'Không tìm thấy trùng lặp — tiếp tục tạo mới');
       }
 
-      // ── Bước 4b: Upsert Ingredient cho từng nguyên liệu ──────────────────
-      // Chạy song song: tìm/tạo Ingredient record + tìm ảnh nếu chưa có
+      // ── Bước 4b: Resolve/provision Ingredient (không tìm ảnh sync) ───────
       if (!(await this.isRunning(id))) return;
       this.log(id, 'RECONCILING', 4, `Đang upsert ${normalizedIngredients.length} nguyên liệu vào kho...`);
 
-      const ingredientIds = await this.upsertIngredients(normalizedIngredients);
-      const newCount = ingredientIds.filter(r => r.isNew).length;
+      const provisioned = await this.ingredientCatalog.resolveOrProvisionBatch(
+        normalizedIngredients.map((ing, idx) => ({
+          clientRef: `ai-${idx}`,
+          rawName: ing.name,
+          unit: ing.unit || undefined,
+        })),
+        { createMissing: true, enqueueImageEnrichment: true },
+      );
+      const newCount = provisioned.createdIds.length;
       this.log(id, 'RECONCILING', 4,
-        `Đã xử lý ${ingredientIds.length} nguyên liệu`,
-        `Mới: ${newCount} | Đã tồn tại: ${ingredientIds.length - newCount}`,
+        `Đã xử lý ${provisioned.items.length} nguyên liệu`,
+        `Mới: ${newCount} | Đã tồn tại: ${provisioned.items.length - newCount}`,
       );
 
       // ── Bước 5: Làm giàu dữ liệu (Nutrition + Image) ─────────────────────
@@ -304,8 +312,21 @@ export class ImportJobsService {
           regionId,
           ingredients: extraction.ingredients.map((ing, idx) => {
             const resolution = resolutions[idx];
+            const catalogHit = provisioned.byClientRef.get(`ai-${idx}`);
+            const linkedId =
+              resolution?.matchedIngredientId ??
+              catalogHit?.ingredientId ??
+              null;
+            const resolutionMethod =
+              catalogHit?.outcome === 'EXISTING_EXACT'
+                ? 'EXACT'
+                : catalogHit?.outcome === 'EXISTING_SYNONYM'
+                  ? 'ALIAS'
+                  : catalogHit?.outcome === 'CREATED_PENDING'
+                    ? 'NORMALIZED'
+                    : resolution?.matchMethod ?? 'NONE';
             return {
-              ingredientId: resolution?.matchedIngredientId ?? null,
+              ingredientId: linkedId,
               rawText: ing.rawText.substring(0, 198),
               parsedName: ing.name.substring(0, 198),
               quantity: ing.quantity,
@@ -315,17 +336,26 @@ export class ImportJobsService {
               preparation: [ing.preparation, ing.specification]
                 .filter(Boolean)
                 .join('; ')
-                .substring(0, 98) || null,
+                .substring(0, 498) || null,
               specification: ing.specification?.substring(0, 198) ?? null,
               normalizedWeightG: ing.normalizedWeightGram,
               groupLabel: ing.group?.substring(0, 98) ?? null,
               sortOrder: idx,
               isOptional: ing.optional,
-              resolutionMethod: resolution?.matchMethod ?? 'NONE',
-              resolutionConfidence: resolution?.confidence ?? 0,
-              resolutionCandidates: resolution?.candidates,
+              resolutionMethod,
+              resolutionConfidence:
+                linkedId != null
+                  ? catalogHit?.isNew
+                    ? 80
+                    : Math.max(resolution?.confidence ?? 0, 90)
+                  : resolution?.confidence ?? 0,
+              resolutionCandidates:
+                catalogHit?.candidates?.length
+                  ? (JSON.parse(JSON.stringify(catalogHit.candidates)) as object)
+                  : resolution?.candidates,
               needsReview:
-                !resolution?.matchedIngredientId ||
+                !linkedId ||
+                catalogHit?.outcome === 'CREATED_PENDING' ||
                 (resolution?.confidence ?? 0) < 90,
             };
           }),
@@ -545,147 +575,6 @@ export class ImportJobsService {
     });
   }
 
-  /**
-   * Upsert mỗi nguyên liệu vào bảng Ingredient:
-   * - Nếu đã tồn tại (theo name, case-insensitive) → trả id cũ
-   * - Nếu chưa có → tạo mới + tự động tìm ảnh qua Wikipedia/Unsplash
-   * Chạy song song để tối ưu tốc độ.
-   */
-  /**
-   * Upsert nguyên liệu — tối ưu:
-   * 1. Batch query tất cả tên một lần
-   * 2. Chỉ tìm ảnh cho nguyên liệu MỚI, chạy song song tối đa 5
-   * 3. Timeout 4s/ảnh để không block cả pipeline
-   */
-  /**
-   * Normalize tên nguyên liệu từ AI: xóa mô tả trong ngoặc và "hoặc X"
-   * Ví dụ: "Rau thơm (húng lủi, ngò gai)" → "Rau thơm"
-   *        "Dầu ăn (để phi hành)"         → "Dầu ăn"
-   */
-  private normalizeIngredientName(name: string): string {
-    return name
-      .replace(/\s*\(.*?\)\s*/g, '')
-      .replace(/\s*(hoặc|hoac|hay)\s+.*/i, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  /** Key chuẩn hóa để so sánh: bỏ dấu, thường hóa */
-  private ingredientKey(name: string): string {
-    return this.normalizeIngredientName(name)
-      .toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/\u0111/g, 'd')
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  private async upsertIngredients(
-    ingredients: Array<{ name: string; unit?: string }>,
-  ): Promise<Array<{ name: string; id: string; isNew: boolean }>> {
-    if (!ingredients.length) return [];
-
-    // 1️⃣ Chuẩn hóa tên AI: strip ngoặc + "hoặc..."
-    const normalized = ingredients.map(i => ({
-      ...i,
-      cleanName: this.normalizeIngredientName(i.name),
-    }));
-
-    // 2️⃣ Load toàn bộ Ingredient DB để fuzzy-match
-    const allIngredients = await this.prisma.db.ingredient.findMany({
-      where: { isActive: true },
-      select: { id: true, name: true },
-    });
-    const dbMap = new Map(
-      allIngredients.map(e => [this.ingredientKey(e.name), { id: e.id, name: e.name }])
-    );
-
-    // 3️⃣ Phân loại: đã có (exact + prefix match) vs cần tạo mới
-    const existing: Array<{ name: string; id: string; isNew: boolean }> = [];
-    const toCreate: Array<{ cleanName: string; unit?: string }> = [];
-
-    for (const ing of normalized) {
-      const key = this.ingredientKey(ing.cleanName);
-      const exact = dbMap.get(key);
-      if (exact) {
-        existing.push({ name: exact.name, id: exact.id, isNew: false });
-        continue;
-      }
-      // Partial match: DB tên bắt đầu bằng cleanName hoặc ngược lại
-      let found: { id: string; name: string } | undefined;
-      for (const [dbKey, dbVal] of dbMap) {
-        if (key && (dbKey.startsWith(key) || key.startsWith(dbKey))) {
-          found = dbVal;
-          break;
-        }
-      }
-      if (found) {
-        existing.push({ name: found.name, id: found.id, isNew: false });
-      } else {
-        // Tránh tạo trùng trong cùng batch
-        const alreadyQueued = toCreate.find(
-          t => this.ingredientKey(t.cleanName) === key
-        );
-        if (!alreadyQueued) toCreate.push({ cleanName: ing.cleanName, unit: ing.unit });
-        else existing.push({ name: ing.cleanName, id: '', isNew: false }); // sẽ skip vì id=''
-      }
-    }
-
-    if (!toCreate.length) return existing;
-
-    // 4️⃣ Tìm ảnh song song tối đa 5, timeout 4s/ảnh
-    const withTimeout = (p: Promise<string | null>, ms: number) =>
-      Promise.race([p, new Promise<null>(res => setTimeout(() => res(null), ms))]);
-
-    const CONCURRENCY = 5;
-    const imageResults: Array<string | null> = new Array(toCreate.length).fill(null);
-    for (let i = 0; i < toCreate.length; i += CONCURRENCY) {
-      const chunk = toCreate.slice(i, i + CONCURRENCY);
-      const imgs = await Promise.all(
-        chunk.map(ing => withTimeout(
-          this.ai.searchIngredientImage(ing.cleanName).catch(() => null),
-          4000,
-        )),
-      );
-      imgs.forEach((url, j) => { imageResults[i + j] = url; });
-    }
-
-    // 5️⃣ Tạo DB records với tên đã chuẩn hóa (không có ngoặc)
-    const created = await Promise.all(
-      toCreate.map(async (ing, idx) => {
-        try {
-          const safeName = ing.cleanName.substring(0, 198);
-          const code = safeName
-            .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-            .replace(/\u0111/gi, 'd')
-            .toLowerCase().trim()
-            .replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-            .substring(0, 90) + '-' + Date.now().toString().slice(-5);
-          const rec = await this.prisma.db.ingredient.create({
-            data: {
-              name: safeName,
-              code,
-              unit: ing.unit ? ing.unit.substring(0, 48) : null,
-              imageUrl: imageResults[idx] ?? null,
-              isActive: true,
-            },
-            select: { id: true },
-          });
-          dbMap.set(this.ingredientKey(safeName), { id: rec.id, name: safeName });
-          return { name: safeName, id: rec.id, isNew: true };
-        } catch (err: any) {
-          this.logger.warn(`upsertIngredient failed "${ing.cleanName}": ${err.message}`);
-          return { name: ing.cleanName, id: '', isNew: false };
-        }
-      }),
-    );
-
-    return [
-      ...existing.filter(r => r.id !== ''),
-      ...created.filter(r => r.id !== ''),
-    ];
-  }
   private regionHintToName(hint: string): string {
     const map: Record<string, string> = {
       north: 'Miền Bắc',

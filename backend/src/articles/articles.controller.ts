@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -58,6 +59,28 @@ export class ArticlesController {
     @Body() dto: UpdateArticleDto,
   ) {
     return this.articlesService.update(id, user.id, dto, false);
+  }
+
+  @ApiBearerAuth()
+  @Put('articles/:id/saves/me')
+  @ApiOperation({ summary: 'Lưu / bookmark bài viết' })
+  saveArticle(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: any,
+  ) {
+    const userId = typeof user === 'string' ? user : (user.id ?? user.sub);
+    return this.articlesService.saveArticle(userId, id);
+  }
+
+  @ApiBearerAuth()
+  @Delete('articles/:id/saves/me')
+  @ApiOperation({ summary: 'Bỏ lưu bài viết' })
+  unsaveArticle(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser() user: any,
+  ) {
+    const userId = typeof user === 'string' ? user : (user.id ?? user.sub);
+    return this.articlesService.unsaveArticle(userId, id);
   }
 
   // ─── Admin ────────────────────────────────────────────────────────────────

@@ -28,8 +28,10 @@ import { SourceEvidenceModule } from './source-evidence.module';
 import { DishesModule } from '../dishes/dishes.module';
 import { AiImportDraftPersistenceService } from './ai-import-draft-persistence.service';
 import { AI_IMPORT_PROVIDER } from './ai-provider';
+import { IngredientsModule } from '../ingredients/ingredients.module';
+import { getRedisUrl } from '../common/redis/redis-env';
 
-const REDIS_URL = process.env.REDIS_URL;
+const REDIS_URL = getRedisUrl();
 const nullQueueProvider = { provide: AI_IMPORT_QUEUE_TOKEN, useValue: null };
 
 @Module({
@@ -38,6 +40,7 @@ const nullQueueProvider = { provide: AI_IMPORT_QUEUE_TOKEN, useValue: null };
     ConfigModule,
     SourceEvidenceModule,
     DishesModule,
+    IngredientsModule,
     ...(REDIS_URL ? [BullModule.registerQueue({ name: AI_IMPORT_QUEUE })] : []),
   ],
   providers: [

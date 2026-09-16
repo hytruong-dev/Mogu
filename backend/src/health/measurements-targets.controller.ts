@@ -1,8 +1,11 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Headers,
+  Param,
+  ParseUUIDPipe,
   Post,
   Put,
   Query,
@@ -47,14 +50,24 @@ export class MeasurementsTargetsController {
     return this.measurementsTargetsService.listMeasurements(userId, type, limit);
   }
 
-  @Get('health-targets')
+  @Delete('measurements/:id')
+  @ApiOperation({ summary: 'Xóa chỉ số cơ thể' })
+  deleteMeasurement(
+    @CurrentUser() user: any,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
+    return this.measurementsTargetsService.deleteMeasurement(userId, id);
+  }
+
+  @Get(['health-targets', 'health-targets/current'])
   @ApiOperation({ summary: 'Lấy mục tiêu sức khỏe hiện tại' })
   getHealthTarget(@CurrentUser() user: any) {
     const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
     return this.measurementsTargetsService.getHealthTarget(userId);
   }
 
-  @Put('health-targets')
+  @Put(['health-targets', 'health-targets/current'])
   @ApiOperation({ summary: 'Cập nhật mục tiêu sức khỏe (yêu cầu If-Match)' })
   @ApiHeader({ name: 'If-Match', required: true })
   updateHealthTarget(
@@ -64,5 +77,12 @@ export class MeasurementsTargetsController {
   ) {
     const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
     return this.measurementsTargetsService.updateHealthTarget(userId, dto, ifMatch);
+  }
+
+  @Post('health-targets/recalculate')
+  @ApiOperation({ summary: 'Tính lại mục tiêu sức khỏe từ measurements' })
+  recalculate(@CurrentUser() user: any) {
+    const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
+    return this.measurementsTargetsService.recalculateHealthTarget(userId);
   }
 }

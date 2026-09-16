@@ -22,6 +22,9 @@ Bộ tài liệu này là hợp đồng triển khai giữa mobile, backend, dat
 - [03_DATA_MODEL.md](./03_DATA_MODEL.md): mô hình dữ liệu đích, provenance, index, quyền riêng tư và vòng đời dữ liệu.
 - [04_ALGORITHMS_AND_SOURCES.md](./04_ALGORITHMS_AND_SOURCES.md): công thức, thuật toán, tầng nới lỏng và nguồn dữ liệu chính thức.
 - [05_DELIVERY_AND_ACCEPTANCE.md](./05_DELIVERY_AND_ACCEPTANCE.md): lộ trình triển khai, kiểm thử, SLO và tiêu chí nghiệm thu.
+- [INGREDIENT_AUTO_PROVISIONING_AND_IMAGE_ENRICHMENT.md](../INGREDIENT_AUTO_PROVISIONING_AND_IMAGE_ENRICHMENT.md): thiết kế tự tạo nguyên liệu còn thiếu, liên kết vào món và tìm/lưu ảnh có provenance.
+- [MOBILE_PROFILE_BACKEND_API_SPEC.md](../MOBILE_PROFILE_BACKEND_API_SPEC.md): đặc tả chuyên sâu toàn bộ dữ liệu và API cho Profile mobile, gồm dashboard, edit/avatar, journey, health, preference, danh sách, settings, security và privacy.
+- [ADMIN_USER_MANAGEMENT_API_SPEC.md](../ADMIN_USER_MANAGEMENT_API_SPEC.md): đặc tả API quản lý người dùng cho Admin, gồm dashboard, list/detail, account recovery, session, suspension, role, audit, export và privacy boundaries.
 
 Tài liệu review chuyên sâu logic random/kế hoạch tuần hiện có nằm tại [PROJECT_REVIEW_RANDOM_MEAL_WEEKLY_BUDGET.md](../PROJECT_REVIEW_RANDOM_MEAL_WEEKLY_BUDGET.md). Khi có khác biệt, bộ đặc tả này là trạng thái đích; review cũ là bằng chứng về lỗi và nợ kỹ thuật của implementation hiện tại.
 
@@ -88,4 +91,3 @@ Các nhóm màn hình đang hoạt động gồm:
 8. Không sửa object theo version chỉ kiểm tra trước rồi update. Update phải có điều kiện `WHERE id=? AND version=?` trong transaction.
 9. Mọi snapshot trong random/weekly/meal log là bất biến để lịch sử không đổi khi món hoặc hồ sơ bị sửa.
 10. Log không chứa access token, refresh token, mật khẩu, ảnh sức khỏe, ngày sinh đầy đủ hoặc nội dung export.
-

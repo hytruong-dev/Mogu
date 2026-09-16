@@ -2,11 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Image,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,10 +21,18 @@ import {
   Plus,
   Search,
   Share2,
+  X,
 } from 'lucide-react-native';
+import { Badge } from '../components/ui/badge';
+import { Card } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Textarea } from '../components/ui/textarea';
+import { AppImage } from '../components/ui/app-image';
 import { cn } from '../lib/utils';
 import { ExploreDetailScreen, type ExploreDetailType } from './ExploreDetailScreen';
+import { ScreenSlideTransition } from '../components/ui/screen-transition';
 import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomNav';
+import { AvatarImage } from '../components/organisms/AvatarImage';
 import {
   articlesApi,
   communityApi,
@@ -33,12 +43,30 @@ import {
   type ExploreTopic,
 } from '../services/api/explore';
 import { dishesApi, type DishDetail } from '../services/api/dishes';
+import { profileApi } from '../services/api/profile';
 
 const pho = require('../assets/images/random/pho-result.jpg');
 const bun = require('../assets/images/random/bun-rieu.jpg');
 const rice = require('../assets/images/random/chao-ga.jpg');
-const avatar = require('../assets/images/home/avatar.jpg');
 const brand = require('../assets/images/logo/mogu-wordmark-header.png');
+
+function decodeHtmlEntities(input: string): string {
+  return input
+    .replace(/&#(\d+);/g, (_m, code) => {
+      const n = Number(code);
+      return Number.isFinite(n) ? String.fromCodePoint(n) : _m;
+    })
+    .replace(/&#x([0-9a-fA-F]+);/g, (_m, hex) => {
+      const n = Number.parseInt(hex, 16);
+      return Number.isFinite(n) ? String.fromCodePoint(n) : _m;
+    })
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+}
 
 type Props = {
   onBack: () => void;
@@ -75,7 +103,22 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
   const [postsError, setPostsError] = useState('');
 
   const [refreshing, setRefreshing] = useState(false);
+  const [myAvatarUri, setMyAvatarUri] = useState<string | null>(null);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ── Create Post ───────────────────────────────────────────────────────────
+  const [createPostOpen, setCreatePostOpen] = useState(false);
+  const [newPostContent, setNewPostContent] = useState('');
+  const [submittingPost, setSubmittingPost] = useState(false);
+  const [createPostError, setCreatePostError] = useState('');
+
+  useEffect(() => {
+    let active = true;
+    profileApi.dashboard().then((data) => {
+      if (active) setMyAvatarUri(data.profile.avatar.url);
+    }).catch(() => { /* Use the shared fallback when unavailable. */ });
+    return () => { active = false; };
+  }, []);
 
   // ── Data fetchers ─────────────────────────────────────────────────────────
   const fetchFeed = useCallback(async () => {
@@ -131,10 +174,28 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
     }
   }, []);
 
+  const handleCreatePost = useCallback(async () => {
+    const text = newPostContent.trim();
+    if (!text) return;
+    setSubmittingPost(true);
+    setCreatePostError('');
+    try {
+      await communityApi.createPost({ content: text });
+      setNewPostContent('');
+      setCreatePostOpen(false);
+      setTab('Cộng đồng');
+      await fetchPosts();
+    } catch (e: any) {
+      setCreatePostError(e?.message || 'Không thể tạo bài viết');
+    } finally {
+      setSubmittingPost(false);
+    }
+  }, [newPostContent, fetchPosts]);
+
   // ── Tab switch triggers ───────────────────────────────────────────────────
   useEffect(() => {
     if (tab === 'Dành cho bạn' && !feed) fetchFeed();
-    if (tab === 'Món ăn') searchDishes(searchQuery);
+    if (tab === 'Món ăn' && dishes.length === 0) searchDishes(searchQuery);
     if (tab === 'Bài viết' && articles.length === 0) fetchArticles();
     if (tab === 'Cộng đồng' && posts.length === 0) fetchPosts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -195,16 +256,6 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
           ? 'Tìm người dùng, bài đăng…'
           : 'Tìm món ăn, bài viết, địa điểm…';
 
-  if (detail) {
-    return (
-      <ExploreDetailScreen
-        type={detail.type}
-        resourceId={detail.resourceId}
-        onBack={() => setDetail(null)}
-      />
-    );
-  }
-
   return (
     <SafeAreaView className="flex-1 bg-mogu-cream" edges={['top', 'left', 'right']}>
       <ScrollView
@@ -222,10 +273,10 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
           <View className="flex-row items-center gap-[18px] relative">
             <Bell size={25} />
             <View className="absolute right-[52px] top-px w-2 h-2 rounded-full bg-[#FF796F]" />
-            <Image
-              source={avatar}
-              style={{ width: 44, height: 44, borderRadius: 22 }}
-            />
+            <Pressable accessibilityRole="button" accessibilityLabel="Mở hồ sơ cá nhân"
+              onPress={onProfile} style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>
+              <AvatarImage uri={myAvatarUri} size={44} />
+            </Pressable>
           </View>
         </View>
 
@@ -234,12 +285,15 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
         {/* Search bar */}
         <View className="h-[52px] rounded-[18px] bg-white border border-[#E8E0D2] mt-[18px] px-4 flex-row items-center gap-2.5">
           <Search size={22} color="#666" />
-          <TextInput
-            className="flex-1 text-[15px]"
+          <Input
+            className="h-auto flex-1 border-0 bg-transparent p-0 text-[15px] shadow-none"
             placeholder={placeholder}
             placeholderTextColor="#999"
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={(text) => {
+              setSearchQuery(text);
+              if (text.trim() && tab === 'Dành cho bạn') setTab('Món ăn');
+            }}
             returnKeyType="search"
           />
         </View>
@@ -248,12 +302,13 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: 8, paddingVertical: 16 }}
+          contentContainerStyle={{ gap: 8, paddingVertical: 16, alignItems: 'center' }}
         >
           {(['Dành cho bạn', 'Món ăn', 'Bài viết', 'Cộng đồng'] as Tab[]).map((x) => (
             <Pressable
               key={x}
               onPress={() => setTab(x)}
+              style={{ flexGrow: 0, flexShrink: 0 }}
               className={cn(
                 'h-10 px-[18px] rounded-full items-center justify-center',
                 tab === x ? 'bg-mogu-yellow' : 'bg-white',
@@ -280,12 +335,12 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
               <ErrorState message={feedError} onRetry={fetchFeed} />
             ) : feed ? (
               <>
-                <Heading text="Chủ đề hôm nay" />
-                <TopicsRow topics={feed.topics} />
+                <Heading text="Chủ đề hôm nay" onPress={() => setTab('Bài viết')} />
+                <TopicsRow topics={feed.topics} onPressTopic={() => setTab('Bài viết')} />
 
                 {feed.featuredArticle && (
                   <>
-                    <Heading text="Bài viết nổi bật" />
+                    <Heading text="Bài viết nổi bật" onPress={() => setTab('Bài viết')} />
                     <ArticleCard
                       onPress={() =>
                         setDetail({ type: 'article', resourceId: feed.featuredArticle!.id })
@@ -310,7 +365,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
 
                 {feed.recentPosts.length > 0 && (
                   <>
-                    <Heading text="Cộng đồng đang nói gì?" />
+                    <Heading text="Cộng đồng đang nói gì?" onPress={() => setTab('Cộng đồng')} />
                     {feed.recentPosts.slice(0, 2).map((post) => (
                       <PostCard
                         key={post.id}
@@ -331,7 +386,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
           <>
             <Filters labels={['Tất cả', 'Bữa sáng', 'Bữa trưa', 'Lành mạnh', 'Dưới 50K']} />
             <Heading text={searchQuery ? `Kết quả cho "${searchQuery}"` : 'Khám phá món ăn'} />
-            {dishesLoading ? (
+            {dishesLoading && dishes.length === 0 ? (
               <LoadingState />
             ) : dishesError ? (
               <ErrorState message={dishesError} onRetry={() => searchDishes(searchQuery)} />
@@ -341,7 +396,13 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
                 const media = dish.media ?? [];
                 const primaryMedia = media.find((m) => m.isPrimary) ?? media[0];
                 const imageUri = primaryMedia
-                  ? `https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/dish-images/${primaryMedia.storageKey}`
+                  ? `${(
+                      (
+                        globalThis as typeof globalThis & {
+                          process?: { env?: Record<string, string | undefined> };
+                        }
+                      ).process?.env?.EXPO_PUBLIC_SUPABASE_URL ?? ''
+                    ).replace(/\/$/, '')}/storage/v1/object/public/${primaryMedia.bucket || 'dish-images'}/${primaryMedia.storageKey}`
                   : null;
                 const metaParts: string[] = [];
                 if (nutrition?.calories) metaParts.push(`${nutrition.calories} kcal`);
@@ -457,10 +518,76 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
       <Pressable
         className="absolute right-5 bottom-[92px] w-14 h-14 rounded-full bg-mogu-yellow items-center justify-center"
         style={{ elevation: 5 }}
+        onPress={() => setCreatePostOpen(true)}
       >
-        <Plus size={24} />
-        <PenLine size={14} className="absolute right-[13px] bottom-[13px]" />
+        <Plus size={24} color="#161616" />
+        <PenLine size={14} color="#161616" className="absolute right-[13px] bottom-[13px]" />
       </Pressable>
+
+      <Modal
+        visible={createPostOpen}
+        animationType="slide"
+        transparent
+        onRequestClose={() => !submittingPost && setCreatePostOpen(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}
+        >
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() => !submittingPost && setCreatePostOpen(false)}
+          />
+          <View className="bg-white rounded-t-[28px] p-5 pb-8 max-h-[85%]">
+            <View className="flex-row items-center justify-between pb-3 border-b border-[#E8E0D2]">
+              <Text className="text-lg font-bold text-[#161616]">Tạo bài viết mới</Text>
+              <Pressable
+                onPress={() => !submittingPost && setCreatePostOpen(false)}
+                className="w-8 h-8 rounded-full bg-[#F5F2EC] items-center justify-center"
+              >
+                <X size={18} color="#626262" />
+              </Pressable>
+            </View>
+
+            <View className="mt-4">
+              <Textarea
+                value={newPostContent}
+                onChangeText={setNewPostContent}
+                placeholder="Chia sẻ món ăn, trải nghiệm hôm nay của bạn..."
+                className="min-h-[140px] text-base p-3 border border-[#E8E0D2] rounded-2xl bg-[#FFFDF7]"
+                editable={!submittingPost}
+                autoFocus
+              />
+            </View>
+
+            {createPostError ? (
+              <Text className="text-[#FF4D3D] text-xs mt-2">{createPostError}</Text>
+            ) : null}
+
+            <View className="mt-4 flex-row justify-end gap-3">
+              <Pressable
+                onPress={() => setCreatePostOpen(false)}
+                disabled={submittingPost}
+                className="px-5 py-3 rounded-xl border border-[#D4D0C8] items-center justify-center"
+              >
+                <Text className="font-semibold text-[#626262]">Hủy</Text>
+              </Pressable>
+
+              <Pressable
+                onPress={handleCreatePost}
+                disabled={submittingPost || !newPostContent.trim()}
+                className={cn(
+                  'px-6 py-3 rounded-xl bg-mogu-yellow items-center justify-center flex-row gap-2',
+                  (!newPostContent.trim() || submittingPost) && 'opacity-50'
+                )}
+              >
+                {submittingPost && <ActivityIndicator size="small" color="#161616" />}
+                <Text className="font-bold text-[#161616]">Đăng bài</Text>
+              </Pressable>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
 
       <LiquidGlassBottomNav
         active="explore"
@@ -469,18 +596,31 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
         onHealth={onHealth}
         onProfile={onProfile}
       />
+
+      {/* ── Detail Screen with animated slide transition ── */}
+      <ScreenSlideTransition
+        visible={Boolean(detail)}
+        direction="right"
+        onBack={() => setDetail(null)}
+      >
+        {detail ? (
+          <ExploreDetailScreen
+            type={detail.type}
+            resourceId={detail.resourceId}
+            onBack={() => setDetail(null)}
+          />
+        ) : null}
+      </ScreenSlideTransition>
     </SafeAreaView>
   );
 }
 
+import { ListSkeleton } from '../components/skeletons/ScreenSkeletons';
+
 // ─── Helper components ────────────────────────────────────────────────────────
 
 function LoadingState() {
-  return (
-    <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-      <ActivityIndicator size="large" color="#F5B900" />
-    </View>
-  );
+  return <ListSkeleton rows={4} />;
 }
 
 function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
@@ -510,12 +650,13 @@ function Filters({ labels }: { labels: string[] }) {
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ gap: 8, paddingBottom: 14 }}
+      contentContainerStyle={{ gap: 8, paddingBottom: 14, alignItems: 'center' }}
     >
       {labels.map((x, i) => (
         <Pressable
           key={x}
           onPress={() => setActiveIdx(i)}
+          style={{ flexGrow: 0, flexShrink: 0 }}
           className={cn(
             'h-10 px-4 rounded-full justify-center',
             i === activeIdx ? 'bg-mogu-yellow' : 'bg-white',
@@ -535,15 +676,21 @@ function Filters({ labels }: { labels: string[] }) {
   );
 }
 
-function TopicsRow({ topics }: { topics: ExploreTopic[] }) {
+function TopicsRow({
+  topics,
+  onPressTopic,
+}: {
+  topics: ExploreTopic[];
+  onPressTopic?: (topic: ExploreTopic) => void;
+}) {
   const displayTopics =
     topics.length > 0
       ? topics
       : [
-          { id: '1', slug: 'mon-ngon-mua-mua', title: 'Món ngon\nmùa mưa', coverImageUrl: null, articleCount: 0 },
-          { id: '2', slug: 'an-lanh-manh', title: 'Ăn lành mạnh', coverImageUrl: null, articleCount: 0 },
-          { id: '3', slug: 'duoi-50k', title: 'Dưới 50K', coverImageUrl: null, articleCount: 0 },
-        ];
+        { id: '1', slug: 'mon-ngon-mua-mua', title: 'Món ngon\nmùa mưa', coverImageUrl: null, articleCount: 0 },
+        { id: '2', slug: 'an-lanh-manh', title: 'Ăn lành mạnh', coverImageUrl: null, articleCount: 0 },
+        { id: '3', slug: 'duoi-50k', title: 'Dưới 50K', coverImageUrl: null, articleCount: 0 },
+      ];
 
   const fallbackImages = [pho, rice, bun];
 
@@ -554,8 +701,9 @@ function TopicsRow({ topics }: { topics: ExploreTopic[] }) {
       contentContainerStyle={{ gap: 12, paddingBottom: 18 }}
     >
       {displayTopics.map((topic, i) => (
-        <View
+        <Pressable
           key={topic.id}
+          onPress={() => onPressTopic?.(topic)}
           style={{
             width: 250,
             height: 210,
@@ -592,17 +740,19 @@ function TopicsRow({ topics }: { topics: ExploreTopic[] }) {
           >
             {topic.title}
           </Text>
-        </View>
+        </Pressable>
       ))}
     </ScrollView>
   );
 }
 
-function Heading({ text }: { text: string }) {
+function Heading({ text, onPress }: { text: string; onPress?: () => void }) {
   return (
     <View className="flex-row justify-between items-center mt-3.5 mb-3.5">
       <Text className="text-[20px] font-bold text-[#161616]">{text}</Text>
-      <Text className="text-[14px] text-[#CC9700]">Xem tất cả ›</Text>
+      <Pressable onPress={onPress} hitSlop={8} disabled={!onPress}>
+        <Text className="text-[14px] text-[#CC9700]">Xem tất cả ›</Text>
+      </Pressable>
     </View>
   );
 }
@@ -620,17 +770,23 @@ function FoodCard(p: {
       onPress={p.onPress}
       className="h-[205px] rounded-[20px] overflow-hidden bg-white flex-row mb-4"
     >
-      <Image
-        source={p.imageUri ? { uri: p.imageUri } : p.fallbackImage}
+      <AppImage
+        uri={p.imageUri}
+        fallbackSource={p.fallbackImage}
         style={{ width: '44%', height: '100%' }}
-        resizeMode="cover"
+        contentFit="cover"
+        cachePolicy="memory-disk"
+        transition={200}
+        showLoader
       />
       <View className="flex-1 p-3.5">
         <Text className="text-[21px] font-bold text-[#161616] mt-[10px]">{p.name}</Text>
         <Text className="text-[13px] text-[#666] mt-[7px]">{p.meta}</Text>
-        <Text className="self-start bg-[#FFF1B3] rounded-full px-2.5 py-1.5 mt-3 text-xs text-[#161616]">
-          {p.badge}
-        </Text>
+        {p.badge ? (
+          <Badge variant="secondary" className="self-start bg-[#FFF1B3] rounded-full px-2.5 py-1 mt-3">
+            <Text className="text-xs text-[#161616]">{p.badge}</Text>
+          </Badge>
+        ) : null}
         <Text className="text-[14px] text-[#444] mt-2.5" style={{ lineHeight: 20 }}>
           Đậm đà, giàu dinh dưỡng và phù hợp với bạn hôm nay.
         </Text>
@@ -697,52 +853,51 @@ function PostCard(p: {
   const timeAgo = formatTimeAgo(post.createdAt);
 
   return (
-    <Pressable onPress={p.onPress} className="bg-white rounded-[20px] p-4 mb-4">
-      <View className="flex-row items-center gap-2.5">
-        <Image
-          source={post.author.avatarUrl ? { uri: post.author.avatarUrl } : avatar}
-          style={{ width: 42, height: 42, borderRadius: 21 }}
-        />
-        <View>
-          <Text className="text-[16px] font-semibold text-[#161616]">
-            {post.author.displayName ?? 'Người dùng Mogu'}
-          </Text>
-          <Text className="text-[13px] text-[#666]">{timeAgo}</Text>
+    <Pressable onPress={p.onPress}>
+      <Card className="bg-white rounded-[20px] p-4 mb-4 border-0">
+        <View className="flex-row items-center gap-2.5">
+          <AvatarImage uri={post.author.avatarUrl} size={42} />
+          <View>
+            <Text className="text-[16px] font-semibold text-[#161616]">
+              {post.author.displayName ?? 'Người dùng Mogu'}
+            </Text>
+            <Text className="text-[13px] text-[#666]">{timeAgo}</Text>
+          </View>
         </View>
-      </View>
 
-      {post.content ? (
-        <Text className="text-[16px] text-[#303030] my-3.5">{post.content}</Text>
-      ) : null}
+        {post.content ? (
+          <Text className="text-[16px] text-[#303030] my-3.5">{decodeHtmlEntities(post.content)}</Text>
+        ) : null}
 
-      {post.imageUrls.length > 0 && (
-        <Image
-          source={{ uri: post.imageUrls[0] }}
-          className="w-full rounded-2xl"
-          style={{ width: '100%', height: 220, borderRadius: 16 }}
-          resizeMode="cover"
-        />
-      )}
-
-      <View className="flex-row gap-5 mt-3.5">
-        <Pressable onPress={p.onLike} className="flex-row items-center gap-1.5">
-          <Heart
-            size={22}
-            color={post.isLiked ? '#FF796F' : '#666'}
-            fill={post.isLiked ? '#FF796F' : 'transparent'}
+        {post.imageUrls.length > 0 && (
+          <Image
+            source={{ uri: post.imageUrls[0] }}
+            className="w-full rounded-2xl"
+            style={{ width: '100%', height: 220, borderRadius: 16 }}
+            resizeMode="cover"
           />
-          {post.likeCount > 0 && (
-            <Text className="text-[13px] text-[#666]">{post.likeCount}</Text>
-          )}
-        </Pressable>
-        <View className="flex-row items-center gap-1.5">
-          <MessageCircle size={22} color="#666" />
-          {post.commentCount > 0 && (
-            <Text className="text-[13px] text-[#666]">{post.commentCount}</Text>
-          )}
+        )}
+
+        <View className="flex-row gap-5 mt-3.5">
+          <Pressable onPress={p.onLike} className="flex-row items-center gap-1.5">
+            <Heart
+              size={22}
+              color={post.isLiked ? '#FF796F' : '#666'}
+              fill={post.isLiked ? '#FF796F' : 'transparent'}
+            />
+            {post.likeCount > 0 && (
+              <Text className="text-[13px] text-[#666]">{post.likeCount}</Text>
+            )}
+          </Pressable>
+          <View className="flex-row items-center gap-1.5">
+            <MessageCircle size={22} color="#666" />
+            {post.commentCount > 0 && (
+              <Text className="text-[13px] text-[#666]">{post.commentCount}</Text>
+            )}
+          </View>
+          <Share2 size={22} color="#666" />
         </View>
-        <Share2 size={22} color="#666" />
-      </View>
+      </Card>
     </Pressable>
   );
 }

@@ -20,6 +20,7 @@ import {
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
+import { TableSkeleton } from '../components/ui/page-skeleton'
 import { useReviewActions, useReviewQueue } from '../hooks/useReviewQueue'
 import type { ReviewQueueItem, ReviewReasonCode } from '../types'
 import { reviewsAdminApi, type CommunityReview } from '../api/reviews'
@@ -359,7 +360,7 @@ function CommunityReviewsTab() {
       {/* Table */}
       <Card className="table-card">
         {loading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Đang tải...</div>
+          <TableSkeleton rows={6} cols={5} />
         ) : reviews.length === 0 ? (
           <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
             <MessageCircle size={36} style={{ opacity: 0.2, marginBottom: 10 }} />
@@ -524,7 +525,7 @@ export default function ReviewPage() {
         <>
           {isLoading && (
             <Card>
-              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Đang tải...</div>
+              <TableSkeleton rows={4} cols={4} />
             </Card>
           )}
 

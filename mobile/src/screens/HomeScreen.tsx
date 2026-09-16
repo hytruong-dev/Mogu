@@ -1,4 +1,5 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Image,
   Pressable,
@@ -14,24 +15,25 @@ import * as Location from 'expo-location';
 import {
   Bell,
   ChevronRight,
-  Clock3,
   Cloud,
   CloudFog,
   CloudLightning,
   CloudRain,
   Edit3,
   Flame,
-  Heart,
   Sparkles,
   Sun,
-  UtensilsCrossed,
 } from 'lucide-react-native';
 import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomNav';
+import { AvatarImage } from '../components/organisms/AvatarImage';
+import { Progress } from '../components/ui/progress';
 import { getTodayISO, getDeviceTimeZone } from '../lib/dates';
 import { computeWeeklyForecast } from '../lib/weekly-forecast';
-import { dishesApi } from '../services/api/dishes';
+import { formatWeeklyPlanGenerationError } from '../lib/api-error';
 import { homeApi } from '../services/api/home';
-import type { HomeDashboard, RecommendationItem, WeatherData } from '../services/api/types';
+import { profileApi } from '../services/api/profile';
+import { useProfileDashboard } from '../hooks/useProfileDashboard';
+import type { HomeDashboard, WeatherData } from '../services/api/types';
 import { getCurrentWeeklyPlan } from '../services/api/weekly-plan';
 import type { WeeklyPlan } from '../services/api/types';
 
@@ -54,9 +56,24 @@ type Props = {
 };
 
 export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotification, onWeeklyPlan, onEditPlan }: Props) {
-  const [dashboard, setDashboard] = useState<HomeDashboard | null>(null);
+  const { dash } = useProfileDashboard();
+  const avatarUri = dash?.profile.avatar.url;
+
+  const timezone = getDeviceTimeZone();
+  const today = getTodayISO(timezone);
+
+  const {
+    data: dashboard = null,
+    isLoading,
+    refetch: refetchDashboard,
+  } = useQuery({
+    queryKey: ['home', 'dashboard', today, timezone],
+    queryFn: () => homeApi.getDashboard({ localDate: today, timezone }),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const loading = isLoading && !dashboard;
   const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [weather, setWeather] = useState<WeatherData | null>(null);
 
   useEffect(() => {
@@ -74,53 +91,11 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
     return () => { cancelled = true; };
   }, []);
 
-  const fetchDashboard = useCallback(async () => {
-    try {
-      const timezone = getDeviceTimeZone();
-      const result = await homeApi.getDashboard({
-        localDate: getTodayISO(timezone),
-        timezone,
-      });
-      setDashboard(result);
-    } catch { /* ignore */ } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
-
-  useEffect(() => { fetchDashboard(); }, [fetchDashboard]);
-
-  const onRefresh = useCallback(() => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    fetchDashboard();
-  }, [fetchDashboard]);
-
-  const handleToggleSave = useCallback(async (dish: RecommendationItem) => {
-    if (!dashboard) return;
-    setDashboard(prev => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        recommendations: prev.recommendations.map(d =>
-          d.dishId === dish.dishId ? { ...d, isSaved: !d.isSaved } : d,
-        ),
-      };
-    });
-    try {
-      if (dish.isSaved) await dishesApi.unsave(dish.dishId);
-      else await dishesApi.save(dish.dishId);
-    } catch {
-      setDashboard(prev => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          recommendations: prev.recommendations.map(d =>
-            d.dishId === dish.dishId ? { ...d, isSaved: dish.isSaved } : d,
-          ),
-        };
-      });
-    }
-  }, [dashboard]);
+    await refetchDashboard();
+    setRefreshing(false);
+  }, [refetchDashboard]);
 
   const unreadCount = dashboard?.unreadCount ?? 0;
   const greeting = dashboard?.greeting?.full ?? null;
@@ -135,18 +110,11 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFC51A" colors={['#FFC51A']} />
         }
       >
-        <HomeHeader unreadCount={unreadCount} onNotification={onNotification} />
+        <HomeHeader unreadCount={unreadCount} onNotification={onNotification}
+          onProfile={onProfile} avatarUri={avatarUri ?? null} />
         <GreetingRow greeting={greeting} loading={loading} weather={weather} />
         <RandomHero onPress={onRandom} />
         <WeeklyPlanCard onEdit={onEditPlan ?? (() => {})} onOpenPlan={onWeeklyPlan ?? (() => {})} />
-        <View style={{ paddingHorizontal: 20, marginTop: 22 }}>
-          <SectionHeader title="Gợi ý dành cho bạn" />
-          <FoodSuggestionList
-            items={dashboard?.recommendations ?? []}
-            loading={loading}
-            onToggleSave={handleToggleSave}
-          />
-        </View>
       </ScrollView>
       <LiquidGlassBottomNav
         active="home"
@@ -160,7 +128,12 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
 }
 
 // HomeHeader
-function HomeHeader({ unreadCount, onNotification }: { unreadCount: number; onNotification: () => void }) {
+function HomeHeader({ unreadCount, onNotification, onProfile, avatarUri }: {
+  unreadCount: number;
+  onNotification: () => void;
+  onProfile: () => void;
+  avatarUri: string | null;
+}) {
   const badgeText = unreadCount > 99 ? '99+' : String(unreadCount);
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, height: 64 }}>
@@ -174,11 +147,10 @@ function HomeHeader({ unreadCount, onNotification }: { unreadCount: number; onNo
             </View>
           )}
         </Pressable>
-        <Image
-          source={require('../assets/images/home/avatar.jpg')}
-          resizeMode="cover"
-          style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 2, borderColor: '#fff' }}
-        />
+        <Pressable accessibilityRole="button" accessibilityLabel="Mở hồ sơ cá nhân"
+          onPress={onProfile} style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>
+          <AvatarImage uri={avatarUri} size={42} style={{ borderWidth: 2, borderColor: '#fff' }} />
+        </Pressable>
       </View>
     </View>
   );
@@ -293,14 +265,14 @@ function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan
         </View>
         <View style={{ borderRadius: 18, backgroundColor: '#fff', overflow: 'hidden', ...cardShadow, padding: 16, alignItems: 'center', gap: 10 }}>
           <Text style={{ fontSize: 14, fontWeight: '600', color: '#B91C1C' }}>Tạo kế hoạch thất bại</Text>
-          <Text style={{ fontSize: 13, color: '#888', textAlign: 'center' }}>
-            {plan.generationErrorCode ?? 'Không thể tạo kế hoạch. Vui lòng thử lại.'}
+          <Text style={{ fontSize: 13, color: '#555', textAlign: 'center', lineHeight: 20 }}>
+            {formatWeeklyPlanGenerationError(plan.generationErrorCode)}
           </Text>
           <TouchableOpacity
             onPress={onOpenPlan}
             style={{ height: 44, borderRadius: 12, borderWidth: 1.5, borderColor: '#F0C040', paddingHorizontal: 24, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#C08000' }}>Thử lại</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#C08000' }}>Chỉnh & tạo lại</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -366,8 +338,8 @@ function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan
                 </View>
               </View>
             </View>
-            <View style={{ height: 7, borderRadius: 4, backgroundColor: '#F0E9D0', overflow: 'hidden' }}>
-              <View style={{ height: '100%', borderRadius: 4, backgroundColor: '#FFC01A', width: budgetPercent + '%' as any }} />
+            <View style={{ height: 7, borderRadius: 4, overflow: 'hidden' }}>
+              <Progress value={budgetPercent} className="h-[7px] bg-[#F0E9D0]" indicatorClassName="bg-[#FFC01A]" />
             </View>
           </View>
           <View>
@@ -385,8 +357,8 @@ function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan
                 </View>
               </View>
             </View>
-            <View style={{ height: 7, borderRadius: 4, backgroundColor: '#F0E9D0', overflow: 'hidden' }}>
-              <View style={{ height: '100%', borderRadius: 4, backgroundColor: '#FF6030', width: calPercent + '%' as any }} />
+            <View style={{ height: 7, borderRadius: 4, overflow: 'hidden' }}>
+              <Progress value={calPercent} className="h-[7px] bg-[#F0E9D0]" indicatorClassName="bg-[#FF6030]" />
             </View>
           </View>
           <Text style={{ fontSize: 12, color: '#BBB', marginBottom: 4 }}>
@@ -401,86 +373,6 @@ function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan
           <Text style={{ fontSize: 15, fontWeight: '700', color: '#C08000' }}>Mở thực đơn</Text>
           <ChevronRight size={17} color="#C08000" />
         </TouchableOpacity>
-      </View>
-    </View>
-  );
-}
-
-// SectionHeader
-function SectionHeader({ title, onViewAll }: { title: string; onViewAll?: () => void }) {
-  return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-      <Text style={{ fontSize: 18, fontWeight: '800', color: '#111', letterSpacing: -0.4 }}>{title}</Text>
-      <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }} onPress={onViewAll} hitSlop={8}>
-        <Text style={{ fontSize: 14, fontWeight: '600', color: '#D99E00' }}>Xem tất cả</Text>
-        <ChevronRight size={16} color="#D99E00" />
-      </TouchableOpacity>
-    </View>
-  );
-}
-
-// FoodSuggestionList
-function FoodSuggestionList({ items, loading, onToggleSave }: {
-  items: RecommendationItem[]; loading: boolean; onToggleSave: (d: RecommendationItem) => void;
-}) {
-  if (loading) {
-    return (
-      <View style={{ gap: 12 }}>
-        {[0, 1].map(i => (
-          <View key={i} style={{ height: 110, borderRadius: 18, backgroundColor: '#fff', ...cardShadow }} />
-        ))}
-      </View>
-    );
-  }
-  if (items.length === 0) {
-    return (
-      <View style={{ height: 110, borderRadius: 18, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', ...cardShadow }}>
-        <Text style={{ color: '#999', fontSize: 14 }}>Chưa có gợi ý phù hợp</Text>
-      </View>
-    );
-  }
-  return (
-    <View style={{ gap: 12 }}>
-      {items.slice(0, 3).map(dish => (
-        <FoodCard key={dish.dishId} dish={dish} onToggleSave={onToggleSave} />
-      ))}
-    </View>
-  );
-}
-
-function FoodCard({ dish, onToggleSave }: { dish: RecommendationItem; onToggleSave: (d: RecommendationItem) => void }) {
-  return (
-    <View style={{ height: 110, borderRadius: 18, backgroundColor: '#fff', flexDirection: 'row', overflow: 'hidden', ...cardShadow }}>
-      {dish.imageUrl ? (
-        <Image source={{ uri: dish.imageUrl }} resizeMode="cover" style={{ width: 110, height: '100%' }} />
-      ) : (
-        <View style={{ width: 110, height: '100%', backgroundColor: '#FFF2C9', alignItems: 'center', justifyContent: 'center' }}>
-          <UtensilsCrossed size={32} color="#D99E00" strokeWidth={1.5} />
-        </View>
-      )}
-      <View style={{ flex: 1, paddingHorizontal: 14, paddingVertical: 13 }}>
-        <Text style={{ fontSize: 15, fontWeight: '700', color: '#111', letterSpacing: -0.2 }} numberOfLines={1}>
-          {dish.name}
-        </Text>
-        <View style={{ flexDirection: 'row', gap: 6, marginTop: 7 }}>
-          {dish.calories > 0 && (
-            <View style={{ paddingHorizontal: 9, paddingVertical: 4, borderRadius: 8, backgroundColor: '#FFF2C9' }}>
-              <Text style={{ fontSize: 12, fontWeight: '600', color: '#896400' }}>{dish.calories} kcal</Text>
-            </View>
-          )}
-          {dish.prepMinutes > 0 && (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8, backgroundColor: '#F4F4F4' }}>
-              <Clock3 size={13} color="#767676" />
-              <Text style={{ fontSize: 12, fontWeight: '500', color: '#737373' }}>{dish.prepMinutes} phút</Text>
-            </View>
-          )}
-        </View>
-        <Text style={{ marginTop: 5, fontSize: 12, color: '#555', lineHeight: 16, paddingRight: 30 }} numberOfLines={2}>
-          {dish.reasonShort}
-        </Text>
-        <Pressable style={{ position: 'absolute', right: 12, bottom: 12 }} onPress={() => onToggleSave(dish)} hitSlop={8}>
-          <Heart size={24} color={dish.isSaved ? '#FF5A42' : '#CACACA'} fill={dish.isSaved ? '#FF5A42' : 'transparent'} strokeWidth={1.8} />
-        </Pressable>
       </View>
     </View>
   );

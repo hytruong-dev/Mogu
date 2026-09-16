@@ -13,60 +13,51 @@ function getVNLocalDate(): string {
 export class NutritionService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** GET /nutrition/today */
+  /** GET /nutrition/today — nguồn sự thật: DiaryMealLog */
   async getTodaySummary(
     userId: string,
     query: NutritionTodayQueryDto,
   ): Promise<NutritionTodayResponseDto> {
-    // HOME-BR-011: localDate tính theo múi giờ user (VN mặc định)
     const localDate = query.localDate ?? getVNLocalDate();
+    const localDateValue = new Date(`${localDate}T00:00:00.000Z`);
 
-    // Tìm tất cả meals trong ngày local (theo VN timezone +07:00)
-    const dayStart = new Date(`${localDate}T00:00:00+07:00`);
-    const dayEnd = new Date(`${localDate}T23:59:59+07:00`);
-
-    // Query meal logs trong ngày
-    const mealLogs = await this.prisma.db.mealLog.findMany({
+    const mealLogs = await this.prisma.db.diaryMealLog.findMany({
       where: {
         userId,
-        loggedAt: { gte: dayStart, lte: dayEnd },
+        localDate: localDateValue,
+        deletedAt: null,
       },
-      select: { totalKcal: true, mealId: true },
+      select: {
+        totalKcal: true,
+        totalProteinG: true,
+      },
     });
 
-    // HOME-BR-012: không có dữ liệu → trả no_data, không hiển thị 0
     if (mealLogs.length === 0) {
       return { date: localDate, dataStatus: 'no_data' };
     }
 
     const caloriesConsumed = mealLogs.reduce((sum, l) => sum + l.totalKcal, 0);
-    const mealIds = mealLogs.map((l) => l.mealId);
+    const proteinG = mealLogs.reduce(
+      (sum, l) => sum + (l.totalProteinG != null ? Number(l.totalProteinG) : 0),
+      0,
+    );
 
-    // Query protein từ meal items + foods
-    const mealItems = await this.prisma.db.mealItem.findMany({
-      where: { mealId: { in: mealIds } },
-      select: {
-        quantity: true,
-        grams: true,
-        food: { select: { protein: true } },
-      },
-    });
-
-    const proteinG = mealItems.reduce((sum, item) => {
-      const factor = item.grams ? item.grams / 100 : item.quantity;
-      return sum + item.food.protein * factor;
-    }, 0);
-
-    // Lấy goal kcal từ profile
     const profile = await this.prisma.db.profile.findUnique({
       where: { userId },
       select: { goalKcal: true },
     });
-    const calorieTarget = profile?.goalKcal ?? undefined;
+    const healthTarget = await (this.prisma.db as any).healthTarget
+      .findFirst({ where: { userId }, orderBy: { updatedAt: 'desc' } })
+      .catch(() => null);
 
-    // Xác định dataStatus
+    const calorieTarget =
+      healthTarget?.energyKcal ?? profile?.goalKcal ?? undefined;
+
     const dataStatus: 'partial' | 'complete' =
-      calorieTarget && caloriesConsumed >= calorieTarget * 0.8 ? 'complete' : 'partial';
+      calorieTarget && caloriesConsumed >= calorieTarget * 0.8
+        ? 'complete'
+        : 'partial';
 
     return {
       date: localDate,
@@ -78,4 +69,3 @@ export class NutritionService {
     };
   }
 }
-

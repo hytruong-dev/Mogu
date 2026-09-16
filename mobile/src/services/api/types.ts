@@ -337,8 +337,21 @@ export type RandomDishResponse = {
   scoreBreakdown?: Record<string, number>;
 };
 
+export type SavedDishItem = {
+  id: string;
+  dishId: string;
+  savedAt: string;
+  dish: Dish & {
+    kcal?: number | null;
+    cookTimeMinutes?: number | null;
+    isAvailable?: boolean;
+    nutrition?: { calories?: number | null } | null;
+  };
+};
+
 export type SavedDishesResponse = {
-  data: Dish[];
+  data: SavedDishItem[];
+  items?: SavedDishItem[];
   pageInfo: {
     nextCursor: string | null;
     hasNextPage: boolean;
@@ -465,6 +478,24 @@ export type WeeklyPlanGenerateResponse = {
 export type WeeklyPlanListResponse = {
   items: WeeklyPlanSummary[];
   nextCursor: string | null;
+};
+
+export type DayIngredientItem = {
+  ingredientId: string | null;
+  name: string;
+  imageUrl: string | null;
+  quantity: number | null;
+  unit: string | null;
+  isOptional: boolean;
+  usedInDishes: string[];
+};
+
+export type DayIngredientsResponse = {
+  date: string;
+  planId: string;
+  totalCount: number;
+  dishes: Array<{ dishId: string; mealSlot: string; name: string }>;
+  items: DayIngredientItem[];
 };
 
 export type WeeklyPlanSlotSwapDto = {

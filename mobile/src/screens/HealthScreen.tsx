@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   RefreshControl,
@@ -18,11 +19,14 @@ import {
   Utensils,
 } from 'lucide-react-native';
 import { cn } from '../lib/utils';
+import { Progress } from '../components/ui/progress';
 import { ExploreDetailScreen } from './ExploreDetailScreen';
 import { HealthOverviewScreen, LogMealScreen, MealsScreen } from './HealthDetailScreens';
 import { DateNavigator } from '../components/molecules/DateNavigator';
 import { HealthDatePickerSheet } from '../components/organisms/HealthDatePickerSheet';
 import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomNav';
+import { HealthSkeleton } from '../components/skeletons/ScreenSkeletons';
+import { ScreenSlideTransition } from '../components/ui/screen-transition';
 import { healthApi, type HealthDayResponse } from '../services/api/health';
 import { getDeviceTimeZone } from '../lib/dates';
 import { dishesApi } from '../services/api/dishes';
@@ -63,32 +67,28 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
   const [foodDishId, setFoodDishId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [datePickerVisible, setDatePickerVisible] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [day, setDay] = useState<HealthDayResponse | null>(null);
   const [addingWater, setAddingWater] = useState(false);
 
   const localDate = toLocalDateISO(selectedDate, timezone);
 
-  const loadDay = useCallback(async () => {
-    setError(null);
-    try {
-      const data = await healthApi.getDay(localDate, timezone);
-      setDay(data);
-    } catch (e: any) {
-      setError(e?.message || 'Không tải được dữ liệu sức khỏe');
-      setDay(null);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [localDate, timezone]);
+  const {
+    data: day,
+    isLoading,
+    error: queryError,
+    refetch: loadDay,
+  } = useQuery({
+    queryKey: ['health', 'day', localDate, timezone],
+    queryFn: () => healthApi.getDay(localDate, timezone),
+    staleTime: 1000 * 60 * 5,
+  });
 
-  useEffect(() => {
-    setLoading(true);
-    loadDay();
-  }, [loadDay]);
+  const loading = isLoading && !day;
+  const error = queryError
+    ? queryError instanceof Error
+      ? queryError.message
+      : 'Không tải được dữ liệu sức khỏe'
+    : null;
 
   const addWater = async () => {
     if (addingWater) return;
@@ -101,8 +101,8 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
         `water-250-${localDate}-${Date.now()}`,
       );
       await loadDay();
-    } catch (e: any) {
-      setError(e?.message || 'Không ghi được nước');
+    } catch {
+      // Non-fatal
     } finally {
       setAddingWater(false);
     }
@@ -113,73 +113,6 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
   const remaining = day?.energy.remainingKcal;
   const waterMl = day?.water.consumedMl;
   const noData = !day || day.dataStatus === 'no_data';
-
-  if (page === 'overview') {
-    return (
-      <HealthOverviewScreen
-        total={consumed ?? 0}
-        onBack={() => setPage('main')}
-      />
-    );
-  }
-  if (page === 'meals') {
-    return (
-      <MealsScreen
-        total={consumed ?? 0}
-        onBack={() => setPage('main')}
-        onLog={() => setPage('log')}
-        onFood={(dishId?: string) => {
-          setFoodDishId(dishId ?? null);
-          setPage('food');
-        }}
-        mealGroups={day?.mealGroups}
-      />
-    );
-  }
-  if (page === 'log') {
-    return (
-      <LogMealScreen
-        onClose={() => setPage('main')}
-        onSave={async (payload) => {
-          if (!payload?.dishId) {
-            setPage('main');
-            return;
-          }
-          try {
-            await healthApi.createMealLog({
-              mealSlot: payload.mealSlot || 'LUNCH',
-              timezone,
-              items: [
-                {
-                  referenceType: 'DISH',
-                  referenceId: payload.dishId,
-                  quantity: 1,
-                  unitCode: 'SERVING',
-                },
-              ],
-            });
-            await loadDay();
-          } catch (e: any) {
-            setError(e?.message || 'Không lưu được bữa');
-          }
-          setPage('main');
-        }}
-        searchDishes={async (q: string) => {
-          const res = await dishesApi.search({ q, limit: 20 });
-          return res.data ?? [];
-        }}
-      />
-    );
-  }
-  if (page === 'food') {
-    return (
-      <ExploreDetailScreen
-        type="food"
-        resourceId={foodDishId}
-        onBack={() => setPage('meals')}
-      />
-    );
-  }
 
   return (
     <SafeAreaView className="flex-1 bg-mogu-cream" edges={['top', 'left', 'right']}>
@@ -219,13 +152,11 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
         />
 
         {loading ? (
-          <View className="py-16 items-center">
-            <ActivityIndicator color="#F5B900" />
-          </View>
+          <HealthSkeleton />
         ) : error ? (
           <View className="py-10 items-center px-4">
             <Text className="text-[#161616] font-semibold text-center">{error}</Text>
-            <Pressable onPress={loadDay} className="mt-4 bg-mogu-yellow px-5 py-3 rounded-full">
+            <Pressable onPress={() => void loadDay()} className="mt-4 bg-mogu-yellow px-5 py-3 rounded-full">
               <Text className="font-bold">Thử lại</Text>
             </Pressable>
           </View>
@@ -250,6 +181,13 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
                   {remaining != null && target != null ? (
                     <Text className="text-[#4F4F4F] mt-1">Còn lại {remaining} kcal</Text>
                   ) : null}
+                  <View className="mt-3">
+                    <Progress
+                      value={target ? Math.min(100, Math.round((consumed / target) * 100)) : 0}
+                      className="h-2 bg-[#F5EEDC]"
+                      indicatorClassName="bg-[#FFC51A]"
+                    />
+                  </View>
                 </>
               )}
             </Pressable>
@@ -263,6 +201,13 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
                 <Text className="text-[22px] font-bold mt-2 text-[#161616]">
                   {waterMl == null ? '—' : `${waterMl} ml`}
                 </Text>
+                <View className="mt-2">
+                  <Progress
+                    value={Math.min(100, Math.round(((waterMl ?? 0) / 2000) * 100))}
+                    className="h-1.5 bg-[#EBF3FF]"
+                    indicatorClassName="bg-[#4F8CFF]"
+                  />
+                </View>
                 <Pressable
                   onPress={addWater}
                   disabled={addingWater}
@@ -336,6 +281,89 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
         onRandom={onRandom}
         onProfile={onProfile}
       />
+
+      {/* ── Sub-Screens with animated transitions ── */}
+      <ScreenSlideTransition visible={page === 'overview'} direction="right" onBack={() => setPage('main')}>
+        {page === 'overview' ? (
+          <HealthOverviewScreen total={consumed ?? 0} onBack={() => setPage('main')} />
+        ) : null}
+      </ScreenSlideTransition>
+
+      <ScreenSlideTransition visible={page === 'meals'} direction="right" onBack={() => setPage('main')}>
+        {page === 'meals' ? (
+          <MealsScreen
+            total={consumed ?? 0}
+            onBack={() => setPage('main')}
+            onLog={() => setPage('log')}
+            onFood={(dishId?: string) => {
+              setFoodDishId(dishId ?? null);
+              setPage('food');
+            }}
+            mealGroups={day?.mealGroups}
+          />
+        ) : null}
+      </ScreenSlideTransition>
+
+      <ScreenSlideTransition visible={page === 'log'} direction="bottom" onBack={() => setPage('main')}>
+        {page === 'log' ? (
+          <LogMealScreen
+            onClose={() => setPage('main')}
+            onSave={async (payload) => {
+              if (!payload?.dishId) {
+                setPage('main');
+                return;
+              }
+              try {
+                await healthApi.createMealLog({
+                  mealSlot: payload.mealSlot || 'LUNCH',
+                  timezone,
+                  items: [
+                    {
+                      referenceType: 'DISH',
+                      referenceId: payload.dishId,
+                      quantity: 1,
+                      unitCode: 'SERVING',
+                    },
+                  ],
+                });
+                await loadDay();
+              } catch (e: any) {
+                Alert.alert('Lỗi', e?.message || 'Không lưu được bữa');
+              }
+              setPage('main');
+            }}
+            searchDishes={async (q: string) => {
+              const res = await dishesApi.search({ q, limit: 20 });
+              const rows = Array.isArray(res?.data)
+                ? res.data
+                : Array.isArray((res as any)?.items)
+                  ? (res as any).items
+                  : Array.isArray(res)
+                    ? (res as any)
+                    : [];
+              return rows.map((d: any) => ({
+                id: d.id,
+                name: d.name ?? d.title ?? 'Món ăn',
+                nutritionProfiles: Array.isArray(d.nutritionProfiles)
+                  ? d.nutritionProfiles
+                  : d.nutrition
+                    ? [d.nutrition]
+                    : [],
+              }));
+            }}
+          />
+        ) : null}
+      </ScreenSlideTransition>
+
+      <ScreenSlideTransition visible={page === 'food'} direction="right" onBack={() => setPage('meals')}>
+        {page === 'food' ? (
+          <ExploreDetailScreen
+            type="food"
+            resourceId={foodDishId}
+            onBack={() => setPage('meals')}
+          />
+        ) : null}
+      </ScreenSlideTransition>
     </SafeAreaView>
   );
 }
