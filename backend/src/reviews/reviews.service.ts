@@ -149,8 +149,8 @@ export class ReviewsService {
     };
   }
 
-  /** Admin: ẩn review */
-  async hideReview(reviewId: string) {
+  /** Admin: ẩn hoặc hiện lại review */
+  async hideReview(reviewId: string, isVisible = false) {
     const review = await this.prisma.db.review.findUnique({ where: { id: reviewId } });
     if (!review) {
       throw new NotFoundException({ error: { code: 'REVIEW_NOT_FOUND', message: 'Không tìm thấy review.' } });
@@ -158,7 +158,7 @@ export class ReviewsService {
 
     const updated = await this.prisma.db.review.update({
       where: { id: reviewId },
-      data: { isVisible: false },
+      data: { isVisible },
     });
 
     // Cập nhật rating_avg + rating_count khi ẩn review

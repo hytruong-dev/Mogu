@@ -1,5 +1,7 @@
-﻿import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+﻿import { ForbiddenException, Injectable, Logger, NotFoundException, Optional } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsGateway } from './notifications.gateway';
+import { ExpoPushService } from './expo-push.service';
 import {
   NotificationDto,
   NotificationListResponseDto,
@@ -11,21 +13,32 @@ import {
 const DEEP_LINK_ALLOWLIST = [
   /^mogu:\/\/home$/,
   /^mogu:\/\/dishes\/[0-9a-f-]+$/i,
-  /^mogu:\/\/weekly-plans\/[0-9a-f-]+$/i,
+  /^mogu:\/\/weekly-plans?(\/[0-9a-f-]+)?$/i,
   /^mogu:\/\/health$/,
   /^mogu:\/\/notifications$/,
   /^mogu:\/\/community\/posts\/[0-9a-f-]+$/i,
+  /^mogu:\/\/explore\/articles\/[0-9a-f-]+$/i,
+  /^mogu:\/\/users\/[0-9a-f-]+$/i,
+  /^mogu:\/\/profile(\/[a-z0-9_-]+)*$/i,
   /^\/dishes\/[0-9a-f-]+$/i,
-  /^\/weekly-plans\/[0-9a-f-]+$/i,
+  /^\/weekly-plans?(\/[0-9a-f-]+)?$/i,
   /^\/health/,
   /^\/notifications$/,
+  /^\/community\/posts\/[0-9a-f-]+$/i,
+  /^\/explore\/articles\/[0-9a-f-]+$/i,
+  /^\/users\/[0-9a-f-]+$/i,
+  /^\/profile(\/[a-z0-9_-]+)*$/i,
 ];
 
 @Injectable()
 export class NotificationsService {
   private readonly logger = new Logger(NotificationsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly expoPushService: ExpoPushService,
+    @Optional() private readonly notificationsGateway?: NotificationsGateway,
+  ) {}
 
   isAllowedDeepLink(deepLink?: string | null): boolean {
     if (!deepLink) return true;
@@ -90,7 +103,11 @@ export class NotificationsService {
       where: { id: notificationId },
       data: { status: 'READ', readAt: new Date() },
     });
-    return this.mapToDto(updated);
+    const dto = this.mapToDto(updated);
+    this.prisma.db.notification.count({ where: { userId, status: 'UNREAD' } })
+      .then((c) => this.notificationsGateway?.emitUnreadCount(userId, c))
+      .catch(() => null);
+    return dto;
   }
 
   async markAllRead(userId: string) {
@@ -98,6 +115,7 @@ export class NotificationsService {
       where: { userId, status: 'UNREAD' },
       data: { status: 'READ', readAt: new Date() },
     });
+    this.notificationsGateway?.emitUnreadCount(userId, 0);
     return { updated: result.count };
   }
 
@@ -155,30 +173,62 @@ export class NotificationsService {
       },
     });
 
-    await (this.prisma.db as any).outboxEvent
-      .create({
-        data: {
-          userId: params.userId,
-          eventType: 'PUSH_NOTIFICATION',
-          aggregateId: notif.id,
-          payload: {
-            notificationId: notif.id,
-            title: params.title,
-            body: params.body,
-            deepLink: params.deepLink ?? null,
-          },
-          status: 'PROCESSED',
-          processedAt: new Date(),
-          lastError: 'Push provider not configured — in-app only',
-        },
-      })
-      .catch(() => null);
+    const dto = this.mapToDto(notif);
 
-    this.logger.log(
-      `[PushAdapter] no-op delivery for user=${params.userId} notif=${notif.id}`,
-    );
+    // Emit realtime WebSocket notification event
+    try {
+      this.notificationsGateway?.emitToUsers([params.userId], dto);
+      this.prisma.db.notification
+        .count({ where: { userId: params.userId, status: 'UNREAD' } })
+        .then((c) => this.notificationsGateway?.emitUnreadCount(params.userId, c))
+        .catch(() => null);
+    } catch {
+      // Non-fatal
+    }
 
-    return this.mapToDto(notif);
+    // Send real push notification if user notification settings permit
+    try {
+      const userSetting = await this.prisma.db.userSetting.findUnique({
+        where: { userId: params.userId },
+      });
+
+      const isPushEnabled = userSetting ? userSetting.pushEnabled : true;
+      if (isPushEnabled) {
+        let canSendPush = true;
+        const type = params.type;
+
+        if (type.startsWith('SOCIAL_')) {
+          canSendPush = userSetting ? userSetting.communityNotif : true;
+        } else if (type === 'PROMO') {
+          canSendPush = userSetting ? userSetting.marketingNotif : false;
+        } else if (type === 'REMINDER') {
+          canSendPush = userSetting ? userSetting.weeklyPlanNotif : true;
+        }
+
+        if (canSendPush) {
+          void this.expoPushService
+            .sendToUsers([params.userId], {
+              title: params.title,
+              body: params.body,
+              sound: 'default',
+              data: {
+                notificationId: notif.id,
+                deepLink: params.deepLink ?? null,
+                type: params.type,
+              },
+            })
+            .catch((err) => {
+              this.logger.warn(
+                `Failed to send push notification for user=${params.userId}: ${err.message}`,
+              );
+            });
+        }
+      }
+    } catch (pushErr: any) {
+      this.logger.warn(`Error checking settings or sending push: ${pushErr.message}`);
+    }
+
+    return dto;
   }
 
   private mapToDto(n: {

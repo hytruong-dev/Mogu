@@ -501,30 +501,51 @@ Xóa comment.
 
 | Frontend | Phần | Đã tích hợp | Chưa tích hợp |
 |---|---|---|---|
-| **Mobile** | Tab "Dành cho bạn" | ✅ Feed đầy đủ | — |
-| **Mobile** | Tab "Món ăn" | ✅ Search dishes | — |
-| **Mobile** | Tab "Bài viết" | ✅ List + search | ❌ Chi tiết bài, ❌ Bookmark API |
-| **Mobile** | Tab "Cộng đồng" | ✅ Feed + like | ❌ Tạo bài, ❌ Comments |
-| **Admin** | Topics | ✅ Full CRUD | — |
-| **Admin** | Articles | ✅ Full CRUD + publish | — |
-| **Admin** | Community | ❌ Chưa có trang | ❌ Moderation posts |
+| **Mobile** | Feed Dành cho bạn / Following | ✅ Session cursor, ranking v1, impression events | — |
+| **Mobile** | Search hợp nhất | ✅ dish/article/post/user | — |
+| **Mobile** | Topic feed / Đã lưu / Profile công khai | ✅ | — |
+| **Mobile** | Create/Edit post + comments | ✅ | Mention autocomplete |
+| **Admin** | Topics / Articles | ✅ + Markdown preview | Schedule UI |
+| **Admin** | Community moderation | ✅ Reports queue + posts | — |
+| **Admin** | Analytics Explore | ✅ `/admin/explore/analytics` | Export PDF |
+
+---
+
+## 9. API bổ sung (2026-09 roadmap)
+
+| Method | Path | Mô tả |
+|---|---|---|
+| GET | `/explore/feed?feedSessionId&cursor` | Feed ổn định + ranking |
+| POST | `/explore/events` | Batch IMPRESSION/OPEN_DETAIL/DWELL |
+| GET | `/explore/search?q&type` | Search hợp nhất |
+| GET | `/topics/:slug/feed` | Feed theo chủ đề |
+| GET | `/me/saved-articles` | Bài viết đã lưu |
+| GET | `/community/users/:userId` | Profile công khai |
+| GET | `/community/users/:userId/posts` | Post của user |
+| GET | `/community/hashtags/trending` | Hashtag thịnh hành |
+| GET | `/admin/moderation/reports` | Queue báo cáo |
+| PATCH | `/admin/moderation/reports/:id` | Xử lý báo cáo |
+| GET | `/admin/community/posts` | Quản lý post |
+| GET | `/admin/explore/analytics` | Analytics |
+| DELETE | `/articles/:id/comments/:commentId` | Xóa comment bài viết |
+
+Notification types mới: `SOCIAL_LIKE`, `SOCIAL_COMMENT`, `SOCIAL_FOLLOW`, `SOCIAL_REPLY`.
 
 ---
 
 ## Ghi chú phát triển
 
-### Các tính năng còn thiếu (TODO)
+### Backlog còn lại (nhẹ)
 
-1. **Mobile — Tạo bài cộng đồng**: Nút "+ Đăng" đã có trong UI nhưng chưa gọi `POST /community/posts`
-2. **Mobile — Comments**: Hiện chỉ hiển thị `commentCount`, chưa mở giao diện xem/thêm comment
-3. **Mobile — Bookmark bài viết**: Hiện lưu local state, cần API lưu bookmark phía server
-4. **Mobile — Chi tiết bài viết**: `GET /articles/:id` đã có nhưng `ExploreDetailScreen` chưa gọi
-5. **Admin — Quản lý Community**: Cần trang quản lý bài đăng để moderator có thể ẩn/xóa vi phạm
+1. Mention `@user` autocomplete + notify
+2. Video autoplay-muted trong feed (upload MIME đã hỗ trợ)
+3. Admin lên lịch `publishAt` / feed pin ratio UI
+4. Universal Links native (shareUrl article đã absolute)
 
 ### Phân quyền
 
-| Role | Topics | Articles | Community |
+| Role | Topics | Articles | Community / Moderation |
 |---|---|---|---|
-| `USER` | Read only | Read + tạo bài của mình | CRUD bài/comment của mình |
-| `CONTENT_ADMIN` | CRUD | CRUD tất cả + publish | — |
-| `SUPER_ADMIN` | CRUD + delete | CRUD + delete | — |
+| `USER` | Read | Read + engage | CRUD bài/comment của mình |
+| `CONTENT_ADMIN` | CRUD | CRUD + publish | Queue báo cáo + ẩn/xóa post |
+| `SUPER_ADMIN` | CRUD + delete | CRUD + delete | Full + analytics |

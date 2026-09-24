@@ -1,17 +1,25 @@
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as TabsPrimitive from '@rn-primitives/tabs';
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 
 function Tabs({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Root>) {
-  return <TabsPrimitive.Root className={cn('flex flex-col gap-2', className)} {...props} />;
+  return (
+    <TabsPrimitive.Root
+      className={cn('flex flex-col gap-2', className)}
+      style={StyleSheet.flatten(style)}
+      {...props}
+    />
+  );
 }
 
 function TabsList({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.List>) {
   return (
@@ -21,6 +29,7 @@ function TabsList({
         Platform.select({ web: 'inline-flex w-fit', native: 'mr-auto' }),
         className
       )}
+      style={StyleSheet.flatten(style)}
       {...props}
     />
   );
@@ -28,6 +37,7 @@ function TabsList({
 
 function TabsTrigger({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Trigger>) {
   const { value } = TabsPrimitive.useRootContext();
@@ -47,6 +57,7 @@ function TabsTrigger({
           props.value === value && 'bg-background dark:border-foreground/10 dark:bg-input/30',
           className
         )}
+        style={StyleSheet.flatten(style)}
         {...props}
       />
     </TextClassContext.Provider>
@@ -55,11 +66,13 @@ function TabsTrigger({
 
 function TabsContent({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.Content>) {
   return (
     <TabsPrimitive.Content
       className={cn(Platform.select({ web: 'flex-1 outline-none' }), className)}
+      style={StyleSheet.flatten(style)}
       {...props}
     />
   );

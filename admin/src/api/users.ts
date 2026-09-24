@@ -57,7 +57,13 @@ export type AdminUserDetail = {
     randomRunCount: number
     publishedPostCount: number
   }
-  activeRestriction: unknown | null
+  activeRestriction: {
+    id?: string
+    type?: string
+    reasonCode?: string
+    startsAt?: string
+    endsAt?: string | null
+  } | null
   availableActions: string[]
 }
 
@@ -111,6 +117,9 @@ export const usersApi = {
 
   auditEvents: (userId: string, params?: { cursor?: string; limit?: number; eventType?: string }) =>
     api.get(`/admin/users/${userId}/audit-events`, { params }).then((r) => r.data),
+
+  authAudit: (userId: string, params?: { limit?: number }) =>
+    api.get(`/admin/users/${userId}/auth-audit`, { params }).then((r) => r.data),
 
   createExport: (body?: { reasonCode?: string; format?: string; columns?: string[] }) =>
     api.post('/admin/user-list-exports', body ?? { format: 'CSV' }).then((r) => r.data),

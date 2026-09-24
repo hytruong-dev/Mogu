@@ -3,6 +3,7 @@
  * Dữ liệu từ API: getCurrentWeeklyPlan, startPlan, regeneratePlan, swapSlot
  */
 import { useEffect, useState, useCallback, useRef } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   ActivityIndicator,
   Alert,
@@ -16,7 +17,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, ChevronRight, RefreshCw, Sparkles } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, RefreshCw, ShoppingCart, Sparkles } from 'lucide-react-native';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
@@ -25,6 +26,7 @@ import { AppImage } from '../components/ui/app-image';
 import { computeWeeklyForecast } from '../lib/weekly-forecast';
 import {
   getCurrentWeeklyPlan,
+  getWeeklyPlanById,
   getWeeklyPlanConfig,
   startWeeklyPlan,
   regenerateWeeklyPlan,
@@ -46,6 +48,7 @@ import {
   isTodayISO,
 } from '../lib/dates';
 import { WeeklyPlanSkeleton } from '../components/skeletons/ScreenSkeletons';
+import { cancelMealReminders, syncMealReminders } from '../lib/meal-reminders';
 
 const CREAM = '#F7F2E8';
 const WHITE = '#FFFFFF';
@@ -147,14 +150,16 @@ const buildWeekSkeleton = (): DayPlan[] => {
 };
 
 type Props = {
+  initialPlanId?: string;
   onBack: () => void;
   onEditPlan: () => void;
   onMore?: () => void;
   onOpenDish?: (dishId: string, title?: string, mealLabel?: string) => void;
   onOpenIngredients?: (planId: string, date: string, title?: string) => void;
+  onOpenWeeklyGrocery?: (planId: string) => void;
 };
 
-export function WeeklyPlanScreen({ onBack, onEditPlan, onMore, onOpenDish, onOpenIngredients }: Props) {
+export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, onOpenDish, onOpenIngredients, onOpenWeeklyGrocery }: Props) {
   const todayIso = getTodayISO();
 
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
@@ -166,29 +171,41 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore, onOpenDish, onOpe
   const [pollingPlanId, setPollingPlanId] = useState<string | null>(null);
   const [regenConfirmVisible, setRegenConfirmVisible] = useState(false);
   const pollRef = useRef<string | null>(null);
+  const hasRedirectedRef = useRef(false);
 
   // ── Fetch plan + config ─────────────────────────────────────────────────────
   const fetchPlan = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     try {
-      const [p, cfg] = await Promise.all([
-        getCurrentWeeklyPlan(),
-        getWeeklyPlanConfig().catch(() => null),
-      ]);
+      let p: WeeklyPlan | null = null;
+      if (initialPlanId) {
+        p = await getWeeklyPlanById(initialPlanId).catch(() => null);
+      }
+      if (!p) {
+        p = await getCurrentWeeklyPlan().catch(() => null);
+      }
+      const cfg = await getWeeklyPlanConfig().catch(() => null);
       setPlan(p);
       if (cfg) setConfig(cfg);
       if (p && Array.isArray(p.days) && p.days.length > 0) {
         const idx = p.days.findIndex((d) => d.date === todayIso);
-        if (idx >= 0) setSelectedIdx(idx);
+        setSelectedIdx(idx >= 0 ? idx : 0);
       }
     } catch (err: any) {
       console.log('[WeeklyPlan] API error:', err?.message ?? err);
     } finally {
       setLoading(false);
     }
-  }, [todayIso]);
+  }, [initialPlanId, todayIso]);
 
   useEffect(() => { fetchPlan(); }, [fetchPlan]);
+
+  // Luôn làm mới dữ liệu khi màn hình được focus trở lại (ví dụ sau khi tạo plan từ EditPlanScreen)
+  useFocusEffect(
+    useCallback(() => {
+      void fetchPlan(true);
+    }, [fetchPlan])
+  );
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -196,8 +213,38 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore, onOpenDish, onOpe
     setRefreshing(false);
   };
 
+  // ── Kiểm tra kế hoạch đã hết hạn (quá tuần) ──────────────────────────────
+  const isPlanExpired = !!plan && (
+    (plan.status === 'COMPLETED' || plan.status === 'ARCHIVED') ||
+    (plan.endDate && todayIso >= plan.endDate.split('T')[0]) ||
+    (Array.isArray(plan.days) && plan.days.length > 0 && plan.days.every((d) => d.date < todayIso))
+  );
+
+  // Đồng bộ nhắc giờ ăn khi có plan ACTIVE
+  useEffect(() => {
+    if (!plan) {
+      void cancelMealReminders();
+      return;
+    }
+    if (plan.status === 'ACTIVE' && !isPlanExpired) {
+      void syncMealReminders(plan, config);
+    } else {
+      void cancelMealReminders();
+    }
+  }, [plan, config, isPlanExpired]);
+
+  // Tự động chuyển về màn cấu hình kế hoạch tuần này nếu chưa có plan hoặc plan tuần cũ đã hết hạn
+  useEffect(() => {
+    if (!loading && !hasRedirectedRef.current) {
+      if (!plan || isPlanExpired) {
+        hasRedirectedRef.current = true;
+        onEditPlan();
+      }
+    }
+  }, [loading, plan, isPlanExpired, onEditPlan]);
+
   // ── Derived display days — CHỈ dùng dữ liệu thật từ API, không mock ────────
-  const hasRealDays = plan && Array.isArray(plan.days) && plan.days.length > 0;
+  const hasRealDays = !isPlanExpired && plan && Array.isArray(plan.days) && plan.days.length > 0;
   const displayDays: DayPlan[] = hasRealDays
     ? plan!.days.map(parseDayPlan)
     : buildWeekSkeleton(); // skeleton chỉ chứa ngày, không có meals
@@ -206,7 +253,7 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore, onOpenDish, onOpe
   const selectedDay = displayDays[safeIdx] ?? displayDays[0];
   const isToday = selectedDay ? isTodayISO(selectedDay.isoDate) : false;
 
-  const planStatus: WeeklyPlanStatus | null = plan?.status ?? null;
+  const planStatus: WeeklyPlanStatus | null = isPlanExpired ? null : (plan?.status ?? null);
   // Config = ngân sách hiện tại; plan.budgetLimitVnd = snapshot lúc tạo plan.
   // Khi FAILED / chưa có slot → ưu tiên config (user vừa chỉnh 1.3M).
   const budget =
@@ -276,11 +323,11 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore, onOpenDish, onOpe
   };
 
   const requestRegenerate = () => {
-    if (plan) {
+    if (plan && !isPlanExpired) {
       setRegenConfirmVisible(true);
       return;
     }
-    void runRegenerate();
+    onEditPlan();
   };
 
   const runRegenerate = async () => {
@@ -420,17 +467,25 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore, onOpenDish, onOpe
 
   // ── Status badge ─────────────────────────────────────────────────────────────
   const STATUS_LABEL: Record<string, string> = {
-    GENERATING: '⏳ Đang tạo...', READY: '✅ Sẵn sàng', ACTIVE: '🔥 Đang thực hiện',
-    COMPLETED: '🎉 Hoàn thành', FAILED: '❌ Tạo thất bại', ARCHIVED: '📦 Đã lưu trữ',
+    GENERATING: 'Đang tạo', READY: 'Sẵn sàng', ACTIVE: 'Đang chạy',
+    COMPLETED: 'Hoàn thành', FAILED: 'Tạo thất bại', ARCHIVED: 'Đã lưu trữ',
   };
 
+  const planDateLabel = (() => {
+    if (!plan?.startDate || !plan?.endDate) return '';
+    const s = plan.startDate.split('T')[0].split('-');
+    const e = plan.endDate.split('T')[0].split('-');
+    if (s[1] === e[1]) return `${Number(s[2])} – ${Number(e[2])} tháng ${Number(s[1])}`;
+    return `${Number(s[2])}/${Number(s[1])} – ${Number(e[2])}/${Number(e[1])}`;
+  })();
+
   const dayHeaderLeft = isToday ? 'Hôm nay' : selectedDay.weekdayFull;
-  const dayHeaderRight = `${selectedDay.weekdayFull}, ${selectedDay.date}/${selectedDay.month}`;
+  const dayHeaderRight = `${selectedDay.weekdayFull}, ${selectedDay.date}/${String(selectedDay.month).padStart(2, '0')}`;
 
   // Footer button logic
-  const showStartBtn = planStatus === 'READY';
-  const showActiveBtn = planStatus === 'ACTIVE';
-  const regenLabel = plan ? 'Tạo lại thực đơn' : 'Tạo thực đơn mới';
+  const showStartBtn = !isPlanExpired && planStatus === 'READY';
+  const showActiveBtn = !isPlanExpired && planStatus === 'ACTIVE';
+  const regenLabel = (plan && !isPlanExpired) ? 'Tạo lại thực đơn' : 'Cấu hình thực đơn mới';
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
@@ -440,9 +495,20 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore, onOpenDish, onOpe
           <ArrowLeft size={22} color={INK} strokeWidth={2} />
         </Pressable>
         <Text style={s.headerTitle}>Thực đơn tuần</Text>
-        <Pressable onPress={onMore} style={s.iconBtn} hitSlop={8}>
-          <Text style={{ fontSize: 22, color: INK }}>⋯</Text>
-        </Pressable>
+        {plan?.id && !isPlanExpired ? (
+          <Pressable
+            onPress={() => onOpenWeeklyGrocery?.(plan.id)}
+            style={s.iconBtn}
+            hitSlop={8}
+            accessibilityLabel="Đi chợ tuần"
+          >
+            <ShoppingCart size={20} color={INK} strokeWidth={2.2} />
+          </Pressable>
+        ) : (
+          <Pressable onPress={onMore} style={s.iconBtn} hitSlop={8}>
+            <Text style={{ fontSize: 22, color: INK }}>⋯</Text>
+          </Pressable>
+        )}
       </View>
 
       <ScrollView
@@ -457,76 +523,42 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore, onOpenDish, onOpe
       >
         {/* ── Summary card ─────────────────────────────────────────────────── */}
         <View style={s.summaryCard}>
-          <View style={s.summaryTop}>
-            <Image
-              source={require('../assets/images/home/mogu-budget.png')}
-              resizeMode="contain"
-              style={s.summaryMascot}
-            />
-            <View style={s.summaryInfo}>
-              <View style={s.summaryTitleRow}>
-                <Sparkles size={13} color="#F0A500" fill="#F0A500" />
-                <Text style={s.summaryTitle} numberOfLines={1}>
-                  {planStatus ? (STATUS_LABEL[planStatus] ?? 'Kế hoạch của bạn') : 'Chưa có kế hoạch'}
+          <View style={s.summaryTopRow}>
+            <View style={{ flex: 1 }}>
+              <View style={s.readyBadge}>
+                <Text style={s.readyBadgeText}>
+                  ✔ {isPlanExpired
+                    ? 'Đã kết thúc'
+                    : planStatus
+                      ? (STATUS_LABEL[planStatus] ?? 'Kế hoạch')
+                      : 'Chưa có kế hoạch'}
                 </Text>
               </View>
-              <Text style={s.summarySubtitle} numberOfLines={1}>
-                {plan
-                  ? `${durationDays} ngày · ${totalSlots} bữa · ${mealsPerDay} bữa/ngày`
-                  : 'Nhấn "Tạo thực đơn" để bắt đầu'}
+              <Text style={s.summaryDateLine} numberOfLines={1}>
+                {hasRealDays
+                  ? `${planDateLabel} • ${totalSlots} bữa`
+                  : 'Nhấn chỉnh kế hoạch để bắt đầu'}
               </Text>
-
-              <View style={s.statRow}>
-                <Text style={s.statIcon}>❤️</Text>
-                <Text style={s.statValue} numberOfLines={1}>
-                  {Math.round(spent / 1000)}K đã chi · ~{Math.round(endForecast / 1000)}K cuối kỳ
+            </View>
+            <View style={s.summaryStatsCol}>
+              <View style={s.summaryStatLine}>
+                <Text style={{ fontSize: 13 }}>👛</Text>
+                <Text style={s.summaryStatText} numberOfLines={1}>
+                  Dự kiến {Math.round(endForecast / 1000)}K / {Math.round(budget / 1000)}K
                 </Text>
-                <Badge
-                  className={
-                    remainingProjected >= 0
-                      ? 'border-transparent bg-[#DCFCE7]'
-                      : 'border-transparent bg-[#FEE2E2]'
-                  }
-                >
-                  <UiText
-                    className={
-                      remainingProjected >= 0
-                        ? 'text-[10px] font-bold text-[#15803D]'
-                        : 'text-[10px] font-bold text-[#B91C1C]'
-                    }
-                  >
-                    Còn {Math.round(remainingProjected / 1000)}K
-                  </UiText>
-                </Badge>
               </View>
-              <Progress
-                value={budgetPct}
-                className="h-1 bg-[#F0E9D0]"
-                indicatorClassName="bg-primary"
-              />
-
-              <View style={[s.statRow, { marginTop: 1 }]}>
-                <Text style={s.statIcon}>🔥</Text>
-                <Text style={s.statValue} numberOfLines={1}>
-                  {calConsumed.toLocaleString('vi-VN')} đã nạp · ~{calProjected.toLocaleString('vi-VN')} dự toán
+              <View style={s.summaryStatLine}>
+                <Text style={{ fontSize: 13 }}>🔥</Text>
+                <Text style={s.summaryStatText} numberOfLines={1}>
+                  {calProjected.toLocaleString('vi-VN')} / {calTotal.toLocaleString('vi-VN')} kcal
                 </Text>
-                <Badge className="border-transparent bg-[#FEE2E2]">
-                  <UiText className="text-[10px] font-bold text-[#B91C1C]">
-                    Đạt {Math.round(calPct)}%
-                  </UiText>
-                </Badge>
               </View>
-              <Progress
-                value={calPct}
-                className="h-1 bg-[#F0E9D0]"
-                indicatorClassName="bg-[#FF6030]"
-              />
             </View>
           </View>
 
           <TouchableOpacity onPress={onEditPlan} activeOpacity={0.8} style={s.editPlanBtn}>
-            <Text style={{ fontSize: 12 }}>✏️</Text>
-            <Text style={s.editPlanText}>Chỉnh kế hoạch</Text>
+            <Text style={{ fontSize: 13 }}>✏️</Text>
+            <Text style={s.editPlanText}>{hasRealDays ? 'Chỉnh kế hoạch' : 'Lên kế hoạch'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -630,15 +662,45 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore, onOpenDish, onOpe
                 </View>
                 <ChevronRight size={18} color={MUTED} />
               </Pressable>
+
+              <Pressable
+                style={s.ingredientsRow}
+                onPress={() => {
+                  if (!plan?.id) return;
+                  onOpenWeeklyGrocery?.(plan.id);
+                }}
+              >
+                <View style={[s.ingredientIcon, { backgroundColor: '#FFF4C7' }]}>
+                  <ShoppingCart size={20} color="#B45309" strokeWidth={2.2} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.ingredientTitle}>Đi chợ tuần</Text>
+                  <Text style={[s.ingredientCount, { marginTop: 2 }]}>
+                    Gộp nguyên liệu cả tuần · tick đã mua
+                  </Text>
+                </View>
+                <ChevronRight size={18} color={MUTED} />
+              </Pressable>
             </>
           ) : (
             /* Empty state — chưa có plan */
             <View style={s.emptyState}>
-              <Text style={{ fontSize: 48 }}>📋</Text>
-              <Text style={s.emptyTitle}>Chưa có thực đơn</Text>
-              <Text style={s.emptySubtitle}>
-                Nhấn "Tạo thực đơn" bên dưới để Mogu{'\n'}gợi ý thực đơn tuần phù hợp với bạn.
+              <Text style={{ fontSize: 48 }}>{isPlanExpired ? '🗓️' : '📋'}</Text>
+              <Text style={s.emptyTitle}>
+                {isPlanExpired ? 'Kế hoạch tuần trước đã kết thúc' : 'Chưa có thực đơn tuần này'}
               </Text>
+              <Text style={s.emptySubtitle}>
+                {isPlanExpired
+                  ? 'Tuần mới đã bắt đầu. Hãy cấu hình kế hoạch\nđể Mogu gợi ý thực đơn cho tuần này.'
+                  : 'Nhấn "Lên kế hoạch" bên dưới để Mogu\ngợi ý thực đơn tuần phù hợp với bạn.'}
+              </Text>
+              <TouchableOpacity
+                onPress={onEditPlan}
+                activeOpacity={0.85}
+                style={[s.startBtn, { marginTop: 16, width: 'auto', paddingHorizontal: 32 }]}
+              >
+                <Text style={s.startBtnText}>Lên kế hoạch tuần này</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -664,16 +726,16 @@ export function WeeklyPlanScreen({ onBack, onEditPlan, onMore, onOpenDish, onOpe
             <Text style={[s.startBtnText, { color: '#15803D' }]}>🔥 Đang thực hiện</Text>
           </View>
         )}
-        {!showStartBtn && !showActiveBtn && !plan && (
+        {!showStartBtn && !showActiveBtn && (
           <TouchableOpacity
             activeOpacity={0.87}
             style={s.startBtn}
-            onPress={requestRegenerate}
+            onPress={onEditPlan}
             disabled={actionLoading === 'regen'}
           >
             {actionLoading === 'regen'
               ? <ActivityIndicator size="small" color={INK} />
-              : <Text style={s.startBtnText}>Tạo thực đơn</Text>
+              : <Text style={s.startBtnText}>Lên kế hoạch tuần này</Text>
             }
           </TouchableOpacity>
         )}
@@ -724,20 +786,15 @@ function MealCard({
 }) {
   const isDone = meal.status === 'COMPLETED';
   const isSkipped = meal.status === 'SKIPPED';
-  const slotColor: Record<string, string> = {
-    'Bữa sáng': '#FFFBEB', 'Bữa trưa': '#FFF7F0', 'Bữa tối': '#EEF4FF', 'Bữa phụ': '#F0FFF4',
-  };
-  const bg = slotColor[meal.slot] ?? '#F5F0E8';
 
   return (
     <View style={s.mealCard}>
-      {/* Ảnh + info — tap mở chi tiết món */}
       <Pressable
         style={s.mealPressable}
         onPress={onOpenDish}
         disabled={!onOpenDish}
       >
-        <View style={[s.mealImage, { backgroundColor: bg }]}>
+        <View style={s.mealImage}>
           {meal.imageUrl ? (
             <AppImage
               uri={meal.imageUrl}
@@ -755,7 +812,6 @@ function MealCard({
 
         <View style={s.mealInfo}>
           <View style={s.mealSlotRow}>
-            <Text style={{ fontSize: 12 }}>{meal.slotIcon}</Text>
             <Text style={s.mealSlotText}>{meal.slot}</Text>
             <TouchableOpacity
               onPress={onToggleLock}
@@ -763,7 +819,9 @@ function MealCard({
               hitSlop={8}
               style={s.lockBtn}
             >
-              <Text style={{ fontSize: 12 }}>{meal.isLocked ? '🔒' : '🔓'}</Text>
+              <Text style={{ fontSize: 12, color: meal.isLocked ? '#D97706' : '#C4BFB5' }}>
+                {meal.isLocked ? '🔒' : '🔓'}
+              </Text>
             </TouchableOpacity>
           </View>
           <Text style={s.mealName} numberOfLines={1}>{meal.dishName}</Text>
@@ -772,15 +830,9 @@ function MealCard({
           </Text>
           {isDone && <Text style={s.slotStatusDone}>Đã ăn</Text>}
           {isSkipped && <Text style={s.slotStatusSkip}>Đã bỏ</Text>}
-          {!isDone && !isSkipped && (
-            <TouchableOpacity onPress={onSkip} disabled={busy} hitSlop={6} style={s.skipLink}>
-              <Text style={s.skipLinkText}>Bỏ qua</Text>
-            </TouchableOpacity>
-          )}
         </View>
       </Pressable>
 
-      {/* 2 action buttons */}
       <View style={s.mealActions}>
         <TouchableOpacity
           style={[s.changeBtn, (!isReal || meal.isLocked || isDone || isSkipped) && { opacity: 0.4 }]}
@@ -792,7 +844,6 @@ function MealCard({
             ? <ActivityIndicator size="small" color="#555" />
             : <RefreshCw size={15} color="#555" strokeWidth={2} />
           }
-          <Text style={s.changeBtnText}>Đổi</Text>
         </TouchableOpacity>
         {!isDone && !isSkipped ? (
           <TouchableOpacity
@@ -800,7 +851,7 @@ function MealCard({
             onPress={onComplete}
             disabled={busy}
           >
-            <Text style={s.completeBtnText}>✓</Text>
+            <View style={s.checkEmpty} />
           </TouchableOpacity>
         ) : (
           <View style={[s.completeBtn, { backgroundColor: isDone ? '#DCFCE7' : '#F3F4F6', borderColor: isDone ? '#86EFAC' : BORDER }]}>
@@ -825,9 +876,23 @@ const s = StyleSheet.create({
   iconBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
 
   summaryCard: {
-    marginHorizontal: 16, marginTop: 6, marginBottom: 10, borderRadius: 14, backgroundColor: WHITE,
-    padding: 10, gap: 6, ...shadow,
+    marginHorizontal: 16, marginTop: 8, marginBottom: 10, borderRadius: 18, backgroundColor: WHITE,
+    padding: 14, gap: 12, ...shadow,
   },
+  summaryTopRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  readyBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#DCFCE7',
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginBottom: 8,
+  },
+  readyBadgeText: { fontSize: 12, fontWeight: '700', color: '#15803D' },
+  summaryDateLine: { fontSize: 13, color: MUTED, fontWeight: '500' },
+  summaryStatsCol: { gap: 6, alignItems: 'flex-end', maxWidth: '48%' },
+  summaryStatLine: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  summaryStatText: { fontSize: 12.5, fontWeight: '600', color: INK },
   summaryTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   summaryMascot: { width: 52, height: 60, flexShrink: 0 },
   summaryInfo: { flex: 1, minWidth: 0, gap: 2 },
@@ -845,11 +910,11 @@ const s = StyleSheet.create({
   progressFill: { height: '100%', borderRadius: 2 },
 
   editPlanBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
-    height: 30, borderRadius: 9, borderWidth: 1.2, borderColor: '#E5E0D4',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    height: 42, borderRadius: 12, borderWidth: 1.2, borderColor: '#E5E0D4',
     backgroundColor: WHITE,
   },
-  editPlanText: { fontSize: 12.5, fontWeight: '600', color: INK },
+  editPlanText: { fontSize: 14, fontWeight: '600', color: INK },
 
   generatingBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
@@ -920,7 +985,7 @@ const s = StyleSheet.create({
   },
   mealInfo: { flex: 1, minWidth: 0, justifyContent: 'center' },
   mealSlotRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 2 },
-  mealSlotText: { fontSize: 12, fontWeight: '700', color: '#C08000' },
+  mealSlotText: { fontSize: 12, fontWeight: '700', color: '#D97706' },
   lockBtn: {
     marginLeft: 2,
     width: 18,
@@ -944,22 +1009,29 @@ const s = StyleSheet.create({
   changeBtn: {
     width: 36,
     height: 36,
-    borderRadius: 9,
-    backgroundColor: '#F8F5EC',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 1,
-  },
-  changeBtnText: { fontSize: 9, fontWeight: '700', color: '#666' },
-  completeBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 9,
+    borderRadius: 10,
     backgroundColor: WHITE,
     borderWidth: 1.2,
     borderColor: BORDER,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  completeBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: WHITE,
+    borderWidth: 1.5,
+    borderColor: BORDER,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  checkEmpty: {
+    width: 20,
+    height: 20,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: '#D4CEBF',
   },
   completeBtnText: { fontSize: 14, fontWeight: '700', color: INK },
   slotStatusDone: { fontSize: 12, color: '#15803D', fontWeight: '700', marginTop: 2 },

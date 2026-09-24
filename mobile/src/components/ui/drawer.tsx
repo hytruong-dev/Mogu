@@ -36,6 +36,8 @@ export interface DrawerProps {
   dismissThreshold?: number;
   /** Class cho drawer container */
   className?: string;
+  /** Màu nền của sheet (mặc định #FFFDF7) */
+  sheetBackgroundColor?: string;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -61,6 +63,7 @@ export function Drawer({
   snapHeight = 500,
   dismissThreshold = 80,
   className,
+  sheetBackgroundColor = '#FFFDF7',
 }: DrawerProps) {
   const insets = useSafeAreaInsets();
   const [mounted, setMounted] = React.useState(false);
@@ -73,9 +76,10 @@ export function Drawer({
   // Mount/unmount với delay để animation hoạt động
   React.useEffect(() => {
     if (open) {
+      translateY.value = snapHeight;
       setMounted(true);
     }
-  }, [open]);
+  }, [open, snapHeight, translateY]);
 
   React.useEffect(() => {
     if (!mounted) return;
@@ -163,9 +167,11 @@ export function Drawer({
             style={[
               sheetStyle,
               {
-                backgroundColor: '#fff',
-                borderTopLeftRadius: 24,
-                borderTopRightRadius: 24,
+                height: snapHeight,
+                maxHeight: '92%',
+                backgroundColor: sheetBackgroundColor,
+                borderTopLeftRadius: 28,
+                borderTopRightRadius: 28,
                 paddingBottom: insets.bottom,
                 overflow: 'hidden',
                 // Vaul shadow
@@ -181,16 +187,16 @@ export function Drawer({
             {/* Drag handle — kéo để đóng */}
             <GestureDetector gesture={panGesture}>
               <View
-                style={{ alignItems: 'center', paddingTop: 12, paddingBottom: 8 }}
+                style={{ alignItems: 'center', paddingTop: 10, paddingBottom: 10 }}
                 accessible
                 accessibilityLabel="Kéo để đóng"
               >
                 <View
                   style={{
-                    width: 36,
-                    height: 4,
+                    width: 44,
+                    height: 4.5,
                     borderRadius: 100,
-                    backgroundColor: '#E2DDD6',
+                    backgroundColor: '#D1D5DB',
                   }}
                 />
               </View>

@@ -5,6 +5,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   ImageSourcePropType,
   Pressable,
@@ -45,6 +46,14 @@ import {
 import { dishesApi } from '../services/api/dishes';
 import { profileApi } from '../services/api/profile';
 import { formatApiErrorWithCode } from '../lib/api-error';
+import { AppImage } from '../components/ui/app-image';
+import {
+  isDishSaved,
+  toggleDishSave,
+  subscribeSavedDishChange,
+  ensureSavedDishesSynced,
+} from '../services/saved-dishes-store';
+import { recordRandomRunStore, recordRandomSelectionStore } from '../services/app-store';
 import { FoodDetailFlowScreen } from './FoodDetailFlowScreen';
 import {
   RandomProfileSheet,
@@ -84,41 +93,15 @@ function ResultDishPhoto({
   dishName?: string;
 }) {
   const fallback = getDishFallbackImage(dishName);
-  const [remoteFailed, setRemoteFailed] = useState(false);
-  const [remoteLoading, setRemoteLoading] = useState(Boolean(uri));
-
-  useEffect(() => {
-    setRemoteFailed(false);
-    setRemoteLoading(Boolean(uri));
-  }, [uri]);
-
-  const showRemote = Boolean(uri) && !remoteFailed;
-
   return (
     <View style={styles.photoWrap}>
-      {/* Luôn có ảnh local làm nền — tránh khung trống vàng */}
-      <Image source={fallback} style={styles.photo} resizeMode="cover" />
-
-      {showRemote ? (
-        <Image
-          key={uri!}
-          source={{ uri: uri! }}
-          style={[styles.photo, StyleSheet.absoluteFill]}
-          resizeMode="cover"
-          onLoadStart={() => setRemoteLoading(true)}
-          onLoad={() => setRemoteLoading(false)}
-          onError={() => {
-            setRemoteFailed(true);
-            setRemoteLoading(false);
-          }}
-        />
-      ) : null}
-
-      {remoteLoading && showRemote ? (
-        <View style={[StyleSheet.absoluteFill, styles.photoLoader]} pointerEvents="none">
-          <ActivityIndicator size="small" color={YELLOW} />
-        </View>
-      ) : null}
+      <AppImage
+        uri={uri}
+        fallbackSource={fallback}
+        style={styles.photo}
+        contentFit="cover"
+        showLoader
+      />
     </View>
   );
 }
@@ -178,6 +161,15 @@ export function RandomFlowScreen({ onClose }: Props) {
   const cancelledRef = useRef(false);
   const overlayTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastDishIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    ensureSavedDishesSynced();
+    return subscribeSavedDishChange((changedDishId, isSavedVal) => {
+      if (ba006Result?.dish?.id === changedDishId) {
+        setSaved(isSavedVal);
+      }
+    });
+  }, [ba006Result?.dish?.id]);
 
   useEffect(() => {
     getRandomizationContext()
@@ -339,9 +331,11 @@ export function RandomFlowScreen({ onClose }: Props) {
         setBa006Result(result);
         if (result?.dish) {
           lastDishIdRef.current = result.dish.id;
+          setSaved(isDishSaved(result.dish.id));
           if (result.randomizationId) {
             recordRecommendationEvent(result.randomizationId, 'IMPRESSION').catch(() => undefined);
           }
+          recordRandomRunStore(result);
           setPhase('result');
           setShowDetail(false);
           stopLoading();
@@ -423,13 +417,32 @@ export function RandomFlowScreen({ onClose }: Props) {
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
         <View style={styles.header}>
           <Pressable onPress={() => setPhase('setup')} style={styles.iconBtn} hitSlop={8}>
-            <ArrowLeft size={22} color={INK} />
+            <ArrowLeft size={20} color={INK} />
           </Pressable>
           <Image source={BRAND} style={styles.brand} resizeMode="contain" />
-          <Pressable onPress={() => setSaved((v) => !v)} style={styles.iconBtn} hitSlop={8}>
+          <Pressable
+            onPress={async () => {
+              if (!dish?.id) return;
+              try {
+                const nextSaved = await toggleDishSave(dish.id, saved, {
+                  name: dish.name,
+                  imageUrl: dishImageUri ?? undefined,
+                  priceMin: dish.priceMin ?? undefined,
+                  priceMax: dish.priceMax ?? undefined,
+                  kcal: dish.nutrition?.calories ?? undefined,
+                });
+                setSaved(nextSaved);
+              } catch (e: any) {
+                Alert.alert('Lỗi', e?.message || 'Không thể cập nhật món đã lưu.');
+              }
+            }}
+            style={styles.iconBtn}
+            hitSlop={8}
+            accessibilityLabel={saved ? 'Bỏ lưu món' : 'Lưu món'}
+          >
             <Bookmark
               size={20}
-              color={saved ? '#C08000' : INK}
+              color={saved ? YELLOW : INK}
               fill={saved ? YELLOW : 'transparent'}
             />
           </Pressable>
@@ -509,6 +522,7 @@ export function RandomFlowScreen({ onClose }: Props) {
             onPress={() => {
               if (ba006Result?.randomizationId) {
                 selectRandomization(ba006Result.randomizationId).catch(() => undefined);
+                recordRandomSelectionStore(ba006Result);
               }
               onClose();
             }}
@@ -531,11 +545,11 @@ export function RandomFlowScreen({ onClose }: Props) {
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <Pressable onPress={onClose} style={styles.iconBtn} hitSlop={8}>
-          <ArrowLeft size={22} color={INK} />
+          <ArrowLeft size={20} color={INK} />
         </Pressable>
         <Image source={BRAND} style={styles.brand} resizeMode="contain" />
         <Pressable onPress={onClose} style={styles.iconBtn} hitSlop={8}>
-          <X size={22} color={INK} />
+          <X size={20} color={INK} />
         </Pressable>
       </View>
 
@@ -570,12 +584,15 @@ export function RandomFlowScreen({ onClose }: Props) {
                   onPress={() => onSelectMeal(key)}
                 >
                   {selected ? (
-                    <View style={styles.mealCheck}>
-                      <Check size={11} color={INK} strokeWidth={3} />
+                    <View style={styles.selectedBadge}>
+                      <Check size={9} color={INK} strokeWidth={3} />
                     </View>
-                  ) : (
-                    <Icon size={20} color={MUTED} strokeWidth={1.8} />
-                  )}
+                  ) : null}
+                  <Icon
+                    size={22}
+                    color={selected ? INK : MUTED}
+                    strokeWidth={selected ? 2 : 1.8}
+                  />
                   <Text style={[styles.mealChipTxt, selected && styles.mealChipTxtOn]}>
                     {label}
                   </Text>
@@ -598,8 +615,8 @@ export function RandomFlowScreen({ onClose }: Props) {
                   onPress={() => setBudget(b)}
                 >
                   {selected ? (
-                    <View style={styles.mealCheck}>
-                      <Check size={11} color={INK} strokeWidth={3} />
+                    <View style={styles.selectedBadge}>
+                      <Check size={9} color={INK} strokeWidth={3} />
                     </View>
                   ) : null}
                   <Text
@@ -708,52 +725,74 @@ function LoadingOverlay({
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: CREAM },
   header: {
-    height: 52,
-    paddingHorizontal: 12,
+    height: 56,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  brand: { width: 88, height: 32 },
-  iconBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  brand: { width: 92, height: 32 },
+  iconBtn: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: WHITE,
+    borderWidth: 1,
+    borderColor: BORDER,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 1,
+  },
 
   setupScroll: { paddingHorizontal: 16, paddingBottom: 16, gap: 12 },
   heroRow: { flexDirection: 'row', alignItems: 'flex-end', marginTop: 4, marginBottom: 4 },
   setupTitle: { fontSize: 28, fontWeight: '900', color: INK, letterSpacing: -0.5 },
-  setupSub: { fontSize: 14, color: MUTED, marginTop: 4 },
-  setupMascot: { width: 72, height: 72, marginLeft: 8 },
+  setupSub: { fontSize: 14, fontWeight: '500', color: MUTED, marginTop: 4 },
+  setupMascot: { width: 76, height: 76, marginLeft: 8 },
 
   card: {
     backgroundColor: WHITE,
-    borderRadius: 18,
-    padding: 14,
+    borderRadius: 22,
+    padding: 16,
     borderWidth: 1,
     borderColor: BORDER,
+    shadowColor: '#5D490F',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   cardTitle: { fontSize: 16, fontWeight: '800', color: INK },
-  cardSub: { fontSize: 12.5, color: MUTED, marginTop: 2, marginBottom: 12 },
+  cardSub: { fontSize: 13, color: MUTED, marginTop: 2, marginBottom: 14 },
 
   mealGrid: { flexDirection: 'row', gap: 8 },
   mealChip: {
     flex: 1,
-    minHeight: 72,
-    borderRadius: 14,
+    height: 76,
+    borderRadius: 16,
     borderWidth: 1.5,
     borderColor: BORDER,
     backgroundColor: WHITE,
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    paddingVertical: 10,
+    position: 'relative',
   },
-  mealChipOn: { backgroundColor: YELLOW, borderColor: YELLOW },
+  mealChipOn: { backgroundColor: '#FFFDF0', borderColor: YELLOW, borderWidth: 2 },
   mealChipTxt: { fontSize: 13, fontWeight: '600', color: MUTED, textAlign: 'center' },
   mealChipTxtOn: { color: INK, fontWeight: '800' },
-  mealCheck: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: WHITE,
+  selectedBadge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: YELLOW,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -761,43 +800,46 @@ const styles = StyleSheet.create({
   budgetRow: { flexDirection: 'row', gap: 8 },
   budgetChip: {
     flex: 1,
-    minHeight: 56,
+    height: 52,
     borderRadius: 14,
     borderWidth: 1.5,
     borderColor: BORDER,
     backgroundColor: WHITE,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 6,
-    paddingVertical: 10,
-    gap: 4,
+    paddingHorizontal: 4,
+    position: 'relative',
   },
-  budgetChipOn: { backgroundColor: YELLOW, borderColor: YELLOW },
-  budgetChipTxt: { fontSize: 12.5, fontWeight: '600', color: MUTED, textAlign: 'center' },
+  budgetChipOn: { backgroundColor: '#FFFDF0', borderColor: YELLOW, borderWidth: 2 },
+  budgetChipTxt: { fontSize: 13, fontWeight: '600', color: MUTED, textAlign: 'center' },
   budgetChipTxtOn: { color: INK, fontWeight: '800' },
 
   profileRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 12,
     backgroundColor: WHITE,
-    borderRadius: 14,
+    borderRadius: 20,
     borderWidth: 1,
     borderColor: BORDER,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     paddingVertical: 14,
-    minHeight: 52,
+    shadowColor: '#5D490F',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.03,
+    shadowRadius: 6,
+    elevation: 1,
   },
   profileIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    backgroundColor: '#DCFCE7',
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#E8F5E9',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  profileTxt: { flex: 1, fontSize: 14, fontWeight: '600', color: INK },
-  profileLink: { fontSize: 14, fontWeight: '700', color: '#C08000' },
+  profileTxt: { flex: 1, fontSize: 14.5, fontWeight: '700', color: INK },
+  profileLink: { fontSize: 13.5, fontWeight: '700', color: '#8C7A5B' },
 
   errorBox: {
     backgroundColor: '#FFF1F0',
@@ -845,43 +887,59 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  ctaTxt: { fontSize: 16, fontWeight: '800', color: INK },
+  ctaTxt: { fontSize: 17, fontWeight: '800', color: INK },
   ctaHint: { fontSize: 12.5, color: MUTED, textAlign: 'center', marginTop: 8 },
 
   overlay: {
     ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(247,242,232,0.72)',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 28,
+    paddingHorizontal: 24,
   },
   overlayCard: {
-    width: '100%',
+    width: '88%',
     backgroundColor: WHITE,
-    borderRadius: 22,
-    paddingVertical: 28,
+    borderRadius: 28,
+    paddingVertical: 24,
     paddingHorizontal: 20,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: BORDER,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.15,
+    shadowRadius: 28,
+    elevation: 10,
   },
-  overlayMascot: { width: 96, height: 96, marginBottom: 8 },
-  overlayTitle: { fontSize: 18, fontWeight: '800', color: INK },
-  overlaySub: { fontSize: 13, color: MUTED, marginTop: 4 },
-  cancelBtn: { marginTop: 18, paddingVertical: 10, paddingHorizontal: 20 },
-  cancelTxt: { fontSize: 15, fontWeight: '700', color: MUTED },
+  overlayMascot: { width: 100, height: 100, marginBottom: 4 },
+  overlayTitle: { fontSize: 20, fontWeight: '800', color: INK, marginTop: 8 },
+  overlaySub: { fontSize: 14, color: MUTED, marginTop: 4 },
+  cancelBtn: {
+    marginTop: 18,
+    paddingVertical: 10,
+    paddingHorizontal: 28,
+    backgroundColor: '#F5F0E6',
+    borderRadius: 20,
+  },
+  cancelTxt: { fontSize: 14, fontWeight: '700', color: '#747474' },
 
   resultScroll: { paddingHorizontal: 16, paddingBottom: 110 },
-  resultTitle: { fontSize: 24, fontWeight: '900', color: INK, marginTop: 4 },
+  resultTitle: { fontSize: 26, fontWeight: '900', color: INK, marginTop: 4 },
   resultSub: { fontSize: 14, color: MUTED, marginTop: 2, marginBottom: 12 },
   photoWrap: {
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: 'hidden',
     backgroundColor: '#FFF2C9',
-    height: 200,
+    height: 220,
     width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
-  photo: { width: '100%', height: 200 },
+  photo: { width: '100%', height: 220 },
   photoPlaceholder: { alignItems: 'center', justifyContent: 'center' },
   photoLoader: {
     alignItems: 'center',
@@ -889,23 +947,26 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 242, 201, 0.35)',
   },
   dishName: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '900',
     color: INK,
-    marginTop: 12,
-    letterSpacing: -0.4,
+    marginTop: 14,
+    marginBottom: 10,
+    letterSpacing: -0.3,
   },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   metaChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 5,
-    backgroundColor: '#F3EFE6',
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    gap: 6,
+    backgroundColor: WHITE,
+    borderWidth: 1,
+    borderColor: BORDER,
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
   },
-  metaChipTxt: { fontSize: 13, fontWeight: '600', color: INK },
+  metaChipTxt: { fontSize: 13, fontWeight: '700', color: INK },
   budgetWarn: {
     marginTop: 8,
     fontSize: 13,
@@ -915,27 +976,33 @@ const styles = StyleSheet.create({
   whyCard: {
     marginTop: 14,
     backgroundColor: WHITE,
-    borderRadius: 18,
+    borderRadius: 22,
     borderWidth: 1,
     borderColor: BORDER,
-    padding: 14,
+    padding: 16,
+    shadowColor: '#5D490F',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
     gap: 10,
   },
   whyTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
-  whyTitle: { fontSize: 15, fontWeight: '800', color: INK },
-  whyBody: { fontSize: 13.5, color: '#444', lineHeight: 19, marginTop: 4 },
-  whyMascot: { width: 56, height: 56 },
+  whyTitle: { fontSize: 16, fontWeight: '800', color: INK },
+  whyBody: { fontSize: 13.5, color: '#444444', lineHeight: 20, marginTop: 4 },
+  whyMascot: { width: 48, height: 48, marginLeft: 8 },
   detailLink: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    paddingTop: 10,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F0E9D8',
+    borderTopColor: '#F0EBE0',
+    marginTop: 2,
   },
   detailLinkTitle: { fontSize: 14, fontWeight: '700', color: INK },
   detailLinkSub: { fontSize: 12, color: MUTED, marginTop: 2 },
-  priceNote: { fontSize: 12, color: MUTED },
+  priceNote: { fontSize: 11.5, color: '#8A8A8A', marginTop: 10 },
 
   resultFooter: {
     position: 'absolute',
@@ -953,24 +1020,29 @@ const styles = StyleSheet.create({
   },
   againBtn: {
     flex: 1,
-    height: 54,
-    borderRadius: 16,
+    height: 52,
+    borderRadius: 22,
     borderWidth: 1.5,
-    borderColor: '#C8C0B4',
+    borderColor: BORDER,
     backgroundColor: WHITE,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: 6,
   },
   againTxt: { fontSize: 15, fontWeight: '700', color: INK },
   chooseBtn: {
-    flex: 1,
-    height: 54,
-    borderRadius: 16,
+    flex: 1.4,
+    height: 52,
+    borderRadius: 22,
     backgroundColor: YELLOW,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: YELLOW,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  chooseTxt: { fontSize: 15, fontWeight: '800', color: INK },
+  chooseTxt: { fontSize: 16, fontWeight: '800', color: INK },
 });

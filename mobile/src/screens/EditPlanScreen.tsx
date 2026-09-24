@@ -1,7 +1,8 @@
 /**
- * EditPlanScreen — Man hinh "Chinh ke hoach"
+ * EditPlanScreen — Lên kế hoạch tuần
+ * Khớp 100% mockup mogu-week-plan-config-v2.png + docs MOBILE_WEEK_PLAN_FLOW_UX_REDESIGN_2026
  */
-import { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -11,43 +12,67 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TouchableOpacity,
+  TextInput,
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ArrowLeft, Settings2 } from 'lucide-react-native';
-import { Checkbox } from '../components/ui/checkbox';
-import { Input } from '../components/ui/input';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '../components/ui/select';
+  ArrowLeft,
+  Calendar,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Flame,
+  Info,
+  Minus,
+  Plus,
+  SlidersHorizontal,
+  UtensilsCrossed,
+  Wallet,
+} from 'lucide-react-native';
+
+import { Button } from '../components/ui/button';
 import {
   upsertWeeklyPlanConfig,
   generateWeeklyPlan,
   getWeeklyPlanConfig,
-  getCurrentWeeklyPlan,
   pollWeeklyPlan,
 } from '../services/api/weekly-plan';
-import type { WeeklyMealSlot } from '../services/api/types';
-import { formatApiErrorWithCode, formatWeeklyPlanGenerationError } from '../lib/api-error';
+import { profileApi } from '../services/api/profile';
+import { syncCurrentMealReminders } from '../lib/meal-reminders';
+import type {
+  WeeklyMealSlot,
+  WeeklyPlanGenerationErrorData,
+} from '../services/api/types';
 import { getTodayISO } from '../lib/dates';
 import { EditPlanSkeleton } from '../components/skeletons/ScreenSkeletons';
+import { trackWeeklyPlanEvent } from '../lib/weekly-plan-analytics';
 
-const CREAM  = '#F7F2E8';
-const WHITE  = '#FFFFFF';
-const INK    = '#111111';
-const YELLOW = '#FFC51A';
-const MUTED  = '#999';
-const BORDER = '#EDE5D2';
+import { BudgetSlider } from '../components/weekly-plan/BudgetSlider';
+import {
+  MealScheduleSheet,
+  defaultScheduleDraft,
+  type ScheduleDraft,
+} from '../components/weekly-plan/MealScheduleSheet';
+import {
+  AdvancedOptionsScreen,
+  DEFAULT_ADVANCED_OPTIONS,
+  advancedOptionsSummary,
+  type AdvancedOptions,
+} from '../components/weekly-plan/AdvancedOptionsScreen';
+import { WeeklyPlanFailureSheet } from '../components/weekly-plan/WeeklyPlanFailureSheet';
+import {
+  WeeklyPlanSuccessSheet,
+  type WeeklyPlanSuccessData,
+} from '../components/weekly-plan/WeeklyPlanSuccessSheet';
 
 type Props = {
   onBack: () => void;
   onReset?: () => void;
   onSave?: (plan: PlanConfig) => void;
+  onOpenWeeklyPlan?: (planId: string) => void;
+  onGoHome?: () => void;
+  onViewDishes?: () => void;
 };
 
 export type PlanConfig = {
@@ -57,274 +82,496 @@ export type PlanConfig = {
   days: number;
   mealsPerDay: number;
   mealSlots: { sang: boolean; trua: boolean; toi: boolean; phu: boolean };
+  advanced?: AdvancedOptions;
+  startDate?: string;
+  schedule?: ScheduleDraft;
 };
 
-const DAYS_OPTIONS = [3, 5, 7, 14];
+const BUDGET_MIN = 0;
+const BUDGET_MAX = 1000000;
 const BUDGET_STEP = 50000;
-const BUDGET_MIN = 100000;
-const BUDGET_MAX = 5000000;
 const KCAL_STEP = 50;
 const KCAL_MIN = 1000;
 const KCAL_MAX = 5000;
 
-const formatViNumber = (n: number) => n.toLocaleString('vi-VN');
-const parseDigits = (text: string): number | null => {
-  const digits = text.replace(/[^\d]/g, '');
-  if (!digits) return null;
-  const n = parseInt(digits, 10);
-  return Number.isFinite(n) ? n : null;
-};
-const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
+const YELLOW = '#FFC20E';
+const INK = '#111111';
+const MUTED = '#8A8580';
+const CREAM = '#FFFDF7';
+const CARD = '#FFFFFF';
+const BORDER = '#EAE6DF';
 
-export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
+const formatVi = (n: number) => n.toLocaleString('vi-VN');
+const formatBudgetK = (n: number) => {
+  if (n >= 1000) return `${Math.round(n / 1000)}K`;
+  return String(n);
+};
+
+function addDaysISO(iso: string, days: number) {
+  const d = new Date(`${iso}T12:00:00`);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+function formatShort(iso: string) {
+  const [, m, day] = iso.split('-');
+  return `${day}/${m}`;
+}
+
+function slotsToFlags(slots: ScheduleDraft['mealSlots']) {
+  return {
+    sang: !!slots.find((s) => s.type === 'MORNING' && s.enabled),
+    trua: !!slots.find((s) => s.type === 'LUNCH' && s.enabled),
+    toi: !!slots.find((s) => s.type === 'DINNER' && s.enabled),
+    phu: !!slots.find((s) => s.type === 'SNACK' && s.enabled),
+  };
+}
+
+export function EditPlanScreen({
+  onBack,
+  onReset,
+  onSave,
+  onOpenWeeklyPlan,
+  onGoHome,
+  onViewDishes,
+}: Props) {
   const insets = useSafeAreaInsets();
-  const [budget, setBudget] = useState(500000);
-  const [kcal, setKcal] = useState(2000);
-  const [budgetDraft, setBudgetDraft] = useState<string | null>(null);
-  const [kcalDraft, setKcalDraft] = useState<string | null>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const requestIdRef = useRef<string | null>(null);
+
+  const [budget, setBudget] = useState(300000);
   const [kcalMode, setKcalMode] = useState<'profile' | 'custom'>('profile');
-  const [days, setDays] = useState(7);
-  const [mealSlots, setMealSlots] = useState({
-    sang: true, trua: true, toi: true, phu: false,
-  });
+  const [customKcal, setCustomKcal] = useState(2000);
+  const [profileKcal, setProfileKcal] = useState(2000);
+  const [schedule, setSchedule] = useState<ScheduleDraft>(() =>
+    defaultScheduleDraft(getTodayISO()),
+  );
+  const [advancedOptions, setAdvancedOptions] = useState<AdvancedOptions>(
+    DEFAULT_ADVANCED_OPTIONS,
+  );
+
+  const [scheduleSheetOpen, setScheduleSheetOpen] = useState(false);
+  const [advancedSheetOpen, setAdvancedSheetOpen] = useState(false);
+  const [failureSheetOpen, setFailureSheetOpen] = useState(false);
+  const [failureErrorData, setFailureErrorData] =
+    useState<WeeklyPlanGenerationErrorData | null>(null);
+  const [successSheetOpen, setSuccessSheetOpen] = useState(false);
+  const [successData, setSuccessData] = useState<WeeklyPlanSuccessData | null>(null);
+
+  const [loadingConfig, setLoadingConfig] = useState(true);
   const [savingConfig, setSavingConfig] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [loadingConfig, setLoadingConfig] = useState(true);
-
-  const [planForecast, setPlanForecast] = useState({
-    spentVnd: 0,
-    projectedVnd: 0,
-    budgetVnd: 500000,
-    kcalPerDay: 2000,
-  });
+  const [timedOut, setTimedOut] = useState(false);
+  const [saveSuccessToast, setSaveSuccessToast] = useState(false);
+  const [editingKcal, setEditingKcal] = useState<string | null>(null);
+  const kcalTimerRef = useRef<{ timeout?: ReturnType<typeof setTimeout>; interval?: ReturnType<typeof setInterval> }>({});
 
   useEffect(() => {
+    trackWeeklyPlanEvent({ name: 'weekly_plan_config_viewed' });
     (async () => {
       try {
-        const [config, plan] = await Promise.allSettled([
+        const [configRes, profileRes] = await Promise.allSettled([
           getWeeklyPlanConfig(),
-          getCurrentWeeklyPlan(),
+          profileApi.getHealthProfile<any>().catch(() => null),
         ]);
 
-        if (config.status === 'fulfilled' && config.value) {
-          const c = config.value;
-          setBudget(c.budgetVnd ?? 500000);
-          setKcal(c.kcalPerDay ?? 2000);
-          setKcalMode(c.kcalMode === 'CUSTOM' ? 'custom' : 'profile');
-          setDays(c.durationDays ?? 7);
-          const slots = c.enabledSlots ?? ['MORNING', 'LUNCH', 'DINNER'];
-          setMealSlots({
-            sang: slots.includes('MORNING'),
-            trua: slots.includes('LUNCH'),
-            toi:  slots.includes('DINNER'),
-            phu:  slots.includes('SNACK'),
-          });
+        if (profileRes.status === 'fulfilled' && profileRes.value) {
+          const pk =
+            profileRes.value.dailyCaloriesTarget ??
+            profileRes.value.tdee ??
+            2000;
+          setProfileKcal(pk);
         }
 
-        if (plan.status === 'fulfilled' && plan.value) {
-          const p = plan.value;
-          setPlanForecast({
-            spentVnd: p.actualSpentVnd,
-            projectedVnd: p.projectedCostVnd,
-            budgetVnd: p.budgetLimitVnd,
-            kcalPerDay: Math.round(p.targetKcal / Math.max(days, 1)),
+        if (configRes.status === 'fulfilled' && configRes.value) {
+          const c = configRes.value;
+          if (c.budgetVnd != null) setBudget(c.budgetVnd);
+          if (c.kcalMode === 'CUSTOM') {
+            setKcalMode('custom');
+            if (c.kcalPerDay) setCustomKcal(c.kcalPerDay);
+          } else {
+            setKcalMode('profile');
+            if (c.kcalPerDay) setProfileKcal(c.kcalPerDay);
+          }
+
+          const start = getTodayISO();
+          if (c.mealSlotSchedule?.length) {
+            setSchedule({
+              startDate: start,
+              durationDays: c.durationDays ?? 7,
+              mealSlots: c.mealSlotSchedule.map((s) => ({
+                type: s.type,
+                enabled: s.enabled,
+                time: s.time,
+              })),
+            });
+          } else if (c.enabledSlots) {
+            const enabled = new Set(c.enabledSlots);
+            setSchedule({
+              startDate: start,
+              durationDays: c.durationDays ?? 7,
+              mealSlots: [
+                { type: 'MORNING', enabled: enabled.has('MORNING'), time: '07:00' },
+                { type: 'LUNCH', enabled: enabled.has('LUNCH'), time: '12:00' },
+                { type: 'DINNER', enabled: enabled.has('DINNER'), time: '18:30' },
+                {
+                  type: 'SNACK',
+                  enabled: enabled.has('SNACK'),
+                  time: enabled.has('SNACK') ? '15:00' : null,
+                },
+              ],
+            });
+          }
+
+          setAdvancedOptions({
+            preferSelfCook: c.preferHomeCook ?? true,
+            allowOutsideMeals: c.allowOutsideMeals ?? true,
+            limitRepeats: c.avoidRepeat ?? true,
+            repeatWindowDays: c.repeatWindowDays ?? 7,
+            preferNewDishes: c.preferNewDishes ?? true,
+            likedDishPreference: c.likedDishPreference ?? 'LIGHT',
+            keepLockedMeals: c.keepLockedMeals ?? true,
+            preserveLoggedDays: c.preserveLoggedDays ?? true,
+            calorieTolerancePercent: ([5, 10, 20, 30].includes(
+              c.calorieTolerancePercent as number,
+            )
+              ? c.calorieTolerancePercent
+              : 10) as 5 | 10 | 20 | 30,
           });
         }
       } catch {
-        // Giữ giá trị mặc định
+        // defaults
       } finally {
         setLoadingConfig(false);
       }
     })();
   }, []);
 
-  const enabledSlots = (): WeeklyMealSlot[] => {
-    const slots: WeeklyMealSlot[] = [];
-    if (mealSlots.sang) slots.push('MORNING');
-    if (mealSlots.trua) slots.push('LUNCH');
-    if (mealSlots.toi) slots.push('DINNER');
-    if (mealSlots.phu) slots.push('SNACK');
-    return slots;
+  const enabledSlotsList = (): WeeklyMealSlot[] =>
+    schedule.mealSlots.filter((s) => s.enabled).map((s) => s.type);
+
+  const mealSlotsFlags = useMemo(
+    () => slotsToFlags(schedule.mealSlots),
+    [schedule.mealSlots],
+  );
+  const days = schedule.durationDays;
+  const mealsPerDay = enabledSlotsList().length;
+  const totalMeals = days * mealsPerDay;
+  const currentKcal = kcalMode === 'profile' ? profileKcal : customKcal;
+  const perMealBudget = totalMeals > 0 ? Math.round(budget / totalMeals) : 0;
+  const advancedSummary = advancedOptionsSummary(advancedOptions);
+
+  const trackChange = (field: string, oldValue: unknown, newValue: unknown) => {
+    trackWeeklyPlanEvent({
+      name: 'weekly_plan_value_changed',
+      payload: { field, oldValue, newValue },
+    });
   };
 
-  const mealsPerDay = enabledSlots().length;
+  const handleReset = () => {
+    setBudget(300000);
+    setKcalMode('profile');
+    setCustomKcal(2000);
+    setSchedule(defaultScheduleDraft(getTodayISO()));
+    setAdvancedOptions({ ...DEFAULT_ADVANCED_OPTIONS });
+    trackChange('reset', null, 'defaults');
+    onReset?.();
+  };
 
-  const adjustBudget = (delta: number) => {
-    setBudgetDraft(null);
-    setBudget((prev) => clamp(prev + delta, BUDGET_MIN, BUDGET_MAX));
+  const toggleSlot = (key: keyof typeof mealSlotsFlags) => {
+    const typeMap = {
+      sang: 'MORNING',
+      trua: 'LUNCH',
+      toi: 'DINNER',
+      phu: 'SNACK',
+    } as const;
+    const type = typeMap[key];
+    setSchedule((prev) => {
+      const nextSlots = prev.mealSlots.map((s) => {
+        if (s.type !== type) return s;
+        if (s.enabled) return { ...s, enabled: false };
+        return {
+          ...s,
+          enabled: true,
+          time: s.time ?? (type === 'SNACK' ? '15:00' : s.time),
+        };
+      });
+      if (!nextSlots.some((s) => s.enabled)) {
+        Alert.alert('Lưu ý', 'Bạn cần chọn ít nhất một bữa ăn trong ngày.');
+        return prev;
+      }
+      trackChange(`mealSlot_${key}`, mealSlotsFlags[key], !mealSlotsFlags[key]);
+      return { ...prev, mealSlots: nextSlots };
+    });
   };
 
   const adjustKcal = (delta: number) => {
-    setKcalDraft(null);
-    setKcalMode('custom');
-    setKcal((prev) => clamp(prev + delta, KCAL_MIN, KCAL_MAX));
-  };
-
-  const onBudgetChangeText = (text: string) => {
-    const digits = text.replace(/[^\d]/g, '');
-    if (!digits) {
-      setBudgetDraft('');
+    if (kcalMode === 'profile') {
+      setKcalMode('custom');
+      const next = Math.min(KCAL_MAX, Math.max(KCAL_MIN, profileKcal + delta));
+      setCustomKcal(next);
+      trackChange('kcalMode', 'profile', 'custom');
       return;
     }
-    setBudgetDraft(formatViNumber(parseInt(digits, 10)));
-  };
-
-  const onBudgetBlur = () => {
-    const parsed = parseDigits(budgetDraft ?? '');
-    setBudget(clamp(parsed ?? budget, BUDGET_MIN, BUDGET_MAX));
-    setBudgetDraft(null);
-  };
-
-  const onKcalChangeText = (text: string) => {
-    setKcalMode('custom');
-    const digits = text.replace(/[^\d]/g, '');
-    if (!digits) {
-      setKcalDraft('');
-      return;
-    }
-    setKcalDraft(formatViNumber(parseInt(digits, 10)));
-  };
-
-  const onKcalBlur = () => {
-    const parsed = parseDigits(kcalDraft ?? '');
-    setKcal(clamp(parsed ?? kcal, KCAL_MIN, KCAL_MAX));
-    setKcalDraft(null);
-  };
-
-  const toggleSlot = (slot: keyof typeof mealSlots) => {
-    setMealSlots((prev) => {
-      const next = { ...prev, [slot]: !prev[slot] };
-      const count = Object.values(next).filter(Boolean).length;
-      if (count === 0) return prev;
+    setCustomKcal((prev) => {
+      const next = Math.min(KCAL_MAX, Math.max(KCAL_MIN, prev + delta));
+      trackChange('customKcal', prev, next);
       return next;
     });
   };
 
-  const commitDrafts = () => {
-    if (budgetDraft != null) {
-      const parsed = parseDigits(budgetDraft);
-      setBudget(clamp(parsed ?? budget, BUDGET_MIN, BUDGET_MAX));
-      setBudgetDraft(null);
+  const stopKcalRepeat = () => {
+    if (kcalTimerRef.current.timeout) clearTimeout(kcalTimerRef.current.timeout);
+    if (kcalTimerRef.current.interval) clearInterval(kcalTimerRef.current.interval);
+    kcalTimerRef.current = {};
+  };
+
+  const handleKcalPressIn = (delta: number) => {
+    stopKcalRepeat();
+    kcalTimerRef.current.timeout = setTimeout(() => {
+      kcalTimerRef.current.interval = setInterval(() => {
+        adjustKcal(delta);
+      }, 100);
+    }, 350);
+  };
+
+  const handleKcalTextChange = (t: string) => {
+    if (kcalMode === 'profile') {
+      setKcalMode('custom');
+      trackChange('kcalMode', 'profile', 'custom');
     }
-    if (kcalDraft != null) {
-      const parsed = parseDigits(kcalDraft);
-      setKcal(clamp(parsed ?? kcal, KCAL_MIN, KCAL_MAX));
-      setKcalDraft(null);
+    const digits = t.replace(/\D/g, '');
+    setEditingKcal(digits);
+    const num = parseInt(digits, 10);
+    if (Number.isFinite(num)) {
+      setCustomKcal(Math.min(KCAL_MAX, Math.max(KCAL_MIN, num)));
     }
   };
 
-  const resolvedBudget = () => {
-    if (budgetDraft == null) return budget;
-    return clamp(parseDigits(budgetDraft) ?? budget, BUDGET_MIN, BUDGET_MAX);
-  };
-
-  const resolvedKcal = () => {
-    if (kcalDraft == null) return kcal;
-    return clamp(parseDigits(kcalDraft) ?? kcal, KCAL_MIN, KCAL_MAX);
-  };
-
-  const buildConfigDto = () => {
-    const slots = enabledSlots();
-    if (slots.length === 0) {
-      throw new Error('Vui lòng chọn ít nhất một bữa ăn.');
+  const handleKcalBlur = () => {
+    if (editingKcal !== null) {
+      const num = parseInt(editingKcal, 10);
+      if (!Number.isFinite(num) || num < KCAL_MIN) {
+        setCustomKcal(KCAL_MIN);
+      } else if (num > KCAL_MAX) {
+        setCustomKcal(KCAL_MAX);
+      }
+      setEditingKcal(null);
     }
+  };
+
+  const buildDto = () => {
+    const slots = enabledSlotsList();
+    if (slots.length === 0) throw new Error('Vui lòng chọn ít nhất một bữa ăn.');
     return {
-      budgetVnd: resolvedBudget(),
-      kcalPerDay: resolvedKcal(),
-      kcalMode: (kcalMode === 'profile' ? 'PROFILE' : 'CUSTOM') as 'PROFILE' | 'CUSTOM',
+      budgetVnd: budget,
+      kcalPerDay: currentKcal,
+      kcalMode: kcalMode === 'custom' ? ('CUSTOM' as const) : ('PROFILE' as const),
       durationDays: days,
-      mealsPerDay: slots.length,
       enabledSlots: slots,
-      avoidRepeat: true,
+      mealSlotSchedule: schedule.mealSlots,
+      avoidRepeat: advancedOptions.limitRepeats,
+      preferHomeCook: advancedOptions.preferSelfCook,
+      allowOutsideMeals: advancedOptions.allowOutsideMeals,
+      repeatWindowDays: advancedOptions.repeatWindowDays,
+      preferNewDishes: advancedOptions.preferNewDishes,
+      likedDishPreference: advancedOptions.likedDishPreference,
+      keepLockedMeals: advancedOptions.keepLockedMeals,
+      preserveLoggedDays: advancedOptions.preserveLoggedDays,
+      calorieTolerancePercent: advancedOptions.calorieTolerancePercent,
+      advanced: {
+        preferSelfCook: advancedOptions.preferSelfCook,
+        allowOutsideMeals: advancedOptions.allowOutsideMeals,
+        limitRepeats: advancedOptions.limitRepeats,
+        repeatWindowDays: advancedOptions.repeatWindowDays,
+        preferNewDishes: advancedOptions.preferNewDishes,
+        likedDishPreference: advancedOptions.likedDishPreference,
+        keepLockedMeals: advancedOptions.keepLockedMeals,
+        preserveLoggedDays: advancedOptions.preserveLoggedDays,
+      },
     };
   };
 
-  const handleSaveConfig = async () => {
-    commitDrafts();
+  const handleSaveDefault = async () => {
     setSavingConfig(true);
     try {
-      const dto = buildConfigDto();
+      const dto = buildDto();
       await upsertWeeklyPlanConfig(dto);
       onSave?.({
-        budget: dto.budgetVnd,
-        kcalPerDay: dto.kcalPerDay,
+        budget,
+        kcalPerDay: currentKcal,
         kcalMode,
         days,
         mealsPerDay,
-        mealSlots,
+        mealSlots: mealSlotsFlags,
+        advanced: advancedOptions,
+        startDate: schedule.startDate,
+        schedule,
       });
-      Alert.alert('Đã lưu', 'Cấu hình kế hoạch đã được cập nhật.');
-    } catch (err) {
-      Alert.alert('Lỗi', formatApiErrorWithCode(err));
+      setSaveSuccessToast(true);
+      setTimeout(() => setSaveSuccessToast(false), 2500);
+    } catch (err: any) {
+      Alert.alert('Không thể lưu', err?.message || 'Có lỗi khi lưu cấu hình.');
     } finally {
       setSavingConfig(false);
     }
   };
 
-  const handleGeneratePlan = async () => {
-    commitDrafts();
+  const runGenerate = async () => {
+    if (enabledSlotsList().length === 0) {
+      Alert.alert('Lưu ý', 'Vui lòng chọn ít nhất một bữa ăn.');
+      return;
+    }
+    if (budget < BUDGET_MIN || budget > BUDGET_MAX) return;
+    if (currentKcal < KCAL_MIN || currentKcal > KCAL_MAX) return;
+
     setGenerating(true);
+    setTimedOut(false);
+    const idempotencyKey =
+      requestIdRef.current ??
+      `gen-plan-${schedule.startDate}-${Date.now()}`;
+    requestIdRef.current = idempotencyKey;
+
+    trackWeeklyPlanEvent({
+      name: 'weekly_plan_create_requested',
+      payload: {
+        durationDays: days,
+        budget,
+        dailyCalories: currentKcal,
+        mealSlots: enabledSlotsList(),
+      },
+    });
+
     try {
-      const dto = buildConfigDto();
+      const dto = buildDto();
       await upsertWeeklyPlanConfig(dto);
-      const { planId } = await generateWeeklyPlan(getTodayISO());
-      const finalPlan = await pollWeeklyPlan(planId);
+      const genRes = await generateWeeklyPlan(schedule.startDate, {
+        idempotencyKey,
+        durationDays: days,
+        budget,
+        dailyCalories: currentKcal,
+        calorieSource: kcalMode === 'custom' ? 'CUSTOM' : 'PROFILE',
+        mealSlots: enabledSlotsList(),
+        advanced: dto.advanced,
+      });
+      const finalPlan = await pollWeeklyPlan(genRes.planId, {
+        maxAttempts: 45,
+        intervalMs: 2000,
+      });
 
       if (finalPlan.status === 'FAILED') {
-        Alert.alert(
-          'Tạo thất bại',
-          formatWeeklyPlanGenerationError(finalPlan.generationErrorCode),
-        );
+        const errData = finalPlan.generationErrorData ?? {
+          status: 'INSUFFICIENT_CANDIDATES',
+          message: 'Kho món hiện chưa đủ lựa chọn phù hợp với cấu hình này.',
+          suggestions: [
+            { type: 'MIN_BUDGET', value: 350000 },
+            { type: 'ENABLE_MEAL_SLOT', value: 'SNACK' },
+            { type: 'REVIEW_AVOIDED_INGREDIENTS' },
+          ],
+          approvedDishCount: 12,
+        };
+        trackWeeklyPlanEvent({
+          name: 'weekly_plan_create_failed',
+          payload: {
+            reason: finalPlan.generationErrorCode || 'INSUFFICIENT_CANDIDATES',
+            suggestionCount: errData.suggestions?.length ?? 3,
+          },
+        });
+        setFailureErrorData(errData);
+        setFailureSheetOpen(true);
         return;
       }
 
-      onSave?.({
-        budget: dto.budgetVnd,
-        kcalPerDay: dto.kcalPerDay,
-        kcalMode,
-        days,
-        mealsPerDay,
-        mealSlots,
+      if (finalPlan.status === 'GENERATING') {
+        setTimedOut(true);
+        return;
+      }
+
+      trackWeeklyPlanEvent({
+        name: 'weekly_plan_created',
+        payload: {
+          planId: finalPlan.id,
+          durationDays: days,
+          mealCount: totalMeals,
+        },
       });
-      Alert.alert('Hoàn tất', 'Kế hoạch mới đã sẵn sàng.');
-      onBack();
-    } catch (err) {
-      Alert.alert('Lỗi', formatApiErrorWithCode(err));
+
+      // Trích xuất dữ liệu thực tế 100% từ API finalPlan
+      const actualMealCount = Array.isArray(finalPlan.days)
+        ? finalPlan.days.reduce((acc, d) => acc + (d.slots?.length ?? 0), 0)
+        : totalMeals;
+
+      const actualDurationDays =
+        Array.isArray(finalPlan.days) && finalPlan.days.length > 0
+          ? finalPlan.days.length
+          : days;
+
+      setSuccessData({
+        planId: finalPlan.id,
+        startDate: finalPlan.startDate ?? schedule.startDate,
+        endDate: finalPlan.endDate,
+        durationDays: actualDurationDays,
+        mealCount: actualMealCount,
+        estimatedBudget: finalPlan.projectedCostVnd || budget,
+        targetKcalPerDay: currentKcal,
+      });
+      void syncCurrentMealReminders();
+      setSuccessSheetOpen(true);
+      requestIdRef.current = null;
+    } catch (err: any) {
+      setFailureErrorData({
+        status: 'ERROR',
+        message: err?.message || 'Có lỗi xảy ra khi tạo kế hoạch.',
+        suggestions: [
+          { type: 'MIN_BUDGET', value: Math.min(BUDGET_MAX, budget + 50000) },
+          { type: 'ENABLE_MEAL_SLOT', value: 'SNACK' },
+        ],
+        approvedDishCount: 12,
+      });
+      setFailureSheetOpen(true);
     } finally {
       setGenerating(false);
     }
   };
 
-  const remainingProjected = Math.max(0, resolvedBudget() - planForecast.projectedVnd);
-  const endForecast = planForecast.projectedVnd;
+  const handleAdjustFromFailure = (focus?: 'budget' | 'mealSlot' | 'avoided') => {
+    setFailureSheetOpen(false);
+    const budgetSug = failureErrorData?.suggestions?.find((s) => s.type === 'MIN_BUDGET');
+    if (focus === 'budget' && budgetSug && typeof budgetSug.value === 'number') {
+      setBudget(Math.min(BUDGET_MAX, budgetSug.value));
+    }
+    if (focus === 'mealSlot') {
+      setSchedule((prev) => ({
+        ...prev,
+        mealSlots: prev.mealSlots.map((s) =>
+          s.type === 'SNACK'
+            ? { ...s, enabled: true, time: s.time ?? '15:00' }
+            : s,
+        ),
+      }));
+    }
+    scrollViewRef.current?.scrollTo({ y: focus === 'mealSlot' ? 420 : 0, animated: true });
+  };
 
-  const daysValue = { value: String(days), label: `${days} ngày` };
+  const fieldsLocked = generating;
+  const ctaDisabled = generating || mealsPerDay === 0;
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
-      {/* Header */}
       <View style={s.header}>
-        <Pressable onPress={onBack} style={s.iconBtn} hitSlop={8}>
-          <ArrowLeft size={22} color={INK} strokeWidth={2} />
+        <Pressable onPress={onBack} style={s.backHit} hitSlop={10}>
+          <ArrowLeft size={22} color={INK} strokeWidth={2.2} />
         </Pressable>
-        <Text style={s.headerTitle}>Chỉnh kế hoạch</Text>
-        <Pressable onPress={onReset} style={s.resetBtn} hitSlop={8}>
+        <Text style={s.headerTitle}>Lên kế hoạch tuần</Text>
+        <Pressable onPress={handleReset} hitSlop={10} disabled={fieldsLocked}>
           <Text style={s.resetText}>Đặt lại</Text>
         </Pressable>
       </View>
 
-      {/* Stats bar — dữ liệu từ API */}
-      {!loadingConfig && (
-        <View style={s.statsBar}>
-          <Text style={s.statsItem}>{days} ngày · {days * mealsPerDay} bữa</Text>
-          <View style={s.statsDivider} />
-          <Text style={s.statsItem}>
-            {planForecast.spentVnd > 0
-              ? `${Math.round(planForecast.spentVnd / 1000)}K đã chi`
-              : `${Math.round(budget / 1000)}K ngân sách`}
-          </Text>
-          <View style={s.statsDivider} />
-          <Text style={s.statsItem}>{kcal.toLocaleString('vi-VN')} kcal/ngày</Text>
+      {saveSuccessToast && (
+        <View style={s.toast}>
+          <Check size={14} color="#16A34A" strokeWidth={2.5} />
+          <Text style={s.toastText}>Đã lưu cấu hình làm mặc định</Text>
         </View>
       )}
 
@@ -333,359 +580,560 @@ export function EditPlanScreen({ onBack, onReset, onSave }: Props) {
           <EditPlanSkeleton />
         </ScrollView>
       ) : (
-      <>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={s.scrollContent}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        bounces={false}
-        overScrollMode="never"
-      >
-        <View style={s.formGroup}>
-        <View style={s.card}>
-          <Text style={s.cardLabel}>Ngân sách cho {days} ngày</Text>
-          <View style={s.stepperRow}>
-            <Pressable onPress={() => adjustBudget(-BUDGET_STEP)} style={s.stepperBtn}>
-              <Text style={s.stepperBtnText}>{'−'}</Text>
-            </Pressable>
-            <View style={s.stepperValue}>
-              <View style={s.stepperInputRow}>
-                <Input
-                  value={budgetDraft ?? formatViNumber(budget)}
-                  onChangeText={onBudgetChangeText}
-                  onFocus={() => setBudgetDraft(formatViNumber(budget))}
-                  onBlur={onBudgetBlur}
-                  keyboardType="number-pad"
-                  returnKeyType="done"
-                  selectTextOnFocus
-                  className="min-w-[90px] max-w-[180px] border-0 bg-transparent p-0 text-center text-[26px] font-bold shadow-none"
-                  style={s.stepperInput}
-                  accessibilityLabel="Ngân sách"
-                />
-                <Text style={s.stepperUnit}> đ</Text>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <ScrollView
+            ref={scrollViewRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={[
+              s.scroll,
+              { paddingBottom: Math.max(insets.bottom, 16) + 120 },
+            ]}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Summary */}
+            <View style={s.summaryBar}>
+              <View style={s.summaryItem}>
+                <Calendar size={14} color={MUTED} strokeWidth={2} />
+                <Text style={s.summaryText}>{days} ngày</Text>
+              </View>
+              <View style={s.summaryDivider} />
+              <View style={s.summaryItem}>
+                <UtensilsCrossed size={14} color={MUTED} strokeWidth={2} />
+                <Text style={s.summaryText}>{totalMeals} bữa</Text>
+              </View>
+              <View style={s.summaryDivider} />
+              <View style={s.summaryItem}>
+                <Wallet size={14} color={MUTED} strokeWidth={2} />
+                <Text style={s.summaryText}>{formatBudgetK(budget)}</Text>
+              </View>
+              <View style={s.summaryDivider} />
+              <View style={s.summaryItem}>
+                <Flame size={14} color={MUTED} strokeWidth={2} />
+                <Text style={s.summaryText}>{formatVi(currentKcal)} kcal/ngày</Text>
               </View>
             </View>
-            <Pressable onPress={() => adjustBudget(BUDGET_STEP)} style={s.stepperBtn}>
-              <Text style={s.stepperBtnText}>+</Text>
-            </Pressable>
-          </View>
-          <Text style={s.estimatedHint}>
-            Đã chi{' '}
-            <Text style={{ fontWeight: '700' }}>{Math.round(planForecast.spentVnd / 1000)}K</Text>
-            {' · '}Dự toán còn{' '}
-            <Text style={{ color: '#16A34A', fontWeight: '700' }}>
-              {Math.round(remainingProjected / 1000)}K
-            </Text>
-            {' · '}Cuối kỳ ~{Math.round(endForecast / 1000)}K
-          </Text>
-        </View>
 
-        {/* Nang luong moi ngay */}
-        <View style={s.card}>
-          <Text style={s.cardLabel}>Năng lượng mỗi ngày</Text>
-          <View style={s.stepperRow}>
-            <Pressable onPress={() => adjustKcal(-KCAL_STEP)} style={s.stepperBtn}>
-              <Text style={s.stepperBtnText}>{'−'}</Text>
-            </Pressable>
-            <View style={s.stepperValue}>
-              <View style={s.stepperInputRow}>
-                <Input
-                  value={kcalDraft ?? formatViNumber(kcal)}
-                  onChangeText={onKcalChangeText}
-                  onFocus={() => {
-                    setKcalMode('custom');
-                    setKcalDraft(formatViNumber(kcal));
-                  }}
-                  onBlur={onKcalBlur}
-                  keyboardType="number-pad"
-                  returnKeyType="done"
-                  selectTextOnFocus
-                  className="min-w-[90px] max-w-[180px] border-0 bg-transparent p-0 text-center text-[26px] font-bold shadow-none"
-                  style={s.stepperInput}
-                  accessibilityLabel="Năng lượng mỗi ngày"
-                />
-                <Text style={s.stepperUnit}> kcal</Text>
-              </View>
-            </View>
-            <Pressable onPress={() => adjustKcal(KCAL_STEP)} style={s.stepperBtn}>
-              <Text style={s.stepperBtnText}>+</Text>
-            </Pressable>
-          </View>
-          {/* Toggle */}
-          <View style={s.modeToggle}>
-            <Pressable
-              onPress={() => setKcalMode('profile')}
-              style={[s.modeBtn, kcalMode === 'profile' && s.modeBtnActive]}
-            >
-              <Text style={[s.modeBtnText, kcalMode === 'profile' && s.modeBtnTextActive]}>
-                Theo hồ sơ
-              </Text>
-            </Pressable>
-            <Pressable
-              onPress={() => setKcalMode('custom')}
-              style={[s.modeBtn, kcalMode === 'custom' && s.modeBtnActive]}
-            >
-              <Text style={[s.modeBtnText, kcalMode === 'custom' && s.modeBtnTextActive]}>
-                Tự đặt
-              </Text>
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Lich an */}
-        <View style={s.card}>
-          <Text style={s.cardLabel}>Lịch ăn</Text>
-
-          <View style={s.dropdownRow}>
-            <View style={{ flex: 1 }}>
-              <Select
-                value={daysValue}
-                onValueChange={(opt) => {
-                  if (opt?.value) setDays(Number(opt.value));
+            {/* Ngân sách */}
+            <View style={s.card}>
+              <Text style={s.cardTitle}>Ngân sách</Text>
+              <BudgetSlider
+                value={budget}
+                min={BUDGET_MIN}
+                max={BUDGET_MAX}
+                step={BUDGET_STEP}
+                onChange={(val) => {
+                  if (fieldsLocked) return;
+                  trackChange('budget', budget, val);
+                  setBudget(val);
                 }}
-              >
-                <SelectTrigger className="h-11 rounded-xl border-[1.5px] border-[#EDE5D2] bg-white px-3">
-                  <SelectValue placeholder="Chọn số ngày" className="text-[14.5px] font-semibold" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  {DAYS_OPTIONS.map((d) => (
-                    <SelectItem key={d} value={String(d)} label={`${d} ngày`}>
-                      {`${d} ngày`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                helperText={`≈ ${formatVi(perMealBudget)}đ / bữa`}
+              />
             </View>
-            <View style={[s.dropdown, { flex: 1, opacity: 0.85 }]}>
-              <Text style={s.dropdownText}>{mealsPerDay} bữa/ngày</Text>
-            </View>
-          </View>
-          {/* Meal slot checkboxes */}
-          <View style={s.slotsRow}>
-            {[
-              { key: 'sang', label: 'Sáng' },
-              { key: 'trua', label: 'Trưa' },
-              { key: 'toi', label: 'Tối' },
-              { key: 'phu', label: 'Bữa phụ' },
-            ].map(({ key, label }) => {
-              const checked = mealSlots[key as keyof typeof mealSlots];
-              return (
+
+            {/* Năng lượng mỗi ngày */}
+            <View style={s.card}>
+              <Text style={s.cardTitle}>Năng lượng mỗi ngày</Text>
+              <View style={s.kcalStepper}>
                 <Pressable
-                  key={key}
-                  onPress={() => toggleSlot(key as keyof typeof mealSlots)}
-                  style={[s.slotChip, checked && s.slotChipActive]}
+                  onPress={() => !fieldsLocked && adjustKcal(-KCAL_STEP)}
+                  onPressIn={() => !fieldsLocked && handleKcalPressIn(-KCAL_STEP)}
+                  onPressOut={stopKcalRepeat}
+                  style={({ pressed }) => [
+                    s.circleBtn,
+                    pressed && s.circleBtnPressed,
+                    (fieldsLocked || currentKcal <= KCAL_MIN) && s.circleBtnDisabled,
+                  ]}
+                  disabled={fieldsLocked || currentKcal <= KCAL_MIN}
+                  hitSlop={8}
                 >
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={() => toggleSlot(key as keyof typeof mealSlots)}
-                  />
-                  <Text style={[s.slotText, checked && s.slotTextActive]}>{label}</Text>
+                  <Minus size={20} color={fieldsLocked || currentKcal <= KCAL_MIN ? '#C8C3B8' : INK} strokeWidth={2.5} />
                 </Pressable>
-              );
-            })}
-          </View>
-        </View>
 
-        {/* Tuy chon them */}
-        <Pressable style={s.moreOption}>
-          <View style={s.moreOptionIcon}>
-            <Settings2 size={18} color="#555" strokeWidth={1.8} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={s.moreOptionTitle}>Tuỳ chọn thêm</Text>
-            <Text style={s.moreOptionSub} numberOfLines={1}>
-              Tự nấu · Hạn chế lặp · Giữ món đã chọn
-            </Text>
-          </View>
-          <Text style={{ color: MUTED, fontSize: 16 }}>{'›'}</Text>
-        </Pressable>
-        </View>
+                <View style={s.kcalInputWrap}>
+                  <TextInput
+                    value={editingKcal !== null ? editingKcal : formatVi(currentKcal)}
+                    onChangeText={handleKcalTextChange}
+                    onBlur={handleKcalBlur}
+                    onFocus={() => {
+                      if (kcalMode === 'profile') {
+                        setKcalMode('custom');
+                        trackChange('kcalMode', 'profile', 'custom');
+                      }
+                      setEditingKcal(String(currentKcal));
+                    }}
+                    keyboardType="number-pad"
+                    editable={!fieldsLocked}
+                    style={s.kcalInput}
+                    selectTextOnFocus
+                  />
+                  <Text style={s.kcalUnit}> kcal</Text>
+                </View>
 
-        <Text style={s.infoInline}>ℹ️  Mogu sẽ cân đối lại các bữa chưa khóa.</Text>
-      </ScrollView>
-      </KeyboardAvoidingView>
+                <Pressable
+                  onPress={() => !fieldsLocked && adjustKcal(KCAL_STEP)}
+                  onPressIn={() => !fieldsLocked && handleKcalPressIn(KCAL_STEP)}
+                  onPressOut={stopKcalRepeat}
+                  style={({ pressed }) => [
+                    s.circleBtn,
+                    pressed && s.circleBtnPressed,
+                    (fieldsLocked || currentKcal >= KCAL_MAX) && s.circleBtnDisabled,
+                  ]}
+                  disabled={fieldsLocked || currentKcal >= KCAL_MAX}
+                  hitSlop={8}
+                >
+                  <Plus size={20} color={fieldsLocked || currentKcal >= KCAL_MAX ? '#C8C3B8' : INK} strokeWidth={2.5} />
+                </Pressable>
+              </View>
 
-      <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 8) }]}>
-        <TouchableOpacity
-          activeOpacity={0.87}
-          onPress={handleSaveConfig}
-          style={[s.saveBtn, savingConfig && { opacity: 0.7 }]}
-          disabled={savingConfig || generating}
-        >
-          {savingConfig
-            ? <ActivityIndicator size="small" color="#111" />
-            : <Text style={s.saveBtnText}>Lưu cấu hình</Text>
-          }
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.87}
-          onPress={handleGeneratePlan}
-          style={[s.generateBtn, generating && { opacity: 0.7 }]}
-          disabled={generating || savingConfig}
-        >
-          {generating
-            ? <ActivityIndicator size="small" color="#111" />
-            : <Text style={s.generateBtnText}>Tạo lại plan</Text>
-          }
-        </TouchableOpacity>
-      </View>
-      </>
+              <View style={s.tabsRow}>
+                <Pressable
+                  onPress={() => {
+                    if (fieldsLocked) return;
+                    setKcalMode('profile');
+                    trackChange('kcalMode', kcalMode, 'profile');
+                  }}
+                  style={[s.tab, kcalMode === 'profile' && s.tabActive]}
+                >
+                  <Text style={[s.tabText, kcalMode === 'profile' && s.tabTextActive]}>
+                    Theo hồ sơ
+                  </Text>
+                </Pressable>
+                <Pressable
+                  onPress={() => {
+                    if (fieldsLocked) return;
+                    setKcalMode('custom');
+                    trackChange('kcalMode', kcalMode, 'custom');
+                  }}
+                  style={[s.tab, kcalMode === 'custom' && s.tabActive]}
+                >
+                  <Text style={[s.tabText, kcalMode === 'custom' && s.tabTextActive]}>
+                    Tự đặt
+                  </Text>
+                </Pressable>
+              </View>
+
+              <Text style={s.helperCenter}>
+                {kcalMode === 'profile'
+                  ? 'Theo mục tiêu sức khỏe hiện tại.'
+                  : 'Bạn đang tự đặt mức năng lượng mỗi ngày.'}
+              </Text>
+            </View>
+
+            {/* Lịch ăn */}
+            <View style={s.card}>
+              <Text style={s.cardTitle}>Lịch ăn</Text>
+
+              <Pressable
+                onPress={() => !fieldsLocked && setScheduleSheetOpen(true)}
+                style={s.scheduleRow}
+              >
+                <View style={s.scheduleIcon}>
+                  <Calendar size={18} color="#B45309" strokeWidth={2.2} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.scheduleTitle}>{days} ngày</Text>
+                  <Text style={s.scheduleSub}>
+                    {formatShort(schedule.startDate)} –{' '}
+                    {formatShort(addDaysISO(schedule.startDate, days - 1))}
+                  </Text>
+                </View>
+                <ChevronRight size={18} color={MUTED} strokeWidth={2.2} />
+              </Pressable>
+
+              <View style={s.chipsRow}>
+                {(
+                  [
+                    { key: 'sang' as const, label: 'Sáng' },
+                    { key: 'trua' as const, label: 'Trưa' },
+                    { key: 'toi' as const, label: 'Tối' },
+                    { key: 'phu' as const, label: 'Bữa phụ' },
+                  ] as const
+                ).map((item) => {
+                  const on = mealSlotsFlags[item.key];
+                  return (
+                    <Pressable
+                      key={item.key}
+                      onPress={() => !fieldsLocked && toggleSlot(item.key)}
+                      style={[s.chip, on && s.chipOn]}
+                    >
+                      <View style={[s.chipCheck, on && s.chipCheckOn]}>
+                        {on && <Check size={11} color={INK} strokeWidth={3} />}
+                      </View>
+                      <Text style={[s.chipText, on && s.chipTextOn]}>{item.label}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+
+              <Pressable
+                onPress={() => !fieldsLocked && setScheduleSheetOpen(true)}
+                style={s.mealCountRow}
+              >
+                <Text style={s.mealCountText}>{totalMeals} bữa sẽ được tạo</Text>
+                <ChevronRight size={16} color={MUTED} strokeWidth={2.2} />
+              </Pressable>
+            </View>
+
+            {/* Tùy chọn tạo món */}
+            <Pressable
+              onPress={() => !fieldsLocked && setAdvancedSheetOpen(true)}
+              style={s.advancedCard}
+            >
+              <View style={s.advancedIcon}>
+                <SlidersHorizontal size={18} color={MUTED} strokeWidth={2.2} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.advancedTitle}>Tùy chọn tạo món</Text>
+                <Text style={s.advancedSub} numberOfLines={1}>
+                  {advancedSummary || 'Chưa cấu hình'}
+                </Text>
+              </View>
+              <ChevronRight size={18} color={MUTED} strokeWidth={2} />
+            </Pressable>
+
+            <View style={s.infoBanner}>
+              <Info size={16} color="#B45309" strokeWidth={2.2} />
+              <Text style={s.infoText}>Mogu phân bổ ngân sách và kcal theo từng loại bữa.</Text>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       )}
+
+      <View style={[s.footer, { paddingBottom: Math.max(insets.bottom, 14) }]}>
+        <Pressable
+          onPress={handleSaveDefault}
+          disabled={savingConfig || generating}
+          style={s.saveLinkHit}
+        >
+          {savingConfig ? (
+            <ActivityIndicator size="small" color={MUTED} />
+          ) : (
+            <Text style={s.saveLink}>Lưu làm mặc định</Text>
+          )}
+        </Pressable>
+
+        <Button
+          onPress={() => {
+            if (timedOut) {
+              // Kiểm tra lại với cùng requestId trước khi tạo request mới
+              runGenerate();
+              return;
+            }
+            requestIdRef.current = null;
+            runGenerate();
+          }}
+          disabled={ctaDisabled && !timedOut}
+          className="h-[52px] w-full rounded-2xl bg-[#FFC20E] active:opacity-90"
+        >
+          {generating ? (
+            <View style={s.ctaLoading}>
+              <ActivityIndicator size="small" color={INK} />
+              <Text style={s.ctaText}>Đang tạo thực đơn…</Text>
+            </View>
+          ) : timedOut ? (
+            <Text style={s.ctaText}>Kiểm tra lại</Text>
+          ) : (
+            <Text style={s.ctaText}>Tạo thực đơn</Text>
+          )}
+        </Button>
+      </View>
+
+      <MealScheduleSheet
+        visible={scheduleSheetOpen}
+        value={schedule}
+        onApply={(draft) => {
+          trackChange('schedule', schedule, draft);
+          setSchedule(draft);
+        }}
+        onDismiss={() => setScheduleSheetOpen(false)}
+      />
+
+      <AdvancedOptionsScreen
+        visible={advancedSheetOpen}
+        options={advancedOptions}
+        onSave={(opts) => {
+          trackChange('advanced', advancedOptions, opts);
+          setAdvancedOptions(opts);
+        }}
+        onDismiss={() => setAdvancedSheetOpen(false)}
+      />
+
+      <WeeklyPlanFailureSheet
+        visible={failureSheetOpen}
+        errorData={failureErrorData}
+        onAdjustConfig={handleAdjustFromFailure}
+        onViewApprovedDishes={onViewDishes}
+        onDismiss={() => setFailureSheetOpen(false)}
+      />
+
+      <WeeklyPlanSuccessSheet
+        visible={successSheetOpen}
+        data={successData}
+        onViewPlan={(planId) => {
+          setSuccessSheetOpen(false);
+          trackWeeklyPlanEvent({ name: 'weekly_plan_opened', payload: { planId } });
+          if (onOpenWeeklyPlan) onOpenWeeklyPlan(planId);
+          else onBack();
+        }}
+        onGoHome={() => {
+          setSuccessSheetOpen(false);
+          if (onGoHome) onGoHome();
+          else onBack();
+        }}
+        onDismiss={() => setSuccessSheetOpen(false)}
+      />
     </SafeAreaView>
   );
 }
 
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: CREAM },
-
   header: {
-    height: 56,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    borderBottomWidth: 1, borderBottomColor: BORDER,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     backgroundColor: CREAM,
   },
-  headerTitle: { fontSize: 17, fontWeight: '700', color: INK, letterSpacing: -0.3 },
-  iconBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  resetBtn: { width: 60, height: 40, alignItems: 'flex-end', justifyContent: 'center' },
-  resetText: { fontSize: 14, fontWeight: '600', color: '#C08000' },
-
-  statsBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    backgroundColor: WHITE, paddingVertical: 6, gap: 10,
-    borderBottomWidth: 1, borderBottomColor: BORDER,
-  },
-  statsItem: { fontSize: 12, fontWeight: '600', color: '#444' },
-  statsDivider: { width: 1, height: 12, backgroundColor: '#E0D8C8' },
-
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 8,
-  },
-  formGroup: {
-    gap: 10,
-  },
-
-  card: {
-    backgroundColor: WHITE,
-    borderRadius: 14, paddingHorizontal: 14, paddingVertical: 14,
-    shadowColor: '#B19B66', shadowOpacity: 0.06, shadowRadius: 6,
-    shadowOffset: { width: 0, height: 1 }, elevation: 1,
-  },
-  cardLabel: { fontSize: 15, fontWeight: '700', color: INK, marginBottom: 4 },
-
-  stepperRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    marginTop: 6,
-  },
-  stepperBtn: {
-    width: 44, height: 44, borderRadius: 22,
-    borderWidth: 1.5, borderColor: '#E0D8C8',
-    backgroundColor: WHITE,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  stepperBtnText: { fontSize: 24, color: '#555', fontWeight: '300', lineHeight: 26 },
-  stepperValue: { flex: 1, alignItems: 'center', justifyContent: 'center', minWidth: 0 },
-  stepperInputRow: {
-    flexDirection: 'row',
-    alignItems: 'baseline',
+  backHit: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
     justifyContent: 'center',
-    maxWidth: '100%',
   },
-  stepperInput: {
+  headerTitle: { fontSize: 17, fontWeight: '700', color: INK },
+  resetText: { fontSize: 15, fontWeight: '700', color: YELLOW },
+  toast: {
+    position: 'absolute',
+    top: 58,
+    alignSelf: 'center',
+    zIndex: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  toastText: { fontSize: 12.5, fontWeight: '600', color: '#166534' },
+  scroll: { paddingHorizontal: 16, paddingTop: 4, gap: 12 },
+  summaryBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    backgroundColor: CARD,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: BORDER,
+  },
+  summaryItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    flexShrink: 1,
+  },
+  summaryText: { fontSize: 12.5, fontWeight: '600', color: '#3F3B35' },
+  summaryDivider: { width: 1, height: 14, backgroundColor: '#D9D3C8' },
+  card: {
+    backgroundColor: CARD,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: BORDER,
+    padding: 16,
+    gap: 12,
+  },
+  cardTitle: { fontSize: 16, fontWeight: '800', color: INK },
+  kcalStepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+  },
+  circleBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1.5,
+    borderColor: '#E5E0D6',
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  circleBtnPressed: {
+    backgroundColor: '#F5F2EB',
+  },
+  circleBtnDisabled: {
+    borderColor: '#EEEAE3',
+    backgroundColor: '#FAF8F5',
+  },
+  kcalValue: {
     fontSize: 26,
     fontWeight: '800',
     color: INK,
-    letterSpacing: -0.5,
-    paddingVertical: 0,
-    paddingHorizontal: 4,
-    minWidth: 90,
-    maxWidth: 180,
+    letterSpacing: -0.3,
+  },
+  kcalUnit: { fontSize: 15, fontWeight: '600', color: MUTED },
+  kcalInputWrap: { flexDirection: 'row', alignItems: 'baseline' },
+  kcalInput: {
+    fontSize: 26,
+    fontWeight: '800',
+    color: INK,
+    letterSpacing: -0.3,
+    minWidth: 80,
     textAlign: 'center',
+    padding: 0,
   },
-  stepperNumber: { fontSize: 26, fontWeight: '800', color: INK, letterSpacing: -0.5 },
-  stepperUnit: { fontSize: 14, fontWeight: '500', color: MUTED },
-
-  estimatedHint: { textAlign: 'center', fontSize: 12.5, color: MUTED, marginTop: 8 },
-
-  modeToggle: {
-    flexDirection: 'row',
-    borderRadius: 12, overflow: 'hidden',
-    borderWidth: 1.5, borderColor: '#E0D8C8',
-    marginTop: 10,
+  tabsRow: { flexDirection: 'row', gap: 10 },
+  tab: {
+    flex: 1,
+    height: 44,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: BORDER,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  modeBtn: { flex: 1, paddingVertical: 11, alignItems: 'center', justifyContent: 'center', backgroundColor: WHITE },
-  modeBtnActive: { backgroundColor: YELLOW },
-  modeBtnText: { fontSize: 14, fontWeight: '600', color: MUTED },
-  modeBtnTextActive: { color: INK, fontWeight: '700' },
-
-  dropdownRow: { flexDirection: 'row', gap: 10, marginTop: 10 },
+  tabActive: { backgroundColor: YELLOW, borderColor: YELLOW },
+  tabText: { fontSize: 14, fontWeight: '600', color: MUTED },
+  tabTextActive: { color: INK, fontWeight: '800' },
+  helperCenter: { textAlign: 'center', fontSize: 13, color: MUTED },
+  dropdownRow: { flexDirection: 'row', gap: 10 },
   dropdown: {
-    height: 44, borderRadius: 12,
-    borderWidth: 1.5, borderColor: '#E0D8C8',
+    flex: 1,
+    height: 48,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: BORDER,
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  dropdownText: { fontSize: 14, fontWeight: '600', color: INK },
+  chipsRow: { flexDirection: 'row', gap: 8 },
+  chip: {
+    flex: 1,
+    minHeight: 44,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: BORDER,
+    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    paddingHorizontal: 4,
+  },
+  chipOn: { backgroundColor: '#FFF8DC', borderColor: YELLOW },
+  chipCheck: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#D4CEBF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  chipCheckOn: { borderColor: YELLOW, backgroundColor: YELLOW },
+  chipText: { fontSize: 12.5, fontWeight: '600', color: MUTED },
+  chipTextOn: { color: INK, fontWeight: '700' },
+  scheduleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    minHeight: 56,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: BORDER,
     backgroundColor: '#FAFAFA',
-    flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 12, gap: 6,
+    paddingHorizontal: 12,
   },
-  dropdownText: { flex: 1, fontSize: 14.5, fontWeight: '600', color: INK },
-
-  slotsRow: { flexDirection: 'row', gap: 8, marginTop: 10, flexWrap: 'wrap' },
-  slotChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-    paddingHorizontal: 12, paddingVertical: 9,
-    borderRadius: 16,
-    borderWidth: 1.5, borderColor: '#E0D8C8',
-    backgroundColor: WHITE,
+  scheduleIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#FFF4D6',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  slotChipActive: { backgroundColor: '#FFF9E0', borderColor: '#F0C040' },
-  slotCheck: {
-    width: 16, height: 16, borderRadius: 8,
-    backgroundColor: YELLOW, alignItems: 'center', justifyContent: 'center',
+  scheduleTitle: { fontSize: 15, fontWeight: '700', color: INK },
+  scheduleSub: { fontSize: 12.5, color: MUTED, marginTop: 2 },
+  mealCountRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 2,
   },
-  slotCircle: { width: 16, height: 16, borderRadius: 8, borderWidth: 1.5, borderColor: '#CCC', backgroundColor: WHITE },
-  slotText: { fontSize: 13.5, fontWeight: '600', color: MUTED },
-  slotTextActive: { color: INK },
-
-  moreOption: {
-    backgroundColor: WHITE, borderRadius: 14, paddingVertical: 14, paddingHorizontal: 14,
-    flexDirection: 'row', alignItems: 'center', gap: 12,
-    shadowColor: '#B19B66', shadowOpacity: 0.05, shadowRadius: 4,
-    shadowOffset: { width: 0, height: 1 }, elevation: 1,
+  mealCountText: { fontSize: 13, color: MUTED, fontWeight: '500' },
+  advancedCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: CARD,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: BORDER,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
   },
-  moreOptionIcon: {
-    width: 38, height: 38, borderRadius: 10,
-    backgroundColor: '#F5F0E8', alignItems: 'center', justifyContent: 'center',
+  advancedIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#F5F2EB',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  moreOptionTitle: { fontSize: 15, fontWeight: '700', color: INK },
-  moreOptionSub: { fontSize: 12.5, color: MUTED, marginTop: 2 },
-
-  infoInline: {
-    fontSize: 13, color: '#777', textAlign: 'center',
-    paddingHorizontal: 4, marginTop: 14, marginBottom: 4,
+  advancedTitle: { fontSize: 15, fontWeight: '700', color: INK },
+  advancedSub: { fontSize: 12.5, color: MUTED, marginTop: 2 },
+  infoBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#FFF8DC',
+    borderRadius: 14,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
   },
-
+  infoText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#92400E',
+    fontWeight: '500',
+    lineHeight: 18,
+  },
   footer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: CREAM,
-    paddingHorizontal: 14, paddingTop: 8, paddingBottom: 12,
-    borderTopWidth: 1, borderTopColor: BORDER,
-    flexDirection: 'row', gap: 8,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    gap: 10,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#EDE8DE',
   },
-  saveBtn: {
-    flex: 1, height: 46, borderRadius: 14, backgroundColor: YELLOW,
-    alignItems: 'center', justifyContent: 'center',
+  saveLinkHit: { alignItems: 'center', paddingVertical: 4 },
+  saveLink: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: MUTED,
+    textDecorationLine: 'underline',
   },
-  saveBtnText: { fontSize: 14, fontWeight: '800', color: INK, letterSpacing: -0.2 },
-  generateBtn: {
-    flex: 1, height: 46, borderRadius: 14,
-    borderWidth: 1.5, borderColor: '#E0D8C8', backgroundColor: WHITE,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  generateBtnText: { fontSize: 14, fontWeight: '700', color: INK },
+  ctaLoading: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  ctaText: { fontSize: 16, fontWeight: '800', color: INK },
 });

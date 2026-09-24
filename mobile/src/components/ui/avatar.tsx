@@ -1,13 +1,21 @@
 import { cn } from '@/lib/utils';
 import * as AvatarPrimitive from '@rn-primitives/avatar';
 
+type AvatarProps = Omit<React.ComponentProps<typeof AvatarPrimitive.Root>, 'alt'> & {
+  alt?: string;
+};
+
 function Avatar({
   className,
+  alt = 'Avatar',
+  style,
   ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Root>) {
+}: AvatarProps) {
   return (
     <AvatarPrimitive.Root
-      className={cn('relative flex size-8 shrink-0 overflow-hidden rounded-full', className)}
+      alt={alt}
+      className={cn('relative flex size-8 shrink-0 overflow-hidden rounded-full aspect-square', className)}
+      style={[{ aspectRatio: 1, flexShrink: 0 }, style]}
       {...props}
     />
   );
@@ -15,9 +23,16 @@ function Avatar({
 
 function AvatarImage({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
-  return <AvatarPrimitive.Image className={cn('aspect-square size-full', className)} {...props} />;
+  return (
+    <AvatarPrimitive.Image
+      className={cn('aspect-square size-full', className)}
+      style={[{ width: '100%', height: '100%', aspectRatio: 1 }, style]}
+      {...props}
+    />
+  );
 }
 
 function AvatarFallback({

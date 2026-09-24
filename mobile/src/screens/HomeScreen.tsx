@@ -1,5 +1,6 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   Image,
   Pressable,
@@ -36,6 +37,7 @@ import { useProfileDashboard } from '../hooks/useProfileDashboard';
 import type { HomeDashboard, WeatherData } from '../services/api/types';
 import { getCurrentWeeklyPlan } from '../services/api/weekly-plan';
 import type { WeeklyPlan } from '../services/api/types';
+import { notificationRealtime } from '../services/notification-realtime';
 
 const cardShadow = {
   shadowColor: '#B19B66',
@@ -69,8 +71,15 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
   } = useQuery({
     queryKey: ['home', 'dashboard', today, timezone],
     queryFn: () => homeApi.getDashboard({ localDate: today, timezone }),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      void refetchDashboard();
+    }, [refetchDashboard]),
+  );
 
   const loading = isLoading && !dashboard;
   const [refreshing, setRefreshing] = useState(false);
@@ -93,11 +102,20 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await refetchDashboard();
+    await Promise.all([refetchDashboard(), notificationRealtime.refreshUnreadCount()]);
     setRefreshing(false);
   }, [refetchDashboard]);
 
-  const unreadCount = dashboard?.unreadCount ?? 0;
+  const [realtimeUnreadCount, setRealtimeUnreadCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    const unsub = notificationRealtime.subscribeToUnreadCount((cnt) => {
+      setRealtimeUnreadCount(cnt);
+    });
+    return unsub;
+  }, []);
+
+  const unreadCount = realtimeUnreadCount ?? dashboard?.unreadCount ?? 0;
   const greeting = dashboard?.greeting?.full ?? null;
 
   return (
@@ -237,25 +255,32 @@ function RandomHero({ onPress }: { onPress: () => void }) {
 function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan: () => void }) {
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
 
-  useEffect(() => {
-    getCurrentWeeklyPlan()
-      .then((p) => setPlan(p))
-      .catch(() => {});
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      getCurrentWeeklyPlan()
+        .then((p) => setPlan(p))
+        .catch(() => {});
+    }, [])
+  );
 
-  const hasPlan = plan && plan.status !== 'GENERATING' && plan.status !== 'FAILED';
+  const todayIso = getTodayISO();
+  const isPlanExpired = !!plan && (
+    (plan.status === 'COMPLETED' || plan.status === 'ARCHIVED') ||
+    (plan.endDate && todayIso >= plan.endDate.split('T')[0]) ||
+    (Array.isArray(plan.days) && plan.days.length > 0 && plan.days.every((d) => d.date < todayIso))
+  );
+
+  const hasPlan = plan && plan.status !== 'GENERATING' && plan.status !== 'FAILED' && !isPlanExpired;
   const budget = plan?.budgetLimitVnd ?? 500000;
   const { forecastSpent: spent, forecastKcal: calConsumed } = computeWeeklyForecast(plan ?? {});
   const calTotal = plan?.targetKcal ?? 14000;
   const budgetPercent = Math.min((spent / budget) * 100, 100);
   const calPercent = Math.min((calConsumed / calTotal) * 100, 100);
-  const budgetLeft = Math.round((budget - spent) / 1000);
   const calPctRounded = Math.round(calPercent);
   const durationDays = plan
     ? Math.max(1, Math.round((new Date(plan.endDate).getTime() - new Date(plan.startDate).getTime()) / 86400000))
     : 7;
-  const mealsPerDay = 3;
-  const totalMeals = durationDays * mealsPerDay;
+  const totalMeals = durationDays * 3;
 
   if (plan?.status === 'FAILED') {
     return (
@@ -286,17 +311,37 @@ function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan
           <Text style={{ fontSize: 18, fontWeight: '800', color: '#111', letterSpacing: -0.4 }}>Kế hoạch tuần</Text>
         </View>
         <View style={{ borderRadius: 18, backgroundColor: '#fff', overflow: 'hidden', ...cardShadow, padding: 16, alignItems: 'center', gap: 10 }}>
-          <Text style={{ fontSize: 14, color: '#999' }}>Chưa có kế hoạch. Nhấn để tạo thực đơn tuần!</Text>
+          <Text style={{ fontSize: 14, color: '#999' }}>
+            {isPlanExpired
+              ? 'Kế hoạch tuần trước đã hoàn thành. Hãy lên kế hoạch tuần này!'
+              : 'Chưa có kế hoạch. Nhấn để tạo thực đơn tuần!'}
+          </Text>
           <TouchableOpacity
-            onPress={onOpenPlan}
+            onPress={onEdit}
             style={{ height: 44, borderRadius: 12, borderWidth: 1.5, borderColor: '#F0C040', paddingHorizontal: 24, alignItems: 'center', justifyContent: 'center' }}
           >
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#C08000' }}>Tạo thực đơn</Text>
+            <Text style={{ fontSize: 14, fontWeight: '700', color: '#C08000' }}>Lên kế hoạch tuần này</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   }
+
+  const start = plan!.startDate.split('T')[0];
+  const end = plan!.endDate.split('T')[0];
+  const [, sm, sd] = start.split('-');
+  const [, em, ed] = end.split('-');
+  const monthLabel = Number(sm) === Number(em)
+    ? `${Number(sd)} – ${Number(ed)} tháng ${Number(sm)}`
+    : `${Number(sd)}/${Number(sm)} – ${Number(ed)}/${Number(em)}`;
+  const slotCount = Array.isArray(plan!.days)
+    ? plan!.days.reduce((n, d) => n + (d.slots?.length ?? 0), 0)
+    : totalMeals;
+  const remaining = Math.max(0, budget - spent);
+  const statusLabel =
+    plan!.status === 'READY' ? 'Sẵn sàng' :
+    plan!.status === 'ACTIVE' ? 'Đang chạy' :
+    plan!.status === 'COMPLETED' ? 'Hoàn thành' : 'Kế hoạch';
 
   return (
     <View style={{ marginHorizontal: 20, marginTop: 20 }}>
@@ -307,68 +352,101 @@ function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan
           <ChevronRight size={16} color="#D99E00" />
         </TouchableOpacity>
       </View>
-      <View style={{ borderRadius: 18, backgroundColor: '#fff', overflow: 'hidden', ...cardShadow }}>
-        <View style={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 10 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View>
-              <Text style={{ fontSize: 17, fontWeight: '800', color: '#111', letterSpacing: -0.3 }}>{durationDays} ngày trong {Math.round(budget / 1000)}K</Text>
-              <Text style={{ fontSize: 12, color: '#999', marginTop: 2 }}>{totalMeals} bữa · {mealsPerDay} bữa/ngày</Text>
-            </View>
-            <TouchableOpacity onPress={onEdit} hitSlop={10} style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: '#F5F0E8', alignItems: 'center', justifyContent: 'center' }}>
-              <Edit3 size={15} color="#888" strokeWidth={1.8} />
-            </TouchableOpacity>
+      <View style={{ borderRadius: 20, backgroundColor: '#fff', overflow: 'hidden', ...cardShadow, padding: 16 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{
+            flexDirection: 'row', alignItems: 'center', gap: 6,
+            backgroundColor: '#DCFCE7', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999,
+          }}>
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#15803D' }}>✔ {statusLabel}</Text>
           </View>
+          <TouchableOpacity
+            onPress={onEdit}
+            hitSlop={10}
+            style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#F5F2EB', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Edit3 size={15} color="#888" strokeWidth={1.8} />
+          </TouchableOpacity>
         </View>
-        <View style={{ height: 1, backgroundColor: '#F3EDD8', marginHorizontal: 16 }} />
-        <View style={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: 4, gap: 13 }}>
+
+        <Text style={{ fontSize: 20, fontWeight: '800', color: '#111', marginTop: 12, letterSpacing: -0.3 }}>
+          {monthLabel}
+        </Text>
+        <Text style={{ fontSize: 13, color: '#999', marginTop: 2 }}>
+          {slotCount} bữa · {durationDays} ngày
+        </Text>
+
+        <View style={{ marginTop: 16, gap: 14 }}>
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-                <Text style={{ fontSize: 16 }}>❤️</Text>
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#333' }}>Chi tiêu</Text>
+                <Text style={{ fontSize: 15 }}>🪙</Text>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: '#333' }}>Ngân sách dự kiến</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#333' }}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#111' }}>
                   {Math.round(spent / 1000)}K / {Math.round(budget / 1000)}K
                 </Text>
-                <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20, backgroundColor: budgetLeft >= 0 ? '#DCFCE7' : '#FEE2E2' }}>
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: budgetLeft >= 0 ? '#15803D' : '#B91C1C' }}>
-                    {budgetLeft >= 0 ? 'Còn ' + budgetLeft + 'K' : 'Vượt ' + Math.abs(budgetLeft) + 'K'}
+                <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20, backgroundColor: '#DCFCE7' }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#15803D' }}>
+                    Còn {Math.round(remaining / 1000)}K
                   </Text>
                 </View>
               </View>
             </View>
-            <View style={{ height: 7, borderRadius: 4, overflow: 'hidden' }}>
-              <Progress value={budgetPercent} className="h-[7px] bg-[#F0E9D0]" indicatorClassName="bg-[#FFC01A]" />
+            <View style={{ height: 8, borderRadius: 4, overflow: 'hidden' }}>
+              <Progress value={budgetPercent} className="h-2 bg-[#F0E9D0]" indicatorClassName="bg-[#FFC01A]" />
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
+              <Text style={{ fontSize: 11.5, color: '#AAA' }}>Đã chi tiêu (thực tế) {Math.round(spent / 1000)}K</Text>
+              <Text style={{ fontSize: 11.5, color: '#AAA' }}>Còn lại {Math.round(remaining / 1000)}K</Text>
             </View>
           </View>
+
           <View>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
                 <Flame size={17} color="#FF6030" fill="#FF6030" />
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#333' }}>Năng lượng</Text>
+                <Text style={{ fontSize: 13, fontWeight: '600', color: '#333' }}>Năng lượng dự kiến</Text>
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#333' }}>
+                <Text style={{ fontSize: 13, fontWeight: '700', color: '#111' }}>
                   {calConsumed.toLocaleString('vi-VN')} / {calTotal.toLocaleString('vi-VN')} kcal
                 </Text>
-                <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20, backgroundColor: '#FEF9C3' }}>
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#854D0E' }}>Đạt {calPctRounded}%</Text>
+                <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20, backgroundColor: '#FFEDD5' }}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#C2410C' }}>{calPctRounded}%</Text>
                 </View>
               </View>
             </View>
-            <View style={{ height: 7, borderRadius: 4, overflow: 'hidden' }}>
-              <Progress value={calPercent} className="h-[7px] bg-[#F0E9D0]" indicatorClassName="bg-[#FF6030]" />
+            <View style={{ height: 8, borderRadius: 4, overflow: 'hidden' }}>
+              <Progress value={calPercent} className="h-2 bg-[#F0E9D0]" indicatorClassName="bg-[#FF6030]" />
+            </View>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
+              <Text style={{ fontSize: 11.5, color: '#AAA' }}>
+                Đã nạp (thực tế) {calConsumed.toLocaleString('vi-VN')} kcal
+              </Text>
+              <Text style={{ fontSize: 11.5, color: '#AAA' }}>
+                Mục tiêu {calTotal.toLocaleString('vi-VN')} kcal
+              </Text>
             </View>
           </View>
-          <Text style={{ fontSize: 12, color: '#BBB', marginBottom: 4 }}>
-            Trung bình {spent > 0 ? Math.round(spent / durationDays / 1000) : Math.round(budget / durationDays / 1000)}K · {calConsumed > 0 ? Math.round(calConsumed / durationDays).toLocaleString('vi-VN') : Math.round(calTotal / durationDays).toLocaleString('vi-VN')} kcal/ngày
+        </View>
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12 }}>
+          <Text style={{ fontSize: 12, color: '#BBB' }}>ⓘ</Text>
+          <Text style={{ fontSize: 12, color: '#BBB', flex: 1 }}>
+            Thực tế sẽ được cập nhật khi hoàn thành bữa
           </Text>
         </View>
+
         <TouchableOpacity
           activeOpacity={0.85}
           onPress={onOpenPlan}
-          style={{ marginHorizontal: 16, marginBottom: 14, height: 48, borderRadius: 13, borderWidth: 1.5, borderColor: '#F0C040', backgroundColor: '#fff', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5 }}
+          style={{
+            marginTop: 14, height: 48, borderRadius: 999, borderWidth: 1.5,
+            borderColor: '#F0C040', backgroundColor: '#fff',
+            flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
+          }}
         >
           <Text style={{ fontSize: 15, fontWeight: '700', color: '#C08000' }}>Mở thực đơn</Text>
           <ChevronRight size={17} color="#C08000" />

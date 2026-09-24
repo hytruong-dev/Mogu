@@ -34,8 +34,108 @@ export type MealLog = {
   mealSlot: string;
   localDate: string;
   totals: { kcal: number; proteinG: number | null; carbsG: number | null; fatG: number | null };
-  items: Array<{ id: string; displayName: string; referenceId?: string | null; calories: number | null }>;
+  items: Array<{ id: string; displayName: string; referenceId?: string | null; calories: number | null; thumbnailUrl?: string | null }>;
   version: number;
+};
+
+export type FormattedMealLogItem = {
+  id: string;
+  referenceType: string;
+  referenceId?: string | null;
+  displayName: string;
+  quantity: number;
+  unitCode?: string;
+  calories?: number | null;
+  thumbnailUrl?: string | null;
+};
+
+export type FormattedMealLog = {
+  id: string;
+  mealSlot: string;
+  occurredAt: string;
+  localDate: string;
+  sourceType: string;
+  totals: { kcal: number; proteinG: number | null; carbsG: number | null; fatG: number | null };
+  items: FormattedMealLogItem[];
+};
+
+export type DayGroupItem = {
+  localDate: string;
+  label: string;
+  consumedKcal: number;
+  mealCount: number;
+  previewMediaUrls: string[];
+  meals: FormattedMealLog[];
+};
+
+export type MonthGroupItem = {
+  monthKey: string;
+  monthNumber: number;
+  label: string;
+  shortLabel: string;
+  consumedKcal: number;
+  mealCount: number;
+  hasData: boolean;
+  previewMediaUrls: string[];
+};
+
+export type SeriesItem = {
+  key: string;
+  label: string;
+  subLabel?: string;
+  date?: string;
+  consumedKcal: number | null;
+  kcal: number;
+  mealCount: number;
+};
+
+export type WeeklySeriesItem = {
+  key: string;
+  label: string;
+  subLabel: string;
+  consumedKcal: number | null;
+  mealCount: number;
+};
+
+export type MealStatsResponse = {
+  period: 'day' | 'week' | 'month' | 'year';
+  date: string;
+  startDate: string;
+  endDate: string;
+  label: string;
+  totals: {
+    kcal: number;
+    proteinG: number;
+    carbsG: number;
+    fatG: number;
+  };
+  targets: {
+    dailyKcalTarget: number | null;
+    periodKcalTarget: number | null;
+    dailyProteinG: number | null;
+    periodProteinG: number | null;
+    dailyCarbsG: number | null;
+    periodCarbsG: number | null;
+    dailyFatG: number | null;
+    periodFatG: number | null;
+  };
+  avgKcalPerDay: number;
+  avgKcalPerActiveDay: number;
+  daysLogged: number;
+  totalDays: number;
+  coveragePercent: number;
+  totalMeals: number;
+  series: SeriesItem[];
+  breakdown: SeriesItem[];
+  weeklySeries: WeeklySeriesItem[];
+  dayGroups: DayGroupItem[];
+  monthGroups: MonthGroupItem[];
+  insights: {
+    highestDay: { date: string; label: string; kcal: number; mealCount: number } | null;
+    highestMonth: { monthKey: string; label: string; kcal: number; mealCount: number } | null;
+    summary: string;
+  };
+  items: FormattedMealLog[];
 };
 
 export const healthApi = {
@@ -56,6 +156,21 @@ export const healthApi = {
     apiRequest<{ items: MealLog[] }>(
       `/meal-logs?localDate=${localDate}&timezone=${encodeURIComponent(timezone)}`,
     ),
+
+  getMealStats: (
+    period: 'day' | 'week' | 'month' | 'year',
+    date?: string,
+    timezone?: string,
+  ) => {
+    const query = new URLSearchParams();
+    query.set('period', period);
+    if (date) {
+      query.set('anchor', date);
+      query.set('date', date);
+    }
+    if (timezone) query.set('timezone', timezone);
+    return apiRequest<MealStatsResponse>(`/meal-logs/stats?${query.toString()}`);
+  },
 
   createMealLog: (
     body: {

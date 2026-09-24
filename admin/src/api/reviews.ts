@@ -33,9 +33,9 @@ export const reviewsAdminApi = {
   list: (params?: AdminReviewListParams) =>
     api.get<AdminReviewListResponse>('/admin/reviews', { params }).then((r) => r.data),
 
-  /** [Admin] Ẩn review */
-  hide: (id: string) =>
-    api.patch<CommunityReview>(`/admin/reviews/${id}/hide`).then((r) => r.data),
+  /** [Admin] Ẩn hoặc hiện lại review */
+  hide: (id: string, isVisible = false) =>
+    api.patch<CommunityReview>(`/admin/reviews/${id}/hide`, { isVisible }).then((r) => r.data),
 
   /** [Super Admin] Xóa cứng review */
   delete: (id: string) =>

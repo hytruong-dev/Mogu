@@ -53,6 +53,12 @@ export class WeeklyPlansService {
         mealsPerDay: 3,
         enabledSlots: ['MORNING', 'LUNCH', 'DINNER'] as any,
         avoidRepeat: true,
+        preferHomeCook: true,
+        allowOutsideMeals: true,
+        repeatWindowDays: 7,
+        preferNewDishes: true,
+        keepLockedMeals: true,
+        preserveLoggedDays: true,
       },
     });
   }
@@ -61,20 +67,61 @@ export class WeeklyPlansService {
 
   async generate(userId: string, dto: GenerateWeeklyPlanDto) {
     const config = await this.requireConfig(userId);
+
+    // Dọn dẹp/lưu trữ các bản nháp (READY/GENERATING) cũ của user trước khi sinh kế hoạch mới
+    await this.prisma.db.weeklyPlan.updateMany({
+      where: { userId, status: WeeklyPlanStatus.READY },
+      data: { status: WeeklyPlanStatus.ARCHIVED, archivedAt: new Date() },
+    });
+
+    const durationDays = dto.durationDays ?? config.durationDays;
+    const budgetVnd = dto.budget ?? config.budgetVnd;
+    const kcalPerDay = dto.dailyCalories ?? config.kcalPerDay;
+    const kcalMode = dto.calorieSource ?? config.kcalMode;
+    const enabledSlots = dto.mealSlots?.length
+      ? Array.from(new Set(dto.mealSlots))
+      : (config.enabledSlots as string[]);
+    const avoidRepeat =
+      dto.advanced?.limitRepeats !== undefined
+        ? dto.advanced.limitRepeats
+        : config.avoidRepeat;
+    const preferHomeCook =
+      dto.advanced?.preferSelfCook !== undefined
+        ? dto.advanced.preferSelfCook
+        : config.preferHomeCook;
+
     const startDate = new Date(dto.startDate);
     const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + config.durationDays);
+    endDate.setDate(endDate.getDate() + durationDays);
 
-    // Config snapshot
+    const mealsPerDay = Array.from(new Set(enabledSlots)).length;
+    const mealCount = durationDays * mealsPerDay;
+
+    // Config snapshot (immutable for this generation run)
     const configSnapshot = {
-      budgetVnd: config.budgetVnd,
-      kcalPerDay: config.kcalPerDay,
-      kcalMode: config.kcalMode,
-      durationDays: config.durationDays,
-      enabledSlots: config.enabledSlots,
-      avoidRepeat: config.avoidRepeat,
+      budgetVnd,
+      kcalPerDay,
+      kcalMode,
+      durationDays,
+      enabledSlots,
+      avoidRepeat,
+      preferHomeCook,
+      allowOutsideMeals:
+        dto.advanced?.allowOutsideMeals ?? config.allowOutsideMeals ?? true,
+      repeatWindowDays:
+        dto.advanced?.repeatWindowDays ?? config.repeatWindowDays ?? 7,
+      preferNewDishes:
+        dto.advanced?.preferNewDishes ?? config.preferNewDishes ?? true,
+      likedDishPreference:
+        dto.advanced?.likedDishPreference ??
+        config.likedDishPreference ??
+        'LIGHT',
+      keepLockedMeals:
+        dto.advanced?.keepLockedMeals ?? config.keepLockedMeals ?? true,
+      preserveLoggedDays:
+        dto.advanced?.preserveLoggedDays ?? config.preserveLoggedDays ?? true,
       calorieTolerancePercent: config.calorieTolerancePercent,
-      mealsPerDay: Array.from(new Set(config.enabledSlots as string[])).length,
+      mealsPerDay,
     };
 
     // Create plan in GENERATING state
@@ -84,8 +131,8 @@ export class WeeklyPlansService {
         configId: config.id,
         startDate,
         endDate,
-        budgetLimitVnd: config.budgetVnd,
-        targetKcal: config.kcalPerDay * config.durationDays,
+        budgetLimitVnd: budgetVnd,
+        targetKcal: kcalPerDay * durationDays,
         configSnapshot: configSnapshot as any,
         algorithmVersion: ALGORITHM_VERSION,
       },
@@ -147,23 +194,79 @@ export class WeeklyPlansService {
       }
     }
 
-    return { planId: plan.id, status: plan.status };
+    return {
+      status: 'CREATED' as const,
+      planId: plan.id,
+      startDate: dto.startDate,
+      durationDays,
+      mealCount,
+      estimatedBudget: budgetVnd,
+      generationStatus: plan.status,
+    };
   }
 
   async getCurrent(userId: string) {
-    // Priority: ACTIVE > READY > GENERATING (mới nhất)
+    const now = new Date();
+
+    // 1. Tự động chuyển các kế hoạch ACTIVE đã hết hạn sang COMPLETED
+    const activePlans = await this.prisma.db.weeklyPlan.findMany({
+      where: { userId, status: WeeklyPlanStatus.ACTIVE },
+      include: this.planInclude(),
+    });
+
+    for (const plan of activePlans) {
+      if (this.isPlanExpired(plan)) {
+        await this.prisma.db.weeklyPlan.update({
+          where: { id: plan.id },
+          data: {
+            status: WeeklyPlanStatus.COMPLETED,
+            completedAt: plan.completedAt ?? now,
+          },
+        });
+      }
+    }
+
+    // 2. Tự động lưu trữ các kế hoạch READY đã quá hạn
+    const readyPlans = await this.prisma.db.weeklyPlan.findMany({
+      where: { userId, status: WeeklyPlanStatus.READY },
+      include: this.planInclude(),
+    });
+
+    for (const plan of readyPlans) {
+      if (this.isPlanExpired(plan)) {
+        await this.prisma.db.weeklyPlan.update({
+          where: { id: plan.id },
+          data: {
+            status: WeeklyPlanStatus.ARCHIVED,
+            archivedAt: now,
+          },
+        });
+      }
+    }
+
+    // 3. Lấy kế hoạch ACTIVE và READY mới nhất
     const activePlan = await this.prisma.db.weeklyPlan.findFirst({
       where: { userId, status: WeeklyPlanStatus.ACTIVE },
       orderBy: { createdAt: 'desc' },
       include: this.planInclude(),
     });
-    if (activePlan) return this.formatPlan(activePlan);
 
     const readyPlan = await this.prisma.db.weeklyPlan.findFirst({
       where: { userId, status: WeeklyPlanStatus.READY },
       orderBy: { createdAt: 'desc' },
       include: this.planInclude(),
     });
+
+    // Nếu người dùng có kế hoạch READY được sinh ra SAU kế hoạch ACTIVE (vừa tạo kế hoạch mới)
+    // -> Ưu tiên trả về readyPlan để client thấy và xem/kích hoạt thực đơn mới tạo!
+    if (activePlan && readyPlan) {
+      if (readyPlan.createdAt.getTime() > activePlan.createdAt.getTime()) {
+        return this.formatPlan(readyPlan);
+      }
+      return this.formatPlan(activePlan);
+    }
+
+    if (activePlan) return this.formatPlan(activePlan);
     if (readyPlan) return this.formatPlan(readyPlan);
 
     // Trả GENERATING để mobile hiển thị banner "đang tạo..."
@@ -172,7 +275,17 @@ export class WeeklyPlansService {
       orderBy: { createdAt: 'desc' },
       include: this.planInclude(),
     });
-    if (generatingPlan) return this.formatPlan(generatingPlan);
+    if (generatingPlan) {
+      const diffMin = (Date.now() - generatingPlan.createdAt.getTime()) / 60000;
+      if (diffMin > 30) {
+        await this.prisma.db.weeklyPlan.update({
+          where: { id: generatingPlan.id },
+          data: { status: WeeklyPlanStatus.FAILED, generationErrorCode: 'TIMEOUT' },
+        });
+      } else {
+        return this.formatPlan(generatingPlan);
+      }
+    }
 
     // Trả FAILED mới nhất để mobile hiển thị lỗi thay vì che giấu
     const failedPlan = await this.prisma.db.weeklyPlan.findFirst({
@@ -183,6 +296,30 @@ export class WeeklyPlansService {
     if (failedPlan) return this.formatPlan(failedPlan);
 
     return null;
+  }
+
+  private isPlanExpired(plan: { endDate: Date; slots?: { date: Date }[] }): boolean {
+    const now = new Date();
+    const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(now);
+    const endDateStr = plan.endDate.toISOString().split('T')[0];
+
+    // Nếu ngày hiện tại >= ngày kết thúc (endDate là 1 ngày sau ngày slot cuối)
+    if (todayStr >= endDateStr) {
+      return true;
+    }
+
+    // Kiểm tra thêm ngày của slot cuối cùng
+    if (plan.slots && plan.slots.length > 0) {
+      const lastSlotDateStr = plan.slots.reduce((max, s) => {
+        const dStr = s.date.toISOString().split('T')[0];
+        return dStr > max ? dStr : max;
+      }, '');
+      if (lastSlotDateStr && todayStr > lastSlotDateStr) {
+        return true;
+      }
+    }
+
+    return now.getTime() >= plan.endDate.getTime();
   }
 
   async getById(planId: string, userId: string) {
@@ -331,6 +468,218 @@ export class WeeklyPlansService {
     };
   }
 
+  async getWeeklyIngredients(planId: string, userId: string) {
+    const plan = await this.findPlanForUser(planId, userId);
+
+    const slots = await this.prisma.db.weeklyPlanSlot.findMany({
+      where: {
+        planId,
+        status: { not: WeeklyPlanSlotStatus.SKIPPED },
+      },
+      select: {
+        id: true,
+        dishId: true,
+        dishNameSnapshot: true,
+        date: true,
+        mealSlot: true,
+        priceSnapshotVnd: true,
+      },
+      orderBy: [{ date: 'asc' }, { mealSlot: 'asc' }],
+    });
+
+    const dishIds = [
+      ...new Set(slots.map((s) => s.dishId).filter(Boolean)),
+    ] as string[];
+
+    if (dishIds.length === 0) {
+      return {
+        planId,
+        startDate: plan.startDate,
+        endDate: plan.endDate,
+        totalMeals: 0,
+        totalDishes: 0,
+        totalIngredientsCount: 0,
+        totalEstimatedCostVnd: plan.projectedCostVnd ?? 0,
+        items: [],
+        byCategory: [],
+      };
+    }
+
+    const toIsoDate = (d: Date | string) => {
+      if (typeof d === 'string') return d.slice(0, 10);
+      return d.toISOString().slice(0, 10);
+    };
+
+    const dishMap = new Map<string, { name: string; dates: string[]; slots: string[] }>();
+    for (const s of slots) {
+      const dateIso = toIsoDate(s.date);
+      const existing = dishMap.get(s.dishId);
+      if (!existing) {
+        dishMap.set(s.dishId, {
+          name: s.dishNameSnapshot,
+          dates: [dateIso],
+          slots: [s.mealSlot],
+        });
+      } else {
+        if (!existing.dates.includes(dateIso)) existing.dates.push(dateIso);
+        if (!existing.slots.includes(s.mealSlot)) existing.slots.push(s.mealSlot);
+      }
+    }
+
+    const dishIngredients = await this.prisma.db.dishIngredient.findMany({
+      where: { dishId: { in: dishIds } },
+      include: {
+        ingredient: {
+          select: { id: true, name: true, imageUrl: true, imageKey: true, unit: true },
+        },
+      },
+      orderBy: { sortOrder: 'asc' },
+    });
+
+    type AggItem = {
+      key: string;
+      ingredientId: string | null;
+      name: string;
+      category: 'MEAT_SEAFOOD' | 'VEGGIES' | 'CARBS' | 'SEASONING' | 'OTHER';
+      categoryLabel: string;
+      imageUrl: string | null;
+      quantity: number | null;
+      unit: string | null;
+      isOptional: boolean;
+      usedInDishes: string[];
+      dishCount: number;
+    };
+
+    const agg = new Map<string, AggItem>();
+
+    for (const row of dishIngredients) {
+      const name =
+        row.ingredient?.name?.trim() ||
+        row.parsedName?.trim() ||
+        row.rawText.trim() ||
+        'Nguyên liệu';
+      const unit = row.unit ?? row.ingredient?.unit ?? null;
+      const qty = row.quantity != null ? Number(row.quantity) : null;
+      const keyBase = row.ingredientId ?? this.normalizeIngredientKey(name);
+      const key = `${keyBase}|${(unit ?? '').toLowerCase()}`;
+
+      const dishInfo = dishMap.get(row.dishId);
+      const dishName = dishInfo?.name ?? 'Món';
+
+      const existing = agg.get(key);
+      if (!existing) {
+        const { category, categoryLabel } = this.categorizeIngredient(name, row.groupLabel);
+        agg.set(key, {
+          key,
+          ingredientId: row.ingredientId,
+          name,
+          category,
+          categoryLabel,
+          imageUrl: this.buildIngredientImageUrl(
+            row.ingredient?.imageUrl,
+            row.ingredient?.imageKey,
+          ),
+          quantity: qty,
+          unit,
+          isOptional: row.isOptional,
+          usedInDishes: [dishName],
+          dishCount: 1,
+        });
+      } else {
+        if (qty != null && existing.quantity != null) {
+          existing.quantity += qty;
+        } else if (qty != null && existing.quantity == null) {
+          existing.quantity = qty;
+        }
+        existing.isOptional = existing.isOptional && row.isOptional;
+        if (!existing.usedInDishes.includes(dishName)) {
+          existing.usedInDishes.push(dishName);
+          existing.dishCount += 1;
+        }
+        if (!existing.imageUrl) {
+          existing.imageUrl = this.buildIngredientImageUrl(
+            row.ingredient?.imageUrl,
+            row.ingredient?.imageKey,
+          );
+        }
+      }
+    }
+
+    const items = Array.from(agg.values())
+      .map(({ key: _k, ...rest }) => rest)
+      .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+
+    const categoriesOrder = [
+      { key: 'MEAT_SEAFOOD' as const, label: 'Thịt & Hải sản' },
+      { key: 'VEGGIES' as const, label: 'Rau củ & Trái cây' },
+      { key: 'CARBS' as const, label: 'Tinh bột & Đậu' },
+      { key: 'SEASONING' as const, label: 'Gia vị & Dầu ăn' },
+      { key: 'OTHER' as const, label: 'Khác' },
+    ];
+
+    const byCategory = categoriesOrder
+      .map((cat) => ({
+        category: cat.key,
+        label: cat.label,
+        items: items.filter((it) => it.category === cat.key),
+      }))
+      .filter((group) => group.items.length > 0);
+
+    return {
+      planId,
+      startDate: plan.startDate,
+      endDate: plan.endDate,
+      totalMeals: slots.length,
+      totalDishes: dishIds.length,
+      totalIngredientsCount: items.length,
+      totalEstimatedCostVnd: plan.projectedCostVnd ?? 0,
+      items,
+      byCategory,
+    };
+  }
+
+  private categorizeIngredient(name: string, groupLabel?: string | null): {
+    category: 'MEAT_SEAFOOD' | 'VEGGIES' | 'CARBS' | 'SEASONING' | 'OTHER';
+    categoryLabel: string;
+  } {
+    const lower = name.toLowerCase();
+    const groupLower = (groupLabel ?? '').toLowerCase();
+
+    // Check meat & seafood
+    if (
+      /(thịt|heo|lợn|bò|gà|vịt|ngan|chim|cá|tôm|cua|mực|nghêu|sò|ốc|hến|bạch tuộc|chả|xúc xích|lạp xưởng|trứng|bào ngư|hàu)/i.test(lower) ||
+      /(thịt|hải sản|thủy sản)/i.test(groupLower)
+    ) {
+      return { category: 'MEAT_SEAFOOD', categoryLabel: 'Thịt & Hải sản' };
+    }
+
+    // Check carbs & legumes
+    if (
+      /(gạo|cơm|bún|mì|miến|phở|bánh mì|nui|yến mạch|đậu phụ|đậu hũ|tàu hũ|đậu xanh|đậu đen|đậu đỏ|đậu phộng|lạc|mè)/i.test(lower) ||
+      /(tinh bột|ngũ cốc|đậu)/i.test(groupLower)
+    ) {
+      return { category: 'CARBS', categoryLabel: 'Tinh bột & Đậu' };
+    }
+
+    // Check seasonings
+    if (
+      /(muối|đường|nước mắm|mắm|xì dầu|nước tương|dầu ăn|dầu hào|tiêu|bột ngọt|mì chính|hạt nêm|giấm|ngũ vị hương|sa tế|tương ớt|tương cà|bột chiên|bột mì|bột năng)/i.test(lower) ||
+      /(gia vị|nước chấm|dầu mỡ)/i.test(groupLower)
+    ) {
+      return { category: 'SEASONING', categoryLabel: 'Gia vị & Dầu ăn' };
+    }
+
+    // Check veggies, fruits & herbs
+    if (
+      /(rau|cải|xà lách|muống|dền|ngót|mồng tơi|cà chua|cà rốt|khoai|hành|tỏi|ớt|sả|gừng|nấm|dưa|bí|bầu|chanh|ngò|thì là|tía tô|húng|diếp cá|chuối|táo|xoài|cam|bưởi)/i.test(lower) ||
+      /(rau|củ|quả|trái cây)/i.test(groupLower)
+    ) {
+      return { category: 'VEGGIES', categoryLabel: 'Rau củ & Trái cây' };
+    }
+
+    return { category: 'OTHER', categoryLabel: 'Khác' };
+  }
+
   private normalizeIngredientKey(name: string): string {
     return name
       .toLowerCase()
@@ -447,8 +796,13 @@ export class WeeklyPlansService {
       throw new BadRequestException({ error: { code: WEEKLY_PLAN_ERRORS.PLAN_NOT_READY } });
     }
 
+    const now = new Date();
+    const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(now);
+    const planStartStr = plan.startDate.toISOString().split('T')[0];
+    const targetStartDate = planStartStr < todayStr ? todayStr : planStartStr;
+
     const newPlan = await this.generate(userId, {
-      startDate: plan.startDate.toISOString().split('T')[0],
+      startDate: targetStartDate,
     });
 
     return {
@@ -746,6 +1100,7 @@ export class WeeklyPlansService {
       actualKcal: plan.actualKcal,
       algorithmVersion: plan.algorithmVersion,
       generationErrorCode: plan.generationErrorCode,
+      generationErrorData: plan.generationErrorData ?? null,
       version: plan.version,
       createdAt: plan.createdAt,
       startedAt: plan.startedAt,
@@ -830,6 +1185,7 @@ export class WeeklyPlansService {
         percent,
       },
       error: plan.generationErrorCode ?? null,
+      errorData: plan.generationErrorData ?? null,
     };
   }
 }

@@ -11,6 +11,8 @@ import type {
   WeeklyPlanSlotSwapDto,
   UpsertWeeklyPlanConfigDto,
   DayIngredientsResponse,
+  WeeklyIngredientsResponse,
+  WeeklyPlanGenerationErrorData,
 } from './types';
 
 // ── Config ─────────────────────────────────────────────────────────────────────
@@ -37,13 +39,31 @@ export async function upsertWeeklyPlanConfig(
 
 export async function generateWeeklyPlan(
   startDate: string,
-  idempotencyKey?: string,
+  opts?: {
+    idempotencyKey?: string;
+    durationDays?: number;
+    budget?: number;
+    dailyCalories?: number;
+    calorieSource?: 'PROFILE' | 'CUSTOM';
+    mealSlots?: import('./types').WeeklyMealSlot[];
+    advanced?: import('./types').UpsertWeeklyPlanConfigDto['advanced'];
+  },
 ): Promise<WeeklyPlanGenerateResponse> {
-  const key = idempotencyKey ?? `gen-plan-${startDate}-${Date.now()}`;
+  const key =
+    opts?.idempotencyKey ?? `gen-plan-${startDate}-${Date.now()}`;
+  const body: Record<string, unknown> = { startDate };
+  if (opts?.durationDays != null) body.durationDays = opts.durationDays;
+  if (opts?.budget != null) body.budget = opts.budget;
+  if (opts?.dailyCalories != null) body.dailyCalories = opts.dailyCalories;
+  if (opts?.calorieSource) body.calorieSource = opts.calorieSource;
+  if (opts?.mealSlots?.length) body.mealSlots = opts.mealSlots;
+  if (opts?.advanced) body.advanced = opts.advanced;
+  if (opts?.idempotencyKey) body.idempotencyKey = opts.idempotencyKey;
+
   return apiRequest<WeeklyPlanGenerateResponse>('/weekly-plans/generate', {
     method: 'POST',
     headers: { 'Idempotency-Key': key },
-    body: JSON.stringify({ startDate }),
+    body: JSON.stringify(body),
   });
 }
 
@@ -69,11 +89,20 @@ export async function getDayIngredients(
   );
 }
 
+export async function getWeeklyIngredients(
+  planId: string,
+): Promise<WeeklyIngredientsResponse> {
+  return apiRequest<WeeklyIngredientsResponse>(
+    `/weekly-plans/${planId}/ingredients`,
+  );
+}
+
 export async function getWeeklyPlanGenerationStatus(planId: string): Promise<{
   planId: string;
   status: string;
   progress: { totalSlots: number; completedSlots: number; percent: number };
   error?: string | null;
+  errorData?: WeeklyPlanGenerationErrorData | null;
 }> {
   return apiRequest(`/weekly-plans/${planId}/generation`);
 }

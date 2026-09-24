@@ -41,6 +41,18 @@ export class MealLogsController {
     return this.mealLogs.list(user.id, localDate, timezone);
   }
 
+  @Get('stats')
+  @ApiOperation({ summary: 'Thống kê nhật ký bữa ăn theo ngày/tuần/tháng/năm' })
+  getStats(
+    @CurrentUser() user: { id: string },
+    @Query('period') period?: 'day' | 'week' | 'month' | 'year',
+    @Query('date') date?: string,
+    @Query('anchor') anchor?: string,
+    @Query('timezone') timezone?: string,
+  ) {
+    return this.mealLogs.getStats(user.id, period || 'day', anchor || date, timezone);
+  }
+
   @Get(':id')
   getOne(
     @CurrentUser() user: { id: string },

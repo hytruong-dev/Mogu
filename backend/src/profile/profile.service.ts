@@ -5,11 +5,13 @@ import {
   NotFoundException,
   PreconditionFailedException,
   Logger,
+  Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { UpdateBasicDto } from './dto/update-basic.dto';
 import { UpdateHealthDto } from './dto/update-health.dto';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
@@ -23,6 +25,7 @@ export class ProfileService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    @Optional() private readonly notificationsService?: NotificationsService,
   ) {
     const supabaseUrl = this.config.get<string>('SUPABASE_URL');
     const serviceRoleKey = this.config.get<string>('SUPABASE_SERVICE_ROLE_KEY');
@@ -824,10 +827,21 @@ export class ProfileService {
           },
         });
         if (earned) {
-          await this.prisma.db.userAchievement.updateMany({
+          const updateRes = await this.prisma.db.userAchievement.updateMany({
             where: { userId, achievementId: def.id, earnedAt: null },
             data: { earnedAt: new Date() },
           });
+          if (updateRes.count > 0 && this.notificationsService) {
+            void this.notificationsService
+              .enqueueInAppNotification({
+                userId,
+                type: 'ACHIEVEMENT',
+                title: 'Thành tích mới!',
+                body: `Chúc mừng bạn đã đạt huy hiệu "${def.name}"`,
+                deepLink: 'mogu://profile/achievements',
+              })
+              .catch(() => null);
+          }
         }
       }
 
@@ -891,17 +905,32 @@ export class ProfileService {
       reasonCode: string | null;
     }>;
 
+    const candidateIds = normalized
+      .map((x) => x.ingredientId)
+      .filter((id): id is string => Boolean(id));
+
+    const existingIngredients =
+      candidateIds.length > 0
+        ? await this.prisma.db.ingredient.findMany({
+            where: { id: { in: candidateIds } },
+            select: { id: true },
+          })
+        : [];
+    const validIdSet = new Set(existingIngredients.map((i) => i.id));
+
     await this.prisma.db.$transaction(async (tx) => {
       await tx.userAvoidedIngredient.deleteMany({ where: { userId } });
       for (const row of normalized) {
+        const resolvedId =
+          row.ingredientId && validIdSet.has(row.ingredientId) ? row.ingredientId : null;
         await tx.userAvoidedIngredient.create({
           data: {
             userId,
             ingredientName: row.ingredientName,
-            ingredientId: row.ingredientId,
+            ingredientId: resolvedId,
             normalizedText: row.normalizedText,
             mode: row.mode,
-            resolutionStatus: row.resolutionStatus as any,
+            resolutionStatus: (resolvedId ? 'RESOLVED' : 'FREE_TEXT') as any,
             reasonCode: row.reasonCode,
           },
         });

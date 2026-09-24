@@ -181,7 +181,7 @@ export type UnreadCountResponse = {
 
 export type NotificationItem = {
   id: string;
-  type: 'SYSTEM' | 'PROMO' | 'REMINDER' | 'ACHIEVEMENT';
+  type: 'SYSTEM' | 'PROMO' | 'REMINDER' | 'ACHIEVEMENT' | 'SOCIAL_LIKE' | 'SOCIAL_COMMENT' | 'SOCIAL_FOLLOW' | 'SOCIAL_REPLY';
   title: string;
   body: string;
   deepLink: string | null;
@@ -388,8 +388,19 @@ export type WeeklyPlanConfig = {
   durationDays: number;
   mealsPerDay: number;
   enabledSlots: WeeklyMealSlot[];
+  mealSlotSchedule?: Array<{
+    type: WeeklyMealSlot;
+    enabled: boolean;
+    time: string | null;
+  }> | null;
   avoidRepeat: boolean;
   preferHomeCook: boolean;
+  allowOutsideMeals?: boolean;
+  repeatWindowDays?: number;
+  preferNewDishes?: boolean;
+  likedDishPreference?: 'NONE' | 'LIGHT' | 'HIGH';
+  keepLockedMeals?: boolean;
+  preserveLoggedDays?: boolean;
   calorieTolerancePercent: number;
   createdAt: string | null;
   updatedAt: string | null;
@@ -402,9 +413,51 @@ export type UpsertWeeklyPlanConfigDto = {
   durationDays?: number;
   mealsPerDay?: number;
   enabledSlots?: WeeklyMealSlot[];
+  mealSlotSchedule?: Array<{
+    type: WeeklyMealSlot;
+    enabled: boolean;
+    time: string | null;
+  }>;
   avoidRepeat?: boolean;
   preferHomeCook?: boolean;
+  allowOutsideMeals?: boolean;
+  repeatWindowDays?: number;
+  preferNewDishes?: boolean;
+  likedDishPreference?: 'NONE' | 'LIGHT' | 'HIGH';
+  keepLockedMeals?: boolean;
+  preserveLoggedDays?: boolean;
   calorieTolerancePercent?: number;
+  advanced?: {
+    preferSelfCook?: boolean;
+    allowOutsideMeals?: boolean;
+    limitRepeats?: boolean;
+    repeatWindowDays?: number;
+    preferNewDishes?: boolean;
+    likedDishPreference?: 'NONE' | 'LIGHT' | 'HIGH';
+    keepLockedMeals?: boolean;
+    preserveLoggedDays?: boolean;
+  };
+};
+
+export type GenerateWeeklyPlanDto = {
+  startDate: string;
+  durationDays?: number;
+  budget?: number;
+  dailyCalories?: number;
+  calorieSource?: WeeklyKcalMode;
+  mealSlots?: WeeklyMealSlot[];
+  advanced?: UpsertWeeklyPlanConfigDto['advanced'];
+  idempotencyKey?: string;
+};
+
+export type WeeklyPlanGenerateResponse = {
+  status?: string;
+  planId: string;
+  startDate?: string;
+  durationDays?: number;
+  mealCount?: number;
+  estimatedBudget?: number;
+  generationStatus?: string;
 };
 
 export type WeeklyPlanSlotDish = {
@@ -437,6 +490,22 @@ export type WeeklyPlanDay = {
   slots: WeeklyPlanSlot[];
 };
 
+export type WeeklyPlanSuggestion = {
+  type: 'MIN_BUDGET' | 'ENABLE_MEAL_SLOT' | 'REVIEW_AVOIDED_INGREDIENTS' | string;
+  value?: any;
+};
+
+export type WeeklyPlanGenerationErrorData = {
+  status?: string;
+  message?: string;
+  reason?: string;
+  suggestions?: WeeklyPlanSuggestion[];
+  approvedDishCount?: number;
+  hardPoolCount?: number;
+  slotsNeeded?: number;
+  [key: string]: any;
+};
+
 export type WeeklyPlan = {
   id: string;
   status: WeeklyPlanStatus;
@@ -450,6 +519,7 @@ export type WeeklyPlan = {
   actualKcal: number;
   algorithmVersion: string;
   generationErrorCode: string | null;
+  generationErrorData?: WeeklyPlanGenerationErrorData | null;
   version: number;
   createdAt: string;
   startedAt: string | null;
@@ -468,11 +538,6 @@ export type WeeklyPlanSummary = {
   targetKcal: number;
   slotCount: number;
   createdAt: string;
-};
-
-export type WeeklyPlanGenerateResponse = {
-  planId: string;
-  status: WeeklyPlanStatus;
 };
 
 export type WeeklyPlanListResponse = {
@@ -496,6 +561,35 @@ export type DayIngredientsResponse = {
   totalCount: number;
   dishes: Array<{ dishId: string; mealSlot: string; name: string }>;
   items: DayIngredientItem[];
+};
+
+export type GroceryIngredientCategory =
+  | 'MEAT_SEAFOOD'
+  | 'VEGGIES'
+  | 'CARBS'
+  | 'SEASONING'
+  | 'OTHER';
+
+export type WeeklyIngredientItem = DayIngredientItem & {
+  category: GroceryIngredientCategory;
+  categoryLabel: string;
+  dishCount: number;
+};
+
+export type WeeklyIngredientsResponse = {
+  planId: string;
+  startDate: string;
+  endDate: string;
+  totalMeals: number;
+  totalDishes: number;
+  totalIngredientsCount: number;
+  totalEstimatedCostVnd: number;
+  items: WeeklyIngredientItem[];
+  byCategory: Array<{
+    category: GroceryIngredientCategory;
+    label: string;
+    items: WeeklyIngredientItem[];
+  }>;
 };
 
 export type WeeklyPlanSlotSwapDto = {

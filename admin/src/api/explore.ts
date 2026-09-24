@@ -22,9 +22,14 @@ export interface Article {
   summary?: string
   content?: string
   coverImageUrl?: string
-  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED' | 'SCHEDULED'
   readMinutes: number
   viewCount: number
+  likeCount?: number
+  commentCount?: number
+  publishAt?: string | null
+  isPinned?: boolean
+  featuredAt?: string | null
   authorId: string
   topicId?: string
   createdAt: string
@@ -94,8 +99,14 @@ export const articlesAdminApi = {
       })
       .then((r) => r.data),
 
-  publish: (id: string) =>
-    api.patch<Article>(`/admin/articles/${id}/publish`).then((r) => r.data),
+  get: (id: string) =>
+    api.get<Article & { content?: string }>(`/articles/${id}`).then((r) => r.data),
+
+  publish: (id: string, body?: { publishAt?: string; schedule?: boolean }) =>
+    api.patch<Article>(`/admin/articles/${id}/publish`, body).then((r) => r.data),
+
+  togglePin: (id: string, isPinned?: boolean) =>
+    api.patch<Article>(`/admin/articles/${id}/pin`, { isPinned }).then((r) => r.data),
 
   delete: (id: string) => api.delete(`/admin/articles/${id}`).then((r) => r.data),
 
@@ -104,4 +115,26 @@ export const articlesAdminApi = {
 
   update: (id: string, dto: UpdateArticleDto) =>
     api.patch<Article>(`/admin/articles/${id}`, dto).then((r) => r.data),
+}
+
+export interface ExploreAnalytics {
+  postsPerDay?: Array<{ date: string; count: number }>
+  dau?: number
+  engagementDau?: number
+  topArticles?: Array<{ id: string; title: string; viewCount?: number; likeCount?: number }>
+  topPosts?: Array<{ id: string; content?: string; likeCount?: number; commentCount?: number }>
+  reportRate?: number
+  totalPosts?: number
+  totalArticles?: number
+  totalReports?: number
+  impressions?: number
+  openDetails?: number
+  [key: string]: unknown
+}
+
+export const exploreAdminApi = {
+  analytics: (params?: { from?: string; to?: string }) =>
+    api
+      .get<ExploreAnalytics>('/admin/explore/analytics', { params })
+      .then((r) => r.data),
 }

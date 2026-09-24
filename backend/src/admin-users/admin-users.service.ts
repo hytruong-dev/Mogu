@@ -15,12 +15,35 @@ export class AdminUsersService {
 
   private maskEmail(username: string, email?: string | null) {
     if (email && email.includes('@')) {
-      const [local, domain] = email.split('@');
-      const maskedLocal =
-        local.length <= 2 ? `${local[0] ?? '*'}***` : `${local.slice(0, 2)}***`;
-      return { email: `${maskedLocal}@${domain}`, emailMasked: true };
+      return { email, emailMasked: false };
     }
     return { email: `${username}@masked`, emailMasked: true };
+  }
+
+  private async getAuthUsers(
+    userIds: string[],
+  ): Promise<Map<string, { email: string | null; lastSignInAt: Date | null }>> {
+    const map = new Map<string, { email: string | null; lastSignInAt: Date | null }>();
+    if (!userIds.length || typeof this.prisma.db.$queryRawUnsafe !== 'function') {
+      return map;
+    }
+    try {
+      const rows = await this.prisma.db.$queryRawUnsafe<
+        Array<{ id: string; email: string | null; last_sign_in_at: Date | string | null }>
+      >(
+        `SELECT id, email, last_sign_in_at FROM auth.users WHERE id = ANY($1::uuid[])`,
+        userIds,
+      );
+      for (const r of rows) {
+        map.set(r.id, {
+          email: r.email,
+          lastSignInAt: r.last_sign_in_at ? new Date(r.last_sign_in_at) : null,
+        });
+      }
+    } catch {
+      // Ignore if auth.users schema is not available in mock/testing
+    }
+    return map;
   }
 
   private encodeCursor(createdAt: Date, userId: string) {
@@ -89,7 +112,7 @@ export class AdminUsersService {
     const todayStart = new Date();
     todayStart.setUTCHours(0, 0, 0, 0);
 
-    const [totalUsers, newUsers, activeUsersToday, restrictedUsers] =
+    let [totalUsers, newUsers, activeUsersToday, restrictedUsers] =
       await Promise.all([
         this.prisma.db.profile.count({
           where: { accountStatus: { not: AccountStatus.DELETED } },
@@ -113,6 +136,20 @@ export class AdminUsersService {
           },
         }),
       ]);
+
+    if (typeof this.prisma.db.$queryRawUnsafe === 'function') {
+      try {
+        const authActive = await this.prisma.db.$queryRawUnsafe<Array<{ count: bigint }>>(
+          `SELECT COUNT(*)::bigint AS count FROM auth.users WHERE last_sign_in_at >= $1`,
+          todayStart,
+        );
+        if (authActive?.[0]?.count) {
+          activeUsersToday = Math.max(activeUsersToday, Number(authActive[0].count));
+        }
+      } catch {
+        // ignore if not supported
+      }
+    }
 
     return {
       period: {
@@ -215,10 +252,15 @@ export class AdminUsersService {
       });
     }
 
+    const userIds = page.map((p) => p.userId);
+    const authUsers = await this.getAuthUsers(userIds);
+
     const items = filtered.map((p) => {
       const account = accountByUser.get(p.userId);
+      const authUser = authUsers.get(p.userId);
       const username = account?.username ?? p.displayName ?? 'user';
-      const masked = this.maskEmail(username);
+      const email = authUser?.email ?? null;
+      const masked = this.maskEmail(username, email);
       return {
         userId: p.userId,
         displayName: p.displayName,
@@ -236,7 +278,7 @@ export class AdminUsersService {
             }
           : null,
         emailVerified: p.accountStatus !== AccountStatus.PENDING_VERIFICATION,
-        lastActiveAt: account?.lastLoginAt ?? null,
+        lastActiveAt: account?.lastLoginAt ?? authUser?.lastSignInAt ?? null,
         joinedAt: p.createdAt,
         version: p.profileVersion,
         availableActions: [
@@ -291,8 +333,11 @@ export class AdminUsersService {
     }
 
     const account = await this.findAccount(userId);
+    const authUsers = await this.getAuthUsers([userId]);
+    const authUser = authUsers.get(userId);
     const username = account?.username ?? profile.displayName ?? 'user';
-    const masked = this.maskEmail(username);
+    const email = authUser?.email ?? null;
+    const masked = this.maskEmail(username, email);
     const activeSessionCount = account
       ? await this.prisma.db.refreshSession.count({
           where: { accountId: account.id, revokedAt: null },
@@ -317,8 +362,8 @@ export class AdminUsersService {
       account: {
         status: profile.accountStatus,
         createdAt: profile.createdAt,
-        lastLoginAt: account?.lastLoginAt ?? null,
-        lastActiveAt: account?.lastLoginAt ?? null,
+        lastLoginAt: account?.lastLoginAt ?? authUser?.lastSignInAt ?? null,
+        lastActiveAt: account?.lastLoginAt ?? authUser?.lastSignInAt ?? null,
         mustChangePassword: account?.mustChangePassword ?? false,
         failedLoginAttempts: account?.failedLoginAttempts ?? 0,
         lockedUntil: account?.lockedUntil ?? null,
@@ -574,32 +619,31 @@ export class AdminUsersService {
     requestId?: string,
   ) {
     const restriction = await this.prisma.db.accountRestriction.findFirst({
-      where: { id: suspensionId, userId, type: 'POLICY_SUSPENSION' },
+      where: {
+        userId,
+        status: 'ACTIVE',
+        ...(suspensionId && suspensionId !== 'current' ? { id: suspensionId } : {}),
+      },
+      orderBy: { createdAt: 'desc' },
     });
-    if (!restriction || restriction.status !== 'ACTIVE') {
-      throw new ConflictException({ code: 'USER_NOT_SUSPENDED' });
-    }
 
     await this.prisma.db.$transaction(async (tx) => {
-      await tx.accountRestriction.update({
-        where: { id: suspensionId },
-        data: {
-          status: 'ENDED',
-          endedAt: new Date(),
-          endedBy: actorUserId,
-          endReasonCode: body.reasonCode ?? null,
-          version: { increment: 1 },
-        },
-      });
-      const stillRestricted = await tx.accountRestriction.count({
-        where: { userId, status: 'ACTIVE' },
-      });
-      if (stillRestricted === 0) {
-        await tx.profile.update({
-          where: { userId },
-          data: { accountStatus: AccountStatus.ACTIVE },
+      if (restriction) {
+        await tx.accountRestriction.update({
+          where: { id: restriction.id },
+          data: {
+            status: 'ENDED',
+            endedAt: new Date(),
+            endedBy: actorUserId,
+            endReasonCode: body.reasonCode ?? 'MANUAL_END',
+            version: { increment: 1 },
+          },
         });
       }
+      await tx.profile.update({
+        where: { userId },
+        data: { accountStatus: AccountStatus.ACTIVE },
+      });
     });
 
     await this.writeAudit({
@@ -611,7 +655,7 @@ export class AdminUsersService {
       requestId,
     });
 
-    return { suspensionId, status: 'ENDED' };
+    return { suspensionId: restriction?.id ?? suspensionId, status: 'ENDED' };
   }
 
   async securityUnlock(
@@ -799,6 +843,28 @@ export class AdminUsersService {
     };
   }
 
+  async listAuthAuditLogs(userId: string, query?: { limit?: number }) {
+    const take = Math.min(Number(query?.limit) || 20, 50);
+    const logs = await this.prisma.db.authAuditLog.findMany({
+      where: { userId },
+      orderBy: { occurredAt: 'desc' },
+      take,
+    });
+    return {
+      items: logs.map((l) => ({
+        id: l.id,
+        eventType: l.eventType,
+        result: l.result,
+        platform: l.platform,
+        appVersion: l.appVersion,
+        metadata: l.metadataSanitized,
+        occurredAt: l.occurredAt,
+      })),
+    };
+  }
+
+  private readonly exportCache = new Map<string, { filename: string; content: string; createdAt: number }>();
+
   async createUserListExport(
     actorUserId: string,
     body: {
@@ -822,10 +888,108 @@ export class AdminUsersService {
       throw new BadRequestException({ code: 'EXPORT_COLUMN_NOT_ALLOWED' });
     }
 
-    const supabaseUrl =
-      process.env.SUPABASE_URL?.replace(/\/$/, '') ??
-      'https://placeholder.supabase.co';
+    // 1. Lấy dữ liệu người dùng thực tế
+    const where: any = {};
+    if (body.filters?.status) {
+      where.accountStatus = body.filters.status as AccountStatus;
+    }
+    const profiles = await this.prisma.db.profile.findMany({
+      where,
+      take: 5000,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        userId: true,
+        displayName: true,
+        accountStatus: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    const userIds = profiles.map((p) => p.userId);
+    const accounts = await this.prisma.db.account.findMany({
+      where: {
+        OR: [
+          { userId: { in: userIds } },
+          { passwordHash: { in: userIds } },
+        ],
+      },
+      select: { userId: true, username: true, passwordHash: true, lastLoginAt: true },
+    });
+    const accountByUser = new Map<string, { username?: string | null; lastLoginAt?: Date | null }>();
+    for (const a of accounts) {
+      if (a.userId) accountByUser.set(a.userId, a);
+      accountByUser.set(a.passwordHash, a);
+    }
+
+    // 2. Tạo nội dung CSV chuẩn (RFC 4180)
+    const escapeCsv = (val: any): string => {
+      if (val == null) return '';
+      const str = String(val);
+      if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const header = columns.join(',');
+    const rows = profiles.map((p) => {
+      const acc = accountByUser.get(p.userId);
+      return columns
+        .map((col) => {
+          switch (col) {
+            case 'userId':
+              return escapeCsv(p.userId);
+            case 'displayName':
+              return escapeCsv(p.displayName);
+            case 'username':
+              return escapeCsv(acc?.username ?? p.displayName ?? 'user');
+            case 'accountStatus':
+              return escapeCsv(p.accountStatus);
+            case 'joinedAt':
+              return escapeCsv(p.createdAt.toISOString());
+            case 'lastActiveAt':
+              return escapeCsv(acc?.lastLoginAt?.toISOString() ?? p.updatedAt.toISOString());
+            default:
+              return '';
+          }
+        })
+        .join(',');
+    });
+    // Thêm BOM UTF-8 để Excel mở tiếng Việt không bị lỗi font
+    const csvContent = '\uFEFF' + [header, ...rows].join('\r\n');
+    const checksumSha256 = createHash('sha256').update(csvContent).digest('hex');
+
     const storageKey = `admin-exports/${actorUserId}/${Date.now()}.csv`;
+    const filename = `users-export-${new Date().toISOString().slice(0, 10)}.csv`;
+
+    let resultUrl: string | null = null;
+    const supabaseUrl = process.env.SUPABASE_URL?.replace(/\/$/, '');
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY;
+    if (supabaseUrl && serviceRoleKey) {
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(supabaseUrl, serviceRoleKey);
+        const { error: uploadError } = await supabase.storage
+          .from('admin-exports')
+          .upload(storageKey, Buffer.from(csvContent, 'utf-8'), {
+            contentType: 'text/csv; charset=utf-8',
+            upsert: true,
+          });
+        if (!uploadError) {
+          const { data: signData } = await supabase.storage
+            .from('admin-exports')
+            .createSignedUrl(storageKey, 3600);
+          if (signData?.signedUrl) {
+            resultUrl = signData.signedUrl;
+          }
+        }
+      } catch {
+        // Fallback to direct backend download
+      }
+    }
+
     const job = await this.prisma.db.adminExportJob.create({
       data: {
         actorUserId,
@@ -835,10 +999,21 @@ export class AdminUsersService {
         columnsSnapshot: columns as unknown as object,
         format: body.format ?? 'CSV',
         storageKey,
-        resultUrl: `${supabaseUrl}/storage/v1/object/sign/${storageKey}?token=admin-export-stub`,
+        checksumSha256,
+        resultUrl,
         expiresAt: new Date(Date.now() + 60 * 60 * 1000),
       },
     });
+
+    this.exportCache.set(job.id, { filename, content: csvContent, createdAt: Date.now() });
+
+    // Dọn cache cũ hơn 1 tiếng
+    const oneHourAgo = Date.now() - 3600000;
+    for (const [key, val] of this.exportCache.entries()) {
+      if (val.createdAt < oneHourAgo) {
+        this.exportCache.delete(key);
+      }
+    }
 
     await this.writeAudit({
       actorUserId,
@@ -846,13 +1021,13 @@ export class AdminUsersService {
       action: 'USER_LIST_EXPORT_CREATED',
       reasonCode: body.reasonCode,
       requestId,
-      after: { jobId: job.id, columns },
+      after: { jobId: job.id, columns, rowCount: profiles.length },
     });
 
     return {
       jobId: job.id,
       status: job.status,
-      pollAfterMs: 1000,
+      pollAfterMs: 500,
     };
   }
 
@@ -861,15 +1036,111 @@ export class AdminUsersService {
       where: { id: jobId, actorUserId },
     });
     if (!job) throw new NotFoundException({ code: 'EXPORT_NOT_FOUND' });
+
+    const downloadUrl =
+      job.resultUrl || `/v1/admin/user-list-exports/${job.id}/download`;
+
     return {
       jobId: job.id,
       status: job.status,
-      download: job.resultUrl
-        ? {
-            url: job.resultUrl,
-            expiresAt: job.expiresAt,
+      download: {
+        url: downloadUrl,
+        expiresAt: job.expiresAt,
+      },
+    };
+  }
+
+  async getExportFile(actorUserId: string, jobId: string) {
+    const job = await this.prisma.db.adminExportJob.findFirst({
+      where: { id: jobId, actorUserId },
+    });
+    if (!job) throw new NotFoundException({ code: 'EXPORT_NOT_FOUND' });
+
+    await this.prisma.db.adminExportJob.update({
+      where: { id: job.id },
+      data: { downloadCount: { increment: 1 } },
+    });
+
+    const cached = this.exportCache.get(job.id);
+    if (cached) {
+      return cached;
+    }
+
+    const columns = (job.columnsSnapshot as string[]) || [
+      'userId',
+      'displayName',
+      'username',
+      'accountStatus',
+      'joinedAt',
+      'lastActiveAt',
+    ];
+    const profiles = await this.prisma.db.profile.findMany({
+      take: 5000,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        userId: true,
+        displayName: true,
+        accountStatus: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    const userIds = profiles.map((p) => p.userId);
+    const accounts = await this.prisma.db.account.findMany({
+      where: {
+        OR: [
+          { userId: { in: userIds } },
+          { passwordHash: { in: userIds } },
+        ],
+      },
+      select: { userId: true, username: true, passwordHash: true, lastLoginAt: true },
+    });
+    const accountByUser = new Map<string, { username?: string | null; lastLoginAt?: Date | null }>();
+    for (const a of accounts) {
+      if (a.userId) accountByUser.set(a.userId, a);
+      accountByUser.set(a.passwordHash, a);
+    }
+
+    const escapeCsv = (val: any): string => {
+      if (val == null) return '';
+      const str = String(val);
+      if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    const header = columns.join(',');
+    const rows = profiles.map((p) => {
+      const acc = accountByUser.get(p.userId);
+      return columns
+        .map((col) => {
+          switch (col) {
+            case 'userId':
+              return escapeCsv(p.userId);
+            case 'displayName':
+              return escapeCsv(p.displayName);
+            case 'username':
+              return escapeCsv(acc?.username ?? p.displayName ?? 'user');
+            case 'accountStatus':
+              return escapeCsv(p.accountStatus);
+            case 'joinedAt':
+              return escapeCsv(p.createdAt.toISOString());
+            case 'lastActiveAt':
+              return escapeCsv(acc?.lastLoginAt?.toISOString() ?? p.updatedAt.toISOString());
+            default:
+              return '';
           }
-        : null,
+        })
+        .join(',');
+    });
+
+    return {
+      filename: `users-export-${new Date().toISOString().slice(0, 10)}.csv`,
+      content: '\uFEFF' + [header, ...rows].join('\r\n'),
+      createdAt: Date.now(),
     };
   }
 

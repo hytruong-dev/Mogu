@@ -94,6 +94,7 @@ export function AppImage({
   if (!primarySource) {
     return (
       <View
+        className={className}
         style={[
           styles.placeholder,
           style as any,
@@ -107,6 +108,7 @@ export function AppImage({
 
   return (
     <View
+      className={className}
       style={[
         styles.container,
         style as any,

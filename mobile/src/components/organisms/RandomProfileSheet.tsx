@@ -89,17 +89,18 @@ function chunkArray<T>(array: T[], size: number): T[][] {
 function OptionGrid({
   items,
   selectedIds,
-  multi,
+  columns = 2,
   onToggle,
 }: {
   items: CatalogItem[];
   selectedIds: string[];
+  columns?: number;
   multi?: boolean;
   onToggle: (id: string, currentlySelected: boolean) => void;
 }) {
   return (
-    <View className="gap-2 rounded-xl border border-border bg-muted/40 p-2">
-      {chunkArray(items, 3).map((row, rowIdx) => (
+    <View className="gap-2">
+      {chunkArray(items, columns).map((row, rowIdx) => (
         <View key={rowIdx} className="flex-row gap-2">
           {row.map((item) => {
             const selected = selectedIds.includes(item.id);
@@ -108,20 +109,24 @@ function OptionGrid({
                 key={item.id}
                 onPress={() => onToggle(item.id, selected)}
                 className={cn(
-                  'relative min-h-[52px] flex-1 items-center justify-center rounded-xl border-[1.5px] px-1 py-2',
-                  selected ? 'border-primary bg-secondary' : 'border-border bg-background',
+                  'relative min-h-[50px] flex-1 items-center justify-center rounded-xl border-[1.5px] px-2 py-2',
+                  selected
+                    ? 'border-[#FFC31A] bg-[#FFFDF0]'
+                    : 'border-[#EAE4D6] bg-white',
                 )}
               >
                 {selected ? (
-                  <View className="absolute right-1 top-1 size-3.5 items-center justify-center rounded-full bg-primary">
-                    <Check size={9} color="#18181B" strokeWidth={3} />
+                  <View className="absolute right-1.5 top-1.5 size-4 items-center justify-center rounded-full bg-[#FFC31A]">
+                    <Check size={10} color="#161616" strokeWidth={3} />
                   </View>
                 ) : null}
                 <Text
                   numberOfLines={2}
                   className={cn(
                     'text-center text-xs leading-4',
-                    selected ? 'font-extrabold text-foreground' : 'font-semibold text-muted-foreground',
+                    selected
+                      ? 'font-extrabold text-[#161616]'
+                      : 'font-semibold text-[#747474]',
                   )}
                 >
                   {item.name}
@@ -129,14 +134,13 @@ function OptionGrid({
               </Pressable>
             );
           })}
-          {row.length < 3
-            ? Array.from({ length: 3 - row.length }).map((_, idx) => (
+          {row.length < columns
+            ? Array.from({ length: columns - row.length }).map((_, idx) => (
                 <View key={`ph-${rowIdx}-${idx}`} className="flex-1" />
               ))
             : null}
         </View>
       ))}
-      {multi ? null : null}
     </View>
   );
 }
@@ -343,196 +347,198 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
         }}
         snapHeight={snapHeight}
       >
-        <DrawerHeader className="flex-row items-start gap-2 px-4">
+        <DrawerHeader className="flex-row items-start gap-2 px-5 pb-2">
           <View className="flex-1">
-            <DrawerTitle>Hồ sơ ăn uống đang áp dụng</DrawerTitle>
-            <DrawerDescription>Mogu dùng thông tin này khi chọn món.</DrawerDescription>
+            <DrawerTitle className="text-[19px] font-black text-[#161616]">
+              Hồ sơ ăn uống đang áp dụng
+            </DrawerTitle>
+            <DrawerDescription className="mt-1 text-[13px] text-[#747474]">
+              Mogu tự động lọc theo các tiêu chí này khi random.
+            </DrawerDescription>
           </View>
           <DrawerClose onPress={requestClose} />
         </DrawerHeader>
 
-        <DrawerContent className="max-h-[62%] px-4 pb-2">
+        <DrawerContent className="max-h-[66%] px-4 pb-2">
           {loading ? (
             <View className="items-center py-10">
               <ActivityIndicator color="#FFC31A" />
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false}>
-              <Accordion
-                type="single"
-                collapsible
-                value={open}
-                onValueChange={(v: string | undefined) =>
-                  setOpen((v as AccordionKey | undefined) || undefined)
-                }
-                className="w-full gap-0"
-              >
-                <AccordionItem value="goal" className="mb-2 overflow-hidden rounded-2xl border border-border px-3">
-                  <AccordionTrigger className="py-3.5">
-                    <View className="flex-1 flex-row items-center gap-3">
-                      <View className="size-9 items-center justify-center rounded-[10px] bg-secondary">
-                        <Target size={18} color="#101010" />
+              <View className="overflow-hidden rounded-[22px] border border-[#EAE4D6] bg-white shadow-sm">
+                <Accordion
+                  type="single"
+                  collapsible
+                  value={open}
+                  onValueChange={(v: string | undefined) =>
+                    setOpen((v as AccordionKey | undefined) || undefined)
+                  }
+                  className="w-full gap-0"
+                >
+                  {/* Row 1: Mục tiêu chính */}
+                  <AccordionItem value="goal" className="border-b border-[#F0EBE0]">
+                    <AccordionTrigger className="px-4 py-3.5 hover:no-underline">
+                      <View className="mr-1 flex-1 flex-row items-center justify-between gap-3">
+                        <View className="flex-1 flex-row items-center gap-3">
+                          <View className="size-10 items-center justify-center rounded-xl bg-[#FFF3D6]">
+                            <Target size={20} color="#D9822B" />
+                          </View>
+                          <Text className="text-[15px] font-bold text-[#161616]">
+                            Mục tiêu chính
+                          </Text>
+                        </View>
+                        <Text
+                          className="max-w-[130px] text-right text-[13.5px] font-medium text-[#747474]"
+                          numberOfLines={1}
+                        >
+                          {goalLabel}
+                        </Text>
                       </View>
-                      <View className="flex-1">
-                        <Text className="text-[13px] font-bold text-foreground">Mục tiêu</Text>
-                        <Text className="mt-0.5 text-[13px] text-muted-foreground">{goalLabel}</Text>
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-3 pt-0">
+                      <View className="mx-3 rounded-2xl border border-[#EFE9DC] bg-[#FAF7EE] p-2.5">
+                        <OptionGrid
+                          items={goals}
+                          selectedIds={goalId ? [goalId] : []}
+                          columns={2}
+                          onToggle={(id) => setGoalId(id)}
+                        />
                       </View>
-                    </View>
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-3">
-                    <OptionGrid
-                      items={goals}
-                      selectedIds={goalId ? [goalId] : []}
-                      onToggle={(id) => setGoalId(id)}
-                    />
-                  </AccordionContent>
-                </AccordionItem>
+                    </AccordionContent>
+                  </AccordionItem>
 
-                <AccordionItem value="diet" className="mb-2 overflow-hidden rounded-2xl border border-border px-3">
-                  <AccordionTrigger className="py-3.5">
-                    <View className="flex-1 flex-row items-center gap-3">
-                      <View className="size-9 items-center justify-center rounded-[10px] bg-secondary">
-                        <Leaf size={18} color="#101010" />
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-[13px] font-bold text-foreground">Chế độ ăn</Text>
-                        <Text className="mt-0.5 text-[13px] text-muted-foreground" numberOfLines={2}>
+                  {/* Row 2: Chế độ ăn */}
+                  <AccordionItem value="diet" className="border-b border-[#F0EBE0]">
+                    <AccordionTrigger className="px-4 py-3.5 hover:no-underline">
+                      <View className="mr-1 flex-1 flex-row items-center justify-between gap-3">
+                        <View className="flex-1 flex-row items-center gap-3">
+                          <View className="size-10 items-center justify-center rounded-xl bg-[#E8F5E9]">
+                            <Leaf size={20} color="#2E7D32" />
+                          </View>
+                          <Text className="text-[15px] font-bold text-[#161616]">
+                            Chế độ ăn
+                          </Text>
+                        </View>
+                        <Text
+                          className="max-w-[130px] text-right text-[13.5px] font-medium text-[#747474]"
+                          numberOfLines={1}
+                        >
                           {dietLabel}
                         </Text>
                       </View>
-                    </View>
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-3">
-                    <OptionGrid
-                      items={diets}
-                      selectedIds={dietIds}
-                      multi
-                      onToggle={(id, selected) =>
-                        setDietIds((prev) =>
-                          selected ? prev.filter((x) => x !== id) : [...prev, id],
-                        )
-                      }
-                    />
-                  </AccordionContent>
-                </AccordionItem>
-
-                <AccordionItem value="allergy" className="mb-2 overflow-hidden rounded-2xl border border-border px-3">
-                  <AccordionTrigger className="py-3.5">
-                    <View className="flex-1 flex-row items-center gap-3">
-                      <View className="size-9 items-center justify-center rounded-[10px] bg-secondary">
-                        <ShieldPlus size={18} color="#101010" />
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-3 pt-0">
+                      <View className="mx-3 rounded-2xl border border-[#EFE9DC] bg-[#FAF7EE] p-2.5">
+                        <OptionGrid
+                          items={diets}
+                          selectedIds={dietIds}
+                          columns={2}
+                          multi
+                          onToggle={(id, selected) =>
+                            setDietIds((prev) =>
+                              selected ? prev.filter((x) => x !== id) : [...prev, id],
+                            )
+                          }
+                        />
                       </View>
-                      <View className="flex-1">
-                        <Text className="text-[13px] font-bold text-foreground">Dị ứng đã khai báo</Text>
-                        <Text className="mt-0.5 text-[13px] text-muted-foreground" numberOfLines={2}>
+                    </AccordionContent>
+                  </AccordionItem>
+
+                  {/* Row 3: Dị ứng cần tránh */}
+                  <AccordionItem value="allergy" className="border-b-0">
+                    <AccordionTrigger className="px-4 py-3.5 hover:no-underline">
+                      <View className="mr-1 flex-1 flex-row items-center justify-between gap-3">
+                        <View className="flex-1 flex-row items-center gap-3">
+                          <View className="size-10 items-center justify-center rounded-xl bg-[#FDEED9]">
+                            <ShieldPlus size={20} color="#C05621" />
+                          </View>
+                          <Text className="text-[15px] font-bold text-[#161616]">
+                            Dị ứng cần tránh
+                          </Text>
+                        </View>
+                        <Text
+                          className="max-w-[130px] text-right text-[13.5px] font-medium text-[#747474]"
+                          numberOfLines={1}
+                        >
                           {allergyLabel}
                         </Text>
                       </View>
-                    </View>
-                  </AccordionTrigger>
-                  <AccordionContent className="pb-3">
-                    <View className="gap-2 rounded-xl border border-border bg-muted/40 p-2">
-                      <Pressable
-                        onPress={() => {
-                          if (noAllergies) setNoAllergies(false);
-                          else {
-                            setNoAllergies(true);
-                            setAllergenIds([]);
-                          }
-                        }}
-                        className={cn(
-                          'flex-row items-center gap-2.5 rounded-xl border-[1.5px] px-3 py-2.5',
-                          noAllergies ? 'border-primary bg-secondary' : 'border-border bg-background',
-                        )}
-                      >
-                        <Checkbox
-                          checked={noAllergies}
-                          onCheckedChange={(checked) => {
-                            if (checked) {
+                    </AccordionTrigger>
+                    <AccordionContent className="pb-3 pt-0">
+                      <View className="mx-3 gap-2.5 rounded-2xl border border-[#EFE9DC] bg-[#FAF7EE] p-2.5">
+                        <Pressable
+                          onPress={() => {
+                            if (noAllergies) setNoAllergies(false);
+                            else {
                               setNoAllergies(true);
                               setAllergenIds([]);
-                            } else {
-                              setNoAllergies(false);
                             }
                           }}
-                          className="size-5 rounded-md"
-                          checkedClassName="border-primary"
-                        />
-                        <Text
                           className={cn(
-                            'flex-1 text-[13px]',
-                            noAllergies ? 'font-extrabold text-foreground' : 'font-semibold text-muted-foreground',
+                            'relative flex-row items-center gap-3 rounded-xl border-[1.5px] px-3.5 py-2.5',
+                            noAllergies
+                              ? 'border-[#FFC31A] bg-[#FFFDF0]'
+                              : 'border-[#EAE4D6] bg-white',
                           )}
                         >
-                          Tôi không có dị ứng đã biết
-                        </Text>
-                      </Pressable>
+                          <View
+                            className={cn(
+                              'size-5 items-center justify-center rounded-md border-[1.5px]',
+                              noAllergies
+                                ? 'border-[#FFC31A] bg-[#FFC31A]'
+                                : 'border-[#D1D5DB] bg-white',
+                            )}
+                          >
+                            {noAllergies ? <Check size={12} color="#161616" strokeWidth={3} /> : null}
+                          </View>
+                          <Text
+                            className={cn(
+                              'flex-1 text-[13.5px]',
+                              noAllergies
+                                ? 'font-bold text-[#161616]'
+                                : 'font-semibold text-[#747474]',
+                            )}
+                          >
+                            Tôi không có dị ứng đã biết
+                          </Text>
+                        </Pressable>
 
-                      {chunkArray(allergensCatalog, 3).map((row, rowIdx) => (
-                        <View key={rowIdx} className="flex-row gap-2">
-                          {row.map((a) => {
-                            const selected = !noAllergies && allergenIds.includes(a.id);
-                            return (
-                              <Pressable
-                                key={a.id}
-                                onPress={() => {
-                                  if (selected && baseAllergenIds.includes(a.id)) {
-                                    setPendingConfirmation({
-                                      kind: 'remove-allergen',
-                                      allergenId: a.id,
-                                    });
-                                    return;
-                                  }
-                                  setNoAllergies(false);
-                                  setAllergenIds((prev) =>
-                                    prev.includes(a.id)
-                                      ? prev.filter((x) => x !== a.id)
-                                      : [...prev, a.id],
-                                  );
-                                }}
-                                className={cn(
-                                  'relative min-h-[52px] flex-1 items-center justify-center rounded-xl border-[1.5px] px-1 py-2',
-                                  selected ? 'border-primary bg-secondary' : 'border-border bg-background',
-                                )}
-                              >
-                                {selected ? (
-                                  <View className="absolute right-1 top-1 size-3.5 items-center justify-center rounded-full bg-primary">
-                                    <Check size={9} color="#18181B" strokeWidth={3} />
-                                  </View>
-                                ) : null}
-                                <Text
-                                  numberOfLines={2}
-                                  className={cn(
-                                    'text-center text-xs leading-4',
-                                    selected
-                                      ? 'font-extrabold text-foreground'
-                                      : 'font-semibold text-muted-foreground',
-                                  )}
-                                >
-                                  {a.name}
-                                </Text>
-                              </Pressable>
+                        <OptionGrid
+                          items={allergensCatalog}
+                          selectedIds={noAllergies ? [] : allergenIds}
+                          columns={3}
+                          multi
+                          onToggle={(id, selected) => {
+                            if (selected && baseAllergenIds.includes(id)) {
+                              setPendingConfirmation({
+                                kind: 'remove-allergen',
+                                allergenId: id,
+                              });
+                              return;
+                            }
+                            setNoAllergies(false);
+                            setAllergenIds((prev) =>
+                              prev.includes(id)
+                                ? prev.filter((x) => x !== id)
+                                : [...prev, id],
                             );
-                          })}
-                          {row.length < 3
-                            ? Array.from({ length: 3 - row.length }).map((_, idx) => (
-                                <View key={`allergy-ph-${idx}`} className="flex-1" />
-                              ))
-                            : null}
-                        </View>
-                      ))}
-                    </View>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+                          }}
+                        />
 
-              {showAllergyWarn ? (
-                <Alert icon={AlertTriangle} className="mt-2 border-[#FFE082] bg-[#FFF8E1]" iconClassName="text-[#C08000]">
-                  <AlertDescription className="text-[#7A6120]">
-                    Chưa khai báo không có nghĩa là không dị ứng. Hãy kiểm tra nguyên liệu trước khi ăn.
-                  </AlertDescription>
-                </Alert>
-              ) : null}
+                        {showAllergyWarn ? (
+                          <View className="flex-row items-center gap-2.5 rounded-xl border border-[#FFE082] bg-[#FFF8E1] p-2.5">
+                            <AlertTriangle size={16} color="#C08000" />
+                            <Text className="flex-1 text-[12px] leading-4 text-[#7A6120]">
+                              Chưa khai báo không có nghĩa là không dị ứng. Hãy kiểm tra nguyên liệu trước khi ăn.
+                            </Text>
+                          </View>
+                        ) : null}
+                      </View>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </View>
 
               {error ? (
                 <Text className="mt-2 text-center text-[13px] text-destructive">{error}</Text>
@@ -541,10 +547,10 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
           )}
         </DrawerContent>
 
-        <DrawerFooter className="px-4">
+        <DrawerFooter className="px-4 pt-2">
           {dirty ? (
             <>
-              <Text className="mb-1 text-center text-xs text-muted-foreground">
+              <Text className="mb-1.5 text-center text-xs text-[#747474]">
                 Thay đổi sẽ lưu vào hồ sơ của bạn
               </Text>
               <View className="flex-row gap-2.5">
@@ -552,26 +558,29 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                   variant="outline"
                   disabled={saving}
                   onPress={resetDraft}
-                  className="h-12 flex-1 rounded-2xl"
+                  className="h-[50px] flex-1 rounded-[22px] border-[1.5px] border-[#EAE4D6] bg-white"
                 >
-                  <Text className="font-bold text-foreground">Huỷ thay đổi</Text>
+                  <Text className="font-bold text-[#161616]">Huỷ thay đổi</Text>
                 </Button>
                 <Button
                   disabled={saving}
                   onPress={() => void save()}
-                  className="h-12 flex-1 rounded-2xl bg-primary"
+                  className="h-[50px] flex-[1.2] rounded-[22px] bg-[#FFC31A]"
                 >
                   {saving ? (
-                    <ActivityIndicator color="#18181B" />
+                    <ActivityIndicator color="#161616" />
                   ) : (
-                    <Text className="font-extrabold text-foreground">Lưu và áp dụng</Text>
+                    <Text className="font-extrabold text-[#161616]">Lưu và áp dụng</Text>
                   )}
                 </Button>
               </View>
             </>
           ) : (
-            <Button onPress={onClose} className="h-12 w-full rounded-2xl bg-primary">
-              <Text className="font-extrabold text-foreground">Xong</Text>
+            <Button
+              onPress={onClose}
+              className="h-[52px] w-full rounded-[22px] bg-[#FFC31A]"
+            >
+              <Text className="font-extrabold text-[#161616]">Xong</Text>
             </Button>
           )}
         </DrawerFooter>

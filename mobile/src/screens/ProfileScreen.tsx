@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useState, type ComponentType, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ComponentType, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useFocusEffect } from '@react-navigation/native';
 import {
+  ActivityIndicator,
   Alert,
   BackHandler,
   Image,
@@ -16,16 +18,20 @@ import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomN
 import { ImageUploadField, type UploadImage } from '../components/organisms/ImageUploadField';
 import { AvatarImage } from '../components/organisms/AvatarImage';
 import { profileApi, type ProfileDashboard } from '../services/api/profile';
-import { useProfileDashboard } from '../hooks/useProfileDashboard';
+import { useProfileDashboard, PROFILE_DASHBOARD_QUERY_KEY } from '../hooks/useProfileDashboard';
+import { queryClient } from '../lib/query-client';
 import { authApi } from '../services/api/auth';
 import { clearSession } from '../services/api/storage';
 import { dishesApi } from '../services/api/dishes';
 import { healthApi } from '../services/api/health';
 import { communityApi, type ExplorePost } from '../services/api/explore';
 import { onboardingApi } from '../services/api/onboarding';
+import { ingredientsApi, type IngredientItem } from '../services/api/ingredients';
 import { normalizeImageUrl } from '../services/api/randomization';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { ScreenSlideTransition } from '../components/ui/screen-transition';
+import { DateNavigator } from '../components/molecules/DateNavigator';
+import { HealthDatePickerSheet } from '../components/organisms/HealthDatePickerSheet';
 import { Input } from '../components/ui/input';
 import {
   Select,
@@ -38,14 +44,44 @@ import { Switch } from '../components/ui/switch';
 import { Textarea } from '../components/ui/textarea';
 import { cn } from '../lib/utils';
 import { uploadSignedImage, type SignedImageUpload } from '../services/uploads/signed-image';
-import { getDeviceTimeZone, getTodayISO } from '../lib/dates';
+import { getDeviceTimeZone, getTodayISO, parsePlanDate } from '../lib/dates';
 import type { CatalogItem, SavedDishItem } from '../services/api/types';
+import { MealJournalScreen } from './meal-journal/MealJournalScreen';
+import {
+  registerPushNotificationsAsync,
+  unregisterPushNotificationsAsync,
+} from '../lib/push-notifications';
+import {
+  syncCurrentMealReminders,
+  cancelMealReminders,
+} from '../lib/meal-reminders';
+
+function toLocalDateISO(d: Date, timezone: string): string {
+  try {
+    return new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(d);
+  } catch {
+    return d.toISOString().slice(0, 10);
+  }
+}
+import {
+  recordHealthMeasurementStore,
+  recordPreferencesUpdatedStore,
+  recordAvoidancesUpdatedStore,
+  recordProfileUpdatedStore,
+} from '../services/app-store';
 import {
   FormRowsSkeleton,
   JourneySkeleton,
   ListSkeleton,
   ProfileEditSkeleton,
   ProfileMainSkeleton,
+  RandomHistorySkeleton,
+  FoodListSkeleton,
 } from '../components/skeletons/ScreenSkeletons';
 import {
   ArrowLeft,
@@ -75,6 +111,7 @@ import {
   Trash2,
   UserRound,
   Volume2,
+  X,
 } from 'lucide-react-native';
 
 // Color tokens (dùng cho inline style khi cần exact color)
@@ -238,11 +275,20 @@ type Props = {
   onHealth: () => void;
   onNotification?: () => void;
   onLoggedOut?: () => void;
+  onDishDetail?: (dishId: string, title?: string) => void;
 };
 
 export function ProfileScreen(props: Props) {
   const [page, setPage] = useState<Page>('main');
   const [confirmState, setConfirmState] = useState<ConfirmState>(null);
+  const handleOpenDish = useCallback(
+    (dishId: string, title?: string) => {
+      if (props.onDishDetail) {
+        props.onDishDetail(dishId, title);
+      }
+    },
+    [props.onDishDetail],
+  );
 
   useEffect(() => {
     setGlobalConfirmState = setConfirmState;
@@ -271,7 +317,12 @@ export function ProfileScreen(props: Props) {
         onBack={() => setPage('main')}
       >
         {page !== 'main' ? (
-          <SubScreen page={page} onBack={() => setPage('main')} onLoggedOut={props.onLoggedOut} />
+          <SubScreen
+            page={page}
+            onBack={() => setPage('main')}
+            onLoggedOut={props.onLoggedOut}
+            onOpenDish={handleOpenDish}
+          />
         ) : null}
       </ScreenSlideTransition>
       {confirmState ? (
@@ -296,6 +347,12 @@ export function ProfileScreen(props: Props) {
 
 function ProfileMain({ open, onNotification, onLoggedOut, ...nav }: Props & { open: (page: Page) => void }) {
   const { dash, isInitialLoading, isRefetching, error, refetch } = useProfileDashboard();
+
+  useFocusEffect(
+    useCallback(() => {
+      void refetch();
+    }, [refetch]),
+  );
 
   const weekdayLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
   const displayName =
@@ -504,11 +561,21 @@ function SubScreen({
   page,
   onBack,
   onLoggedOut,
+  onOpenDish,
 }: {
   page: Exclude<Page, 'main'>;
   onBack: () => void;
   onLoggedOut?: () => void;
+  onOpenDish?: (dishId: string, title?: string) => void;
 }) {
+  if (page === 'diary') {
+    return (
+      <SafeAreaView className="flex-1 bg-[#FBF9F5]" edges={['top', 'bottom']}>
+        <MealJournalScreen onBack={onBack} onOpenDish={onOpenDish} />
+      </SafeAreaView>
+    );
+  }
+
   const titles: Record<Exclude<Page, 'main'>, string> = {
     settings: 'Cài đặt',
     edit: 'Chỉnh sửa hồ sơ',
@@ -547,15 +614,13 @@ function SubScreen({
         ) : page === 'avoid' ? (
           <AvoidPage />
         ) : page === 'saved' ? (
-          <SavedPage />
+          <SavedPage onOpenDish={onOpenDish} />
         ) : page === 'privacy' ? (
           <PrivacyPage />
         ) : page === 'history' ? (
-          <HistoryPage />
-        ) : page === 'posts' ? (
-          <PostsPage />
+          <HistoryPage onOpenDish={onOpenDish} />
         ) : (
-          <DiaryPage />
+          <PostsPage />
         )}
       </ScrollView>
     </SafeAreaView>
@@ -576,11 +641,13 @@ function LoadBlock({
   onRetry: () => void;
   empty?: boolean;
   emptyText?: string;
-  skeleton?: 'edit' | 'form' | 'list' | 'journey';
+  skeleton?: 'edit' | 'form' | 'list' | 'journey' | 'history' | 'saved';
   children: ReactNode;
 }) {
   if (loading) {
     if (skeleton === 'edit') return <ProfileEditSkeleton />;
+    if (skeleton === 'history') return <RandomHistorySkeleton />;
+    if (skeleton === 'saved') return <FoodListSkeleton count={5} />;
     if (skeleton === 'list') return <ListSkeleton rows={5} />;
     if (skeleton === 'journey') return <JourneySkeleton />;
     return <FormRowsSkeleton rows={5} />;
@@ -739,14 +806,28 @@ function SettingsPage({ onLoggedOut }: { onLoggedOut?: () => void }) {
           title="Thông báo đẩy"
           value={!!settings?.notifications?.pushEnabled}
           disabled={busy}
-          onChange={(v) => patchSettings({ pushNotificationsEnabled: v })}
+          onChange={async (v) => {
+            await patchSettings({ pushNotificationsEnabled: v });
+            if (v) {
+              void registerPushNotificationsAsync();
+            } else {
+              void unregisterPushNotificationsAsync();
+            }
+          }}
         />
         <ToggleRow
           icon={Footprints}
           title="Nhắc bữa ăn"
           value={!!settings?.notifications?.mealReminders}
           disabled={busy}
-          onChange={(v) => patchSettings({ mealRemindersEnabled: v })}
+          onChange={async (v) => {
+            await patchSettings({ mealRemindersEnabled: v });
+            if (v) {
+              void syncCurrentMealReminders();
+            } else {
+              void cancelMealReminders();
+            }
+          }}
           last
         />
       </Card>
@@ -841,17 +922,7 @@ function EditPage() {
       body.dateOfBirth = dobIso;
       const updated = await profileApi.updateBasic<MeProfile>(body, version);
       setVersion(updated.version ?? updated.profileVersion ?? version + 1);
-      updateDashboardCache((prev) => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          profile: {
-            ...prev.profile,
-            displayName: displayName.trim() || prev.profile.displayName,
-          },
-        };
-      });
-      void invalidateDashboard();
+      recordProfileUpdatedStore({ displayName: displayName.trim() || null });
       setSaveMsg('Đã lưu thay đổi.');
     } catch (e) {
       setError(errMsg(e, 'Không lưu được hồ sơ.'));
@@ -873,20 +944,7 @@ function EditPage() {
     await uploadSignedImage(image, intent.upload, onProgress);
     const avatar = await profileApi.finalizeAvatar<{ url: string }>(intent.mediaId);
     setAvatarUri(avatar.url);
-    updateDashboardCache((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        profile: {
-          ...prev.profile,
-          avatar: {
-            ...prev.profile.avatar,
-            url: avatar.url,
-          },
-        },
-      };
-    });
-    void invalidateDashboard();
+    recordProfileUpdatedStore({ avatarUrl: avatar.url });
     try {
       const me = await profileApi.me<MeProfile>();
       setVersion(me.version ?? me.profileVersion ?? version + 1);
@@ -899,20 +957,7 @@ function EditPage() {
   const removeAvatar = async () => {
     await profileApi.deleteAvatar(version);
     setAvatarUri(null);
-    updateDashboardCache((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        profile: {
-          ...prev.profile,
-          avatar: {
-            ...prev.profile.avatar,
-            url: null,
-          },
-        },
-      };
-    });
-    void invalidateDashboard();
+    recordProfileUpdatedStore({ avatarUrl: null });
     try {
       const me = await profileApi.me<MeProfile>();
       setVersion(me.version ?? me.profileVersion ?? version + 1);
@@ -1087,8 +1132,13 @@ function JourneyPage() {
   const { data, isLoading, error: queryError, refetch } = useQuery<any>({
     queryKey: ['profile', 'journey', month, tz],
     queryFn: () => profileApi.getJourney<any>(month, tz),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
+
+  useEffect(() => {
+    void refetch();
+  }, [refetch]);
 
   const loading = isLoading && !data;
   const error = queryError ? errMsg(queryError, 'Không tải được hành trình.') : null;
@@ -1246,6 +1296,7 @@ function HealthPage() {
         version,
       );
       setVersion((updated as any)?.profileVersion ?? version + 1);
+      recordHealthMeasurementStore();
       setMsg('Đã cập nhật.');
       await load();
     } catch (e) {
@@ -1430,7 +1481,7 @@ function PreferencesPage() {
         version,
       );
       setVersion((updated as any)?.profileVersion ?? (updated as any)?.version ?? version + 1);
-      void invalidateDashboard();
+      recordPreferencesUpdatedStore();
       setMsg('Đã lưu thay đổi.');
     } catch (e) {
       setError(errMsg(e, 'Không lưu được sở thích.'));
@@ -1510,24 +1561,69 @@ function PreferencesPage() {
   );
 }
 
+type AvoidItem = {
+  name: string;
+  ingredientId?: string | null;
+  mode?: 'HARD' | 'SOFT';
+};
+
 function AvoidPage() {
-  const SUGGESTIONS = ['Trứng', 'Gluten', 'Đậu nành', 'Nấm', 'Thịt bò', 'Thịt heo'];
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [tags, setTags] = useState<string[]>([]);
+  const [tags, setTags] = useState<AvoidItem[]>([]);
   const [query, setQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<IngredientItem[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [suggestions, setSuggestions] = useState<Array<{ name: string; id?: string }>>([
+    { name: 'Trứng' },
+    { name: 'Gluten' },
+    { name: 'Đậu nành' },
+    { name: 'Nấm' },
+    { name: 'Thịt bò' },
+    { name: 'Thịt heo' },
+  ]);
   const [msg, setMsg] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const me = await profileApi.me<MeProfile>();
-      const avoided = (me.preferences?.avoidedIngredients ?? []).map(
-        (x) => x.name ?? x.ingredientName ?? x.text ?? '',
-      );
-      setTags(avoided.filter(Boolean));
+      const [me, allergens] = await Promise.all([
+        profileApi.me<MeProfile>(),
+        ingredientsApi.getAllergens().catch(() => []),
+      ]);
+
+      const avoided: AvoidItem[] = (me.preferences?.avoidedIngredients ?? [])
+        .map((x) => ({
+          name: (x.name ?? x.ingredientName ?? x.text ?? '').trim(),
+          ingredientId: x.ingredientId ?? null,
+          mode: (x as any).mode ?? 'HARD',
+        }))
+        .filter((x) => Boolean(x.name));
+      setTags(avoided);
+
+      if (Array.isArray(allergens) && allergens.length > 0) {
+        const topAllergens = allergens
+          .filter((a) => a.active !== false && a.code !== 'OTHER' && a.code !== 'SEAFOOD')
+          .slice(0, 6)
+          .map((a) => ({ name: a.name }));
+
+        const extraStaples = [
+          { name: 'Nấm' },
+          { name: 'Thịt bò' },
+          { name: 'Thịt heo' },
+        ];
+
+        const combined: Array<{ name: string; id?: string }> = [...topAllergens];
+        for (const extra of extraStaples) {
+          if (!combined.some((c) => c.name.toLowerCase() === extra.name.toLowerCase())) {
+            combined.push(extra);
+          }
+        }
+        setSuggestions(combined.slice(0, 6));
+      }
     } catch (e) {
       setError(errMsg(e, 'Không tải được danh sách tránh.'));
     } finally {
@@ -1539,12 +1635,55 @@ function AvoidPage() {
     load();
   }, [load]);
 
-  const addTag = (t: string) => {
-    const name = t.trim();
-    if (!name) return;
-    if (tags.some((x) => x.toLowerCase() === name.toLowerCase())) return;
-    setTags([...tags, name]);
+  // Live debounced search against BE ingredients dictionary
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+    let cancelled = false;
+    setIsSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const results = await ingredientsApi.search(q, 8);
+        if (!cancelled) {
+          setSearchResults(Array.isArray(results) ? results : []);
+        }
+      } catch {
+        if (!cancelled) setSearchResults([]);
+      } finally {
+        if (!cancelled) setIsSearching(false);
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [query]);
+
+  const addTag = (name: string, ingredientId?: string | null) => {
+    const cleanName = name.trim();
+    if (!cleanName) return;
+    if (tags.some((x) => x.name.toLowerCase() === cleanName.toLowerCase())) return;
+    setTags((prev) => [...prev, { name: cleanName, ingredientId: ingredientId ?? null, mode: 'HARD' }]);
     setQuery('');
+    setSearchResults([]);
+  };
+
+  const removeTag = (name: string) => {
+    setTags((prev) => prev.filter((t) => t.name.toLowerCase() !== name.toLowerCase()));
+  };
+
+  const toggleTag = (name: string, ingredientId?: string | null) => {
+    const cleanName = name.trim();
+    if (tags.some((x) => x.name.toLowerCase() === cleanName.toLowerCase())) {
+      removeTag(cleanName);
+    } else {
+      addTag(cleanName, ingredientId);
+    }
   };
 
   const save = async () => {
@@ -1553,11 +1692,18 @@ function AvoidPage() {
     setError(null);
     try {
       await profileApi.putAvoidances({
-        items: tags.map((text) => ({ text, mode: 'HARD' })),
+        items: tags.map((t) => ({
+          text: t.name,
+          ingredientId: t.ingredientId ?? undefined,
+          mode: t.mode ?? 'HARD',
+        })),
       });
-      setMsg('Đã lưu lựa chọn.');
+      setMsg('Đã lưu lựa chọn thành công.');
+      recordAvoidancesUpdatedStore();
+      Alert.alert('Thành công', 'Đã lưu danh sách nguyên liệu cần tránh.');
     } catch (e) {
       setError(errMsg(e, 'Không lưu được.'));
+      Alert.alert('Lỗi', errMsg(e, 'Không lưu được danh sách nguyên liệu.'));
     } finally {
       setSaving(false);
     }
@@ -1592,7 +1738,7 @@ function AvoidPage() {
           gap: 12,
         }}
       >
-        <Search color={CLR.secondary} />
+        <Search color={CLR.secondary} size={20} />
         <Input
           placeholder="Tìm nguyên liệu..."
           value={query}
@@ -1600,12 +1746,89 @@ function AvoidPage() {
           onSubmitEditing={() => addTag(query)}
           className="h-auto flex-1 border-0 bg-transparent p-0 text-[15px] shadow-none"
         />
-        {query.trim() ? (
-          <Pressable onPress={() => addTag(query)}>
-            <Plus color={CLR.yellowDark} />
+        {isSearching ? (
+          <ActivityIndicator size="small" color={CLR.yellowDark} />
+        ) : query.trim() ? (
+          <Pressable onPress={() => addTag(query)} hitSlop={8} accessibilityLabel="Thêm nguyên liệu">
+            <Plus color={CLR.yellowDark} size={22} />
           </Pressable>
         ) : null}
       </View>
+
+      {/* Live autocomplete search results from BE ingredients API */}
+      {searchResults.length > 0 && (
+        <Card
+          style={{
+            marginTop: -6,
+            borderRadius: 18,
+            borderWidth: 1,
+            borderColor: '#E8E4DC',
+            backgroundColor: '#fff',
+            padding: 8,
+            maxHeight: 240,
+          }}
+        >
+          <ScrollView nestedScrollEnabled keyboardShouldPersistTaps="handled">
+            {searchResults.map((item, idx) => {
+              const isSelected = tags.some((t) => t.name.toLowerCase() === item.name.toLowerCase());
+              return (
+                <Pressable
+                  key={item.id || idx}
+                  onPress={() => toggleTag(item.name, item.id)}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingVertical: 10,
+                    paddingHorizontal: 12,
+                    borderBottomWidth: idx < searchResults.length - 1 ? 1 : 0,
+                    borderBottomColor: '#F3F0E6',
+                  }}
+                >
+                  <View style={{ flex: 1, marginRight: 8 }}>
+                    <Text style={{ fontSize: 15, fontWeight: '600', color: '#161616' }}>
+                      {item.name}
+                    </Text>
+                    {item.allergenCode ? (
+                      <Text style={{ fontSize: 12, color: '#854D0E', marginTop: 2 }}>
+                        Nhóm: {item.allergenCode}
+                      </Text>
+                    ) : null}
+                  </View>
+                  {isSelected ? (
+                    <View
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 14,
+                        backgroundColor: '#FEF3C7',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Check size={16} color="#D97706" />
+                    </View>
+                  ) : (
+                    <View
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: 14,
+                        backgroundColor: '#FFFBEB',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Plus size={16} color={CLR.yellowDark} />
+                    </View>
+                  )}
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        </Card>
+      )}
+
       <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
         Đã chọn
       </Text>
@@ -1615,51 +1838,68 @@ function AvoidPage() {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
           {tags.map((x) => (
             <Pressable
-              key={x}
+              key={x.name}
               style={{
-                paddingHorizontal: 16,
-                paddingVertical: 12,
+                paddingHorizontal: 14,
+                paddingVertical: 10,
                 borderRadius: 16,
                 borderWidth: 1,
                 borderColor: '#F4D99C',
+                backgroundColor: '#FFFBEB',
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
               }}
-              onPress={() => setTags(tags.filter((t) => t !== x))}
+              onPress={() => removeTag(x.name)}
             >
-              <Text>
-                {x} ×
+              <Text style={{ fontSize: 14, fontWeight: '600', color: '#854D0E' }}>
+                {x.name}
               </Text>
+              <X size={14} color="#854D0E" />
             </Pressable>
           ))}
         </View>
       )}
+
       <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
         Gợi ý phổ biến
       </Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12 }}>
-        {SUGGESTIONS.map((x) => (
-          <Pressable
-            key={x}
-            style={{
-              width: '48%',
-              height: 70,
-              borderRadius: 18,
-              backgroundColor: '#fff',
-              padding: 16,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              shadowColor: '#5D490F',
-              shadowOpacity: 0.08,
-              shadowRadius: 20,
-              shadowOffset: { width: 0, height: 6 },
-              elevation: 3,
-            }}
-            onPress={() => addTag(x)}
-          >
-            <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>{x}</Text>
-            <Plus color={CLR.yellowDark} />
-          </Pressable>
-        ))}
+        {suggestions.map((x) => {
+          const isSelected = tags.some((t) => t.name.toLowerCase() === x.name.toLowerCase());
+          return (
+            <Pressable
+              key={x.name}
+              style={{
+                width: '48%',
+                height: 70,
+                borderRadius: 18,
+                backgroundColor: isSelected ? '#FFFBEB' : '#fff',
+                borderWidth: isSelected ? 1.5 : 0,
+                borderColor: isSelected ? '#F5BD18' : 'transparent',
+                padding: 16,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                shadowColor: '#5D490F',
+                shadowOpacity: isSelected ? 0.04 : 0.08,
+                shadowRadius: 20,
+                shadowOffset: { width: 0, height: 6 },
+                elevation: 3,
+              }}
+              onPress={() => toggleTag(x.name, x.id)}
+            >
+              <Text style={{ fontSize: 16, fontWeight: '600', color: isSelected ? '#854D0E' : '#161616' }}>
+                {x.name}
+              </Text>
+              {isSelected ? (
+                <Check size={20} color="#D97706" />
+              ) : (
+                <Plus size={20} color={CLR.yellowDark} />
+              )}
+            </Pressable>
+          );
+        })}
       </View>
       {error ? <Text style={{ color: CLR.danger, textAlign: 'center' }}>{error}</Text> : null}
       {msg ? <Text style={{ color: '#2F9E44', textAlign: 'center' }}>{msg}</Text> : null}
@@ -1672,7 +1912,7 @@ function AvoidPage() {
   );
 }
 
-function SavedPage() {
+function SavedPage({ onOpenDish }: { onOpenDish?: (dishId: string, title?: string) => void }) {
   const [query, setQuery] = useState('');
   const [qApplied, setQApplied] = useState('');
 
@@ -1682,8 +1922,12 @@ function SavedPage() {
       const res = await dishesApi.getSaved(undefined, 40, qApplied || undefined);
       return (res.data ?? (res as any).items ?? []) as SavedDishItem[];
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
   });
+
+  useEffect(() => {
+    void refetch();
+  }, [refetch, qApplied]);
 
   const loading = isLoading && items.length === 0;
   const error = queryError ? errMsg(queryError, 'Không tải được món đã lưu.') : null;
@@ -1725,13 +1969,14 @@ function SavedPage() {
         onRetry={() => load(qApplied)}
         empty={!loading && !error && items.length === 0}
         emptyText="Chưa có món đã lưu."
-        skeleton="list"
+        skeleton="saved"
       >
         <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>
           {items.length} món đã lưu
         </Text>
         {items.map((row) => {
           const dish = row.dish ?? (row as any);
+          const dishId = dish?.id ?? row.dishId;
           const kcal = dish.kcal ?? dish.nutrition?.calories ?? dish.calories;
           const minutes = dish.cookTimeMinutes ?? dish.prepMinutes ?? dish.cookMinutes;
           const price = formatPriceRange(dish.priceMin, dish.priceMax);
@@ -1741,9 +1986,10 @@ function SavedPage() {
           return (
             <FoodRow
               key={row.id ?? dish.id}
-              image={dishImageSource(dish.thumbnailUrl, dish.media)}
+              image={dishImageSource(dish.thumbnailUrl ?? (dish as any).imageUrl, dish.media)}
               name={dish.name ?? 'Món ăn'}
               meta={meta || '—'}
+              onPress={dishId ? () => onOpenDish?.(dishId, dish?.name) : undefined}
             />
           );
         })}
@@ -1918,7 +2164,12 @@ function PrivacyPage() {
             confirmAction(
               'Xóa lịch sử Random?',
               'Toàn bộ lịch sử Random sẽ bị xóa và không hoàn tác được.',
-              () => void runAction(() => profileApi.clearHistory(), 'Đã xóa lịch sử Random.'),
+              () =>
+                void runAction(async () => {
+                  await profileApi.clearHistory();
+                  void queryClient.invalidateQueries({ queryKey: ['profile', 'randomHistory'] });
+                  void queryClient.invalidateQueries({ queryKey: PROFILE_DASHBOARD_QUERY_KEY });
+                }, 'Đã xóa lịch sử Random.'),
               'Xóa',
             )
           }
@@ -1931,7 +2182,11 @@ function PrivacyPage() {
             confirmAction(
               'Xóa dữ liệu sức khỏe?',
               'Các chỉ số và dữ liệu sức khỏe đã lưu sẽ bị xóa.',
-              () => void runAction(() => profileApi.clearHealth(), 'Đã xóa dữ liệu sức khỏe.'),
+              () =>
+                void runAction(async () => {
+                  await profileApi.clearHealth();
+                  recordHealthMeasurementStore();
+                }, 'Đã xóa dữ liệu sức khỏe.'),
               'Xóa',
             )
           }
@@ -1974,7 +2229,7 @@ function PrivacyPage() {
   );
 }
 
-function HistoryPage() {
+function HistoryPage({ onOpenDish }: { onOpenDish?: (dishId: string, title?: string) => void }) {
   const { data, isLoading, error: queryError, refetch } = useQuery({
     queryKey: ['profile', 'randomHistory'],
     queryFn: async () => {
@@ -1987,8 +2242,13 @@ function HistoryPage() {
         items: (hist.data ?? (hist as any).items ?? []) as any[],
       };
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
+
+  useEffect(() => {
+    void refetch();
+  }, [refetch]);
 
   const summary = data?.summary ?? null;
   const items = data?.items ?? [];
@@ -2008,7 +2268,7 @@ function HistoryPage() {
       onRetry={load}
       empty={!loading && !error && items.length === 0 && total === 0}
       emptyText="Chưa có lần Random nào."
-      skeleton="list"
+      skeleton="history"
     >
       <Card style={{ alignItems: 'center' }}>
         <Sparkles color={CLR.yellowDark} />
@@ -2048,14 +2308,21 @@ function HistoryPage() {
       ) : (
         items.map((row) => {
           const dish = row.dish;
+          const dishId = dish?.id ?? row.dishId;
           const time = formatRelTime(row.createdAt);
-          const outcome = row.isSelected || row.outcome === 'SELECTED' ? 'Đã chọn' : 'Bỏ qua';
+          const isSelected = row.isSelected || row.outcome === 'SELECTED';
+          const outcome = isSelected ? 'Đã chọn' : 'Random lại';
           return (
             <FoodRow
               key={row.id}
               image={dishImageSource(dish?.imageUrl, dish?.media)}
               name={dish?.name ?? 'Món không còn khả dụng'}
-              meta={`${time} · ${outcome}`}
+              meta={time}
+              badge={{
+                text: outcome,
+                variant: isSelected ? 'success' : 'muted',
+              }}
+              onPress={dishId ? () => onOpenDish?.(dishId, dish?.name) : undefined}
             />
           );
         })
@@ -2081,8 +2348,13 @@ function PostsPage() {
         draftItems: (draft.data ?? []) as ExplorePost[],
       };
     },
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
+
+  useEffect(() => {
+    void refetch();
+  }, [refetch, appliedQuery]);
 
   const pubItems = data?.pubItems ?? [];
   const draftItems = data?.draftItems ?? [];
@@ -2175,136 +2447,12 @@ function PostsPage() {
   );
 }
 
-function DiaryPage() {
-  const tz = getDeviceTimeZone();
-  const today = getTodayISO(tz);
 
-  const { data, isLoading, error: queryError, refetch } = useQuery({
-    queryKey: ['profile', 'diary', today, tz],
-    queryFn: async () => {
-      const [d, meals] = await Promise.all([
-        healthApi.getDay(today, tz),
-        healthApi.listMealLogs(today, tz),
-      ]);
-      return { day: d, logs: (meals.items ?? []) as any[] };
-    },
-    staleTime: 1000 * 60 * 5,
-  });
 
-  const day = data?.day ?? null;
-  const logs = data?.logs ?? [];
-  const loading = isLoading && !data;
-  const error = queryError ? errMsg(queryError, 'Không tải được nhật ký.') : null;
-  const load = useCallback(() => void refetch(), [refetch]);
 
-  const consumed = day?.energy?.consumedKcal;
-  const target = day?.energy?.targetKcal;
-  const pct =
-    consumed != null && target != null && target > 0
-      ? Math.min(100, Math.round((consumed / target) * 100))
-      : 0;
-  const slots = ['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'];
-  const loggedSlots = new Set(logs.map((l) => String(l.mealSlot).toUpperCase()));
 
-  return (
-    <LoadBlock loading={loading} error={error} onRetry={load} skeleton="list">
-      <Card>
-        <Text style={{ fontSize: 30, fontWeight: '700', color: '#161616' }}>
-          {consumed != null ? Number(consumed).toLocaleString('vi-VN') : '—'}{' '}
-          <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>
-            / {target != null ? Number(target).toLocaleString('vi-VN') : '—'} kcal
-          </Text>
-        </Text>
-        <View
-          style={{
-            height: 9,
-            borderRadius: 5,
-            backgroundColor: '#F1EEE7',
-            overflow: 'hidden',
-            marginTop: 10,
-          }}
-        >
-          <View
-            style={{
-              height: '100%',
-              borderRadius: 5,
-              backgroundColor: '#FFD54F',
-              width: `${pct}%`,
-            }}
-          />
-        </View>
-        <View
-          style={{
-            flexDirection: 'row',
-            marginTop: 18,
-            paddingTop: 14,
-            borderTopWidth: 1,
-            borderTopColor: '#E8E4DC',
-          }}
-        >
-          {[
-            [
-              day?.macros?.protein?.consumedG != null
-                ? `${day.macros.protein.consumedG}g`
-                : '—',
-              'Protein',
-            ],
-            [
-              day?.macros?.carbs?.consumedG != null ? `${day.macros.carbs.consumedG}g` : '—',
-              'Tinh bột',
-            ],
-            [
-              day?.macros?.fat?.consumedG != null ? `${day.macros.fat.consumedG}g` : '—',
-              'Chất béo',
-            ],
-          ].map(([v, l]) => (
-            <View key={l} style={{ flex: 1, alignItems: 'center' }}>
-              <Text style={{ fontSize: 13, color: '#747474', marginTop: 3, textAlign: 'center' }}>
-                {l}
-              </Text>
-              <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>{v}</Text>
-            </View>
-          ))}
-        </View>
-      </Card>
-      {logs.length === 0 ? (
-        <Card>
-          <Text style={{ color: '#747474', textAlign: 'center' }}>
-            Hôm nay chưa ghi bữa ăn nào.
-          </Text>
-        </Card>
-      ) : (
-        logs.map((log) => {
-          const first = log.items?.[0];
-          const name = first?.displayName ?? mealSlotLabel(log.mealSlot);
-          const kcal = log.totals?.kcal;
-          return (
-            <FoodRow
-              key={log.id}
-              image={dishPlaceholder}
-              name={`${mealSlotLabel(log.mealSlot)}`}
-              meta={`${name}${kcal != null ? ` · ${kcal} kcal` : ''}`}
-            />
-          );
-        })
-      )}
-      {slots
-        .filter((s) => !loggedSlots.has(s))
-        .map((s) => (
-          <Card
-            key={s}
-            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}
-          >
-            <Text style={{ fontSize: 19, fontWeight: '700', color: '#161616' }}>
-              {mealSlotLabel(s)}
-            </Text>
-            <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>Chưa ghi lại</Text>
-            <Plus color={CLR.yellowDark} />
-          </Card>
-        ))}
-    </LoadBlock>
-  );
-}
+
+
 
 function Header({ title, onBack }: { title: string; onBack: () => void }) {
   return (
@@ -2592,30 +2740,36 @@ function IdChoiceCard({
       <Text style={{ fontSize: 20, fontWeight: '700', color: '#161616', marginVertical: 4 }}>
         {title}
       </Text>
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
         {items.map((x) => {
           const active = multi ? (values ?? []).includes(x.id) : value === x.id;
           return (
             <Pressable
               key={x.id}
               style={{
-                width: '48%',
-                minHeight: 72,
-                borderRadius: 16,
+                width: '31.3%',
+                minHeight: 60,
+                borderRadius: 14,
                 borderWidth: 1,
                 borderColor: active ? '#F5B900' : '#E8E4DC',
                 backgroundColor: active ? '#FFF4C7' : '#fff',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: 6,
-                paddingHorizontal: 8,
+                paddingHorizontal: 6,
+                paddingVertical: 8,
               }}
               onPress={() => (multi ? toggle?.(x.id) : setValue?.(x.id))}
             >
-              <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616', textAlign: 'center' }}>
+              <Text
+                style={{
+                  fontSize: 13.5,
+                  fontWeight: active ? '700' : '600',
+                  color: '#161616',
+                  textAlign: 'center',
+                }}
+              >
                 {x.name}
               </Text>
-              {active && <Check color="#fff" />}
             </Pressable>
           );
         })}
@@ -2627,15 +2781,33 @@ function FoodRow({
   image,
   name,
   meta,
+  badge,
+  onPress,
+  isSaved,
+  onBookmarkPress,
+  rightAction,
 }: {
   image: ImageSourcePropType;
   name: string;
-  meta: string;
+  meta?: string;
+  badge?: {
+    text: string;
+    variant?: 'success' | 'muted' | 'warning';
+  };
+  onPress?: () => void;
+  isSaved?: boolean;
+  onBookmarkPress?: () => void;
+  rightAction?: ReactNode;
 }) {
   return (
-    <View
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`Xem chi tiết món ${name}`}
+      className="bg-white rounded-[22px] p-2.5 flex-row items-center gap-3.5 active:opacity-90"
       style={{
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
         borderRadius: 22,
         padding: 10,
         flexDirection: 'row',
@@ -2648,15 +2820,106 @@ function FoodRow({
         elevation: 3,
       }}
     >
-      <Image source={image} style={{ width: 116, height: 106, borderRadius: 16 }} />
-      <View style={{ flex: 1 }}>
-        <Text style={{ fontSize: 22, fontWeight: '700', color: '#161616', marginBottom: 10 }}>
+      <Image
+        source={image}
+        className="w-[100px] h-[92px] rounded-[16px] bg-[#F5EEDB]"
+        style={{ width: 100, height: 92, borderRadius: 16, backgroundColor: '#F5EEDB' }}
+        resizeMode="cover"
+      />
+      <View
+        className="flex-1 justify-center min-w-0"
+        style={{ flex: 1, justifyContent: 'center' }}
+      >
+        <Text
+          numberOfLines={2}
+          className="text-[17px] font-bold text-[#161616] mb-1"
+          style={{ fontSize: 17, fontWeight: '700', color: '#161616', marginBottom: 4 }}
+        >
           {name}
         </Text>
-        <Text style={{ fontSize: 14, color: '#747474' }}>{meta}</Text>
+        <View
+          className="flex-row items-center flex-wrap gap-1.5"
+          style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}
+        >
+          {badge && (
+            <View
+              className={`px-2 py-0.5 rounded-full flex-row items-center gap-1 ${
+                badge.variant === 'success'
+                  ? 'bg-[#E8F5E9]'
+                  : badge.variant === 'warning'
+                  ? 'bg-[#FFF8E1]'
+                  : 'bg-[#F0EBE1]'
+              }`}
+              style={{
+                paddingHorizontal: 8,
+                paddingVertical: 2,
+                borderRadius: 999,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 4,
+                backgroundColor:
+                  badge.variant === 'success'
+                    ? '#E8F5E9'
+                    : badge.variant === 'warning'
+                    ? '#FFF8E1'
+                    : '#F0EBE1',
+              }}
+            >
+              {badge.variant === 'success' && <Check size={11} color="#2E7D32" strokeWidth={2.5} />}
+              <Text
+                style={{
+                  fontSize: 12,
+                  fontWeight: '600',
+                  color:
+                    badge.variant === 'success'
+                      ? '#2E7D32'
+                      : badge.variant === 'warning'
+                      ? '#B78103'
+                      : '#747474',
+                }}
+              >
+                {badge.text}
+              </Text>
+            </View>
+          )}
+          {meta ? (
+            <Text
+              numberOfLines={1}
+              className="text-[13px] text-[#747474]"
+              style={{ fontSize: 13, color: '#747474' }}
+            >
+              {meta}
+            </Text>
+          ) : null}
+        </View>
       </View>
-      <Bookmark color="#F5BD18" fill="#FFD54F" />
-    </View>
+
+      {rightAction ? (
+        <View style={{ paddingRight: 4 }}>{rightAction}</View>
+      ) : onBookmarkPress || isSaved !== undefined ? (
+        <Pressable
+          hitSlop={12}
+          onPress={
+            onBookmarkPress
+              ? (e) => {
+                  e.stopPropagation();
+                  onBookmarkPress();
+                }
+              : undefined
+          }
+          style={({ pressed }) => ({
+            padding: 6,
+            opacity: pressed ? 0.7 : 1,
+          })}
+        >
+          <Bookmark color="#F5BD18" fill={isSaved ? '#FFD54F' : 'transparent'} size={20} />
+        </Pressable>
+      ) : onPress ? (
+        <View style={{ paddingRight: 4 }}>
+          <ChevronRight size={18} color="#C4BDB0" />
+        </View>
+      ) : null}
+    </Pressable>
   );
 }
 function MonthCalendar({

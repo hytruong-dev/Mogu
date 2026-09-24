@@ -130,6 +130,10 @@ export class DishReviewService {
       data: { moderationStatus: 'APPROVED' },
     });
 
+    await this.audit(dishId, actorId, 'DISH_APPROVED', dish.status, 'PUBLISHED', {
+      note: dto?.note,
+    });
+
     return updated;
   }
 
@@ -144,10 +148,17 @@ export class DishReviewService {
       });
     }
 
-    return this.prisma.db.dish.update({
+    const updated = await this.prisma.db.dish.update({
       where: { id: dishId },
       data: { status: 'CHANGES_REQUESTED' },
     });
+
+    await this.audit(dishId, actorId, 'DISH_CHANGES_REQUESTED', dish.status, 'CHANGES_REQUESTED', {
+      reasonCode: dto.reasonCode,
+      note: dto.note,
+    });
+
+    return updated;
   }
 
   /** Từ chối */
@@ -161,10 +172,40 @@ export class DishReviewService {
       });
     }
 
-    return this.prisma.db.dish.update({
+    const updated = await this.prisma.db.dish.update({
       where: { id: dishId },
       data: { status: 'REJECTED' },
     });
+
+    await this.audit(dishId, actorId, 'DISH_REJECTED', dish.status, 'REJECTED', {
+      note: dto?.note,
+    });
+
+    return updated;
+  }
+
+  private async audit(
+    dishId: string,
+    actorId: string,
+    action: string,
+    fromStatus?: string | null,
+    toStatus?: string | null,
+    payload?: Record<string, unknown>,
+  ) {
+    try {
+      await this.prisma.db.dishEditorAuditLog.create({
+        data: {
+          dishId,
+          actorId,
+          action,
+          fromStatus: fromStatus ?? undefined,
+          toStatus: toStatus ?? undefined,
+          payload: (payload ?? undefined) as object | undefined,
+        },
+      });
+    } catch {
+      // best-effort
+    }
   }
 
   private async findDishOrFail(dishId: string) {

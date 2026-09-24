@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import {
   Prisma,
   WeeklyMealSlot,
@@ -8,6 +8,7 @@ import {
 import { PrismaService } from '../../prisma/prisma.service';
 import { WeeklyPlanCalculatorService } from './weekly-plan-calculator.service';
 import { DishEligibilityService } from '../../dishes/eligibility/dish-eligibility.service';
+import { NotificationsService } from '../../notifications/notifications.service';
 import {
   mapNutritionToPlanServing,
   planPriceVnd,
@@ -58,7 +59,8 @@ export class WeeklyPlanGeneratorService {
     private readonly prisma: PrismaService,
     private readonly calculator: WeeklyPlanCalculatorService,
     private readonly eligibility: DishEligibilityService,
-  ) {}
+    @Optional() private readonly notificationsService?: NotificationsService,
+  ) { }
 
   async run(planId: string): Promise<void> {
     this.logger.log(`[Generator] Starting plan generation: ${planId}`);
@@ -202,8 +204,15 @@ export class WeeklyPlanGeneratorService {
     });
     if (hardPoolCount === 0) {
       await this.failPlan(planId, 'INSUFFICIENT_CANDIDATES', {
+        status: 'INSUFFICIENT_CANDIDATES',
         reason: 'EMPTY_CATALOG',
-        message: 'Không có món đã duyệt đủ giá trong kho.',
+        message: 'Kho món hiện chưa đủ lựa chọn phù hợp với cấu hình này.',
+        approvedDishCount: 0,
+        suggestions: [
+          { type: 'MIN_BUDGET', value: 350000 },
+          { type: 'ENABLE_MEAL_SLOT', value: 'SNACK' },
+          { type: 'REVIEW_AVOIDED_INGREDIENTS' },
+        ],
         hardPoolCount: 0,
         slotsNeeded: slotTasks.length,
       });
@@ -313,8 +322,34 @@ export class WeeklyPlanGeneratorService {
       }
 
       if (candidates.length === 0) {
+        const minSuggestedBudget = Math.max(
+          350000,
+          Math.ceil((slotTasks.length * 50000) / 50000) * 50000,
+        );
+        const suggestions: Array<{ type: string; value?: any }> = [];
+        if (config.budgetVnd < minSuggestedBudget) {
+          suggestions.push({ type: 'MIN_BUDGET', value: minSuggestedBudget });
+        } else {
+          suggestions.push({ type: 'MIN_BUDGET', value: config.budgetVnd + 50000 });
+        }
+        if (!config.enabledSlots.includes('SNACK')) {
+          suggestions.push({ type: 'ENABLE_MEAL_SLOT', value: 'SNACK' });
+        }
+        if (
+          (profileSnapshot.avoidedIngredients && profileSnapshot.avoidedIngredients.length > 0) ||
+          (profileSnapshot.allergenCodes && profileSnapshot.allergenCodes.length > 0)
+        ) {
+          suggestions.push({ type: 'REVIEW_AVOIDED_INGREDIENTS' });
+        } else if (suggestions.length < 3) {
+          suggestions.push({ type: 'REVIEW_AVOIDED_INGREDIENTS' });
+        }
+
         await this.failPlan(planId, 'INSUFFICIENT_CANDIDATES', {
+          status: 'INSUFFICIENT_CANDIDATES',
           reason: 'NO_DISH_FOR_SLOT',
+          message: 'Kho món hiện chưa đủ lựa chọn phù hợp với cấu hình này.',
+          suggestions,
+          approvedDishCount: hardPoolCount,
           slot: task.slot,
           date: task.date,
           relaxations,
@@ -424,6 +459,20 @@ export class WeeklyPlanGeneratorService {
       this.logger.log(
         `[Generator] Plan ${planId} READY: ${chosenSlots.length} slots, cost=${totalCost}`,
       );
+
+      if (this.notificationsService && plan.userId) {
+        void this.notificationsService
+          .enqueueInAppNotification({
+            userId: plan.userId,
+            type: 'REMINDER',
+            title: 'Kế hoạch tuần sẵn sàng!',
+            body: 'Kế hoạch ăn uống tuần này của bạn đã được tạo thành công.',
+            deepLink: 'mogu://weekly-plan',
+          })
+          .catch((err) => {
+            this.logger.warn(`Failed to enqueue weekly plan notification: ${err.message}`);
+          });
+      }
     } catch (err: any) {
       this.logger.error(`[Generator] Transaction failed: ${err.message}`);
       if (err.message !== 'PLAN_ARCHIVED_OR_MISSING') {
@@ -505,13 +554,13 @@ export class WeeklyPlanGeneratorService {
           ...(ignoreKcalBand
             ? []
             : [
-                {
-                  OR: [
-                    { nutrition: { calories: { gte: kcalLo, lte: kcalHi } } },
-                    { nutrition: null },
-                  ],
-                },
-              ]),
+              {
+                OR: [
+                  { nutrition: { calories: { gte: kcalLo, lte: kcalHi } } },
+                  { nutrition: null },
+                ],
+              },
+            ]),
         ],
       },
       include: {
@@ -532,7 +581,7 @@ export class WeeklyPlanGeneratorService {
         const goalMatchScore =
           profile.goalCodes.length > 0
             ? d.dishGoals.filter((g) => profile.goalCodes.includes(g.goal.code)).length /
-              profile.goalCodes.length
+            profile.goalCodes.length
             : 0.5;
 
         const kcalFit = mapped.kcal != null

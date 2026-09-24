@@ -8,14 +8,16 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Bell, Gift, Megaphone, Trophy, Zap } from 'lucide-react-native';
+import { ArrowLeft, Bell, Gift, Heart, Megaphone, MessageCircle, Trophy, UserPlus, Zap } from 'lucide-react-native';
 import { homeApi } from '../services/api/home';
 import type { NotificationItem } from '../services/api/types';
 import { ListSkeleton } from '../components/skeletons/ScreenSkeletons';
 import { Card } from '../components/ui/card';
+import { notificationRealtime } from '../services/notification-realtime';
 
 type Props = {
   onBack: () => void;
+  onOpenDeepLink?: (deepLink: string) => void;
 };
 
 const TYPE_META: Record<
@@ -26,9 +28,13 @@ const TYPE_META: Record<
   PROMO: { icon: Gift, color: '#E85E2F', bg: '#FDEEE9', label: 'Khuyến mãi' },
   REMINDER: { icon: Bell, color: '#FFC51A', bg: '#FFF8E0', label: 'Nhắc nhở' },
   ACHIEVEMENT: { icon: Trophy, color: '#22C55E', bg: '#E8FAF0', label: 'Thành tích' },
+  SOCIAL_LIKE: { icon: Heart, color: '#EF4444', bg: '#FEE2E2', label: 'Thích' },
+  SOCIAL_COMMENT: { icon: MessageCircle, color: '#3B82F6', bg: '#DBEAFE', label: 'Bình luận' },
+  SOCIAL_FOLLOW: { icon: UserPlus, color: '#8B5CF6', bg: '#EDE9FE', label: 'Theo dõi' },
+  SOCIAL_REPLY: { icon: MessageCircle, color: '#0EA5E9', bg: '#E0F2FE', label: 'Trả lời' },
 };
 
-export function NotificationScreen({ onBack }: Props) {
+export function NotificationScreen({ onBack, onOpenDeepLink }: Props) {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -56,9 +62,20 @@ export function NotificationScreen({ onBack }: Props) {
     fetchNotifications(1, true);
   }, [fetchNotifications]);
 
+  useEffect(() => {
+    const unsub = notificationRealtime.subscribeToNewNotifications((newNotif) => {
+      setNotifications((prev) => {
+        if (prev.some((n) => n.id === newNotif.id)) return prev;
+        return [newNotif, ...prev];
+      });
+    });
+    return unsub;
+  }, []);
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchNotifications(1, true);
+    notificationRealtime.refreshUnreadCount().catch(() => null);
   }, [fetchNotifications]);
 
   const onLoadMore = useCallback(() => {
@@ -75,6 +92,7 @@ export function NotificationScreen({ onBack }: Props) {
         n.id === notif.id ? { ...n, status: 'READ', readAt: new Date().toISOString() } : n,
       ),
     );
+    notificationRealtime.setUnreadCount(notificationRealtime.getUnreadCount() - 1);
     try {
       await homeApi.markNotificationRead(notif.id);
     } catch {
@@ -82,6 +100,7 @@ export function NotificationScreen({ onBack }: Props) {
       setNotifications((prev) =>
         prev.map((n) => (n.id === notif.id ? { ...n, status: 'UNREAD', readAt: null } : n)),
       );
+      notificationRealtime.refreshUnreadCount().catch(() => null);
     }
   }, []);
 
@@ -146,7 +165,13 @@ export function NotificationScreen({ onBack }: Props) {
             ) : null
           }
           renderItem={({ item }) => (
-            <NotifCard notif={item} onPress={handleMarkRead} />
+            <NotifCard
+              notif={item}
+              onPress={async (n) => {
+                await handleMarkRead(n);
+                if (n.deepLink) onOpenDeepLink?.(n.deepLink);
+              }}
+            />
           )}
         />
       )}

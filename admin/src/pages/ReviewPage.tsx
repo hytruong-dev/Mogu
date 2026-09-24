@@ -19,8 +19,25 @@ import {
 } from 'lucide-react'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
-import { Card } from '../components/ui/card'
+import { Card, CardContent } from '../components/ui/card'
 import { TableSkeleton } from '../components/ui/page-skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/ui/table'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../components/ui/dialog'
+import { Label } from '../components/ui/label'
 import { useReviewActions, useReviewQueue } from '../hooks/useReviewQueue'
 import type { ReviewQueueItem, ReviewReasonCode } from '../types'
 import { reviewsAdminApi, type CommunityReview } from '../api/reviews'
@@ -55,42 +72,50 @@ function ActionDialog({
   const [note, setNote] = useState('')
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <Card className="modal-card" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 440 }}>
-        <h3 style={{ marginBottom: 16 }}>{title}</h3>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
-          <span style={{ fontSize: 13, fontWeight: 600 }}>Lý do *</span>
-          <Select
-            
-            value={reasonCode}
-            onChange={(e) => setReasonCode(e.target.value as ReviewReasonCode)}
-          >
-            {REASON_OPTIONS.map((r) => (
-              <option key={r.value} value={r.value}>{r.label}</option>
-            ))}
-          </Select>
-        </label>
-        <label style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 20 }}>
-          <span style={{ fontSize: 13, fontWeight: 600 }}>Ghi chú (tùy chọn)</span>
-          <Textarea
-            
-            placeholder="Nhập ghi chú chi tiết..."
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            rows={3}
-          />
-        </label>
-        <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end' }}>
-          <Button variant="outline" onClick={onClose}>Hủy</Button>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>
+            Chọn lý do và nhập ghi chú hướng dẫn để đội ngũ biên tập điều chỉnh dữ liệu món ăn.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Lý do kiểm duyệt *</Label>
+            <Select
+              value={reasonCode}
+              onChange={(e) => setReasonCode(e.target.value as ReviewReasonCode)}
+            >
+              {REASON_OPTIONS.map((r) => (
+                <option key={r.value} value={r.value}>{r.label}</option>
+              ))}
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Ghi chú bổ sung (tùy chọn)</Label>
+            <Textarea
+              placeholder="Nhập ghi chú chi tiết phản hồi..."
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={3}
+            />
+          </div>
+        </div>
+        <DialogFooter className="gap-2 sm:gap-0">
+          <Button variant="outline" onClick={onClose} disabled={isPending}>
+            Hủy
+          </Button>
           <Button
             onClick={() => onConfirm(reasonCode, note)}
             disabled={isPending}
+            className="bg-primary text-primary-foreground font-semibold"
           >
             {isPending ? 'Đang xử lý...' : 'Xác nhận'}
           </Button>
-        </div>
-      </Card>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -307,15 +332,16 @@ function CommunityReviewsTab() {
 
   useEffect(() => { loadReviews(1) }, [filter]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleHide = async (review: CommunityReview) => {
+  const handleToggleHide = async (review: CommunityReview, isVisible: boolean) => {
     setActionLoading(review.id)
     try {
-      await reviewsAdminApi.hide(review.id)
-      setReviews(prev => prev.map(r => r.id === review.id ? { ...r, isVisible: false } : r))
+      await reviewsAdminApi.hide(review.id, isVisible)
+      setReviews(prev => prev.map(r => r.id === review.id ? { ...r, isVisible } : r))
     } catch {
-      alert('Không thể ẩn review')
+      alert(isVisible ? 'Không thể hiện lại review' : 'Không thể ẩn review')
     } finally {
-      setActionLoading(null) }
+      setActionLoading(null)
+    }
   }
 
   const handleDelete = async (review: CommunityReview) => {
@@ -334,132 +360,159 @@ function CommunityReviewsTab() {
   const totalPages = Math.ceil(total / limit)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div className="space-y-4">
       {/* Filter bar */}
-      <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        {(['all', 'visible', 'hidden'] as const).map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            style={{
-              padding: '6px 14px', borderRadius: 20, border: '1.5px solid',
-              borderColor: filter === f ? '#f0a500' : 'var(--border)',
-              background: filter === f ? '#fff8e8' : '#fff',
-              color: filter === f ? '#c07800' : 'var(--text-muted)',
-              fontWeight: 600, fontSize: 13, cursor: 'pointer',
-            }}
-          >
-            {f === 'all' ? 'Tất cả' : f === 'visible' ? '👁 Hiện' : '🙈 Đã ẩn'}
-          </button>
-        ))}
-        <span style={{ marginLeft: 'auto', fontSize: 13, color: 'var(--text-muted)' }}>
-          {loading ? 'Đang tải...' : `${total} đánh giá`}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-1.5 p-1 rounded-lg bg-muted/60 border border-border/60">
+          {(['all', 'visible', 'hidden'] as const).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
+                filter === f
+                  ? 'bg-card text-foreground shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {f === 'all' ? 'Tất cả đánh giá' : f === 'visible' ? 'Hiển thị' : 'Đã ẩn'}
+            </button>
+          ))}
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {loading ? 'Đang tải...' : `Tổng cộng ${total} đánh giá`}
         </span>
       </div>
 
       {/* Table */}
-      <Card className="table-card">
+      <Card>
         {loading ? (
-          <TableSkeleton rows={6} cols={5} />
+          <div className="p-4">
+            <TableSkeleton rows={6} cols={5} />
+          </div>
         ) : reviews.length === 0 ? (
-          <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
-            <MessageCircle size={36} style={{ opacity: 0.2, marginBottom: 10 }} />
-            <p>Không có đánh giá nào</p>
+          <div className="p-12 text-center text-muted-foreground">
+            <MessageCircle size={36} className="mx-auto opacity-30 mb-2" />
+            <p className="text-xs">Không có đánh giá cộng đồng nào</p>
           </div>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Món ăn</th>
-                <th>Người dùng</th>
-                <th style={{ textAlign: 'center' }}>Rating</th>
-                <th>Nhận xét</th>
-                <th>Trạng thái</th>
-                <th>Ngày</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead className="min-w-[140px]">Món ăn</TableHead>
+                <TableHead className="min-w-[120px]">Người dùng</TableHead>
+                <TableHead className="text-center w-28">Đánh giá sao</TableHead>
+                <TableHead className="min-w-[200px]">Nội dung nhận xét</TableHead>
+                <TableHead className="text-center w-28">Trạng thái</TableHead>
+                <TableHead className="text-center w-28">Ngày gửi</TableHead>
+                <TableHead className="text-right w-24">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {reviews.map(review => (
-                <tr key={review.id} style={{ opacity: review.isVisible ? 1 : 0.6 }}>
-                  <td style={{ maxWidth: 140 }}>
-                    <div style={{ fontWeight: 600, fontSize: 13 }}>
-                      {review.dish?.name ?? <span style={{ color: 'var(--text-muted)' }}>—</span>}
+                <TableRow key={review.id} className={`hover:bg-muted/30 transition-colors ${!review.isVisible ? 'opacity-60' : ''}`}>
+                  <TableCell>
+                    <div className="font-semibold text-xs text-foreground">
+                      {review.dish?.name ?? <span className="text-muted-foreground">—</span>}
                     </div>
-                    <small style={{ color: 'var(--text-muted)', fontSize: 11 }}>#{review.dishId.slice(0, 8)}</small>
-                  </td>
-                  <td style={{ maxWidth: 120 }}>
-                    <div style={{ fontSize: 13 }}>
-                      {review.profile?.displayName ?? <span style={{ color: 'var(--text-muted)' }}>Ẩn danh</span>}
+                    <code className="text-[10px] text-muted-foreground">#{review.dishId.slice(0, 8)}</code>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-xs font-medium text-foreground">
+                      {review.profile?.displayName ?? <span className="text-muted-foreground">Ẩn danh</span>}
                     </div>
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center gap-0.5">
                       {[1,2,3,4,5].map(i => (
-                        <Star key={i} size={12} fill={i <= review.rating ? '#f0a500' : 'none'} color={i <= review.rating ? '#f0a500' : '#ccc'} />
+                        <Star
+                          key={i}
+                          size={11}
+                          fill={i <= review.rating ? '#f59e0b' : 'none'}
+                          color={i <= review.rating ? '#f59e0b' : '#d4d4d8'}
+                        />
                       ))}
-                      <span style={{ fontSize: 12, fontWeight: 700, color: '#c07800', marginLeft: 4 }}>{review.rating}</span>
+                      <span className="text-xs font-bold text-amber-600 dark:text-amber-400 ml-1.5">{review.rating}</span>
                     </div>
-                  </td>
-                  <td style={{ maxWidth: 200, fontSize: 13 }}>
+                  </TableCell>
+                  <TableCell>
                     {review.comment ? (
-                      <span title={review.comment}>
-                        {review.comment.length > 80 ? review.comment.slice(0, 80) + '...' : review.comment}
+                      <span className="text-xs text-foreground line-clamp-2" title={review.comment}>
+                        {review.comment}
                       </span>
                     ) : (
-                      <span style={{ color: 'var(--text-muted)' }}>—</span>
+                      <span className="text-xs text-muted-foreground">—</span>
                     )}
-                  </td>
-                  <td>
+                  </TableCell>
+                  <TableCell className="text-center">
                     {review.isVisible ? (
-                      <Badge className="published"><Eye size={11} /> Hiện</Badge>
+                      <Badge variant="success" className="text-[10px] flex items-center gap-1 w-fit mx-auto">
+                        <Eye size={10} /> Hiển thị
+                      </Badge>
                     ) : (
-                      <Badge className="draft"><EyeOff size={11} /> Đã ẩn</Badge>
+                      <Badge variant="secondary" className="text-[10px] flex items-center gap-1 w-fit mx-auto">
+                        <EyeOff size={10} /> Đã ẩn
+                      </Badge>
                     )}
-                  </td>
-                  <td style={{ fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>
+                  </TableCell>
+                  <TableCell className="text-center text-xs text-muted-foreground whitespace-nowrap">
                     {new Date(review.createdAt).toLocaleDateString('vi-VN')}
-                  </td>
-                  <td>
-                    <div style={{ display: 'flex', gap: 6 }}>
-                      {review.isVisible && (
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      {review.isVisible ? (
                         <Button
-                          size="sm"
+                          size="icon"
                           variant="outline"
-                          onClick={() => handleHide(review)}
+                          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+                          onClick={() => handleToggleHide(review, false)}
                           disabled={actionLoading === review.id}
                           title="Ẩn đánh giá"
                         >
-                          <EyeOff size={13} />
+                          <EyeOff size={12} />
+                        </Button>
+                      ) : (
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-7 w-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                          onClick={() => handleToggleHide(review, true)}
+                          disabled={actionLoading === review.id}
+                          title="Hiện lại đánh giá"
+                        >
+                          <Eye size={12} />
                         </Button>
                       )}
                       <Button
-                        size="sm"
+                        size="icon"
                         variant="outline"
+                        className="h-7 w-7 text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
                         onClick={() => handleDelete(review)}
                         disabled={actionLoading === review.id}
                         title="Xóa đánh giá"
-                        style={{ color: '#e53e3e', borderColor: '#e53e3e' }}
                       >
-                        <Trash2 size={13} />
+                        <Trash2 size={12} />
                       </Button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         )}
       </Card>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
-          <Button variant="outline" size="sm" onClick={() => loadReviews(page - 1)} disabled={page === 1}>← Trước</Button>
-          <span style={{ padding: '6px 12px', fontSize: 13, color: 'var(--text-muted)' }}>
-            Trang {page}/{totalPages}
+        <div className="flex items-center justify-center gap-2 pt-2">
+          <Button variant="outline" size="sm" onClick={() => loadReviews(page - 1)} disabled={page === 1}>
+            ← Trước
+          </Button>
+          <span className="text-xs text-muted-foreground px-2">
+            Trang {page} / {totalPages}
           </span>
-          <Button variant="outline" size="sm" onClick={() => loadReviews(page + 1)} disabled={page >= totalPages}>Tiếp →</Button>
+          <Button variant="outline" size="sm" onClick={() => loadReviews(page + 1)} disabled={page >= totalPages}>
+            Tiếp →
+          </Button>
         </div>
       )}
     </div>
@@ -481,110 +534,120 @@ export default function ReviewPage() {
   const total = data?.total ?? items.length
 
   return (
-    <>
-      <div className="page-heading">
-        <div>
-          <h1>Kiểm duyệt</h1>
-          <p>
-            {isLoading ? 'Đang tải...' : `${total} món đang chờ kiểm duyệt`}
-          </p>
-        </div>
+    <div className="space-y-6">
+      {/* Page Heading */}
+      <div>
+        <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl flex items-center gap-2.5">
+          <ShieldCheck size={28} className="text-amber-500" />
+          Hàng đợi kiểm duyệt (Moderation Queue)
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          {isLoading ? 'Đang tải dữ liệu...' : `Hiện có ${total} món ăn đang trong trạng thái chờ rà soát chất lượng dữ liệu.`}
+        </p>
       </div>
 
-      {/* Tab switcher */}
-      <div style={{ display: 'flex', borderBottom: '2px solid var(--border)', marginBottom: 20 }}>
+      {/* Segmented Tab Switcher */}
+      <div className="flex items-center gap-2 border-b border-border/80 pb-3">
         {[
-          { id: 'content', label: '🛡 Kiểm duyệt nội dung', count: total },
-          { id: 'community', label: '⭐ Đánh giá cộng đồng' },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            style={{
-              padding: '10px 20px',
-              background: 'none', border: 'none', cursor: 'pointer',
-              fontSize: 14, fontWeight: 600,
-              color: activeTab === tab.id ? '#f0a500' : 'var(--text-muted)',
-              borderBottom: activeTab === tab.id ? '2.5px solid #f0a500' : '2.5px solid transparent',
-              marginBottom: -2,
-              display: 'flex', alignItems: 'center', gap: 8,
-            }}
-          >
-            {tab.label}
-            {tab.count != null && tab.count > 0 && (
-              <span style={{ background: '#f0a500', color: '#fff', borderRadius: 10, fontSize: 11, padding: '1px 7px', fontWeight: 700 }}>
-                {tab.count}
-              </span>
-            )}
-          </button>
-        ))}
+          { id: 'content', label: 'Kiểm duyệt nội dung món', count: total },
+          { id: 'community', label: 'Đánh giá & Phản hồi cộng đồng' },
+        ].map((tab) => {
+          const isActive = activeTab === tab.id
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
+                isActive
+                  ? 'bg-amber-400 text-zinc-950 shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+              }`}
+            >
+              <span>{tab.label}</span>
+              {tab.count != null && tab.count > 0 && (
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                  isActive ? 'bg-zinc-950 text-white' : 'bg-muted text-muted-foreground'
+                }`}>
+                  {tab.count}
+                </span>
+              )}
+            </button>
+          )
+        })}
       </div>
 
       {/* Tab Content */}
       {activeTab === 'content' && (
-        <>
+        <div className="space-y-3">
           {isLoading && (
             <Card>
-              <TableSkeleton rows={4} cols={4} />
+              <CardContent className="p-4">
+                <TableSkeleton rows={4} cols={4} />
+              </CardContent>
             </Card>
           )}
 
           {!isLoading && items.length === 0 && (
             <Card>
-              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
-                <CheckCircle2 size={40} style={{ marginBottom: 12, opacity: 0.3 }} />
-                <p>Không có món nào chờ duyệt</p>
-              </div>
+              <CardContent className="py-14 text-center text-muted-foreground">
+                <CheckCircle2 size={44} className="mx-auto text-emerald-500 opacity-40 mb-2" />
+                <div className="font-semibold text-foreground text-sm">Hàng đợi trống</div>
+                <p className="text-xs text-muted-foreground mt-1">Tất cả món ăn đã được kiểm duyệt hoàn tất.</p>
+              </CardContent>
             </Card>
           )}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="space-y-3">
             {items.map((item) => {
               const primaryMedia = item.media?.find((m) => m.isPrimary) ?? item.media?.[0]
               const nutrition = item.nutritionProfiles?.[0]
               return (
                 <Card
                   key={item.id}
-                  style={{ cursor: 'pointer' }}
+                  className="cursor-pointer transition-all duration-200 hover:shadow-md hover:border-amber-400/60"
                   onClick={() => setSelected(item)}
                 >
-                  <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                    {primaryMedia?.publicUrl ? (
-                      <img
-                        src={primaryMedia.publicUrl}
-                        alt={item.name}
-                        style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8 }}
-                      />
-                    ) : (
-                      <div style={{ width: 60, height: 60, background: 'var(--bg-muted)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Utensils size={24} />
+                  <CardContent className="p-4 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 min-w-0">
+                      {primaryMedia?.publicUrl ? (
+                        <img
+                          src={primaryMedia.publicUrl}
+                          alt={item.name}
+                          className="h-14 w-14 rounded-xl object-cover border border-border shrink-0"
+                        />
+                      ) : (
+                        <div className="h-14 w-14 rounded-xl bg-muted border border-border flex items-center justify-center shrink-0">
+                          <Utensils size={20} className="text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-bold text-foreground text-sm truncate">{item.name}</span>
+                          <Badge variant="warning" className="text-[10px]">Chờ duyệt</Badge>
+                          {(item.confidenceScore ?? 0) < 70 && (
+                            <Badge variant="destructive" className="text-[10px] flex items-center gap-1">
+                              <AlertTriangle size={11} /> {item.confidenceScore}% tin cậy
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground truncate">
+                          #{item.id.slice(0, 8)} • {item.region?.name ?? 'Món Việt'} •{' '}
+                          {nutrition ? `${nutrition.calories ?? '?'} kcal` : 'Chưa có thông số calo'}
+                        </div>
                       </div>
-                    )}
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
-                        <b>{item.name}</b>
-                        <Badge className="warning">Chờ duyệt</Badge>
-                        {(item.confidenceScore ?? 0) < 70 && (
-                          <Badge className="pending">
-                            <AlertTriangle size={12} /> {item.confidenceScore}% tin cậy
-                          </Badge>
-                        )}
-                      </div>
-                      <small style={{ color: 'var(--text-muted)' }}>
-                        #{item.id.slice(0, 8)} · {item.region?.name ?? 'Không rõ vùng'} ·{' '}
-                        {nutrition ? `${nutrition.calories ?? '?'} kcal` : 'Chưa có dinh dưỡng'}
-                      </small>
                     </div>
-                    <ChevronRight size={20} />
-                  </div>
+                    <Button variant="ghost" size="icon" className="shrink-0 text-muted-foreground">
+                      <ChevronRight size={18} />
+                    </Button>
+                  </CardContent>
                 </Card>
               )
             })}
           </div>
-        </>
+        </div>
       )}
 
       {activeTab === 'community' && <CommunityReviewsTab />}
-    </>
+    </div>
   )
 }

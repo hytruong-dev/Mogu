@@ -1,5 +1,6 @@
-import {
+﻿import {
   IsArray,
+  IsDateString,
   IsInt,
   IsOptional,
   IsString,
@@ -50,4 +51,9 @@ export class CreateArticleDto {
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
+
+  @ApiPropertyOptional({ description: 'Lên lịch đăng (ISO datetime)' })
+  @IsOptional()
+  @IsDateString()
+  publishAt?: string;
 }

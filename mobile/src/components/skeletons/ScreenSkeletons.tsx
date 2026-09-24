@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { View, type StyleProp, type ViewStyle } from 'react-native';
+import { StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '../../lib/utils';
 
@@ -269,6 +269,118 @@ export function ListSkeleton({ rows = 6 }: { rows?: number }) {
   );
 }
 
+/** Lịch sử Random Skeleton — mô phỏng chính xác card thống kê + các thẻ món ăn */
+export function RandomHistorySkeleton() {
+  return (
+    <View style={{ gap: 16 }}>
+      {/* Thẻ thống kê tổng hợp (Stats Card) */}
+      <View
+        style={{
+          backgroundColor: '#fff',
+          borderRadius: 22,
+          padding: 18,
+          alignItems: 'center',
+          shadowColor: '#5D490F',
+          shadowOpacity: 0.08,
+          shadowRadius: 20,
+          shadowOffset: { width: 0, height: 6 },
+          elevation: 3,
+        }}
+      >
+        <BoneCircle size={30} />
+        <Bone width={64} height={32} radius={8} style={{ marginTop: 10 }} />
+        <Bone width={84} height={14} radius={6} style={{ marginTop: 6 }} />
+        <View
+          style={{
+            flexDirection: 'row',
+            marginTop: 18,
+            paddingTop: 14,
+            borderTopWidth: 1,
+            borderTopColor: '#E8E4DC',
+            width: '100%',
+          }}
+        >
+          <View style={{ flex: 1, alignItems: 'center', gap: 6 }}>
+            <Bone width={36} height={20} radius={6} />
+            <Bone width={68} height={12} radius={4} />
+          </View>
+          <View style={{ flex: 1, alignItems: 'center', gap: 6 }}>
+            <Bone width={36} height={20} radius={6} />
+            <Bone width={64} height={12} radius={4} />
+          </View>
+          <View style={{ flex: 1, alignItems: 'center', gap: 6 }}>
+            <Bone width={38} height={20} radius={6} />
+            <Bone width={60} height={12} radius={4} />
+          </View>
+        </View>
+      </View>
+
+      {/* Danh sách các món random */}
+      {Array.from({ length: 4 }).map((_, i) => (
+        <View
+          key={i}
+          style={{
+            backgroundColor: '#fff',
+            borderRadius: 22,
+            padding: 10,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 14,
+            shadowColor: '#5D490F',
+            shadowOpacity: 0.08,
+            shadowRadius: 20,
+            shadowOffset: { width: 0, height: 6 },
+            elevation: 3,
+          }}
+        >
+          <Bone width={100} height={92} radius={16} />
+          <View style={{ flex: 1, gap: 10, justifyContent: 'center' }}>
+            <Bone width="68%" height={18} radius={6} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Bone width={56} height={18} radius={10} />
+              <Bone width={64} height={13} radius={4} />
+            </View>
+          </View>
+          <Bone width={16} height={16} radius={4} style={{ marginRight: 6 }} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** Food list skeleton (Món đã lưu / Nhật ký món) */
+export function FoodListSkeleton({ count = 5 }: { count?: number }) {
+  return (
+    <View style={{ gap: 14 }}>
+      {Array.from({ length: count }).map((_, i) => (
+        <View
+          key={i}
+          style={{
+            backgroundColor: '#fff',
+            borderRadius: 22,
+            padding: 10,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 14,
+            shadowColor: '#5D490F',
+            shadowOpacity: 0.08,
+            shadowRadius: 20,
+            shadowOffset: { width: 0, height: 6 },
+            elevation: 3,
+          }}
+        >
+          <Bone width={100} height={92} radius={16} />
+          <View style={{ flex: 1, gap: 10, justifyContent: 'center' }}>
+            <Bone width="75%" height={18} radius={6} />
+            <Bone width="48%" height={13} radius={4} />
+          </View>
+          <Bone width={20} height={20} radius={4} style={{ marginRight: 6 }} />
+        </View>
+      ))}
+    </View>
+  );
+}
+
 export function DetailSkeleton() {
   return (
     <View>
@@ -300,6 +412,106 @@ export function HealthSkeleton() {
         <Bone width="48%" height={96} radius={16} />
       </BoneRow>
       <View style={[sk.card, { height: 160 }]} />
+    </View>
+  );
+}
+
+export function DishFeedSkeleton() {
+  return (
+    <View style={sk.feedBlock}>
+      <View style={sk.dishMediaWrap}>
+        <Bone width="100%" height={220} radius={14} style={sk.fill} />
+        <View style={sk.badgeWrap}>
+          <Bone width={64} height={24} radius={999} style={{ backgroundColor: '#FFE27A' }} />
+        </View>
+      </View>
+      <Bone width="72%" height={22} radius={6} style={{ marginTop: 12 }} />
+      <Bone width="40%" height={14} radius={4} style={{ marginTop: 6 }} />
+      <View style={sk.feedActionRow}>
+        <View style={sk.feedActionLeft}>
+          <BoneCircle size={24} />
+          <BoneCircle size={24} />
+          <Bone width={52} height={22} radius={6} />
+        </View>
+        <BoneCircle size={20} />
+      </View>
+    </View>
+  );
+}
+
+export function PostFeedSkeleton() {
+  return (
+    <View style={sk.feedBlock}>
+      <View style={sk.postHeader}>
+        <BoneCircle size={40} />
+        <View style={{ flex: 1, gap: 5 }}>
+          <Bone width={110} height={14} radius={4} />
+          <Bone width={65} height={11} radius={4} />
+        </View>
+        <Bone width={76} height={28} radius={999} style={{ backgroundColor: '#FFE27A' }} />
+        <BoneCircle size={20} />
+      </View>
+      <View style={sk.postMediaWrap}>
+        <Bone width="100%" height={320} radius={14} style={sk.fill} />
+      </View>
+      <View style={sk.feedActionRow}>
+        <View style={sk.feedActionLeft}>
+          <BoneCircle size={24} />
+          <BoneCircle size={24} />
+          <BoneCircle size={22} />
+        </View>
+        <BoneCircle size={22} />
+      </View>
+      <Bone width={85} height={13} radius={4} style={{ marginTop: 8 }} />
+      <Bone width="90%" height={14} radius={4} style={{ marginTop: 6 }} />
+      <Bone width="55%" height={14} radius={4} style={{ marginTop: 4 }} />
+    </View>
+  );
+}
+
+export function ArticleFeedSkeleton() {
+  return (
+    <View style={sk.feedBlock}>
+      <View style={sk.postHeader}>
+        <BoneCircle size={40} />
+        <View style={{ flex: 1, gap: 5 }}>
+          <Bone width={110} height={14} radius={4} />
+          <Bone width={65} height={11} radius={4} />
+        </View>
+        <BoneCircle size={20} />
+      </View>
+      <View style={sk.dishMediaWrap}>
+        <Bone width="100%" height={220} radius={14} style={sk.fill} />
+        <View style={sk.badgeWrap}>
+          <Bone width={64} height={24} radius={999} style={{ backgroundColor: '#FFE27A' }} />
+        </View>
+      </View>
+      <Bone width={78} height={20} radius={999} style={{ marginTop: 10, backgroundColor: '#FFE27A' }} />
+      <Bone width="80%" height={22} radius={6} style={{ marginTop: 8 }} />
+      <Bone width={75} height={13} radius={4} style={{ marginTop: 6 }} />
+      <View style={sk.feedActionRow}>
+        <View style={sk.feedActionLeft}>
+          <Bone width={52} height={22} radius={6} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+export function ExploreFeedSkeleton({ scope = 'forYou' }: { scope?: 'forYou' | 'following' }) {
+  if (scope === 'following') {
+    return (
+      <View style={{ gap: 4 }}>
+        <PostFeedSkeleton />
+        <PostFeedSkeleton />
+      </View>
+    );
+  }
+  return (
+    <View style={{ gap: 4 }}>
+      <ArticleFeedSkeleton />
+      <PostFeedSkeleton />
+      <ArticleFeedSkeleton />
     </View>
   );
 }
@@ -343,5 +555,51 @@ const sk = {
     gap: 12,
     paddingVertical: 14,
     marginBottom: 10,
+  } as ViewStyle,
+  feedBlock: {
+    marginBottom: 0,
+    paddingTop: 16,
+    paddingBottom: 18,
+    borderBottomWidth: 8,
+    borderBottomColor: '#F0E8D8',
+  } as ViewStyle,
+  dishMediaWrap: {
+    width: '100%',
+    aspectRatio: 16 / 10,
+    borderRadius: 14,
+    overflow: 'hidden',
+    position: 'relative',
+  } as ViewStyle,
+  postMediaWrap: {
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 14,
+    overflow: 'hidden',
+  } as ViewStyle,
+  fill: {
+    width: '100%',
+    height: '100%',
+  } as ViewStyle,
+  badgeWrap: {
+    position: 'absolute',
+    left: 12,
+    bottom: 12,
+  } as ViewStyle,
+  feedActionRow: {
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  } as ViewStyle,
+  feedActionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  } as ViewStyle,
+  postHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 12,
   } as ViewStyle,
 };

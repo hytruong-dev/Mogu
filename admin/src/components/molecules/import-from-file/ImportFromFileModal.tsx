@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Cloud, Play, Save, X } from 'lucide-react'
 import { dishImportsApi, type ImportValidationSummary } from '../../../api/dish-imports'
+import { parseCsvPreview } from '../../../lib/spreadsheet'
 import { autoMapField } from './demo-data'
 import { StepComplete } from './StepComplete'
 import { StepConfirm } from './StepConfirm'
@@ -181,6 +182,11 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
   const showStepper = phase === 'upload' || phase === 'mapping' || phase === 'validate' || phase === 'confirm'
   const fileName = file?.name ?? 'mogu-dishes-august.xlsx'
 
+  const previewData = useMemo(() => {
+    if (!file?.csvText) return undefined
+    return parseCsvPreview(file.csvText, 3)
+  }, [file?.csvText])
+
   const title =
     phase === 'confirm' ? 'Xác nhận nhập dữ liệu'
       : phase === 'progress' ? 'Đang nhập dữ liệu'
@@ -246,6 +252,7 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
               onAutoMapChange={onAutoMapChange}
               rows={mapping}
               onChangeField={changeField}
+              previewData={previewData}
             />
           )}
           {phase === 'validate' && (

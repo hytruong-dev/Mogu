@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   Alert,
   Image,
@@ -28,6 +29,7 @@ import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomN
 import { HealthSkeleton } from '../components/skeletons/ScreenSkeletons';
 import { ScreenSlideTransition } from '../components/ui/screen-transition';
 import { healthApi, type HealthDayResponse } from '../services/api/health';
+import { recordMealLoggedStore } from '../services/app-store';
 import { getDeviceTimeZone } from '../lib/dates';
 import { dishesApi } from '../services/api/dishes';
 
@@ -80,8 +82,15 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
   } = useQuery({
     queryKey: ['health', 'day', localDate, timezone],
     queryFn: () => healthApi.getDay(localDate, timezone),
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
+
+  useFocusEffect(
+    useCallback(() => {
+      void loadDay();
+    }, [loadDay]),
+  );
 
   const loading = isLoading && !day;
   const error = queryError
@@ -326,6 +335,7 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
                     },
                   ],
                 });
+                recordMealLoggedStore();
                 await loadDay();
               } catch (e: any) {
                 Alert.alert('Lỗi', e?.message || 'Không lưu được bữa');

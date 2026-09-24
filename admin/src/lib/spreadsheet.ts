@@ -31,3 +31,18 @@ export async function excelSheetToCsv(file: File, sheetName: string): Promise<st
   if (!sheet) throw new Error(`Không tìm thấy sheet "${sheetName}"`)
   return XLSX.utils.sheet_to_csv(sheet)
 }
+
+export function parseCsvPreview(csvText: string, maxRows = 3): { headers: string[]; rows: string[][] } {
+  try {
+    const wb = XLSX.read(csvText, { type: 'string' })
+    const sheet = wb.Sheets[wb.SheetNames[0]]
+    if (!sheet) return { headers: [], rows: [] }
+    const data = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 })
+    if (!data || data.length === 0) return { headers: [], rows: [] }
+    const headers = (data[0] || []).map((h) => String(h ?? '').trim())
+    const rows = data.slice(1, maxRows + 1).map((row) => (row || []).map((c) => String(c ?? '')))
+    return { headers, rows }
+  } catch {
+    return { headers: [], rows: [] }
+  }
+}

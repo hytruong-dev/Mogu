@@ -12,14 +12,20 @@ interface Props {
   onAutoMapChange: (v: boolean) => void
   rows: MappingRow[]
   onChangeField: (id: string, field: string) => void
+  previewData?: { headers: string[]; rows: string[][] }
 }
 
 export function StepMapping({
-  fileName, sheet, onSheetChange, autoMap, onAutoMapChange, rows, onChangeField,
+  fileName, sheet, onSheetChange, autoMap, onAutoMapChange, rows, onChangeField, previewData,
 }: Props) {
   const mapped = rows.filter((r) => r.status === 'mapped').length
   const skipped = rows.filter((r) => r.status === 'skip').length
   const needCheck = rows.filter((r) => r.status === 'check').length
+
+  const previewHeaders = previewData?.headers?.length ? previewData.headers : PREVIEW_HEADERS
+  const previewRows = previewData?.rows?.length
+    ? previewData.rows.map((cells, i) => ({ id: String(i), cells }))
+    : PREVIEW_ROWS
 
   return (
     <div className="space-y-4">
@@ -113,13 +119,13 @@ export function StepMapping({
           <table className="w-full text-xs">
             <thead>
               <tr className="bg-[#FAFAF9] text-left text-[#6B7280]">
-                {PREVIEW_HEADERS.map((h) => (
+                {previewHeaders.map((h) => (
                   <th key={h} className="whitespace-nowrap px-3 py-2 font-semibold">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {PREVIEW_ROWS.map((r) => (
+              {previewRows.map((r) => (
                 <tr key={r.id} className="border-t border-black/5">
                   {r.cells.map((c, i) => (
                     <td key={i} className="whitespace-nowrap px-3 py-2 text-[#374151]">{c}</td>

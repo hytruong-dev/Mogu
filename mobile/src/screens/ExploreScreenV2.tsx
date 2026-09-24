@@ -1,603 +1,1155 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  FlatList,
   Image,
-  KeyboardAvoidingView,
-  Modal,
-  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
+  StyleSheet,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {
-  Bell,
-  Bookmark,
-  Heart,
-  MessageCircle,
-  PenLine,
-  Plus,
-  Search,
-  Share2,
-  X,
-} from 'lucide-react-native';
-import { Badge } from '../components/ui/badge';
-import { Card } from '../components/ui/card';
-import { Input } from '../components/ui/input';
-import { Textarea } from '../components/ui/textarea';
-import { AppImage } from '../components/ui/app-image';
-import { cn } from '../lib/utils';
+import { Bell, Bookmark, Plus, Search } from 'lucide-react-native';
 import { ExploreDetailScreen, type ExploreDetailType } from './ExploreDetailScreen';
 import { ScreenSlideTransition } from '../components/ui/screen-transition';
 import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomNav';
-import { AvatarImage } from '../components/organisms/AvatarImage';
+import { ExploreFeedSkeleton } from '../components/skeletons/ScreenSkeletons';
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Text as UiText } from '../components/ui/text';
 import {
   articlesApi,
   communityApi,
   exploreApi,
+  meApi,
+  moderationApi,
   type ExploreArticle,
-  type ExploreFeedResponse,
+  type ExploreFeedItem,
   type ExplorePost,
   type ExploreTopic,
 } from '../services/api/explore';
-import { dishesApi, type DishDetail } from '../services/api/dishes';
-import { profileApi } from '../services/api/profile';
+import { dishesApi, type Dish } from '../services/api/dishes';
+import { toggleDishSave } from '../services/saved-dishes-store';
+import { homeApi } from '../services/api/home';
+import { notificationRealtime } from '../services/notification-realtime';
+import { ExploreSearchScreen } from './explore/ExploreSearchScreen';
+import {
+  ArticleFeedItem,
+  DishFeedItem,
+  PostFeedItem,
+  TopicCircles,
+} from './explore/FeedItems';
+import { resolveDishImageUrl } from './explore/utils';
+import { CreatePostScreen } from './explore/CreatePostScreen';
+import { ContentActionSheet } from './explore/ContentActionSheet';
+import {
+  ArticleShareSheet,
+  toShareArticle,
+  type ExploreShareArticle,
+} from './explore/ArticleShareSheet';
+import { PublicProfileScreen } from './explore/PublicProfileScreen';
+import { SavedCollectionsScreen } from './explore/SavedCollectionsScreen';
+import { TopicFeedScreen } from './explore/TopicFeedScreen';
+import type { ContentActionTarget } from './explore/buildContentActions';
+import {
+  CREAM,
+  CORAL_DOT,
+  H_PAD,
+  INK,
+  MUTED,
+  WHITE,
+  YELLOW,
+} from './explore/tokens';
 
-const pho = require('../assets/images/random/pho-result.jpg');
-const bun = require('../assets/images/random/bun-rieu.jpg');
-const rice = require('../assets/images/random/chao-ga.jpg');
 const brand = require('../assets/images/logo/mogu-wordmark-header.png');
-
-function decodeHtmlEntities(input: string): string {
-  return input
-    .replace(/&#(\d+);/g, (_m, code) => {
-      const n = Number(code);
-      return Number.isFinite(n) ? String.fromCodePoint(n) : _m;
-    })
-    .replace(/&#x([0-9a-fA-F]+);/g, (_m, hex) => {
-      const n = Number.parseInt(hex, 16);
-      return Number.isFinite(n) ? String.fromCodePoint(n) : _m;
-    })
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&nbsp;/g, ' ');
-}
 
 type Props = {
   onBack: () => void;
   onHealth: () => void;
   onProfile: () => void;
   onRandom: () => void;
+  onNotification?: () => void;
 };
-type Tab = 'Dành cho bạn' | 'Món ăn' | 'Bài viết' | 'Cộng đồng';
 
-export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props) {
-  const [detail, setDetail] = useState<{ type: ExploreDetailType; resourceId: string } | null>(null);
-  const [tab, setTab] = useState<Tab>('Dành cho bạn');
-  const [searchQuery, setSearchQuery] = useState('');
+type FeedScope = 'forYou' | 'following';
 
-  // ── Tab: Dành cho bạn ────────────────────────────────────────────────────
-  const [feed, setFeed] = useState<ExploreFeedResponse | null>(null);
-  const [feedLoading, setFeedLoading] = useState(false);
-  const [feedError, setFeedError] = useState('');
-
-  // ── Tab: Món ăn ──────────────────────────────────────────────────────────
-  const [dishes, setDishes] = useState<DishDetail[]>([]);
-  const [dishesLoading, setDishesLoading] = useState(false);
-  const [dishesError, setDishesError] = useState('');
-
-  // ── Tab: Bài viết ─────────────────────────────────────────────────────────
-  const [articles, setArticles] = useState<ExploreArticle[]>([]);
-  const [articlesLoading, setArticlesLoading] = useState(false);
-  const [articlesError, setArticlesError] = useState('');
-  const [savedArticles, setSavedArticles] = useState<Set<string>>(new Set());
-
-  // ── Tab: Cộng đồng ────────────────────────────────────────────────────────
-  const [posts, setPosts] = useState<ExplorePost[]>([]);
-  const [postsLoading, setPostsLoading] = useState(false);
-  const [postsError, setPostsError] = useState('');
-
-  const [refreshing, setRefreshing] = useState(false);
-  const [myAvatarUri, setMyAvatarUri] = useState<string | null>(null);
-  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // ── Create Post ───────────────────────────────────────────────────────────
-  const [createPostOpen, setCreatePostOpen] = useState(false);
-  const [newPostContent, setNewPostContent] = useState('');
-  const [submittingPost, setSubmittingPost] = useState(false);
-  const [createPostError, setCreatePostError] = useState('');
-
-  useEffect(() => {
-    let active = true;
-    profileApi.dashboard().then((data) => {
-      if (active) setMyAvatarUri(data.profile.avatar.url);
-    }).catch(() => { /* Use the shared fallback when unavailable. */ });
-    return () => { active = false; };
-  }, []);
-
-  // ── Data fetchers ─────────────────────────────────────────────────────────
-  const fetchFeed = useCallback(async () => {
-    setFeedLoading(true);
-    setFeedError('');
-    try {
-      const data = await exploreApi.getFeed();
-      setFeed(data);
-    } catch (e: any) {
-      setFeedError(e.message ?? 'Không tải được dữ liệu');
-    } finally {
-      setFeedLoading(false);
+type FeedItem =
+  | {
+      kind: 'dish';
+      key: string;
+      dish: Dish;
+      rankingToken?: string;
+      reasonCode?: string;
     }
-  }, []);
-
-  const searchDishes = useCallback(async (q: string) => {
-    setDishesLoading(true);
-    setDishesError('');
-    try {
-      // Backend public /dishes chỉ trả PUBLISHED — không cần truyền status
-      const result = await dishesApi.search({ q, limit: 20 });
-      setDishes(result.data);
-    } catch (e: any) {
-      setDishesError(e.message ?? 'Không tải được danh sách món');
-    } finally {
-      setDishesLoading(false);
+  | {
+      kind: 'article';
+      key: string;
+      article: ExploreArticle;
+      rankingToken?: string;
+      reasonCode?: string;
     }
-  }, []);
-
-  const fetchArticles = useCallback(async (q?: string) => {
-    setArticlesLoading(true);
-    setArticlesError('');
-    try {
-      const result = await articlesApi.list({ q, limit: 20 });
-      setArticles(result.data);
-    } catch (e: any) {
-      setArticlesError(e.message ?? 'Không tải được bài viết');
-    } finally {
-      setArticlesLoading(false);
-    }
-  }, []);
-
-  const fetchPosts = useCallback(async () => {
-    setPostsLoading(true);
-    setPostsError('');
-    try {
-      const result = await communityApi.listPosts({ limit: 20 });
-      setPosts(result.data);
-    } catch (e: any) {
-      setPostsError(e.message ?? 'Không tải được bài đăng');
-    } finally {
-      setPostsLoading(false);
-    }
-  }, []);
-
-  const handleCreatePost = useCallback(async () => {
-    const text = newPostContent.trim();
-    if (!text) return;
-    setSubmittingPost(true);
-    setCreatePostError('');
-    try {
-      await communityApi.createPost({ content: text });
-      setNewPostContent('');
-      setCreatePostOpen(false);
-      setTab('Cộng đồng');
-      await fetchPosts();
-    } catch (e: any) {
-      setCreatePostError(e?.message || 'Không thể tạo bài viết');
-    } finally {
-      setSubmittingPost(false);
-    }
-  }, [newPostContent, fetchPosts]);
-
-  // ── Tab switch triggers ───────────────────────────────────────────────────
-  useEffect(() => {
-    if (tab === 'Dành cho bạn' && !feed) fetchFeed();
-    if (tab === 'Món ăn' && dishes.length === 0) searchDishes(searchQuery);
-    if (tab === 'Bài viết' && articles.length === 0) fetchArticles();
-    if (tab === 'Cộng đồng' && posts.length === 0) fetchPosts();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab]);
-
-  // ── Debounced search ─────────────────────────────────────────────────────
-  useEffect(() => {
-    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-    searchTimerRef.current = setTimeout(() => {
-      if (tab === 'Món ăn') searchDishes(searchQuery);
-      if (tab === 'Bài viết') fetchArticles(searchQuery);
-    }, 400);
-    return () => {
-      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+  | {
+      kind: 'post';
+      key: string;
+      post: ExplorePost;
+      rankingToken?: string;
+      reasonCode?: string;
     };
-  }, [searchQuery, tab, searchDishes, fetchArticles]);
 
-  // ── Pull-to-refresh ───────────────────────────────────────────────────────
+function mapFeedItems(raw: ExploreFeedItem[]): FeedItem[] {
+  return raw.map((it) => {
+    if (it.type === 'dish') {
+      return {
+        kind: 'dish' as const,
+        key: `dish-${it.id}`,
+        dish: it.dish as Dish,
+        rankingToken: it.rankingToken,
+        reasonCode: it.reasonCode,
+      };
+    }
+    if (it.type === 'article') {
+      return {
+        kind: 'article' as const,
+        key: `article-${it.id}`,
+        article: it.article,
+        rankingToken: it.rankingToken,
+        reasonCode: it.reasonCode,
+      };
+    }
+    return {
+      kind: 'post' as const,
+      key: `post-${it.id}`,
+      post: it.post,
+      rankingToken: it.rankingToken,
+      reasonCode: it.reasonCode,
+    };
+  });
+}
+
+function interleaveFeed(
+  dishes: Dish[],
+  articles: ExploreArticle[],
+  posts: ExplorePost[],
+): FeedItem[] {
+  const out: FeedItem[] = [];
+  const max = Math.max(dishes.length, articles.length, posts.length);
+  for (let i = 0; i < max; i++) {
+    if (dishes[i]) out.push({ kind: 'dish', key: `dish-${dishes[i].id}`, dish: dishes[i] });
+    if (posts[i]) out.push({ kind: 'post', key: `post-${posts[i].id}`, post: posts[i] });
+    if (articles[i]) {
+      out.push({ kind: 'article', key: `article-${articles[i].id}`, article: articles[i] });
+    }
+  }
+  return out;
+}
+
+export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotification }: Props) {
+  const [scope, setScope] = useState<FeedScope>('forYou');
+  const [detail, setDetail] = useState<{ type: ExploreDetailType; resourceId: string } | null>(
+    null,
+  );
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [savedOpen, setSavedOpen] = useState(false);
+  const [topicFeed, setTopicFeed] = useState<ExploreTopic | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editPostId, setEditPostId] = useState<string | null>(null);
+  const [profileUserId, setProfileUserId] = useState<string | null>(null);
+
+  const [topics, setTopics] = useState<ExploreTopic[]>([]);
+  const [items, setItems] = useState<FeedItem[]>([]);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [feedSessionId, setFeedSessionId] = useState<string | null>(null);
+  const feedSessionRef = useRef<string | null>(null);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
+  const [toast, setToast] = useState('');
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const undoTarget = useRef<ContentActionTarget | null>(null);
+
+  const [savedArticles, setSavedArticles] = useState<Set<string>>(new Set());
+  const [savedDishes, setSavedDishes] = useState<Set<string>>(new Set());
+  const [savedPosts, setSavedPosts] = useState<Set<string>>(new Set());
+  const [followingAuthors, setFollowingAuthors] = useState<Set<string>>(new Set());
+
+  const [actionOpen, setActionOpen] = useState(false);
+  const [actionTarget, setActionTarget] = useState<ContentActionTarget | null>(null);
+  const [shareSheetOpen, setShareSheetOpen] = useState(false);
+  const [shareArticlePayload, setShareArticlePayload] = useState<ExploreShareArticle | null>(null);
+  const [unreadNotif, setUnreadNotif] = useState(0);
+
+  useEffect(() => {
+    const unsub = notificationRealtime.subscribeToUnreadCount((cnt) => {
+      setUnreadNotif(cnt);
+    });
+    return unsub;
+  }, []);
+
+  useEffect(() => {
+    void homeApi
+      .getUnreadCount()
+      .then((r) => setUnreadNotif(r.count ?? 0))
+      .catch(() => undefined);
+  }, [scope, refreshing, detail]);
+
+  useEffect(() => {
+    void (async () => {
+      const [postsRes, articlesRes, dishesRes] = await Promise.all([
+        meApi.listSavedPosts({ limit: 100 }).catch(() => null),
+        meApi.listSavedArticles({ limit: 100 }).catch(() => null),
+        dishesApi.getSaved(undefined, 100).catch(() => null),
+      ]);
+      if (postsRes) {
+        const ids =
+          postsRes.items?.map((r) => r.post?.id).filter(Boolean) ??
+          postsRes.data?.map((p) => p.id) ??
+          [];
+        setSavedPosts(new Set(ids as string[]));
+      }
+      if (articlesRes) {
+        const ids =
+          articlesRes.items?.map((r) => r.article?.id).filter(Boolean) ??
+          articlesRes.data?.map((a) => a.id) ??
+          [];
+        setSavedArticles(new Set(ids as string[]));
+      }
+      if (dishesRes) {
+        const rows = (dishesRes as any).data ?? (dishesRes as any).items ?? [];
+        const ids = rows
+          .map((r: any) => r.dishId ?? r.dish?.id ?? r.id)
+          .filter(Boolean) as string[];
+        setSavedDishes(new Set(ids));
+      }
+    })();
+  }, []);
+
+  const showToast = useCallback((message: string) => {
+    setToast(message);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(''), 3200);
+  }, []);
+
+  const openDetail = useCallback(
+    (type: ExploreDetailType, resourceId: string, meta?: { rankingToken?: string }) => {
+      const contentType =
+        type === 'article' ? 'ARTICLE' : type === 'post' ? 'COMMUNITY_POST' : 'DISH';
+      void exploreApi
+        .recordEvents([
+          {
+            contentType,
+            contentId: resourceId,
+            eventType: 'OPEN_DETAIL',
+            rankingToken: meta?.rankingToken,
+          },
+        ])
+        .catch(() => undefined);
+      if (type === 'food') {
+        dishesApi.logView(resourceId, 'explore').catch(() => undefined);
+      }
+      setDetail({ type, resourceId });
+    },
+    [],
+  );
+
+  const impressedKeys = useRef(new Set<string>());
+  const pendingImpressions = useRef<
+    Array<{
+      contentType: 'COMMUNITY_POST' | 'ARTICLE' | 'DISH';
+      contentId: string;
+      eventType: 'IMPRESSION';
+      rankingToken?: string;
+    }>
+  >([]);
+  const impressionFlushTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const flushImpressions = useCallback(() => {
+    const batch = pendingImpressions.current.splice(0, pendingImpressions.current.length);
+    if (!batch.length) return;
+    void exploreApi.recordEvents(batch).catch(() => undefined);
+  }, []);
+
+  const onViewableItemsChanged = useRef(
+    ({ viewableItems }: { viewableItems: Array<{ isViewable?: boolean; item?: FeedItem }> }) => {
+      for (const token of viewableItems ?? []) {
+        if (!token.isViewable || !token.item) continue;
+        const item = token.item;
+        if (impressedKeys.current.has(item.key)) continue;
+        impressedKeys.current.add(item.key);
+        if (item.kind === 'article') {
+          pendingImpressions.current.push({
+            contentType: 'ARTICLE',
+            contentId: item.article.id,
+            eventType: 'IMPRESSION',
+            rankingToken: item.rankingToken,
+          });
+        } else if (item.kind === 'post') {
+          pendingImpressions.current.push({
+            contentType: 'COMMUNITY_POST',
+            contentId: item.post.id,
+            eventType: 'IMPRESSION',
+            rankingToken: item.rankingToken,
+          });
+        } else if (item.kind === 'dish') {
+          pendingImpressions.current.push({
+            contentType: 'DISH',
+            contentId: item.dish.id,
+            eventType: 'IMPRESSION',
+            rankingToken: item.rankingToken,
+          });
+        }
+      }
+      if (pendingImpressions.current.length) {
+        if (impressionFlushTimer.current) clearTimeout(impressionFlushTimer.current);
+        impressionFlushTimer.current = setTimeout(() => flushImpressions(), 400);
+      }
+    },
+  ).current;
+
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 50,
+    minimumViewTime: 1000,
+  }).current;
+
+  useEffect(() => {
+    return () => {
+      if (impressionFlushTimer.current) clearTimeout(impressionFlushTimer.current);
+      flushImpressions();
+    };
+  }, [flushImpressions]);
+
+  const patchFeedArticle = useCallback(
+    (patch: {
+      id: string;
+      likeCount?: number;
+      commentCount?: number;
+      isLiked?: boolean;
+      isSaved?: boolean;
+    }) => {
+      setItems((prev) =>
+        prev.map((it) => {
+          if (it.kind !== 'article' || it.article.id !== patch.id) return it;
+          return {
+            ...it,
+            article: {
+              ...it.article,
+              ...(typeof patch.likeCount === 'number' ? { likeCount: patch.likeCount } : {}),
+              ...(typeof patch.commentCount === 'number'
+                ? { commentCount: patch.commentCount }
+                : {}),
+              ...(typeof patch.isLiked === 'boolean' ? { isLiked: patch.isLiked } : {}),
+              ...(typeof patch.isSaved === 'boolean' ? { isSaved: patch.isSaved } : {}),
+            },
+          };
+        }),
+      );
+      if (typeof patch.isSaved === 'boolean') {
+        setSavedArticles((prev) => {
+          const next = new Set(prev);
+          if (patch.isSaved) next.add(patch.id);
+          else next.delete(patch.id);
+          return next;
+        });
+      }
+    },
+    [],
+  );
+
+  const patchFeedPost = useCallback(
+    (patch: {
+      id: string;
+      likeCount?: number;
+      commentCount?: number;
+      isLiked?: boolean;
+      isSaved?: boolean;
+      isFollowingAuthor?: boolean;
+    }) => {
+      setItems((prev) => {
+        let authorId: string | undefined;
+        const next = prev.map((it) => {
+          if (it.kind !== 'post' || it.post.id !== patch.id) return it;
+          authorId = it.post.author?.userId;
+          return {
+            ...it,
+            post: {
+              ...it.post,
+              ...(typeof patch.likeCount === 'number' ? { likeCount: patch.likeCount } : {}),
+              ...(typeof patch.commentCount === 'number'
+                ? { commentCount: patch.commentCount }
+                : {}),
+              ...(typeof patch.isLiked === 'boolean' ? { isLiked: patch.isLiked } : {}),
+              ...(typeof patch.isSaved === 'boolean' ? { isSaved: patch.isSaved } : {}),
+              ...(typeof patch.isFollowingAuthor === 'boolean'
+                ? { isFollowingAuthor: patch.isFollowingAuthor }
+                : {}),
+            },
+          };
+        });
+        if (typeof patch.isFollowingAuthor === 'boolean' && authorId) {
+          setFollowingAuthors((f) => {
+            const s = new Set(f);
+            if (patch.isFollowingAuthor) s.add(authorId!);
+            else s.delete(authorId!);
+            return s;
+          });
+        }
+        return next;
+      });
+      if (typeof patch.isSaved === 'boolean') {
+        setSavedPosts((prev) => {
+          const next = new Set(prev);
+          if (patch.isSaved) next.add(patch.id);
+          else next.delete(patch.id);
+          return next;
+        });
+      }
+    },
+    [],
+  );
+
+  const loadForYou = useCallback(async (opts?: { cursor?: string; append?: boolean }) => {
+    const feedRes = await exploreApi.getFeed({
+      scope: 'forYou',
+      cursor: opts?.cursor,
+      limit: 20,
+      feedSessionId: opts?.append ? feedSessionRef.current ?? undefined : undefined,
+    }).catch(() => null);
+
+    if (feedRes?.items?.length) {
+      if (!opts?.append) setTopics(feedRes.topics ?? []);
+      const mapped = mapFeedItems(feedRes.items);
+      setItems((prev) => (opts?.append ? [...prev, ...mapped] : mapped));
+      setCursor(feedRes.nextCursor ?? null);
+      setHasMore(Boolean(feedRes.hasMore));
+      if (feedRes.feedSessionId) {
+        feedSessionRef.current = feedRes.feedSessionId;
+        setFeedSessionId(feedRes.feedSessionId);
+      }
+      return;
+    }
+
+    if (opts?.append) {
+      setHasMore(false);
+      return;
+    }
+
+    const [articlesRes, postsRes] = await Promise.all([
+      articlesApi.list({ limit: 20 }).catch(() => ({ data: [] as ExploreArticle[] })),
+      communityApi.listPosts({ limit: 20 }).catch(() => ({ data: [] as ExplorePost[] })),
+    ]);
+
+    setTopics(feedRes?.topics ?? []);
+    let articles = articlesRes.data ?? [];
+    let posts = postsRes.data ?? [];
+    if (feedRes?.featuredArticle && !articles.some((a) => a.id === feedRes.featuredArticle!.id)) {
+      articles = [feedRes.featuredArticle, ...articles];
+    }
+    if (feedRes?.recentPosts?.length) {
+      const ids = new Set(posts.map((p) => p.id));
+      posts = [...feedRes.recentPosts.filter((p) => !ids.has(p.id)), ...posts];
+    }
+    setItems(interleaveFeed([], articles, posts));
+    setCursor(null);
+    setHasMore(false);
+  }, []);
+
+  const loadFollowing = useCallback(async (opts?: { cursor?: string; append?: boolean }) => {
+    const feedRes = await exploreApi
+      .getFeed({ scope: 'following', cursor: opts?.cursor, limit: 20 })
+      .catch(() => null);
+
+    if (feedRes?.items?.length) {
+      const mapped = mapFeedItems(feedRes.items);
+      if (!opts?.append) setTopics([]);
+      setItems((prev) => (opts?.append ? [...prev, ...mapped] : mapped));
+      setCursor(feedRes.nextCursor ?? null);
+      setHasMore(Boolean(feedRes.hasMore));
+      return;
+    }
+
+    const res = await communityApi.listPosts({
+      limit: 20,
+      scope: 'following',
+      cursor: opts?.cursor,
+    });
+    let posts = res.data ?? [];
+    const mapped = posts.map((post) => ({
+      kind: 'post' as const,
+      key: `post-${post.id}`,
+      post,
+    }));
+    if (!opts?.append) setTopics([]);
+    setItems((prev) => (opts?.append ? [...prev, ...mapped] : mapped));
+    setCursor(res.nextCursor ?? null);
+    setHasMore(Boolean(res.hasMore));
+  }, []);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      if (scope === 'forYou') await loadForYou();
+      else await loadFollowing();
+    } catch (e: any) {
+      setError(e?.message || 'Không tải được Khám phá');
+    } finally {
+      setLoading(false);
+    }
+  }, [scope, loadForYou, loadFollowing]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    if (tab === 'Dành cho bạn') await fetchFeed();
-    if (tab === 'Món ăn') await searchDishes(searchQuery);
-    if (tab === 'Bài viết') await fetchArticles(searchQuery);
-    if (tab === 'Cộng đồng') await fetchPosts();
-    setRefreshing(false);
-  }, [tab, searchQuery, fetchFeed, searchDishes, fetchArticles, fetchPosts]);
+    try {
+      if (scope === 'forYou') await loadForYou();
+      else await loadFollowing();
+    } catch (e: any) {
+      setError(e?.message || 'Không tải được Khám phá');
+    } finally {
+      setRefreshing(false);
+    }
+  }, [scope, loadForYou, loadFollowing]);
 
-  // ── Like toggle ───────────────────────────────────────────────────────────
-  const handleLikePost = useCallback(async (postId: string) => {
-    // Optimistic update
-    setPosts((prev) =>
-      prev.map((p) =>
-        p.id === postId
-          ? { ...p, isLiked: !p.isLiked, likeCount: p.likeCount + (p.isLiked ? -1 : 1) }
-          : p,
+  const onEndReached = useCallback(async () => {
+    if (!hasMore || !cursor || loadingMore || loading) return;
+    setLoadingMore(true);
+    try {
+      if (scope === 'forYou') await loadForYou({ cursor, append: true });
+      else await loadFollowing({ cursor, append: true });
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [hasMore, cursor, loadingMore, loading, scope, loadForYou, loadFollowing]);
+
+  const toggleLike = useCallback(async (postId: string) => {
+    setItems((prev) =>
+      prev.map((it) =>
+        it.kind === 'post' && it.post.id === postId
+          ? {
+              ...it,
+              post: {
+                ...it.post,
+                isLiked: !it.post.isLiked,
+                likeCount: it.post.likeCount + (it.post.isLiked ? -1 : 1),
+              },
+            }
+          : it,
       ),
     );
     try {
       await communityApi.toggleLike(postId);
     } catch {
-      // Rollback on error
-      setPosts((prev) =>
-        prev.map((p) =>
-          p.id === postId
-            ? { ...p, isLiked: !p.isLiked, likeCount: p.likeCount + (p.isLiked ? -1 : 1) }
-            : p,
+      setItems((prev) =>
+        prev.map((it) =>
+          it.kind === 'post' && it.post.id === postId
+            ? {
+                ...it,
+                post: {
+                  ...it.post,
+                  isLiked: !it.post.isLiked,
+                  likeCount: it.post.likeCount + (it.post.isLiked ? -1 : 1),
+                },
+              }
+            : it,
         ),
       );
     }
   }, []);
 
-  const placeholder =
-    tab === 'Món ăn'
-      ? 'Tìm tên món, nguyên liệu…'
-      : tab === 'Bài viết'
-        ? 'Tìm bài viết, chủ đề…'
-        : tab === 'Cộng đồng'
-          ? 'Tìm người dùng, bài đăng…'
-          : 'Tìm món ăn, bài viết, địa điểm…';
+  const toggleLikeArticle = useCallback(async (articleId: string) => {
+    setItems((prev) =>
+      prev.map((it) => {
+        if (it.kind !== 'article' || it.article.id !== articleId) return it;
+        const liked = Boolean(it.article.isLiked);
+        return {
+          ...it,
+          article: {
+            ...it.article,
+            isLiked: !liked,
+            likeCount: Math.max(0, (it.article.likeCount ?? 0) + (liked ? -1 : 1)),
+          },
+        };
+      }),
+    );
+    try {
+      const res = await articlesApi.toggleLike(articleId);
+      setItems((prev) =>
+        prev.map((it) =>
+          it.kind === 'article' && it.article.id === articleId
+            ? {
+                ...it,
+                article: {
+                  ...it.article,
+                  isLiked: res.liked,
+                  likeCount:
+                    typeof res.likeCount === 'number'
+                      ? res.likeCount
+                      : it.article.likeCount,
+                },
+              }
+            : it,
+        ),
+      );
+    } catch {
+      setItems((prev) =>
+        prev.map((it) => {
+          if (it.kind !== 'article' || it.article.id !== articleId) return it;
+          const liked = Boolean(it.article.isLiked);
+          return {
+            ...it,
+            article: {
+              ...it.article,
+              isLiked: !liked,
+              likeCount: Math.max(0, (it.article.likeCount ?? 0) + (liked ? -1 : 1)),
+            },
+          };
+        }),
+      );
+    }
+  }, []);
+
+  const openShareArticle = useCallback((article: ExploreArticle | ExploreShareArticle) => {
+    const kind =
+      'kind' in article && article.kind ? article.kind : ('ARTICLE' as const);
+    setShareArticlePayload(toShareArticle({ ...article, kind }));
+    setShareSheetOpen(true);
+  }, []);
+
+  const openSharePost = useCallback((post: ExplorePost) => {
+    const cover =
+      post.media?.[0]?.url ||
+      post.imageUrls?.[0] ||
+      post.dish?.thumbnailUrl ||
+      post.place?.thumbnailUrl ||
+      null;
+    setShareArticlePayload(
+      toShareArticle({
+        id: post.id,
+        content: post.content,
+        title: post.dish?.name ? `Món: ${post.dish.name}` : undefined,
+        coverImageUrl: cover,
+        authorName: post.author?.displayName,
+        shareUrl: post.shareUrl,
+        kind: 'COMMUNITY_POST',
+      }),
+    );
+    setShareSheetOpen(true);
+  }, []);
+
+  const toggleFollow = useCallback(
+    async (userId: string) => {
+      const was = followingAuthors.has(userId);
+      setFollowingAuthors((prev) => {
+        const next = new Set(prev);
+        if (was) next.delete(userId);
+        else next.add(userId);
+        return next;
+      });
+      setItems((prev) =>
+        prev.map((it) =>
+          it.kind === 'post' && it.post.author.userId === userId
+            ? { ...it, post: { ...it.post, isFollowingAuthor: !was } }
+            : it,
+        ),
+      );
+      try {
+        if (was) await communityApi.unfollowUser(userId);
+        else await communityApi.followUser(userId);
+      } catch {
+        setFollowingAuthors((prev) => {
+          const next = new Set(prev);
+          if (was) next.add(userId);
+          else next.delete(userId);
+          return next;
+        });
+      }
+    },
+    [followingAuthors],
+  );
+
+  const toggleSavePost = useCallback(
+    async (postId: string) => {
+      const was = savedPosts.has(postId);
+      setSavedPosts((prev) => {
+        const next = new Set(prev);
+        if (was) next.delete(postId);
+        else next.add(postId);
+        return next;
+      });
+      try {
+        if (was) await communityApi.unsavePost(postId);
+        else await communityApi.savePost(postId);
+      } catch {
+        setSavedPosts((prev) => {
+          const next = new Set(prev);
+          if (was) next.add(postId);
+          else next.delete(postId);
+          return next;
+        });
+      }
+    },
+    [savedPosts],
+  );
+
+  const openAction = useCallback((target: ContentActionTarget) => {
+    setActionTarget(target);
+    setActionOpen(true);
+  }, []);
+
+  const removeByTarget = useCallback((target: ContentActionTarget) => {
+    setItems((prev) =>
+      prev.filter((it) => {
+        if (target.kind === 'DISH') return !(it.kind === 'dish' && it.dish.id === target.id);
+        if (target.kind === 'ARTICLE')
+          return !(it.kind === 'article' && it.article.id === target.id);
+        return !(it.kind === 'post' && it.post.id === target.id);
+      }),
+    );
+  }, []);
+
+  const listHeader = useMemo(
+    () => (
+      <View>
+        <View style={styles.header}>
+          <Image source={brand} style={styles.brand} resizeMode="contain" />
+          <View style={styles.headerRight}>
+            <Pressable
+              onPress={() => setSearchOpen(true)}
+              style={styles.iconBtn}
+              accessibilityLabel="Tìm kiếm"
+            >
+              <Search size={24} color={INK} />
+      </Pressable>
+            <Pressable
+              onPress={() => setSavedOpen(true)}
+              style={styles.iconBtn}
+              accessibilityLabel="Đã lưu"
+            >
+              <Bookmark size={22} color={INK} />
+    </Pressable>
+            <Pressable
+              style={styles.iconBtn}
+              accessibilityLabel="Thông báo"
+              onPress={() => onNotification?.()}
+            >
+              <Bell size={24} color={INK} />
+              {unreadNotif > 0 ? <View style={styles.notifDot} /> : null}
+            </Pressable>
+          </View>
+        </View>
+
+        <Tabs
+          value={scope}
+          onValueChange={(v) => {
+            const next = v as FeedScope;
+            if (next === scope) return;
+            setScope(next);
+            setItems([]);
+          }}
+          className="mb-3 mt-2"
+        >
+          <TabsList
+            className="h-12 w-full flex-row rounded-full bg-white p-1"
+            style={styles.switchTrack}
+          >
+            <TabsTrigger
+              value="forYou"
+              className="h-10 flex-1 rounded-full border-0 shadow-none"
+              style={StyleSheet.flatten([
+                styles.switchPill,
+                scope === 'forYou' && styles.switchActive,
+              ])}
+            >
+              <UiText
+                style={StyleSheet.flatten([
+                  styles.switchTxt,
+                  scope === 'forYou' && styles.switchTxtActive,
+                ])}
+              >
+                Dành cho bạn
+              </UiText>
+            </TabsTrigger>
+            <TabsTrigger
+              value="following"
+              className="h-10 flex-1 rounded-full border-0 shadow-none"
+              style={StyleSheet.flatten([
+                styles.switchPill,
+                scope === 'following' && styles.switchActive,
+              ])}
+            >
+              <UiText
+                style={StyleSheet.flatten([
+                  styles.switchTxt,
+                  scope === 'following' && styles.switchTxtActive,
+                ])}
+              >
+                Đang theo dõi
+              </UiText>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {scope === 'forYou' ? (
+          <TopicCircles topics={topics} onPress={(t) => setTopicFeed(t)} />
+        ) : (
+          <Text style={styles.followingHint}>Nội dung từ người bạn đang theo dõi</Text>
+        )}
+
+        <View style={styles.feedHeaderDivider} />
+      </View>
+    ),
+    [scope, topics, unreadNotif, onNotification],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: FeedItem }) => {
+      if (item.kind === 'dish') {
+        return (
+          <DishFeedItem
+            dish={item.dish}
+            onPress={() => openDetail('food', item.dish.id, { rankingToken: item.rankingToken })}
+            saved={savedDishes.has(item.dish.id) || Boolean(item.dish.isSaved)}
+            onSave={async () => {
+              const currentlySaved = savedDishes.has(item.dish.id) || Boolean(item.dish.isSaved);
+              setSavedDishes((prev) => {
+                const next = new Set(prev);
+                if (currentlySaved) next.delete(item.dish.id);
+                else next.add(item.dish.id);
+                return next;
+              });
+              try {
+                await toggleDishSave(item.dish.id, currentlySaved, {
+                  name: item.dish.name,
+                  imageUrl: resolveDishImageUrl(item.dish) ?? undefined,
+                  priceMin: item.dish.priceMin ?? undefined,
+                  priceMax: item.dish.priceMax ?? undefined,
+                  kcal: (item.dish as any).nutrition?.calories ?? (item.dish as any).kcal ?? undefined,
+                });
+              } catch {
+                setSavedDishes((prev) => {
+                  const rollback = new Set(prev);
+                  if (currentlySaved) rollback.add(item.dish.id);
+                  else rollback.delete(item.dish.id);
+                  return rollback;
+                });
+              }
+            }}
+            onMore={() =>
+              openAction({
+                kind: 'DISH',
+                id: item.dish.id,
+                title: item.dish.name,
+                imageUrl: resolveDishImageUrl(item.dish),
+                subtitle: 'Món ăn • Mogu',
+                isSaved: savedDishes.has(item.dish.id) || Boolean(item.dish.isSaved),
+                shareUrl: (item.dish as any).shareUrl,
+                rankingToken: item.rankingToken,
+                reasonCode: item.reasonCode,
+              })
+            }
+          />
+        );
+      }
+      if (item.kind === 'article') {
+  return (
+          <ArticleFeedItem
+            article={item.article}
+            onPress={() =>
+              openDetail('article', item.article.id, { rankingToken: item.rankingToken })
+            }
+            liked={Boolean(item.article.isLiked)}
+            saved={savedArticles.has(item.article.id) || Boolean(item.article.isSaved)}
+            onLike={() => void toggleLikeArticle(item.article.id)}
+            onShare={() => openShareArticle(item.article)}
+            onSave={() => {
+              const was = savedArticles.has(item.article.id) || Boolean(item.article.isSaved);
+              setSavedArticles((prev) => {
+                const next = new Set(prev);
+                if (was) next.delete(item.article.id);
+                else next.add(item.article.id);
+                return next;
+              });
+              void (was
+                ? articlesApi.unsave(item.article.id)
+                : articlesApi.save(item.article.id)
+              ).catch(() => undefined);
+            }}
+            onMore={() =>
+              openAction({
+                kind: 'ARTICLE',
+                id: item.article.id,
+                title: item.article.title,
+                imageUrl: item.article.coverImageUrl,
+                subtitle: 'Bài viết • Mogu',
+                isSaved: savedArticles.has(item.article.id) || Boolean(item.article.isSaved),
+                shareUrl: item.article.shareUrl,
+                rankingToken: item.rankingToken,
+                reasonCode: item.reasonCode,
+              })
+            }
+            onAuthorPress={() =>
+              item.article.author?.userId
+                ? setProfileUserId(item.article.author.userId)
+                : undefined
+            }
+          />
+        );
+      }
+      const following =
+        followingAuthors.has(item.post.author.userId) || Boolean(item.post.isFollowingAuthor);
+  return (
+        <PostFeedItem
+          post={item.post}
+          onPress={() => openDetail('post', item.post.id, { rankingToken: item.rankingToken })}
+          onLike={() => void toggleLike(item.post.id)}
+          onFollow={() => void toggleFollow(item.post.author.userId)}
+          following={following}
+          onSave={() => void toggleSavePost(item.post.id)}
+          saved={savedPosts.has(item.post.id) || Boolean(item.post.isSaved)}
+          onShare={() => openSharePost(item.post)}
+          onAuthorPress={() =>
+            item.post.author?.userId ? setProfileUserId(item.post.author.userId) : undefined
+          }
+          onMore={() =>
+            openAction({
+              kind: 'COMMUNITY_POST',
+              id: item.post.id,
+              title: item.post.content?.slice(0, 80),
+              authorId: item.post.author?.userId,
+              authorName: item.post.author?.displayName || 'Thành viên',
+              authorAvatarUrl: item.post.author?.avatarUrl,
+              imageUrl:
+                item.post.media?.[0]?.url ||
+                item.post.imageUrls?.[0] ||
+                item.post.dish?.thumbnailUrl ||
+                item.post.place?.thumbnailUrl,
+              shareUrl: item.post.shareUrl,
+              isSaved: savedPosts.has(item.post.id) || Boolean(item.post.isSaved),
+              isFollowingAuthor: following,
+              commentsEnabled: item.post.commentsEnabled,
+              viewerCapabilities: item.post.viewerCapabilities,
+              rankingToken: item.rankingToken,
+              reasonCode: item.reasonCode,
+            })
+          }
+        />
+      );
+    },
+    [
+      openDetail,
+      savedDishes,
+      savedArticles,
+      savedPosts,
+      followingAuthors,
+      toggleLike,
+      toggleLikeArticle,
+      openShareArticle,
+      openSharePost,
+      toggleFollow,
+      toggleSavePost,
+      openAction,
+    ],
+  );
+
+  const hideNav =
+    createOpen || searchOpen || Boolean(detail) || Boolean(profileUserId) || savedOpen || Boolean(topicFeed);
 
   return (
-    <SafeAreaView className="flex-1 bg-mogu-cream" edges={['top', 'left', 'right']}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ padding: 20 }}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-      >
-        {/* Header */}
-        <View className="h-[62px] flex-row justify-between items-center">
-          <Image
-            source={brand}
-            style={{ width: 112, height: 44 }}
-            resizeMode="contain"
-          />
-          <View className="flex-row items-center gap-[18px] relative">
-            <Bell size={25} />
-            <View className="absolute right-[52px] top-px w-2 h-2 rounded-full bg-[#FF796F]" />
-            <Pressable accessibilityRole="button" accessibilityLabel="Mở hồ sơ cá nhân"
-              onPress={onProfile} style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>
-              <AvatarImage uri={myAvatarUri} size={44} />
-            </Pressable>
-          </View>
-        </View>
-
-        <Text className="text-[30px] font-bold text-[#161616] mt-3">Khám phá</Text>
-
-        {/* Search bar */}
-        <View className="h-[52px] rounded-[18px] bg-white border border-[#E8E0D2] mt-[18px] px-4 flex-row items-center gap-2.5">
-          <Search size={22} color="#666" />
-          <Input
-            className="h-auto flex-1 border-0 bg-transparent p-0 text-[15px] shadow-none"
-            placeholder={placeholder}
-            placeholderTextColor="#999"
-            value={searchQuery}
-            onChangeText={(text) => {
-              setSearchQuery(text);
-              if (text.trim() && tab === 'Dành cho bạn') setTab('Món ăn');
-            }}
-            returnKeyType="search"
-          />
-        </View>
-
-        {/* Tabs */}
+    <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>
+      {loading && items.length === 0 ? (
         <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: 8, paddingVertical: 16, alignItems: 'center' }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
         >
-          {(['Dành cho bạn', 'Món ăn', 'Bài viết', 'Cộng đồng'] as Tab[]).map((x) => (
-            <Pressable
-              key={x}
-              onPress={() => setTab(x)}
-              style={{ flexGrow: 0, flexShrink: 0 }}
-              className={cn(
-                'h-10 px-[18px] rounded-full items-center justify-center',
-                tab === x ? 'bg-mogu-yellow' : 'bg-white',
-              )}
-            >
-              <Text
-                className={cn(
-                  'text-sm',
-                  tab === x ? 'font-semibold text-[#161616]' : 'text-[#303030]',
-                )}
-              >
-                {x}
-              </Text>
-            </Pressable>
-          ))}
+          {listHeader}
+          <ExploreFeedSkeleton scope={scope} />
         </ScrollView>
-
-        {/* ── Tab: Dành cho bạn ─────────────────────────────────────────── */}
-        {tab === 'Dành cho bạn' && (
-          <>
-            {feedLoading && !feed ? (
-              <LoadingState />
-            ) : feedError ? (
-              <ErrorState message={feedError} onRetry={fetchFeed} />
-            ) : feed ? (
-              <>
-                <Heading text="Chủ đề hôm nay" onPress={() => setTab('Bài viết')} />
-                <TopicsRow topics={feed.topics} onPressTopic={() => setTab('Bài viết')} />
-
-                {feed.featuredArticle && (
-                  <>
-                    <Heading text="Bài viết nổi bật" onPress={() => setTab('Bài viết')} />
-                    <ArticleCard
-                      onPress={() =>
-                        setDetail({ type: 'article', resourceId: feed.featuredArticle!.id })
-                      }
-                      coverImageUrl={feed.featuredArticle.coverImageUrl}
-                      title={feed.featuredArticle.title}
-                      topic={feed.featuredArticle.topic?.title}
-                      readMinutes={feed.featuredArticle.readMinutes}
-                      featured
-                      saved={savedArticles.has(feed.featuredArticle.id)}
-                      onSave={() => {
-                        setSavedArticles((prev) => {
-                          const next = new Set(prev);
-                          if (next.has(feed.featuredArticle!.id)) next.delete(feed.featuredArticle!.id);
-                          else next.add(feed.featuredArticle!.id);
-                          return next;
-                        });
-                      }}
-                    />
-                  </>
-                )}
-
-                {feed.recentPosts.length > 0 && (
-                  <>
-                    <Heading text="Cộng đồng đang nói gì?" onPress={() => setTab('Cộng đồng')} />
-                    {feed.recentPosts.slice(0, 2).map((post) => (
-                      <PostCard
-                        key={post.id}
-                        post={post}
-                        onPress={() => setDetail({ type: 'post', resourceId: post.id })}
-                        onLike={() => handleLikePost(post.id)}
-                      />
-                    ))}
-                  </>
-                )}
-              </>
-            ) : null}
-          </>
-        )}
-
-        {/* ── Tab: Món ăn ───────────────────────────────────────────────── */}
-        {tab === 'Món ăn' && (
-          <>
-            <Filters labels={['Tất cả', 'Bữa sáng', 'Bữa trưa', 'Lành mạnh', 'Dưới 50K']} />
-            <Heading text={searchQuery ? `Kết quả cho "${searchQuery}"` : 'Khám phá món ăn'} />
-            {dishesLoading && dishes.length === 0 ? (
-              <LoadingState />
-            ) : dishesError ? (
-              <ErrorState message={dishesError} onRetry={() => searchDishes(searchQuery)} />
-            ) : dishes.length > 0 ? (
-              dishes.map((dish) => {
-                const nutrition = (dish.nutritionProfiles ?? [])[0];
-                const media = dish.media ?? [];
-                const primaryMedia = media.find((m) => m.isPrimary) ?? media[0];
-                const imageUri = primaryMedia
-                  ? `${(
-                      (
-                        globalThis as typeof globalThis & {
-                          process?: { env?: Record<string, string | undefined> };
-                        }
-                      ).process?.env?.EXPO_PUBLIC_SUPABASE_URL ?? ''
-                    ).replace(/\/$/, '')}/storage/v1/object/public/${primaryMedia.bucket || 'dish-images'}/${primaryMedia.storageKey}`
-                  : null;
-                const metaParts: string[] = [];
-                if (nutrition?.calories) metaParts.push(`${nutrition.calories} kcal`);
-                if (dish.prepMinutes) metaParts.push(`${dish.prepMinutes} phút`);
-                if ((dish.priceMin ?? null) !== null || (dish.priceMax ?? null) !== null) {
-                  const pMin = dish.priceMin ?? dish.priceMax ?? 0;
-                  const pMax = dish.priceMax ?? dish.priceMin ?? 0;
-                  metaParts.push(`${(pMin / 1000).toFixed(0)}K–${(pMax / 1000).toFixed(0)}K`);
-                }
-                return (
-                  <FoodCard
-                    key={dish.id}
-                    onPress={() => setDetail({ type: 'food', resourceId: dish.id })}
-                    imageUri={imageUri}
-                    fallbackImage={pho}
-                    name={dish.name}
-                    meta={metaParts.join('  ·  ')}
-                    badge={dish.region?.name ?? dish.categories?.[0]?.name ?? ''}
-                  />
-                );
-              })
-            ) : !dishesLoading ? (
-              <View className="py-10 items-center px-6">
-                <Text className="text-[#161616] font-semibold text-base text-center">
-                  Chưa có món phù hợp
-                </Text>
-                <Text className="text-[#626262] text-sm text-center mt-2">
-                  Thử tìm kiếm khác hoặc quay lại sau.
-                </Text>
-              </View>
-            ) : null}
-          </>
-        )}
-
-        {/* ── Tab: Bài viết ─────────────────────────────────────────────── */}
-        {tab === 'Bài viết' && (
-          <>
-            <Filters labels={['Tất cả', 'Dinh dưỡng', 'Cách nấu', 'Sức khỏe', 'Mẹo hay']} />
-            {articlesLoading && articles.length === 0 ? (
-              <LoadingState />
-            ) : articlesError ? (
-              <ErrorState message={articlesError} onRetry={() => fetchArticles(searchQuery)} />
-            ) : articles.length > 0 ? (
-              <>
-                <Heading text="Bài viết mới cho bạn" />
-                {articles.map((article) => (
-                  <ArticleCard
-                    key={article.id}
-                    onPress={() => setDetail({ type: 'article', resourceId: article.id })}
-                    coverImageUrl={article.coverImageUrl}
-                    title={article.title}
-                    topic={article.topic?.title}
-                    readMinutes={article.readMinutes}
-                    saved={savedArticles.has(article.id)}
-                    onSave={() => {
-                      setSavedArticles((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(article.id)) next.delete(article.id);
-                        else next.add(article.id);
-                        return next;
-                      });
-                    }}
-                  />
-                ))}
-              </>
+      ) : (
+        <FlatList
+          data={items}
+          keyExtractor={(it) => it.key}
+          ListHeaderComponent={listHeader}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          onEndReached={() => void onEndReached()}
+          onEndReachedThreshold={0.4}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={{ paddingVertical: 16 }}>
+                <ActivityIndicator color={INK} />
+        </View>
+            ) : null
+          }
+          ListEmptyComponent={
+            error ? (
+              <View style={styles.emptyWrap}>
+                <Text style={styles.emptyErr}>{error}</Text>
+                <Pressable onPress={() => void load()} style={styles.retryBtn}>
+                  <Text style={styles.retryTxt}>Thử lại</Text>
+                </Pressable>
+      </View>
+            ) : scope === 'following' ? (
+              <View style={styles.emptyWrap}>
+                <Text style={styles.emptyTxt}>Theo dõi mọi người để thấy bài đăng</Text>
+                <Pressable
+                  onPress={() => {
+                    setScope('forYou');
+                    setItems([]);
+                  }}
+                  style={styles.retryBtn}
+                >
+                  <Text style={styles.retryTxt}>Khám phá dành cho bạn</Text>
+        </Pressable>
+      </View>
             ) : (
-              <View className="py-10 items-center px-6">
-                <Text className="text-[#161616] font-semibold text-base text-center">
-                  Chưa có bài viết
-                </Text>
-                <Text className="text-[#626262] text-sm text-center mt-2">
-                  Nội dung sẽ xuất hiện khi có bài đã xuất bản.
-                </Text>
-              </View>
-            )}
-          </>
-        )}
+              <Text style={styles.emptyTxt}>Chưa có nội dung để khám phá.</Text>
+            )
+          }
+        />
+      )}
 
-        {/* ── Tab: Cộng đồng ────────────────────────────────────────────── */}
-        {tab === 'Cộng đồng' && (
-          <>
-            <Text className="text-[20px] font-bold text-[#161616] mt-3">Mọi người đang ăn gì?</Text>
-            {postsLoading && posts.length === 0 ? (
-              <LoadingState />
-            ) : postsError ? (
-              <ErrorState message={postsError} onRetry={fetchPosts} />
-            ) : posts.length > 0 ? (
-              posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={post}
-                  onPress={() => setDetail({ type: 'post', resourceId: post.id })}
-                  onLike={() => handleLikePost(post.id)}
-                />
-              ))
-            ) : (
-              <View className="py-10 items-center px-6">
-                <Text className="text-[#161616] font-semibold text-base text-center">
-                  Chưa có bài cộng đồng
-                </Text>
-                <Text className="text-[#626262] text-sm text-center mt-2">
-                  Hãy là người đầu tiên chia sẻ món hôm nay.
-                </Text>
-              </View>
-            )}
-          </>
-        )}
-
-        <View className="h-[100px]" />
-      </ScrollView>
-
-      {/* FAB */}
-      <Pressable
-        className="absolute right-5 bottom-[92px] w-14 h-14 rounded-full bg-mogu-yellow items-center justify-center"
-        style={{ elevation: 5 }}
-        onPress={() => setCreatePostOpen(true)}
-      >
-        <Plus size={24} color="#161616" />
-        <PenLine size={14} color="#161616" className="absolute right-[13px] bottom-[13px]" />
-      </Pressable>
-
-      <Modal
-        visible={createPostOpen}
-        animationType="slide"
-        transparent
-        onRequestClose={() => !submittingPost && setCreatePostOpen(false)}
-      >
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' }}
+      {!hideNav ? (
+        <Pressable
+          style={styles.fab}
+          onPress={() => setCreateOpen(true)}
+          accessibilityLabel="Tạo bài đăng"
         >
-          <Pressable
-            style={{ flex: 1 }}
-            onPress={() => !submittingPost && setCreatePostOpen(false)}
-          />
-          <View className="bg-white rounded-t-[28px] p-5 pb-8 max-h-[85%]">
-            <View className="flex-row items-center justify-between pb-3 border-b border-[#E8E0D2]">
-              <Text className="text-lg font-bold text-[#161616]">Tạo bài viết mới</Text>
-              <Pressable
-                onPress={() => !submittingPost && setCreatePostOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#F5F2EC] items-center justify-center"
-              >
-                <X size={18} color="#626262" />
-              </Pressable>
-            </View>
+          <Plus size={26} color={INK} strokeWidth={2.5} />
+    </Pressable>
+      ) : null}
 
-            <View className="mt-4">
-              <Textarea
-                value={newPostContent}
-                onChangeText={setNewPostContent}
-                placeholder="Chia sẻ món ăn, trải nghiệm hôm nay của bạn..."
-                className="min-h-[140px] text-base p-3 border border-[#E8E0D2] rounded-2xl bg-[#FFFDF7]"
-                editable={!submittingPost}
-                autoFocus
-              />
-            </View>
+      {!hideNav ? (
+        <LiquidGlassBottomNav
+          active="explore"
+          onHome={onBack}
+          onRandom={onRandom}
+          onHealth={onHealth}
+          onProfile={onProfile}
+        />
+      ) : null}
 
-            {createPostError ? (
-              <Text className="text-[#FF4D3D] text-xs mt-2">{createPostError}</Text>
-            ) : null}
+      {toast ? (
+        <Pressable
+          style={styles.toast}
+          onPress={() => {
+            const t = undoTarget.current;
+            if (t) {
+              void moderationApi.unhide(
+                t.kind === 'DISH' ? 'DISH' : t.kind === 'ARTICLE' ? 'ARTICLE' : 'COMMUNITY_POST',
+                t.id,
+              );
+              showToast('Đã hoàn tác');
+              undoTarget.current = null;
+              void onRefresh();
+            }
+          }}
+        >
+          <Text style={styles.toastTxt}>{toast} · Hoàn tác</Text>
+        </Pressable>
+      ) : null}
 
-            <View className="mt-4 flex-row justify-end gap-3">
-              <Pressable
-                onPress={() => setCreatePostOpen(false)}
-                disabled={submittingPost}
-                className="px-5 py-3 rounded-xl border border-[#D4D0C8] items-center justify-center"
-              >
-                <Text className="font-semibold text-[#626262]">Hủy</Text>
-              </Pressable>
-
-              <Pressable
-                onPress={handleCreatePost}
-                disabled={submittingPost || !newPostContent.trim()}
-                className={cn(
-                  'px-6 py-3 rounded-xl bg-mogu-yellow items-center justify-center flex-row gap-2',
-                  (!newPostContent.trim() || submittingPost) && 'opacity-50'
-                )}
-              >
-                {submittingPost && <ActivityIndicator size="small" color="#161616" />}
-                <Text className="font-bold text-[#161616]">Đăng bài</Text>
-              </Pressable>
-            </View>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
-
-      <LiquidGlassBottomNav
-        active="explore"
-        onHome={onBack}
-        onRandom={onRandom}
-        onHealth={onHealth}
-        onProfile={onProfile}
+      <ContentActionSheet
+        open={actionOpen}
+        onOpenChange={setActionOpen}
+        target={actionTarget}
+        entryPoint="FEED"
+        onToast={showToast}
+        onRemoved={(t) => {
+          undoTarget.current = t;
+          removeByTarget(t);
+        }}
+        onUndoHide={(t) => {
+          undoTarget.current = t;
+        }}
+        onEdited={() => {
+          if (actionTarget?.kind === 'COMMUNITY_POST') {
+            setEditPostId(actionTarget.id);
+            setCreateOpen(true);
+          }
+        }}
+        onRequestShare={(t) => {
+          openShareArticle(
+            toShareArticle({
+              id: t.id,
+              title: t.title,
+              coverImageUrl: t.imageUrl,
+              authorName: t.authorName,
+              shareUrl: t.shareUrl,
+              kind: t.kind === 'COMMUNITY_POST' ? 'COMMUNITY_POST' : t.kind === 'DISH' ? 'DISH' : 'ARTICLE',
+            }),
+          );
+        }}
       />
 
-      {/* ── Detail Screen with animated slide transition ── */}
+      <ArticleShareSheet
+        open={shareSheetOpen}
+        onOpenChange={setShareSheetOpen}
+        article={shareArticlePayload}
+      />
+
+      <ScreenSlideTransition
+        visible={createOpen}
+        direction="bottom"
+        onBack={() => {
+          setCreateOpen(false);
+          setEditPostId(null);
+        }}
+      >
+        <CreatePostScreen
+          editPostId={editPostId}
+          onClose={() => {
+            setCreateOpen(false);
+            setEditPostId(null);
+          }}
+          onPublished={(post) => {
+            const wasEdit = Boolean(editPostId);
+            setCreateOpen(false);
+            setEditPostId(null);
+            setItems((prev) => [
+              { kind: 'post', key: `post-${post.id}`, post },
+              ...prev.filter((it) => !(it.kind === 'post' && it.post.id === post.id)),
+            ]);
+            if (!wasEdit) setScope('following');
+            showToast(wasEdit ? 'Đã cập nhật bài' : 'Đã đăng bài');
+          }}
+        />
+      </ScreenSlideTransition>
+
+      <ScreenSlideTransition
+        visible={searchOpen}
+        direction="right"
+        onBack={() => setSearchOpen(false)}
+      >
+        <ExploreSearchScreen
+          onBack={() => setSearchOpen(false)}
+          onOpenDish={(id) => {
+            setSearchOpen(false);
+            openDetail('food', id);
+          }}
+          onOpenArticle={(id) => {
+            setSearchOpen(false);
+            openDetail('article', id);
+          }}
+          onOpenPost={(id) => {
+            setSearchOpen(false);
+            openDetail('post', id);
+          }}
+          onOpenUser={(userId) => {
+            setSearchOpen(false);
+            setProfileUserId(userId);
+          }}
+        />
+      </ScreenSlideTransition>
+
       <ScreenSlideTransition
         visible={Boolean(detail)}
         direction="right"
@@ -608,6 +1160,99 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
             type={detail.type}
             resourceId={detail.resourceId}
             onBack={() => setDetail(null)}
+            onPostChange={patchFeedPost}
+            onArticleChange={patchFeedArticle}
+          />
+        ) : null}
+      </ScreenSlideTransition>
+
+      <ScreenSlideTransition
+        visible={Boolean(profileUserId)}
+        direction="right"
+        onBack={() => setProfileUserId(null)}
+      >
+        {profileUserId ? (
+          <PublicProfileScreen
+            userId={profileUserId}
+            onBack={() => setProfileUserId(null)}
+            onOpenPost={(postId) => {
+              setProfileUserId(null);
+              openDetail('post', postId);
+            }}
+          />
+        ) : null}
+      </ScreenSlideTransition>
+
+      <ScreenSlideTransition
+        visible={savedOpen}
+        direction="right"
+        onBack={() => setSavedOpen(false)}
+      >
+        <SavedCollectionsScreen
+          onBack={() => setSavedOpen(false)}
+          onOpenArticle={(id) => {
+            setSavedOpen(false);
+            openDetail('article', id);
+          }}
+          onOpenPost={(id) => {
+            setSavedOpen(false);
+            openDetail('post', id);
+          }}
+          onOpenDish={(id) => {
+            setSavedOpen(false);
+            openDetail('food', id);
+          }}
+          onUnsave={(type, id) => {
+            if (type === 'article') {
+              setSavedArticles((prev) => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+              });
+              setItems((prev) =>
+                prev.map((it) =>
+                  it.kind === 'article' && it.article.id === id
+                    ? { ...it, article: { ...it.article, isSaved: false } }
+                    : it,
+                ),
+              );
+            } else if (type === 'post') {
+              setSavedPosts((prev) => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+              });
+              setItems((prev) =>
+                prev.map((it) =>
+                  it.kind === 'post' && it.post.id === id
+                    ? { ...it, post: { ...it.post, isSaved: false } }
+                    : it,
+                ),
+              );
+            } else if (type === 'dish') {
+              setSavedDishes((prev) => {
+                const next = new Set(prev);
+                next.delete(id);
+                return next;
+              });
+            }
+          }}
+        />
+      </ScreenSlideTransition>
+
+      <ScreenSlideTransition
+        visible={Boolean(topicFeed)}
+        direction="right"
+        onBack={() => setTopicFeed(null)}
+      >
+        {topicFeed ? (
+          <TopicFeedScreen
+            topic={topicFeed}
+            onBack={() => setTopicFeed(null)}
+            onOpenArticle={(id) => {
+              setTopicFeed(null);
+              openDetail('article', id);
+            }}
           />
         ) : null}
       </ScreenSlideTransition>
@@ -615,300 +1260,109 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom }: Props
   );
 }
 
-import { ListSkeleton } from '../components/skeletons/ScreenSkeletons';
-
-// ─── Helper components ────────────────────────────────────────────────────────
-
-function LoadingState() {
-  return <ListSkeleton rows={4} />;
-}
-
-function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
-  return (
-    <View style={{ paddingVertical: 24, alignItems: 'center', gap: 12 }}>
-      <Text style={{ color: '#E53E3E', fontSize: 14, textAlign: 'center' }}>{message}</Text>
-      {onRetry && (
-        <Pressable
-          onPress={onRetry}
-          style={{
-            paddingHorizontal: 16,
-            paddingVertical: 8,
-            backgroundColor: '#F5B900',
-            borderRadius: 20,
-          }}
-        >
-          <Text style={{ fontWeight: '600', fontSize: 14 }}>Thử lại</Text>
-        </Pressable>
-      )}
-    </View>
-  );
-}
-
-function Filters({ labels }: { labels: string[] }) {
-  const [activeIdx, setActiveIdx] = useState(0);
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ gap: 8, paddingBottom: 14, alignItems: 'center' }}
-    >
-      {labels.map((x, i) => (
-        <Pressable
-          key={x}
-          onPress={() => setActiveIdx(i)}
-          style={{ flexGrow: 0, flexShrink: 0 }}
-          className={cn(
-            'h-10 px-4 rounded-full justify-center',
-            i === activeIdx ? 'bg-mogu-yellow' : 'bg-white',
-          )}
-        >
-          <Text
-            className={cn(
-              'text-sm',
-              i === activeIdx ? 'font-semibold text-[#161616]' : 'text-[#303030]',
-            )}
-          >
-            {x}
-          </Text>
-        </Pressable>
-      ))}
-    </ScrollView>
-  );
-}
-
-function TopicsRow({
-  topics,
-  onPressTopic,
-}: {
-  topics: ExploreTopic[];
-  onPressTopic?: (topic: ExploreTopic) => void;
-}) {
-  const displayTopics =
-    topics.length > 0
-      ? topics
-      : [
-        { id: '1', slug: 'mon-ngon-mua-mua', title: 'Món ngon\nmùa mưa', coverImageUrl: null, articleCount: 0 },
-        { id: '2', slug: 'an-lanh-manh', title: 'Ăn lành mạnh', coverImageUrl: null, articleCount: 0 },
-        { id: '3', slug: 'duoi-50k', title: 'Dưới 50K', coverImageUrl: null, articleCount: 0 },
-      ];
-
-  const fallbackImages = [pho, rice, bun];
-
-  return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ gap: 12, paddingBottom: 18 }}
-    >
-      {displayTopics.map((topic, i) => (
-        <Pressable
-          key={topic.id}
-          onPress={() => onPressTopic?.(topic)}
-          style={{
-            width: 250,
-            height: 210,
-            borderRadius: 20,
-            overflow: 'hidden',
-          }}
-        >
-          <Image
-            source={topic.coverImageUrl ? { uri: topic.coverImageUrl } : fallbackImages[i % 3]}
-            style={{ width: '100%', height: '100%' }}
-            resizeMode="cover"
-          />
-          <View
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundColor: 'rgba(0,0,0,0.24)',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-            }}
-          />
-          <Text
-            style={{
-              position: 'absolute',
-              left: 16,
-              bottom: 16,
-              color: '#fff',
-              fontSize: 18,
-              fontWeight: 'bold',
-              lineHeight: 23,
-            }}
-          >
-            {topic.title}
-          </Text>
-        </Pressable>
-      ))}
-    </ScrollView>
-  );
-}
-
-function Heading({ text, onPress }: { text: string; onPress?: () => void }) {
-  return (
-    <View className="flex-row justify-between items-center mt-3.5 mb-3.5">
-      <Text className="text-[20px] font-bold text-[#161616]">{text}</Text>
-      <Pressable onPress={onPress} hitSlop={8} disabled={!onPress}>
-        <Text className="text-[14px] text-[#CC9700]">Xem tất cả ›</Text>
-      </Pressable>
-    </View>
-  );
-}
-
-function FoodCard(p: {
-  onPress?: () => void;
-  imageUri?: string | null;
-  fallbackImage: any;
-  name: string;
-  meta: string;
-  badge: string;
-}) {
-  return (
-    <Pressable
-      onPress={p.onPress}
-      className="h-[205px] rounded-[20px] overflow-hidden bg-white flex-row mb-4"
-    >
-      <AppImage
-        uri={p.imageUri}
-        fallbackSource={p.fallbackImage}
-        style={{ width: '44%', height: '100%' }}
-        contentFit="cover"
-        cachePolicy="memory-disk"
-        transition={200}
-        showLoader
-      />
-      <View className="flex-1 p-3.5">
-        <Text className="text-[21px] font-bold text-[#161616] mt-[10px]">{p.name}</Text>
-        <Text className="text-[13px] text-[#666] mt-[7px]">{p.meta}</Text>
-        {p.badge ? (
-          <Badge variant="secondary" className="self-start bg-[#FFF1B3] rounded-full px-2.5 py-1 mt-3">
-            <Text className="text-xs text-[#161616]">{p.badge}</Text>
-          </Badge>
-        ) : null}
-        <Text className="text-[14px] text-[#444] mt-2.5" style={{ lineHeight: 20 }}>
-          Đậm đà, giàu dinh dưỡng và phù hợp với bạn hôm nay.
-        </Text>
-      </View>
-    </Pressable>
-  );
-}
-
-function ArticleCard(p: {
-  onPress?: () => void;
-  coverImageUrl: string | null;
-  title: string;
-  topic?: string;
-  readMinutes?: number;
-  featured?: boolean;
-  saved?: boolean;
-  onSave?: () => void;
-}) {
-  const fallbackImages = [rice, pho, bun];
-  const fallback = fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
-
-  return (
-    <Pressable
-      onPress={p.onPress}
-      className="h-[156px] rounded-[20px] overflow-hidden bg-white flex-row mb-4"
-    >
-      <Image
-        source={p.coverImageUrl ? { uri: p.coverImageUrl } : fallback}
-        style={{ width: '42%', height: '100%' }}
-        resizeMode="cover"
-      />
-      <View className="flex-1 p-3.5 justify-center">
-        {p.topic && (
-          <Text className="text-xs text-[#A47700] mb-1.5">{p.topic}</Text>
-        )}
-        <Text className="text-[18px] font-bold text-[#161616]" style={{ lineHeight: 24 }}>
-          {p.title}
-        </Text>
-        {p.readMinutes && (
-          <Text className="text-[13px] text-[#666] mt-2">
-            {p.readMinutes} phút đọc
-          </Text>
-        )}
-      </View>
-      {p.onSave && (
-        <Pressable onPress={p.onSave} className="absolute right-3 bottom-3">
-          <Bookmark
-            size={22}
-            fill={p.saved ? '#FFD54F' : 'transparent'}
-            color={p.saved ? '#FFD54F' : '#888'}
-          />
-        </Pressable>
-      )}
-    </Pressable>
-  );
-}
-
-function PostCard(p: {
-  post: ExplorePost;
-  onPress?: () => void;
-  onLike: () => void;
-}) {
-  const { post } = p;
-  const timeAgo = formatTimeAgo(post.createdAt);
-
-  return (
-    <Pressable onPress={p.onPress}>
-      <Card className="bg-white rounded-[20px] p-4 mb-4 border-0">
-        <View className="flex-row items-center gap-2.5">
-          <AvatarImage uri={post.author.avatarUrl} size={42} />
-          <View>
-            <Text className="text-[16px] font-semibold text-[#161616]">
-              {post.author.displayName ?? 'Người dùng Mogu'}
-            </Text>
-            <Text className="text-[13px] text-[#666]">{timeAgo}</Text>
-          </View>
-        </View>
-
-        {post.content ? (
-          <Text className="text-[16px] text-[#303030] my-3.5">{decodeHtmlEntities(post.content)}</Text>
-        ) : null}
-
-        {post.imageUrls.length > 0 && (
-          <Image
-            source={{ uri: post.imageUrls[0] }}
-            className="w-full rounded-2xl"
-            style={{ width: '100%', height: 220, borderRadius: 16 }}
-            resizeMode="cover"
-          />
-        )}
-
-        <View className="flex-row gap-5 mt-3.5">
-          <Pressable onPress={p.onLike} className="flex-row items-center gap-1.5">
-            <Heart
-              size={22}
-              color={post.isLiked ? '#FF796F' : '#666'}
-              fill={post.isLiked ? '#FF796F' : 'transparent'}
-            />
-            {post.likeCount > 0 && (
-              <Text className="text-[13px] text-[#666]">{post.likeCount}</Text>
-            )}
-          </Pressable>
-          <View className="flex-row items-center gap-1.5">
-            <MessageCircle size={22} color="#666" />
-            {post.commentCount > 0 && (
-              <Text className="text-[13px] text-[#666]">{post.commentCount}</Text>
-            )}
-          </View>
-          <Share2 size={22} color="#666" />
-        </View>
-      </Card>
-    </Pressable>
-  );
-}
-
-function formatTimeAgo(dateStr: string): string {
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Vừa xong';
-  if (mins < 60) return `${mins} phút`;
-  const hours = Math.floor(mins / 60);
-  if (hours < 24) return `${hours} giờ`;
-  const days = Math.floor(hours / 24);
-  return `${days} ngày`;
-}
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: CREAM },
+  listContent: { paddingHorizontal: H_PAD, paddingBottom: 130 },
+  header: {
+    height: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  brand: { width: 104, height: 40 },
+  headerRight: { flexDirection: 'row', alignItems: 'center' },
+  iconBtn: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  notifDot: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: CORAL_DOT,
+  },
+  followingHint: {
+    fontSize: 13,
+    color: MUTED,
+    marginBottom: 12,
+    marginTop: 2,
+  },
+  feedHeaderDivider: {
+    marginTop: 12,
+    marginHorizontal: -H_PAD,
+    height: 8,
+    backgroundColor: '#F0E8D8',
+  },
+  switchTrack: {
+    backgroundColor: WHITE,
+    borderRadius: 999,
+    padding: 4,
+    height: 48,
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  switchPill: {
+    flex: 1,
+    height: 40,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+  },
+  switchActive: {
+    backgroundColor: YELLOW,
+  },
+  switchTxt: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: MUTED,
+    textAlign: 'center',
+  },
+  switchTxtActive: {
+    color: INK,
+    fontWeight: '800',
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 108,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: YELLOW,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#5D490F',
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+  },
+  emptyWrap: { alignItems: 'center', paddingVertical: 40, gap: 12 },
+  emptyErr: { color: '#E53E3E', textAlign: 'center' },
+  emptyTxt: { color: MUTED, textAlign: 'center', marginTop: 40 },
+  retryBtn: {
+    backgroundColor: YELLOW,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  retryTxt: { fontWeight: '700', color: INK },
+  toast: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    bottom: 120,
+    backgroundColor: INK,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  toastTxt: { color: WHITE, fontWeight: '600', textAlign: 'center' },
+});

@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AdminDishesController } from './controllers/admin-dishes.controller';
 import { DishesController } from './controllers/dishes.controller';
 import { FoodLookupController } from './controllers/food-lookup.controller';
+import { DishInteractionController } from './dishes.controller';
 import { DishCommandService } from './services/dish-command.service';
 import { DishQueryService } from './services/dish-query.service';
 import { DishesService } from './dishes.service';
@@ -11,7 +12,12 @@ import { IngredientsModule } from '../ingredients/ingredients.module';
 
 @Module({
   imports: [IngredientsModule],
-  controllers: [DishesController, AdminDishesController, FoodLookupController],
+  controllers: [
+    DishesController,
+    DishInteractionController,
+    AdminDishesController,
+    FoodLookupController,
+  ],
   providers: [
     DishQueryService,
     DishCommandService,
@@ -27,4 +33,4 @@ import { IngredientsModule } from '../ingredients/ingredients.module';
     DishNutritionMapperService,
   ],
 })
-export class DishesModule {}
+export class DishesModule { }

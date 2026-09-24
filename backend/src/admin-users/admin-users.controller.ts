@@ -11,6 +11,7 @@ import {
   Post,
   Put,
   Query,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -235,6 +236,15 @@ export class AdminUsersController {
     return this.adminUsers.listAuditEvents(userId, { cursor, limit, eventType });
   }
 
+  @Get('users/:userId/auth-audit')
+  @ApiOperation({ summary: 'Lịch sử xác thực (AuthAuditLog) theo user' })
+  authAudit(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Query('limit') limit?: number,
+  ) {
+    return this.adminUsers.listAuthAuditLogs(userId, { limit });
+  }
+
   @Post('user-list-exports')
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'Xuất danh sách người dùng (async)' })
@@ -263,6 +273,19 @@ export class AdminUsersController {
     @CurrentUser() actor: any,
   ) {
     return this.adminUsers.getUserListExport(this.actorId(actor), jobId);
+  }
+
+  @Get('user-list-exports/:jobId/download')
+  @ApiOperation({ summary: 'Tải file export trực tiếp' })
+  async downloadExport(
+    @Param('jobId', ParseUUIDPipe) jobId: string,
+    @CurrentUser() actor: any,
+    @Res() res: any,
+  ) {
+    const file = await this.adminUsers.getExportFile(this.actorId(actor), jobId);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${file.filename}"`);
+    return res.send(file.content);
   }
 
   @Get('users/:userId/privacy-cases')

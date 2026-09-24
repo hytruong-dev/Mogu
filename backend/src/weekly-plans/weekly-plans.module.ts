@@ -16,6 +16,7 @@ import { WeeklyPlanProcessor } from './processors/weekly-plan.processor';
 import { PrismaModule } from '../prisma/prisma.module';
 import { DishesModule } from '../dishes/dishes.module';
 import { HealthModule } from '../health/health.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { getRedisUrl } from '../common/redis/redis-env';
 
 const REDIS_URL = getRedisUrl();
@@ -34,6 +35,7 @@ const nullQueueProvider = {
     PrismaModule,
     DishesModule,
     HealthModule,
+    NotificationsModule,
     // Chỉ import BullModule khi Redis được cấu hình
     ...(REDIS_URL ? [BullModule.registerQueue({ name: WEEKLY_PLAN_QUEUE })] : []),
   ],

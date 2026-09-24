@@ -27,11 +27,20 @@ export async function uploadSignedImage(
   }
 
   if (Platform.OS === 'web') {
-    if (!image.webFile) throw new Error('Không đọc được tệp ảnh trên trình duyệt.');
+    let body: Blob | File | null = image.webFile ?? null;
+    if (!body && image.uri) {
+      try {
+        const res = await fetch(image.uri);
+        body = await res.blob();
+      } catch (err) {
+        console.warn('Cannot fetch blob from image.uri on web:', err);
+      }
+    }
+    if (!body) throw new Error('Không đọc được tệp ảnh trên trình duyệt.');
     const response = await fetch(signed.url, {
       method: signed.method,
       headers: signed.headers,
-      body: image.webFile,
+      body,
     });
     if (!response.ok) throw new Error(`Upload ảnh thất bại (${response.status}).`);
     onProgress(100);

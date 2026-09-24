@@ -4,6 +4,7 @@ import { cn } from '../../lib/utils';
 
 type Props = {
   date: Date;
+  label?: string;
   onPrevious: () => void;
   onNext: () => void;
   onPress?: () => void;
@@ -20,7 +21,7 @@ export function formatHealthDate(date: Date) {
   return `${isToday ? 'Hôm nay, ' : ''}${date.getDate()} tháng ${date.getMonth() + 1}`;
 }
 
-export function DateNavigator({ date, onPrevious, onNext, onPress, className }: Props) {
+export function DateNavigator({ date, label, onPrevious, onNext, onPress, className }: Props) {
   return (
     <View
       className={cn(
@@ -36,9 +37,11 @@ export function DateNavigator({ date, onPrevious, onNext, onPress, className }: 
       <Pressable
         onPress={onPress}
         disabled={!onPress}
-        className="flex-1 h-11 items-center justify-center"
+        className="flex-1 h-11 items-center justify-center px-1"
       >
-        <Text className="text-mogu-ink text-[17px] font-medium">{formatHealthDate(date)}</Text>
+        <Text className="text-mogu-ink text-[16px] font-medium text-center" numberOfLines={1}>
+          {label ?? formatHealthDate(date)}
+        </Text>
       </Pressable>
 
       <Pressable onPress={onNext} hitSlop={8} className="w-11 h-11 items-center justify-center">

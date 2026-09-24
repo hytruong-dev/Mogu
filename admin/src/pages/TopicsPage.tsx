@@ -1,11 +1,45 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  BookOpen,
+  Edit2,
+  Eye,
+  EyeOff,
+  Image as ImageIcon,
+  Plus,
+  Search,
+  Trash2,
+} from 'lucide-react'
 import { topicsAdminApi, type Topic, type CreateTopicDto, type UpdateTopicDto } from '../api/explore'
 import { TableSkeleton } from '../components/ui/page-skeleton'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Textarea } from '../components/ui/textarea'
+import { Badge } from '../components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../components/ui/table'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../components/ui/dialog'
+import { Switch } from '../components/ui/switch'
+import { Label } from '../components/ui/label'
 
 export default function TopicsPage() {
   const [topics, setTopics] = useState<Topic[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState<Topic | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<Topic | null>(null)
@@ -27,7 +61,7 @@ export default function TopicsPage() {
       const data = await topicsAdminApi.list()
       setTopics(data)
     } catch (e: any) {
-      setError(e.message ?? 'Không tải được danh sách')
+      setError(e.message ?? 'Không tải được danh sách chủ đề')
     } finally {
       setLoading(false)
     }
@@ -37,9 +71,27 @@ export default function TopicsPage() {
     load()
   }, [])
 
+  const filteredTopics = useMemo(() => {
+    if (!searchQuery.trim()) return topics
+    const q = searchQuery.toLowerCase()
+    return topics.filter(
+      (t) =>
+        t.title.toLowerCase().includes(q) ||
+        t.slug.toLowerCase().includes(q) ||
+        (t.description && t.description.toLowerCase().includes(q)),
+    )
+  }, [topics, searchQuery])
+
   const openCreate = () => {
     setEditing(null)
-    setForm({ slug: '', title: '', description: '', coverImageUrl: '', displayOrder: 0, isActive: true })
+    setForm({
+      slug: '',
+      title: '',
+      description: '',
+      coverImageUrl: '',
+      displayOrder: topics.length,
+      isActive: true,
+    })
     setShowModal(true)
   }
 
@@ -57,6 +109,10 @@ export default function TopicsPage() {
   }
 
   const handleSave = async () => {
+    if (!form.title.trim() || !form.slug.trim()) {
+      alert('Vui lòng nhập đầy đủ tiêu đề và slug')
+      return
+    }
     setSaving(true)
     try {
       if (editing) {
@@ -67,7 +123,7 @@ export default function TopicsPage() {
       setShowModal(false)
       await load()
     } catch (e: any) {
-      alert(e.response?.data?.message ?? e.message ?? 'Lỗi khi lưu')
+      alert(e.response?.data?.message ?? e.message ?? 'Lỗi khi lưu chủ đề')
     } finally {
       setSaving(false)
     }
@@ -80,7 +136,7 @@ export default function TopicsPage() {
       setDeleteConfirm(null)
       await load()
     } catch (e: any) {
-      alert(e.response?.data?.message ?? e.message ?? 'Không thể xóa')
+      alert(e.response?.data?.message ?? e.message ?? 'Không thể xóa chủ đề này')
     }
   }
 
@@ -94,289 +150,304 @@ export default function TopicsPage() {
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      {/* Heading & Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Chủ đề (Topics)</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Quản lý các chủ đề hiển thị trên trang Khám phá
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl flex items-center gap-2.5">
+            <BookOpen size={28} className="text-amber-500" />
+            Chủ đề khám phá (Topics)
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Quản lý các danh mục chuyên đề hiển thị trên thanh cuộn ngang và khám phá của app Mogu.
           </p>
         </div>
-        <button
+        <Button
           onClick={openCreate}
-          className="px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-semibold rounded-lg transition"
+          className="font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
         >
-          + Thêm chủ đề
-        </button>
+          <Plus size={16} />
+          <span>Thêm chủ đề mới</span>
+        </Button>
       </div>
 
-      {/* Error */}
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-          {error}
-        </div>
-      )}
+      {/* Filter / Search Bar */}
+      <Card>
+        <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="relative flex-1 max-w-sm">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Tìm theo tên chủ đề, slug..."
+              className="pl-9 h-9"
+            />
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Hiển thị <strong className="text-foreground">{filteredTopics.length}</strong> / {topics.length} chủ đề
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Table */}
-      {loading ? (
-        <TableSkeleton rows={6} cols={5} />
-      ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Ảnh bìa
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Tiêu đề
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Slug
-                </th>
-                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Thứ tự
-                </th>
-                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Bài viết
-                </th>
-                <th className="text-center px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Trạng thái
-                </th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Hành động
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {topics.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="text-center py-12 text-gray-400">
-                    Chưa có chủ đề nào. Thêm chủ đề đầu tiên!
-                  </td>
-                </tr>
-              )}
-              {topics.map((topic) => (
-                <tr key={topic.id} className="hover:bg-gray-50 transition">
-                  <td className="px-4 py-3">
-                    {topic.coverImageUrl ? (
-                      <img
-                        src={topic.coverImageUrl}
-                        alt={topic.title}
-                        className="w-16 h-10 object-cover rounded-lg"
-                      />
-                    ) : (
-                      <div className="w-16 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                        <span className="text-gray-400 text-xs">No img</span>
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-gray-900">{topic.title}</div>
-                    {topic.description && (
-                      <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">
-                        {topic.description}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <code className="text-xs bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">
-                      {topic.slug}
-                    </code>
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-gray-600">
-                    {topic.displayOrder}
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <span className="text-sm font-medium text-gray-700">
-                      {topic._count?.articles ?? 0}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button
-                      onClick={() => toggleActive(topic)}
-                      className={`px-2.5 py-0.5 rounded-full text-xs font-medium transition ${
-                        topic.isActive
-                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                          : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
-                      }`}
-                    >
-                      {topic.isActive ? 'Hiển thị' : 'Ẩn'}
-                    </button>
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => openEdit(topic)}
-                        className="px-3 py-1.5 text-xs font-medium border border-gray-200 rounded-lg hover:bg-gray-50 transition"
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        onClick={() => setDeleteConfirm(topic)}
-                        className="px-3 py-1.5 text-xs font-medium border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition"
-                      >
-                        Xóa
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {/* Main Table Card */}
+      <Card>
+        <CardHeader className="p-5 pb-3">
+          <CardTitle className="text-base font-bold">Danh sách chủ đề</CardTitle>
+          <CardDescription className="text-xs">
+            Thứ tự hiển thị số nhỏ hơn sẽ được ưu tiên hiển thị trước trên app.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          {error && (
+            <div className="m-5 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
+              {error}
+            </div>
+          )}
 
-      {/* Modal Create/Edit */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg">
-            <div className="flex items-center justify-between px-6 py-4 border-b">
-              <h2 className="text-lg font-semibold">
-                {editing ? 'Chỉnh sửa chủ đề' : 'Thêm chủ đề mới'}
-              </h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-xl leading-none"
-              >
-                ×
-              </button>
+          {loading ? (
+            <div className="p-5">
+              <TableSkeleton rows={5} cols={6} />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/40 hover:bg-muted/40">
+                  <TableHead className="w-20">Ảnh bìa</TableHead>
+                  <TableHead className="min-w-[180px]">Tên chủ đề</TableHead>
+                  <TableHead>Slug nhận diện</TableHead>
+                  <TableHead className="text-center w-24">Thứ tự</TableHead>
+                  <TableHead className="text-center w-28">Số bài viết</TableHead>
+                  <TableHead className="text-center w-28">Trạng thái</TableHead>
+                  <TableHead className="text-right w-32">Thao tác</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredTopics.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                      Không tìm thấy chủ đề nào phù hợp.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredTopics.map((topic) => (
+                    <TableRow key={topic.id} className="hover:bg-muted/30 transition-colors">
+                      <TableCell>
+                        {topic.coverImageUrl ? (
+                          <img
+                            src={topic.coverImageUrl}
+                            alt={topic.title}
+                            className="w-14 h-9 object-cover rounded-md border border-border"
+                          />
+                        ) : (
+                          <div className="w-14 h-9 rounded-md bg-muted flex items-center justify-center border border-border">
+                            <ImageIcon size={14} className="text-muted-foreground/60" />
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-semibold text-foreground text-sm">{topic.title}</div>
+                        {topic.description && (
+                          <div className="text-xs text-muted-foreground line-clamp-1 max-w-xs mt-0.5">
+                            {topic.description}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground">
+                          {topic.slug}
+                        </code>
+                      </TableCell>
+                      <TableCell className="text-center font-mono text-xs font-semibold">
+                        {topic.displayOrder}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Badge variant="secondary" className="font-mono text-xs">
+                          {topic._count?.articles ?? 0}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleActive(topic)}
+                          className="h-7 px-2 hover:bg-transparent"
+                        >
+                          {topic.isActive ? (
+                            <Badge variant="success" className="cursor-pointer flex items-center gap-1">
+                              <Eye size={11} /> Hiển thị
+                            </Badge>
+                          ) : (
+                            <Badge variant="secondary" className="cursor-pointer flex items-center gap-1">
+                              <EyeOff size={11} /> Đang ẩn
+                            </Badge>
+                          )}
+                        </Button>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            onClick={() => openEdit(topic)}
+                            title="Chỉnh sửa chủ đề"
+                          >
+                            <Edit2 size={14} />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                            onClick={() => setDeleteConfirm(topic)}
+                            title="Xóa chủ đề"
+                          >
+                            <Trash2 size={14} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Modal Tạo/Sửa Chủ Đề (Shadcn Dialog) */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{editing ? 'Chỉnh sửa chủ đề' : 'Thêm chủ đề mới'}</DialogTitle>
+            <DialogDescription>
+              Cập nhật thông tin nhận diện và ảnh bìa cho chủ đề khám phá.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="topic-title" className="text-xs font-semibold">
+                Tiêu đề chủ đề <span className="text-rose-500">*</span>
+              </Label>
+              <Input
+                id="topic-title"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                placeholder="VD: Món ngon mùa mưa"
+                className="h-9"
+              />
             </div>
 
-            <div className="px-6 py-4 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tiêu đề <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  placeholder="Món ngon mùa mưa"
-                />
-              </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="topic-slug" className="text-xs font-semibold">
+                Slug URL <span className="text-rose-500">*</span>
+              </Label>
+              <Input
+                id="topic-slug"
+                value={form.slug}
+                onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                placeholder="VD: mon-ngon-mua-mua"
+                className="h-9 font-mono"
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Slug <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  value={form.slug}
-                  onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  placeholder="mon-ngon-mua-mua"
-                />
-              </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="topic-desc" className="text-xs font-semibold">
+                Mô tả ngắn
+              </Label>
+              <Textarea
+                id="topic-desc"
+                value={form.description ?? ''}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                placeholder="Mô tả tóm tắt nội dung chủ đề..."
+                rows={2}
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Mô tả
-                </label>
-                <textarea
-                  value={form.description ?? ''}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  rows={2}
-                  placeholder="Mô tả ngắn về chủ đề..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  URL ảnh bìa
-                </label>
-                <input
-                  type="url"
-                  value={form.coverImageUrl ?? ''}
-                  onChange={(e) => setForm({ ...form, coverImageUrl: e.target.value })}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  placeholder="https://..."
-                />
-                {form.coverImageUrl && (
+            <div className="space-y-1.5">
+              <Label htmlFor="topic-img" className="text-xs font-semibold">
+                URL ảnh bìa
+              </Label>
+              <Input
+                id="topic-img"
+                value={form.coverImageUrl ?? ''}
+                onChange={(e) => setForm({ ...form, coverImageUrl: e.target.value })}
+                placeholder="https://..."
+                className="h-9"
+              />
+              {form.coverImageUrl && (
+                <div className="pt-2">
                   <img
                     src={form.coverImageUrl}
-                    alt="Preview"
-                    className="mt-2 w-full h-28 object-cover rounded-lg"
+                    alt="Xem trước ảnh bìa"
+                    className="h-24 w-full object-cover rounded-lg border border-border"
                     onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
                   />
-                )}
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pt-1">
+              <div className="space-y-1.5">
+                <Label htmlFor="topic-order" className="text-xs font-semibold">
+                  Thứ tự hiển thị
+                </Label>
+                <Input
+                  id="topic-order"
+                  type="number"
+                  value={form.displayOrder ?? 0}
+                  onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })}
+                  min={0}
+                  className="h-9"
+                />
               </div>
 
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Thứ tự hiển thị
-                  </label>
-                  <input
-                    type="number"
-                    value={form.displayOrder ?? 0}
-                    onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                    min={0}
+              <div className="space-y-1.5 flex flex-col justify-end pb-1">
+                <div className="flex items-center gap-2">
+                  <Switch
+                    checked={form.isActive}
+                    onCheckedChange={(checked) => setForm({ ...form, isActive: checked })}
                   />
-                </div>
-                <div className="flex items-end pb-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.isActive ?? true}
-                      onChange={(e) => setForm({ ...form, isActive: e.target.checked })}
-                      className="w-4 h-4 accent-yellow-400"
-                    />
-                    <span className="text-sm font-medium text-gray-700">Hiển thị</span>
-                  </label>
+                  <Label className="text-xs cursor-pointer">Kích hoạt hiển thị</Label>
                 </div>
               </div>
             </div>
-
-            <div className="px-6 py-4 border-t flex justify-end gap-3">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={saving || !form.title || !form.slug}
-                className="px-4 py-2 text-sm bg-yellow-400 hover:bg-yellow-500 font-semibold rounded-lg transition disabled:opacity-50"
-              >
-                {saving ? 'Đang lưu...' : editing ? 'Lưu thay đổi' : 'Tạo chủ đề'}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
 
-      {/* Delete confirm */}
-      {deleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6">
-            <h3 className="text-lg font-semibold mb-2">Xóa chủ đề?</h3>
-            <p className="text-sm text-gray-600 mb-6">
-              Bạn có chắc muốn xóa chủ đề <strong>{deleteConfirm.title}</strong>? Hành động này
-              không thể hoàn tác.
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setDeleteConfirm(null)}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 text-sm bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg"
-              >
-                Xóa
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowModal(false)}>
+              Hủy
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="bg-primary text-primary-foreground font-semibold"
+            >
+              {saving ? 'Đang lưu...' : editing ? 'Lưu thay đổi' : 'Tạo chủ đề'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog Xác Nhận Xóa */}
+      <Dialog open={Boolean(deleteConfirm)} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-rose-600">Xóa chủ đề này?</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa chủ đề <strong>{deleteConfirm?.title}</strong>? Hành động này không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0 pt-2">
+            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
+              Hủy
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Xác nhận xóa
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

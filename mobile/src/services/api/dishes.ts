@@ -33,6 +33,13 @@ export const dishesApi = {
 
   getById: (id: string) => apiRequest<Dish>(`/dishes/${id}`),
 
+  /** Fire-and-forget dish view for admin trending / analytics */
+  logView: (dishId: string, source?: string) =>
+    apiRequest<{ accepted: boolean; reason?: string }>(`/dishes/${dishId}/events`, {
+      method: 'POST',
+      body: JSON.stringify({ event: 'view', source }),
+    }),
+
   getSimilar: (dishId: string, limit = 5) =>
     apiRequest<{ items: Array<any> }>(`/dishes/${dishId}/similar?limit=${limit}`),
 
@@ -62,6 +69,7 @@ export const dishesApi = {
         outcome: string;
         isSelected: boolean;
         mealSlot: string | null;
+        dishId?: string | null;
         dish: { id: string; name: string; imageUrl?: string | null } | null;
       }>;
       pageInfo: { nextCursor: string | null; hasNextPage: boolean };

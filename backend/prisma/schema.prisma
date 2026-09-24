@@ -249,6 +249,10 @@ enum NotificationType {
   PROMO
   REMINDER
   ACHIEVEMENT
+  SOCIAL_LIKE
+  SOCIAL_COMMENT
+  SOCIAL_FOLLOW
+  SOCIAL_REPLY
 
   @@map("notification_type")
 }
@@ -315,6 +319,14 @@ model Profile {
   communityPosts         CommunityPost[]
   postLikes              PostLike[]
   postComments           PostComment[]
+  articleLikes           ArticleLike[]
+  articleComments        ArticleComment[]
+  postCommentLikes       PostCommentLike[]
+  articleCommentLikes    ArticleCommentLike[]
+  communityMedia         CommunityMedia[]
+  hiddenContents         HiddenContent[]
+  moderationReports      ModerationReport[]
+  recommendationFeedback RecommendationFeedback[]
   weeklyPlanConfig       WeeklyPlanConfig?
   weeklyPlans            WeeklyPlan[]
   diaryMealLogs          DiaryMealLog[]
@@ -829,6 +841,7 @@ model Dish {
   recommendationEvents RecommendationEvent[]
   reviews              Review[]
   weeklyPlanSlots      WeeklyPlanSlot[]
+  communityPosts       CommunityPost[]
 
   @@index([status, publishedAt])
   @@index([regionId, provinceId])
@@ -1341,6 +1354,7 @@ enum ArticleStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+  SCHEDULED
 
   @@map("article_status")
 }
@@ -1352,6 +1366,60 @@ enum PostStatus {
   DELETED
 
   @@map("post_status")
+}
+
+enum PostVisibility {
+  PUBLIC
+  FOLLOWERS
+  PRIVATE
+
+  @@map("post_visibility")
+}
+
+enum CommunityMediaStatus {
+  UPLOAD_PENDING
+  PROCESSING
+  READY
+  REJECTED
+  FAILED
+  DELETED
+
+  @@map("community_media_status")
+}
+
+enum HiddenContentType {
+  COMMUNITY_POST
+  DISH
+  ARTICLE
+
+  @@map("hidden_content_type")
+}
+
+enum ModerationTargetType {
+  COMMUNITY_POST
+  COMMENT
+  USER
+
+  @@map("moderation_target_type")
+}
+
+enum ModerationReportStatus {
+  OPEN
+  REVIEWING
+  RESOLVED
+  REJECTED
+
+  @@map("moderation_report_status")
+}
+
+enum RecommendationFeedbackAction {
+  NOT_INTERESTED
+  MORE_LIKE_THIS
+  LESS_LIKE_THIS
+  HIDE_AUTHOR
+  WHY_THIS
+
+  @@map("recommendation_feedback_action")
 }
 
 enum AvoidanceMode {
@@ -1446,6 +1514,11 @@ model Article {
   status        ArticleStatus @default(DRAFT)
   readMinutes   Int           @default(3) @map("read_minutes")
   viewCount     Int           @default(0) @map("view_count")
+  likeCount     Int           @default(0) @map("like_count")
+  commentCount  Int           @default(0) @map("comment_count")
+  publishAt     DateTime?     @map("publish_at") @db.Timestamptz(6)
+  isPinned      Boolean       @default(false) @map("is_pinned")
+  featuredAt    DateTime?     @map("featured_at") @db.Timestamptz(6)
 
   authorId String  @map("author_id") @db.Uuid
   author   Profile @relation(fields: [authorId], references: [userId], onDelete: Cascade)
@@ -1458,8 +1531,12 @@ model Article {
 
   tags        ArticleTag[]
   savedBy     SavedArticle[]
+  likes       ArticleLike[]
+  comments    ArticleComment[]
 
   @@index([status, createdAt(sort: Desc)])
+  @@index([status, publishAt])
+  @@index([isPinned, status, createdAt(sort: Desc)])
   @@index([topicId])
   @@index([authorId])
   @@map("articles")
@@ -1476,29 +1553,231 @@ model ArticleTag {
   @@map("article_tags")
 }
 
+model ArticleLike {
+  id        String  @id @default(uuid()) @db.Uuid
+  articleId String  @map("article_id") @db.Uuid
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  userId    String  @map("user_id") @db.Uuid
+  user      Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([articleId, userId])
+  @@index([userId])
+  @@map("article_likes")
+}
+
+model ArticleComment {
+  id              String           @id @default(uuid()) @db.Uuid
+  articleId       String           @map("article_id") @db.Uuid
+  article         Article          @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  authorId        String           @map("author_id") @db.Uuid
+  author          Profile          @relation(fields: [authorId], references: [userId], onDelete: Cascade)
+  content         String
+  parentCommentId String?          @map("parent_comment_id") @db.Uuid
+  parentComment   ArticleComment?  @relation("ArticleCommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies         ArticleComment[] @relation("ArticleCommentReplies")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  likes ArticleCommentLike[]
+
+  @@index([articleId, createdAt])
+  @@index([authorId])
+  @@index([parentCommentId])
+  @@map("article_comments")
+}
+
+model ArticleCommentLike {
+  id        String         @id @default(uuid()) @db.Uuid
+  commentId String         @map("comment_id") @db.Uuid
+  comment   ArticleComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String         @map("user_id") @db.Uuid
+  user      Profile        @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  createdAt DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([commentId, userId])
+  @@index([userId])
+  @@map("article_comment_likes")
+}
+
 // -----------------------------------------------------------------------------
-// BA-005 Explore: CommunityPost  Bài dang c?ng d?ng
+// BA-005 Explore: CommunityPost — Bai dang cong dong
 // -----------------------------------------------------------------------------
 
 model CommunityPost {
-  id           String     @id @default(uuid()) @db.Uuid
-  authorId     String     @map("author_id") @db.Uuid
-  author       Profile    @relation(fields: [authorId], references: [userId], onDelete: Cascade)
-  content      String
-  imageUrls    String[]   @map("image_urls")
-  status       PostStatus @default(ACTIVE)
-  likeCount    Int        @default(0) @map("like_count")
-  commentCount Int        @default(0) @map("comment_count")
-  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id               String         @id @default(uuid()) @db.Uuid
+  authorId         String         @map("author_id") @db.Uuid
+  author           Profile        @relation(fields: [authorId], references: [userId], onDelete: Cascade)
+  content          String
+  imageUrls        String[]       @map("image_urls")
+  status           PostStatus     @default(ACTIVE)
+  visibility       PostVisibility @default(PUBLIC)
+  commentsEnabled  Boolean        @default(true) @map("comments_enabled")
+  dishId           String?        @map("dish_id") @db.Uuid
+  dish             Dish?          @relation(fields: [dishId], references: [id], onDelete: SetNull)
+  placeId          String?        @map("place_id") @db.Uuid
+  place            Place?         @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  clientRequestId  String?        @unique @map("client_request_id") @db.Uuid
+  likeCount        Int            @default(0) @map("like_count")
+  commentCount     Int            @default(0) @map("comment_count")
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   likes      PostLike[]
   comments   PostComment[]
   savedBy    SavedPost[]
+  mediaLinks CommunityPostMedia[]
+  tags       PostTag[]
 
-  @@index([status, createdAt(sort: Desc)])
+  @@index([status, visibility, createdAt(sort: Desc)])
   @@index([authorId])
+  @@index([dishId])
+  @@index([placeId])
   @@map("community_posts")
+}
+
+model PostTag {
+  id        String        @id @default(uuid()) @db.Uuid
+  postId    String        @map("post_id") @db.Uuid
+  post      CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag       String        @db.VarChar(64)
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([postId, tag])
+  @@index([tag])
+  @@map("post_tags")
+}
+
+model CommunityMedia {
+  id         String               @id @default(uuid()) @db.Uuid
+  ownerId    String               @map("owner_id") @db.Uuid
+  owner      Profile              @relation(fields: [ownerId], references: [userId], onDelete: Cascade)
+  bucket     String               @default("community-media") @db.VarChar(64)
+  objectKey  String               @map("object_key") @db.VarChar(512)
+  mimeType   String               @map("mime_type") @db.VarChar(64)
+  sizeBytes  Int                  @map("size_bytes")
+  width      Int?
+  height     Int?
+  checksum   String?              @db.VarChar(128)
+  publicUrl  String?              @map("public_url")
+  altText    String?              @map("alt_text") @db.VarChar(300)
+  status     CommunityMediaStatus @default(UPLOAD_PENDING)
+  expiresAt  DateTime?            @map("expires_at") @db.Timestamptz(6)
+  createdAt  DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  postLinks CommunityPostMedia[]
+
+  @@index([ownerId, status])
+  @@map("community_media")
+}
+
+model CommunityPostMedia {
+  id        String         @id @default(uuid()) @db.Uuid
+  postId    String         @map("post_id") @db.Uuid
+  post      CommunityPost  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  mediaId   String         @map("media_id") @db.Uuid
+  media     CommunityMedia @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  sortOrder Int            @default(0) @map("sort_order")
+  altText   String?        @map("alt_text") @db.VarChar(300)
+
+  @@unique([postId, mediaId])
+  @@index([postId, sortOrder])
+  @@map("community_post_media")
+}
+
+model Place {
+  id              String   @id @default(uuid()) @db.Uuid
+  provider        String   @default("LOCAL") @db.VarChar(32)
+  providerPlaceId String?  @map("provider_place_id") @db.VarChar(191)
+  name            String   @db.VarChar(200)
+  addressShort    String?  @map("address_short") @db.VarChar(300)
+  lat             Decimal? @db.Decimal(10, 7)
+  lng             Decimal? @db.Decimal(10, 7)
+  thumbnailUrl    String?  @map("thumbnail_url")
+  isVerified      Boolean  @default(false) @map("is_verified")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  posts CommunityPost[]
+
+  @@unique([provider, providerPlaceId])
+  @@index([name])
+  @@map("places")
+}
+
+model HiddenContent {
+  id          String            @id @default(uuid()) @db.Uuid
+  userId      String            @map("user_id") @db.Uuid
+  user        Profile           @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  contentType HiddenContentType @map("content_type")
+  contentId   String            @map("content_id") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([userId, contentType, contentId])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("hidden_contents")
+}
+
+model ModerationReport {
+  id         String                 @id @default(uuid()) @db.Uuid
+  reporterId String                 @map("reporter_id") @db.Uuid
+  reporter   Profile                @relation(fields: [reporterId], references: [userId], onDelete: Cascade)
+  targetType ModerationTargetType   @map("target_type")
+  targetId   String                 @map("target_id") @db.Uuid
+  reasonCode String                 @map("reason_code") @db.VarChar(64)
+  note       String?
+  status     ModerationReportStatus @default(OPEN)
+  createdAt  DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([reporterId, targetType, targetId])
+  @@index([status, createdAt])
+  @@map("moderation_reports")
+}
+
+model RecommendationFeedback {
+  id           String                        @id @default(uuid()) @db.Uuid
+  userId       String                        @map("user_id") @db.Uuid
+  user         Profile                       @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  contentType  HiddenContentType             @map("content_type")
+  contentId    String                        @map("content_id") @db.Uuid
+  action       RecommendationFeedbackAction
+  rankingToken String?                       @map("ranking_token") @db.VarChar(191)
+  createdAt    DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([contentType, contentId])
+  @@map("recommendation_feedback")
+}
+
+model ExploreEngagementEvent {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  contentType  String   @map("content_type") @db.VarChar(32)
+  contentId    String   @map("content_id") @db.Uuid
+  eventType    String   @map("event_type") @db.VarChar(32)
+  dwellMs      Int?     @map("dwell_ms")
+  rankingToken String?  @map("ranking_token") @db.VarChar(191)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([userId, createdAt])
+  @@index([contentType, contentId])
+  @@map("explore_engagement_events")
+}
+
+model ExploreFeedSession {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String?  @map("user_id") @db.Uuid
+  itemKeys  Json     @map("item_keys")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+
+  @@index([expiresAt])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("explore_feed_sessions")
 }
 
 model PostLike {
@@ -1529,10 +1808,25 @@ model PostComment {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
+  likes PostCommentLike[]
+
   @@index([postId, createdAt])
   @@index([authorId])
   @@index([parentCommentId])
   @@map("post_comments")
+}
+
+model PostCommentLike {
+  id        String      @id @default(uuid()) @db.Uuid
+  commentId String      @map("comment_id") @db.Uuid
+  comment   PostComment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  userId    String      @map("user_id") @db.Uuid
+  user      Profile     @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  createdAt DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([commentId, userId])
+  @@index([userId])
+  @@map("post_comment_likes")
 }
 
 // -----------------------------------------------------------------------------
@@ -1575,6 +1869,14 @@ enum WeeklyKcalMode {
   @@map("weekly_kcal_mode")
 }
 
+enum LikedDishPreference {
+  NONE
+  LIGHT
+  HIGH
+
+  @@map("liked_dish_preference")
+}
+
 enum WeeklyPlanSwapReason {
   USER_REQUEST
   REBALANCE_BUDGET
@@ -1599,8 +1901,17 @@ model WeeklyPlanConfig {
 
   enabledSlots WeeklyMealSlot[] @map("enabled_slots")
 
+  /// Local draft schedule: [{ type, enabled, time }] — time "HH:mm" or null
+  mealSlotSchedule Json? @map("meal_slot_schedule")
+
   avoidRepeat             Boolean @default(true) @map("avoid_repeat")
   preferHomeCook          Boolean @default(false) @map("prefer_home_cook")
+  allowOutsideMeals       Boolean @default(true) @map("allow_outside_meals")
+  repeatWindowDays        Int     @default(7) @map("repeat_window_days")
+  preferNewDishes         Boolean @default(true) @map("prefer_new_dishes")
+  likedDishPreference     LikedDishPreference @default(LIGHT) @map("liked_dish_preference")
+  keepLockedMeals         Boolean @default(true) @map("keep_locked_meals")
+  preserveLoggedDays      Boolean @default(true) @map("preserve_logged_days")
   calorieTolerancePercent Int     @default(10) @map("calorie_tolerance_percent")
 
   createdAt DateTime @default(now()) @map("created_at")

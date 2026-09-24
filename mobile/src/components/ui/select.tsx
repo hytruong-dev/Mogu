@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import * as SelectPrimitive from '@rn-primitives/select';
 import { Check, ChevronDown, ChevronDownIcon, ChevronUpIcon } from 'lucide-react-native';
 import * as React from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { FadeIn, FadeOut, ReduceMotion } from 'react-native-reanimated';
 import { FullWindowOverlay as RNFullWindowOverlay } from 'react-native-screens';
 
@@ -90,6 +90,8 @@ function SelectContent({
             as="Pressable">
             <TextClassContext.Provider value="text-popover-foreground">
               <SelectPrimitive.Content
+                position={position}
+                {...props}
                 className={cn(
                   'bg-popover border-border relative z-50 min-w-[8rem] rounded-md border shadow-md shadow-black/5',
                   Platform.select({
@@ -98,7 +100,7 @@ function SelectContent({
                       props.side === 'bottom' && 'slide-in-from-top-2',
                       props.side === 'top' && 'slide-in-from-bottom-2'
                     ),
-                    native: 'p-1',
+                    native: 'p-1 max-h-60 overflow-hidden',
                   }),
                   position === 'popper' &&
                   Platform.select({
@@ -109,8 +111,11 @@ function SelectContent({
                   }),
                   className
                 )}
-                position={position}
-                {...props}>
+                style={
+                  (Platform.OS === 'web'
+                    ? props.style
+                    : StyleSheet.compose({ maxHeight: 240 }, props.style) ?? undefined) as any
+                }>
                 <SelectScrollUpButton />
                 <SelectPrimitive.Viewport
                   className={cn(
@@ -123,7 +128,19 @@ function SelectContent({
                       })
                     )
                   )}>
-                  {children}
+                  {Platform.OS === 'web' ? (
+                    children
+                  ) : (
+                    <ScrollView
+                      style={{ maxHeight: 232 }}
+                      showsVerticalScrollIndicator={true}
+                      bounces={false}
+                      nestedScrollEnabled
+                      keyboardShouldPersistTaps="handled"
+                    >
+                      {children}
+                    </ScrollView>
+                  )}
                 </SelectPrimitive.Viewport>
                 <SelectScrollDownButton />
               </SelectPrimitive.Content>

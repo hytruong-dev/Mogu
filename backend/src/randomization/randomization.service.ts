@@ -4,10 +4,12 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { DiaryMealSlot, Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai-import/ai.service';
 import { DishEligibilityService } from '../dishes/eligibility/dish-eligibility.service';
+import { mapNutritionToPlanServing } from '../dishes/eligibility/dish-nutrition.mapper';
+import { MealLogsService } from '../health/meal-logs.service';
 import {
   BudgetModeEnum,
   MealSlotEnum,
@@ -19,8 +21,9 @@ import {
   SelectRandomizationDto,
 } from './dto/randomization.dto';
 
-const ALGORITHM_VERSION = 'rule-v2.0.0';
+const ALGORITHM_VERSION = 'rule-v3.0.0';
 const RECENT_EXCLUSION_DAYS = 7;
+const HISTORY_LOOKBACK_DAYS = 90;
 
 function buildImageUrl(media: { storageKey?: string | null; bucket?: string | null } | undefined | null): string | null {
   if (!media?.storageKey) return null;
@@ -79,12 +82,24 @@ function inferMealSlot(hour: number): MealSlotEnum {
 
 export interface ScoreBreakdown {
   goalMatch: number;
-  timeSuitability: number;
-  popularity: number;
-  dataQuality: number;
+  personalFit: number;
   novelty: number;
+  dataQuality: number;
+  timeSuitability: number;
+  weatherFit: number;
+  popularity: number;
   budgetFit: number;
   total: number;
+}
+
+export interface UserTasteProfile {
+  totalHistories: number;
+  selectedCount: number;
+  selectedMealTypeScores: Map<string, number>;
+  selectedRegionScores: Map<string, number>;
+  avgSelectedPrice?: number;
+  skippedDishCounts: Map<string, number>;
+  skippedMealTypeScores: Map<string, number>;
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
@@ -105,6 +120,7 @@ export class RandomizationService {
     private readonly prisma: PrismaService,
     private readonly aiService: AiService,
     private readonly eligibility: DishEligibilityService,
+    private readonly mealLogs: MealLogsService,
   ) {}
 
   // ══════════════════════════════════════════════════════════════════════════════
@@ -211,13 +227,95 @@ export class RandomizationService {
     const userAvoidedIngredients = profile.userAvoidedIngredients.map((i) => i.ingredientName.toLowerCase());
     const hardDietTypeCodes = profile.userDietTypes.filter((d) => d.isHard).map((d) => d.dietType.code);
 
-    // ── Get recent dishes ────────────────────────────────────────────────────────
-    const recentDishIds = (
-      await this.prisma.db.randomHistory.findMany({
-        where: { userId, createdAt: { gte: new Date(Date.now() - RECENT_EXCLUSION_DAYS * 86400_000) } },
-        select: { dishId: true },
-      })
-    ).filter((r) => r.dishId).map((r) => r.dishId as string);
+    // ── Get 90-day history for personal taste profile & novelty decay ──────────
+    const historyCutoff = new Date(Date.now() - HISTORY_LOOKBACK_DAYS * 86400_000);
+
+    const userHistories = await this.prisma.db.randomHistory.findMany({
+      where: {
+        userId,
+        createdAt: { gte: historyCutoff },
+        dishId: { not: null },
+      },
+      select: {
+        dishId: true,
+        isSelected: true,
+        createdAt: true,
+        dish: {
+          select: {
+            id: true,
+            regionId: true,
+            priceMin: true,
+            mealTypes: {
+              select: {
+                mealTypeTag: { select: { code: true } },
+              },
+            },
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 150,
+    });
+
+    // Map lần cuối cùng thấy mỗi dishId (cho novelty decay)
+    const lastSeenMap = new Map<string, Date>();
+    for (const h of userHistories) {
+      if (h.dishId && !lastSeenMap.has(h.dishId)) {
+        lastSeenMap.set(h.dishId, h.createdAt);
+      }
+    }
+
+    // Danh sách món gần đây trong vòng 7 ngày (để tương thích ngược)
+    const recent7dCutoff = Date.now() - RECENT_EXCLUSION_DAYS * 86400_000;
+    const recentDishIds = userHistories
+      .filter((h) => h.dishId && h.createdAt.getTime() >= recent7dCutoff)
+      .map((h) => h.dishId as string);
+
+    // Build user taste profile từ lịch sử chọn và bỏ qua
+    const selectedMealTypeScores = new Map<string, number>();
+    const selectedRegionScores = new Map<string, number>();
+    const skippedMealTypeScores = new Map<string, number>();
+    const skippedDishCounts = new Map<string, number>();
+    const selectedPrices: number[] = [];
+    let selectedCount = 0;
+
+    for (const h of userHistories) {
+      if (!h.dishId) continue;
+      const d = h.dish;
+      const mealCodes = d?.mealTypes?.map((mt) => mt.mealTypeTag.code).filter(Boolean) ?? [];
+      const regionId = d?.regionId;
+
+      if (h.isSelected) {
+        selectedCount++;
+        if (d?.priceMin) selectedPrices.push(d.priceMin);
+        if (regionId) {
+          selectedRegionScores.set(regionId, (selectedRegionScores.get(regionId) ?? 0) + 1);
+        }
+        for (const code of mealCodes) {
+          selectedMealTypeScores.set(code, (selectedMealTypeScores.get(code) ?? 0) + 1);
+        }
+      } else {
+        skippedDishCounts.set(h.dishId, (skippedDishCounts.get(h.dishId) ?? 0) + 1);
+        for (const code of mealCodes) {
+          skippedMealTypeScores.set(code, (skippedMealTypeScores.get(code) ?? 0) + 1);
+        }
+      }
+    }
+
+    const avgSelectedPrice =
+      selectedPrices.length > 0
+        ? selectedPrices.reduce((a, b) => a + b, 0) / selectedPrices.length
+        : undefined;
+
+    const tasteProfile: UserTasteProfile = {
+      totalHistories: userHistories.length,
+      selectedCount,
+      selectedMealTypeScores,
+      selectedRegionScores,
+      avgSelectedPrice,
+      skippedDishCounts,
+      skippedMealTypeScores,
+    };
 
     const startMs = Date.now();
 
@@ -362,22 +460,28 @@ export class RandomizationService {
       };
     }
 
-    // ── Score ────────────────────────────────────────────────────────────────────
+    // ── Score & Softmax Sample ───────────────────────────────────────────────────
     const currentHour = vietnamHour();
     const scored = candidates.map((dish) => {
       const breakdown = this.scoreCandidate(dish, {
-        goalCodes, currentHour, weatherCode, recentDishIds, budgetMax,
+        goalCodes,
+        currentHour,
+        weatherCode,
+        recentDishIds,
+        lastSeenMap,
+        tasteProfile,
+        budgetMax,
       });
-      const samplingWeight = breakdown.total / candidates.length;
-      return { dish, score: breakdown.total, breakdown, samplingWeight };
+      return { dish, score: breakdown.total, breakdown, samplingWeight: 0 };
     });
 
-    const selected = this.weightedRandomSample(scored);
-    const top5 = scored.sort((a, b) => b.score - a.score).slice(0, 5);
+    const selected = this.softmaxRandomSample(scored, 12);
+    const top5 = [...scored].sort((a, b) => b.score - a.score).slice(0, 5);
 
     // ── Build explanation (rule-based base + AI enhancement) ───────────────────
-    const reason = this.buildReason(selected.dish, { goalCodes, mealSlot, weatherCode });
-    const compatibilityPercent = Math.min(100, Math.round((selected.score / 100) * 100));
+    const isPersonalized = selected.breakdown.personalFit >= 13;
+    const reason = this.buildReason(selected.dish, { goalCodes, mealSlot, weatherCode, isPersonalized });
+    const compatibilityPercent = Math.min(100, Math.round((selected.score / 110) * 100));
 
     // ── Gọi AI để tạo lý do chi tiết (async, không block DB write) ────────────
     let aiExplanation: AiExplanationResult | null = null;
@@ -592,6 +696,7 @@ export class RandomizationService {
   async markSelected(randomizationId: string, userId: string, dto?: SelectRandomizationDto) {
     const row = await this.prisma.db.randomHistory.findFirst({
       where: { id: randomizationId, userId },
+      include: { dish: { include: { nutrition: true } } },
     });
     if (!row) throw new NotFoundException({ error: { code: 'RANDOMIZATION_NOT_FOUND' } });
 
@@ -605,6 +710,41 @@ export class RandomizationService {
       await this.prisma.db.recommendationEvent.create({
         data: { userId, randomHistoryId: randomizationId, dishId: row.dishId, eventType: 'SELECT' },
       });
+
+      // Tự động ghi vào Nhật ký bữa ăn (DiaryMealLog)
+      if (row.dish) {
+        try {
+          const mappedNut = mapNutritionToPlanServing(row.dish.nutrition as any);
+          const rawSlot = String(row.mealSlot || '').toUpperCase();
+          let slot: DiaryMealSlot = DiaryMealSlot.LUNCH;
+          if (['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'].includes(rawSlot)) {
+            slot = rawSlot as DiaryMealSlot;
+          } else {
+            const h = vietnamHour();
+            if (h >= 5 && h <= 10) slot = DiaryMealSlot.BREAKFAST;
+            else if (h >= 11 && h <= 14) slot = DiaryMealSlot.LUNCH;
+            else if (h >= 15 && h <= 16) slot = DiaryMealSlot.SNACK;
+            else slot = DiaryMealSlot.DINNER;
+          }
+
+          await this.mealLogs.createFromRandomization({
+            userId,
+            randomizationId,
+            dishId: row.dish.id,
+            dishName: row.dish.name,
+            mealSlot: slot,
+            occurredAt: new Date(),
+            timezone: 'Asia/Ho_Chi_Minh',
+            kcal: mappedNut.kcal ?? 0,
+            proteinG: mappedNut.proteinG,
+            carbsG: mappedNut.carbsG,
+            fatG: mappedNut.fatG,
+          });
+          this.logger.log(`[Randomization] Auto-created diary meal log for dish "${row.dish.name}" (id: ${row.dish.id})`);
+        } catch (mealErr) {
+          this.logger.warn(`[Randomization] Failed to auto-create diary meal log: ${mealErr}`);
+        }
+      }
     }
     return { success: true };
   }
@@ -706,6 +846,7 @@ export class RandomizationService {
         outcome: r.isSelected ? 'SELECTED' : 'SKIPPED',
         isSelected: r.isSelected,
         mealSlot: r.mealSlot,
+        dishId: r.dishId,
         dish: r.dish
           ? { ...r.dish, imageUrl: buildImageUrl(pickDishMedia(r.dish.media)) }
           : null,
@@ -716,6 +857,7 @@ export class RandomizationService {
         outcome: r.isSelected ? 'SELECTED' : 'SKIPPED',
         isSelected: r.isSelected,
         mealSlot: r.mealSlot,
+        dishId: r.dishId,
         dish: r.dish
           ? { ...r.dish, imageUrl: buildImageUrl(pickDishMedia(r.dish.media)) }
           : null,
@@ -755,59 +897,181 @@ export class RandomizationService {
   // ══════════════════════════════════════════════════════════════════════════════
   private scoreCandidate(
     dish: any,
-    ctx: { goalCodes: string[]; currentHour: number; weatherCode?: string; recentDishIds: string[]; budgetMax?: number },
+    ctx: {
+      goalCodes: string[];
+      currentHour: number;
+      weatherCode?: string;
+      recentDishIds?: string[];
+      lastSeenMap?: Map<string, Date>;
+      tasteProfile?: UserTasteProfile;
+      budgetMax?: number;
+    },
   ): ScoreBreakdown {
-    const { goalCodes, currentHour, recentDishIds, budgetMax } = ctx;
+    const { goalCodes, currentHour, weatherCode, recentDishIds = [], lastSeenMap, tasteProfile, budgetMax } = ctx;
 
-    // Goal match 0-40
-    let goalMatch = goalCodes.length === 0 ? 20 : 0;
+    // 1. Goal match 0-30
+    let goalMatch = goalCodes.length === 0 ? 15 : 0;
     if (goalCodes.length > 0 && dish.dishGoals?.length > 0) {
-      const matched = dish.dishGoals.filter((dg: any) => goalCodes.includes(dg.goal.code));
+      const matched = dish.dishGoals.filter((dg: any) => goalCodes.includes(dg.goal?.code));
       if (matched.length > 0) {
-        goalMatch = Math.round((matched.reduce((s: number, g: any) => s + g.score, 0) / matched.length / 100) * 40);
+        goalMatch = Math.round((matched.reduce((s: number, g: any) => s + g.score, 0) / matched.length / 100) * 30);
       }
     }
 
-    // Time suitability 0-10
-    const mealCodes: string[] = dish.mealTypes?.map((mt: any) => mt.mealTypeTag.code) ?? [];
+    // 2. Personal fit 0-20 (học từ 90 ngày randomHistory: mealType, region, price, skipped penalty)
+    let personalFit = 10;
+    if (tasteProfile && tasteProfile.totalHistories > 0) {
+      let pf = 10;
+      const dishMealCodes: string[] = dish.mealTypes?.map((mt: any) => mt.mealTypeTag?.code).filter(Boolean) ?? [];
+
+      // Vùng miền quen thuộc
+      if (dish.regionId && tasteProfile.selectedRegionScores.has(dish.regionId)) {
+        const hits = tasteProfile.selectedRegionScores.get(dish.regionId)!;
+        pf += Math.min(3, hits);
+      }
+
+      // Loại bữa ăn thường chọn
+      const mealHits = dishMealCodes.reduce((sum, c) => sum + (tasteProfile.selectedMealTypeScores.get(c) ?? 0), 0);
+      if (mealHits > 0) {
+        pf += Math.min(4, Math.round(mealHits * 1.5));
+      }
+
+      // Giá món gần với mức giá thường chọn (±35%)
+      if (tasteProfile.avgSelectedPrice && dish.priceMin && tasteProfile.avgSelectedPrice > 0) {
+        const diffRatio = Math.abs(dish.priceMin - tasteProfile.avgSelectedPrice) / tasteProfile.avgSelectedPrice;
+        if (diffRatio <= 0.35) {
+          pf += 2;
+        }
+      }
+
+      // Phạt nếu người dùng đã bỏ qua món này >= 2 lần
+      const timesSkipped = tasteProfile.skippedDishCounts.get(dish.id) ?? 0;
+      if (timesSkipped >= 2) {
+        pf -= Math.min(6, timesSkipped * 2);
+      }
+
+      // Phạt nếu loại món này bị bỏ qua liên tục mà chưa từng chọn
+      const mealSkips = dishMealCodes.reduce((sum, c) => sum + (tasteProfile.skippedMealTypeScores.get(c) ?? 0), 0);
+      if (mealSkips >= 4 && mealHits === 0) {
+        pf -= 3;
+      }
+
+      personalFit = Math.max(0, Math.min(20, Math.round(pf)));
+    }
+
+    // 3. Novelty 0-15 (suy giảm theo thời gian: 15 * min(1, daysSinceLastSeen / 7))
+    let novelty = 15;
+    if (lastSeenMap && lastSeenMap.has(dish.id)) {
+      const lastSeen = lastSeenMap.get(dish.id)!;
+      const diffMs = Date.now() - lastSeen.getTime();
+      const daysSince = diffMs / 86400_000;
+      novelty = Math.min(15, Math.max(0, Math.round(15 * Math.min(1, daysSince / 7))));
+    } else if (recentDishIds.includes(dish.id)) {
+      novelty = 0;
+    }
+
+    // 4. Data quality 0-10
+    let dataQuality = 4;
+    if (dish.nutrition) dataQuality += 3;
+    if (dish.media?.length > 0) dataQuality += 3;
+
+    // 5. Time suitability 0-10
+    const mealCodes: string[] = dish.mealTypes?.map((mt: any) => mt.mealTypeTag?.code) ?? [];
     let timeSuitability = 5;
     if (currentHour >= 5 && currentHour < 10 && mealCodes.includes('BREAKFAST')) timeSuitability = 10;
     if (currentHour >= 10 && currentHour < 14 && mealCodes.includes('LUNCH')) timeSuitability = 10;
     if (currentHour >= 14 && currentHour < 17 && mealCodes.includes('SNACK')) timeSuitability = 10;
     if (currentHour >= 17 && mealCodes.includes('DINNER')) timeSuitability = 10;
 
-    // Popularity 0-10
-    const popularity = dish.isFeatured ? 10 : 5;
+    // 6. Weather suitability 0-10 (ưu tiên món nóng/nước khi mưa/lạnh, món mát/nhẹ khi nắng nóng)
+    let weatherFit = 6;
+    if (weatherCode) {
+      const code = weatherCode.toUpperCase();
+      const nameLower = (dish.name ?? '').toLowerCase();
+      const descLower = (dish.shortDescription ?? '').toLowerCase();
+      const text = `${nameLower} ${descLower}`;
 
-    // Data quality 0-20
-    let dataQuality = 6;
-    if (dish.nutrition?.length > 0) dataQuality += 7;
-    if (dish.media?.length > 0) dataQuality += 7;
+      const isWarmOrSoup =
+        /\b(canh|súp|sup|lẩu|lau|cháo|chao|phở|pho|hủ tiếu|hu tieu|bún nước|mì nước|bánh canh|hầm|kho tiêu|om|nóng)\b/i.test(text) ||
+        dish.mealTypes?.some((mt: any) => ['SOUP', 'HOTPOT', 'STEW'].includes(mt.mealTypeTag?.code));
 
-    // Novelty 0-20
-    const novelty = recentDishIds.includes(dish.id) ? 0 : 20;
+      const isCoolOrRefreshing =
+        /\b(gỏi|goi|salad|nộm|nom|cuốn|cuon|thanh mát|chè|sinh tố|nước ép|trộn|trái cây)\b/i.test(text) ||
+        dish.mealTypes?.some((mt: any) => ['SALAD', 'COLD_DISH', 'BEVERAGE', 'DESSERT'].includes(mt.mealTypeTag?.code));
 
-    // Budget fit 0-10 (bonus nếu nằm giữa khoảng budget tốt)
-    let budgetFit = 5;
-    if (budgetMax && dish.priceMin) {
-      budgetFit = dish.priceMin <= budgetMax * 0.8 ? 10 : 3;
+      if (code === 'RAIN' || code === 'COLD' || code === 'CHILLY') {
+        if (isWarmOrSoup) weatherFit = 10;
+        else if (isCoolOrRefreshing) weatherFit = 3;
+        else weatherFit = 6;
+      } else if (code === 'HOT' || code === 'SUNNY') {
+        if (isCoolOrRefreshing) weatherFit = 10;
+        else if (isWarmOrSoup) weatherFit = 3;
+        else weatherFit = 6;
+      }
     }
 
-    const total = goalMatch + timeSuitability + popularity + dataQuality + novelty + budgetFit;
-    return { goalMatch, timeSuitability, popularity, dataQuality, novelty, budgetFit, total };
+    // 7. Popularity 0-10 (Bayesian average rating + isFeatured bonus)
+    const C = 10; // trọng số prior
+    const globalMean = 4.0; // rating trung bình mặc định
+    const rawRating = Number(dish.ratingAvg);
+    const rAvg = rawRating > 0 ? rawRating : globalMean;
+    const rCount = Number(dish.ratingCount) || 0;
+    const bayesianRating = (rAvg * rCount + globalMean * C) / (rCount + C);
+
+    // Map bayesian rating (2.5 -> 5.0) sang 0 -> 8 điểm
+    const basePop = Math.min(8, Math.max(1, ((bayesianRating - 2.5) / 2.5) * 8));
+    const featuredBonus = dish.isFeatured ? 2 : 0;
+    const popularity = Math.min(10, Math.round(basePop + featuredBonus));
+
+    // 8. Budget fit 0-5
+    let budgetFit = 4;
+    if (budgetMax && dish.priceMin) {
+      budgetFit = dish.priceMin <= budgetMax * 0.85 ? 5 : 2;
+    }
+
+    const total = goalMatch + personalFit + novelty + dataQuality + timeSuitability + weatherFit + popularity + budgetFit;
+    return {
+      goalMatch,
+      personalFit,
+      novelty,
+      dataQuality,
+      timeSuitability,
+      weatherFit,
+      popularity,
+      budgetFit,
+      total,
+    };
   }
 
-  private weightedRandomSample(scored: Array<{ dish: any; score: number; breakdown: ScoreBreakdown }>) {
-    const total = scored.reduce((s, i) => s + Math.max(i.score, 1), 0);
-    let r = Math.random() * total;
-    for (const item of scored) {
-      r -= Math.max(item.score, 1);
-      if (r <= 0) return item;
+  private softmaxRandomSample(
+    scored: Array<{ dish: any; score: number; breakdown: ScoreBreakdown; samplingWeight?: number }>,
+    temperature = 12,
+  ) {
+    if (scored.length === 0) {
+      throw new Error('No candidates to sample');
+    }
+    if (scored.length === 1) {
+      scored[0].samplingWeight = 1;
+      return scored[0];
+    }
+
+    const maxScore = Math.max(...scored.map((s) => s.score));
+    const expWeights = scored.map((s) => Math.exp((s.score - maxScore) / temperature));
+    const totalWeight = expWeights.reduce((sum, w) => sum + w, 0);
+
+    scored.forEach((s, idx) => {
+      s.samplingWeight = totalWeight > 0 ? expWeights[idx] / totalWeight : 1 / scored.length;
+    });
+
+    let r = Math.random() * totalWeight;
+    for (let i = 0; i < scored.length; i++) {
+      r -= expWeights[i];
+      if (r <= 0) return scored[i];
     }
     return scored[scored.length - 1];
   }
 
-  private buildReason(dish: any, ctx: { goalCodes: string[]; mealSlot?: MealSlotEnum; weatherCode?: string }) {
+  private buildReason(dish: any, ctx: { goalCodes: string[]; mealSlot?: MealSlotEnum; weatherCode?: string; isPersonalized?: boolean }) {
     const factors: string[] = [];
     if (ctx.goalCodes?.length > 0) factors.push('Phù hợp với mục tiêu của bạn');
     if (ctx.mealSlot && ctx.mealSlot !== MealSlotEnum.ANY) {
@@ -818,7 +1082,13 @@ export class RandomizationService {
     }
     if (dish.isFeatured) factors.push('Món được đề xuất nổi bật');
     if (dish.region?.name) factors.push(`Đặc trưng ${dish.region.name}`);
-    if (ctx.weatherCode === 'RAIN') factors.push('Ấm áp phù hợp trời mưa');
+    if (ctx.weatherCode) {
+      const code = ctx.weatherCode.toUpperCase();
+      if (code === 'RAIN') factors.push('Ấm áp, phù hợp cho ngày trời mưa');
+      else if (code === 'COLD' || code === 'CHILLY') factors.push('Nóng hổi, sưởi ấm ngày se lạnh');
+      else if (code === 'HOT' || code === 'SUNNY') factors.push('Thanh mát, giải nhiệt cho ngày nắng ấm');
+    }
+    if (ctx.isPersonalized) factors.push('Hợp khẩu vị thường chọn của bạn');
     return {
       summary: factors.join('. ') || 'Gợi ý phù hợp cho bạn hôm nay.',
       factors,

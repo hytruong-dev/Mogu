@@ -29,12 +29,44 @@ export function useAdminUser(userId: string | null) {
   })
 }
 
+export function useUserSessions(userId: string | null) {
+  const { session } = useAuth()
+  return useQuery({
+    queryKey: ['admin-user-sessions', userId],
+    queryFn: () => usersApi.listSessions(userId!),
+    enabled: !!session && !!userId,
+  })
+}
+
+export function useUserAuditEvents(userId: string | null) {
+  const { session } = useAuth()
+  return useQuery({
+    queryKey: ['admin-user-audit', userId],
+    queryFn: () => usersApi.auditEvents(userId!),
+    enabled: !!session && !!userId,
+  })
+}
+
+export function useUserAuthAudit(userId: string | null) {
+  const { session } = useAuth()
+  return useQuery({
+    queryKey: ['admin-user-auth-audit', userId],
+    queryFn: () => usersApi.authAudit(userId!),
+    enabled: !!session && !!userId,
+  })
+}
+
 export function useAdminUserActions() {
   const qc = useQueryClient()
   const invalidate = (userId?: string) => {
     qc.invalidateQueries({ queryKey: ['admin-users'] })
     qc.invalidateQueries({ queryKey: ['admin-users-summary'] })
-    if (userId) qc.invalidateQueries({ queryKey: ['admin-user', userId] })
+    if (userId) {
+      qc.invalidateQueries({ queryKey: ['admin-user', userId] })
+      qc.invalidateQueries({ queryKey: ['admin-user-sessions', userId] })
+      qc.invalidateQueries({ queryKey: ['admin-user-audit', userId] })
+      qc.invalidateQueries({ queryKey: ['admin-user-auth-audit', userId] })
+    }
   }
   return {
     passwordReset: useMutation({
@@ -55,9 +87,34 @@ export function useAdminUserActions() {
         }),
       onSuccess: (_d, userId) => invalidate(userId),
     }),
+    suspendWithReason: useMutation({
+      mutationFn: ({ userId, reasonCode }: { userId: string; reasonCode: string }) =>
+        usersApi.suspend(userId, { reasonCode, revokeSessions: true }),
+      onSuccess: (_d, vars) => invalidate(vars.userId),
+    }),
+    endSuspension: useMutation({
+      mutationFn: ({ userId, suspensionId }: { userId: string; suspensionId?: string }) =>
+        usersApi.endSuspension(userId, suspensionId ?? 'current'),
+      onSuccess: (_d, vars) => invalidate(vars.userId),
+    }),
     unlock: useMutation({
       mutationFn: (userId: string) =>
         usersApi.unlock(userId, { reasonCode: 'SUPPORT_UNLOCK' }),
+      onSuccess: (_d, userId) => invalidate(userId),
+    }),
+    assignRole: useMutation({
+      mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+        usersApi.assignRole(userId, role),
+      onSuccess: (_d, vars) => invalidate(vars.userId),
+    }),
+    revokeRole: useMutation({
+      mutationFn: ({ userId, role }: { userId: string; role: string }) =>
+        usersApi.revokeRole(userId, role),
+      onSuccess: (_d, vars) => invalidate(vars.userId),
+    }),
+    revokeSessions: useMutation({
+      mutationFn: (userId: string) =>
+        usersApi.revokeSessions(userId, { scope: 'ALL', reasonCode: 'ADMIN_FORCE' }),
       onSuccess: (_d, userId) => invalidate(userId),
     }),
     createExport: useMutation({

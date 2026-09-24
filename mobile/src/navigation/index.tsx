@@ -73,6 +73,7 @@ function MainNavigator({ navigation: rootNav }: any) {
             onHealth={() => n.navigate("Health")}
             onProfile={() => n.navigate("Profile")}
             onRandom={() => n.navigate("Random")}
+            onNotification={() => rootNav.navigate("Notification")}
           />
         )}
       </MainTab.Screen>
@@ -96,6 +97,9 @@ function MainNavigator({ navigation: rootNav }: any) {
             onExplore={() => n.navigate("Explore")}
             onRandom={() => n.navigate("Random")}
             onHealth={() => n.navigate("Health")}
+            onDishDetail={(dishId: string, title?: string) =>
+              rootNav.navigate("FoodDetail", { dishId, title })
+            }
             onLoggedOut={() =>
               n.getParent()?.reset({ index: 0, routes: [{ name: "Auth" }] })
             }
@@ -139,8 +143,8 @@ export function RootNavigator() {
         <RootStack.Screen name="Main" component={MainNavigator} />
         <RootStack.Screen name="FoodDetail" options={{ presentation: "modal", animation: "slide_from_bottom" }}>
           {({ route, navigation }: any) => {
-            const { default: FoodDetailScreen } = require("../screens/FoodDetailScreen");
-            return <FoodDetailScreen route={route} navigation={navigation} />;
+            const { default: DishDetailLoaderScreen } = require("../screens/DishDetailLoaderScreen");
+            return <DishDetailLoaderScreen route={route} navigation={navigation} />;
           }}
         </RootStack.Screen>
         <RootStack.Screen name="RandomResult" options={{ presentation: "modal", animation: "slide_from_bottom" }}>

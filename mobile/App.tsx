@@ -5,7 +5,10 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, LogBox, Platform } from 'react-native';
+import { isRunningInExpoGo } from 'expo';
+
+LogBox.ignoreAllLogs();
 import { Home, Compass, Shuffle, Heart, User } from 'lucide-react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -24,10 +27,20 @@ import { ProfileScreen } from './src/screens/ProfileScreen';
 import { NotificationScreen } from './src/screens/NotificationScreen';
 import DishDetailLoaderScreen from './src/screens/DishDetailLoaderScreen';
 import { DayIngredientsScreen } from './src/screens/DayIngredientsScreen';
+import { WeeklyGroceryScreen } from './src/screens/WeeklyGroceryScreen';
+import { CommunityPostDetailScreen } from './src/screens/CommunityPostDetailScreen';
+import { ExploreDetailScreen } from './src/screens/ExploreDetailScreen';
+import { PublicProfileScreen } from './src/screens/explore/PublicProfileScreen';
 
 import { WeeklyPlanScreen } from './src/screens/WeeklyPlanScreen';
 import { EditPlanScreen } from './src/screens/EditPlanScreen';
 import { ScreenFadeTransition } from './src/components/ui/screen-transition';
+import { InAppNotificationBanner } from './src/components/organisms/InAppNotificationBanner';
+import { notificationRealtime } from './src/services/notification-realtime';
+import { registerPushNotificationsAsync } from './src/lib/push-notifications';
+import { syncCurrentMealReminders } from './src/lib/meal-reminders';
+import { navigationRef, handleDeepLink } from './src/lib/deep-link';
+import type { NotificationItem } from './src/services/api/types';
 
 import { authApi } from './src/services/api/auth';
 import { getSession } from './src/services/api/storage';
@@ -37,12 +50,16 @@ import { getSession } from './src/services/api/storage';
 type RootParamList = {
   Auth: undefined;
   Onboarding: undefined;
-  Main: undefined;
+  Main: { screen?: string } | undefined;
   Notification: undefined;
   FoodDetail: { dishId: string; title?: string; mealLabel?: string };
-  WeeklyPlan: undefined;
+  WeeklyPlan: { planId?: string } | undefined;
   EditPlan: undefined;
   DayIngredients: { planId: string; date: string; title?: string };
+  WeeklyGrocery: { planId: string };
+  PostDetail: { postId: string };
+  ArticleDetail: { articleId: string };
+  PublicProfile: { userId: string };
 };
 
 type AuthParamList = {
@@ -79,6 +96,8 @@ function AuthNavigator({ navigation }: { navigation: any }) {
   const handleLogin = useCallback(
     async (username: string, password: string) => {
       const result = await authApi.login(username, password);
+      void notificationRealtime.connectSocket();
+      void registerPushNotificationsAsync();
       navigation.replace(result.nextStep?.startsWith('onboarding') ? 'Onboarding' : 'Main');
     },
     [navigation],
@@ -87,6 +106,8 @@ function AuthNavigator({ navigation }: { navigation: any }) {
   const handleRegister = useCallback(
     async (username: string, password: string) => {
       const result = await authApi.register(username, password);
+      void notificationRealtime.connectSocket();
+      void registerPushNotificationsAsync();
       navigation.replace(result.nextStep?.startsWith('onboarding') ? 'Onboarding' : 'Main');
     },
     [navigation],
@@ -215,6 +236,9 @@ function MainNavigator({ navigation }: { navigation: any }) {
               onRandom={() => tabNav.navigate('Random')}
               onHealth={() => tabNav.navigate('Health')}
               onNotification={() => tabNav.getParent()?.navigate('Notification')}
+              onDishDetail={(dishId, title) =>
+                tabNav.getParent()?.navigate('FoodDetail', { dishId, title })
+              }
               onLoggedOut={() =>
                 tabNav.getParent()?.reset({ index: 0, routes: [{ name: 'Auth' }] })
               }
@@ -254,6 +278,7 @@ function RootNavigator() {
 
   return (
     <Root.Navigator
+      key={initialRoute}
       initialRouteName={initialRoute}
       screenOptions={{ headerShown: false, animation: 'fade' }}
     >
@@ -274,7 +299,48 @@ function RootNavigator() {
         options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
       >
         {({ navigation }) => (
-          <NotificationScreen onBack={() => navigation.goBack()} />
+          <NotificationScreen
+            onBack={() => navigation.goBack()}
+            onOpenDeepLink={(deepLink) => handleDeepLink(deepLink)}
+          />
+        )}
+      </Root.Screen>
+
+      <Root.Screen
+        name="PostDetail"
+        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+      >
+        {({ navigation, route }: any) => (
+          <CommunityPostDetailScreen
+            postId={route.params?.postId}
+            onBack={() => navigation.goBack()}
+          />
+        )}
+      </Root.Screen>
+
+      <Root.Screen
+        name="ArticleDetail"
+        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+      >
+        {({ navigation, route }: any) => (
+          <ExploreDetailScreen
+            type="article"
+            resourceId={route.params?.articleId}
+            onBack={() => navigation.goBack()}
+          />
+        )}
+      </Root.Screen>
+
+      <Root.Screen
+        name="PublicProfile"
+        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+      >
+        {({ navigation, route }: any) => (
+          <PublicProfileScreen
+            userId={route.params?.userId}
+            onBack={() => navigation.goBack()}
+            onOpenPost={(postId) => navigation.navigate('PostDetail', { postId })}
+          />
         )}
       </Root.Screen>
 
@@ -282,8 +348,9 @@ function RootNavigator() {
         name="WeeklyPlan"
         options={{ animation: 'slide_from_right' }}
       >
-        {({ navigation }) => (
+        {({ navigation, route }) => (
           <WeeklyPlanScreen
+            initialPlanId={(route.params as any)?.planId}
             onBack={() => navigation.goBack()}
             onEditPlan={() => navigation.navigate('EditPlan')}
             onOpenDish={(dishId, title, mealLabel) =>
@@ -291,6 +358,9 @@ function RootNavigator() {
             }
             onOpenIngredients={(planId, date, title) =>
               navigation.navigate('DayIngredients', { planId, date, title })
+            }
+            onOpenWeeklyGrocery={(planId) =>
+              navigation.navigate('WeeklyGrocery', { planId })
             }
           />
         )}
@@ -311,6 +381,18 @@ function RootNavigator() {
       </Root.Screen>
 
       <Root.Screen
+        name="WeeklyGrocery"
+        options={{ animation: 'slide_from_right' }}
+      >
+        {({ navigation, route }) => (
+          <WeeklyGroceryScreen
+            planId={route.params.planId}
+            onBack={() => navigation.goBack()}
+          />
+        )}
+      </Root.Screen>
+
+      <Root.Screen
         name="EditPlan"
         options={{ animation: 'slide_from_right' }}
       >
@@ -318,7 +400,16 @@ function RootNavigator() {
           <EditPlanScreen
             onBack={() => navigation.goBack()}
             onReset={() => {}}
-            onSave={() => navigation.goBack()}
+            onSave={() => {}}
+            onOpenWeeklyPlan={(planId) => {
+              navigation.replace('WeeklyPlan', { planId });
+            }}
+            onGoHome={() => {
+              navigation.navigate('Main');
+            }}
+            onViewDishes={() => {
+              navigation.navigate('Main');
+            }}
           />
         )}
       </Root.Screen>
@@ -329,14 +420,99 @@ function RootNavigator() {
 // ── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  useEffect(() => {
+    void notificationRealtime.init();
+    void registerPushNotificationsAsync();
+    void syncCurrentMealReminders();
+
+    // Configure global notification presentation and interaction listener
+    if (!(Platform.OS === 'android' && isRunningInExpoGo())) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const Notifications = require('expo-notifications');
+        if (Notifications && typeof Notifications.setNotificationHandler === 'function') {
+          Notifications.setNotificationHandler({
+            handleNotification: async () => ({
+              shouldShowBanner: true,
+              shouldShowList: true,
+              shouldPlaySound: true,
+              shouldSetBadge: false,
+            }),
+          });
+        }
+
+        const subscription = Notifications.addNotificationResponseReceivedListener?.(
+          (response: any) => {
+            const data = response?.notification?.request?.content?.data;
+            if (data?.type === 'meal_reminder') {
+              if (navigationRef.isReady()) {
+                navigationRef.navigate(
+                  'WeeklyPlan',
+                  data.planId ? { planId: data.planId } : undefined,
+                );
+              }
+              return;
+            }
+            if (data?.deepLink) {
+              handleDeepLink(data.deepLink);
+              return;
+            }
+            if (navigationRef.isReady()) {
+              navigationRef.navigate('Notification');
+            }
+          },
+        );
+
+        // Check if app was opened by tapping a notification while closed
+        Notifications.getLastNotificationResponseAsync?.()
+          .then((response: any) => {
+            if (!response) return;
+            const data = response?.notification?.request?.content?.data;
+            if (data?.type === 'meal_reminder') {
+              if (navigationRef.isReady()) {
+                navigationRef.navigate(
+                  'WeeklyPlan',
+                  data.planId ? { planId: data.planId } : undefined,
+                );
+              }
+              return;
+            }
+            if (data?.deepLink) {
+              handleDeepLink(data.deepLink);
+            }
+          })
+          .catch(() => null);
+
+        return () => {
+          subscription?.remove?.();
+        };
+      } catch (err) {
+        if (__DEV__) {
+          console.warn('[App] failed to initialize Notifications listeners:', err);
+        }
+      }
+    }
+  }, []);
+
+  const handleOpenNotification = useCallback((notif: NotificationItem) => {
+    if (notif.deepLink) {
+      handleDeepLink(notif.deepLink);
+      return;
+    }
+    if (navigationRef.isReady()) {
+      navigationRef.navigate('Notification');
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
           <StatusBar style="dark" />
-          <NavigationContainer>
+          <NavigationContainer ref={navigationRef}>
             <RootNavigator />
           </NavigationContainer>
+          <InAppNotificationBanner onPressNotification={handleOpenNotification} />
           <PortalHost />
         </SafeAreaProvider>
       </GestureHandlerRootView>

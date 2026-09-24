@@ -1733,7 +1733,7 @@ export default function FoodsPage() {
           <table>
             <thead>
               <tr>
-                <th>
+                <th className="checkbox-col">
                   <input
                     type="checkbox"
                     checked={dishes.length > 0 && dishes.every((d) => selected.includes(d.id))}
@@ -1773,7 +1773,7 @@ export default function FoodsPage() {
                       setDetailDish(dish)
                     }}
                   >
-                    <td data-no-detail onClick={e => e.stopPropagation()}>
+                    <td className="checkbox-col" data-no-detail onClick={e => e.stopPropagation()}>
                       <input type="checkbox" checked={selected.includes(dish.id)} onChange={() => toggleSelect(dish.id)} />
                     </td>
 

@@ -62,6 +62,15 @@ export class WeeklyPlansController {
     return this.svc.getDayIngredients(planId, userId, date);
   }
 
+  @Get(':planId/ingredients')
+  @ApiOperation({ summary: 'Danh sach nguyen lieu gop ca tuan (Grocery List) co phan loai va uoc tinh chi phi' })
+  getWeeklyIngredients(
+    @CurrentUser('sub') userId: string,
+    @Param('planId') planId: string,
+  ) {
+    return this.svc.getWeeklyIngredients(planId, userId);
+  }
+
   @Get(':planId')
   @ApiOperation({ summary: 'Chi tiet ke hoach theo ID, slots grouped by day' })
   getById(@CurrentUser('sub') userId: string, @Param('planId') planId: string) {

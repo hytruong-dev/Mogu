@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { isUUID } from 'class-validator';
 import { DishStatus, ModerationStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { DishAdminQueryDto, DishPublicQueryDto } from '../dto/dish-query.dto';
@@ -124,9 +125,10 @@ export class DishQueryService {
 
   /** Public detail — chỉ PUBLISHED */
   async findPublicDetail(idOrSlug: string) {
+    const isId = isUUID(idOrSlug);
     const dish = await this.prisma.db.dish.findFirst({
       where: {
-        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        ...(isId ? { OR: [{ id: idOrSlug }, { slug: idOrSlug }] } : { slug: idOrSlug }),
         status: 'PUBLISHED',
         deletedAt: null,
       },
@@ -138,6 +140,9 @@ export class DishQueryService {
         error: { code: 'DISH_NOT_FOUND', message: 'Không tìm thấy món ăn.' },
       });
     }
+
+    // Fire-and-forget view tracking
+    void this.recordPublicDishView(dish.id).catch(() => undefined);
 
     const supabaseUrl = (this.supabaseUrl ?? '').replace(/\/$/, '');
     const media = (dish.media ?? []).map((m) => ({
@@ -350,14 +355,18 @@ export class DishQueryService {
 
   /** Admin detail — bất kỳ trạng thái */
   async adminDetail(id: string) {
+    const isId = isUUID(id);
     const dish = await this.prisma.db.dish.findFirst({
-      where: { OR: [{ id }, { slug: id }], deletedAt: null },
+      where: {
+        ...(isId ? { OR: [{ id }, { slug: id }] } : { slug: id }),
+        deletedAt: null,
+      },
       include: this.adminDetailInclude(),
     });
 
     if (!dish) {
       const deletedDish = await this.prisma.db.dish.findFirst({
-        where: { OR: [{ id }, { slug: id }] },
+        where: isId ? { OR: [{ id }, { slug: id }] } : { slug: id },
         select: { id: true, name: true, deletedAt: true },
       });
 
@@ -578,9 +587,10 @@ export class DishQueryService {
   }
 
   async getSimilarDishes(idOrSlug: string, limit = 5) {
+    const isId = isUUID(idOrSlug);
     const dish = await this.prisma.db.dish.findFirst({
       where: {
-        OR: [{ id: idOrSlug }, { slug: idOrSlug }],
+        ...(isId ? { OR: [{ id: idOrSlug }, { slug: idOrSlug }] } : { slug: idOrSlug }),
         status: 'PUBLISHED',
         deletedAt: null,
       },
@@ -625,5 +635,27 @@ export class DishQueryService {
         cookingTimeMinutes: d.prepMinutes ?? 0,
       })),
     };
+  }
+
+  private async recordPublicDishView(dishId: string) {
+    const since = new Date(Date.now() - 3 * 60 * 1000);
+    const recent = await this.prisma.db.recommendationLog.findFirst({
+      where: {
+        dishId,
+        event: 'view',
+        createdAt: { gte: since },
+      },
+      select: { id: true },
+    });
+    if (recent) return;
+
+    await this.prisma.db.recommendationLog.create({
+      data: {
+        userId: '00000000-0000-0000-0000-000000000000',
+        dishId,
+        event: 'view',
+        sessionId: 'public_detail',
+      },
+    });
   }
 }

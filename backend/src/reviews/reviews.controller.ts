@@ -101,9 +101,9 @@ export class AdminReviewsController {
 
   @Patch(':id/hide')
   @Roles(SystemRole.CONTENT_ADMIN, SystemRole.REVIEWER, SystemRole.SUPER_ADMIN)
-  @ApiOperation({ summary: '[Admin] Ẩn review' })
-  hideReview(@Param('id') id: string) {
-    return this.reviewsService.hideReview(id);
+  @ApiOperation({ summary: '[Admin] Ẩn hoặc hiện lại review' })
+  hideReview(@Param('id') id: string, @Body() body?: { isVisible?: boolean }) {
+    return this.reviewsService.hideReview(id, body?.isVisible);
   }
 
   @Delete(':id')

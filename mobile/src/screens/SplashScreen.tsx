@@ -1,4 +1,4 @@
-﻿import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -14,8 +14,9 @@ import {
   ArrowRight,
   Calendar,
   Check,
-
+  ChevronDown,
   ChevronRight,
+  ChevronUp,
   Compass,
   Dumbbell,
   Leaf,
@@ -23,6 +24,7 @@ import {
   Plus,
   Salad,
   Scale,
+  Search,
   ShieldCheck,
   Soup,
   Target,
@@ -31,6 +33,7 @@ import {
   TriangleAlert,
   UserRound,
   Utensils,
+  X,
   Zap,
 } from 'lucide-react-native';
 import * as Haptics from 'expo-haptics';
@@ -43,6 +46,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
+import { Card, CardContent } from '../components/ui/card';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { Alert, AlertDescription } from '../components/ui/alert';
 import Animated, {
   Easing,
   runOnJS,
@@ -281,25 +289,29 @@ export function SplashScreen({ onFinish }: Props) {
         {/* Header row */}
         <View style={{ height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 22 }}>
           {step > 0 ? (
-            <Pressable
+            <Button
+              variant="outline"
+              size="icon"
               onPress={() => go(step - 1)}
-              style={({ pressed }) => ({
-                width: 35, height: 35, borderRadius: 22,
-                backgroundColor: '#FFF',
-                alignItems: 'center', justifyContent: 'center',
+              className="h-9 w-9 rounded-full bg-white border-0 shadow-sm"
+              style={{
                 shadowColor: '#67541C', shadowOpacity: 0.12, shadowRadius: 8,
                 shadowOffset: { width: 0, height: 3 }, elevation: 3,
-                opacity: pressed ? 0.75 : 1,
-              })}
+              }}
             >
-              <ArrowLeft size={26} color="#111" strokeWidth={2.4} />
-            </Pressable>
+              <ArrowLeft size={22} color="#111" strokeWidth={2.4} />
+            </Button>
           ) : (
-            <View style={{ width: 35 }} />
+            <View style={{ width: 36 }} />
           )}
-          <Pressable hitSlop={14} onPress={onFinish}>
+          <Button
+            variant="ghost"
+            hitSlop={14}
+            onPress={onFinish}
+            className="h-auto p-0 active:bg-transparent"
+          >
             <Text style={{ fontSize: 17, fontWeight: '500', color: '#333' }}>Bỏ qua</Text>
-          </Pressable>
+          </Button>
         </View>
 
         {/* Progress dots + badge */}
@@ -369,19 +381,15 @@ function ProgressRow({ step, total }: { step: number; total: number }) {
           />
         ))}
       </View>
-      {/* Badge bước — hiển thị ở tất cả các bước */}
-      <View style={{
-        marginTop: 8,
-        paddingHorizontal: 14, paddingVertical: 4,
-        borderRadius: 20,
-        backgroundColor: '#FFF6D6',
-        borderWidth: 1,
-        borderColor: '#FFD83E',
-      }}>
+      {/* Badge bước — tái sử dụng Badge từ react-native-reusables */}
+      <Badge
+        variant="outline"
+        className="mt-2 rounded-full border-[#FFD83E] bg-[#FFF6D6] px-3.5 py-1 shadow-none"
+      >
         <Text style={{ fontSize: 13, fontWeight: '700', color: '#7A5C0B' }}>
           Bước {displayStep}/{total}
         </Text>
-      </View>
+      </Badge>
     </View>
   );
 }
@@ -437,26 +445,27 @@ function WelcomeStep() {
       {/* Heart icon */}
       <Text style={{ fontSize: 22, marginTop: 10 }}>🩷</Text>
 
-      {/* 3 feature chips */}
+      {/* 3 feature chips — tái sử dụng Card & CardContent từ react-native-reusables */}
       <View style={{ flexDirection: 'row', gap: 10, marginTop: 24, width: '100%' }}>
         {[
           { icon: <UserRound size={22} color="#111" strokeWidth={2} />, label: 'Gợi ý cá nhân' },
           { icon: <Zap size={22} color="#111" strokeWidth={2} />, label: 'Chọn nhanh' },
           { icon: <Utensils size={22} color="#111" strokeWidth={2} />, label: 'Khám phá\nmón mới' },
         ].map(({ icon, label }) => (
-          <View
+          <Card
             key={label}
+            className="flex-1 rounded-[20px] border-0 bg-white py-4 px-2 items-center justify-center gap-0 shadow-sm"
             style={{
-              flex: 1, backgroundColor: '#FFF', borderRadius: 20,
-              alignItems: 'center', justifyContent: 'center', paddingVertical: 18, paddingHorizontal: 8,
               shadowColor: '#B19B66', shadowOpacity: 0.1, shadowRadius: 10, elevation: 2,
             }}
           >
-            {icon}
-            <Text style={{ fontSize: 12, fontWeight: '600', color: '#111', textAlign: 'center', marginTop: 8, lineHeight: 17 }}>
-              {label}
-            </Text>
-          </View>
+            <CardContent className="items-center justify-center p-0">
+              {icon}
+              <Text style={{ fontSize: 12, fontWeight: '600', color: '#111', textAlign: 'center', marginTop: 8, lineHeight: 17 }}>
+                {label}
+              </Text>
+            </CardContent>
+          </Card>
         ))}
       </View>
     </View>
@@ -489,69 +498,73 @@ function ProfileStep({
         Thông tin này giúp trải nghiệm gần gũi hơn.
       </Text>
 
-      {/* White card */}
-      <View style={{ marginTop: 20, backgroundColor: '#FFF', borderRadius: 22, padding: 16, shadowColor: '#B19B66', shadowOpacity: 0.1, shadowRadius: 12, elevation: 2 }}>
+      {/* White card — tái sử dụng Card & CardContent từ react-native-reusables */}
+      <Card
+        className="mt-5 rounded-[22px] border-0 bg-white p-4 gap-0 shadow-sm"
+        style={{ shadowColor: '#B19B66', shadowOpacity: 0.1, shadowRadius: 12, elevation: 2 }}
+      >
+        <CardContent className="p-0 gap-0">
+          {/* Tên bạn */}
+          <ProfileSectionLabel icon="👤" label="Tên bạn" />
+          <View style={{ marginTop: 8 }}>
+            <Input
+              value={displayName}
+              onChangeText={onDisplayName}
+              placeholder="Ví dụ: Minh, An, Huy..."
+              placeholderTextColor="#BBBAB5"
+              className="h-12 rounded-xl border border-[#EAE6DF] bg-white px-3.5 text-base font-medium text-[#111]"
+              maxLength={40}
+              returnKeyType="next"
+            />
+          </View>
+          <Text style={{ fontSize: 12, color: '#AAA5A0', marginTop: 4 }}>Không bắt buộc</Text>
 
-        {/* Tên bạn */}
-        <ProfileSectionLabel icon="👤" label="Tên bạn" />
-        <View style={{ marginTop: 8 }}>
-          <Input
-            value={displayName}
-            onChangeText={onDisplayName}
-            placeholder="Ví dụ: Minh, An, Huy..."
-            placeholderTextColor="#BBBAB5"
-            className="h-12 rounded-xl border border-[#EAE6DF] bg-white px-3.5 text-base font-medium text-[#111]"
-            maxLength={40}
-            returnKeyType="next"
+          <Separator className="my-3.5 bg-[#F0EBE3]" />
+
+          {/* Ngày sinh */}
+          <ProfileSectionLabel icon="📅" label="Ngày sinh" />
+          <DatePickerRow
+            day={birthDay} month={birthMonth} year={birthYear}
+            dobLabel={dobLabel}
+            onDay={onBirthDay} onMonth={onBirthMonth} onYear={onBirthYear}
           />
-        </View>
-        <Text style={{ fontSize: 12, color: '#AAA5A0', marginTop: 4 }}>Không bắt buộc</Text>
 
-        <Separator className="my-3.5 bg-[#F0EBE3]" />
+          <Separator className="my-3.5 bg-[#F0EBE3]" />
 
-        {/* Ngày sinh */}
-        <ProfileSectionLabel icon="📅" label="Ngày sinh" />
-        <DatePickerRow
-          day={birthDay} month={birthMonth} year={birthYear}
-          dobLabel={dobLabel}
-          onDay={onBirthDay} onMonth={onBirthMonth} onYear={onBirthYear}
-        />
-
-        <Separator className="my-3.5 bg-[#F0EBE3]" />
-
-        {/* Giới tính */}
-        <ProfileSectionLabel icon="⚥" label="Giới tính" />
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 }}>
-          {GENDER_OPTIONS.map((opt) => {
-            const active = gender === opt.id;
-            return (
-              <Pressable
-                key={opt.id}
-                onPress={() => onGender(active ? null : opt.id)}
-                style={{
-                  flexBasis: '47%', height: 50,
-                  flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14,
-                  borderRadius: 14, borderWidth: active ? 2 : 1,
-                  borderColor: active ? '#FFD83E' : '#E8E6E1',
-                  backgroundColor: active ? '#FFFBE8' : '#FFF',
-                  shadowColor: '#000', shadowOpacity: active ? 0.1 : 0.04,
-                  shadowRadius: 6, elevation: active ? 3 : 1,
-                }}
-              >
-                <Text style={{ fontSize: 18, marginRight: 8 }}>{opt.emoji}</Text>
-                <Text style={{ fontSize: 14, fontWeight: active ? '700' : '500', color: active ? '#111' : '#4E4A43', flex: 1 }}>
-                  {opt.label}
-                </Text>
-                {active && (
-                  <View style={{ width: 20, height: 20, borderRadius: 10, backgroundColor: '#FFD83E', alignItems: 'center', justifyContent: 'center' }}>
-                    <Check size={12} color="#111" strokeWidth={3} />
-                  </View>
-                )}
-              </Pressable>
-            );
-          })}
-        </View>
-      </View>
+          {/* Giới tính */}
+          <ProfileSectionLabel icon="⚥" label="Giới tính" />
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 }}>
+            {GENDER_OPTIONS.map((opt) => {
+              const active = gender === opt.id;
+              return (
+                <Pressable
+                  key={opt.id}
+                  onPress={() => onGender(active ? null : opt.id)}
+                  style={{
+                    flexBasis: '47%', height: 50,
+                    flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14,
+                    borderRadius: 14, borderWidth: active ? 2 : 1,
+                    borderColor: active ? '#FFD83E' : '#E8E6E1',
+                    backgroundColor: active ? '#FFFBE8' : '#FFF',
+                    shadowColor: '#000', shadowOpacity: active ? 0.1 : 0.04,
+                    shadowRadius: 6, elevation: active ? 3 : 1,
+                  }}
+                >
+                  <Text style={{ fontSize: 18, marginRight: 8 }}>{opt.emoji}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: active ? '700' : '500', color: active ? '#111' : '#4E4A43', flex: 1 }}>
+                    {opt.label}
+                  </Text>
+                  {active && (
+                    <Badge className="w-5 h-5 rounded-full bg-[#FFD83E] p-0 items-center justify-center border-0 shadow-none">
+                      <Check size={12} color="#111" strokeWidth={3} />
+                    </Badge>
+                  )}
+                </Pressable>
+              );
+            })}
+          </View>
+        </CardContent>
+      </Card>
     </View>
   );
 }
@@ -645,6 +658,8 @@ function BodyStep({
   heightValue: number; weight: number;
   onHeight: (v: number) => void; onWeight: (v: number) => void;
 }) {
+  const [unitSystem, setUnitSystem] = useState<'metric' | 'imperial'>('metric');
+
   return (
     <View style={{ paddingTop: 4 }}>
       <MascotHero source={require('../assets/images/onboarding/body-info.png')} height={210} />
@@ -662,17 +677,39 @@ function BodyStep({
         <BodyCard label="Cân nặng" value={weight} unit="kg" min={10} max={500} onChange={onWeight} />
       </View>
 
-      {/* Metric / Imperial toggle (decorative) */}
-      <View style={{ flexDirection: 'row', marginTop: 14, borderRadius: 20, backgroundColor: '#EEE8DD', padding: 4 }}>
-        <View style={{ flex: 1, height: 38, borderRadius: 16, backgroundColor: '#FFD43E', alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
-          <Text style={{ fontSize: 16 }}>📏</Text>
-          <Text style={{ fontSize: 14, fontWeight: '700', color: '#111' }}>Metric</Text>
-        </View>
-        <View style={{ flex: 1, height: 38, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 6 }}>
-          <Text style={{ fontSize: 16 }}>📏</Text>
-          <Text style={{ fontSize: 14, fontWeight: '500', color: '#888' }}>Imperial</Text>
-        </View>
-      </View>
+      {/* Metric / Imperial toggle — tái sử dụng Tabs từ react-native-reusables */}
+      <Tabs
+        value={unitSystem}
+        onValueChange={(val) => setUnitSystem(val as 'metric' | 'imperial')}
+        className="w-full mt-3.5"
+      >
+        <TabsList className="w-full h-auto flex-row rounded-full bg-[#EEE8DD] p-1 border-0 shadow-none">
+          <TabsTrigger
+            value="metric"
+            className={cn(
+              "flex-1 h-9 rounded-full flex-row items-center justify-center gap-1.5 border-0 shadow-none",
+              unitSystem === 'metric' ? "bg-primary shadow-xs" : "bg-transparent"
+            )}
+          >
+            <Text style={{ fontSize: 16 }}>📏</Text>
+            <Text style={{ fontSize: 14, fontWeight: unitSystem === 'metric' ? '700' : '500', color: unitSystem === 'metric' ? '#111' : '#888' }}>
+              Metric
+            </Text>
+          </TabsTrigger>
+          <TabsTrigger
+            value="imperial"
+            className={cn(
+              "flex-1 h-9 rounded-full flex-row items-center justify-center gap-1.5 border-0 shadow-none",
+              unitSystem === 'imperial' ? "bg-primary shadow-xs" : "bg-transparent"
+            )}
+          >
+            <Text style={{ fontSize: 16 }}>📏</Text>
+            <Text style={{ fontSize: 14, fontWeight: unitSystem === 'imperial' ? '700' : '500', color: unitSystem === 'imperial' ? '#111' : '#888' }}>
+              Imperial
+            </Text>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12, justifyContent: 'center' }}>
         <ShieldCheck size={18} color="#111" />
@@ -707,59 +744,64 @@ function BodyCard({
   };
 
   return (
-    <View style={{
-      flex: 1, backgroundColor: '#FFF', borderRadius: 22,
-      padding: 16, alignItems: 'center',
-      shadowColor: '#B19B66', shadowOpacity: 0.1, shadowRadius: 12, elevation: 2,
-    }}>
-      <Text style={{ fontSize: 15, fontWeight: '700', color: '#111', marginBottom: 12 }}>{label}</Text>
+    <Card
+      className="flex-1 rounded-[22px] border-0 bg-white p-4 items-center gap-0 shadow-sm"
+      style={{ shadowColor: '#B19B66', shadowOpacity: 0.1, shadowRadius: 12, elevation: 2 }}
+    >
+      <CardContent className="w-full items-center p-0 gap-0">
+        <Text style={{ fontSize: 15, fontWeight: '700', color: '#111', marginBottom: 12 }}>{label}</Text>
 
-      {/* Big number */}
-      <Pressable onPress={startEdit} style={{ width: '100%', alignItems: 'center', minHeight: 60, justifyContent: 'center' }}>
-        {editing ? (
-          <Input
-            ref={inputRef}
-            value={raw}
-            onChangeText={(t) => setRaw(t.replace(/[^0-9]/g, ''))}
-            onBlur={commitEdit}
-            onSubmitEditing={commitEdit}
-            keyboardType="number-pad"
-            returnKeyType="done"
-            autoFocus
-            maxLength={3}
-            className="border-0 bg-transparent p-0 text-center shadow-none"
-            style={{ fontSize: 52, fontWeight: '900', color: '#111', textAlign: 'center', width: '100%' }}
-          />
-        ) : (
-          <Text style={{ fontSize: 52, fontWeight: '900', color: '#111' }}>{value}</Text>
-        )}
-      </Pressable>
-
-      {/* Unit badge */}
-      <LinearGradient
-        colors={['#FFD63B', '#FFC316']}
-        style={{ paddingHorizontal: 18, paddingVertical: 5, borderRadius: 12, marginTop: 4 }}
-      >
-        <Text style={{ fontSize: 14, fontWeight: '800', color: '#111' }}>{unit}</Text>
-      </LinearGradient>
-
-      {/* Stepper */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 14 }}>
-        <Pressable
-          onPress={() => onChange(clamp(value - 1))}
-          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF', borderWidth: 1, borderColor: '#E9E5DD', alignItems: 'center', justifyContent: 'center', elevation: 1 }}
-        >
-          <Minus size={20} color="#111" />
+        {/* Big number */}
+        <Pressable onPress={startEdit} style={{ width: '100%', alignItems: 'center', minHeight: 60, justifyContent: 'center' }}>
+          {editing ? (
+            <Input
+              ref={inputRef}
+              value={raw}
+              onChangeText={(t) => setRaw(t.replace(/[^0-9]/g, ''))}
+              onBlur={commitEdit}
+              onSubmitEditing={commitEdit}
+              keyboardType="number-pad"
+              returnKeyType="done"
+              autoFocus
+              maxLength={3}
+              className="border-0 bg-transparent p-0 text-center shadow-none"
+              style={{ fontSize: 52, fontWeight: '900', color: '#111', textAlign: 'center', width: '100%' }}
+            />
+          ) : (
+            <Text style={{ fontSize: 52, fontWeight: '900', color: '#111' }}>{value}</Text>
+          )}
         </Pressable>
-        <View style={{ width: 14, height: 1, backgroundColor: '#CBC8C2' }} />
-        <Pressable
-          onPress={() => onChange(clamp(value + 1))}
-          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#FFF', borderWidth: 1, borderColor: '#E9E5DD', alignItems: 'center', justifyContent: 'center', elevation: 1 }}
+
+        {/* Unit badge — tái sử dụng Badge từ react-native-reusables */}
+        <Badge
+          className="mt-1 rounded-xl border-0 px-4 py-1"
+          style={{ backgroundColor: '#FFC20E' }}
         >
-          <Plus size={20} color="#111" />
-        </Pressable>
-      </View>
-    </View>
+          <Text style={{ fontSize: 14, fontWeight: '800', color: '#111' }}>{unit}</Text>
+        </Badge>
+
+        {/* Stepper — tái sử dụng Button từ react-native-reusables */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 14 }}>
+          <Button
+            variant="outline"
+            size="icon"
+            onPress={() => onChange(clamp(value - 1))}
+            className="h-9 w-9 rounded-full border-[#E9E5DD] bg-white active:bg-neutral-100 shadow-none"
+          >
+            <Minus size={20} color="#111" />
+          </Button>
+          <View style={{ width: 14, height: 1, backgroundColor: '#CBC8C2' }} />
+          <Button
+            variant="outline"
+            size="icon"
+            onPress={() => onChange(clamp(value + 1))}
+            className="h-9 w-9 rounded-full border-[#E9E5DD] bg-white active:bg-neutral-100 shadow-none"
+          >
+            <Plus size={20} color="#111" />
+          </Button>
+        </View>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -778,6 +820,7 @@ function GoalStep({ selected, onSelect }: { selected: string; onSelect: (v: stri
         Chọn một mục tiêu chính, bạn có thể thay đổi sau.
       </Text>
 
+      {/* 6 goal cards — tái sử dụng Card & CardContent từ react-native-reusables */}
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 18 }}>
         {GOALS.map(({ id, label, icon: Icon }) => {
           const active = selected === id;
@@ -785,29 +828,31 @@ function GoalStep({ selected, onSelect }: { selected: string; onSelect: (v: stri
             <Pressable
               key={id}
               onPress={() => { onSelect(id); Haptics.selectionAsync(); }}
-              style={{
-                width: '47.5%', height: 100,
-                borderRadius: 20, borderWidth: active ? 2 : 1,
-                borderColor: active ? '#111' : '#EEE8DD',
-                backgroundColor: active ? '#FFE27A' : '#FFF',
-                alignItems: 'center', justifyContent: 'center', gap: 8,
-                shadowColor: '#7A5D1C', shadowOpacity: 0.08, shadowRadius: 10, elevation: 2,
-                position: 'relative',
-              }}
+              style={{ width: '47.5%' }}
             >
-              <Icon size={36} color="#111" strokeWidth={1.8} />
-              <Text style={{ fontSize: 14, fontWeight: '900', color: '#111', textAlign: 'center', paddingHorizontal: 4 }}>
-                {label}
-              </Text>
-              {active && (
-                <View style={{
-                  position: 'absolute', top: 10, right: 10,
-                  width: 24, height: 24, borderRadius: 12,
-                  backgroundColor: '#111', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <Check size={14} color="#FFD83E" strokeWidth={3} />
-                </View>
-              )}
+              <Card
+                className={cn(
+                  "h-[100px] items-center justify-center rounded-[20px] relative gap-0 shadow-sm",
+                  active
+                    ? "border-2 border-[#111] bg-[#FFE27A]"
+                    : "border border-[#EEE8DD] bg-white"
+                )}
+                style={{
+                  shadowColor: '#7A5D1C', shadowOpacity: 0.08, shadowRadius: 10, elevation: 2,
+                }}
+              >
+                <CardContent className="items-center justify-center p-0 gap-2">
+                  <Icon size={36} color="#111" strokeWidth={1.8} />
+                  <Text style={{ fontSize: 14, fontWeight: '900', color: '#111', textAlign: 'center', paddingHorizontal: 4 }}>
+                    {label}
+                  </Text>
+                  {active && (
+                    <Badge className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-[#111] p-0 items-center justify-center border-0 shadow-none">
+                      <Check size={14} color="#FFD83E" strokeWidth={3} />
+                    </Badge>
+                  )}
+                </CardContent>
+              </Card>
             </Pressable>
           );
         })}
@@ -886,89 +931,130 @@ function TagSearchBox({
   return (
     <View style={{ marginTop: 14 }}>
       {/* Section header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-        <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: iconBg, alignItems: 'center', justifyContent: 'center' }}>
-          {icon}
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <View style={{ width: 32, height: 32, borderRadius: 10, backgroundColor: iconBg, alignItems: 'center', justifyContent: 'center' }}>
+            {icon}
+          </View>
+          <Text style={{ fontSize: 16, fontWeight: '900', color: '#111' }}>{title}</Text>
         </View>
-        <Text style={{ fontSize: 16, fontWeight: '900', color: '#111' }}>{title}</Text>
+        {selectedItems.length > 0 && (
+          <Badge variant="secondary" className="px-2.5 py-0.5 rounded-full bg-[#F3EFE6] border-0">
+            <Text style={{ fontSize: 12, fontWeight: '700', color: '#6E6B65' }}>
+              {selectedItems.length} đã chọn
+            </Text>
+          </Badge>
+        )}
       </View>
 
-      {/* Search row */}
-      <Pressable
-        onPress={() => setOpen(!open)}
-        style={{
-          flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap',
-          minHeight: 50,
-          borderWidth: 1.5,
-          borderColor: open ? '#FFD83E' : '#EAE6DF',
-          borderRadius: 16,
-          paddingHorizontal: 12, paddingVertical: 8,
-          backgroundColor: '#FFF',
-          gap: 6,
-        }}
-      >
-        {/* Search icon */}
-        <View style={{ marginRight: 2 }}>
-          <Text style={{ fontSize: 16, color: '#AAA' }}>🔍</Text>
-        </View>
+      {/* Search trigger bar */}
+      <Pressable onPress={() => setOpen(!open)}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            minHeight: 48,
+            borderWidth: 1.5,
+            borderColor: open ? (danger ? '#FF7A6B' : '#FFC20E') : '#EAE6DF',
+            borderRadius: 16,
+            paddingHorizontal: 14,
+            paddingVertical: 6,
+            backgroundColor: '#FFF',
+            gap: 10,
+          }}
+        >
+          <Search size={18} color="#8A8580" strokeWidth={2} />
 
-        {/* Selected chips inside input */}
-        {selectedItems.map((item) => (
-          <Pressable
-            key={item.id}
-            onPress={() => onToggle(item.id)}
-            style={{
-              flexDirection: 'row', alignItems: 'center', gap: 4,
-              paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20,
-              backgroundColor: danger ? '#FFEAE8' : '#FFF6D6',
-              borderWidth: 1,
-              borderColor: danger ? '#FFBDB6' : '#FFD83E',
-            }}
-          >
-            <Text style={{ fontSize: 13, fontWeight: '700', color: danger ? '#D63B2F' : '#6B4B00' }}>
-              {item.label}
+          {open ? (
+            <Input
+              autoFocus
+              value={query}
+              onChangeText={setQuery}
+              placeholder={placeholder}
+              placeholderTextColor="#BBBAB5"
+              className="flex-1 h-9 border-0 bg-transparent p-0 text-sm font-medium text-[#111] shadow-none"
+            />
+          ) : (
+            <Text style={{ flex: 1, fontSize: 14, color: '#BBBAB5' }}>
+              {selectedItems.length > 0 ? `Thêm ${title.toLowerCase()} khác...` : placeholder}
             </Text>
-            <Text style={{ fontSize: 13, color: danger ? '#D63B2F' : '#999', lineHeight: 14 }}>×</Text>
-          </Pressable>
-        ))}
+          )}
 
-        {/* Placeholder text */}
-        {selectedItems.length === 0 && !open && (
-          <Text style={{ flex: 1, fontSize: 14, color: '#BBBAB5' }}>{placeholder}</Text>
-        )}
-
-        {/* Text input khi open */}
-        {open && (
-          <Input
-            autoFocus
-            value={query}
-            onChangeText={setQuery}
-            placeholder={placeholder}
-            placeholderTextColor="#BBBAB5"
-            className="border-0 bg-transparent p-0 shadow-none"
-            style={{ flex: 1, fontSize: 14, color: '#111', paddingVertical: 0, minWidth: 80 }}
-          />
-        )}
-
-        {/* Dropdown arrow */}
-        <View style={{ marginLeft: 'auto' }}>
-          <Text style={{ fontSize: 14, color: '#AAA' }}>{open ? '▲' : '▽'}</Text>
+          {open ? (
+            <ChevronUp size={18} color="#8A8580" strokeWidth={2} />
+          ) : (
+            <ChevronDown size={18} color="#8A8580" strokeWidth={2} />
+          )}
         </View>
       </Pressable>
 
+      {/* Selected chips display */}
+      {selectedItems.length > 0 && (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+          {selectedItems.map((item) => (
+            <Pressable key={item.id} onPress={() => onToggle(item.id)}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 6,
+                  paddingHorizontal: 12,
+                  paddingVertical: 6,
+                  borderRadius: 20,
+                  backgroundColor: danger ? '#FFF0EE' : '#FFF8DC',
+                  borderWidth: 1,
+                  borderColor: danger ? '#FFC7C0' : '#FFE17D',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: '700',
+                    color: danger ? '#D9363E' : '#7A5000',
+                  }}
+                >
+                  {item.label}
+                </Text>
+                <View
+                  style={{
+                    width: 16,
+                    height: 16,
+                    borderRadius: 8,
+                    backgroundColor: danger ? '#FFD4CE' : '#FFEB9C',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <X size={10} color={danger ? '#D9363E' : '#7A5000'} strokeWidth={3} />
+                </View>
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      )}
+
       {/* Dropdown list */}
       {open && (
-        <View style={{
-          marginTop: 4, borderWidth: 1, borderColor: '#EAE6DF', borderRadius: 14,
-          backgroundColor: '#FFF', overflow: 'hidden',
-          shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 3,
-        }}>
+        <View
+          style={{
+            marginTop: 6,
+            borderWidth: 1,
+            borderColor: '#EAE6DF',
+            borderRadius: 16,
+            backgroundColor: '#FFF',
+            overflow: 'hidden',
+            shadowColor: '#000',
+            shadowOpacity: 0.08,
+            shadowRadius: 10,
+            elevation: 4,
+          }}
+        >
           {filtered.length === 0 ? (
             <View style={{ padding: 16, alignItems: 'center' }}>
               <Text style={{ color: '#BBBAB5', fontSize: 13 }}>Không tìm thấy kết quả</Text>
             </View>
           ) : (
-            filtered.slice(0, 6).map((item, idx) => (
+            filtered.slice(0, 8).map((item, idx) => (
               <Pressable
                 key={item.id}
                 onPress={() => {
@@ -976,24 +1062,58 @@ function TagSearchBox({
                   setQuery('');
                 }}
                 style={({ pressed }) => ({
-                  paddingVertical: 13, paddingHorizontal: 16,
-                  borderTopWidth: idx > 0 ? 1 : 0, borderTopColor: '#F5F0E8',
                   backgroundColor: pressed ? '#FFFBE8' : '#FFF',
-                  flexDirection: 'row', alignItems: 'center', gap: 8,
                 })}
               >
-                <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: danger ? '#FF6B5B' : '#FFD83E' }} />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: '#222' }}>{item.label}</Text>
+                <View
+                  style={{
+                    paddingVertical: 12,
+                    paddingHorizontal: 16,
+                    borderTopWidth: idx > 0 ? 1 : 0,
+                    borderTopColor: '#F5F0E8',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                    <View
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: 4,
+                        backgroundColor: danger ? '#FF6B5B' : '#FFC20E',
+                      }}
+                    />
+                    <Text style={{ fontSize: 14, fontWeight: '600', color: '#222' }}>
+                      {item.label}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: 12,
+                      backgroundColor: danger ? '#FFEAE8' : '#FFF6D6',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    <Plus size={14} color={danger ? '#D63B2F' : '#6B4B00'} strokeWidth={2.5} />
+                  </View>
+                </View>
               </Pressable>
             ))
           )}
-          {/* Close dropdown */}
-          <Pressable
+          {/* Close button */}
+          <Button
+            variant="ghost"
             onPress={() => { setOpen(false); setQuery(''); }}
-            style={{ padding: 10, alignItems: 'center', borderTopWidth: 1, borderTopColor: '#F5F0E8' }}
+            className="h-10 rounded-none border-t border-[#F5F0E8] py-0 flex-row items-center justify-center gap-1.5 active:bg-neutral-50"
           >
-            <Text style={{ fontSize: 12, color: '#AAA' }}>Đóng ▲</Text>
-          </Pressable>
+            <ChevronUp size={14} color="#8A8580" strokeWidth={2} />
+            <Text style={{ fontSize: 12, fontWeight: '600', color: '#8A8580' }}>Thu gọn</Text>
+          </Button>
         </View>
       )}
     </View>
@@ -1023,54 +1143,53 @@ function PreferenceStep({
         Chọn khẩu vị và những nguyên liệu bạn cần tránh.
       </Text>
 
-      {/* White card */}
-      <View style={{
-        marginTop: 14, backgroundColor: '#FFF', borderRadius: 22,
-        padding: 16,
-        shadowColor: '#B19B66', shadowOpacity: 0.1, shadowRadius: 12, elevation: 2,
-      }}>
-        {/* Chế độ ăn */}
-        <TagSearchBox
-          icon={<Leaf size={17} color="#111" strokeWidth={2} />}
-          iconBg="#FFD74A"
-          title="Chế độ ăn"
-          placeholder="Tìm chế độ ăn"
-          selected={dietArr}
-          options={DIET_OPTIONS}
-          onToggle={handleDietToggle}
-        />
+      {/* White card — tái sử dụng Card & CardContent từ react-native-reusables */}
+      <Card
+        className="mt-3.5 rounded-[22px] border-0 bg-white p-4 gap-0 shadow-sm"
+        style={{ shadowColor: '#B19B66', shadowOpacity: 0.1, shadowRadius: 12, elevation: 2 }}
+      >
+        <CardContent className="p-0 gap-0">
+          {/* Chế độ ăn */}
+          <TagSearchBox
+            icon={<Leaf size={17} color="#111" strokeWidth={2} />}
+            iconBg="#FFD74A"
+            title="Chế độ ăn"
+            placeholder="Tìm chế độ ăn"
+            selected={dietArr}
+            options={DIET_OPTIONS}
+            onToggle={handleDietToggle}
+          />
 
-        <View style={{ height: 1, backgroundColor: '#F0EBE3', marginTop: 16 }} />
+          <Separator className="my-4 bg-[#F0EBE3]" />
 
-        {/* Dị ứng hoặc hạn chế */}
-        <TagSearchBox
-          icon={<TriangleAlert size={17} color="#FF5A42" strokeWidth={2} />}
-          iconBg="#FFE8E5"
-          title="Dị ứng hoặc hạn chế"
-          placeholder="Tìm nguyên liệu"
-          selected={allergies}
-          options={ALLERGY_OPTIONS}
-          onToggle={onToggleAllergy}
-          danger
-        />
+          {/* Dị ứng hoặc hạn chế */}
+          <TagSearchBox
+            icon={<TriangleAlert size={17} color="#FF5A42" strokeWidth={2} />}
+            iconBg="#FFE8E5"
+            title="Dị ứng hoặc hạn chế"
+            placeholder="Tìm nguyên liệu"
+            selected={allergies}
+            options={ALLERGY_OPTIONS}
+            onToggle={onToggleAllergy}
+            danger
+          />
 
-        <Text style={{ fontSize: 12, color: '#AAA5A0', marginTop: 10 }}>
-          Nhập để tìm và chọn nhiều mục.
-        </Text>
-      </View>
+          <Text style={{ fontSize: 12, color: '#AAA5A0', marginTop: 10 }}>
+            Nhập để tìm và chọn nhiều mục.
+          </Text>
+        </CardContent>
+      </Card>
 
-      {/* Warning box */}
-      <View style={{
-        flexDirection: 'row', alignItems: 'center', gap: 8,
-        marginTop: 12, paddingHorizontal: 14, paddingVertical: 10,
-        backgroundColor: '#FFF8E1', borderRadius: 14,
-        borderWidth: 1, borderColor: '#FFD83E',
-      }}>
-        <TriangleAlert size={16} color="#E08A00" fill="#FFD83E" />
-        <Text style={{ flex: 1, fontSize: 12, color: '#7A5000', lineHeight: 18 }}>
+      {/* Warning box — tái sử dụng Alert từ react-native-reusables */}
+      <Alert
+        icon={TriangleAlert}
+        iconClassName="text-[#D97706]"
+        className="mt-3.5 rounded-2xl border border-[#FDE68A] bg-[#FEF9C3]/80 px-4 py-3 shadow-none flex-row items-center"
+      >
+        <AlertDescription className="text-xs font-medium leading-5 text-[#92400E] pl-6">
           Món chứa thành phần cần tránh sẽ không được gợi ý.
-        </Text>
-      </View>
+        </AlertDescription>
+      </Alert>
     </View>
   );
 }
@@ -1147,7 +1266,9 @@ function CompletionScreen({
       <SafeAreaView style={{ flex: 1, paddingHorizontal: 22 }} edges={['top', 'bottom']}>
         {/* Header */}
         <View style={{ height: 56, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
-          <Text style={{ fontSize: 17, fontWeight: '500', color: '#999' }}>Bỏ qua</Text>
+          <Button variant="ghost" className="h-auto p-0 active:bg-transparent" onPress={onFinish}>
+            <Text style={{ fontSize: 17, fontWeight: '500', color: '#999' }}>Bỏ qua</Text>
+          </Button>
         </View>
 
         {/* Progress dots only */}
@@ -1181,17 +1302,27 @@ function CompletionScreen({
           {'Từ hôm nay, mỗi khi phân vân ăn gì,\nMogu sẽ chọn giúp bạn.'}
         </Text>
 
-        {/* Summary card */}
-        <View style={{ marginTop: 18, backgroundColor: '#FFF', borderRadius: 22, paddingHorizontal: 16, shadowColor: '#7A5D1C', shadowOpacity: 0.1, shadowRadius: 15, elevation: 3 }}>
-          <SummaryRow icon={<Target size={22} color="#F2B900" />} label="Mục tiêu" value={goal} />
-          <SummaryRow icon={<UserRound size={22} color="#F2B900" />} label="Thông tin" value={`${heightValue} cm · ${weight} kg`} />
-          <SummaryRow icon={<ShieldCheck size={22} color="#111" />} label="Cần tránh" value={allergyLabel} last />
-        </View>
+        {/* Summary card — tái sử dụng Card & CardContent từ react-native-reusables */}
+        <Card
+          className="mt-4.5 rounded-[22px] border-0 bg-white px-4 py-0 gap-0 shadow-md"
+          style={{ shadowColor: '#7A5D1C', shadowOpacity: 0.1, shadowRadius: 15, elevation: 3 }}
+        >
+          <CardContent className="p-0 gap-0">
+            <SummaryRow icon={<Target size={22} color="#F2B900" />} label="Mục tiêu" value={goal} />
+            <Separator className="bg-[#EEE8DD]" />
+            <SummaryRow icon={<UserRound size={22} color="#F2B900" />} label="Thông tin" value={`${heightValue} cm · ${weight} kg`} />
+            <Separator className="bg-[#EEE8DD]" />
+            <SummaryRow icon={<ShieldCheck size={22} color="#111" />} label="Cần tránh" value={allergyLabel} last />
+          </CardContent>
+        </Card>
 
         {/* Edit hint */}
-        <Pressable style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 10 }}>
+        <Button
+          variant="ghost"
+          className="h-auto py-2 flex-row items-center justify-center gap-1.5 mt-2.5 active:bg-transparent"
+        >
           <Text style={{ fontSize: 14, color: '#888' }}>✏️  Chỉnh sửa</Text>
-        </Pressable>
+        </Button>
 
         {/* Spacer */}
         <View style={{ flex: 1 }} />
