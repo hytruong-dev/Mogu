@@ -39,6 +39,7 @@ import {
 } from '../components/ui/avatar';
 import { AppImage } from '../components/ui/app-image';
 import { AvatarImage } from '../components/organisms/AvatarImage';
+import { NoanWordmark } from '../components/brand/NoanWordmark';
 import { ContentActionSheet } from './explore/ContentActionSheet';
 import { ArticleShareSheet, toShareArticle } from './explore/ArticleShareSheet';
 import {
@@ -69,7 +70,7 @@ import {
   User,
   UtensilsCrossed,
   X,
-} from 'lucide-react-native';
+} from '@/components/icons';
 
 const C = {
   background: '#FFF9E8',
@@ -87,8 +88,7 @@ const C = {
 const pho = require('../assets/images/random/pho-result.jpg');
 const bun = require('../assets/images/random/bun-rieu.jpg');
 const rice = require('../assets/images/random/chao-ga.jpg');
-const mascot = require('../assets/images/logo/logo.png');
-const brand = require('../assets/images/logo/mogu-wordmark-header.png');
+const mascot = require('../assets/images/noan/noan-mascot-master-v1.png');
 
 export type ExploreDetailType = 'food' | 'article' | 'post';
 
@@ -130,7 +130,7 @@ export function ExploreDetailScreen({
           <Pressable onPress={onBack} style={styles.iconButton}>
             <ArrowLeft size={26} color={C.ink} />
           </Pressable>
-          <Image source={brand} style={styles.brand} resizeMode="contain" />
+          <NoanWordmark width={104} height={42} />
           <View style={styles.headerActions} />
         </View>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 }}>
@@ -451,7 +451,7 @@ function ArticleDetailLoaded({
       </View>
 
       {/* Reading Progress Line directly under Header matching Image 2 */}
-      <Progress value={progress * 100} className="h-[2.5px] rounded-none bg-[#F0EBE0]" indicatorClassName="bg-[#FFD54F]" />
+      <Progress value={progress * 100} className="h-[2.5px] rounded-none bg-muted" indicatorClassName="bg-primary" />
 
       {loading ? (
         <DetailSkeleton />
@@ -501,11 +501,13 @@ function ArticleDetailLoaded({
 
             {/* Author Row */}
             <View style={styles.articleAuthorRow}>
-              <View style={styles.authorAvatarCircle}>
-                <User size={14} color="#854D0E" strokeWidth={2} />
-              </View>
+              <AvatarImage
+                uri={article.author?.avatarUrl}
+                size={26}
+                seed={article.author?.displayName || 'NOAN review'}
+              />
               <Text style={styles.articleMeta}>
-                {article.author?.displayName || 'Mogu review'}
+                {article.author?.displayName || 'NOAN review'}
                 {article.readMinutes != null ? ` · ${article.readMinutes} phút đọc` : ''}
               </Text>
             </View>
@@ -539,7 +541,7 @@ function ArticleDetailLoaded({
             ) : null}
 
             {/* Separator from react-native-reusables */}
-            <Separator className="bg-[#F0EBE0] my-3" />
+            <Separator className="bg-border my-3" />
 
             {/* Stats Bar */}
             <View style={styles.articleStatsBar}>
@@ -641,6 +643,7 @@ function ArticleDetailLoaded({
                   const authorName = comment.author?.displayName || 'Thành viên';
                   const isAuthor =
                     comment.isAuthor ||
+                    authorName.toLowerCase().includes('noan') ||
                     authorName.toLowerCase().includes('mogu') ||
                     authorName.toLowerCase().includes('mogo');
                   const replies = commentsData.filter((r) => r.parentCommentId === comment.id);
@@ -649,14 +652,14 @@ function ArticleDetailLoaded({
                     <View key={comment.id} style={styles.commentItemRow}>
                       {isAuthor ? (
                         <View style={styles.moguReplyAvatar}>
-                          <Text style={{ fontSize: 13, fontWeight: '800', color: '#161616' }}>M</Text>
+                          <Text style={{ fontSize: 13, fontWeight: '800', color: '#161616' }}>N</Text>
                         </View>
-                      ) : comment.author?.avatarUrl ? (
-                        <AppImage uri={comment.author.avatarUrl} style={styles.commentAvatarImg} contentFit="cover" />
                       ) : (
-                        <View style={styles.commentAvatarFallback}>
-                          <User size={18} color="#854D0E" />
-                        </View>
+                        <AvatarImage
+                          uri={comment.author?.avatarUrl}
+                          size={36}
+                          seed={authorName}
+                        />
                       )}
                       <View style={styles.commentItemBody}>
                         <View style={styles.commentItemHeader}>
@@ -693,20 +696,21 @@ function ArticleDetailLoaded({
                           const replyAuthor = reply.author?.displayName || 'Thành viên';
                           const isReplyAuthor =
                             reply.isAuthor ||
+                            replyAuthor.toLowerCase().includes('noan') ||
                             replyAuthor.toLowerCase().includes('mogu') ||
                             replyAuthor.toLowerCase().includes('mogo');
                           return (
                             <View key={reply.id} style={styles.nestedReplyRow}>
                               {isReplyAuthor ? (
                                 <View style={styles.moguReplyAvatar}>
-                                  <Text style={{ fontSize: 13, fontWeight: '800', color: '#161616' }}>M</Text>
+                                  <Text style={{ fontSize: 13, fontWeight: '800', color: '#161616' }}>N</Text>
                                 </View>
-                              ) : reply.author?.avatarUrl ? (
-                                <AppImage uri={reply.author.avatarUrl} style={styles.commentAvatarImgSm} contentFit="cover" />
                               ) : (
-                                <View style={styles.commentAvatarFallbackSm}>
-                                  <User size={14} color="#854D0E" />
-                                </View>
+                                <AvatarImage
+                                  uri={reply.author?.avatarUrl}
+                                  size={26}
+                                  seed={replyAuthor}
+                                />
                               )}
                               <View style={styles.commentItemBody}>
                                 <View style={styles.commentItemHeader}>
@@ -765,14 +769,11 @@ function ArticleDetailLoaded({
           {/* Bottom Floating Comment Composer */}
           {!shareSheetOpen && !commentsModalOpen && (
             <View style={styles.articleCommentComposer}>
-              <Avatar className="size-9 shrink-0">
-                {currentUser.avatarUrl ? (
-                  <RnrAvatarImage source={{ uri: currentUser.avatarUrl }} />
-                ) : null}
-                <AvatarFallback className="bg-[#FEF08A]">
-                  <User size={18} color="#78350F" />
-                </AvatarFallback>
-              </Avatar>
+              <AvatarImage
+                uri={currentUser.avatarUrl}
+                size={36}
+                seed={currentUser.displayName}
+              />
               <TextInput
                 value={commentDraft}
                 onChangeText={setCommentDraft}
@@ -806,7 +807,7 @@ function ArticleDetailLoaded({
           id: article?.id || articleId,
           title: article?.title,
           coverImageUrl: article?.coverImageUrl,
-          authorName: article?.author?.displayName || 'Mogu review',
+          authorName: article?.author?.displayName || 'NOAN review',
           slug: article?.slug,
           shareUrl: article?.shareUrl,
         })}
@@ -821,7 +822,7 @@ function ArticleDetailLoaded({
         onClose={() => setCommentsModalOpen(false)}
         article={{
           id: article?.id || articleId,
-          title: article?.title || 'Bài viết Mogu',
+          title: article?.title || 'Bài viết NOAN',
           coverImageUrl: article?.coverImageUrl,
           commentCount: article?.commentCount ?? commentsData.length,
           slug: article?.slug,
@@ -840,7 +841,7 @@ function ArticleDetailLoaded({
           id: articleId,
           title: article?.title,
           imageUrl: article?.coverImageUrl,
-          subtitle: 'Bài viết • Mogu',
+          subtitle: 'Bài viết • NOAN',
           isSaved: saved,
           shareUrl: article?.shareUrl,
         }}
@@ -868,7 +869,7 @@ function Header({
       <Pressable onPress={onBack} style={styles.iconButton}>
         <ArrowLeft size={26} color={C.ink} />
       </Pressable>
-      <Image source={brand} style={styles.brand} resizeMode="contain" />
+      <NoanWordmark width={104} height={42} />
       <View style={styles.headerActions}>
         <Pressable style={styles.iconButton}>
           <Share2 size={24} color={C.ink} />
@@ -931,7 +932,7 @@ function FoodDetail({ onBack }: { onBack: () => void }) {
           icon={<Sparkles size={22} />}
           title="Vì sao phù hợp với bạn?"
           subtitle="Giàu protein, dễ tiêu và phù hợp mục tiêu cân bằng hôm nay."
-          detail="Mogu dựa trên mục tiêu ăn uống, thời gian và ngân sách hiện tại để chọn món này."
+          detail="NOAN dựa trên mục tiêu ăn uống, thời gian và ngân sách hiện tại để chọn món này."
         />
         <View style={styles.accordionGroup}>
           <Accordion
@@ -1052,7 +1053,7 @@ function ConfirmSheet({ visible, onClose }: { visible: boolean; onClose: () => v
           </View>
         <DrawerTitle className="mt-3 text-center">Đã chọn Phở bò!</DrawerTitle>
         <DrawerDescription className="text-center">
-            Mogu đã thêm món này vào bữa trưa hôm nay của bạn.
+            NOAN đã thêm món này vào bữa trưa hôm nay của bạn.
         </DrawerDescription>
       </DrawerHeader>
       <DrawerFooter className="px-5">
@@ -1096,7 +1097,7 @@ function ArticleDetail({ onBack }: { onBack: () => void }) {
             <Heart size={20} fill={C.primary} />
           </View>
           <View>
-            <Text style={styles.authorName}>Mogu Nutrition</Text>
+            <Text style={styles.authorName}>NOAN Nutrition</Text>
             <Text style={styles.articleMeta}>5 phút đọc · Cập nhật hôm nay</Text>
           </View>
         </View>
@@ -1118,7 +1119,7 @@ function ArticleDetail({ onBack }: { onBack: () => void }) {
         <View style={styles.callout}>
           <Image source={mascot} style={styles.calloutMascot} resizeMode="contain" />
           <Text style={styles.calloutText}>
-            <Text style={{ fontWeight: '700' }}>Mẹo từ Mogu: </Text>Kết hợp nhiều màu sắc thực phẩm
+            <Text style={{ fontWeight: '700' }}>Mẹo từ NOAN: </Text>Kết hợp nhiều màu sắc thực phẩm
             trong mỗi bữa ăn.
           </Text>
         </View>

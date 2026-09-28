@@ -31,7 +31,7 @@ export function PeriodSegmentedControl({
       className={className}
       style={style}
     >
-      <TabsList className="h-auto w-full flex-row rounded-full bg-[#EBE5DA] p-1 border-0 shadow-none">
+      <TabsList className="h-auto w-full flex-row rounded-full bg-muted p-1 border-0 shadow-none">
         {PERIODS.map((p) => {
           const isSelected = value === p.id;
           return (
@@ -47,7 +47,7 @@ export function PeriodSegmentedControl({
                 className={`text-[14px] ${
                   isSelected
                     ? 'text-primary-foreground font-bold'
-                    : 'text-[#78716C] font-semibold'
+                    : 'text-muted-foreground font-semibold'
                 }`}
               >
                 {p.label}

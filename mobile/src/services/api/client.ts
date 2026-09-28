@@ -61,11 +61,20 @@ async function parseResponse<T>(response: Response): Promise<T> {
 }
 
 async function refreshSession(refreshToken: string): Promise<Session> {
-  const response = await fetch(`${API_URL}/auth/refresh`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refreshToken }),
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}/auth/refresh`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refreshToken }),
+    });
+  } catch {
+    throw new ApiError(
+      'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau.',
+      0,
+      'NETWORK_ERROR',
+    );
+  }
   const result = await parseResponse<{ session: Session }>(response);
   const session: Session = {
     ...result.session,
@@ -125,21 +134,40 @@ export async function apiRequest<T>(path: string, options: Options = {}): Promis
       ? '{}'
       : requestOptions.body;
 
-  const response = await fetch(`${API_URL}${path}`, {
-    ...requestOptions,
-    body,
-    headers: {
-      Accept: 'application/json',
-      ...(body != null ? { 'Content-Type': 'application/json' } : {}),
-      'X-Timezone': tz,
-      'X-Local-Date': todayDate,
-      'X-Request-Id': requestId,
-      'X-Platform': Platform.OS,
-      'X-App-Version': '1.4.0',
-      ...(session?.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {}),
-      ...headers,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...requestOptions,
+      body,
+      headers: {
+        Accept: 'application/json',
+        ...(body != null ? { 'Content-Type': 'application/json' } : {}),
+        'X-Timezone': tz,
+        'X-Local-Date': todayDate,
+        'X-Request-Id': requestId,
+        'X-Platform': Platform.OS,
+        'X-App-Version': '1.4.0',
+        ...(session?.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {}),
+        ...headers,
+      },
+    });
+  } catch (err: any) {
+    const rawMsg = String(err?.message ?? '');
+    if (
+      rawMsg.includes('ConnectException') ||
+      rawMsg.includes('Failed to connect') ||
+      rawMsg.includes('ECONNREFUSED') ||
+      rawMsg.includes('Network request failed') ||
+      rawMsg.includes('fetch failed')
+    ) {
+      throw new ApiError(
+        'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau.',
+        0,
+        'NETWORK_ERROR',
+      );
+    }
+    throw err;
+  }
 
   if (response.status === 401 && auth && retry && session?.refreshToken) {
     try {

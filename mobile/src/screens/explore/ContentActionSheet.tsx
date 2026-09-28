@@ -26,7 +26,7 @@ import {
   UserPlus,
   Users,
   UserX,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { Drawer } from '../../components/ui/drawer';
 import { ConfirmDialog } from '../../components/ui/confirm-dialog';
 import { Button } from '../../components/ui/button';
@@ -348,7 +348,7 @@ export function ContentActionSheet({
                   </Text>
                   <Text style={s.headerSub} numberOfLines={1}>
                     {target?.subtitle ||
-                      (target?.kind === 'DISH' ? 'Món ăn • Mogu' : 'Bài viết • Mogu')}
+                      (target?.kind === 'DISH' ? 'Món ăn • NOAN' : 'Bài viết • NOAN')}
                   </Text>
                 </View>
               </View>
@@ -506,10 +506,10 @@ export function ContentActionSheet({
             {whyText}
           </Text>
           <Button
-            className="mt-6 h-12 rounded-full bg-[#FFD54F]"
+            className="mt-6 h-12 rounded-full bg-primary"
             onPress={() => setWhyOpen(false)}
           >
-            <Text className="font-extrabold text-[#161616]">Đã hiểu</Text>
+            <Text className="font-extrabold text-primary-foreground">Đã hiểu</Text>
           </Button>
         </View>
       </Drawer>
@@ -538,7 +538,7 @@ export function ContentActionSheet({
       <ConfirmDialog
         visible={confirmDelete}
         title="Xóa bài viết?"
-        description="Bài viết sẽ bị xóa vĩnh viễn khỏi cộng đồng Mogu. Bạn không thể hoàn tác thao tác này."
+        description="Bài viết sẽ bị xóa vĩnh viễn khỏi cộng đồng NOAN. Bạn không thể hoàn tác thao tác này."
         confirmLabel="Xóa"
         cancelLabel="Hủy"
         tone="danger"

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ArrowLeft, Leaf, ShoppingCart } from 'lucide-react-native';
+import { ArrowLeft, Leaf, ShoppingCart } from '@/components/icons';
 import { getWeeklyIngredients } from '../services/api/weekly-plan';
 import type {
   GroceryIngredientCategory,

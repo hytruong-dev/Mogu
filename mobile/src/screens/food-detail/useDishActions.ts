@@ -34,7 +34,7 @@ export async function shareDish(dishName: string, dishId?: string) {
   try {
     await Share.share({
       message: dishId
-        ? `Xem món ${dishName} trên Mogu`
+        ? `Xem món ${dishName} trên NOAN`
         : `Món ngon: ${dishName}`,
       title: dishName,
     });

@@ -2,10 +2,14 @@ import { cn } from '@/lib/utils';
 import * as React from 'react';
 import { Platform, TextInput } from 'react-native';
 
-const Input = React.forwardRef<
-  React.ElementRef<typeof TextInput>,
-  React.ComponentProps<typeof TextInput>
->(({ className, ...props }, ref) => {
+function Input({
+  className,
+  ref,
+  ...props
+}: React.ComponentProps<typeof TextInput> & {
+  className?: string;
+  ref?: React.Ref<TextInput>;
+}) {
   return (
     <TextInput
       ref={ref}
@@ -29,7 +33,7 @@ const Input = React.forwardRef<
       {...props}
     />
   );
-});
+}
 Input.displayName = 'Input';
 
 export { Input };

@@ -18,7 +18,7 @@ import {
   Footprints,
   Plus,
   Utensils,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { cn } from '../lib/utils';
 import { Progress } from '../components/ui/progress';
 import { ExploreDetailScreen } from './ExploreDetailScreen';
@@ -33,7 +33,7 @@ import { recordMealLoggedStore } from '../services/app-store';
 import { getDeviceTimeZone } from '../lib/dates';
 import { dishesApi } from '../services/api/dishes';
 
-const mascot = require('../assets/images/random/thumb.png');
+const mascot = require('../assets/images/noan/noan-mascot-master-v1.png');
 
 const shadow = {
   shadowColor: '#5D490F',
@@ -124,7 +124,7 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
   const noData = !day || day.dataStatus === 'no_data';
 
   return (
-    <SafeAreaView className="flex-1 bg-mogu-cream" edges={['top', 'left', 'right']}>
+    <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 10 }}
@@ -139,8 +139,8 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
         }
       >
         <View className="h-[74px] flex-row items-center justify-between">
-          <Text className="text-[32px] font-bold text-[#161616]">Sức khỏe</Text>
-          <Pressable className="w-11 h-11 rounded-full bg-white items-center justify-center" style={shadow}>
+          <Text className="text-[32px] font-bold text-foreground">Sức khỏe</Text>
+          <Pressable className="w-11 h-11 rounded-full bg-card items-center justify-center" style={shadow}>
             <Bell size={22} color="#161616" />
           </Pressable>
         </View>
@@ -164,37 +164,37 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
           <HealthSkeleton />
         ) : error ? (
           <View className="py-10 items-center px-4">
-            <Text className="text-[#161616] font-semibold text-center">{error}</Text>
-            <Pressable onPress={() => void loadDay()} className="mt-4 bg-mogu-yellow px-5 py-3 rounded-full">
-              <Text className="font-bold">Thử lại</Text>
+            <Text className="text-foreground font-semibold text-center">{error}</Text>
+            <Pressable onPress={() => void loadDay()} className="mt-4 bg-primary px-5 py-3 rounded-full">
+              <Text className="font-bold text-primary-foreground">Thử lại</Text>
             </Pressable>
           </View>
         ) : (
           <>
             <Pressable
               onPress={() => setPage('overview')}
-              className="mt-4 bg-white rounded-[24px] p-5"
+              className="mt-4 bg-card rounded-[24px] p-5"
               style={shadow}
             >
-              <Text className="text-[#7E7E7E] text-sm">Năng lượng hôm nay</Text>
+              <Text className="text-muted-foreground text-sm">Năng lượng hôm nay</Text>
               {noData || consumed == null ? (
-                <Text className="text-[22px] font-bold text-[#161616] mt-2">Chưa có dữ liệu</Text>
+                <Text className="text-[22px] font-bold text-foreground mt-2">Chưa có dữ liệu</Text>
               ) : (
                 <>
-                  <Text className="text-[40px] font-bold text-[#161616] mt-1">
+                  <Text className="text-[40px] font-bold text-foreground mt-1">
                     {consumed}
-                    <Text className="text-[18px] font-semibold text-[#7E7E7E]">
+                    <Text className="text-[18px] font-semibold text-muted-foreground">
                       {target != null ? ` / ${target} kcal` : ' kcal'}
                     </Text>
                   </Text>
                   {remaining != null && target != null ? (
-                    <Text className="text-[#4F4F4F] mt-1">Còn lại {remaining} kcal</Text>
+                    <Text className="text-muted-foreground mt-1">Còn lại {remaining} kcal</Text>
                   ) : null}
                   <View className="mt-3">
                     <Progress
                       value={target ? Math.min(100, Math.round((consumed / target) * 100)) : 0}
-                      className="h-2 bg-[#F5EEDC]"
-                      indicatorClassName="bg-[#FFC51A]"
+                      className="h-2 bg-muted"
+                      indicatorClassName="bg-primary"
                     />
                   </View>
                 </>
@@ -202,19 +202,19 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
             </Pressable>
 
             <View className="flex-row gap-3 mt-3">
-              <View className="flex-1 bg-white rounded-[20px] p-4" style={shadow}>
+              <View className="flex-1 bg-card rounded-[20px] p-4" style={shadow}>
                 <View className="flex-row items-center gap-2">
                   <Droplets size={18} color="#4F8CFF" />
-                  <Text className="font-semibold text-[#161616]">Nước</Text>
+                  <Text className="font-semibold text-foreground">Nước</Text>
                 </View>
-                <Text className="text-[22px] font-bold mt-2 text-[#161616]">
+                <Text className="text-[22px] font-bold mt-2 text-foreground">
                   {waterMl == null ? '—' : `${waterMl} ml`}
                 </Text>
                 <View className="mt-2">
                   <Progress
                     value={Math.min(100, Math.round(((waterMl ?? 0) / 2000) * 100))}
-                    className="h-1.5 bg-[#EBF3FF]"
-                    indicatorClassName="bg-[#4F8CFF]"
+                    className="h-1.5 bg-info/20"
+                    indicatorClassName="bg-info"
                   />
                 </View>
                 <Pressable
@@ -222,33 +222,33 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
                   disabled={addingWater}
                   className={cn(
                     'mt-3 h-10 rounded-full items-center justify-center',
-                    addingWater ? 'bg-[#EEE]' : 'bg-mogu-yellow',
+                    addingWater ? 'bg-muted' : 'bg-primary',
                   )}
                 >
-                  <Text className="font-bold text-[#161616]">+250 ml</Text>
+                  <Text className="font-bold text-primary-foreground">+250 ml</Text>
                 </Pressable>
               </View>
 
-              <View className="flex-1 bg-white rounded-[20px] p-4" style={shadow}>
+              <View className="flex-1 bg-card rounded-[20px] p-4" style={shadow}>
                 <View className="flex-row items-center gap-2">
                   <Footprints size={18} color="#2F9E6A" />
-                  <Text className="font-semibold text-[#161616]">Bước chân</Text>
+                  <Text className="font-semibold text-foreground">Bước chân</Text>
                 </View>
-                <Text className="text-[22px] font-bold mt-2 text-[#161616]">—</Text>
-                <Text className="text-xs text-[#7E7E7E] mt-2">Chưa kết nối thiết bị</Text>
+                <Text className="text-[22px] font-bold mt-2 text-foreground">—</Text>
+                <Text className="text-xs text-muted-foreground mt-2">Chưa kết nối thiết bị</Text>
               </View>
             </View>
 
             <Pressable
               onPress={() => setPage('meals')}
-              className="mt-3 bg-white rounded-[20px] p-4 flex-row items-center justify-between"
+              className="mt-3 bg-card rounded-[20px] p-4 flex-row items-center justify-between"
               style={shadow}
             >
               <View className="flex-row items-center gap-3">
                 <Utensils size={20} color="#161616" />
                 <View>
-                  <Text className="font-bold text-[#161616]">Nhật ký bữa ăn</Text>
-                  <Text className="text-sm text-[#7E7E7E]">
+                  <Text className="font-bold text-foreground">Nhật ký bữa ăn</Text>
+                  <Text className="text-sm text-muted-foreground">
                     {noData
                       ? 'Chưa ghi bữa nào'
                       : `${day?.mealGroups?.reduce((s, g) => s + g.meals.length, 0) ?? 0} bữa đã ghi`}
@@ -260,10 +260,10 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile }: Props) 
 
             <Pressable
               onPress={() => setPage('log')}
-              className="mt-4 h-14 rounded-full bg-mogu-yellow items-center justify-center flex-row gap-2"
+              className="mt-4 h-14 rounded-full bg-primary items-center justify-center flex-row gap-2"
             >
               <Plus size={20} />
-              <Text className="font-bold text-[#161616]">Ghi bữa ăn</Text>
+              <Text className="font-bold text-primary-foreground">Ghi bữa ăn</Text>
             </Pressable>
 
             <View className="items-center mt-6 mb-4">

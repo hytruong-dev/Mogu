@@ -18,7 +18,7 @@ import {
   List,
   MoreVertical,
   X,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { AppImage } from '../../components/ui/app-image';
 import {
   BORDER,

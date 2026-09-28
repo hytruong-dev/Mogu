@@ -233,7 +233,7 @@ export function DrawerTitle({
 }) {
   return (
     <Text
-      className={cn('text-[18px] font-bold text-[#111]', className)}
+      className={cn('text-[18px] font-bold text-foreground', className)}
       style={{ letterSpacing: -0.3 }}
     >
       {children}
@@ -250,7 +250,7 @@ export function DrawerDescription({
 }) {
   return (
     <Text
-      className={cn('text-[13px] text-[#888] mt-1', className)}
+      className={cn('text-[13px] text-muted-foreground mt-1', className)}
       style={{ lineHeight: 18 }}
     >
       {children}
@@ -294,7 +294,7 @@ export function DrawerClose({
       onPress={onPress}
       hitSlop={10}
       className={cn(
-        'w-8 h-8 rounded-full bg-[#F4F4F4] items-center justify-center',
+        'w-8 h-8 rounded-full bg-muted items-center justify-center',
         className,
       )}
       style={({ pressed }) => [pressed && { opacity: 0.7 }]}

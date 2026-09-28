@@ -1,4 +1,4 @@
-import { AlertTriangle, Info, Trash2 } from 'lucide-react-native';
+import { AlertTriangle, Info, Trash2 } from '@/components/icons';
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export type ConfirmDialogTone = 'warning' | 'danger' | 'info';

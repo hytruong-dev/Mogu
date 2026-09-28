@@ -18,7 +18,7 @@ import {
   UserPlus,
   X,
   Zap,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { notificationRealtime } from '../../services/notification-realtime';
 import type { NotificationItem } from '../../services/api/types';
 

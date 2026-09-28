@@ -10,7 +10,7 @@ import {
   Sun,
   UtensilsCrossed,
   X,
-} from 'lucide-react-native';
+} from '@/components/icons';
 
 import { Button } from '../ui/button';
 import { ConfirmDialog } from '../ui/confirm-dialog';
@@ -154,7 +154,7 @@ export function MealScheduleSheet({ visible, value, onApply, onDismiss }: Props)
         sheetBackgroundColor="#FFFFFF"
       >
         <DrawerHeader className="px-5 pt-1 pb-2 flex-row items-center justify-between">
-          <DrawerTitle className="text-[20px] font-extrabold text-[#111111]">
+          <DrawerTitle className="text-[20px] font-extrabold text-foreground">
             Lịch ăn
           </DrawerTitle>
           <Pressable onPress={requestClose} hitSlop={10} style={s.closeBtn}>
@@ -226,9 +226,9 @@ export function MealScheduleSheet({ visible, value, onApply, onDismiss }: Props)
               onDismiss();
             }}
             disabled={enabledCount === 0}
-            className="h-[52px] w-full rounded-2xl bg-[#FFC20E] active:opacity-90"
+            className="h-[52px] w-full rounded-2xl bg-primary active:opacity-90"
           >
-            <Text className="text-[15px] font-extrabold text-[#111111]">
+            <Text className="text-[15px] font-extrabold text-primary-foreground">
               Áp dụng lịch ăn
             </Text>
           </Button>

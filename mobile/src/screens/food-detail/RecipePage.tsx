@@ -16,7 +16,7 @@ import {
   ChevronRight,
   Clock3,
   Users,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { AppImage } from '../../components/ui/app-image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Text as UiText } from '../../components/ui/text';
@@ -183,7 +183,7 @@ export function RecipePage({
         style={styles.tabsRoot}
       >
         <View style={styles.tabsBar}>
-          <TabsList className="h-auto w-full flex-row rounded-full bg-white p-1" style={styles.tabsList}>
+          <TabsList className="h-auto w-full flex-row rounded-full bg-card p-1" style={styles.tabsList}>
             <TabsTrigger
               value="ingredients"
               className="flex-1 rounded-full border-0 shadow-none"

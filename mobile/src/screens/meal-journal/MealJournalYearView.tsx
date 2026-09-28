@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Sparkles, ChevronRight, Utensils, Calendar } from 'lucide-react-native';
+import { Sparkles, ChevronRight, Utensils, Calendar } from '@/components/icons';
 import { MealStatsResponse } from '../../services/api/health';
 import { JournalSummaryStrip } from './JournalSummaryStrip';
 import { ThumbnailStack } from './ThumbnailStack';
@@ -62,14 +62,14 @@ export function MealJournalYearView({
       />
 
       {/* 2. Chart Section with Metric Toggle */}
-      <Card className="bg-white rounded-3xl p-5 border border-[#EFEAE2] shadow-xs gap-0">
+      <Card className="bg-card rounded-3xl p-5 border border-border shadow-xs gap-0">
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-[17px] font-bold text-[#1C1917]">
+          <Text className="text-[17px] font-bold text-foreground">
             {metric === 'energy' ? 'Năng lượng cả năm' : 'Số bữa cả năm'}
           </Text>
 
           {/* Metric Toggle */}
-          <View className="flex-row bg-[#F5F2EB] p-1 rounded-full border border-[#EAE3D5]">
+          <View className="flex-row bg-muted p-1 rounded-full border border-border">
             <Pressable
               onPress={() => setMetric('energy')}
               className={`px-3 py-1 rounded-full ${
@@ -78,7 +78,7 @@ export function MealJournalYearView({
             >
               <Text
                 className={`text-[12px] font-bold ${
-                  metric === 'energy' ? 'text-primary-foreground' : 'text-[#78716C]'
+                  metric === 'energy' ? 'text-primary-foreground' : 'text-muted-foreground'
                 }`}
               >
                 Năng lượng
@@ -93,7 +93,7 @@ export function MealJournalYearView({
             >
               <Text
                 className={`text-[12px] font-bold ${
-                  metric === 'meals' ? 'text-primary-foreground' : 'text-[#78716C]'
+                  metric === 'meals' ? 'text-primary-foreground' : 'text-muted-foreground'
                 }`}
               >
                 Số bữa
@@ -132,12 +132,12 @@ export function MealJournalYearView({
                       className="w-3 max-w-[14px] bg-primary rounded-t-full shadow-xs active:bg-primary/80"
                     />
                   ) : (
-                    <View className="w-1.5 h-1.5 rounded-full bg-[#D6D3D1] mb-0.5" />
+                    <View className="w-1.5 h-1.5 rounded-full bg-muted-foreground/30 mb-0.5" />
                   )}
                 </View>
 
                 {/* Month Label */}
-                <Text className="text-[11px] font-semibold text-[#78716C] mt-1">
+                <Text className="text-[11px] font-semibold text-muted-foreground mt-1">
                   {item.label}
                 </Text>
               </Pressable>
@@ -157,22 +157,22 @@ export function MealJournalYearView({
       </Card>
 
       {/* 4. Section: Theo tháng */}
-      <Card className="bg-white rounded-3xl p-5 border border-[#EFEAE2] shadow-xs gap-0">
+      <Card className="bg-card rounded-3xl p-5 border border-border shadow-xs gap-0">
         <View className="flex-row items-center justify-between mb-3">
-          <Text className="text-[17px] font-bold text-[#1C1917]">
+          <Text className="text-[17px] font-bold text-foreground">
             Theo tháng
           </Text>
-          <Text className="text-[13px] font-semibold text-[#78716C]">
+          <Text className="text-[13px] font-semibold text-muted-foreground">
             {monthsWithData.length} tháng có dữ liệu
           </Text>
         </View>
 
         {monthsWithData.length === 0 ? (
           <View className="py-6 items-center justify-center">
-            <View className="w-12 h-12 rounded-full bg-[#FAF7F2] items-center justify-center border border-[#EFEAE2] mb-2">
+            <View className="w-12 h-12 rounded-full bg-secondary items-center justify-center border border-border mb-2">
               <Utensils size={20} color="#A8A29E" />
             </View>
-            <Text className="text-[14px] font-medium text-[#78716C] text-center">
+            <Text className="text-[14px] font-medium text-muted-foreground text-center">
               Chưa có nhật ký bữa ăn nào trong năm nay.
             </Text>
           </View>
@@ -181,19 +181,19 @@ export function MealJournalYearView({
             {monthsWithData.map((m) => (
               <Card
                 key={m.monthKey}
-                className="p-0 rounded-2xl bg-[#FAF7F2] border border-[#F0EAE0] overflow-hidden gap-0 shadow-none"
+                className="p-0 rounded-2xl bg-secondary border border-border overflow-hidden gap-0 shadow-none"
               >
                 <Pressable
                   onPress={() => onSelectMonth(m.monthKey)}
                   accessibilityRole="button"
                   accessibilityLabel={`${m.label}: ${m.consumedKcal} kcal, ${m.mealCount} bữa`}
-                  className="p-3 flex-row items-center justify-between active:bg-[#F5F0E6]"
+                  className="p-3 flex-row items-center justify-between active:bg-muted"
                 >
                   <View className="flex-1 mr-3">
-                    <Text className="text-[15px] font-bold text-[#1C1917]">
+                    <Text className="text-[15px] font-bold text-foreground">
                       {m.label}
                     </Text>
-                    <Text className="text-[12px] text-[#78716C] mt-0.5">
+                    <Text className="text-[12px] text-muted-foreground mt-0.5">
                       {m.consumedKcal.toLocaleString('vi-VN')} kcal · {m.mealCount} bữa
                     </Text>
                   </View>
@@ -213,10 +213,10 @@ export function MealJournalYearView({
           variant="outline"
           onPress={onOpenAllMonths}
           accessibilityLabel="Xem đủ 12 tháng"
-          className="mt-4 py-3 bg-[#FAF7F2] border border-[#EFEAE2] rounded-2xl flex-row items-center justify-center active:bg-[#F5F0E6] shadow-none"
+          className="mt-4 py-3 bg-secondary border border-border rounded-2xl flex-row items-center justify-center active:bg-muted shadow-none"
         >
           <Calendar size={16} color="#78716C" className="mr-2" />
-          <Text className="text-[14px] font-bold text-[#44403C]">
+          <Text className="text-[14px] font-bold text-foreground/80">
             Xem đủ 12 tháng
           </Text>
         </Button>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
-import { Globe, Lock, Users } from 'lucide-react-native';
+import { Globe, Lock, Users } from '@/components/icons';
 import {
   Drawer,
   DrawerClose,
@@ -24,7 +24,7 @@ const OPTIONS: Array<{
   {
     value: 'PUBLIC',
     label: 'Mọi người',
-    desc: 'Bất kỳ ai trên Mogu đều có thể xem bài viết của bạn.',
+    desc: 'Bất kỳ ai trên NOAN đều có thể xem bài viết của bạn.',
     Icon: Globe,
   },
   {
@@ -67,7 +67,7 @@ export function AudienceSheet({
     <Drawer open={open} onOpenChange={onOpenChange} snapHeight={420}>
       <DrawerHeader className="flex-row items-center justify-between px-4">
         <DrawerClose onPress={() => onOpenChange(false)} />
-        <DrawerTitle className="text-base font-extrabold text-[#161616]">
+        <DrawerTitle className="text-base font-extrabold text-foreground">
           Ai có thể xem bài viết?
         </DrawerTitle>
         <View className="w-10" />
@@ -86,12 +86,12 @@ export function AudienceSheet({
                   className="min-h-14 flex-row items-center gap-3 py-3"
                   style={disabled ? { opacity: 0.45 } : undefined}
                 >
-                  <View className="h-10 w-10 items-center justify-center rounded-full bg-[#FFF1B3]">
-                    <opt.Icon size={20} color="#161616" />
+                  <View className="h-10 w-10 items-center justify-center rounded-full bg-secondary">
+                    <opt.Icon size={20} color="#2A1A10" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-[15px] font-bold text-[#161616]">{opt.label}</Text>
-                    <Text className="text-[13px] text-[#8A8A8A]">{opt.desc}</Text>
+                    <Text className="text-[15px] font-bold text-foreground">{opt.label}</Text>
+                    <Text className="text-[13px] text-muted-foreground">{opt.desc}</Text>
                   </View>
                   <RadioGroupItem value={opt.value} />
                 </Pressable>
@@ -102,13 +102,13 @@ export function AudienceSheet({
       </DrawerContent>
       <DrawerFooter className="px-4 pb-6">
         <Button
-          className="h-12 rounded-full bg-[#FFD54F]"
+          className="h-12 rounded-full bg-primary"
           onPress={() => {
             onSelect(local);
             onOpenChange(false);
           }}
         >
-          <Text className="font-extrabold text-[#161616]">Xong</Text>
+          <Text className="font-extrabold text-primary-foreground">Xong</Text>
         </Button>
       </DrawerFooter>
     </Drawer>

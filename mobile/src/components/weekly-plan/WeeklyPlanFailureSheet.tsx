@@ -11,7 +11,7 @@ import {
   Leaf,
   Sparkles,
   TriangleAlert,
-} from 'lucide-react-native';
+} from '@/components/icons';
 
 import { Button } from '../ui/button';
 import {
@@ -135,10 +135,10 @@ export function WeeklyPlanFailureSheet({
           </View>
         </View>
 
-        <DrawerTitle className="text-[20px] font-extrabold text-[#111111] text-center mt-3">
+        <DrawerTitle className="text-[20px] font-extrabold text-foreground text-center mt-3">
           Chưa thể tạo thực đơn
         </DrawerTitle>
-        <Text className="text-[14px] text-[#6B6862] text-center mt-1 px-4 leading-5">
+        <Text className="text-[14px] text-muted-foreground text-center mt-1 px-4 leading-5">
           {reasonMessage}
         </Text>
       </DrawerHeader>
@@ -184,9 +184,9 @@ export function WeeklyPlanFailureSheet({
             });
             onAdjustConfig(rows[0]?.focus);
           }}
-          className="h-[52px] w-full rounded-2xl bg-[#FFC20E] active:opacity-90 shadow-none"
+          className="h-[52px] w-full rounded-2xl bg-primary active:opacity-90 shadow-none"
         >
-          <Text className="text-[15px] font-extrabold text-[#111111]">
+          <Text className="text-[15px] font-extrabold text-primary-foreground">
             Điều chỉnh cấu hình
           </Text>
         </Button>
@@ -201,16 +201,16 @@ export function WeeklyPlanFailureSheet({
               });
               onViewApprovedDishes();
             }}
-            className="h-[52px] w-full rounded-2xl border-[#E5E7EB] bg-white active:bg-neutral-50 shadow-none"
+            className="h-[52px] w-full rounded-2xl border-border bg-card active:bg-muted shadow-none"
           >
-            <Text className="text-[15px] font-bold text-[#111111]">
+            <Text className="text-[15px] font-bold text-foreground">
               Xem kho món đã duyệt
             </Text>
           </Button>
         )}
 
         <Pressable onPress={onDismiss} style={s.dismissBtn} hitSlop={10}>
-          <Text className="text-[14px] font-semibold text-[#8A8580] text-center">
+          <Text className="text-[14px] font-semibold text-muted-foreground text-center">
             Để sau
           </Text>
         </Pressable>

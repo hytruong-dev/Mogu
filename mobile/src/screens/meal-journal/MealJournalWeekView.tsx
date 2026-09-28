@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { BarChart2, ChevronRight, ChevronDown, Utensils, Plus } from 'lucide-react-native';
+import { BarChart2, ChevronRight, ChevronDown, Utensils, Plus } from '@/components/icons';
 import { MealStatsResponse, FormattedMealLog } from '../../services/api/health';
 import { JournalSummaryStrip } from './JournalSummaryStrip';
 import { Card } from '../../components/ui/card';
@@ -86,7 +86,7 @@ export function MealJournalWeekView({
       />
 
       {/* 2. 7-Day Day Selector Strip */}
-      <Card className="bg-white rounded-2xl p-2.5 border border-[#EFEAE2] shadow-xs gap-0">
+      <Card className="bg-card rounded-2xl p-2.5 border border-border shadow-xs gap-0">
         <View className="flex-row items-center justify-between">
           {series.map((item) => {
             const isSelected = item.date === activeSelectedDate;
@@ -109,7 +109,7 @@ export function MealJournalWeekView({
               >
                 <Text
                   className={`text-[12px] font-semibold ${
-                    isSelected ? 'text-foreground font-bold' : 'text-[#78716C]'
+                    isSelected ? 'text-foreground font-bold' : 'text-muted-foreground'
                   }`}
                 >
                   {item.label}
@@ -117,7 +117,7 @@ export function MealJournalWeekView({
 
                 <Text
                   className={`text-[15px] font-bold mt-1 ${
-                    isSelected ? 'text-[#1C1917]' : 'text-[#44403C]'
+                    isSelected ? 'text-foreground' : 'text-foreground/80'
                   }`}
                 >
                   {dateNum}
@@ -142,22 +142,22 @@ export function MealJournalWeekView({
       </Card>
 
       {/* 3. Link: Xem biểu đồ tuần */}
-      <Card className="bg-white rounded-2xl p-0 border border-[#EFEAE2] shadow-xs overflow-hidden gap-0">
+      <Card className="bg-card rounded-2xl p-0 border border-border shadow-xs overflow-hidden gap-0">
         <Pressable
           onPress={onOpenWeekTrend}
           accessibilityRole="button"
           accessibilityLabel="Xem biểu đồ tuần"
-          className="p-4 flex-row items-center justify-between active:bg-[#FAF8F5]"
+          className="p-4 flex-row items-center justify-between active:bg-muted"
         >
           <View className="flex-row items-center">
             <View className="w-9 h-9 rounded-full bg-primary/20 items-center justify-center mr-3 border border-primary/30">
               <BarChart2 size={18} color="#B45309" />
             </View>
             <View>
-              <Text className="text-[15px] font-bold text-[#1C1917]">
+              <Text className="text-[15px] font-bold text-foreground">
                 Xem biểu đồ tuần
               </Text>
-              <Text className="text-[12px] text-[#78716C]">
+              <Text className="text-[12px] text-muted-foreground">
                 Phân tích năng lượng và số bữa trong 7 ngày
               </Text>
             </View>
@@ -167,7 +167,7 @@ export function MealJournalWeekView({
       </Card>
 
       {/* 4. Meal Group Section for Selected Day */}
-      <Card className="bg-white rounded-3xl p-4 border border-[#EFEAE2] shadow-xs gap-0">
+      <Card className="bg-card rounded-3xl p-4 border border-border shadow-xs gap-0">
         {/* Group Header */}
         <View className="flex-row items-center justify-between pb-3">
           <Pressable
@@ -175,12 +175,12 @@ export function MealJournalWeekView({
             className="flex-1"
           >
             <View className="flex-row items-center">
-              <Text className="text-[16px] font-bold text-[#1C1917]">
+              <Text className="text-[16px] font-bold text-foreground">
                 {currentDayGroup?.label ?? (selectedSeriesItem ? `${selectedSeriesItem.label}, ${selectedSeriesItem.subLabel}` : 'Bữa ăn trong ngày')}
               </Text>
               <ChevronRight size={16} color="#A8A29E" className="ml-1" />
             </View>
-            <Text className="text-[12px] text-[#78716C] mt-0.5">
+            <Text className="text-[12px] text-muted-foreground mt-0.5">
               {dayMealCount > 0
                 ? `${(dayKcal ?? 0).toLocaleString('vi-VN')} kcal · ${dayMealCount} bữa`
                 : 'Chưa có bữa ăn'}
@@ -192,7 +192,7 @@ export function MealJournalWeekView({
             variant="ghost"
             onPress={() => setIsGroupExpanded(!isGroupExpanded)}
             accessibilityLabel={isGroupExpanded ? 'Thu gọn nhóm bữa ăn' : 'Mở rộng nhóm bữa ăn'}
-            className="w-8 h-8 items-center justify-center rounded-full bg-[#FAF7F2] border border-[#EFEAE2]"
+            className="w-8 h-8 items-center justify-center rounded-full bg-secondary border border-border"
           >
             {isGroupExpanded ? (
               <ChevronDown size={16} color="#78716C" />
@@ -202,17 +202,17 @@ export function MealJournalWeekView({
           </Button>
         </View>
 
-        <Separator className="bg-[#F5F2EB]" />
+        <Separator className="bg-border" />
 
         {/* Meal Items */}
         {isGroupExpanded && (
           <View className="mt-3 gap-2.5">
             {currentDayMeals.length === 0 ? (
               <View className="py-6 items-center justify-center">
-                <View className="w-12 h-12 rounded-full bg-[#FAF7F2] items-center justify-center border border-[#EFEAE2] mb-2">
+                <View className="w-12 h-12 rounded-full bg-secondary items-center justify-center border border-border mb-2">
                   <Utensils size={20} color="#A8A29E" />
                 </View>
-                <Text className="text-[14px] font-bold text-[#1C1917]">
+                <Text className="text-[14px] font-bold text-foreground">
                   Chưa ghi bữa ngày này
                 </Text>
                 <Button
@@ -237,13 +237,13 @@ export function MealJournalWeekView({
                 return (
                   <Card
                     key={meal.id || idx}
-                    className="p-0 rounded-2xl bg-[#FAF7F2] border border-[#F0EAE0] overflow-hidden gap-0 shadow-none"
+                    className="p-0 rounded-2xl bg-secondary border border-border overflow-hidden gap-0 shadow-none"
                   >
                     <Pressable
                       onPress={() => dishId && onOpenDish?.(dishId, dishName)}
-                      className="p-2.5 flex-row items-center active:bg-[#F5F0E6]"
+                      className="p-2.5 flex-row items-center active:bg-muted"
                     >
-                      <View className="w-12 h-12 rounded-xl bg-white border border-[#E8E0D2] overflow-hidden items-center justify-center mr-3">
+                      <View className="w-12 h-12 rounded-xl bg-card border border-border overflow-hidden items-center justify-center mr-3">
                         {thumb ? (
                           <AppImage
                             uri={thumb}
@@ -270,12 +270,12 @@ export function MealJournalWeekView({
                         </View>
                         <Text
                           numberOfLines={1}
-                          className="text-[14px] font-bold text-[#1C1917] mt-0.5"
+                          className="text-[14px] font-bold text-foreground mt-0.5"
                         >
                           {dishName}
                         </Text>
                         {kcal != null && (
-                          <Text className="text-[12px] font-medium text-[#78716C] mt-0.5">
+                          <Text className="text-[12px] font-medium text-muted-foreground mt-0.5">
                             {kcal.toLocaleString('vi-VN')} kcal
                           </Text>
                         )}

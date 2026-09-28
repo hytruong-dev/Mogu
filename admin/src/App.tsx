@@ -135,7 +135,7 @@ function Sidebar({ currentPath }: { currentPath: string }) {
           </div>
           <div className="brand-text-block">
             <div className="brand-title-row">
-              <span className="brand-title">Mogu</span>
+              <span className="brand-title">NOAN</span>
               <span className="brand-badge">PRO</span>
             </div>
             <span className="brand-subtitle">Studio Console</span>

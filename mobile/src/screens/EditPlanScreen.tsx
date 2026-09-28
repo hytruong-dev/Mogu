@@ -29,7 +29,7 @@ import {
   SlidersHorizontal,
   UtensilsCrossed,
   Wallet,
-} from 'lucide-react-native';
+} from '@/components/icons';
 
 import { Button } from '../components/ui/button';
 import {
@@ -797,7 +797,7 @@ export function EditPlanScreen({
 
             <View style={s.infoBanner}>
               <Info size={16} color="#B45309" strokeWidth={2.2} />
-              <Text style={s.infoText}>Mogu phân bổ ngân sách và kcal theo từng loại bữa.</Text>
+              <Text style={s.infoText}>NOAN phân bổ ngân sách và kcal theo từng loại bữa.</Text>
             </View>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -827,7 +827,7 @@ export function EditPlanScreen({
             runGenerate();
           }}
           disabled={ctaDisabled && !timedOut}
-          className="h-[52px] w-full rounded-2xl bg-[#FFC20E] active:opacity-90"
+          className="h-[52px] w-full rounded-2xl bg-primary active:opacity-90"
         >
           {generating ? (
             <View style={s.ctaLoading}>

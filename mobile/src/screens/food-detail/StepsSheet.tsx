@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Check, X } from 'lucide-react-native';
+import { Check, X } from '@/components/icons';
 import {
   Drawer,
   DrawerContent,
@@ -54,7 +54,7 @@ export function StepsSheet({
       <DrawerHeader className="px-5 pt-2 pb-1">
         <View style={styles.headRow}>
           <View style={{ flex: 1 }}>
-            <DrawerTitle className="text-[18px] font-bold text-[#161616]">Các bước</DrawerTitle>
+            <DrawerTitle className="text-[18px] font-bold text-foreground">Các bước</DrawerTitle>
             <Text style={styles.sub}>{summary}</Text>
           </View>
           <Pressable

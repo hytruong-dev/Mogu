@@ -5,7 +5,7 @@ import {
   MessageCircle,
   MoreHorizontal,
   Share2,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { AppImage } from '../../components/ui/app-image';
 import { AvatarImage } from '../../components/organisms/AvatarImage';
 import type { ExploreArticle, ExplorePost, ExploreTopic } from '../../services/api/explore';
@@ -162,7 +162,7 @@ export function ArticleFeedItem({
   onMore?: () => void;
   onAuthorPress?: () => void;
 }) {
-  const authorName = article.author?.displayName || 'Mogu';
+  const authorName = article.author?.displayName || 'NOAN';
   const isLiked = liked ?? Boolean(article.isLiked);
   const likeCount = article.likeCount ?? 0;
   const commentCount = article.commentCount ?? 0;
@@ -174,7 +174,11 @@ export function ArticleFeedItem({
           onPress={onAuthorPress}
           style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 10 }}
         >
-          <AvatarImage uri={article.author?.avatarUrl} size={40} />
+          <AvatarImage
+            uri={article.author?.avatarUrl}
+            size={40}
+            seed={article.author?.userId ?? article.author?.displayName ?? authorName}
+          />
           <View style={{ flex: 1 }}>
             <Text style={styles.authorName} numberOfLines={1}>
               {authorName}
@@ -287,7 +291,11 @@ export function PostFeedItem({
     <View style={styles.feedBlock}>
       <View style={styles.postHeader}>
         <Pressable onPress={onAuthorPress} style={{ flexDirection: 'row', alignItems: 'center', flex: 1, gap: 10 }}>
-          <AvatarImage uri={post.author.avatarUrl} size={40} />
+          <AvatarImage
+            uri={post.author.avatarUrl}
+            size={40}
+            seed={post.author.userId ?? post.author.displayName ?? name}
+          />
           <View style={{ flex: 1 }}>
             <Text style={styles.authorName} numberOfLines={1}>
               {name}

@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useFocusEffect } from '@react-navigation/native';
 import {
@@ -24,8 +24,9 @@ import {
   Flame,
   Sparkles,
   Sun,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomNav';
+import { NoanWordmark } from '../components/brand/NoanWordmark';
 import { AvatarImage } from '../components/organisms/AvatarImage';
 import { Progress } from '../components/ui/progress';
 import { getTodayISO, getDeviceTimeZone } from '../lib/dates';
@@ -128,8 +129,14 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFC51A" colors={['#FFC51A']} />
         }
       >
-        <HomeHeader unreadCount={unreadCount} onNotification={onNotification}
-          onProfile={onProfile} avatarUri={avatarUri ?? null} />
+        <HomeHeader
+          unreadCount={unreadCount}
+          onNotification={onNotification}
+          onProfile={onProfile}
+          avatarUri={avatarUri ?? null}
+          gender={dash?.profile?.gender}
+          seed={dash?.profile?.username ?? dash?.profile?.displayName}
+        />
         <GreetingRow greeting={greeting} loading={loading} weather={weather} />
         <RandomHero onPress={onRandom} />
         <WeeklyPlanCard onEdit={onEditPlan ?? (() => {})} onOpenPlan={onWeeklyPlan ?? (() => {})} />
@@ -146,16 +153,25 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
 }
 
 // HomeHeader
-function HomeHeader({ unreadCount, onNotification, onProfile, avatarUri }: {
+function HomeHeader({
+  unreadCount,
+  onNotification,
+  onProfile,
+  avatarUri,
+  gender,
+  seed,
+}: {
   unreadCount: number;
   onNotification: () => void;
   onProfile: () => void;
   avatarUri: string | null;
+  gender?: string | null;
+  seed?: string | number | null;
 }) {
   const badgeText = unreadCount > 99 ? '99+' : String(unreadCount);
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, height: 64 }}>
-      <Text style={{ fontSize: 32, fontWeight: '900', color: '#111', letterSpacing: -1.5 }}>Mogu</Text>
+      <NoanWordmark width={112} height={42} />
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
         <Pressable style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }} onPress={onNotification}>
           <Bell size={26} color="#111" strokeWidth={2} />
@@ -167,7 +183,14 @@ function HomeHeader({ unreadCount, onNotification, onProfile, avatarUri }: {
         </Pressable>
         <Pressable accessibilityRole="button" accessibilityLabel="Mở hồ sơ cá nhân"
           onPress={onProfile} style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>
-          <AvatarImage uri={avatarUri} size={42} style={{ borderWidth: 2, borderColor: '#fff' }} />
+          <AvatarImage
+            uri={avatarUri}
+            size={42}
+            gender={gender}
+            seed={seed}
+            isCurrentUser
+            style={{ borderWidth: 2, borderColor: '#fff' }}
+          />
         </Pressable>
       </View>
     </View>
@@ -227,7 +250,7 @@ function RandomHero({ onPress }: { onPress: () => void }) {
         <View style={{ position: 'absolute', width: 7, height: 7, backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 1.5, right: 160, bottom: 52, transform: [{ rotate: '45deg' }] }} />
         <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '60%', paddingLeft: 22, paddingTop: 24, justifyContent: 'flex-start' }}>
           <Text style={{ fontSize: 22, fontWeight: '800', color: '#111', lineHeight: 29, letterSpacing: -0.3 }}>
-            Để Mogu chọn{'\n'}món cho bạn
+            Để NOAN chọn{'\n'}món cho bạn
           </Text>
           <Text style={{ marginTop: 8, fontSize: 11, color: '#6B5A1E', lineHeight: 16 }}>
             Phù hợp với mục tiêu, tâm trạng{'\n'}và ngân sách hôm nay.
@@ -238,11 +261,11 @@ function RandomHero({ onPress }: { onPress: () => void }) {
             style={{ marginTop: 14, width: 158, height: 42, borderRadius: 21, backgroundColor: '#111', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
           >
             <Sparkles size={18} color="#FFC51A" fill="#FFC51A" />
-            <Text style={{ color: '#FFC51A', fontSize: 15, fontWeight: '700' }}>Random ngay</Text>
+            <Text style={{ color: '#FFC51A', fontSize: 15, fontWeight: '700' }}>Chọn món ngay</Text>
           </TouchableOpacity>
         </View>
         <Image
-          source={require('../assets/images/home/mogu-serving.png')}
+          source={require('../assets/images/noan/noan-serving-v1.png')}
           resizeMode="contain"
           style={{ position: 'absolute', right: -10, bottom: -4, width: 178, height: 190 }}
         />
@@ -395,7 +418,7 @@ function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan
               </View>
             </View>
             <View style={{ height: 8, borderRadius: 4, overflow: 'hidden' }}>
-              <Progress value={budgetPercent} className="h-2 bg-[#F0E9D0]" indicatorClassName="bg-[#FFC01A]" />
+              <Progress value={budgetPercent} className="h-2 bg-muted" indicatorClassName="bg-primary" />
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
               <Text style={{ fontSize: 11.5, color: '#AAA' }}>Đã chi tiêu (thực tế) {Math.round(spent / 1000)}K</Text>
@@ -419,7 +442,7 @@ function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan
               </View>
             </View>
             <View style={{ height: 8, borderRadius: 4, overflow: 'hidden' }}>
-              <Progress value={calPercent} className="h-2 bg-[#F0E9D0]" indicatorClassName="bg-[#FF6030]" />
+              <Progress value={calPercent} className="h-2 bg-muted" indicatorClassName="bg-accent" />
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
               <Text style={{ fontSize: 11.5, color: '#AAA' }}>

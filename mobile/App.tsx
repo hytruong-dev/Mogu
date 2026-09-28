@@ -1,11 +1,16 @@
 import './global.css';
 import './src/lib/nativewind-interop';
+import { colorScheme } from 'nativewind';
+
+// Enforce consistent light cream NOAN theme across all devices (avoids broken styles when Android has system dark mode enabled)
+colorScheme.set('light');
+
 import { useEffect, useState, useCallback } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, ActivityIndicator, LogBox, Platform } from 'react-native';
+import { View, Text, ActivityIndicator, LogBox, Platform, StyleSheet } from 'react-native';
 import { isRunningInExpoGo } from 'expo';
 
 LogBox.ignoreAllLogs();
@@ -17,6 +22,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './src/lib/query-client';
 
 import { SplashScreen } from './src/screens/SplashScreen';
+import { OpenAppScreen } from './src/screens/OpenAppScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { RegisterScreen } from './src/screens/RegisterScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
@@ -43,7 +49,7 @@ import { navigationRef, handleDeepLink } from './src/lib/deep-link';
 import type { NotificationItem } from './src/services/api/types';
 
 import { authApi } from './src/services/api/auth';
-import { getSession } from './src/services/api/storage';
+import { getSession, getSavedDefaultAvatarKey } from './src/services/api/storage';
 
 // ── Param lists ──────────────────────────────────────────────────────────────
 
@@ -259,14 +265,19 @@ function RootNavigator() {
   useEffect(() => {
     (async () => {
       try {
+        void getSavedDefaultAvatarKey();
         const session = await getSession();
         if (!session) {
+          if (__DEV__) console.log('[RootNavigator] No session, initialRoute = Auth');
           setInitialRoute('Auth');
           return;
         }
         const user = await authApi.me();
-        setInitialRoute(user.onboardingStatus === 'COMPLETED' ? 'Main' : 'Onboarding');
-      } catch {
+        const route = user.onboardingStatus === 'COMPLETED' ? 'Main' : 'Onboarding';
+        if (__DEV__) console.log('[RootNavigator] User loaded, initialRoute =', route);
+        setInitialRoute(route);
+      } catch (err: any) {
+        if (__DEV__) console.log('[RootNavigator] Session/User check error, initialRoute = Auth:', err?.message);
         setInitialRoute('Auth');
       } finally {
         setReady(true);
@@ -420,6 +431,8 @@ function RootNavigator() {
 // ── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  const [splashFinished, setSplashFinished] = useState(false);
+
   useEffect(() => {
     void notificationRealtime.init();
     void registerPushNotificationsAsync();
@@ -514,6 +527,12 @@ export default function App() {
           </NavigationContainer>
           <InAppNotificationBanner onPressNotification={handleOpenNotification} />
           <PortalHost />
+
+          {!splashFinished && (
+            <View style={[StyleSheet.absoluteFill, { zIndex: 999999 }]} pointerEvents={splashFinished ? 'none' : 'auto'}>
+              <OpenAppScreen onFinish={() => setSplashFinished(true)} />
+            </View>
+          )}
         </SafeAreaProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>

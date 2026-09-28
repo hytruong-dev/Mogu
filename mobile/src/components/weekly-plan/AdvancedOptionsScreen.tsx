@@ -4,7 +4,7 @@
  */
 import React, { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
-import { ChefHat, Info, Repeat } from 'lucide-react-native';
+import { ChefHat, Info, Repeat } from '@/components/icons';
 
 import { Button } from '../ui/button';
 import {
@@ -74,11 +74,11 @@ export function DishCreateOptionsSheet({
       sheetBackgroundColor="#FFFFFF"
     >
       <DrawerHeader className="px-5 pt-1 pb-2">
-        <DrawerTitle className="text-[20px] font-extrabold text-[#111111]">
+        <DrawerTitle className="text-[20px] font-extrabold text-foreground">
           Tùy chọn tạo món
         </DrawerTitle>
-        <DrawerDescription className="text-[13.5px] text-[#8A8580] mt-1">
-          Điều chỉnh cách Mogu chọn món phù hợp
+        <DrawerDescription className="text-[13.5px] text-muted-foreground mt-1">
+          Điều chỉnh cách NOAN chọn món phù hợp
         </DrawerDescription>
       </DrawerHeader>
 
@@ -156,9 +156,9 @@ export function DishCreateOptionsSheet({
             onSave(local);
             onDismiss();
           }}
-          className="h-[52px] w-full rounded-2xl bg-[#FFC20E] active:opacity-90"
+          className="h-[52px] w-full rounded-2xl bg-primary active:opacity-90"
         >
-          <Text className="text-[15px] font-extrabold text-[#111111]">
+          <Text className="text-[15px] font-extrabold text-primary-foreground">
             Lưu tùy chọn
           </Text>
         </Button>

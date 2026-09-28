@@ -8,47 +8,76 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        border: '#E9DEC9',
+        input: '#E9DEC9',
+        ring: '#E6AC00',
+        background: '#FFF9EE',
+        foreground: '#2A1A10',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: '#FFC928',
+          foreground: '#2A1A10',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT: '#FFF7E8',
+          foreground: '#2A1A10',
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
+          DEFAULT: '#E5484D',
+          foreground: '#FFFFFF',
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT: '#F7F2E9',
+          foreground: '#6B625B',
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
+          DEFAULT: '#FF725E',
+          foreground: '#2A1A10',
         },
         card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
+          DEFAULT: '#FFFFFF',
+          foreground: '#2A1A10',
         },
         popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
+          DEFAULT: '#FFFFFF',
+          foreground: '#2A1A10',
         },
-        // Mogu brand
+        success: {
+          DEFAULT: '#2E9D63',
+          foreground: '#FFFFFF',
+        },
+        info: {
+          DEFAULT: '#3B82F6',
+          foreground: '#FFFFFF',
+        },
+        warning: {
+          DEFAULT: '#B98500',
+          foreground: '#FFFFFF',
+        },
+        // NOAN brand — prefer semantic utilities above for new screens.
+        noan: {
+          background: '#FFF9EE',
+          surface: '#FFFFFF',
+          cream: '#FFF7E8',
+          yellow: '#FFC928',
+          'yellow-light': '#FFF1B8',
+          'yellow-pressed': '#E6AC00',
+          ink: '#2A1A10',
+          cocoa: '#6B4A32',
+          coral: '#FF725E',
+          muted: '#91877F',
+          border: '#E9DEC9',
+          success: '#2E9D63',
+          info: '#3B82F6',
+          danger: '#E5484D',
+        },
+        // Compatibility namespace for existing className values.
         mogu: {
-          cream: '#FFF9E8',
-          yellow: '#FFC20E',
-          'yellow-light': '#FFE566',
-          ink: '#111111',
-          coral: '#FF796F',
-          muted: '#8A8580',
+          cream: '#FFF7E8',
+          yellow: '#FFC928',
+          'yellow-light': '#FFF1B8',
+          ink: '#2A1A10',
+          coral: '#FF725E',
+          muted: '#91877F',
         },
       },
       borderWidth: {

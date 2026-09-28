@@ -1,6 +1,6 @@
 import { BlurView } from 'expo-blur';
 import { Pressable, Text, View } from 'react-native';
-import { Compass, HeartPulse, Home, Sparkles, UserRound } from 'lucide-react-native';
+import { Compass, HeartPulse, Home, Sparkles, UserRound } from '@/components/icons';
 import { cn } from '../../lib/utils';
 
 export type MainTab = 'home' | 'explore' | 'random' | 'health' | 'profile';
@@ -17,7 +17,7 @@ type Props = {
 const tabs = [
   { key: 'home', label: 'Trang chủ', icon: Home },
   { key: 'explore', label: 'Khám phá', icon: Compass },
-  { key: 'random', label: 'Random', icon: Sparkles },
+  { key: 'random', label: 'Chọn món', icon: Sparkles },
   { key: 'health', label: 'Sức khỏe', icon: HeartPulse },
   { key: 'profile', label: 'Cá nhân', icon: UserRound },
 ] as const;
@@ -152,8 +152,8 @@ export function LiquidGlassBottomNav({ active, ...actions }: Props) {
                     className={cn(
                       'mt-0.5',
                       selected
-                        ? 'text-[13px] font-semibold text-mogu-ink'
-                        : 'text-xs font-medium text-[#777A82]',
+                        ? 'text-[13px] font-semibold text-foreground'
+                        : 'text-xs font-medium text-muted-foreground',
                     )}
                     style={{ lineHeight: 16 }}
                   >

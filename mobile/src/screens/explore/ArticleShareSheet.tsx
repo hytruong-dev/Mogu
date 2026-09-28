@@ -17,7 +17,7 @@ import {
   MoreHorizontal,
   SquarePen,
   Users,
-} from 'lucide-react-native';
+} from '@/components/icons';
 
 import {
   Drawer,
@@ -92,9 +92,9 @@ export function toShareArticle(input: {
     input.content?.trim().replace(/\s+/g, ' ').slice(0, 90) || null;
   return {
     id: input.id,
-    title: input.title || titleFromContent || 'Bài viết Mogu',
+    title: input.title || titleFromContent || 'Bài viết NOAN',
     coverImageUrl: input.coverImageUrl ?? input.imageUrl ?? null,
-    authorName: input.authorName ?? input.author?.displayName ?? 'Mogu review',
+    authorName: input.authorName ?? input.author?.displayName ?? 'NOAN review',
     slug: input.slug ?? undefined,
     shareUrl: input.shareUrl ?? undefined,
     kind: input.kind ?? 'ARTICLE',
@@ -171,7 +171,7 @@ export function ArticleShareSheet({
       sheetBackgroundColor={C.sheetBg}
     >
       <DrawerHeader className="pb-2 pt-1 items-center justify-center">
-        <DrawerTitle className="text-[18px] font-bold text-[#161616] text-center">
+        <DrawerTitle className="text-[18px] font-bold text-foreground text-center">
           Chia sẻ bài viết
         </DrawerTitle>
       </DrawerHeader>
@@ -294,7 +294,7 @@ export function ArticleShareSheet({
             <ChevronRight size={18} color="#9CA3AF" />
           </Pressable>
 
-          <Separator className="bg-[#F0EBE0]" />
+          <Separator className="bg-border" />
 
           <Pressable
             style={s.optionRow}
@@ -304,7 +304,7 @@ export function ArticleShareSheet({
             }}
           >
             <Users size={20} color={C.ink} strokeWidth={2} />
-            <Text style={s.optionText}>Gửi cho bạn bè trong Mogu</Text>
+            <Text style={s.optionText}>Gửi cho bạn bè trong NOAN</Text>
             <ChevronRight size={18} color="#9CA3AF" />
           </Pressable>
         </View>
@@ -312,11 +312,11 @@ export function ArticleShareSheet({
         {/* Cancel Button using shadcn Button */}
         <Button
           variant="secondary"
-          className="w-full h-12 rounded-2xl bg-[#F2ECE0] active:bg-[#E8E1D3]"
+          className="w-full h-12 rounded-2xl bg-muted active:bg-muted/80"
           onPress={() => onOpenChange(false)}
           accessibilityLabel="Hủy"
         >
-          <Text className="text-[15px] font-semibold text-[#161616]">Hủy</Text>
+          <Text className="text-[15px] font-semibold text-foreground">Hủy</Text>
         </Button>
       </DrawerContent>
     </Drawer>

@@ -20,7 +20,7 @@ import {
   MapPin,
   UtensilsCrossed,
   X,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { Button } from '../../components/ui/button';
 import { Text } from '../../components/ui/text';
 import { Textarea } from '../../components/ui/textarea';
@@ -413,7 +413,7 @@ export function CreatePostScreen({ onClose, onPublished, editPostId }: Props) {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFF9E8]" edges={['top', 'left', 'right']}>
+    <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -424,9 +424,9 @@ export function CreatePostScreen({ onClose, onPublished, editPostId }: Props) {
             className="h-10 w-10 items-center justify-center"
             accessibilityLabel="Đóng"
           >
-            <X size={22} color="#161616" />
+            <X size={22} color="#2A1A10" />
           </Pressable>
-          <Text className="text-[17px] font-extrabold text-[#161616]">
+          <Text className="text-[17px] font-extrabold text-foreground">
             {isEditing ? 'Sửa bài viết' : 'Tạo bài viết'}
           </Text>
           <Button
@@ -464,20 +464,20 @@ export function CreatePostScreen({ onClose, onPublished, editPostId }: Props) {
           keyboardShouldPersistTaps="handled"
         >
           <View className="mt-2 flex-row items-center gap-3">
-            <AvatarImage uri={avatarUrl} size={44} />
+            <AvatarImage uri={avatarUrl} size={44} seed={displayName} />
             <View className="flex-1">
-              <Text className="text-[15px] font-bold text-[#161616]" numberOfLines={1}>
+              <Text className="text-[15px] font-bold text-foreground" numberOfLines={1}>
                 {displayName}
               </Text>
               <Pressable
                 onPress={() => setAudienceOpen(true)}
-                className="mt-1 h-8 flex-row items-center self-start rounded-full bg-[#F3EFE6] px-3"
+                className="mt-1 h-8 flex-row items-center self-start rounded-full bg-muted px-3"
               >
-                <Globe size={14} color="#161616" />
-                <Text className="ml-1.5 text-[12px] font-bold text-[#161616]">
+                <Globe size={14} color="#2A1A10" />
+                <Text className="ml-1.5 text-[12px] font-bold text-foreground">
                   {VIS_LABEL[visibility]}
                 </Text>
-                <ChevronDown size={14} color="#161616" style={{ marginLeft: 4 }} />
+                <ChevronDown size={14} color="#2A1A10" style={{ marginLeft: 4 }} />
               </Pressable>
             </View>
           </View>
@@ -489,7 +489,7 @@ export function CreatePostScreen({ onClose, onPublished, editPostId }: Props) {
             className="mt-4 min-h-[120px] border-0 bg-transparent p-0 text-[16px] leading-6 shadow-none"
             editable={!publishing}
           />
-          <Text className="mb-3 text-right text-[12px] text-[#8A8A8A]">
+          <Text className="mb-3 text-right text-[12px] text-muted-foreground">
             {caption.length}/{CAPTION_MAX}
           </Text>
 
@@ -719,17 +719,17 @@ export function CreatePostScreen({ onClose, onPublished, editPostId }: Props) {
                   contentFit="cover"
                 />
                 <View className="flex-1">
-                  <Text className="text-[12px] text-[#8A8A8A]">Món ăn</Text>
-                  <Text className="text-[15px] font-bold text-[#161616]" numberOfLines={1}>
+                  <Text className="text-[12px] text-muted-foreground">Món ăn</Text>
+                  <Text className="text-[15px] font-bold text-foreground" numberOfLines={1}>
                     {dish.name}
                   </Text>
                 </View>
               </Pressable>
               <Pressable
                 onPress={() => setDish(null)}
-                className="h-9 w-9 items-center justify-center rounded-full bg-[#F3EFE6]"
+                className="h-9 w-9 items-center justify-center rounded-full bg-muted"
               >
-                <X size={16} color="#161616" />
+                <X size={16} color="#2A1A10" />
               </Pressable>
             </View>
           ) : (
@@ -737,8 +737,8 @@ export function CreatePostScreen({ onClose, onPublished, editPostId }: Props) {
               onPress={() => setDishOpen(true)}
               className="min-h-14 flex-row items-center gap-3 py-3"
             >
-              <UtensilsCrossed size={20} color="#161616" />
-              <Text className="flex-1 text-[15px] font-semibold text-[#161616]">Gắn món ăn</Text>
+              <UtensilsCrossed size={20} color="#2A1A10" />
+              <Text className="flex-1 text-[15px] font-semibold text-foreground">Gắn món ăn</Text>
               <ChevronRight size={18} color="#8A8A8A" />
             </Pressable>
           )}
@@ -751,15 +751,15 @@ export function CreatePostScreen({ onClose, onPublished, editPostId }: Props) {
                 onPress={() => setPlaceOpen(true)}
                 className="flex-1 flex-row items-center gap-3"
               >
-                <View className="h-11 w-11 items-center justify-center rounded-xl bg-[#FFF1B3]">
-                  <MapPin size={20} color="#161616" />
+                <View className="h-11 w-11 items-center justify-center rounded-xl bg-secondary">
+                  <MapPin size={20} color="#2A1A10" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-[15px] font-bold text-[#161616]" numberOfLines={1}>
+                  <Text className="text-[15px] font-bold text-foreground" numberOfLines={1}>
                     {place.name}
                   </Text>
                   {place.addressShort ? (
-                    <Text className="text-[12px] text-[#8A8A8A]" numberOfLines={1}>
+                    <Text className="text-[12px] text-muted-foreground" numberOfLines={1}>
                       {place.addressShort}
                     </Text>
                   ) : null}
@@ -767,9 +767,9 @@ export function CreatePostScreen({ onClose, onPublished, editPostId }: Props) {
               </Pressable>
               <Pressable
                 onPress={() => setPlace(null)}
-                className="h-9 w-9 items-center justify-center rounded-full bg-[#F3EFE6]"
+                className="h-9 w-9 items-center justify-center rounded-full bg-muted"
               >
-                <X size={16} color="#161616" />
+                <X size={16} color="#2A1A10" />
               </Pressable>
             </View>
           ) : (
@@ -777,41 +777,41 @@ export function CreatePostScreen({ onClose, onPublished, editPostId }: Props) {
               onPress={() => setPlaceOpen(true)}
               className="min-h-14 flex-row items-center gap-3 py-3"
             >
-              <MapPin size={20} color="#161616" />
-              <Text className="flex-1 text-[15px] font-semibold text-[#161616]">
+              <MapPin size={20} color="#2A1A10" />
+              <Text className="flex-1 text-[15px] font-semibold text-foreground">
                 Thêm địa điểm
               </Text>
               <ChevronRight size={18} color="#8A8A8A" />
             </Pressable>
           )}
 
-          <Text className="mt-6 text-center text-[12px] leading-5 text-[#8A8A8A]">
+          <Text className="mt-6 text-center text-[12px] leading-5 text-muted-foreground">
             Bài viết của bạn sẽ hiển thị trong Cộng đồng.
           </Text>
 
           {error ? (
-            <Text className="mt-3 text-[13px] font-semibold text-[#DC2626]">{error}</Text>
+            <Text className="mt-3 text-[13px] font-semibold text-destructive">{error}</Text>
           ) : null}
         </ScrollView>
 
-        <View className="flex-row gap-3 border-t border-[#EFE8DC] px-4 py-3">
+        <View className="flex-row gap-3 border-t border-border px-4 py-3">
           <Pressable
             onPress={() => void pickImages()}
-            className="h-12 w-12 items-center justify-center rounded-2xl bg-[#F3EFE6]"
+            className="h-12 w-12 items-center justify-center rounded-2xl bg-muted"
             accessibilityLabel="Thư viện ảnh"
             disabled={media.length >= MEDIA_MAX}
             style={media.length >= MEDIA_MAX ? { opacity: 0.4 } : undefined}
           >
-            <Images size={22} color="#161616" />
+            <Images size={22} color="#2A1A10" />
           </Pressable>
           <Pressable
             onPress={() => void pickFromCamera()}
-            className="h-12 w-12 items-center justify-center rounded-2xl bg-[#F3EFE6]"
+            className="h-12 w-12 items-center justify-center rounded-2xl bg-muted"
             accessibilityLabel="Chụp ảnh"
             disabled={media.length >= MEDIA_MAX}
             style={media.length >= MEDIA_MAX ? { opacity: 0.4 } : undefined}
           >
-            <Camera size={22} color="#161616" />
+            <Camera size={22} color="#2A1A10" />
           </Pressable>
         </View>
           </>

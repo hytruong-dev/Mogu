@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { Plus, Utensils, ChevronRight } from 'lucide-react-native';
+import { Plus, Utensils, ChevronRight } from '@/components/icons';
 import { FormattedMealLog, MealStatsResponse } from '../../services/api/health';
 import { Card } from '../../components/ui/card';
 import { Progress } from '../../components/ui/progress';
@@ -65,21 +65,21 @@ export function MealJournalDayView({
   return (
     <View className={`gap-4 ${className}`}>
       {/* 1. Summary Card */}
-      <Card className="bg-white rounded-3xl p-5 border border-[#EFEAE2] shadow-xs gap-0">
+      <Card className="bg-card rounded-3xl p-5 border border-border shadow-xs gap-0">
         <View className="flex-row items-baseline justify-between">
           <View className="flex-row items-baseline">
-            <Text className="text-[28px] font-black text-[#1C1917] tracking-tight">
+            <Text className="text-[28px] font-black text-foreground tracking-tight">
               {consumedKcal.toLocaleString('vi-VN')}
             </Text>
-            <Text className="text-[16px] font-medium text-[#78716C] ml-1.5">
+            <Text className="text-[16px] font-medium text-muted-foreground ml-1.5">
               kcal
             </Text>
             {targetKcal != null ? (
-              <Text className="text-[15px] font-semibold text-[#A8A29E] ml-2">
+              <Text className="text-[15px] font-semibold text-muted-foreground ml-2">
                 / {targetKcal.toLocaleString('vi-VN')} kcal
               </Text>
             ) : (
-              <Text className="text-[13px] font-medium text-[#A8A29E] ml-2">
+              <Text className="text-[13px] font-medium text-muted-foreground ml-2">
                 / Chưa đặt mục tiêu
               </Text>
             )}
@@ -98,54 +98,54 @@ export function MealJournalDayView({
         {targetKcal != null && (
           <Progress
             value={progressPercent}
-            className="h-2.5 bg-[#F5F2EB] rounded-full mt-3"
+            className="h-2.5 bg-muted rounded-full mt-3"
             indicatorClassName="bg-primary"
           />
         )}
 
         {/* Macro Columns */}
-        <View className="flex-row items-center justify-between mt-5 pt-4 border-t border-[#F5F2EB]">
+        <View className="flex-row items-center justify-between mt-5 pt-4 border-t border-border">
           <View className="items-center flex-1">
-            <Text className="text-[12px] font-medium text-[#78716C] mb-1">
+            <Text className="text-[12px] font-medium text-muted-foreground mb-1">
               Đạm (Protein)
             </Text>
-            <Text className="text-[16px] font-bold text-[#1C1917]">
+            <Text className="text-[16px] font-bold text-foreground">
               {proteinG.toLocaleString('vi-VN')}g
             </Text>
             {targetProteinG != null && (
-              <Text className="text-[11px] text-[#A8A29E] mt-0.5">
+              <Text className="text-[11px] text-muted-foreground mt-0.5">
                 / {targetProteinG}g
               </Text>
             )}
           </View>
 
-          <Separator orientation="vertical" className="h-8 bg-[#EFEAE2]" />
+          <Separator orientation="vertical" className="h-8 bg-border" />
 
           <View className="items-center flex-1">
-            <Text className="text-[12px] font-medium text-[#78716C] mb-1">
+            <Text className="text-[12px] font-medium text-muted-foreground mb-1">
               Tinh bột (Carbs)
             </Text>
-            <Text className="text-[16px] font-bold text-[#1C1917]">
+            <Text className="text-[16px] font-bold text-foreground">
               {carbsG.toLocaleString('vi-VN')}g
             </Text>
             {targetCarbsG != null && (
-              <Text className="text-[11px] text-[#A8A29E] mt-0.5">
+              <Text className="text-[11px] text-muted-foreground mt-0.5">
                 / {targetCarbsG}g
               </Text>
             )}
           </View>
 
-          <Separator orientation="vertical" className="h-8 bg-[#EFEAE2]" />
+          <Separator orientation="vertical" className="h-8 bg-border" />
 
           <View className="items-center flex-1">
-            <Text className="text-[12px] font-medium text-[#78716C] mb-1">
+            <Text className="text-[12px] font-medium text-muted-foreground mb-1">
               Chất béo (Fat)
             </Text>
-            <Text className="text-[16px] font-bold text-[#1C1917]">
+            <Text className="text-[16px] font-bold text-foreground">
               {fatG.toLocaleString('vi-VN')}g
             </Text>
             {targetFatG != null && (
-              <Text className="text-[11px] text-[#A8A29E] mt-0.5">
+              <Text className="text-[11px] text-muted-foreground mt-0.5">
                 / {targetFatG}g
               </Text>
             )}
@@ -168,23 +168,23 @@ export function MealJournalDayView({
       {/* 3. Section: Bữa ăn trong ngày */}
       <View className="gap-3">
         <View className="flex-row items-center justify-between px-1">
-          <Text className="text-[18px] font-bold text-[#1C1917]">
+          <Text className="text-[18px] font-bold text-foreground">
             Bữa ăn trong ngày
           </Text>
-          <Text className="text-[13px] font-semibold text-[#78716C]">
+          <Text className="text-[13px] font-semibold text-muted-foreground">
             {meals.length} bữa đã ghi
           </Text>
         </View>
 
         {meals.length === 0 ? (
-          <Card className="bg-white rounded-3xl p-6 border border-[#EFEAE2] items-center justify-center py-8 gap-0 shadow-xs">
-            <View className="w-14 h-14 rounded-full bg-[#FAF7F2] items-center justify-center border border-[#EFEAE2] mb-3">
+          <Card className="bg-card rounded-3xl p-6 border border-border items-center justify-center py-8 gap-0 shadow-xs">
+            <View className="w-14 h-14 rounded-full bg-secondary items-center justify-center border border-border mb-3">
               <Utensils size={24} color="#A8A29E" />
             </View>
-            <Text className="text-[16px] font-bold text-[#1C1917] text-center">
+            <Text className="text-[16px] font-bold text-foreground text-center">
               Chưa ghi bữa ăn nào hôm nay
             </Text>
-            <Text className="text-[13px] text-[#78716C] text-center mt-1 px-4">
+            <Text className="text-[13px] text-muted-foreground text-center mt-1 px-4">
               Ghi lại món bạn đã ăn để theo dõi năng lượng và dinh dưỡng trong ngày.
             </Text>
           </Card>
@@ -202,16 +202,16 @@ export function MealJournalDayView({
               return (
                 <Card
                   key={meal.id || index}
-                  className="bg-white rounded-2xl p-0 border border-[#EFEAE2] shadow-xs overflow-hidden gap-0"
+                  className="bg-card rounded-2xl p-0 border border-border shadow-xs overflow-hidden gap-0"
                 >
                   <Pressable
                     onPress={() => dishId && onOpenDish?.(dishId, dishName)}
                     accessibilityRole="button"
                     accessibilityLabel={`${SLOT_LABELS[meal.mealSlot]}: ${dishName}, ${mealKcal ?? 0} kcal`}
-                    className="p-3.5 flex-row items-center active:bg-[#FAF8F5]"
+                    className="p-3.5 flex-row items-center active:bg-muted"
                   >
                     {/* Thumbnail */}
-                    <View className="w-14 h-14 rounded-xl bg-[#F5F2EB] border border-[#EFEAE2] overflow-hidden items-center justify-center mr-3.5">
+                    <View className="w-14 h-14 rounded-xl bg-muted border border-border overflow-hidden items-center justify-center mr-3.5">
                       {thumb ? (
                         <AppImage
                           uri={thumb}
@@ -231,15 +231,15 @@ export function MealJournalDayView({
                             {SLOT_LABELS[meal.mealSlot] || meal.mealSlot}
                           </Text>
                           {timeStr ? (
-                            <Text className="text-[12px] text-[#A8A29E] font-medium">
+                            <Text className="text-[12px] text-muted-foreground font-medium">
                               · {timeStr}
                             </Text>
                           ) : null}
                         </View>
 
                         {meal.sourceType === 'RANDOM' ? (
-                          <Badge variant="secondary" className="bg-[#DCFCE7] px-2 py-0.5 rounded-full border border-[#BBF7D0]">
-                            <Text className="text-[10px] font-bold text-[#166534]">
+                          <Badge variant="secondary" className="bg-success/20 px-2 py-0.5 rounded-full border border-success/40">
+                            <Text className="text-[10px] font-bold text-success">
                               Random
                             </Text>
                           </Badge>
@@ -254,19 +254,19 @@ export function MealJournalDayView({
 
                       <Text
                         numberOfLines={1}
-                        className="text-[15px] font-bold text-[#1C1917] mt-0.5"
+                        className="text-[15px] font-bold text-foreground mt-0.5"
                       >
                         {dishName}
                       </Text>
 
                       <View className="flex-row items-center mt-1">
                         {mealKcal != null && (
-                          <Text className="text-[13px] font-semibold text-[#78716C]">
+                          <Text className="text-[13px] font-semibold text-muted-foreground">
                             {mealKcal.toLocaleString('vi-VN')} kcal
                           </Text>
                         )}
                         {meal.items && meal.items.length > 1 && (
-                          <Text className="text-[12px] text-[#A8A29E] ml-2">
+                          <Text className="text-[12px] text-muted-foreground ml-2">
                             +{meal.items.length - 1} món khác
                           </Text>
                         )}
@@ -287,13 +287,13 @@ export function MealJournalDayView({
             {unloggedSlots.map((slot) => (
               <Card
                 key={slot}
-                className="bg-[#FAF7F2] rounded-2xl px-4 py-3 border border-dashed border-[#E5DECF] flex-row items-center justify-between gap-0 shadow-none"
+                className="bg-secondary rounded-2xl px-4 py-3 border border-dashed border-border flex-row items-center justify-between gap-0 shadow-none"
               >
                 <View>
-                  <Text className="text-[14px] font-bold text-[#57534E]">
+                  <Text className="text-[14px] font-bold text-foreground/80">
                     {SLOT_LABELS[slot]}
                   </Text>
-                  <Text className="text-[12px] text-[#A8A29E] mt-0.5">
+                  <Text className="text-[12px] text-muted-foreground mt-0.5">
                     Chưa ghi lại
                   </Text>
                 </View>
@@ -301,7 +301,7 @@ export function MealJournalDayView({
                   size="icon"
                   variant="outline"
                   onPress={onLogMeal}
-                  className="w-8 h-8 rounded-full bg-white border border-[#E7DFD3] items-center justify-center active:bg-primary/10 shadow-none"
+                  className="w-8 h-8 rounded-full bg-card border border-border items-center justify-center active:bg-primary/10 shadow-none"
                   accessibilityLabel={`Ghi ${SLOT_LABELS[slot]}`}
                 >
                   <Plus size={16} color="#78716C" />

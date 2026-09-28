@@ -11,10 +11,11 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Bell, Bookmark, Plus, Search } from 'lucide-react-native';
+import { Bell, Bookmark, Plus, Search } from '@/components/icons';
 import { ExploreDetailScreen, type ExploreDetailType } from './ExploreDetailScreen';
 import { ScreenSlideTransition } from '../components/ui/screen-transition';
 import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomNav';
+import { NoanWordmark } from '../components/brand/NoanWordmark';
 import { ExploreFeedSkeleton } from '../components/skeletons/ScreenSkeletons';
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Text as UiText } from '../components/ui/text';
@@ -61,8 +62,6 @@ import {
   WHITE,
   YELLOW,
 } from './explore/tokens';
-
-const brand = require('../assets/images/logo/mogu-wordmark-header.png');
 
 type Props = {
   onBack: () => void;
@@ -716,7 +715,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
     () => (
       <View>
         <View style={styles.header}>
-          <Image source={brand} style={styles.brand} resizeMode="contain" />
+          <NoanWordmark width={104} height={40} />
           <View style={styles.headerRight}>
             <Pressable
               onPress={() => setSearchOpen(true)}
@@ -754,7 +753,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
           className="mb-3 mt-2"
         >
           <TabsList
-            className="h-12 w-full flex-row rounded-full bg-white p-1"
+            className="h-12 w-full flex-row rounded-full bg-card p-1"
             style={styles.switchTrack}
           >
             <TabsTrigger
@@ -845,7 +844,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
                 id: item.dish.id,
                 title: item.dish.name,
                 imageUrl: resolveDishImageUrl(item.dish),
-                subtitle: 'Món ăn • Mogu',
+                subtitle: 'Món ăn • NOAN',
                 isSaved: savedDishes.has(item.dish.id) || Boolean(item.dish.isSaved),
                 shareUrl: (item.dish as any).shareUrl,
                 rankingToken: item.rankingToken,
@@ -885,7 +884,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
                 id: item.article.id,
                 title: item.article.title,
                 imageUrl: item.article.coverImageUrl,
-                subtitle: 'Bài viết • Mogu',
+                subtitle: 'Bài viết • NOAN',
                 isSaved: savedArticles.has(item.article.id) || Boolean(item.article.isSaved),
                 shareUrl: item.article.shareUrl,
                 rankingToken: item.rankingToken,

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { ComponentType } from 'react';
-import type { LucideProps } from 'lucide-react-native';
+import type { LucideProps } from '@/components/icons';
 import { View, Text, type TextInputProps } from 'react-native';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';

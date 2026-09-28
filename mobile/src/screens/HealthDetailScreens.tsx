@@ -22,7 +22,7 @@ import {
   Trash2,
   Utensils,
   X,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { Input } from '../components/ui/input';
 import { Progress as UiProgress } from '../components/ui/progress';
 
@@ -41,7 +41,7 @@ const C = {
 const pho = require('../assets/images/random/pho-result.jpg');
 const rice = require('../assets/images/random/chao-ga.jpg');
 const bun = require('../assets/images/random/bun-rieu.jpg');
-const mascot = require('../assets/images/random/thumb.png');
+const mascot = require('../assets/images/noan/noan-mascot-master-v1.png');
 
 let mealSearchSeq = 0;
 
@@ -78,14 +78,14 @@ function DatePicker() {
 function Progress({ value, color = C.yellow }: { value: number; color?: string }) {
   const indicatorClass =
     color === C.blue
-      ? 'bg-blue-500'
+      ? 'bg-info'
       : color === C.orange
-        ? 'bg-orange-500'
+        ? 'bg-accent'
         : color === '#34C759'
-          ? 'bg-green-500'
+          ? 'bg-success'
           : 'bg-primary';
   return (
-    <UiProgress value={value} className="h-2.5 bg-[#F0E9D0]" indicatorClassName={indicatorClass} />
+    <UiProgress value={value} className="h-2.5 bg-muted" indicatorClassName={indicatorClass} />
   );
 }
 

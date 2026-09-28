@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { Utensils } from 'lucide-react-native';
+import { Utensils } from '@/components/icons';
 import { Avatar, AvatarImage, AvatarFallback } from '../../components/ui/avatar';
 
 interface ThumbnailStackProps {
@@ -23,7 +23,7 @@ export function ThumbnailStack({
     return (
       <Avatar
         style={{ width: size, height: size }}
-        className={`bg-[#F5F2EB] border border-[#E7DFD3] ${className}`}
+        className={`bg-muted border border-border ${className}`}
       >
         <AvatarFallback className="bg-transparent items-center justify-center">
           <Utensils size={size * 0.45} color="#A8A29E" />
@@ -45,10 +45,10 @@ export function ThumbnailStack({
             marginLeft: index === 0 ? 0 : -overlap,
             zIndex: visibleUrls.length - index,
           }}
-          className="border-2 border-white bg-[#E7DFD3] shadow-xs"
+          className="border-2 border-white bg-muted shadow-xs"
         >
           <AvatarImage source={{ uri: url }} />
-          <AvatarFallback className="bg-[#FAF7F2] items-center justify-center">
+          <AvatarFallback className="bg-secondary items-center justify-center">
             <Utensils size={size * 0.4} color="#A8A29E" />
           </AvatarFallback>
         </Avatar>

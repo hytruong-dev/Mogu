@@ -10,7 +10,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import { UtensilsCrossed } from 'lucide-react-native';
+import { UtensilsCrossed } from '@/components/icons';
 import { AppImage } from '../../components/ui/app-image';
 import type { ExplorePostMedia } from '../../services/api/explore';
 import { MEDIA_RADIUS, WHITE } from './tokens';

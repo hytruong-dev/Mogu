@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { ArrowLeft, ChevronRight, Calendar } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, Calendar } from '@/components/icons';
 import { MealStatsResponse, MonthGroupItem } from '../../services/api/health';
 import { ThumbnailStack } from './ThumbnailStack';
 import { Tabs, TabsList, TabsTrigger } from '../../components/ui/tabs';
@@ -30,9 +30,9 @@ export function MealJournalYearAllMonthsScreen({
       : monthGroups;
 
   return (
-    <View className="flex-1 bg-[#FBF9F5]">
+    <View className="flex-1 bg-background">
       {/* Header */}
-      <View className="h-14 px-4 bg-[#FFF9E8] border-b border-[#EFEAE2] flex-row items-center justify-between">
+      <View className="h-14 px-4 bg-background border-b border-border flex-row items-center justify-between">
         <Pressable
           onPress={onBack}
           hitSlop={8}
@@ -41,7 +41,7 @@ export function MealJournalYearAllMonthsScreen({
         >
           <ArrowLeft size={22} color="#1C1917" />
         </Pressable>
-        <Text className="text-[17px] font-bold text-[#1C1917]">
+        <Text className="text-[17px] font-bold text-foreground">
           Các tháng năm {year}
         </Text>
         <View className="w-10" />
@@ -58,7 +58,7 @@ export function MealJournalYearAllMonthsScreen({
           onValueChange={(val) => setFilter(val as FilterType)}
           className="w-full"
         >
-          <TabsList className="h-auto w-full flex-row rounded-full bg-[#EBE5DA] p-1 border-0 shadow-none">
+          <TabsList className="h-auto w-full flex-row rounded-full bg-muted p-1 border-0 shadow-none">
             <TabsTrigger
               value="all"
               accessibilityLabel="Tất cả các tháng"
@@ -68,7 +68,7 @@ export function MealJournalYearAllMonthsScreen({
             >
               <Text
                 className={`text-[13px] ${
-                  filter === 'all' ? 'text-primary-foreground font-bold' : 'text-[#78716C] font-semibold'
+                  filter === 'all' ? 'text-primary-foreground font-bold' : 'text-muted-foreground font-semibold'
                 }`}
               >
                 Tất cả các tháng
@@ -84,7 +84,7 @@ export function MealJournalYearAllMonthsScreen({
             >
               <Text
                 className={`text-[13px] ${
-                  filter === 'with_data' ? 'text-primary-foreground font-bold' : 'text-[#78716C] font-semibold'
+                  filter === 'with_data' ? 'text-primary-foreground font-bold' : 'text-muted-foreground font-semibold'
                 }`}
               >
                 Chỉ tháng có dữ liệu
@@ -94,11 +94,11 @@ export function MealJournalYearAllMonthsScreen({
         </Tabs>
 
         {/* Months List */}
-        <Card className="bg-white rounded-3xl p-5 border border-[#EFEAE2] shadow-xs gap-2.5">
+        <Card className="bg-card rounded-3xl p-5 border border-border shadow-xs gap-2.5">
           {displayedMonths.length === 0 ? (
             <View className="py-8 items-center justify-center">
               <Calendar size={28} color="#A8A29E" className="mb-2" />
-              <Text className="text-[14px] text-[#78716C] text-center">
+              <Text className="text-[14px] text-muted-foreground text-center">
                 Không có tháng nào có dữ liệu trong năm {year}.
               </Text>
             </View>
@@ -110,13 +110,13 @@ export function MealJournalYearAllMonthsScreen({
                 return (
                   <View
                     key={m.monthKey}
-                    className="p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#F5F2EB] flex-row items-center justify-between opacity-60"
+                    className="p-3.5 rounded-2xl bg-muted border border-border flex-row items-center justify-between opacity-60"
                   >
                     <View>
-                      <Text className="text-[15px] font-semibold text-[#78716C]">
+                      <Text className="text-[15px] font-semibold text-muted-foreground">
                         {m.label}
                       </Text>
-                      <Text className="text-[12px] text-[#A8A29E] mt-0.5">
+                      <Text className="text-[12px] text-muted-foreground mt-0.5">
                         Chưa có dữ liệu
                       </Text>
                     </View>
@@ -127,19 +127,19 @@ export function MealJournalYearAllMonthsScreen({
               return (
                 <Card
                   key={m.monthKey}
-                  className="p-0 rounded-2xl bg-[#FAF7F2] border border-[#F0EAE0] overflow-hidden gap-0 shadow-none"
+                  className="p-0 rounded-2xl bg-secondary border border-border overflow-hidden gap-0 shadow-none"
                 >
                   <Pressable
                     onPress={() => onSelectMonth(m.monthKey)}
                     accessibilityRole="button"
                     accessibilityLabel={`${m.label}: ${m.consumedKcal} kcal, ${m.mealCount} bữa`}
-                    className="p-3.5 flex-row items-center justify-between active:bg-[#F5F0E6]"
+                    className="p-3.5 flex-row items-center justify-between active:bg-muted"
                   >
                     <View className="flex-1 mr-3">
-                      <Text className="text-[15px] font-bold text-[#1C1917]">
+                      <Text className="text-[15px] font-bold text-foreground">
                         {m.label}
                       </Text>
-                      <Text className="text-[12px] text-[#78716C] mt-0.5">
+                      <Text className="text-[12px] text-muted-foreground mt-0.5">
                         {m.consumedKcal.toLocaleString('vi-VN')} kcal · {m.mealCount} bữa
                       </Text>
                     </View>

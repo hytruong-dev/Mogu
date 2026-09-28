@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Leaf } from 'lucide-react-native';
+import { ArrowLeft, Leaf } from '@/components/icons';
 import { getDayIngredients } from '../services/api/weekly-plan';
 import type { DayIngredientItem, DayIngredientsResponse } from '../services/api/types';
 import { formatApiErrorWithCode } from '../lib/api-error';

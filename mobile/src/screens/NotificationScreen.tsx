@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Bell, Gift, Heart, Megaphone, MessageCircle, Trophy, UserPlus, Zap } from 'lucide-react-native';
+import { ArrowLeft, Bell, Gift, Heart, Megaphone, MessageCircle, Trophy, UserPlus, Zap } from '@/components/icons';
 import { homeApi } from '../services/api/home';
 import type { NotificationItem } from '../services/api/types';
 import { ListSkeleton } from '../components/skeletons/ScreenSkeletons';
@@ -107,23 +107,23 @@ export function NotificationScreen({ onBack, onOpenDeepLink }: Props) {
   const unreadCount = notifications.filter((n) => n.status === 'UNREAD').length;
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFF9EA]" edges={['top', 'left', 'right']}>
+    <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
       {/* Header */}
-      <View className="h-[56px] flex-row items-center px-5 gap-3 border-b border-[#F0E8D0]">
+      <View className="h-[56px] flex-row items-center px-5 gap-3 border-b border-border">
         <Pressable
           onPress={onBack}
-          className="w-9 h-9 items-center justify-center rounded-full bg-white"
+          className="w-9 h-9 items-center justify-center rounded-full bg-card"
           style={{ elevation: 2, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 6 }}
           hitSlop={8}
         >
-          <ArrowLeft size={22} color="#111" />
+          <ArrowLeft size={22} color="#2A1A10" />
         </Pressable>
-        <Text className="flex-1 text-[#111] text-[20px] font-bold" style={{ letterSpacing: -0.4 }}>
+        <Text className="flex-1 text-foreground text-[20px] font-bold" style={{ letterSpacing: -0.4 }}>
           Thông báo
         </Text>
         {unreadCount > 0 && (
-          <View className="h-6 px-2.5 rounded-full bg-[#FF5A42] items-center justify-center">
-            <Text className="text-white text-xs font-bold">
+          <View className="h-6 px-2.5 rounded-full bg-accent items-center justify-center">
+            <Text className="text-accent-foreground text-xs font-bold">
               {unreadCount > 99 ? '99+' : unreadCount} chưa đọc
             </Text>
           </View>
@@ -134,11 +134,11 @@ export function NotificationScreen({ onBack, onOpenDeepLink }: Props) {
         <ListSkeleton rows={8} />
       ) : notifications.length === 0 ? (
         <View className="flex-1 items-center justify-center gap-3 px-8">
-          <View className="w-16 h-16 rounded-full bg-[#FFF2C9] items-center justify-center">
+          <View className="w-16 h-16 rounded-full bg-secondary items-center justify-center">
             <Bell size={32} color="#FFC51A" />
           </View>
-          <Text className="text-[#111] text-lg font-bold text-center">Chưa có thông báo</Text>
-          <Text className="text-[#999] text-sm text-center" style={{ lineHeight: 20 }}>
+          <Text className="text-foreground text-lg font-bold text-center">Chưa có thông báo</Text>
+          <Text className="text-muted-foreground text-sm text-center" style={{ lineHeight: 20 }}>
             Các thông báo về gợi ý món, nhắc nhở bữa ăn sẽ hiện ở đây.
           </Text>
         </View>
@@ -197,7 +197,7 @@ function NotifCard({
   return (
     <Pressable onPress={() => onPress(notif)}>
       <Card
-        className={`mx-4 mb-2 rounded-[18px] p-4 flex-row gap-3 border-0 ${isUnread ? 'bg-white' : 'bg-[#FAFAF7]'}`}
+        className={`mx-4 mb-2 rounded-[18px] p-4 flex-row gap-3 border-0 ${isUnread ? 'bg-card' : 'bg-muted'}`}
         style={
           isUnread
             ? {
@@ -222,19 +222,19 @@ function NotifCard({
         <View className="flex-1 gap-[3px]">
           <View className="flex-row items-start justify-between gap-2">
             <Text
-              className={`flex-1 text-[15px] ${isUnread ? 'font-bold text-[#111]' : 'font-semibold text-[#444]'}`}
+              className={`flex-1 text-[15px] ${isUnread ? 'font-bold text-foreground' : 'font-semibold text-foreground/80'}`}
               numberOfLines={2}
             >
               {notif.title}
             </Text>
             {isUnread && (
-              <View className="w-2 h-2 rounded-full bg-[#FF5A42] mt-1 flex-shrink-0" />
+              <View className="w-2 h-2 rounded-full bg-accent mt-1 flex-shrink-0" />
             )}
           </View>
-          <Text className="text-[#666] text-[13px]" style={{ lineHeight: 18 }} numberOfLines={2}>
+          <Text className="text-muted-foreground text-[13px]" style={{ lineHeight: 18 }} numberOfLines={2}>
             {notif.body}
           </Text>
-          <Text className="text-[#AAA] text-xs mt-1">{timeAgo}</Text>
+          <Text className="text-muted-foreground text-xs mt-1">{timeAgo}</Text>
         </View>
       </Card>
     </Pressable>

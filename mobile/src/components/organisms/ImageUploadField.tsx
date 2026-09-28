@@ -22,9 +22,11 @@ import {
   FileImage,
   Image as ImageIcon,
   ImagePlus,
+  RefreshCw,
+  Sparkles,
   UserRound,
   X,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConfirmDialog } from '../ui/confirm-dialog';
 import {
@@ -37,6 +39,20 @@ import {
 import { Button } from '../ui/button';
 import { Text as UiText } from '../ui/text';
 import { AvatarCropModal } from './AvatarCropModal';
+import {
+  getDefaultAvatarForUser,
+  getDefaultAvatar,
+  getAvatarsByGender,
+  getRandomAvatar,
+  normalizeGender,
+  maleAvatars,
+  femaleAvatars,
+  defaultAvatars,
+  setMemoryDefaultAvatarKey,
+  getMemoryDefaultAvatarKey,
+} from '../../theme/default-avatars';
+import { saveDefaultAvatarKey, getSavedDefaultAvatarKey } from '../../services/api/storage';
+import { cn } from '../../lib/utils';
 
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
@@ -73,6 +89,10 @@ type ImageUploadFieldProps = {
   disabled?: boolean;
   allowCamera?: boolean;
   allowFiles?: boolean;
+  gender?: string | null;
+  seed?: string | number | null;
+  defaultAvatarId?: string | null;
+  onSelectDefaultAvatar?: (avatarKey: string) => void;
   onUpload?: (image: UploadImage, onProgress: (percent: number) => void) => Promise<string | void>;
   onRemove?: () => Promise<void> | void;
   confirmRemove?: boolean;
@@ -152,6 +172,10 @@ export function ImageUploadField({
   disabled = false,
   allowCamera = true,
   allowFiles = true,
+  gender,
+  seed,
+  defaultAvatarId,
+  onSelectDefaultAvatar,
   onUpload,
   onRemove,
   confirmRemove = true,
@@ -159,8 +183,46 @@ export function ImageUploadField({
   const insets = useSafeAreaInsets();
   const cancelledRef = useRef(false);
 
+  const [activeDefaultAvatarId, setActiveDefaultAvatarId] = useState<string | null>(
+    defaultAvatarId ?? getMemoryDefaultAvatarKey()
+  );
+
+  useEffect(() => {
+    void getSavedDefaultAvatarKey().then((saved) => {
+      if (saved) {
+        setMemoryDefaultAvatarKey(saved);
+        setActiveDefaultAvatarId((prev) => prev ?? saved);
+        setSelectedAvatarKey((prev) => (prev ? prev : saved));
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (defaultAvatarId) {
+      setActiveDefaultAvatarId(defaultAvatarId);
+      setSelectedAvatarKey(defaultAvatarId);
+    }
+  }, [defaultAvatarId]);
+
+  const effectiveAvatarKey = activeDefaultAvatarId ?? defaultAvatarId ?? getMemoryDefaultAvatarKey();
+  const defaultAvatar = effectiveAvatarKey
+    ? (getDefaultAvatar(effectiveAvatarKey) ?? getDefaultAvatarForUser(gender, seed, effectiveAvatarKey))
+    : getDefaultAvatarForUser(gender, seed);
+
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [defaultPickerVisible, setDefaultPickerVisible] = useState(false);
+  const [selectedAvatarKey, setSelectedAvatarKey] = useState<string>(defaultAvatar.id);
+  const [avatarFilter, setAvatarFilter] = useState<'all' | 'male' | 'female'>(() => {
+    const norm = normalizeGender(gender);
+    return norm === 'female' ? 'female' : norm === 'male' ? 'male' : 'all';
+  });
   const [previewUri, setPreviewUri] = useState<string | null>(value);
+
+  useEffect(() => {
+    if (defaultAvatar?.id && !selectedAvatarKey) {
+      setSelectedAvatarKey(defaultAvatar.id);
+    }
+  }, [defaultAvatar?.id, selectedAvatarKey]);
   const [pendingImage, setPendingImage] = useState<UploadImage | null>(null);
   const [progress, setProgress] = useState(0);
   const [status, setStatus] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
@@ -412,6 +474,20 @@ export function ImageUploadField({
                   resizeMode="cover"
                   accessibilityLabel={label}
                 />
+              ) : fallback ? (
+                <Image
+                  source={fallback}
+                  style={s.avatarImg}
+                  resizeMode="cover"
+                  accessibilityLabel={label}
+                />
+              ) : defaultAvatar ? (
+                <Image
+                  source={defaultAvatar.source}
+                  style={s.avatarImg}
+                  resizeMode="cover"
+                  accessibilityLabel={label}
+                />
               ) : (
                 <UserRound size={36} color={showError ? ERROR : '#9A8B5C'} strokeWidth={1.6} />
               )}
@@ -594,11 +670,21 @@ export function ImageUploadField({
         >
           <View style={s.grabber} />
           <DialogHeader className="px-1 pb-1 pt-1">
-            <DialogTitle className="text-left text-[18px] font-extrabold text-[#161616]">
+            <DialogTitle className="text-left text-[18px] font-extrabold text-foreground">
               Chọn nguồn ảnh
             </DialogTitle>
           </DialogHeader>
 
+          {isAvatar ? (
+            <SourceRow
+              icon={Sparkles}
+              title="Chọn avatar NOAN mặc định"
+              onPress={() => {
+                setSheetVisible(false);
+                setDefaultPickerVisible(true);
+              }}
+            />
+          ) : null}
           {allowCamera && Platform.OS !== 'web' ? (
             <SourceRow icon={Camera} title="Chụp ảnh" onPress={() => choose('camera')} />
           ) : null}
@@ -615,13 +701,143 @@ export function ImageUploadField({
             <Button
               variant="secondary"
               onPress={() => setSheetVisible(false)}
-              className="h-12 w-full rounded-3xl bg-[#F0EDE6]"
+              className="h-12 w-full rounded-3xl bg-muted"
             >
-              <UiText className="font-bold text-[#161616]">Huỷ</UiText>
+              <UiText className="font-bold text-foreground">Huỷ</UiText>
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* ── 2b. Chọn avatar NOAN mặc định (5 nam / 5 nữ theo giới tính) ──── */}
+      {isAvatar ? (
+        <Dialog open={defaultPickerVisible} onOpenChange={setDefaultPickerVisible}>
+          <DialogContent
+            showCloseButton={false}
+            overlayClassName="items-stretch justify-end p-0"
+            className="mb-0 w-full max-w-full gap-2 rounded-none rounded-t-[28px] border-0 px-5 pb-4 pt-3 shadow-none sm:max-w-full"
+            style={{ paddingBottom: Math.max(16, insets.bottom + 8) }}
+          >
+            <View style={s.grabber} />
+            <DialogHeader className="px-1 pb-1 pt-1">
+              <DialogTitle className="text-left text-[18px] font-extrabold text-foreground">
+                Avatar NOAN mặc định
+              </DialogTitle>
+              <Text className="text-xs text-muted-foreground mt-0.5">
+                {avatarFilter === 'female'
+                  ? '5 biểu cảm bạn nữ phù hợp với bạn'
+                  : avatarFilter === 'male'
+                  ? '5 biểu cảm bạn nam phù hợp với bạn'
+                  : '10 biểu cảm linh vật NOAN để bạn tự do lựa chọn'}
+              </Text>
+
+              {/* Bộ lọc Nam / Nữ / Tất cả */}
+              <View className="flex-row gap-2 mt-2.5">
+                {(['all', 'male', 'female'] as const).map((tab) => {
+                  const active = avatarFilter === tab;
+                  const label = tab === 'all' ? 'Tất cả (10)' : tab === 'male' ? 'Nam (5)' : 'Nữ (5)';
+                  return (
+                    <TouchableOpacity
+                      key={tab}
+                      onPress={() => setAvatarFilter(tab)}
+                      className={cn(
+                        'px-3.5 py-1.5 rounded-full border',
+                        active ? 'bg-primary border-primary' : 'bg-muted/50 border-border'
+                      )}
+                      activeOpacity={0.8}
+                    >
+                      <Text
+                        className={cn(
+                          'text-[12px] font-bold',
+                          active ? 'text-primary-foreground' : 'text-foreground'
+                        )}
+                      >
+                        {label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </DialogHeader>
+
+            <View className="flex-row flex-wrap justify-between gap-2.5 py-3">
+              {(avatarFilter === 'male'
+                ? maleAvatars
+                : avatarFilter === 'female'
+                ? femaleAvatars
+                : defaultAvatars
+              ).map((av) => {
+                const isSelected = selectedAvatarKey === av.id;
+                return (
+                  <TouchableOpacity
+                    key={av.id}
+                    onPress={() => setSelectedAvatarKey(av.id)}
+                    className={cn(
+                      'items-center p-2 rounded-2xl border-2',
+                      isSelected ? 'border-primary bg-secondary/40' : 'border-transparent bg-muted/40'
+                    )}
+                    style={{ width: '30%' }}
+                    activeOpacity={0.8}
+                  >
+                    <Image
+                      source={av.source}
+                      style={{ width: 60, height: 60, borderRadius: 30 }}
+                      resizeMode="cover"
+                    />
+                    <Text className="text-[12px] font-bold text-foreground mt-1.5 text-center">
+                      {av.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <View className="flex-row gap-2 mt-1">
+              <Button
+                variant="outline"
+                onPress={() => {
+                  const rnd = getRandomAvatar(avatarFilter === 'all' ? gender : avatarFilter);
+                  setSelectedAvatarKey(rnd.id);
+                }}
+                className="flex-1 h-12 rounded-3xl border-border bg-card flex-row items-center justify-center gap-2"
+              >
+                <RefreshCw size={16} color="#2A1A10" />
+                <UiText className="font-bold text-foreground text-xs">Ngẫu nhiên</UiText>
+              </Button>
+
+              <Button
+                onPress={async () => {
+                  const keyToApply = selectedAvatarKey;
+                  setMemoryDefaultAvatarKey(keyToApply);
+                  setActiveDefaultAvatarId(keyToApply);
+                  setPreviewUri(null);
+                  await saveDefaultAvatarKey(keyToApply);
+                  onSelectDefaultAvatar?.(keyToApply);
+                  if (onRemove && previewUri) {
+                    try {
+                      await onRemove();
+                    } catch {
+                      // non-fatal
+                    }
+                  }
+                  setDefaultPickerVisible(false);
+                }}
+                className="flex-[1.4] h-12 rounded-3xl bg-primary flex-row items-center justify-center"
+              >
+                <UiText className="font-extrabold text-primary-foreground">Áp dụng avatar</UiText>
+              </Button>
+            </View>
+
+            <Button
+              variant="ghost"
+              onPress={() => setDefaultPickerVisible(false)}
+              className="h-10 w-full rounded-3xl"
+            >
+              <UiText className="font-medium text-muted-foreground text-xs">Đóng</UiText>
+            </Button>
+          </DialogContent>
+        </Dialog>
+      ) : null}
 
       {isAvatar && cropSource ? (
         <AvatarCropModal

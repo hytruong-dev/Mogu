@@ -22,7 +22,7 @@ export function LoginScreen({
   const { width, height } = useWindowDimensions();
 
   return (
-    <SafeAreaView className="flex-1 bg-mogu-cream" edges={['top', 'left', 'right']}>
+    <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
       <SparkleField opacity={undefined} width={width} height={height} />
       <KeyboardAvoidingView
         className="flex-1"

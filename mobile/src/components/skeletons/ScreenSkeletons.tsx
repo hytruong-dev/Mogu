@@ -15,7 +15,7 @@ type BoneProps = {
 export function Bone({ width = '100%', height = 14, radius = 8, style, className }: BoneProps) {
   return (
     <Skeleton
-      className={cn('bg-[#E8DFC8]', className)}
+      className={cn('bg-muted', className)}
       style={[{ width, height, borderRadius: radius }, style]}
     />
   );

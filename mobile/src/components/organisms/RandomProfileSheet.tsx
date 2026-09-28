@@ -15,7 +15,7 @@ import {
   Leaf,
   ShieldPlus,
   Target,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { onboardingApi } from '../../services/api/onboarding';
 import { profileApi } from '../../services/api/profile';
 import { formatApiErrorWithCode } from '../../lib/api-error';
@@ -111,12 +111,12 @@ function OptionGrid({
                 className={cn(
                   'relative min-h-[50px] flex-1 items-center justify-center rounded-xl border-[1.5px] px-2 py-2',
                   selected
-                    ? 'border-[#FFC31A] bg-[#FFFDF0]'
-                    : 'border-[#EAE4D6] bg-white',
+                    ? 'border-primary bg-secondary'
+                    : 'border-border bg-card',
                 )}
               >
                 {selected ? (
-                  <View className="absolute right-1.5 top-1.5 size-4 items-center justify-center rounded-full bg-[#FFC31A]">
+                  <View className="absolute right-1.5 top-1.5 size-4 items-center justify-center rounded-full bg-primary">
                     <Check size={10} color="#161616" strokeWidth={3} />
                   </View>
                 ) : null}
@@ -125,8 +125,8 @@ function OptionGrid({
                   className={cn(
                     'text-center text-xs leading-4',
                     selected
-                      ? 'font-extrabold text-[#161616]'
-                      : 'font-semibold text-[#747474]',
+                      ? 'font-extrabold text-foreground'
+                      : 'font-semibold text-muted-foreground',
                   )}
                 >
                   {item.name}
@@ -349,11 +349,11 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
       >
         <DrawerHeader className="flex-row items-start gap-2 px-5 pb-2">
           <View className="flex-1">
-            <DrawerTitle className="text-[19px] font-black text-[#161616]">
+            <DrawerTitle className="text-[19px] font-black text-foreground">
               Hồ sơ ăn uống đang áp dụng
             </DrawerTitle>
-            <DrawerDescription className="mt-1 text-[13px] text-[#747474]">
-              Mogu tự động lọc theo các tiêu chí này khi random.
+            <DrawerDescription className="mt-1 text-[13px] text-muted-foreground">
+              NOAN tự động lọc theo các tiêu chí này khi random.
             </DrawerDescription>
           </View>
           <DrawerClose onPress={requestClose} />
@@ -366,7 +366,7 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false}>
-              <View className="overflow-hidden rounded-[22px] border border-[#EAE4D6] bg-white shadow-sm">
+              <View className="overflow-hidden rounded-[22px] border border-border bg-card shadow-sm">
                 <Accordion
                   type="single"
                   collapsible
@@ -377,19 +377,19 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                   className="w-full gap-0"
                 >
                   {/* Row 1: Mục tiêu chính */}
-                  <AccordionItem value="goal" className="border-b border-[#F0EBE0]">
+                  <AccordionItem value="goal" className="border-b border-border">
                     <AccordionTrigger className="px-4 py-3.5 hover:no-underline">
                       <View className="mr-1 flex-1 flex-row items-center justify-between gap-3">
                         <View className="flex-1 flex-row items-center gap-3">
-                          <View className="size-10 items-center justify-center rounded-xl bg-[#FFF3D6]">
+                          <View className="size-10 items-center justify-center rounded-xl bg-secondary">
                             <Target size={20} color="#D9822B" />
                           </View>
-                          <Text className="text-[15px] font-bold text-[#161616]">
+                          <Text className="text-[15px] font-bold text-foreground">
                             Mục tiêu chính
                           </Text>
                         </View>
                         <Text
-                          className="max-w-[130px] text-right text-[13.5px] font-medium text-[#747474]"
+                          className="max-w-[130px] text-right text-[13.5px] font-medium text-muted-foreground"
                           numberOfLines={1}
                         >
                           {goalLabel}
@@ -397,7 +397,7 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                       </View>
                     </AccordionTrigger>
                     <AccordionContent className="pb-3 pt-0">
-                      <View className="mx-3 rounded-2xl border border-[#EFE9DC] bg-[#FAF7EE] p-2.5">
+                      <View className="mx-3 rounded-2xl border border-border bg-muted p-2.5">
                         <OptionGrid
                           items={goals}
                           selectedIds={goalId ? [goalId] : []}
@@ -409,19 +409,19 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                   </AccordionItem>
 
                   {/* Row 2: Chế độ ăn */}
-                  <AccordionItem value="diet" className="border-b border-[#F0EBE0]">
+                  <AccordionItem value="diet" className="border-b border-border">
                     <AccordionTrigger className="px-4 py-3.5 hover:no-underline">
                       <View className="mr-1 flex-1 flex-row items-center justify-between gap-3">
                         <View className="flex-1 flex-row items-center gap-3">
-                          <View className="size-10 items-center justify-center rounded-xl bg-[#E8F5E9]">
+                          <View className="size-10 items-center justify-center rounded-xl bg-success/20">
                             <Leaf size={20} color="#2E7D32" />
                           </View>
-                          <Text className="text-[15px] font-bold text-[#161616]">
+                          <Text className="text-[15px] font-bold text-foreground">
                             Chế độ ăn
                           </Text>
                         </View>
                         <Text
-                          className="max-w-[130px] text-right text-[13.5px] font-medium text-[#747474]"
+                          className="max-w-[130px] text-right text-[13.5px] font-medium text-muted-foreground"
                           numberOfLines={1}
                         >
                           {dietLabel}
@@ -429,7 +429,7 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                       </View>
                     </AccordionTrigger>
                     <AccordionContent className="pb-3 pt-0">
-                      <View className="mx-3 rounded-2xl border border-[#EFE9DC] bg-[#FAF7EE] p-2.5">
+                      <View className="mx-3 rounded-2xl border border-border bg-muted p-2.5">
                         <OptionGrid
                           items={diets}
                           selectedIds={dietIds}
@@ -450,15 +450,15 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                     <AccordionTrigger className="px-4 py-3.5 hover:no-underline">
                       <View className="mr-1 flex-1 flex-row items-center justify-between gap-3">
                         <View className="flex-1 flex-row items-center gap-3">
-                          <View className="size-10 items-center justify-center rounded-xl bg-[#FDEED9]">
+                          <View className="size-10 items-center justify-center rounded-xl bg-secondary">
                             <ShieldPlus size={20} color="#C05621" />
                           </View>
-                          <Text className="text-[15px] font-bold text-[#161616]">
+                          <Text className="text-[15px] font-bold text-foreground">
                             Dị ứng cần tránh
                           </Text>
                         </View>
                         <Text
-                          className="max-w-[130px] text-right text-[13.5px] font-medium text-[#747474]"
+                          className="max-w-[130px] text-right text-[13.5px] font-medium text-muted-foreground"
                           numberOfLines={1}
                         >
                           {allergyLabel}
@@ -466,7 +466,7 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                       </View>
                     </AccordionTrigger>
                     <AccordionContent className="pb-3 pt-0">
-                      <View className="mx-3 gap-2.5 rounded-2xl border border-[#EFE9DC] bg-[#FAF7EE] p-2.5">
+                      <View className="mx-3 gap-2.5 rounded-2xl border border-border bg-muted p-2.5">
                         <Pressable
                           onPress={() => {
                             if (noAllergies) setNoAllergies(false);
@@ -478,16 +478,16 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                           className={cn(
                             'relative flex-row items-center gap-3 rounded-xl border-[1.5px] px-3.5 py-2.5',
                             noAllergies
-                              ? 'border-[#FFC31A] bg-[#FFFDF0]'
-                              : 'border-[#EAE4D6] bg-white',
+                              ? 'border-primary bg-secondary'
+                              : 'border-border bg-card',
                           )}
                         >
                           <View
                             className={cn(
                               'size-5 items-center justify-center rounded-md border-[1.5px]',
                               noAllergies
-                                ? 'border-[#FFC31A] bg-[#FFC31A]'
-                                : 'border-[#D1D5DB] bg-white',
+                                ? 'border-primary bg-primary'
+                                : 'border-border bg-card',
                             )}
                           >
                             {noAllergies ? <Check size={12} color="#161616" strokeWidth={3} /> : null}
@@ -496,8 +496,8 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                             className={cn(
                               'flex-1 text-[13.5px]',
                               noAllergies
-                                ? 'font-bold text-[#161616]'
-                                : 'font-semibold text-[#747474]',
+                                ? 'font-bold text-foreground'
+                                : 'font-semibold text-muted-foreground',
                             )}
                           >
                             Tôi không có dị ứng đã biết
@@ -527,9 +527,9 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                         />
 
                         {showAllergyWarn ? (
-                          <View className="flex-row items-center gap-2.5 rounded-xl border border-[#FFE082] bg-[#FFF8E1] p-2.5">
+                          <View className="flex-row items-center gap-2.5 rounded-xl border border-warning/40 bg-secondary p-2.5">
                             <AlertTriangle size={16} color="#C08000" />
-                            <Text className="flex-1 text-[12px] leading-4 text-[#7A6120]">
+                            <Text className="flex-1 text-[12px] leading-4 text-warning">
                               Chưa khai báo không có nghĩa là không dị ứng. Hãy kiểm tra nguyên liệu trước khi ăn.
                             </Text>
                           </View>
@@ -550,7 +550,7 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
         <DrawerFooter className="px-4 pt-2">
           {dirty ? (
             <>
-              <Text className="mb-1.5 text-center text-xs text-[#747474]">
+              <Text className="mb-1.5 text-center text-xs text-muted-foreground">
                 Thay đổi sẽ lưu vào hồ sơ của bạn
               </Text>
               <View className="flex-row gap-2.5">
@@ -558,19 +558,19 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                   variant="outline"
                   disabled={saving}
                   onPress={resetDraft}
-                  className="h-[50px] flex-1 rounded-[22px] border-[1.5px] border-[#EAE4D6] bg-white"
+                  className="h-[50px] flex-1 rounded-[22px] border-[1.5px] border-border bg-card"
                 >
-                  <Text className="font-bold text-[#161616]">Huỷ thay đổi</Text>
+                  <Text className="font-bold text-foreground">Huỷ thay đổi</Text>
                 </Button>
                 <Button
                   disabled={saving}
                   onPress={() => void save()}
-                  className="h-[50px] flex-[1.2] rounded-[22px] bg-[#FFC31A]"
+                  className="h-[50px] flex-[1.2] rounded-[22px] bg-primary"
                 >
                   {saving ? (
                     <ActivityIndicator color="#161616" />
                   ) : (
-                    <Text className="font-extrabold text-[#161616]">Lưu và áp dụng</Text>
+                    <Text className="font-extrabold text-primary-foreground">Lưu và áp dụng</Text>
                   )}
                 </Button>
               </View>
@@ -578,9 +578,9 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
           ) : (
             <Button
               onPress={onClose}
-              className="h-[52px] w-full rounded-[22px] bg-[#FFC31A]"
+              className="h-[52px] w-full rounded-[22px] bg-primary"
             >
-              <Text className="font-extrabold text-[#161616]">Xong</Text>
+              <Text className="font-extrabold text-primary-foreground">Xong</Text>
             </Button>
           )}
         </DrawerFooter>

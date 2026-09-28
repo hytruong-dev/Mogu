@@ -18,47 +18,42 @@ type Props = {
 const DOT_DELAY = 140;
 const DOT_DURATION = 280;
 
-export function LoadingDots({ className }: Props) {
-  const opacities = [useSharedValue(0.45), useSharedValue(0.45), useSharedValue(0.45)];
+function Dot({ index }: { index: number }) {
+  const opacity = useSharedValue(0.45);
 
   useEffect(() => {
-    opacities.forEach((opacity, index) => {
-      opacity.value = withDelay(
-        index * DOT_DELAY,
-        withRepeat(
-          withSequence(
-            withTiming(1, { duration: DOT_DURATION, easing: Easing.out(Easing.quad) }),
-            withTiming(0.45, { duration: DOT_DURATION, easing: Easing.in(Easing.quad) }),
-          ),
-          -1, // infinite
-          false,
+    opacity.value = withDelay(
+      index * DOT_DELAY,
+      withRepeat(
+        withSequence(
+          withTiming(1, { duration: DOT_DURATION, easing: Easing.out(Easing.quad) }),
+          withTiming(0.45, { duration: DOT_DURATION, easing: Easing.in(Easing.quad) }),
         ),
-      );
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+        -1,
+        false,
+      ),
+    );
+  }, [index, opacity]);
+
+  const animStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: opacity.value * 0.26 + 0.82 }],
+  }));
 
   return (
-    <View className={cn('flex-row gap-4', className)}>
-      {opacities.map((opacity, index) => {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
-        const animStyle = useAnimatedStyle(() => ({
-          opacity: opacity.value,
-          transform: [
-            {
-              scale: opacity.value * 0.26 + 0.82, // map [0.45,1] → [0.82,1.08] linearly
-            },
-          ],
-        }));
+    <Animated.View
+      style={animStyle}
+      className="w-[9px] h-[9px] rounded-full bg-primary"
+    />
+  );
+}
 
-        return (
-          <Animated.View
-            key={index}
-            style={animStyle}
-            className="w-[9px] h-[9px] rounded-full bg-[#FFC400]"
-          />
-        );
-      })}
+export function LoadingDots({ className }: Props) {
+  return (
+    <View className={cn('flex-row gap-4', className)}>
+      <Dot index={0} />
+      <Dot index={1} />
+      <Dot index={2} />
     </View>
   );
 }

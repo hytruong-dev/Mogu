@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
-import { ArrowLeft, Sparkles, ChevronRight, Calendar, Flame, Award } from 'lucide-react-native';
+import { ArrowLeft, Sparkles, ChevronRight, Calendar, Flame, Award } from '@/components/icons';
 import { MealStatsResponse } from '../../services/api/health';
 import { ThumbnailStack } from './ThumbnailStack';
 import { Card } from '../../components/ui/card';
@@ -35,9 +35,9 @@ export function MealJournalMonthTrendScreen({
   const highestDay = stats?.insights?.highestDay;
 
   return (
-    <View className="flex-1 bg-[#FBF9F5]">
+    <View className="flex-1 bg-background">
       {/* Header */}
-      <View className="h-14 px-4 bg-[#FFF9E8] border-b border-[#EFEAE2] flex-row items-center justify-between">
+      <View className="h-14 px-4 bg-background border-b border-border flex-row items-center justify-between">
         <Pressable
           onPress={onBack}
           hitSlop={8}
@@ -46,7 +46,7 @@ export function MealJournalMonthTrendScreen({
         >
           <ArrowLeft size={22} color="#1C1917" />
         </Pressable>
-        <Text className="text-[17px] font-bold text-[#1C1917]">Xu hướng tháng</Text>
+        <Text className="text-[17px] font-bold text-foreground">Xu hướng tháng</Text>
         <View className="w-10" />
       </View>
 
@@ -56,19 +56,19 @@ export function MealJournalMonthTrendScreen({
         className="flex-1"
       >
         {/* Period Label */}
-        <Text className="text-[14px] font-semibold text-[#78716C] px-1">
+        <Text className="text-[14px] font-semibold text-muted-foreground px-1">
           {stats?.label ?? 'Tháng này'}
         </Text>
 
         {/* 1. Chart Card with Metric Toggle */}
-        <Card className="bg-white rounded-3xl p-5 border border-[#EFEAE2] shadow-xs gap-0">
+        <Card className="bg-card rounded-3xl p-5 border border-border shadow-xs gap-0">
           <View className="flex-row items-center justify-between mb-4">
-            <Text className="text-[16px] font-bold text-[#1C1917]">
+            <Text className="text-[16px] font-bold text-foreground">
               {metric === 'energy' ? 'Năng lượng theo tuần' : 'Số bữa theo tuần'}
             </Text>
 
             {/* Metric Toggle */}
-            <View className="flex-row bg-[#F5F2EB] p-1 rounded-full border border-[#EAE3D5]">
+            <View className="flex-row bg-muted p-1 rounded-full border border-border">
               <Pressable
                 onPress={() => setMetric('energy')}
                 className={`px-3 py-1 rounded-full ${
@@ -77,7 +77,7 @@ export function MealJournalMonthTrendScreen({
               >
                 <Text
                   className={`text-[12px] font-bold ${
-                    metric === 'energy' ? 'text-primary-foreground' : 'text-[#78716C]'
+                    metric === 'energy' ? 'text-primary-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   Năng lượng
@@ -92,7 +92,7 @@ export function MealJournalMonthTrendScreen({
               >
                 <Text
                   className={`text-[12px] font-bold ${
-                    metric === 'meals' ? 'text-primary-foreground' : 'text-[#78716C]'
+                    metric === 'meals' ? 'text-primary-foreground' : 'text-muted-foreground'
                   }`}
                 >
                   Số bữa
@@ -128,15 +128,15 @@ export function MealJournalMonthTrendScreen({
                         className="w-7 max-w-[32px] bg-primary rounded-t-lg shadow-xs"
                       />
                     ) : (
-                      <View className="w-2 h-2 rounded-full bg-[#D6D3D1] mb-1" />
+                      <View className="w-2 h-2 rounded-full bg-muted-foreground/30 mb-1" />
                     )}
                   </View>
 
                   {/* Week Label */}
-                  <Text className="text-[12px] font-bold text-[#1C1917] mt-1">
+                  <Text className="text-[12px] font-bold text-foreground mt-1">
                     {item.label}
                   </Text>
-                  <Text className="text-[10px] font-medium text-[#78716C]">
+                  <Text className="text-[10px] font-medium text-muted-foreground">
                     {item.subLabel}
                   </Text>
                 </View>
@@ -146,36 +146,36 @@ export function MealJournalMonthTrendScreen({
         </Card>
 
         {/* 2. 3 Short Insights Card */}
-        <Card className="bg-white rounded-3xl p-5 border border-[#EFEAE2] shadow-xs gap-3">
-          <Text className="text-[16px] font-bold text-[#1C1917] mb-1">
+        <Card className="bg-card rounded-3xl p-5 border border-border shadow-xs gap-3">
+          <Text className="text-[16px] font-bold text-foreground mb-1">
             Tổng kết tháng
           </Text>
 
           {/* Insight 1: Coverage */}
-          <View className="flex-row items-center p-3 rounded-2xl bg-[#FAF7F2] border border-[#F0EAE0]">
+          <View className="flex-row items-center p-3 rounded-2xl bg-secondary border border-border">
             <View className="w-8 h-8 rounded-full bg-primary/20 items-center justify-center mr-3 border border-primary/30">
               <Calendar size={16} color="#B45309" />
             </View>
             <View className="flex-1">
-              <Text className="text-[13px] font-bold text-[#1C1917]">
+              <Text className="text-[13px] font-bold text-foreground">
                 Độ bao phủ ngày ghi
               </Text>
-              <Text className="text-[12px] text-[#78716C] mt-0.5">
+              <Text className="text-[12px] text-muted-foreground mt-0.5">
                 Bạn đã ghi {daysLogged}/{totalDays} ngày ({coveragePercent}%)
               </Text>
             </View>
           </View>
 
           {/* Insight 2: Average */}
-          <View className="flex-row items-center p-3 rounded-2xl bg-[#FAF7F2] border border-[#F0EAE0]">
+          <View className="flex-row items-center p-3 rounded-2xl bg-secondary border border-border">
             <View className="w-8 h-8 rounded-full bg-primary/20 items-center justify-center mr-3 border border-primary/30">
               <Flame size={16} color="#B45309" />
             </View>
             <View className="flex-1">
-              <Text className="text-[13px] font-bold text-[#1C1917]">
+              <Text className="text-[13px] font-bold text-foreground">
                 Năng lượng trung bình
               </Text>
-              <Text className="text-[12px] text-[#78716C] mt-0.5">
+              <Text className="text-[12px] text-muted-foreground mt-0.5">
                 {avgKcal > 0
                   ? `${avgKcal.toLocaleString('vi-VN')} kcal/ngày có ghi`
                   : 'Chưa có ngày ghi nhận'}
@@ -196,7 +196,7 @@ export function MealJournalMonthTrendScreen({
                 <Text className="text-[13px] font-bold text-foreground">
                   Ngày nạp nhiều năng lượng nhất
                 </Text>
-                <Text className="text-[12px] text-[#78716C] mt-0.5">
+                <Text className="text-[12px] text-muted-foreground mt-0.5">
                   {highestDay.label} · {highestDay.kcal.toLocaleString('vi-VN')} kcal ({highestDay.mealCount} bữa)
                 </Text>
               </View>
@@ -206,13 +206,13 @@ export function MealJournalMonthTrendScreen({
         </Card>
 
         {/* 3. Section: Ngày có dữ liệu trong tháng */}
-        <Card className="bg-white rounded-3xl p-5 border border-[#EFEAE2] shadow-xs gap-0">
-          <Text className="text-[17px] font-bold text-[#1C1917] mb-3">
+        <Card className="bg-card rounded-3xl p-5 border border-border shadow-xs gap-0">
+          <Text className="text-[17px] font-bold text-foreground mb-3">
             Ngày có dữ liệu ({dayGroups.length})
           </Text>
 
           {dayGroups.length === 0 ? (
-            <Text className="text-[14px] text-[#78716C] py-4 text-center">
+            <Text className="text-[14px] text-muted-foreground py-4 text-center">
               Chưa có dữ liệu bữa ăn trong tháng này.
             </Text>
           ) : (
@@ -220,17 +220,17 @@ export function MealJournalMonthTrendScreen({
               {dayGroups.map((day) => (
                 <Card
                   key={day.localDate}
-                  className="p-0 rounded-2xl bg-[#FAF7F2] border border-[#F0EAE0] overflow-hidden gap-0 shadow-none"
+                  className="p-0 rounded-2xl bg-secondary border border-border overflow-hidden gap-0 shadow-none"
                 >
                   <Pressable
                     onPress={() => onSelectDay(day.localDate)}
-                    className="p-3 flex-row items-center justify-between active:bg-[#F5F0E6]"
+                    className="p-3 flex-row items-center justify-between active:bg-muted"
                   >
                     <View className="flex-1 mr-3">
-                      <Text className="text-[14px] font-bold text-[#1C1917]">
+                      <Text className="text-[14px] font-bold text-foreground">
                         {day.label}
                       </Text>
-                      <Text className="text-[12px] text-[#78716C] mt-0.5">
+                      <Text className="text-[12px] text-muted-foreground mt-0.5">
                         {day.consumedKcal.toLocaleString('vi-VN')} kcal · {day.mealCount} bữa
                       </Text>
                     </View>

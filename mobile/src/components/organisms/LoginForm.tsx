@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pressable, View } from 'react-native';
-import { Info, LockKeyhole, User } from 'lucide-react-native';
+import { Info, LockKeyhole, User } from '@/components/icons';
 import { cn } from '../../lib/utils';
 import { AuthInput } from '../atoms/AuthInput';
 import { PrimaryButton } from '../atoms/PrimaryButton';
@@ -36,7 +36,7 @@ export function LoginForm({ onLogin, compact = false, className }: Props) {
   return (
     <View
       className={cn(
-        'w-full rounded-[25px] bg-white',
+        'w-full rounded-[25px] bg-card',
         compact ? 'mt-[15px] p-[13px]' : 'mt-[18px] p-[14px]',
         className,
       )}

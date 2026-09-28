@@ -1,9 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Session } from './types';
 import type { ProfileDashboard } from './profile';
+import { setMemoryDefaultAvatarKey } from '../../theme/default-avatars';
 
 const SESSION_KEY = '@mogu/session';
 const PROFILE_DASHBOARD_KEY = '@mogu/profile_dashboard_cache';
+const DEFAULT_AVATAR_KEY = '@noan/default_avatar_key';
 
 export async function getSession(): Promise<Session | null> {
   const value = await AsyncStorage.getItem(SESSION_KEY);
@@ -37,6 +39,25 @@ export async function getCachedProfileDashboard(): Promise<ProfileDashboard | nu
 export async function saveCachedProfileDashboard(data: ProfileDashboard): Promise<void> {
   try {
     await AsyncStorage.setItem(PROFILE_DASHBOARD_KEY, JSON.stringify(data));
+  } catch {
+    // Non-fatal
+  }
+}
+
+export async function getSavedDefaultAvatarKey(): Promise<string | null> {
+  try {
+    const key = await AsyncStorage.getItem(DEFAULT_AVATAR_KEY);
+    if (key) setMemoryDefaultAvatarKey(key);
+    return key;
+  } catch {
+    return null;
+  }
+}
+
+export async function saveDefaultAvatarKey(key: string): Promise<void> {
+  try {
+    setMemoryDefaultAvatarKey(key);
+    await AsyncStorage.setItem(DEFAULT_AVATAR_KEY, key);
   } catch {
     // Non-fatal
   }

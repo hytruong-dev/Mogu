@@ -3,7 +3,7 @@ import { NativeOnlyAnimatedView } from '@/components/ui/native-only-animated-vie
 import { TextClassContext } from '@/components/ui/text';
 import { cn } from '@/lib/utils';
 import * as SelectPrimitive from '@rn-primitives/select';
-import { Check, ChevronDown, ChevronDownIcon, ChevronUpIcon } from 'lucide-react-native';
+import { Check, ChevronDown, ChevronDownIcon, ChevronUpIcon } from '@/components/icons';
 import * as React from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { FadeIn, FadeOut, ReduceMotion } from 'react-native-reanimated';
@@ -169,12 +169,25 @@ function SelectItem({
   children,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Item>) {
+  let isSelected = false;
+  try {
+    const { value } = SelectPrimitive.useRootContext();
+    isSelected = value?.value === props.value;
+  } catch {
+    // fallback if used outside Select context
+  }
+
   return (
     <SelectPrimitive.Item
       className={cn(
-        'active:bg-accent group relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 sm:py-1.5',
+        'group relative flex w-full flex-row items-center gap-2 rounded-sm py-2 pl-2 pr-8 sm:py-1.5 transition-colors',
+        isSelected ? 'bg-primary/20' : 'active:bg-primary/25',
         Platform.select({
-          web: 'focus:bg-accent focus:text-accent-foreground *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2 cursor-default outline-none data-[disabled]:pointer-events-none [&_svg]:pointer-events-none',
+          web: cn(
+            'cursor-pointer outline-none data-[disabled]:pointer-events-none [&_svg]:pointer-events-none',
+            '*:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2',
+            'focus:bg-primary focus:text-primary-foreground data-[highlighted]:bg-primary data-[highlighted]:text-primary-foreground data-[state=checked]:bg-primary/20 data-[state=checked]:data-[highlighted]:bg-primary'
+          ),
         }),
         props.disabled && 'opacity-50',
         className
@@ -182,10 +195,18 @@ function SelectItem({
       {...props}>
       <View className="absolute right-2 flex size-3.5 items-center justify-center">
         <SelectPrimitive.ItemIndicator>
-          <Icon as={Check} className="text-muted-foreground size-4 shrink-0" />
+          <Icon as={Check} className="text-primary-foreground size-4 shrink-0" />
         </SelectPrimitive.ItemIndicator>
       </View>
-      <SelectPrimitive.ItemText className="text-foreground group-active:text-accent-foreground select-none text-sm" />
+      <SelectPrimitive.ItemText
+        className={cn(
+          'text-foreground select-none text-sm font-medium',
+          isSelected && 'font-semibold',
+          Platform.select({
+            web: 'group-focus:text-primary-foreground group-data-[highlighted]:text-primary-foreground group-active:text-primary-foreground',
+          })
+        )}
+      />
     </SelectPrimitive.Item>
   );
 }

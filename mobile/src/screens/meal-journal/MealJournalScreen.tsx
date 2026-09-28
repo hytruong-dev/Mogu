@@ -7,7 +7,7 @@ import {
   BackHandler,
   ActivityIndicator,
 } from 'react-native';
-import { ArrowLeft, RotateCcw } from 'lucide-react-native';
+import { ArrowLeft, RotateCcw } from '@/components/icons';
 import { useQuery } from '@tanstack/react-query';
 import { healthApi } from '../../services/api/health';
 import { getDeviceTimeZone } from '../../lib/dates';
@@ -237,9 +237,9 @@ export function MealJournalScreen({
   }
 
   return (
-    <View className="flex-1 bg-[#FBF9F5]">
+    <View className="flex-1 bg-background">
       {/* 1. Header */}
-      <View className="h-14 px-4 bg-[#FFF9E8] border-b border-[#EFEAE2] flex-row items-center justify-between">
+      <View className="h-14 px-4 bg-background border-b border-border flex-row items-center justify-between">
         <Pressable
           onPress={handleBack}
           hitSlop={8}
@@ -249,7 +249,7 @@ export function MealJournalScreen({
           <ArrowLeft size={22} color="#1C1917" />
         </Pressable>
 
-        <Text className="text-[18px] font-bold text-[#1C1917]">
+        <Text className="text-[18px] font-bold text-foreground">
           Nhật ký bữa ăn
         </Text>
 
@@ -263,7 +263,7 @@ export function MealJournalScreen({
               }}
               hitSlop={8}
               accessibilityLabel="Về hôm nay"
-              className="w-8 h-8 rounded-full items-center justify-center bg-[#FAF7F2] border border-[#EFEAE2]"
+              className="w-8 h-8 rounded-full items-center justify-center bg-secondary border border-border"
             >
               <RotateCcw size={15} color="#78716C" />
             </Pressable>
@@ -296,16 +296,16 @@ export function MealJournalScreen({
         {isLoading && !stats ? (
           <View className="py-20 items-center justify-center">
             <ActivityIndicator size="large" color="#FFC51A" />
-            <Text className="text-[14px] text-[#78716C] mt-3 font-medium">
+            <Text className="text-[14px] text-muted-foreground mt-3 font-medium">
               Đang tải dữ liệu nhật ký...
             </Text>
           </View>
         ) : queryError ? (
-          <Card className="bg-white rounded-3xl p-6 border border-[#FEE2E2] items-center justify-center py-10 shadow-xs gap-0">
-            <Text className="text-[16px] font-bold text-[#DC2626]">
+          <Card className="bg-card rounded-3xl p-6 border border-destructive/30 items-center justify-center py-10 shadow-xs gap-0">
+            <Text className="text-[16px] font-bold text-destructive">
               Không thể tải nhật ký bữa ăn
             </Text>
-            <Text className="text-[13px] text-[#78716C] text-center mt-1 px-4 mb-4">
+            <Text className="text-[13px] text-muted-foreground text-center mt-1 px-4 mb-4">
               Vui lòng kiểm tra lại kết nối mạng của bạn.
             </Text>
             <Button

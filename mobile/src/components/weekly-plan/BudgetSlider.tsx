@@ -12,7 +12,7 @@ import {
   View,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { Minus, Plus } from 'lucide-react-native';
+import { Minus, Plus } from '@/components/icons';
 
 type Props = {
   value: number;

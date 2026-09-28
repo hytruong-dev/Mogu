@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from 'react-native';
-import { ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight } from '@/components/icons';
 import { cn } from '../../lib/utils';
 
 type Props = {
@@ -25,7 +25,7 @@ export function DateNavigator({ date, label, onPrevious, onNext, onPress, classN
   return (
     <View
       className={cn(
-        'h-[54px] rounded-[27px] border border-[#E8E0D2] bg-white',
+        'h-[54px] rounded-[27px] border border-border bg-card',
         'flex-row items-center px-2.5',
         className,
       )}
@@ -39,7 +39,7 @@ export function DateNavigator({ date, label, onPrevious, onNext, onPress, classN
         disabled={!onPress}
         className="flex-1 h-11 items-center justify-center px-1"
       >
-        <Text className="text-mogu-ink text-[16px] font-medium text-center" numberOfLines={1}>
+        <Text className="text-foreground text-[16px] font-medium text-center" numberOfLines={1}>
           {label ?? formatHealthDate(date)}
         </Text>
       </Pressable>

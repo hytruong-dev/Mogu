@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, RotateCcw } from 'lucide-react-native';
+import { ArrowLeft, RotateCcw } from '@/components/icons';
 import { OverviewPage } from './food-detail/OverviewPage';
 import { RecipePage } from './food-detail/RecipePage';
 import { CookingPage } from './food-detail/CookingPage';
@@ -192,7 +192,7 @@ function ResultSimple({
         </Pressable>
           </View>
       <View style={s.center}>
-        <Text style={s.eyebrow}>Mogu chọn cho bạn</Text>
+        <Text style={s.eyebrow}>NOAN chọn cho bạn</Text>
         {image ? (
           <Image source={image} style={s.resultImg} resizeMode="cover" />
         ) : (

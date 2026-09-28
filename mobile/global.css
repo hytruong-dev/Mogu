@@ -3,26 +3,66 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --background: 48 100% 98%;
-    --foreground: 20 14% 10%;
+  :root,
+  .dark:root,
+  .dark {
+    /* NOAN semantic color roots. Keep values as space-separated HSL. */
+    --background: 39 100% 97%;       /* #FFF9EE */
+    --foreground: 24 45% 11%;        /* #2A1A10 */
     --card: 0 0% 100%;
-    --card-foreground: 20 14% 10%;
+    --card-foreground: 24 45% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 20 14% 10%;
-    --primary: 43 100% 50%;
-    --primary-foreground: 20 14% 10%;
-    --secondary: 43 60% 95%;
-    --secondary-foreground: 20 14% 10%;
-    --muted: 43 30% 96%;
-    --muted-foreground: 20 10% 46%;
-    --accent: 43 60% 92%;
-    --accent-foreground: 20 14% 10%;
-    --destructive: 0 84% 60%;
+    --popover-foreground: 24 45% 11%;
+    --primary: 47 100% 58%;           /* #FFC928 */
+    --primary-foreground: 24 45% 11%;
+    --secondary: 39 100% 95%;         /* #FFF7E8 */
+    --secondary-foreground: 24 45% 11%;
+    --muted: 39 37% 94%;              /* #F7F2E9 */
+    --muted-foreground: 27 8% 39%;    /* #6B625B */
+    --accent: 7 100% 68%;             /* #FF725E */
+    --accent-foreground: 24 45% 11%;
+    --destructive: 358 75% 59%;       /* #E5484D */
     --destructive-foreground: 0 0% 100%;
-    --border: 43 20% 88%;
-    --input: 43 20% 88%;
-    --ring: 43 100% 50%;
-    --radius: 12px;
+    --success: 148 55% 40%;           /* #2E9D63 */
+    --success-foreground: 0 0% 100%;
+    --info: 217 91% 60%;              /* #3B82F6 */
+    --info-foreground: 0 0% 100%;
+    --warning: 43 100% 36%;           /* #B98500 */
+    --warning-foreground: 0 0% 100%;
+    --border: 39 31% 85%;             /* #E9DEC9 */
+    --input: 39 31% 85%;
+    --ring: 45 100% 45%;              /* primary pressed */
+    --radius: 16px;
   }
+}
+
+:root,
+.dark:root,
+.dark {
+  --background: 39 100% 97%;
+  --foreground: 24 45% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 24 45% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 24 45% 11%;
+  --primary: 47 100% 58%;
+  --primary-foreground: 24 45% 11%;
+  --secondary: 39 100% 95%;
+  --secondary-foreground: 24 45% 11%;
+  --muted: 39 37% 94%;
+  --muted-foreground: 27 8% 39%;
+  --accent: 7 100% 68%;
+  --accent-foreground: 24 45% 11%;
+  --destructive: 358 75% 59%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 148 55% 40%;
+  --success-foreground: 0 0% 100%;
+  --info: 217 91% 60%;
+  --info-foreground: 0 0% 100%;
+  --warning: 43 100% 36%;
+  --warning-foreground: 0 0% 100%;
+  --border: 39 31% 85%;
+  --input: 39 31% 85%;
+  --ring: 45 100% 45%;
+  --radius: 16px;
 }

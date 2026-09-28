@@ -11,7 +11,7 @@ import {
   Coins,
   Share2,
   UtensilsCrossed,
-} from 'lucide-react-native';
+} from '@/components/icons';
 
 import { Button } from '../ui/button';
 import {
@@ -71,8 +71,8 @@ export function WeeklyPlanSuccessSheet({
         payload: { planId: data.planId },
       });
       await Share.share({
-        title: 'Thực đơn tuần Mogu của tôi',
-        message: `Tôi vừa lên thực đơn tuần mới trên Mogu: ${data.durationDays} ngày, ${data.mealCount} bữa · https://mogu.app/plans/${data.planId}`,
+        title: 'Thực đơn tuần NOAN của tôi',
+        message: `Tôi vừa lên thực đơn tuần mới trên NOAN: ${data.durationDays} ngày, ${data.mealCount} bữa · https://mogu.app/plans/${data.planId}`,
       });
     } catch {
       // ignored
@@ -100,10 +100,10 @@ export function WeeklyPlanSuccessSheet({
           </View>
         </View>
 
-        <DrawerTitle className="text-[20px] font-extrabold text-[#111111] text-center mt-2">
+        <DrawerTitle className="text-[20px] font-extrabold text-foreground text-center mt-2">
           Thực đơn tuần đã sẵn sàng
         </DrawerTitle>
-        <Text className="text-[14px] text-[#6B6862] text-center mt-1 px-4 leading-5">
+        <Text className="text-[14px] text-muted-foreground text-center mt-1 px-4 leading-5">
           {data.mealCount} bữa đã được cân đối theo ngân sách và mục tiêu của bạn.
         </Text>
       </DrawerHeader>
@@ -148,20 +148,20 @@ export function WeeklyPlanSuccessSheet({
       <DrawerFooter className="px-5 pb-6 pt-1 gap-2.5">
         <Button
           onPress={() => onViewPlan(data.planId)}
-          className="h-[52px] w-full flex-row items-center justify-center gap-1 rounded-2xl bg-[#FFC20E] active:opacity-90 shadow-none"
+          className="h-[52px] w-full flex-row items-center justify-center gap-1 rounded-2xl bg-primary active:opacity-90 shadow-none"
         >
-          <Text className="text-[15px] font-extrabold text-[#111111]">
+          <Text className="text-[15px] font-extrabold text-primary-foreground">
             Xem thực đơn
           </Text>
-          <ChevronRight size={18} color="#111111" strokeWidth={2.5} />
+          <ChevronRight size={18} color="#2A1A10" strokeWidth={2.5} />
         </Button>
 
         <Button
           variant="outline"
           onPress={onGoHome}
-          className="h-[52px] w-full rounded-2xl border-[#E5E7EB] bg-white active:bg-neutral-50 shadow-none"
+          className="h-[52px] w-full rounded-2xl border-border bg-card active:bg-muted shadow-none"
         >
-          <Text className="text-[15px] font-bold text-[#111111]">Về trang chủ</Text>
+          <Text className="text-[15px] font-bold text-foreground">Về trang chủ</Text>
         </Button>
 
         <Pressable onPress={handleShare} style={s.shareRow} hitSlop={10}>

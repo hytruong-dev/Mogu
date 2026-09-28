@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { Info, X } from 'lucide-react-native';
+import { Info, X } from '@/components/icons';
 import {
   Drawer,
   DrawerContent,

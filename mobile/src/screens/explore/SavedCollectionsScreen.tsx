@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Bookmark } from 'lucide-react-native';
+import { ArrowLeft, Bookmark } from '@/components/icons';
 import { articlesApi, communityApi, type ExploreArticle, type ExplorePost } from '../../services/api/explore';
 import { dishesApi, type Dish } from '../../services/api/dishes';
 import { toggleDishSave } from '../../services/saved-dishes-store';

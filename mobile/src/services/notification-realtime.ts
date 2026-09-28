@@ -16,6 +16,7 @@ class NotificationRealtimeService {
   private pollInterval: any = null;
   private appStateSubscription: any = null;
   private initialized = false;
+  private hasLoggedConnectError = false;
 
   private decodeUserId(token: string): string | null {
     try {
@@ -92,17 +93,19 @@ class NotificationRealtimeService {
     try {
       this.socket = io(`${serverUrl}/notifications`, {
         path: '/socket.io',
-        transports: ['websocket', 'polling'],
+        transports: ['polling', 'websocket'],
         auth: { token, userId },
         query: { token: token ?? '', userId: userId ?? '' },
         reconnection: true,
         reconnectionAttempts: Infinity,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
+        reconnectionDelay: 2000,
+        reconnectionDelayMax: 10000,
+        randomizationFactor: 0.5,
         timeout: 10000,
       });
 
       this.socket.on('connect', () => {
+        this.hasLoggedConnectError = false;
         if (__DEV__) {
           console.log('[NotificationRealtime] Socket connected to backend at', serverUrl);
         }
@@ -151,13 +154,16 @@ class NotificationRealtimeService {
       });
 
       this.socket.on('connect_error', (err) => {
-        if (__DEV__) {
-          console.warn('[NotificationRealtime] Connection error:', err.message);
+        if (!this.hasLoggedConnectError) {
+          this.hasLoggedConnectError = true;
+          if (__DEV__) {
+            console.log('[NotificationRealtime] Waiting for backend socket connection:', err.message);
+          }
         }
       });
     } catch (err: any) {
       if (__DEV__) {
-        console.warn('[NotificationRealtime] Init socket error:', err.message);
+        console.log('[NotificationRealtime] Init socket note:', err.message);
       }
     }
   }

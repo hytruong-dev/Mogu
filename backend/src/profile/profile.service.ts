@@ -493,6 +493,7 @@ export class ProfileService {
       profile: {
         displayName: profile.displayName,
         username,
+        gender: profile.gender,
         avatar: {
           url: profile.avatarUrl,
           blurHash: null,

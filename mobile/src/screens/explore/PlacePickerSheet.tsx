@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
-import { MapPin, Navigation, Search } from 'lucide-react-native';
+import { MapPin, Navigation, Search } from '@/components/icons';
 import * as Location from 'expo-location';
 import {
   Drawer,
@@ -90,14 +90,14 @@ export function PlacePickerSheet({ open, onOpenChange, selectedId, onConfirm }: 
     <Drawer open={open} onOpenChange={onOpenChange} snapHeight={620}>
       <DrawerHeader className="flex-row items-center justify-between px-4">
         <DrawerClose onPress={() => onOpenChange(false)} />
-        <DrawerTitle className="text-base font-extrabold text-[#161616]">
+        <DrawerTitle className="text-base font-extrabold text-foreground">
           Thêm địa điểm
         </DrawerTitle>
         <View className="w-10" />
       </DrawerHeader>
 
       <DrawerContent className="px-4">
-        <View className="mb-3 h-11 flex-row items-center gap-2 rounded-full border border-[#E8E0D2] bg-white px-3">
+        <View className="mb-3 h-11 flex-row items-center gap-2 rounded-full border border-border bg-card px-3">
           <Search size={18} color="#8A8A8A" />
           <Input
             className="h-auto flex-1 border-0 bg-transparent p-0 text-[15px] shadow-none"
@@ -110,12 +110,12 @@ export function PlacePickerSheet({ open, onOpenChange, selectedId, onConfirm }: 
 
         <Pressable
           onPress={() => void useCurrentLocation()}
-          className="mb-3 min-h-12 flex-row items-center gap-2 rounded-2xl bg-[#FFF8E0] px-3"
+          className="mb-3 min-h-12 flex-row items-center gap-2 rounded-2xl bg-secondary px-3"
         >
-          <Navigation size={18} color="#161616" />
-          <Text className="font-semibold text-[#161616]">Dùng vị trí hiện tại</Text>
+          <Navigation size={18} color="#2A1A10" />
+          <Text className="font-semibold text-foreground">Dùng vị trí hiện tại</Text>
         </Pressable>
-        {locError ? <Text className="mb-2 text-[12px] text-[#B91C1C]">{locError}</Text> : null}
+        {locError ? <Text className="mb-2 text-[12px] text-destructive">{locError}</Text> : null}
 
         {loading && items.length === 0 ? (
           <View className="gap-2">
@@ -129,7 +129,7 @@ export function PlacePickerSheet({ open, onOpenChange, selectedId, onConfirm }: 
             style={{ maxHeight: 340 }}
             keyboardShouldPersistTaps="handled"
             ListEmptyComponent={
-              <Text className="py-8 text-center text-[#8A8A8A]">
+              <Text className="py-8 text-center text-muted-foreground">
                 {loading ? 'Đang tải…' : 'Chưa có địa điểm. Thử tìm hoặc resolve tên quán.'}
               </Text>
             }
@@ -141,15 +141,15 @@ export function PlacePickerSheet({ open, onOpenChange, selectedId, onConfirm }: 
                   className="mb-2 min-h-14 flex-row items-center gap-3 rounded-2xl px-2 py-2"
                   style={{ backgroundColor: selectedRow ? '#FFF4C7' : '#FFFFFF' }}
                 >
-                  <View className="h-10 w-10 items-center justify-center rounded-full bg-[#F3EFE6]">
-                    <MapPin size={18} color="#161616" />
+                  <View className="h-10 w-10 items-center justify-center rounded-full bg-muted">
+                    <MapPin size={18} color="#2A1A10" />
                   </View>
                   <View className="flex-1">
-                    <Text className="text-[15px] font-bold text-[#161616]" numberOfLines={1}>
+                    <Text className="text-[15px] font-bold text-foreground" numberOfLines={1}>
                       {item.name}
                     </Text>
                     {item.addressShort ? (
-                      <Text className="text-[12px] text-[#8A8A8A]" numberOfLines={1}>
+                      <Text className="text-[12px] text-muted-foreground" numberOfLines={1}>
                         {item.addressShort}
                       </Text>
                     ) : null}
@@ -164,13 +164,13 @@ export function PlacePickerSheet({ open, onOpenChange, selectedId, onConfirm }: 
       <DrawerFooter className="flex-row gap-3 px-4 pb-6">
         <Button
           variant="secondary"
-          className="h-12 flex-1 rounded-full bg-[#F0EBE0]"
+          className="h-12 flex-1 rounded-full bg-muted"
           onPress={() => onOpenChange(false)}
         >
-          <Text className="font-bold text-[#161616]">Hủy</Text>
+          <Text className="font-bold text-foreground">Hủy</Text>
         </Button>
         <Button
-          className="h-12 flex-[1.4] rounded-full bg-[#FFD54F]"
+          className="h-12 flex-[1.4] rounded-full bg-primary"
           disabled={!picked}
           onPress={async () => {
             if (selected) {
@@ -188,7 +188,7 @@ export function PlacePickerSheet({ open, onOpenChange, selectedId, onConfirm }: 
             }
           }}
         >
-          <Text className="font-extrabold text-[#161616]">Thêm địa điểm</Text>
+          <Text className="font-extrabold text-primary-foreground">Thêm địa điểm</Text>
         </Button>
       </DrawerFooter>
     </Drawer>

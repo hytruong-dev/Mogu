@@ -16,10 +16,11 @@ import {
   MoreHorizontal,
   Share2,
   User,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { apiRequest } from '../../services/api/client';
 import { articlesApi, type ExploreArticle, type ExploreTopic } from '../../services/api/explore';
 import { AppImage } from '../../components/ui/app-image';
+import { AvatarImage } from '../../components/organisms/AvatarImage';
 import { ContentActionSheet } from './ContentActionSheet';
 import {
   ArticleShareSheet,
@@ -130,7 +131,7 @@ export function TopicFeedScreen({ topic, onBack, onOpenArticle }: Props) {
       id: article.id,
       title: article.title,
       imageUrl: article.coverImageUrl,
-      subtitle: 'Bài viết • Mogu',
+      subtitle: 'Bài viết • NOAN',
       isSaved: Boolean(article.isSaved),
     });
     setActionOpen(true);
@@ -245,7 +246,7 @@ export function TopicFeedScreen({ topic, onBack, onOpenArticle }: Props) {
             </View>
           }
           renderItem={({ item }) => {
-            const authorName = item.author?.displayName || 'Mogu review';
+            const authorName = item.author?.displayName || 'NOAN review';
             const isLiked = Boolean(item.isLiked);
             const isSaved = Boolean(item.isSaved);
             const likes = item.likeCount ?? 0;
@@ -256,13 +257,11 @@ export function TopicFeedScreen({ topic, onBack, onOpenArticle }: Props) {
                 {/* Author row */}
                 <View style={styles.authorRow}>
                   <View style={styles.authorInfo}>
-                    <View style={styles.avatarWrap}>
-                      {item.author?.avatarUrl ? (
-                        <AppImage uri={item.author.avatarUrl} style={styles.avatarImg} contentFit="cover" />
-                      ) : (
-                        <User size={18} color="#854D0E" strokeWidth={2} />
-                      )}
-                    </View>
+                    <AvatarImage
+                      uri={item.author?.avatarUrl}
+                      size={36}
+                      seed={item.author?.userId ?? authorName}
+                    />
                     <View>
                       <Text style={styles.authorName}>{authorName}</Text>
                       {formatRelativeTime(item.createdAt) ? (

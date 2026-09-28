@@ -18,10 +18,11 @@ import {
   Send,
   Share2,
   X,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { communityApi, type ExplorePost, type PostComment } from '../services/api/explore';
 import { DetailSkeleton } from '../components/skeletons/ScreenSkeletons';
 import { AvatarImage } from '../components/organisms/AvatarImage';
+import { useProfileDashboard } from '../hooks/useProfileDashboard';
 import { Input } from '../components/ui/input';
 import { ContentActionSheet } from './explore/ContentActionSheet';
 import {
@@ -76,6 +77,10 @@ export function CommunityPostDetailScreen({
   const [shareSheetOpen, setShareSheetOpen] = useState(false);
   const [sharePayload, setSharePayload] = useState<ExploreShareArticle | null>(null);
   const inputRef = useRef<React.ElementRef<typeof Input>>(null);
+  const { dash } = useProfileDashboard();
+  const currentUserAvatar = dash?.profile?.avatar?.url;
+  const currentUserGender = dash?.profile?.gender;
+  const currentUserName = dash?.profile?.username ?? dash?.profile?.displayName;
 
   useEffect(() => {
     if (!postId) {
@@ -238,7 +243,7 @@ export function CommunityPostDetailScreen({
     );
   }
 
-  const authorName = post.author?.displayName?.trim() || 'Thành viên Mogu';
+  const authorName = post.author?.displayName?.trim() || 'Thành viên NOAN';
   const hasMedia = Boolean(post.media?.length || post.imageUrls?.length);
   const captionLong = (post.content?.length ?? 0) > 90;
   const isOwner = Boolean(post.viewerCapabilities?.canEdit || post.viewerCapabilities?.canDelete);
@@ -280,7 +285,11 @@ export function CommunityPostDetailScreen({
           keyboardShouldPersistTaps="handled"
         >
           <View style={s.authorRow}>
-            <AvatarImage uri={post.author?.avatarUrl} size={44} />
+            <AvatarImage
+              uri={post.author?.avatarUrl}
+              size={44}
+              seed={post.author?.userId ?? post.author?.displayName ?? authorName}
+            />
             <View style={{ flex: 1 }}>
               <Text style={s.authorName}>{authorName}</Text>
               <Text style={s.time}>{formatRelativeTime(post.createdAt)}</Text>
@@ -390,7 +399,11 @@ export function CommunityPostDetailScreen({
               const cName = c.author?.displayName?.trim() || 'Thành viên';
               return (
                 <View key={c.id} style={s.commentRow}>
-                  <AvatarImage uri={c.author?.avatarUrl} size={36} />
+                  <AvatarImage
+                    uri={c.author?.avatarUrl}
+                    size={36}
+                    seed={c.author?.userId ?? cName}
+                  />
                   <View style={{ flex: 1 }}>
                     <Text style={s.commentBody}>
                       <Text style={s.commentAuthor}>{cName} </Text>
@@ -431,13 +444,18 @@ export function CommunityPostDetailScreen({
                 </View>
               ) : null}
               <View style={s.composerRow}>
-                <AvatarImage uri={null} size={36} />
+                <AvatarImage
+                  uri={currentUserAvatar}
+                  size={36}
+                  gender={currentUserGender}
+                  seed={currentUserName}
+                />
                 <Input
                   ref={inputRef}
                   value={value}
                   onChangeText={setValue}
                   placeholder="Thêm bình luận..."
-                  className="min-h-10 flex-1 rounded-full px-3.5 border border-[#E8E0D2] bg-white"
+                  className="min-h-10 flex-1 rounded-full px-3.5 border border-border bg-card"
                 />
                 <Pressable onPress={() => void sendComment()} style={s.sendBtn} accessibilityLabel="Gửi">
                   <Send size={18} color={INK} />

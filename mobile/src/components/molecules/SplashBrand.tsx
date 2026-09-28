@@ -1,5 +1,6 @@
 import { View } from 'react-native';
 import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
+import { NoanWordmark } from '../brand/NoanWordmark';
 
 type Props = {
   mascotSize: number;
@@ -42,13 +43,13 @@ export function SplashBrand({
         ]}
       >
         <Animated.Image
-          source={require('../../assets/images/logo/logo.png')}
+          source={require('../../assets/images/noan/noan-mascot-master-v1.png')}
           resizeMode="contain"
           style={{
             position: 'absolute',
             width: mascotSize,
             height: mascotSize,
-            top: -mascotSize * 0.035,
+            top: -mascotSize * 0.02,
           }}
         />
       </Animated.View>
@@ -57,24 +58,10 @@ export function SplashBrand({
       <Animated.View
         style={[
           logoStyle,
-          {
-            width: wordmarkWidth,
-            height: wordmarkWidth * 0.326,
-            overflow: 'hidden',
-            marginTop: 2,
-          },
+          { width: wordmarkWidth, height: wordmarkWidth * 0.35, marginTop: 2 },
         ]}
       >
-        <Animated.Image
-          source={require('../../assets/images/logo/mogu-wordmark.png')}
-          resizeMode="contain"
-          style={{
-            position: 'absolute',
-            width: wordmarkWidth,
-            height: wordmarkWidth * (1040 / 1508),
-            top: -wordmarkWidth * 0.156,
-          }}
-        />
+        <NoanWordmark width={wordmarkWidth} height={wordmarkWidth * 0.35} />
       </Animated.View>
     </View>
   );

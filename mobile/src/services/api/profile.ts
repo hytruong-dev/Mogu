@@ -4,6 +4,7 @@ export type ProfileDashboard = {
   profile: {
     displayName: string | null;
     username: string | null;
+    gender?: string | null;
     avatar: { url: string | null; blurHash: string | null; status: string };
     primaryGoal: { id: string; code: string; name: string } | null;
   };

@@ -1,4 +1,5 @@
 import { BlurView } from 'expo-blur';
+import { Image as ExpoImage } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { cssInterop } from 'nativewind';
 import { Animated } from 'react-native';
@@ -12,3 +13,4 @@ cssInterop(BlurView, { className: 'style' });
 cssInterop(SafeAreaView, { className: 'style' });
 cssInterop(Animated.View, { className: 'style' });
 cssInterop(Animated.Image, { className: 'style' });
+cssInterop(ExpoImage, { className: 'style' });

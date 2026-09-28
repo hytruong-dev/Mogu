@@ -9,7 +9,7 @@ import {
   Image as RNImage,
 } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
-import { UtensilsCrossed } from 'lucide-react-native';
+import { UtensilsCrossed } from '@/components/icons';
 
 export interface AppImageProps {
   uri?: string | null;

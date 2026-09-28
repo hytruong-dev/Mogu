@@ -5,14 +5,14 @@ export function LoginHeader({ compact = false }: { compact?: boolean }) {
     <View style={[styles.container, compact && styles.containerCompact]}>
       <View style={[styles.mascotCrop, compact && styles.mascotCropCompact]}>
         <Image
-          source={require('../../assets/images/mascots/mogu-login.png')}
+          source={require('../../assets/images/noan/noan-mascot-master-v1.png')}
           resizeMode="contain"
           style={[styles.mascot, compact && styles.mascotCompact]}
         />
       </View>
       <Text style={[styles.title, compact && styles.titleCompact]}>Chào mừng trở lại!</Text>
       <Text style={[styles.subtitle, compact && styles.subtitleCompact]}>
-        Đăng nhập để Mogu tiếp tục chọn món{`\n`}hợp gu cho bạn.
+        Đăng nhập để NOAN tiếp tục chọn món{`\n`}hợp gu cho bạn.
       </Text>
     </View>
   );

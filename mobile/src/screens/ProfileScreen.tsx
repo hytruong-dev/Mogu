@@ -21,7 +21,8 @@ import { profileApi, type ProfileDashboard } from '../services/api/profile';
 import { useProfileDashboard, PROFILE_DASHBOARD_QUERY_KEY } from '../hooks/useProfileDashboard';
 import { queryClient } from '../lib/query-client';
 import { authApi } from '../services/api/auth';
-import { clearSession } from '../services/api/storage';
+import { clearSession, getSavedDefaultAvatarKey, saveDefaultAvatarKey } from '../services/api/storage';
+import { getMemoryDefaultAvatarKey, setMemoryDefaultAvatarKey } from '../theme/default-avatars';
 import { dishesApi } from '../services/api/dishes';
 import { healthApi } from '../services/api/health';
 import { communityApi, type ExplorePost } from '../services/api/explore';
@@ -112,7 +113,7 @@ import {
   UserRound,
   Volume2,
   X,
-} from 'lucide-react-native';
+} from '@/components/icons';
 
 // Color tokens (dùng cho inline style khi cần exact color)
 const CLR = {
@@ -130,7 +131,7 @@ function errMsg(e: unknown, fallback = 'Đã xảy ra lỗi.') {
   return (e as { message?: string })?.message ?? fallback;
 }
 
-const GENDER_OPTIONS = ['Nam', 'Nữ', 'Khác', 'Không muốn nói'] as const;
+const GENDER_OPTIONS = ['Nam', 'Nữ'] as const;
 
 type ConfirmState = {
   visible: boolean;
@@ -170,16 +171,12 @@ function confirmAction(
 function formatGender(g?: string | null) {
   if (g === 'MALE') return 'Nam';
   if (g === 'FEMALE') return 'Nữ';
-  if (g === 'OTHER') return 'Khác';
-  if (g === 'PREFER_NOT_TO_SAY') return 'Không muốn nói';
-  return g ? String(g) : '—';
+  return '';
 }
 
 function parseGenderLabel(label: string): string | null {
   if (label === 'Nam') return 'MALE';
   if (label === 'Nữ') return 'FEMALE';
-  if (label === 'Khác') return 'OTHER';
-  if (label === 'Không muốn nói') return 'PREFER_NOT_TO_SAY';
   return null;
 }
 
@@ -365,7 +362,7 @@ function ProfileMain({ open, onNotification, onLoggedOut, ...nav }: Props & { op
   const errorMessage = error instanceof Error ? error.message : error ? String(error) : null;
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFF9E8]" edges={['top', 'left', 'right']}>
+    <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
       <ScrollView
         contentContainerStyle={{ padding: 20, paddingBottom: 168, gap: 16 }}
         showsVerticalScrollIndicator={false}
@@ -379,7 +376,7 @@ function ProfileMain({ open, onNotification, onLoggedOut, ...nav }: Props & { op
         }
       >
         <View className="h-[68px] flex-row items-center justify-between">
-          <Text className="text-[32px] font-bold text-[#161616]" style={{ lineHeight: 40 }}>
+          <Text className="text-[32px] font-bold text-foreground" style={{ lineHeight: 40 }}>
             Cá nhân
           </Text>
           <View className="flex-row gap-1.5">
@@ -392,12 +389,12 @@ function ProfileMain({ open, onNotification, onLoggedOut, ...nav }: Props & { op
 
         {!dash && Boolean(errorMessage) && (
           <Card>
-            <Text className="text-[#FF4D3D] text-center">{errorMessage}</Text>
+            <Text className="text-destructive text-center">{errorMessage}</Text>
             <Pressable
-              className="mt-3 border border-[#F5BD18] rounded-[13px] px-3 py-2 self-center"
+              className="mt-3 border border-primary rounded-[13px] px-3 py-2 self-center"
               onPress={() => void refetch()}
             >
-              <Text className="text-[#D89A00]">Thử lại</Text>
+              <Text className="text-primary">Thử lại</Text>
             </Pressable>
           </Card>
         )}
@@ -406,27 +403,33 @@ function ProfileMain({ open, onNotification, onLoggedOut, ...nav }: Props & { op
           <>
             <Card>
               <View className="flex-row items-start gap-3.5">
-                <AvatarImage uri={avatarUri} size={96} />
+                <AvatarImage
+                  uri={avatarUri}
+                  size={96}
+                  gender={dash?.profile?.gender}
+                  seed={dash?.profile?.username ?? dash?.profile?.displayName}
+                  isCurrentUser
+                />
                 <View className="flex-1 gap-2">
-                  <View className="self-start flex-row items-center gap-[5px] bg-[#FFF8E6] px-2 py-1.5 rounded-[14px] max-w-full">
+                  <View className="self-start flex-row items-center gap-[5px] bg-secondary px-2 py-1.5 rounded-[14px] max-w-full">
                     <Target size={17} color={CLR.yellowDark} />
-                    <Text className="text-[11px] text-[#161616] flex-shrink" numberOfLines={2}>
+                    <Text className="text-[11px] text-foreground flex-shrink" numberOfLines={2}>
                       Mục tiêu: {goalName}
                     </Text>
                   </View>
-                  <Text className="text-[23px] font-bold text-[#161616]" numberOfLines={2}>
+                  <Text className="text-[23px] font-bold text-foreground" numberOfLines={2}>
                     {displayName}
                   </Text>
-                  <Text className="text-[15px] text-[#747474]">{username}</Text>
+                  <Text className="text-[15px] text-muted-foreground">{username}</Text>
                   <Pressable
                     onPress={() => open('edit')}
-                    className="border border-[#F5BD18] rounded-[13px] px-3 py-2 self-start"
+                    className="border border-primary rounded-[13px] px-3 py-2 self-start"
                   >
-                    <Text className="text-[#D89A00] text-[14px]">Chỉnh sửa hồ sơ</Text>
+                    <Text className="text-primary text-[14px]">Chỉnh sửa hồ sơ</Text>
                   </Pressable>
                 </View>
               </View>
-              <View className="flex-row mt-[18px] pt-[14px] border-t border-[#E8E4DC]">
+              <View className="flex-row mt-[18px] pt-[14px] border-t border-border">
                 {[
                   [String(dash.socialStats.publishedPostCount), 'Bài viết'],
                   [String(dash.socialStats.savedDishCount), 'Món đã lưu'],
@@ -436,21 +439,21 @@ function ProfileMain({ open, onNotification, onLoggedOut, ...nav }: Props & { op
                     key={l}
                     className={
                       i > 0
-                        ? 'flex-1 items-center border-l border-[#E8E4DC]'
+                        ? 'flex-1 items-center border-l border-border'
                         : 'flex-1 items-center'
                     }
                   >
-                    <Text className="text-[19px] font-bold text-[#161616]">{v}</Text>
-                    <Text className="text-[13px] text-[#747474] mt-0.5 text-center">{l}</Text>
+                    <Text className="text-[19px] font-bold text-foreground">{v}</Text>
+                    <Text className="text-[13px] text-muted-foreground mt-0.5 text-center">{l}</Text>
                   </View>
                 ))}
               </View>
             </Card>
             <Card>
               <View className="flex-row justify-between items-center">
-                <Text className="text-[19px] font-bold text-[#161616]">Hành trình của bạn</Text>
+                <Text className="text-[19px] font-bold text-foreground">Hành trình của bạn</Text>
                 <Pressable onPress={() => open('journey')}>
-                  <Text className="text-[15px] text-[#D99A00]">Chi tiết</Text>
+                  <Text className="text-[15px] text-primary">Chi tiết</Text>
                 </Pressable>
               </View>
               <View className="flex-row mt-4">
@@ -463,16 +466,16 @@ function ProfileMain({ open, onNotification, onLoggedOut, ...nav }: Props & { op
                     key={l}
                     className={
                       i > 0
-                        ? 'flex-1 items-center border-l border-[#E8E4DC]'
+                        ? 'flex-1 items-center border-l border-border'
                         : 'flex-1 items-center'
                     }
                   >
-                    <Text className="text-[19px] font-bold text-[#161616]">{v}</Text>
-                    <Text className="text-[13px] text-[#747474] mt-0.5 text-center">{l}</Text>
+                    <Text className="text-[19px] font-bold text-foreground">{v}</Text>
+                    <Text className="text-[13px] text-muted-foreground mt-0.5 text-center">{l}</Text>
                   </View>
                 ))}
               </View>
-              <View className="mt-3.5 bg-[#FFF9E9] rounded-[16px] p-3 flex-row justify-between">
+              <View className="mt-3.5 bg-secondary rounded-[16px] p-3 flex-row justify-between">
                 {dash.journeyPreview.recentDays.map((day, i) => {
                   const done =
                     day.status === 'COMPLETED' || day.status === 'IN_PROGRESS';
@@ -481,8 +484,8 @@ function ProfileMain({ open, onNotification, onLoggedOut, ...nav }: Props & { op
                       <View
                         className={
                           done
-                            ? 'w-7 h-7 rounded-[14px] bg-[#FFD54F] items-center justify-center'
-                            : 'w-7 h-7 rounded-[14px] border border-[#F5BD18] items-center justify-center'
+                            ? 'w-7 h-7 rounded-[14px] bg-primary items-center justify-center'
+                            : 'w-7 h-7 rounded-[14px] border border-primary items-center justify-center'
                         }
                       >
                         {done && <Check size={18} color="#fff" strokeWidth={3} />}
@@ -493,7 +496,7 @@ function ProfileMain({ open, onNotification, onLoggedOut, ...nav }: Props & { op
                 })}
               </View>
             </Card>
-            <Text className="text-[20px] font-bold text-[#161616] my-1">Của bạn</Text>
+            <Text className="text-[20px] font-bold text-foreground my-1">Của bạn</Text>
             <View className="flex-row flex-wrap gap-2.5">
               <Shortcut
                 icon={Bookmark}
@@ -549,7 +552,7 @@ function ProfileMain({ open, onNotification, onLoggedOut, ...nav }: Props & { op
             }, 'Đăng xuất', 'warning')
           }
         >
-          <Text className="text-[16px] text-[#FF4D3D] text-center">Đăng xuất</Text>
+          <Text className="text-[16px] text-destructive text-center">Đăng xuất</Text>
         </Pressable>
       </ScrollView>
       <LiquidGlassBottomNav active="profile" {...nav} />
@@ -570,7 +573,7 @@ function SubScreen({
 }) {
   if (page === 'diary') {
     return (
-      <SafeAreaView className="flex-1 bg-[#FBF9F5]" edges={['top', 'bottom']}>
+      <SafeAreaView className="flex-1 bg-background" edges={['top', 'bottom']}>
         <MealJournalScreen onBack={onBack} onOpenDish={onOpenDish} />
       </SafeAreaView>
     );
@@ -590,7 +593,7 @@ function SubScreen({
     diary: 'Nhật ký bữa ăn',
   };
   return (
-    <SafeAreaView className="flex-1 bg-[#FFF9E8]">
+    <SafeAreaView className="flex-1 bg-background">
       <Header title={titles[page]} onBack={onBack} />
       <ScrollView
         contentContainerStyle={
@@ -774,7 +777,13 @@ function SettingsPage({ onLoggedOut }: { onLoggedOut?: () => void }) {
   return (
     <LoadBlock loading={loading} error={error} onRetry={load} skeleton="form">
       <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-        <AvatarImage uri={avatarUri} size={80} />
+        <AvatarImage
+          uri={avatarUri}
+          size={80}
+          gender={me?.basic?.gender}
+          seed={me?.basic?.username ?? me?.basic?.displayName}
+          isCurrentUser
+        />
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 23, fontWeight: '700', color: '#161616' }}>{name}</Text>
           <Text style={{ fontSize: 15, color: '#747474', marginTop: 3 }}>{username}</Text>
@@ -871,16 +880,21 @@ function EditPage() {
   const [regionId, setRegionId] = useState<string | null>(null);
   const [regions, setRegions] = useState<Array<{ id: string; name: string }>>([]);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
+  const [defaultAvatarId, setDefaultAvatarId] = useState<string | null>(getMemoryDefaultAvatarKey());
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     setSaveMsg(null);
     try {
-      const [me, regionRes] = await Promise.all([
+      const [me, regionRes, savedAvatarKey] = await Promise.all([
         profileApi.me<MeProfile>(),
         profileApi.getRegions(undefined, 50).catch(() => ({ items: [] as Array<{ id: string; name: string }> })),
+        getSavedDefaultAvatarKey(),
       ]);
+      if (savedAvatarKey) {
+        setDefaultAvatarId(savedAvatarKey);
+      }
       setVersion(me.version ?? me.profileVersion ?? 1);
       setAvatarUri(me.avatar?.url ?? me.avatar?.thumbnailUrl ?? me.avatarUrl ?? null);
       setDisplayName(me.basic?.displayName ?? me.displayName ?? '');
@@ -986,8 +1000,27 @@ function EditPage() {
           value={avatarUri}
           variant="avatar"
           label="Ảnh đại diện"
+          gender={parseGenderLabel(gender)}
+          seed={username || displayName}
+          defaultAvatarId={defaultAvatarId}
           onUpload={uploadAvatar}
           onRemove={avatarUri ? removeAvatar : undefined}
+          onSelectDefaultAvatar={(key) => {
+            setDefaultAvatarId(key);
+            setMemoryDefaultAvatarKey(key);
+            setAvatarUri(null);
+            recordProfileUpdatedStore({ avatarUrl: null });
+            updateDashboardCache((prev) => {
+              if (!prev) return prev;
+              return {
+                ...prev,
+                profile: {
+                  ...prev.profile,
+                  avatar: { ...prev.profile.avatar, url: null },
+                },
+              };
+            });
+          }}
           confirmRemove
         />
       </View>
@@ -1049,7 +1082,7 @@ function EditPage() {
           <Text style={{ fontSize: 12, color: '#747474' }}>Giới tính</Text>
           <Select
             value={
-              gender && gender !== '—'
+              gender && (gender === 'Nam' || gender === 'Nữ')
                 ? { value: gender, label: gender }
                 : undefined
             }
@@ -1329,10 +1362,10 @@ function HealthPage() {
         <ShieldCheck size={52} color={CLR.yellowDark} />
         <View style={{ flex: 1 }}>
           <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>
-            Dữ liệu giúp Mogu gợi ý món phù hợp hơn
+            Dữ liệu giúp NOAN gợi ý món phù hợp hơn
           </Text>
           <Text style={{ fontSize: 14, color: '#747474', marginTop: 2 }}>
-            Mogu cam kết bảo mật thông tin cá nhân của bạn tuyệt đối.
+            NOAN cam kết bảo mật thông tin cá nhân của bạn tuyệt đối.
           </Text>
         </View>
       </Card>
@@ -1722,7 +1755,7 @@ function AvoidPage() {
       >
         <Info color={CLR.yellowDark} />
         <Text style={{ fontSize: 16, lineHeight: 24, color: '#161616', flex: 1 }}>
-          Mogu sẽ loại các món có chứa nguyên liệu bạn chọn.
+          NOAN sẽ loại các món có chứa nguyên liệu bạn chọn.
         </Text>
       </Card>
       <View
@@ -2417,7 +2450,11 @@ function PostsPage() {
           return (
             <Card key={p.id}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <AvatarImage uri={avatarUri} size={44} />
+                <AvatarImage
+                  uri={avatarUri}
+                  size={44}
+                  seed={p.author?.displayName ?? p.id}
+                />
                 <View>
                   <Text style={{ fontSize: 16, fontWeight: '600', color: '#161616' }}>
                     {p.author?.displayName ?? 'Bạn'}
@@ -2456,9 +2493,9 @@ function PostsPage() {
 
 function Header({ title, onBack }: { title: string; onBack: () => void }) {
   return (
-    <View className="h-[60px] px-4 flex-row items-center justify-between bg-[#FFF9E8]">
+    <View className="h-[60px] px-4 flex-row items-center justify-between bg-background">
       <IconButton icon={ArrowLeft} onPress={onBack} />
-      <Text className="text-[22px] font-bold text-[#161616]">{title}</Text>
+      <Text className="text-[22px] font-bold text-foreground">{title}</Text>
       <View className="w-11" />
     </View>
   );
@@ -2509,7 +2546,7 @@ function SoftIcon({ icon: Icon, compact }: { icon: ComponentType<any>; compact?:
     );
   }
   return (
-    <View className="w-11 h-11 rounded-[13px] bg-[#FFF7DF] items-center justify-center">
+    <View className="w-11 h-11 rounded-[13px] bg-secondary items-center justify-center">
       <Icon size={24} color="#805B0A" />
     </View>
   );
@@ -2673,7 +2710,7 @@ function PrimaryButton({
         marginTop: compact ? 4 : 0,
       }}
     >
-      <Text className={compact ? 'text-[16px] font-bold text-[#161616]' : 'text-[17px] font-bold text-[#161616]'}>
+      <Text className={compact ? 'text-[16px] font-bold text-foreground' : 'text-[17px] font-bold text-foreground'}>
         {text}
       </Text>
     </Pressable>
@@ -2805,7 +2842,7 @@ function FoodRow({
       disabled={!onPress}
       accessibilityRole="button"
       accessibilityLabel={`Xem chi tiết món ${name}`}
-      className="bg-white rounded-[22px] p-2.5 flex-row items-center gap-3.5 active:opacity-90"
+      className="bg-card rounded-[22px] p-2.5 flex-row items-center gap-3.5 active:opacity-90"
       style={{
         backgroundColor: '#FFFFFF',
         borderRadius: 22,
@@ -2822,7 +2859,7 @@ function FoodRow({
     >
       <Image
         source={image}
-        className="w-[100px] h-[92px] rounded-[16px] bg-[#F5EEDB]"
+        className="w-[100px] h-[92px] rounded-[16px] bg-muted"
         style={{ width: 100, height: 92, borderRadius: 16, backgroundColor: '#F5EEDB' }}
         resizeMode="cover"
       />
@@ -2832,7 +2869,7 @@ function FoodRow({
       >
         <Text
           numberOfLines={2}
-          className="text-[17px] font-bold text-[#161616] mb-1"
+          className="text-[17px] font-bold text-foreground mb-1"
           style={{ fontSize: 17, fontWeight: '700', color: '#161616', marginBottom: 4 }}
         >
           {name}
@@ -2845,10 +2882,10 @@ function FoodRow({
             <View
               className={`px-2 py-0.5 rounded-full flex-row items-center gap-1 ${
                 badge.variant === 'success'
-                  ? 'bg-[#E8F5E9]'
+                  ? 'bg-success/20'
                   : badge.variant === 'warning'
-                  ? 'bg-[#FFF8E1]'
-                  : 'bg-[#F0EBE1]'
+                  ? 'bg-secondary'
+                  : 'bg-muted'
               }`}
               style={{
                 paddingHorizontal: 8,
@@ -2885,7 +2922,7 @@ function FoodRow({
           {meta ? (
             <Text
               numberOfLines={1}
-              className="text-[13px] text-[#747474]"
+              className="text-[13px] text-muted-foreground"
               style={{ fontSize: 13, color: '#747474' }}
             >
               {meta}

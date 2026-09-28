@@ -35,7 +35,7 @@ import {
   Utensils,
   X,
   Zap,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import * as Haptics from 'expo-haptics';
 import { Input } from '../components/ui/input';
 import { Separator } from '../components/ui/separator';
@@ -62,6 +62,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import { cn } from '../lib/utils';
 import { onboardingApi } from '../services/api/onboarding';
+import { getRandomAvatar } from '../theme/default-avatars';
+import { saveDefaultAvatarKey } from '../services/api/storage';
 
 type Props = { onFinish: () => void };
 
@@ -79,8 +81,6 @@ const GOALS = [
 const GENDER_OPTIONS = [
   { id: 'MALE', label: 'Nam', emoji: '👨' },
   { id: 'FEMALE', label: 'Nữ', emoji: '👩' },
-  { id: 'OTHER', label: 'Khác', emoji: '🌈' },
-  { id: 'PREFER_NOT_TO_SAY', label: 'Không muốn tiết lộ', emoji: '🤫' },
 ];
 
 // ─── Step transition hook ──────────────────────────────────────────────────────
@@ -178,6 +178,8 @@ export function SplashScreen({ onFinish }: Props) {
       if (gender) {
         const s4 = await onboardingApi.saveStep(4, { gender }, version);
         version = s4.profileVersion ?? version;
+        const defaultAvatar = getRandomAvatar(gender);
+        await saveDefaultAvatarKey(defaultAvatar.id);
       } else {
         await onboardingApi.skipStep(4);
       }
@@ -293,7 +295,7 @@ export function SplashScreen({ onFinish }: Props) {
               variant="outline"
               size="icon"
               onPress={() => go(step - 1)}
-              className="h-9 w-9 rounded-full bg-white border-0 shadow-sm"
+              className="h-9 w-9 rounded-full bg-card border-0 shadow-sm"
               style={{
                 shadowColor: '#67541C', shadowOpacity: 0.12, shadowRadius: 8,
                 shadowOffset: { width: 0, height: 3 }, elevation: 3,
@@ -384,7 +386,7 @@ function ProgressRow({ step, total }: { step: number; total: number }) {
       {/* Badge bước — tái sử dụng Badge từ react-native-reusables */}
       <Badge
         variant="outline"
-        className="mt-2 rounded-full border-[#FFD83E] bg-[#FFF6D6] px-3.5 py-1 shadow-none"
+        className="mt-2 rounded-full border-primary/50 bg-secondary px-3.5 py-1 shadow-none"
       >
         <Text style={{ fontSize: 13, fontWeight: '700', color: '#7A5C0B' }}>
           Bước {displayStep}/{total}
@@ -433,10 +435,10 @@ function MascotHero({
 function WelcomeStep() {
   return (
     <View style={{ alignItems: 'center', paddingTop: 4 }}>
-      <MascotHero source={require('../assets/images/onboarding/welcome-cropped.png')} height={240} />
+      <MascotHero source={require('../assets/images/noan/noan-mascot-master-v1.png')} height={240} />
 
       <Text style={{ fontSize: 31, fontWeight: '900', color: '#111', textAlign: 'center', lineHeight: 38, letterSpacing: -0.8, marginTop: 6 }}>
-        {'Chào mừng bạn\nđến với Mogu!'}
+        {'Chào mừng bạn\nđến với NOAN!'}
       </Text>
       <Text style={{ fontSize: 15, color: '#4E4A43', textAlign: 'center', lineHeight: 22, marginTop: 8 }}>
         {'Mỗi ngày một món ngon,\nmỗi lựa chọn đều hợp với bạn hơn.'}
@@ -454,7 +456,7 @@ function WelcomeStep() {
         ].map(({ icon, label }) => (
           <Card
             key={label}
-            className="flex-1 rounded-[20px] border-0 bg-white py-4 px-2 items-center justify-center gap-0 shadow-sm"
+            className="flex-1 rounded-[20px] border-0 bg-card py-4 px-2 items-center justify-center gap-0 shadow-sm"
             style={{
               shadowColor: '#B19B66', shadowOpacity: 0.1, shadowRadius: 10, elevation: 2,
             }}
@@ -489,10 +491,10 @@ function ProfileStep({
 
   return (
     <View style={{ paddingTop: 8 }}>
-      <MascotHero source={require('../assets/images/onboarding/welcome-cropped.png')} height={190} />
+      <MascotHero source={require('../assets/images/noan/noan-mascot-master-v1.png')} height={190} />
 
       <Text style={{ fontSize: 29, fontWeight: '900', color: '#111', textAlign: 'center', lineHeight: 36, letterSpacing: -0.7 }}>
-        Mogu gọi bạn là gì?
+        NOAN gọi bạn là gì?
       </Text>
       <Text style={{ fontSize: 14, color: '#4E4A43', textAlign: 'center', lineHeight: 20, marginTop: 6 }}>
         Thông tin này giúp trải nghiệm gần gũi hơn.
@@ -500,7 +502,7 @@ function ProfileStep({
 
       {/* White card — tái sử dụng Card & CardContent từ react-native-reusables */}
       <Card
-        className="mt-5 rounded-[22px] border-0 bg-white p-4 gap-0 shadow-sm"
+        className="mt-5 rounded-[22px] border-0 bg-card p-4 gap-0 shadow-sm"
         style={{ shadowColor: '#B19B66', shadowOpacity: 0.1, shadowRadius: 12, elevation: 2 }}
       >
         <CardContent className="p-0 gap-0">
@@ -512,14 +514,14 @@ function ProfileStep({
               onChangeText={onDisplayName}
               placeholder="Ví dụ: Minh, An, Huy..."
               placeholderTextColor="#BBBAB5"
-              className="h-12 rounded-xl border border-[#EAE6DF] bg-white px-3.5 text-base font-medium text-[#111]"
+              className="h-12 rounded-xl border border-border bg-card px-3.5 text-base font-medium text-foreground"
               maxLength={40}
               returnKeyType="next"
             />
           </View>
           <Text style={{ fontSize: 12, color: '#AAA5A0', marginTop: 4 }}>Không bắt buộc</Text>
 
-          <Separator className="my-3.5 bg-[#F0EBE3]" />
+          <Separator className="my-3.5 bg-border" />
 
           {/* Ngày sinh */}
           <ProfileSectionLabel icon="📅" label="Ngày sinh" />
@@ -529,7 +531,7 @@ function ProfileStep({
             onDay={onBirthDay} onMonth={onBirthMonth} onYear={onBirthYear}
           />
 
-          <Separator className="my-3.5 bg-[#F0EBE3]" />
+          <Separator className="my-3.5 bg-border" />
 
           {/* Giới tính */}
           <ProfileSectionLabel icon="⚥" label="Giới tính" />
@@ -555,7 +557,7 @@ function ProfileStep({
                     {opt.label}
                   </Text>
                   {active && (
-                    <Badge className="w-5 h-5 rounded-full bg-[#FFD83E] p-0 items-center justify-center border-0 shadow-none">
+                    <Badge className="w-5 h-5 rounded-full bg-primary p-0 items-center justify-center border-0 shadow-none">
                       <Check size={12} color="#111" strokeWidth={3} />
                     </Badge>
                   )}
@@ -605,7 +607,7 @@ function DatePickerRow({
             value={{ value: String(day), label: `Ngày ${day}` }}
             onValueChange={(opt) => { if (opt?.value) onDay(Number(opt.value)); }}
           >
-            <SelectTrigger className="h-12 rounded-xl border border-[#EAE6DF] bg-white">
+            <SelectTrigger className="h-12 rounded-xl border border-border bg-card">
               <SelectValue placeholder="Ngày" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
@@ -620,7 +622,7 @@ function DatePickerRow({
             value={{ value: String(month), label: `Tháng ${month}` }}
             onValueChange={(opt) => { if (opt?.value) onMonth(Number(opt.value)); }}
           >
-            <SelectTrigger className="h-12 rounded-xl border border-[#EAE6DF] bg-white">
+            <SelectTrigger className="h-12 rounded-xl border border-border bg-card">
               <SelectValue placeholder="Tháng" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
@@ -635,7 +637,7 @@ function DatePickerRow({
             value={{ value: String(year), label: `Năm ${year}` }}
             onValueChange={(opt) => { if (opt?.value) onYear(Number(opt.value)); }}
           >
-            <SelectTrigger className="h-12 rounded-xl border border-[#EAE6DF] bg-white">
+            <SelectTrigger className="h-12 rounded-xl border border-border bg-card">
               <SelectValue placeholder="Năm" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
@@ -662,13 +664,13 @@ function BodyStep({
 
   return (
     <View style={{ paddingTop: 4 }}>
-      <MascotHero source={require('../assets/images/onboarding/body-info.png')} height={210} />
+      <MascotHero source={require('../assets/images/noan/noan-thinking-v1.png')} height={210} />
 
       <Text style={{ fontSize: 29, fontWeight: '900', color: '#111', textAlign: 'center', lineHeight: 36, letterSpacing: -0.7 }}>
         Cơ thể của bạn hiện tại
       </Text>
       <Text style={{ fontSize: 14, color: '#4E4A43', textAlign: 'center', lineHeight: 21, marginTop: 6 }}>
-        {'Mogu dùng thông tin này để cá nhân hóa\nkhẩu phần phù hợp hơn.'}
+        {'NOAN dùng thông tin này để cá nhân hóa\nkhẩu phần phù hợp hơn.'}
       </Text>
 
       {/* Two cards */}
@@ -683,7 +685,7 @@ function BodyStep({
         onValueChange={(val) => setUnitSystem(val as 'metric' | 'imperial')}
         className="w-full mt-3.5"
       >
-        <TabsList className="w-full h-auto flex-row rounded-full bg-[#EEE8DD] p-1 border-0 shadow-none">
+        <TabsList className="w-full h-auto flex-row rounded-full bg-muted p-1 border-0 shadow-none">
           <TabsTrigger
             value="metric"
             className={cn(
@@ -745,7 +747,7 @@ function BodyCard({
 
   return (
     <Card
-      className="flex-1 rounded-[22px] border-0 bg-white p-4 items-center gap-0 shadow-sm"
+      className="flex-1 rounded-[22px] border-0 bg-card p-4 items-center gap-0 shadow-sm"
       style={{ shadowColor: '#B19B66', shadowOpacity: 0.1, shadowRadius: 12, elevation: 2 }}
     >
       <CardContent className="w-full items-center p-0 gap-0">
@@ -786,7 +788,7 @@ function BodyCard({
             variant="outline"
             size="icon"
             onPress={() => onChange(clamp(value - 1))}
-            className="h-9 w-9 rounded-full border-[#E9E5DD] bg-white active:bg-neutral-100 shadow-none"
+            className="h-9 w-9 rounded-full border-border bg-card active:bg-muted shadow-none"
           >
             <Minus size={20} color="#111" />
           </Button>
@@ -795,7 +797,7 @@ function BodyCard({
             variant="outline"
             size="icon"
             onPress={() => onChange(clamp(value + 1))}
-            className="h-9 w-9 rounded-full border-[#E9E5DD] bg-white active:bg-neutral-100 shadow-none"
+            className="h-9 w-9 rounded-full border-border bg-card active:bg-muted shadow-none"
           >
             <Plus size={20} color="#111" />
           </Button>
@@ -811,7 +813,7 @@ function BodyCard({
 function GoalStep({ selected, onSelect }: { selected: string; onSelect: (v: string) => void }) {
   return (
     <View style={{ paddingTop: 4 }}>
-      <MascotHero source={require('../assets/images/onboarding/goal.png')} height={200} />
+      <MascotHero source={require('../assets/images/noan/noan-thinking-v1.png')} height={200} />
 
       <Text style={{ fontSize: 29, fontWeight: '900', color: '#111', textAlign: 'center', lineHeight: 36, letterSpacing: -0.7 }}>
         Mục tiêu của bạn là gì?
@@ -834,8 +836,8 @@ function GoalStep({ selected, onSelect }: { selected: string; onSelect: (v: stri
                 className={cn(
                   "h-[100px] items-center justify-center rounded-[20px] relative gap-0 shadow-sm",
                   active
-                    ? "border-2 border-[#111] bg-[#FFE27A]"
-                    : "border border-[#EEE8DD] bg-white"
+                    ? "border-2 border-foreground bg-primary"
+                    : "border border-border bg-card"
                 )}
                 style={{
                   shadowColor: '#7A5D1C', shadowOpacity: 0.08, shadowRadius: 10, elevation: 2,
@@ -847,7 +849,7 @@ function GoalStep({ selected, onSelect }: { selected: string; onSelect: (v: stri
                     {label}
                   </Text>
                   {active && (
-                    <Badge className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-[#111] p-0 items-center justify-center border-0 shadow-none">
+                    <Badge className="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-foreground p-0 items-center justify-center border-0 shadow-none">
                       <Check size={14} color="#FFD83E" strokeWidth={3} />
                     </Badge>
                   )}
@@ -860,7 +862,7 @@ function GoalStep({ selected, onSelect }: { selected: string; onSelect: (v: stri
 
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 14, justifyContent: 'center' }}>
         <ShieldCheck size={18} color="#111" />
-        <Text style={{ fontSize: 12, color: '#4E4A43' }}>Mogu sẽ ưu tiên món phù hợp với mục tiêu này.</Text>
+        <Text style={{ fontSize: 12, color: '#4E4A43' }}>NOAN sẽ ưu tiên món phù hợp với mục tiêu này.</Text>
       </View>
     </View>
   );
@@ -939,7 +941,7 @@ function TagSearchBox({
           <Text style={{ fontSize: 16, fontWeight: '900', color: '#111' }}>{title}</Text>
         </View>
         {selectedItems.length > 0 && (
-          <Badge variant="secondary" className="px-2.5 py-0.5 rounded-full bg-[#F3EFE6] border-0">
+          <Badge variant="secondary" className="px-2.5 py-0.5 rounded-full bg-muted border-0">
             <Text style={{ fontSize: 12, fontWeight: '700', color: '#6E6B65' }}>
               {selectedItems.length} đã chọn
             </Text>
@@ -972,7 +974,7 @@ function TagSearchBox({
               onChangeText={setQuery}
               placeholder={placeholder}
               placeholderTextColor="#BBBAB5"
-              className="flex-1 h-9 border-0 bg-transparent p-0 text-sm font-medium text-[#111] shadow-none"
+              className="flex-1 h-9 border-0 bg-transparent p-0 text-sm font-medium text-foreground shadow-none"
             />
           ) : (
             <Text style={{ flex: 1, fontSize: 14, color: '#BBBAB5' }}>
@@ -1109,7 +1111,7 @@ function TagSearchBox({
           <Button
             variant="ghost"
             onPress={() => { setOpen(false); setQuery(''); }}
-            className="h-10 rounded-none border-t border-[#F5F0E8] py-0 flex-row items-center justify-center gap-1.5 active:bg-neutral-50"
+            className="h-10 rounded-none border-t border-border py-0 flex-row items-center justify-center gap-1.5 active:bg-muted"
           >
             <ChevronUp size={14} color="#8A8580" strokeWidth={2} />
             <Text style={{ fontSize: 12, fontWeight: '600', color: '#8A8580' }}>Thu gọn</Text>
@@ -1137,7 +1139,7 @@ function PreferenceStep({
   return (
     <View style={{ paddingTop: 4 }}>
       <Text style={{ fontSize: 29, fontWeight: '900', color: '#111', textAlign: 'center', lineHeight: 36, letterSpacing: -0.7, marginTop: 8 }}>
-        Mogu nên ghi nhớ điều gì?
+        NOAN nên ghi nhớ điều gì?
       </Text>
       <Text style={{ fontSize: 14, color: '#4E4A43', textAlign: 'center', lineHeight: 20, marginTop: 6, marginBottom: 4 }}>
         Chọn khẩu vị và những nguyên liệu bạn cần tránh.
@@ -1145,7 +1147,7 @@ function PreferenceStep({
 
       {/* White card — tái sử dụng Card & CardContent từ react-native-reusables */}
       <Card
-        className="mt-3.5 rounded-[22px] border-0 bg-white p-4 gap-0 shadow-sm"
+        className="mt-3.5 rounded-[22px] border-0 bg-card p-4 gap-0 shadow-sm"
         style={{ shadowColor: '#B19B66', shadowOpacity: 0.1, shadowRadius: 12, elevation: 2 }}
       >
         <CardContent className="p-0 gap-0">
@@ -1160,7 +1162,7 @@ function PreferenceStep({
             onToggle={handleDietToggle}
           />
 
-          <Separator className="my-4 bg-[#F0EBE3]" />
+          <Separator className="my-4 bg-border" />
 
           {/* Dị ứng hoặc hạn chế */}
           <TagSearchBox
@@ -1183,10 +1185,10 @@ function PreferenceStep({
       {/* Warning box — tái sử dụng Alert từ react-native-reusables */}
       <Alert
         icon={TriangleAlert}
-        iconClassName="text-[#D97706]"
-        className="mt-3.5 rounded-2xl border border-[#FDE68A] bg-[#FEF9C3]/80 px-4 py-3 shadow-none flex-row items-center"
+        iconClassName="text-warning"
+        className="mt-3.5 rounded-2xl border border-warning/40 bg-secondary px-4 py-3 shadow-none flex-row items-center"
       >
-        <AlertDescription className="text-xs font-medium leading-5 text-[#92400E] pl-6">
+        <AlertDescription className="text-xs font-medium leading-5 text-warning pl-6">
           Món chứa thành phần cần tránh sẽ không được gợi ý.
         </AlertDescription>
       </Alert>
@@ -1284,7 +1286,7 @@ function CompletionScreen({
         <View style={{ height: 270, alignItems: 'center', justifyContent: 'center', marginTop: 8, overflow: 'visible' }}>
           <CompletionCircle />
           <Text style={{ position: 'absolute', left: 14, top: 40, fontSize: 22, color: '#FFC20E', zIndex: 2 }}>✦</Text>
-          <Image source={require('../assets/images/onboarding/complete.png')} resizeMode="contain" style={{ width: '88%', height: '100%', zIndex: 3 }} />
+          <Image source={require('../assets/images/noan/noan-celebrate-v1.png')} resizeMode="contain" style={{ width: '88%', height: '100%', zIndex: 3 }} />
           <View style={{
             position: 'absolute', top: 28, right: 28,
             width: 52, height: 52, borderRadius: 26,
@@ -1296,22 +1298,22 @@ function CompletionScreen({
         </View>
 
         <Text style={{ fontSize: 31, fontWeight: '900', color: '#111', textAlign: 'center', lineHeight: 38, letterSpacing: -0.8, marginTop: 4 }}>
-          Mogu đã hiểu bạn hơn rồi!
+          NOAN đã hiểu bạn hơn rồi!
         </Text>
         <Text style={{ fontSize: 15, color: '#3F3C37', textAlign: 'center', lineHeight: 22, marginTop: 8 }}>
-          {'Từ hôm nay, mỗi khi phân vân ăn gì,\nMogu sẽ chọn giúp bạn.'}
+          {'Từ hôm nay, mỗi khi phân vân ăn gì,\nNOAN sẽ chọn giúp bạn.'}
         </Text>
 
         {/* Summary card — tái sử dụng Card & CardContent từ react-native-reusables */}
         <Card
-          className="mt-4.5 rounded-[22px] border-0 bg-white px-4 py-0 gap-0 shadow-md"
+          className="mt-4.5 rounded-[22px] border-0 bg-card px-4 py-0 gap-0 shadow-md"
           style={{ shadowColor: '#7A5D1C', shadowOpacity: 0.1, shadowRadius: 15, elevation: 3 }}
         >
           <CardContent className="p-0 gap-0">
             <SummaryRow icon={<Target size={22} color="#F2B900" />} label="Mục tiêu" value={goal} />
-            <Separator className="bg-[#EEE8DD]" />
+            <Separator className="bg-border" />
             <SummaryRow icon={<UserRound size={22} color="#F2B900" />} label="Thông tin" value={`${heightValue} cm · ${weight} kg`} />
-            <Separator className="bg-[#EEE8DD]" />
+            <Separator className="bg-border" />
             <SummaryRow icon={<ShieldCheck size={22} color="#111" />} label="Cần tránh" value={allergyLabel} last />
           </CardContent>
         </Card>

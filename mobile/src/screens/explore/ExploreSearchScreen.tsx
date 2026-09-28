@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Search, UserPlus, X } from 'lucide-react-native';
+import { ArrowLeft, Search, UserPlus, X } from '@/components/icons';
 import { AppImage } from '../../components/ui/app-image';
 import { AvatarImage } from '../../components/organisms/AvatarImage';
 import {
@@ -257,7 +257,7 @@ export function ExploreSearchScreen({
           contentFit="cover"
         />
         <View style={styles.userFooter}>
-          <AvatarImage uri={item.user.avatarUrl} size={28} />
+          <AvatarImage uri={item.user.avatarUrl} size={28} seed={item.user.userId ?? handle} />
           <Text style={styles.userHandle} numberOfLines={1}>
             @{handle}
           </Text>

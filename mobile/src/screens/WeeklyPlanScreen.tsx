@@ -17,7 +17,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, ChevronRight, RefreshCw, ShoppingCart, Sparkles } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, RefreshCw, ShoppingCart, Sparkles } from '@/components/icons';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
@@ -566,7 +566,7 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
         {(planStatus === 'GENERATING' || pollingPlanId) && (
           <View style={s.generatingBanner}>
             <ActivityIndicator size="small" color={YELLOW} />
-            <Text style={s.generatingText}>Mogu đang chọn món cho bạn...</Text>
+            <Text style={s.generatingText}>NOAN đang chọn món cho bạn...</Text>
           </View>
         )}
 
@@ -586,14 +586,14 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
                     isTodayDay && !isSelected
                       ? 'text-primary'
                       : isSelected
-                        ? 'text-black'
+                        ? 'text-foreground'
                         : ''
                   } style={[s.calDayLabel, isSelected && s.calDayLabelSelected]}>{day.weekdayShort}</Text>
                   <Text className={
                     isTodayDay && !isSelected
                       ? 'text-primary'
                       : isSelected
-                        ? 'text-black'
+                        ? 'text-foreground'
                         : ''
                   } style={[s.calDayDate, isSelected && s.calDayDateSelected]}>{day.date}</Text>
                 </Pressable>
@@ -691,8 +691,8 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
               </Text>
               <Text style={s.emptySubtitle}>
                 {isPlanExpired
-                  ? 'Tuần mới đã bắt đầu. Hãy cấu hình kế hoạch\nđể Mogu gợi ý thực đơn cho tuần này.'
-                  : 'Nhấn "Lên kế hoạch" bên dưới để Mogu\ngợi ý thực đơn tuần phù hợp với bạn.'}
+                  ? 'Tuần mới đã bắt đầu. Hãy cấu hình kế hoạch\nđể NOAN gợi ý thực đơn cho tuần này.'
+                  : 'Nhấn "Lên kế hoạch" bên dưới để NOAN\ngợi ý thực đơn tuần phù hợp với bạn.'}
               </Text>
               <TouchableOpacity
                 onPress={onEditPlan}
@@ -748,7 +748,7 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
         >
           {actionLoading === 'regen'
             ? <ActivityIndicator size="small" color={MUTED} />
-            : <Text style={s.recreateBtnText} className='group-hover:text-black duration-200'>{regenLabel}</Text>
+            : <Text style={s.recreateBtnText} className='group-hover:text-foreground duration-200'>{regenLabel}</Text>
           }
         </TouchableOpacity>
       </View>

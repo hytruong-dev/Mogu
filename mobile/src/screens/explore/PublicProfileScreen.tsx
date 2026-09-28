@@ -8,9 +8,10 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft } from '@/components/icons';
 import { communityApi, type ExplorePost } from '../../services/api/explore';
 import { AppImage } from '../../components/ui/app-image';
+import { AvatarImage } from '../../components/organisms/AvatarImage';
 import { CREAM, INK, PRIMARY } from './tokens';
 
 type Props = {
@@ -102,12 +103,12 @@ export function PublicProfileScreen({ userId, onBack, onOpenPost }: Props) {
           contentContainerStyle={{ paddingBottom: 40 }}
           ListHeaderComponent={
             <View style={styles.profileBlock}>
-              <AppImage
+              <AvatarImage
                 uri={profile.avatarUrl}
-                style={styles.avatar}
-                contentFit="cover"
+                size={88}
+                seed={profile.displayName ?? userId}
               />
-              <Text style={styles.name}>{profile.displayName || 'Người dùng Mogu'}</Text>
+              <Text style={styles.name}>{profile.displayName || 'Người dùng NOAN'}</Text>
               {profile.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
               <View style={styles.statsRow}>
                 <View style={styles.stat}>

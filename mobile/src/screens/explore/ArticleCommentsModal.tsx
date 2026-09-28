@@ -19,13 +19,14 @@ import {
   Send,
   User,
   X,
-} from 'lucide-react-native';
+} from '@/components/icons';
 
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from '../../components/ui/avatar';
+import { AvatarImage as UserAvatarImage } from '../../components/organisms/AvatarImage';
 import { Button } from '../../components/ui/button';
 import { Separator } from '../../components/ui/separator';
 import { Text } from '../../components/ui/text';
@@ -165,7 +166,7 @@ export function ArticleCommentsModal({
           <View style={s.headerRightSpacer} />
         </View>
 
-        <Separator className="bg-[#F0EBE0]" />
+        <Separator className="bg-border" />
 
         {/* Article Context Mini Banner matching Image 2 */}
         <View style={s.articleBanner}>
@@ -188,7 +189,7 @@ export function ArticleCommentsModal({
           </View>
         </View>
 
-        <Separator className="bg-[#F0EBE0]" />
+        <Separator className="bg-border" />
 
         {/* Comments Scroll Thread */}
         <KeyboardAvoidingView
@@ -227,16 +228,11 @@ export function ArticleCommentsModal({
                 <View key={comment.id} style={s.commentGroup}>
                   {/* Parent Comment Row */}
                   <View style={s.commentRow}>
-                    <Avatar className="size-9 shrink-0">
-                      {comment.author?.avatarUrl ? (
-                        <AvatarImage source={{ uri: comment.author.avatarUrl }} />
-                      ) : null}
-                      <AvatarFallback className="bg-[#FFF0C6]">
-                        <Text style={{ fontSize: 13, fontWeight: '700', color: '#765400' }}>
-                          {authorName.slice(0, 2).toUpperCase()}
-                        </Text>
-                      </AvatarFallback>
-                    </Avatar>
+                    <UserAvatarImage
+                      uri={comment.author?.avatarUrl}
+                      size={36}
+                      seed={comment.author?.userId ?? authorName}
+                    />
 
                     <View style={s.commentBodyWrap}>
                       <View style={s.commentHeaderRow}>
@@ -278,35 +274,31 @@ export function ArticleCommentsModal({
                   {uniqueReplies.length > 0 && (
                     <View style={s.repliesContainer}>
                       {displayedReplies.map((reply) => {
-                        const replyAuthor = reply.author?.displayName || 'Mogu review';
-                        const isMogu =
+                        const replyAuthor = reply.author?.displayName || 'NOAN review';
+                        const isNoan =
                           reply.isAuthor ||
-                          replyAuthor.toLowerCase().includes('mogu') ||
-                          replyAuthor.toLowerCase().includes('mogo');
+                          replyAuthor.toLowerCase().includes('noan');
                         const replyTime = reply.timeAgo || reply.createdAt;
 
                         return (
                           <View key={reply.id} style={s.replyRow}>
-                            {isMogu ? (
+                            {isNoan ? (
                               <View style={s.moguAvatarWrap}>
-                                <Text style={s.moguAvatarText}>M</Text>
+                                <Text style={s.moguAvatarText}>N</Text>
                               </View>
                             ) : (
-                              <Avatar className="size-7 shrink-0">
-                                {reply.author?.avatarUrl ? (
-                                  <AvatarImage source={{ uri: reply.author.avatarUrl }} />
-                                ) : null}
-                                <AvatarFallback className="bg-[#FFF0C6]">
-                                  <User size={14} color="#765400" />
-                                </AvatarFallback>
-                              </Avatar>
+                              <UserAvatarImage
+                                uri={reply.author?.avatarUrl}
+                                size={28}
+                                seed={reply.author?.userId ?? replyAuthor}
+                              />
                             )}
 
                             <View style={s.commentBodyWrap}>
                               <View style={s.commentHeaderRow}>
                                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                   <Text style={s.authorName}>{replyAuthor}</Text>
-                                  {isMogu && <VerifiedBadge size={14} />}
+                                  {isNoan && <VerifiedBadge size={14} />}
                                   {replyTime ? (
                                     <Text style={s.commentTime}> · {replyTime}</Text>
                                   ) : null}
@@ -385,14 +377,11 @@ export function ArticleCommentsModal({
           >
             <View style={s.composerRow}>
               {/* User Avatar from shadcn/react-native-reusables (never distorted) */}
-              <Avatar className="size-10 shrink-0">
-                {currentUserAvatar ? (
-                  <AvatarImage source={{ uri: currentUserAvatar }} />
-                ) : null}
-                <AvatarFallback className="bg-[#FEF08A]">
-                  <User size={18} color="#78350F" />
-                </AvatarFallback>
-              </Avatar>
+              <UserAvatarImage
+                uri={currentUserAvatar}
+                size={40}
+                seed={currentUserAvatar ? undefined : 'me'}
+              />
 
               <TextInput
                 ref={inputRef}

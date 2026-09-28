@@ -32,9 +32,9 @@ export function CheckboxRow({
       />
 
       <Pressable onPress={toggle} className="flex-1">
-        <Text className="text-mogu-ink text-xs leading-[17px]">
-          Tôi đồng ý với <Text className="text-mogu-coral font-medium">Điều khoản sử dụng</Text> và{' '}
-          <Text className="text-mogu-coral font-medium">Chính sách bảo mật</Text>
+        <Text className="text-foreground text-xs leading-[17px]">
+          Tôi đồng ý với <Text className="text-accent font-medium">Điều khoản sử dụng</Text> và{' '}
+          <Text className="text-accent font-medium">Chính sách bảo mật</Text>
         </Text>
       </Pressable>
     </View>

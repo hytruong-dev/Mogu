@@ -1,15 +1,25 @@
 {
   "expo": {
-    "name": "Mogu",
+    "name": "NOAN",
     "slug": "mogu",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./src/assets/images/noan/noan-app-icon-v1.png",
+    "splash": {
+      "image": "./src/assets/images/noan/noan-splash-v1.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
     "assetBundlePatterns": [
       "**/*"
     ],
     "android": {
-      "package": "com.mogu.app"
+      "package": "com.mogu.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./src/assets/images/noan/noan-adaptive-foreground-v1.png",
+        "backgroundColor": "#FFC928"
+      }
     },
     "ios": {
       "bundleIdentifier": "com.mogu.app"
@@ -19,8 +29,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Mogu cần quyền truy cập thư viện để bạn chọn ảnh đại diện.",
-          "cameraPermission": "Mogu cần quyền camera để bạn chụp ảnh đại diện.",
+          "photosPermission": "NOAN cần quyền truy cập thư viện để bạn chọn ảnh đại diện.",
+          "cameraPermission": "NOAN cần quyền camera để bạn chụp ảnh đại diện.",
           "microphonePermission": false
         }
       ],

@@ -25,7 +25,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Defs, Mask, Rect, Circle as SvgCircle } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { X } from 'lucide-react-native';
+import { X } from '@/components/icons';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 const CROP_SIZE = Math.min(SCREEN_W * 0.82, 320);

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Text, View } from 'react-native';
-import { LockKeyhole, User } from 'lucide-react-native';
+import { LockKeyhole, User } from '@/components/icons';
 import { cn } from '../../lib/utils';
 import { AuthInput } from '../atoms/AuthInput';
 import { CheckboxRow } from '../atoms/CheckboxRow';
@@ -50,7 +50,7 @@ export function RegisterForm({ onLogin, onRegister, compact = false, className }
   return (
     <View
       className={cn(
-        'w-full rounded-[26px] bg-white',
+        'w-full rounded-[26px] bg-card',
         compact ? '-mt-[10px] p-[14px]' : '-mt-[6px] p-[15px]',
         className,
       )}
@@ -88,7 +88,7 @@ export function RegisterForm({ onLogin, onRegister, compact = false, className }
           onChangeText={setConfirm}
         />
       </View>
-      {error ? <Text className="mt-1 text-xs text-red-500">{error}</Text> : null}
+      {error ? <Text className="mt-1 text-xs text-destructive">{error}</Text> : null}
       <CheckboxRow
         className="mt-2.5"
         checked={acceptedTerms}

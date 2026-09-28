@@ -17,7 +17,7 @@ import {
   Navigation,
   Settings2,
   Star,
-} from 'lucide-react-native';
+} from '@/components/icons';
 import { AppImage } from '../../components/ui/app-image';
 import {
   BORDER,

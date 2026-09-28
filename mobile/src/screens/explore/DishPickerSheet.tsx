@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, ScrollView, View } from 'react-native';
-import { Check, Search } from 'lucide-react-native';
+import { Check, Search } from '@/components/icons';
 import {
   Drawer,
   DrawerClose,
@@ -65,12 +65,12 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
     <Drawer open={open} onOpenChange={onOpenChange} snapHeight={640}>
       <DrawerHeader className="flex-row items-center justify-between px-4">
         <DrawerClose onPress={() => onOpenChange(false)} />
-        <DrawerTitle className="text-base font-extrabold text-[#161616]">Gắn món ăn</DrawerTitle>
+        <DrawerTitle className="text-base font-extrabold text-foreground">Gắn món ăn</DrawerTitle>
         <View className="w-10" />
       </DrawerHeader>
 
       <DrawerContent className="px-4">
-        <View className="mb-3 h-11 flex-row items-center gap-2 rounded-full border border-[#E8E0D2] bg-white px-3">
+        <View className="mb-3 h-11 flex-row items-center gap-2 rounded-full border border-border bg-card px-3">
           <Search size={18} color="#8A8A8A" />
           <Input
             className="h-auto flex-1 border-0 bg-transparent p-0 text-[15px] shadow-none"
@@ -84,7 +84,7 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
         {!q.trim() && recent.length > 0 ? (
           <View className="mb-3">
             <View className="mb-2 flex-row items-center justify-between">
-              <Text className="text-[14px] font-bold text-[#161616]">Gần đây</Text>
+              <Text className="text-[14px] font-bold text-foreground">Gần đây</Text>
             </View>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {recent.map((d) => (
@@ -99,7 +99,7 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
                     style={{ width: 64, height: 64, borderRadius: 12 }}
                     contentFit="cover"
                   />
-                  <Text className="mt-1 text-center text-[11px] font-semibold text-[#161616]" numberOfLines={1}>
+                  <Text className="mt-1 text-center text-[11px] font-semibold text-foreground" numberOfLines={1}>
                     {d.name}
                   </Text>
                 </Pressable>
@@ -108,7 +108,7 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
           </View>
         ) : null}
 
-        <Text className="mb-2 text-[14px] font-bold text-[#161616]">
+        <Text className="mb-2 text-[14px] font-bold text-foreground">
           {q.trim() ? 'Kết quả tìm kiếm' : 'Gợi ý'}
         </Text>
 
@@ -125,7 +125,7 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
             style={{ maxHeight: 320 }}
             keyboardShouldPersistTaps="handled"
             ListEmptyComponent={
-              <Text className="py-8 text-center text-[#8A8A8A]">
+              <Text className="py-8 text-center text-muted-foreground">
                 {loading ? 'Đang tải…' : 'Không có kết quả'}
               </Text>
             }
@@ -152,11 +152,11 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
                     contentFit="cover"
                   />
                   <View className="flex-1">
-                    <Text className="text-[15px] font-bold text-[#161616]" numberOfLines={1}>
+                    <Text className="text-[15px] font-bold text-foreground" numberOfLines={1}>
                       {item.name}
                     </Text>
                     {meta ? (
-                      <Text className="text-[12px] text-[#8A8A8A]" numberOfLines={1}>
+                      <Text className="text-[12px] text-muted-foreground" numberOfLines={1}>
                         {meta}
                       </Text>
                     ) : null}
@@ -180,13 +180,13 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
       <DrawerFooter className="flex-row gap-3 px-4 pb-6">
         <Button
           variant="secondary"
-          className="h-12 flex-1 rounded-full bg-[#F0EBE0]"
+          className="h-12 flex-1 rounded-full bg-muted"
           onPress={() => onOpenChange(false)}
         >
-          <Text className="font-bold text-[#161616]">Hủy</Text>
+          <Text className="font-bold text-foreground">Hủy</Text>
         </Button>
         <Button
-          className="h-12 flex-[1.4] rounded-full bg-[#FFD54F]"
+          className="h-12 flex-[1.4] rounded-full bg-primary"
           disabled={!picked}
           onPress={() => {
             if (!selectedDish) return;
@@ -201,7 +201,7 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
           {loading ? (
             <ActivityIndicator color="#161616" />
           ) : (
-            <Text className="font-extrabold text-[#161616]">Gắn món ăn</Text>
+            <Text className="font-extrabold text-primary-foreground">Gắn món ăn</Text>
           )}
         </Button>
       </DrawerFooter>
