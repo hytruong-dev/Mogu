@@ -23,8 +23,10 @@ import Animated, {
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
+  withDelay,
   withRepeat,
   withSequence,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
@@ -34,6 +36,7 @@ import {
   ChevronRight,
   Clock3,
   Coffee,
+  Flame,
   Heart,
   Moon,
   RotateCcw,
@@ -73,8 +76,19 @@ import {
 } from '../components/organisms/RandomProfileSheet';
 import type { CatalogItem } from '../services/api/types';
 import { noanSemantic } from '../theme/tokens';
-import { FoodReelMachine } from '../components/random/FoodReelMachine';
-import { useFoodReelSounds } from '../components/random/useFoodReelSounds';
+import { FOOD_REEL_REVEAL_DELAY, FoodReelMachine } from '../components/random/FoodReelMachine';
+import { useFoodReelSounds, useRewardRevealSound } from '../components/random/useFoodReelSounds';
+import { LinearGradient } from 'expo-linear-gradient';
+import {
+  ConfettiRain,
+  MascotAura,
+  ParticleBurst,
+  ShineSweep,
+  Sparkle,
+  Sunburst,
+  TwinkleSparkle,
+  usePulse,
+} from '../components/random/RewardEffects';
 
 const YELLOW = noanSemantic.primary;
 const CREAM = noanSemantic.background;
@@ -139,6 +153,25 @@ function ResultDishPhoto({ uri, dishName }: { uri?: string | null; dishName?: st
   );
 }
 
+function RewardChip({
+  Icon,
+  label,
+  tint,
+}: {
+  Icon: typeof Wallet;
+  label: string;
+  tint: string;
+}) {
+  return (
+    <View style={[styles.rewardChip, { backgroundColor: tint }]}>
+      <Icon size={14} color="#6B4A32" strokeWidth={2.4} />
+      <Text style={styles.rewardChipTxt} numberOfLines={1}>
+        {label}
+      </Text>
+    </View>
+  );
+}
+
 type Props = { onClose: () => void };
 type Phase = 'setup' | 'result';
 type MealKey = 'Sáng' | 'Trưa' | 'Tối' | 'Bữa phụ';
@@ -171,7 +204,7 @@ function formatPrice(min: number | null | undefined, max: number | null | undefi
 }
 
 export function RandomFlowScreen({ onClose }: Props) {
-  const { height: windowHeight } = useWindowDimensions();
+  const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [phase, setPhase] = useState<Phase>('setup');
   const [meal, setMeal] = useState<MealKey | null>(null);
@@ -203,37 +236,91 @@ export function RandomFlowScreen({ onClose }: Props) {
   const reducedMotion = useReducedMotion();
   const celebrationLift = useSharedValue(0);
   const celebrationFloat = useSharedValue(0);
+  const cardPop = useSharedValue(1);
+  const titlePop = useSharedValue(1);
+  // Smooth bloom entrance for the result screen
+  const screenFade = useSharedValue(0);
+  const [showEffects, setShowEffects] = useState(false);
+
+  const isRevealing = phase === 'result' && !!ba006Result?.dish && !showDetail;
+  useRewardRevealSound(isRevealing, ba006Result?.dish?.id);
 
   useEffect(() => {
-    if (phase !== 'result' || !ba006Result?.dish) return;
+    if (phase !== 'result' || !ba006Result?.dish) {
+      setShowEffects(false);
+      return;
+    }
     if (reducedMotion) {
       celebrationLift.value = 0;
       celebrationFloat.value = 0;
+      cardPop.value = 1;
+      titlePop.value = 1;
+      screenFade.value = 1;
+      setShowEffects(true);
       return;
     }
 
-    celebrationLift.value = withSequence(
-      withTiming(-14, { duration: 260, easing: Easing.out(Easing.cubic) }),
-      withTiming(0, { duration: 280, easing: Easing.out(Easing.back(1.2)) }, () => {
-        celebrationFloat.value = withRepeat(
-          withSequence(
-            withTiming(-5, { duration: 1100, easing: Easing.inOut(Easing.quad) }),
-            withTiming(0, { duration: 1100, easing: Easing.inOut(Easing.quad) }),
-          ),
-          -1,
-          true,
-        );
-      }),
+    // Smooth bloom entrance for the result screen
+    screenFade.value = 0;
+    screenFade.value = withTiming(1, { duration: 240, easing: Easing.out(Easing.quad) });
+
+    // Reward "unbox": card smoothly pops up from 0.88 to 1.0
+    cardPop.value = 0.88;
+    cardPop.value = withSpring(1, { damping: 14, stiffness: 180, mass: 0.7 });
+    titlePop.value = 0;
+    titlePop.value = withDelay(60, withSpring(1, { damping: 12, stiffness: 200 }));
+
+    celebrationLift.value = withDelay(
+      120,
+      withSequence(
+        withTiming(-14, { duration: 240, easing: Easing.out(Easing.cubic) }),
+        withTiming(0, { duration: 260, easing: Easing.out(Easing.back(1.2)) }, () => {
+          celebrationFloat.value = withRepeat(
+            withSequence(
+              withTiming(-5, { duration: 1100, easing: Easing.inOut(Easing.quad) }),
+              withTiming(0, { duration: 1100, easing: Easing.inOut(Easing.quad) }),
+            ),
+            -1,
+            true,
+          );
+        }),
+      ),
     );
 
+    // Stagger heavy particle/sparkle effects by 180ms to guarantee locked 60 FPS transition
+    const effectTimer = setTimeout(() => setShowEffects(true), 180);
+
     return () => {
+      clearTimeout(effectTimer);
       cancelAnimation(celebrationLift);
       cancelAnimation(celebrationFloat);
+      cancelAnimation(cardPop);
+      cancelAnimation(titlePop);
+      cancelAnimation(screenFade);
     };
-  }, [phase, ba006Result?.dish?.id, reducedMotion, celebrationLift, celebrationFloat]);
+  }, [phase, ba006Result?.dish?.id, reducedMotion, celebrationLift, celebrationFloat, cardPop, titlePop, screenFade]);
 
+  const screenFadeStyle = useAnimatedStyle(() => ({
+    opacity: screenFade.value,
+  }));
   const celebratingMascotStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: celebrationLift.value + celebrationFloat.value }],
+  }));
+  const cardPopStyle = useAnimatedStyle(() => ({
+    opacity: Math.min(1, 0.4 + (cardPop.value - 0.88) * 5),
+    transform: [{ scale: cardPop.value }],
+  }));
+  const glowPulse = usePulse(1100);
+  const cardGlowStyle = useAnimatedStyle(() => ({
+    opacity: 0.35 + glowPulse.value * 0.45,
+    transform: [{ scale: 1 + glowPulse.value * 0.025 }],
+  }));
+  const ctaPulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + glowPulse.value * 0.03 }],
+  }));
+  const titlePopStyle = useAnimatedStyle(() => ({
+    opacity: Math.min(1, titlePop.value * 1.5),
+    transform: [{ scale: 0.8 + titlePop.value * 0.2 }],
   }));
 
   useEffect(() => {
@@ -407,12 +494,18 @@ export function RandomFlowScreen({ onClose }: Props) {
         if (result?.dish) {
           lastDishIdRef.current = result.dish.id;
           setSaved(isDishSaved(result.dish.id));
+          const directUri = normalizeImageUrl(result.dish.imageUrl);
+          if (directUri) {
+            setResolvedImage({ uri: directUri });
+            // Pre-cache image into device cache while reel is spinning so it appears instantly!
+            Image.prefetch(directUri).catch(() => undefined);
+          }
           if (result.randomizationId) {
             recordRecommendationEvent(result.randomizationId, 'IMPRESSION').catch(() => undefined);
           }
           recordRandomRunStore(result);
-          // Give the reel time to spin, then stop its three columns before revealing the dish.
-          const remainingSpin = Math.max(0, 1700 - (Date.now() - spinStartedAt));
+          // Snappy spin duration: give the reel momentum, then smoothly finish without dragging
+          const remainingSpin = Math.max(0, 950 - (Date.now() - spinStartedAt));
           if (remainingSpin) await new Promise((resolve) => setTimeout(resolve, remainingSpin));
           if (cancelledRef.current || requestSeq.current !== seq) return;
           setFinishing(true);
@@ -421,7 +514,7 @@ export function RandomFlowScreen({ onClose }: Props) {
             setPhase('result');
             setShowDetail(false);
             stopLoading();
-          }, 1900);
+          }, FOOD_REEL_REVEAL_DELAY);
           return;
         }
 
@@ -449,6 +542,7 @@ export function RandomFlowScreen({ onClose }: Props) {
     setSpinning(false);
     setFinishing(false);
     setLoading(true);
+    setPhase('setup');
     setShowOverlay(true);
   };
 
@@ -512,146 +606,225 @@ export function RandomFlowScreen({ onClose }: Props) {
 
     return (
       <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-        <View style={styles.resultHeader}>
-          <Pressable onPress={() => setPhase('setup')} style={styles.plainBackBtn} hitSlop={14}>
-            <ArrowLeft size={24} color="#2A1A10" strokeWidth={2.4} />
-          </Pressable>
-          <View style={styles.resultBrand} pointerEvents="none">
-            <Text style={styles.resultWordmark} accessibilityLabel="NOAN — Nghé Ơi, Ăn Ngon">NOAN</Text>
-          </View>
-          <View style={styles.headerSpacer} />
-        </View>
+        {/* Festive backdrop: warm gold gradient + endless confetti rain */}
+        <LinearGradient
+          pointerEvents="none"
+          colors={['#FFE59A', '#FFF3CF', CREAM]}
+          locations={[0, 0.38, 0.75]}
+          style={StyleSheet.absoluteFill}
+        />
+        {showEffects ? (
+          <ConfettiRain width={windowWidth} height={windowHeight} count={14} key={`rain-${dish.id}`} />
+        ) : null}
 
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={[
-            styles.resultScroll,
-            { paddingBottom: Math.max(insets.bottom + 16, 28) },
-          ]}
-          bounces={false}
-        >
-          <Text style={styles.resultTitle} accessibilityLiveRegion="polite">
-            NOAN chọn được món rồi!
-          </Text>
-          <Text style={styles.resultSub}>Một món ngon dành cho bạn</Text>
-
-          <View style={styles.resultDishCardContainer}>
-            {/* Top-left scattered gold confetti ribbons */}
-            <View style={styles.confettiTopLeft1} pointerEvents="none" />
-            <View style={styles.confettiTopLeft2} pointerEvents="none" />
-            <View style={styles.confettiTopLeft3} pointerEvents="none" />
-            <View style={styles.confettiTopLeft4} pointerEvents="none" />
-
-            {/* Celebration confetti ring / burst behind mascot */}
-            <View style={styles.confettiRingWrap} pointerEvents="none">
-              <Image
-                source={CONFETTI_RING}
-                resizeMode="contain"
-                style={styles.fullSize}
-              />
+        <Animated.View style={[{ flex: 1 }, screenFadeStyle]}>
+          <View style={styles.resultHeader}>
+            <Pressable onPress={() => setPhase('setup')} style={styles.plainBackBtn} hitSlop={14}>
+              <ArrowLeft size={24} color="#2A1A10" strokeWidth={2.4} />
+            </Pressable>
+            <View style={styles.resultBrand} pointerEvents="none">
+              <NoanWordmark width={128} height={47} />
             </View>
+            <View style={styles.headerSpacer} />
+          </View>
 
-            {/* Warm radiant glow behind mascot */}
-            <View style={styles.mascotSunburst} pointerEvents="none" />
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[
+              styles.resultScroll,
+              { paddingBottom: Math.max(insets.bottom + 16, 28) },
+            ]}
+            bounces={false}
+          >
+            <Animated.View style={[styles.resultTitleBlock, titlePopStyle]}>
+              <View style={styles.rewardRibbon}>
+                <Sparkle size={12} color="#FFFFFF" />
+                <Text style={styles.rewardRibbonTxt}>MÓN NGON CỦA BẠN</Text>
+                <Sparkle size={12} color="#FFFFFF" />
+              </View>
+              <Text
+                style={styles.resultTitle}
+                accessibilityLiveRegion="polite"
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+              >
+                NOAN chọn được món rồi!
+              </Text>
+              <Text style={styles.resultSub}>Một món ngon dành riêng cho bạn hôm nay</Text>
+            </Animated.View>
 
-            {/* White card container */}
-            <View style={styles.resultDishCard}>
-              <View style={[styles.resultPhotoStage, { height: Math.max(255, Math.min(360, windowHeight * 0.36)) }]}>
-                <ResultDishPhoto uri={dishImageUri || null} dishName={dish.name} />
+            <Animated.View style={[styles.resultDishCardContainer, cardPopStyle]}>
+              {/* Rotating jackpot rays behind the card */}
+              <View style={styles.rewardSunburst} pointerEvents="none">
+                <Sunburst size={Math.min(620, windowHeight * 0.7)} color="#FFC928" rays={16} />
               </View>
 
-              <View style={styles.resultDishInfo}>
-                <View style={styles.resultDishTitleRow}>
-                  <View style={styles.resultDishTextCol}>
-                    <Text style={styles.dishName} numberOfLines={2}>
-                      {dish.name}
-                    </Text>
-                    <Text style={styles.resultMetaLine}>
-                      {meal ? (meal === 'Bữa phụ' ? 'Bữa phụ' : `Bữa ${meal.toLowerCase()}`) : 'Bữa trưa'}
-                      {dish.nutrition?.calories != null
-                        ? ` · ${Math.round(dish.nutrition.calories)} kcal`
-                        : ''}
-                    </Text>
+              {/* Top-left scattered gold confetti ribbons */}
+              <View style={styles.confettiTopLeft1} pointerEvents="none" />
+              <View style={styles.confettiTopLeft2} pointerEvents="none" />
+              <View style={styles.confettiTopLeft3} pointerEvents="none" />
+              <View style={styles.confettiTopLeft4} pointerEvents="none" />
+
+              {/* Celebration confetti ring / burst behind mascot */}
+              <View style={styles.confettiRingWrap} pointerEvents="none">
+                <Image
+                  source={CONFETTI_RING}
+                  resizeMode="contain"
+                  style={styles.fullSize}
+                />
+              </View>
+
+              {/* Magical aura behind mascot: spinning rays, glow, orbiting sparkles */}
+              <View style={styles.mascotAuraWrap} pointerEvents="none">
+                <MascotAura size={230} />
+              </View>
+
+              {/* Pulsing golden glow behind the card */}
+              <Animated.View style={[styles.cardGlow, cardGlowStyle]} pointerEvents="none" />
+
+              {/* Card with a golden gradient frame */}
+              <LinearGradient
+                colors={['#FFE36B', '#FFB800', '#FFD84D']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.cardFrame}
+              >
+              <View style={styles.resultDishCard}>
+                <View style={[styles.resultPhotoStage, { height: Math.max(230, Math.min(330, windowHeight * 0.33)) }]}>
+                  <ResultDishPhoto uri={dishImageUri || null} dishName={dish.name} />
+                  <ShineSweep every={2400} delay={700} opacity={0.5} bandWidth={80} radius={24} />
+                  <View style={styles.photoBadge}>
+                    <Text style={styles.photoBadgeTxt}>🎉 Hợp khẩu vị</Text>
+                  </View>
+                </View>
+
+                <View style={styles.resultDishInfo}>
+                  <View style={styles.resultDishTitleRow}>
+                    <View style={styles.resultDishTextCol}>
+                      <Text style={styles.dishName} numberOfLines={2}>
+                        {dish.name}
+                      </Text>
+                      <Text style={styles.resultMetaLine}>
+                        {meal ? (meal === 'Bữa phụ' ? 'Bữa phụ' : `Bữa ${meal.toLowerCase()}`) : 'Bữa trưa'}
+                        {budgetRelaxed ? ' · đã nới ngân sách' : ''}
+                      </Text>
+                    </View>
+
+                    <StyledPressable
+                      onPress={async () => {
+                        if (!dish?.id) return;
+                        try {
+                          const nextSaved = await toggleDishSave(dish.id, saved, {
+                            name: dish.name,
+                            imageUrl: dishImageUri ?? undefined,
+                            priceMin: dish.priceMin ?? undefined,
+                            priceMax: dish.priceMax ?? undefined,
+                            kcal: dish.nutrition?.calories ?? undefined,
+                          });
+                          setSaved(nextSaved);
+                        } catch (e: any) {
+                          Alert.alert('Lỗi', e?.message || 'Không thể cập nhật món đã lưu.');
+                        }
+                      }}
+                      hitSlop={12}
+                      style={({ pressed }) => [styles.heartBtn, pressed && styles.pressed]}
+                      accessibilityRole="button"
+                      accessibilityLabel={saved ? 'Bỏ lưu món' : 'Lưu món'}
+                      accessibilityState={{ selected: saved }}
+                    >
+                      <Heart
+                        size={26}
+                        color={saved ? '#FFC928' : '#2A1A10'}
+                        fill={saved ? '#FFC928' : 'transparent'}
+                        strokeWidth={1.8}
+                      />
+                    </StyledPressable>
                   </View>
 
-                  <StyledPressable
-                    onPress={async () => {
-                      if (!dish?.id) return;
-                      try {
-                        const nextSaved = await toggleDishSave(dish.id, saved, {
-                          name: dish.name,
-                          imageUrl: dishImageUri ?? undefined,
-                          priceMin: dish.priceMin ?? undefined,
-                          priceMax: dish.priceMax ?? undefined,
-                          kcal: dish.nutrition?.calories ?? undefined,
-                        });
-                        setSaved(nextSaved);
-                      } catch (e: any) {
-                        Alert.alert('Lỗi', e?.message || 'Không thể cập nhật món đã lưu.');
-                      }
-                    }}
-                    hitSlop={12}
-                    style={({ pressed }) => [styles.heartBtn, pressed && styles.pressed]}
-                    accessibilityRole="button"
-                    accessibilityLabel={saved ? 'Bỏ lưu món' : 'Lưu món'}
-                    accessibilityState={{ selected: saved }}
-                  >
-                    <Heart
-                      size={26}
-                      color={saved ? '#FFC928' : '#2A1A10'}
-                      fill={saved ? '#FFC928' : 'transparent'}
-                      strokeWidth={1.8}
-                    />
-                  </StyledPressable>
+                  <View style={styles.rewardChips}>
+                    <RewardChip Icon={Wallet} label={priceLabel} tint="#FFF4D1" />
+                    <RewardChip Icon={Clock3} label={timeLabel} tint="#FFE9DD" />
+                    {dish.nutrition?.calories != null ? (
+                      <RewardChip
+                        Icon={Flame}
+                        label={`${Math.round(dish.nutrition.calories)} kcal`}
+                        tint="#E8F6E4"
+                      />
+                    ) : null}
+                  </View>
                 </View>
               </View>
+              </LinearGradient>
+
+              {/* Nghé NOAN jumping celebrating at top-right overlapping card */}
+              <View style={styles.mascotWrap} pointerEvents="none">
+                <Animated.Image
+                  source={CELEBRATING_MASCOT}
+                  resizeMode="contain"
+                  style={[styles.fullSize, celebratingMascotStyle]}
+                  accessibilityLabel="Nghé NOAN đang nhảy ăn mừng món ăn được chọn"
+                />
+              </View>
+
+              {/* Twinkling sparkles around the reward card - staggered to mount after 180ms */}
+              {showEffects ? (
+                <>
+                  <TwinkleSparkle size={20} delay={80} style={{ top: 18, left: -6, zIndex: 25 }} />
+                  <TwinkleSparkle size={14} color="#FFFFFF" delay={260} style={{ top: 96, left: 22, zIndex: 25 }} />
+                  <TwinkleSparkle size={18} delay={180} style={{ top: '46%', right: -4, zIndex: 25 }} />
+                  <TwinkleSparkle size={12} color="#FF9F43" delay={380} style={{ bottom: 70, left: -2, zIndex: 25 }} />
+                  <TwinkleSparkle size={16} delay={480} style={{ bottom: 20, right: 30, zIndex: 25 }} />
+                </>
+              ) : null}
+
+              {/* One-shot coin / star / confetti explosion when the dish opens */}
+              {showEffects ? (
+                <View style={styles.rewardBurstAnchor} pointerEvents="none">
+                  <ParticleBurst key={`a-${dish.id}`} count={20} radius={210} seed={11} delay={40} />
+                  <ParticleBurst key={`b-${dish.id}`} count={12} radius={150} seed={29} delay={360} />
+                </View>
+              ) : null}
+            </Animated.View>
+
+            <Animated.View style={ctaPulseStyle}>
+              <StyledPressable
+                style={({ pressed }) => [styles.chooseBtn, pressed && styles.pressed]}
+                accessibilityRole="button"
+                accessibilityLabel="Xem chi tiết món ăn"
+                onPress={() => setShowDetail(true)}
+                disabled={loading}
+              >
+                <ShineSweep every={2200} delay={1200} opacity={0.65} bandWidth={56} radius={27} />
+                <Text style={styles.chooseTxt}>Xem món ăn</Text>
+                <ChevronRight size={20} color="#2A1A10" strokeWidth={3} />
+              </StyledPressable>
+            </Animated.View>
+
+            <StyledPressable
+              style={({ pressed }) => [styles.againBtn, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Chọn một món khác"
+              onPress={() => {
+                if (ba006Result?.randomizationId) {
+                  recordRecommendationEvent(ba006Result.randomizationId, 'RETRY').catch(
+                    () => undefined,
+                  );
+                }
+                openMachine('again');
+              }}
+              disabled={loading}
+            >
+              <Text style={styles.againTxt}>Chọn món khác</Text>
+            </StyledPressable>
+
+            <View style={styles.tagline}>
+              <LeafIcon size={14} color="#A8988B" />
+              <Text style={styles.taglineTxt}>Ngon miệng cùng NOAN</Text>
+              <LeafIcon size={14} color="#A8988B" flip />
             </View>
-
-            {/* Nghé NOAN jumping celebrating at top-right overlapping card */}
-            <View style={styles.mascotWrap} pointerEvents="none">
-              <Animated.Image
-                source={CELEBRATING_MASCOT}
-                resizeMode="contain"
-                style={[styles.fullSize, celebratingMascotStyle]}
-                accessibilityLabel="Nghé NOAN đang nhảy ăn mừng món ăn được chọn"
-              />
-            </View>
-          </View>
-
-          <StyledPressable
-            style={({ pressed }) => [styles.chooseBtn, pressed && styles.pressed]}
-            accessibilityRole="button"
-            accessibilityLabel="Xem chi tiết món ăn"
-            onPress={() => setShowDetail(true)}
-            disabled={loading}
-          >
-            <Text style={styles.chooseTxt}>Xem món ăn</Text>
-            <ChevronRight size={20} color="#2A1A10" strokeWidth={3} />
-          </StyledPressable>
-
-          <StyledPressable
-            style={({ pressed }) => [styles.againBtn, pressed && styles.pressed]}
-            accessibilityRole="button"
-            accessibilityLabel="Chọn một món khác"
-            onPress={() => {
-              if (ba006Result?.randomizationId) {
-                recordRecommendationEvent(ba006Result.randomizationId, 'RETRY').catch(
-                  () => undefined,
-                );
-              }
-              openMachine('again');
-            }}
-            disabled={loading}
-          >
-            <Text style={styles.againTxt}>Chọn món khác</Text>
-          </StyledPressable>
-
-          <View style={styles.tagline}>
-            <LeafIcon size={14} color="#A8988B" />
-            <Text style={styles.taglineTxt}>Ngon miệng cùng NOAN</Text>
-            <LeafIcon size={14} color="#A8988B" flip />
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </Animated.View>
 
         {showOverlay && loading ? (
           <LoadingOverlay
@@ -661,7 +834,10 @@ export function RandomFlowScreen({ onClose }: Props) {
             finishing={finishing}
             selectedDish={
               ba006Result?.dish
-                ? (resolvedImage ?? getDishFallbackImage(ba006Result.dish.name))
+                ? (resolvedImage ??
+                    (ba006Result.dish.imageUrl
+                      ? { uri: normalizeImageUrl(ba006Result.dish.imageUrl)! }
+                      : getDishFallbackImage(ba006Result.dish.name)))
                 : undefined
             }
             onCancel={cancelRequest}
@@ -819,7 +995,10 @@ export function RandomFlowScreen({ onClose }: Props) {
           finishing={finishing}
           selectedDish={
             ba006Result?.dish
-              ? (resolvedImage ?? getDishFallbackImage(ba006Result.dish.name))
+              ? (resolvedImage ??
+                  (ba006Result.dish.imageUrl
+                    ? { uri: normalizeImageUrl(ba006Result.dish.imageUrl)! }
+                    : getDishFallbackImage(ba006Result.dish.name)))
               : undefined
           }
           onCancel={cancelRequest}
@@ -890,6 +1069,7 @@ function LoadingOverlay({
   useFoodReelSounds(spinning, finishing);
   const reducedMotion = useReducedMotion();
   const entrance = useSharedValue(reducedMotion ? 1 : 0);
+  const exit = useSharedValue(0);
   const mascotFloat = useSharedValue(0);
 
   useEffect(() => {
@@ -900,20 +1080,38 @@ function LoadingOverlay({
   }, [entrance, reducedMotion]);
 
   useEffect(() => {
+    if (!finishing) {
+      exit.value = 0;
+      return;
+    }
+    const timer = setTimeout(() => {
+      exit.value = withTiming(1, { duration: 220, easing: Easing.in(Easing.quad) });
+    }, Math.max(0, FOOD_REEL_REVEAL_DELAY - 220));
+    return () => clearTimeout(timer);
+  }, [finishing, exit]);
+
+  useEffect(() => {
     if (reducedMotion) return;
     mascotFloat.value = withRepeat(withTiming(-4, { duration: 700 }), -1, true);
     return () => cancelAnimation(mascotFloat);
   }, [mascotFloat, reducedMotion]);
 
-  const entranceStyle = useAnimatedStyle(() => ({
-    opacity: entrance.value,
-    transform: [{ translateY: (1 - entrance.value) * 22 }, { scale: 0.96 + entrance.value * 0.04 }],
+  const overlayBackdropStyle = useAnimatedStyle(() => ({
+    opacity: (1 - exit.value) * entrance.value,
+  }));
+
+  const overlayCardStyle = useAnimatedStyle(() => ({
+    opacity: entrance.value * (1 - exit.value),
+    transform: [
+      { translateY: (1 - entrance.value) * 22 },
+      { scale: (0.96 + entrance.value * 0.04) * (1 + exit.value * 0.04) },
+    ],
   }));
   const mascotStyle = useAnimatedStyle(() => ({ transform: [{ translateY: mascotFloat.value }] }));
 
   return (
-    <View style={styles.overlay} accessibilityViewIsModal>
-      <Animated.View style={[styles.overlayCard, entranceStyle]}>
+    <Animated.View style={[styles.overlay, overlayBackdropStyle]} accessibilityViewIsModal>
+      <Animated.View style={[styles.overlayCard, overlayCardStyle]}>
         <Animated.Image
           source={LOADING_MASCOT}
           style={[styles.overlayMascot, mascotStyle]}
@@ -924,8 +1122,8 @@ function LoadingOverlay({
         <View style={styles.overlayCopy}>
           <View style={styles.livePillRow}>
             <View style={styles.livePill}>
-              <Text style={styles.livePillText}>
-                {spinning ? 'ĐANG CHỌN MÓN' : 'SẴN SÀNG CHỌN MÓN'}
+              <Text style={styles.livePillText} numberOfLines={1}>
+                {finishing ? 'ĐÃ CHỌN XONG' : spinning ? 'ĐANG CHỌN MÓN' : 'SẴN SÀNG CHỌN MÓN'}
               </Text>
             </View>
             <Svg width={18} height={14} viewBox="0 0 18 14" style={styles.sparkleRay}>
@@ -933,10 +1131,16 @@ function LoadingOverlay({
               <Path d="M10 13L15 2" stroke="#FFB800" strokeWidth="2.5" strokeLinecap="round" />
             </Svg>
           </View>
-          <Text style={styles.overlayTitle}>
-            {finishing ? 'Đã tìm thấy món phù hợp!' : 'Hôm nay ăn món gì?'}
+          {/* Single line, fixed height: the machine below must never jump when copy changes. */}
+          <Text
+            style={styles.overlayTitle}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.8}
+          >
+            {finishing ? 'Tìm thấy món rồi!' : 'Hôm nay ăn món gì?'}
           </Text>
-          <Text style={styles.overlaySub}>
+          <Text style={styles.overlaySub} numberOfLines={1}>
             {meal ?? 'Bữa'} · {budget}
           </Text>
         </View>
@@ -950,7 +1154,13 @@ function LoadingOverlay({
 
         <View style={styles.machineCaption}>
           <ForkSpoonIcon size={18} color="#3C2415" />
-          <Text style={styles.machineCaptionTxt} accessibilityLiveRegion="polite">
+          <Text
+            style={styles.machineCaptionTxt}
+            accessibilityLiveRegion="polite"
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.85}
+          >
             {finishing
               ? 'NOAN đã chọn món cho bạn'
               : spinning
@@ -974,7 +1184,7 @@ function LoadingOverlay({
           <Text style={styles.cancelTxt}>Huỷ</Text>
         </Pressable>
 
-        <Text style={styles.loadingHint}>
+        <Text style={styles.loadingHint} numberOfLines={1}>
           {finishing
             ? 'Đang mở món ăn của bạn...'
             : spinning
@@ -982,7 +1192,7 @@ function LoadingOverlay({
               : 'Kéo cần gạt xuống hoặc chạm để bắt đầu'}
         </Text>
       </Animated.View>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -1231,6 +1441,8 @@ const styles = StyleSheet.create({
   },
   overlayTitle: {
     fontSize: 22,
+    lineHeight: 29,
+    height: 29,
     fontWeight: '900',
     color: '#3C2415',
     marginTop: 8,
@@ -1317,7 +1529,7 @@ const styles = StyleSheet.create({
     lineHeight: 34,
     fontWeight: '900',
     color: '#2A1A10',
-    marginTop: 4,
+    marginTop: 10,
     textAlign: 'center',
     letterSpacing: -0.4,
   },
@@ -1333,6 +1545,94 @@ const styles = StyleSheet.create({
     position: 'relative',
     width: '100%',
     marginTop: 4,
+  },
+  resultTitleBlock: { alignItems: 'center' },
+  rewardRibbon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#FF8A3D',
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: 999,
+    shadowColor: '#E0621B',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  rewardRibbonTxt: {
+    color: '#FFFFFF',
+    fontSize: 11.5,
+    fontWeight: '900',
+    letterSpacing: 1,
+  },
+  cardGlow: {
+    position: 'absolute',
+    top: -10,
+    left: -10,
+    right: -10,
+    bottom: -10,
+    borderRadius: 42,
+    backgroundColor: '#FFD23F',
+    shadowColor: '#FFB800',
+    shadowOpacity: 0.9,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 0 },
+    zIndex: 1,
+  },
+  cardFrame: {
+    borderRadius: 34,
+    padding: 3,
+    zIndex: 2,
+    shadowColor: '#C98A00',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 18,
+    elevation: 8,
+  },
+  photoBadge: {
+    position: 'absolute',
+    left: 12,
+    bottom: 12,
+    backgroundColor: 'rgba(255,255,255,0.94)',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  photoBadgeTxt: { fontSize: 12.5, fontWeight: '800', color: '#2A1A10' },
+  rewardChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 12,
+  },
+  rewardChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
+  rewardChipTxt: { fontSize: 13, fontWeight: '800', color: '#4A3020' },
+  rewardSunburst: {
+    position: 'absolute',
+    top: -120,
+    bottom: -120,
+    left: -120,
+    right: -120,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 0,
+  },
+  rewardBurstAnchor: {
+    position: 'absolute',
+    left: '50%',
+    top: '40%',
+    width: 0,
+    height: 0,
+    zIndex: 30,
   },
   confettiRingWrap: {
     position: 'absolute',
@@ -1354,14 +1654,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  mascotSunburst: {
+  mascotAuraWrap: {
     position: 'absolute',
-    top: -35,
-    right: -15,
-    width: 210,
-    height: 210,
-    borderRadius: 105,
-    backgroundColor: 'rgba(255, 238, 185, 0.45)',
+    top: -36,
+    right: -46,
+    width: 230,
+    height: 230,
     zIndex: 5,
   },
   confettiTopLeft1: {
@@ -1410,9 +1708,7 @@ const styles = StyleSheet.create({
   },
   resultDishCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 32,
-    borderWidth: 1,
-    borderColor: '#F0E9DC',
+    borderRadius: 31,
     padding: 12,
     shadowColor: '#2A1A10',
     shadowOffset: { width: 0, height: 8 },

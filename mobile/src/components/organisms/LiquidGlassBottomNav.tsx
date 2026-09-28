@@ -1,6 +1,8 @@
 import { BlurView } from 'expo-blur';
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { Compass, HeartPulse, Home, Sparkles, UserRound } from '@/components/icons';
+import { Camera, Compass, HeartPulse, Home, UserRound } from '@/components/icons';
+import { FoodScanSheet } from './FoodScanSheet';
 import { cn } from '../../lib/utils';
 
 export type MainTab = 'home' | 'explore' | 'random' | 'health' | 'profile';
@@ -17,16 +19,17 @@ type Props = {
 const tabs = [
   { key: 'home', label: 'Trang chủ', icon: Home },
   { key: 'explore', label: 'Khám phá', icon: Compass },
-  { key: 'random', label: 'Chọn món', icon: Sparkles },
+  { key: 'random', label: 'Quét món', icon: Camera },
   { key: 'health', label: 'Sức khỏe', icon: HeartPulse },
   { key: 'profile', label: 'Cá nhân', icon: UserRound },
 ] as const;
 
 export function LiquidGlassBottomNav({ active, ...actions }: Props) {
+  const [scanOpen, setScanOpen] = useState(false);
   const callbacks: Record<MainTab, (() => void) | undefined> = {
     home: actions.onHome,
     explore: actions.onExplore,
-    random: actions.onRandom,
+    random: () => setScanOpen(true),
     health: actions.onHealth,
     profile: actions.onProfile,
   };
@@ -99,11 +102,7 @@ export function LiquidGlassBottomNav({ active, ...actions }: Props) {
                         elevation: 9,
                       }}
                     >
-                      <BlurView
-                        intensity={24}
-                        tint="light"
-                        className="flex-1 rounded-[30px] overflow-hidden"
-                      >
+                      <View style={{ width: 58, height: 58, borderRadius: 29, overflow: 'hidden' }}>
                         <View
                           className="flex-1 rounded-[30px] items-center justify-center"
                           style={{ backgroundColor: 'rgba(255,213,79,0.9)' }}
@@ -118,7 +117,7 @@ export function LiquidGlassBottomNav({ active, ...actions }: Props) {
                           />
                           <Icon size={27} color="#161616" strokeWidth={2} />
                         </View>
-                      </BlurView>
+                      </View>
                     </View>
                   ) : (
                     /* Standard tab */
@@ -165,6 +164,7 @@ export function LiquidGlassBottomNav({ active, ...actions }: Props) {
           </View>
         </BlurView>
       </View>
+      <FoodScanSheet visible={scanOpen} onClose={() => setScanOpen(false)} />
     </View>
   );
 }

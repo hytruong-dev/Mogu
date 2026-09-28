@@ -27,14 +27,20 @@
     "plugins": [
       "expo-status-bar",
       [
+        "expo-camera",
+        {
+          "cameraPermission": "NOAN cần quyền truy cập camera để quét và nhận diện món ăn."
+        }
+      ],
+      [
         "expo-image-picker",
         {
-          "photosPermission": "NOAN cần quyền truy cập thư viện để bạn chọn ảnh đại diện.",
-          "cameraPermission": "NOAN cần quyền camera để bạn chụp ảnh đại diện.",
+          "photosPermission": "NOAN cần quyền truy cập thư viện để bạn chọn ảnh món ăn hoặc ảnh đại diện.",
+          "cameraPermission": "NOAN cần quyền camera để bạn chụp món ăn hoặc ảnh đại diện.",
           "microphonePermission": false
         }
       ],
-      "expo-image", 
+      "expo-image",
       "expo-notifications"
     ]
   }
