@@ -1,16 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Pressable, View } from 'react-native';
-import { ChevronLeft, ChevronRight } from '@/components/icons';
-import { cn } from '../../lib/utils';
+import { Pressable, Text, View } from 'react-native';
+import { ChevronLeft, ChevronRight, X } from '@/components/icons';
+import { Drawer } from '../ui/drawer';
 import { Button } from '../ui/button';
-import {
-  Drawer,
-  DrawerContent,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from '../ui/drawer';
-import { Text } from '../ui/text';
+import { Text as UIText } from '../ui/text';
 
 type Props = {
   visible: boolean;
@@ -18,9 +11,15 @@ type Props = {
   datesWithData?: Date[];
   onCancel: () => void;
   onConfirm: (date: Date) => void;
+  /** Gọi khi người dùng đổi tháng — dùng để tải chấm lịch của tháng đó. */
+  onMonthChange?: (month: Date) => void;
 };
 
 const WEEKDAYS = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+const INK = '#48210B';
+const SUB = '#8A6F5C';
+const YELLOW = '#FFC928';
+const LINE = '#F1E6D3';
 
 function sameDate(a: Date, b: Date) {
   return (
@@ -36,6 +35,7 @@ export function HealthDatePickerSheet({
   datesWithData = [],
   onCancel,
   onConfirm,
+  onMonthChange,
 }: Props) {
   const [draft, setDraft] = useState(value);
   const [month, setMonth] = useState(new Date(value.getFullYear(), value.getMonth(), 1));
@@ -47,111 +47,136 @@ export function HealthDatePickerSheet({
     }
   }, [visible, value]);
 
+  const changeMonth = (delta: number) => {
+    const next = new Date(month.getFullYear(), month.getMonth() + delta, 1);
+    setMonth(next);
+    onMonthChange?.(next);
+  };
+
   const days = useMemo(() => {
     const firstWeekday = (month.getDay() + 6) % 7;
     const count = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
     return [
       ...Array.from({ length: firstWeekday }, () => null),
-      ...Array.from(
-        { length: count },
-        (_, i) => new Date(month.getFullYear(), month.getMonth(), i + 1),
-      ),
+      ...Array.from({ length: count }, (_, i) => new Date(month.getFullYear(), month.getMonth(), i + 1)),
     ];
   }, [month]);
 
-  return (
-    <Drawer open={visible} onOpenChange={(open) => !open && onCancel()} snapHeight={560}>
-      <DrawerHeader className="flex-row items-center justify-between px-5">
-        <Button variant="ghost" onPress={onCancel} className="h-11 min-w-[60px] px-0">
-          <Text className="text-[17px] text-foreground">Hủy</Text>
-        </Button>
-        <DrawerTitle className="text-[22px]">Chọn ngày</DrawerTitle>
-        <Button
-          variant="ghost"
-          onPress={() => onConfirm(draft)}
-          className="h-11 min-w-[60px] items-end px-0"
-        >
-          <Text className="text-[17px] font-semibold text-primary">Xong</Text>
-        </Button>
-      </DrawerHeader>
+  const dataKeys = useMemo(
+    () => new Set(datesWithData.map((d) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`)),
+    [datesWithData],
+  );
 
-      <DrawerContent className="px-5 pb-2">
-        <View className="h-[54px] flex-row items-center justify-between">
+  return (
+    <Drawer open={visible} onOpenChange={(open) => !open && onCancel()} snapHeight={600} sheetBackgroundColor="#FFFFFF">
+      <View style={{ flex: 1, paddingHorizontal: 20 }}>
+        <View style={{ height: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+          <Text style={{ fontSize: 20, fontWeight: '800', color: INK }}>Chọn ngày</Text>
           <Pressable
-            onPress={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}
-            className="size-11 items-center justify-center"
+            onPress={onCancel}
+            hitSlop={10}
+            accessibilityLabel="Đóng"
+            style={{ position: 'absolute', right: -8, width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
           >
-            <ChevronLeft size={26} color="#161616" />
-          </Pressable>
-          <Text className="text-[18px] font-bold text-foreground">
-            Tháng {month.getMonth() + 1}, {month.getFullYear()}
-          </Text>
-          <Pressable
-            onPress={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}
-            className="size-11 items-center justify-center"
-          >
-            <ChevronRight size={26} color="#161616" />
+            <X size={22} color={INK} />
           </Pressable>
         </View>
 
-        <View className="mt-1.5 flex-row">
+        <View
+          style={{
+            height: 48,
+            marginTop: 10,
+            borderRadius: 24,
+            borderWidth: 1,
+            borderColor: LINE,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 4,
+          }}
+        >
+          <Pressable
+            onPress={() => changeMonth(-1)}
+            accessibilityLabel="Tháng trước"
+            style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <ChevronLeft size={22} color={INK} />
+          </Pressable>
+          <Text style={{ fontSize: 16, fontWeight: '700', color: INK }}>
+            Tháng {month.getMonth() + 1}, {month.getFullYear()}
+          </Text>
+          <Pressable
+            onPress={() => changeMonth(1)}
+            accessibilityLabel="Tháng sau"
+            style={{ width: 44, height: 44, alignItems: 'center', justifyContent: 'center' }}
+          >
+            <ChevronRight size={22} color={INK} />
+          </Pressable>
+        </View>
+
+        <View style={{ flexDirection: 'row', marginTop: 14 }}>
           {WEEKDAYS.map((d) => (
-            <Text
-              key={d}
-              className="text-center text-[14px] text-muted-foreground"
-              style={{ width: '14.285%' }}
-            >
+            <Text key={d} style={{ width: `${100 / 7}%`, textAlign: 'center', fontSize: 13, color: SUB }}>
               {d}
             </Text>
           ))}
         </View>
 
-        <View className="mt-2.5 flex-row flex-wrap">
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 6 }}>
           {days.map((date, i) => {
-            if (!date) {
-              return (
-                <View
-                  key={`empty-${i}`}
-                  className="h-[52px] items-center justify-center"
-                  style={{ width: '14.285%' }}
-                />
-              );
-            }
+            if (!date) return <View key={`e-${i}`} style={{ width: `${100 / 7}%`, height: 50 }} />;
             const selected = sameDate(date, draft);
-            const hasData = datesWithData.some((item) => sameDate(item, date));
-
+            const hasData = dataKeys.has(`${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`);
             return (
               <Pressable
                 key={date.toISOString()}
-                className="h-[52px] items-center justify-center"
-                style={{ width: '14.285%' }}
                 onPress={() => setDraft(date)}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                accessibilityLabel={`Ngày ${date.getDate()}${hasData ? ', có nhật ký' : ''}`}
+                style={{ width: `${100 / 7}%`, height: 50, alignItems: 'center', justifyContent: 'center' }}
               >
                 <View
-                  className={cn(
-                    'size-[42px] items-center justify-center rounded-full',
-                    selected && 'bg-primary',
-                  )}
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 19,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: selected ? YELLOW : 'transparent',
+                  }}
                 >
-                  <Text className={cn('text-[16px] text-foreground', selected && 'font-bold')}>
+                  <Text style={{ fontSize: 15, fontWeight: selected ? '800' : '500', color: INK }}>
                     {date.getDate()}
                   </Text>
-                  {hasData ? (
-                    <View className="absolute bottom-[3px] size-[5px] rounded-full bg-foreground" />
-                  ) : null}
                 </View>
+                <View
+                  style={{
+                    width: 5,
+                    height: 5,
+                    borderRadius: 3,
+                    marginTop: 1,
+                    backgroundColor: hasData && !selected ? YELLOW : 'transparent',
+                  }}
+                />
               </Pressable>
             );
           })}
         </View>
-      </DrawerContent>
 
-      <DrawerFooter className="items-center px-5">
-        <View className="flex-row items-center justify-center gap-2.5">
-          <View className="size-2 rounded-full bg-foreground" />
-          <Text className="text-[14px] text-foreground">Có dữ liệu bữa ăn</Text>
+        <View style={{ flex: 1 }} />
+
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+          <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: YELLOW }} />
+          <Text style={{ fontSize: 13, color: SUB }}>Có nhật ký bữa ăn</Text>
         </View>
-      </DrawerFooter>
+        <Button
+          onPress={() => onConfirm(draft)}
+          className="mb-2 h-[54px] w-full rounded-full bg-primary active:bg-[#E6AC00]"
+        >
+          <UIText className="text-[17px] font-extrabold text-[#48210B]">Xác nhận</UIText>
+        </Button>
+      </View>
     </Drawer>
   );
 }

@@ -33,6 +33,8 @@ import { PlacesModule } from './places/places.module';
 import { ModerationModule } from './moderation/moderation.module';
 // AI Import Pipeline
 import { AiImportModule } from './ai-import/ai-import.module';
+import { FoodScanModule } from './food-scan/food-scan.module';
+import { CookingVoiceModule } from './cooking-voice/cooking-voice.module';
 // BA-005: Weekly Meal Plan
 import { WeeklyPlansModule } from './weekly-plans/weekly-plans.module';
 import { DishFileImportsModule } from './dish-file-imports/dish-file-imports.module';
@@ -40,6 +42,7 @@ import { HealthModule } from './health/health.module';
 import { SettingsModule } from './settings/settings.module';
 import { AdminUsersModule } from './admin-users/admin-users.module';
 import { AdminDashboardModule } from './admin-dashboard/admin-dashboard.module';
+import { AdminFoodScanModule } from './admin-food-scan/admin-food-scan.module';
 import { AdminNotificationsModule } from './admin-notifications/admin-notifications.module';
 import appConfig from './config/app.config';
 import { getRedisUrl } from './common/redis/redis-env';
@@ -126,6 +129,8 @@ const bullModules: DynamicModule[] = REDIS_URL
 
     // ── AI Import Pipeline ─────────────────────────────────────────────────
     AiImportModule,
+    FoodScanModule,
+    CookingVoiceModule,
 
     // ── BA-005: Weekly Meal Plan ────────────────────────────────────────────────
     WeeklyPlansModule,
@@ -134,6 +139,7 @@ const bullModules: DynamicModule[] = REDIS_URL
     SettingsModule,
     AdminUsersModule,
     AdminDashboardModule,
+    AdminFoodScanModule,
     AdminNotificationsModule,
   ],
   controllers: [AppController],

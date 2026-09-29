@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
-  Droplets,
   Dumbbell,
   Flame,
   Moon,
@@ -25,6 +24,7 @@ import {
 } from '@/components/icons';
 import { Input } from '../components/ui/input';
 import { Progress as UiProgress } from '../components/ui/progress';
+import type { HealthDayResponse } from '../services/api/health';
 
 const C = {
   bg: '#FFF9E8',
@@ -66,11 +66,11 @@ function Header({
     </View>
   );
 }
-function DatePicker() {
+function DatePicker({ date }: { date: Date }) {
   return (
     <View style={s.date}>
       <ChevronLeft size={24} />
-      <Text style={s.dateText}>Hôm nay, 10 tháng 8</Text>
+      <Text style={s.dateText}>{date.toLocaleDateString('vi-VN', { day: 'numeric', month: 'long' })}</Text>
       <ChevronRight size={24} />
     </View>
   );
@@ -89,12 +89,12 @@ function Progress({ value, color = C.yellow }: { value: number; color?: string }
   );
 }
 
-export function HealthOverviewScreen({ onBack, total }: { onBack: () => void; total: number }) {
+export function HealthOverviewScreen({ onBack, total, day, selectedDate = new Date() }: { onBack: () => void; total: number; day?: HealthDayResponse; selectedDate?: Date }) {
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
       <ScrollView contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <Header title="Tổng quan hôm nay" onBack={onBack} />
-        <DatePicker />
+        <DatePicker date={selectedDate} />
         <View style={s.bigCard}>
           <View style={s.calorieRing}>
             <Text style={s.ringValue} numberOfLines={1} adjustsFontSizeToFit>
@@ -108,13 +108,22 @@ export function HealthOverviewScreen({ onBack, total }: { onBack: () => void; to
               label="Đã nạp"
               value={total > 0 ? `${total.toLocaleString('vi-VN')} kcal` : '—'}
             />
-            <Summary color="#F5F0E8" label="Còn lại" value="—" />
-            <Summary color={C.yellow} label="Đã tiêu hao" value="—" />
+            <Summary color="#F5F0E8" label="Còn lại" value={day?.energy.remainingKcal != null ? `${day.energy.remainingKcal} kcal` : 'Chưa đặt mục tiêu'} />
+            <Summary color={C.yellow} label="Mục tiêu" value={day?.energy.targetKcal != null ? `${day.energy.targetKcal} kcal` : 'Chưa đặt mục tiêu'} />
           </View>
         </View>
         <Text style={s.sectionTitle}>Phân bố dinh dưỡng</Text>
         <View style={s.macroCard}>
-          <Text style={s.meta}>Chi tiết macro sẽ hiển thị khi có nhật ký bữa ăn.</Text>
+          {([
+            { key: 'protein', label: 'Đạm', color: C.orange },
+            { key: 'carbs', label: 'Tinh bột', color: C.yellow },
+            { key: 'fat', label: 'Chất béo', color: C.blue },
+          ] as const).map(({ key, label, color }) => {
+            const macro = day?.macros[key];
+            return <Macro key={key} label={label} color={color}
+              value={macro?.consumedG != null ? `${Math.round(macro.consumedG)} g` : 'Chưa có dữ liệu'}
+              percent={macro?.consumedG != null && macro.targetG && macro.targetG > 0 ? Math.min(100, macro.consumedG / macro.targetG * 100) : 0} />;
+          })}
         </View>
         <Text style={s.sectionTitle}>Phân bố theo bữa</Text>
         <View style={s.mealDistribution}>
@@ -123,21 +132,25 @@ export function HealthOverviewScreen({ onBack, total }: { onBack: () => void; to
             <Text style={s.ringUnit}>kcal</Text>
           </View>
           <View style={s.distributionList}>
-            <Text style={s.meta}>Mở nhật ký bữa để xem phân bố theo slot.</Text>
+            {day?.mealGroups.map((group) => (
+              <Distribution key={group.mealSlot} color={C.yellow}
+                label={({ BREAKFAST: 'Sáng', LUNCH: 'Trưa', DINNER: 'Tối', SNACK: 'Bữa phụ' } as Record<string, string>)[group.mealSlot] ?? group.mealSlot}
+                value={`${group.totalKcal} kcal`}
+                percent={total > 0 ? `${Math.round(group.totalKcal / total * 100)}%` : '—'} />
+            ))}
           </View>
         </View>
         <Text style={s.sectionTitle}>So với mục tiêu</Text>
         <View style={s.targets}>
-          <TargetItem icon={<Target color={C.yellowDark} />} label="Calo" value={total > 0 ? 'Đã có nhật ký' : 'Chưa có dữ liệu'} />
-          <TargetItem icon={<Dumbbell color={C.orange} />} label="Protein" value="—" />
-          <TargetItem icon={<Droplets color={C.blue} />} label="Nước" value="—" />
+          <TargetItem icon={<Target color={C.yellowDark} />} label="Calo" value={day?.energy.targetKcal != null ? `${day.energy.targetKcal} kcal` : 'Chưa đặt mục tiêu'} />
+          <TargetItem icon={<Dumbbell color={C.orange} />} label="Đạm" value={day?.macros.protein.targetG != null ? `${day.macros.protein.targetG} g` : 'Chưa đặt mục tiêu'} />
         </View>
         <View style={s.tip}>
           <Check size={22} color={C.yellowDark} />
           <View>
-            <Text style={s.tipTitle}>Bạn đang đi đúng hướng!</Text>
+            <Text style={s.tipTitle}>Ghi bữa ăn đều đặn</Text>
             <Text style={s.tipText}>
-              Hãy bổ sung thêm protein vào bữa tối{`\n`}để hoàn thành mục tiêu hôm nay.
+              Nhật ký giúp bạn theo dõi năng lượng{`\n`}và dinh dưỡng của những bữa đã ghi.
             </Text>
           </View>
           <Image source={mascot} style={s.mascot} />

@@ -1,4 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
+import multipart from '@fastify/multipart';
+import type { FastifyInstance } from 'fastify';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -25,6 +27,11 @@ async function bootstrap() {
     new FastifyAdapter({ logger: false }),
     { bufferLogs: true },
   );
+
+  const uploadServer = app.getHttpAdapter().getInstance() as unknown as FastifyInstance;
+  await uploadServer.register(multipart, {
+    limits: { fileSize: 5 * 1024 * 1024, files: 1, fields: 0, parts: 1 },
+  });
 
   // ── Logger (Pino) ──────────────────────────────────────────────────────────
   app.useLogger(app.get(Logger));

@@ -15,7 +15,7 @@ export type HealthDayResponse = {
     carbs: { consumedG: number | null; targetG: number | null };
     fat: { consumedG: number | null; targetG: number | null };
   };
-  water: { consumedMl: number | null; targetMl: number | null };
+  water?: { consumedMl: number | null; targetMl: number | null };
   steps: { count: number | null; target: number | null; source: string | null; syncedAt: string | null };
   mealGroups: Array<{
     mealSlot: string;
@@ -23,8 +23,16 @@ export type HealthDayResponse = {
     meals: Array<{
       id: string;
       mealSlot: string;
+      occurredAt?: string | null;
+      version?: number;
       totals: { kcal: number; proteinG: number | null; carbsG: number | null; fatG: number | null };
-      items: Array<{ id: string; displayName: string; calories: number | null }>;
+      items: Array<{
+        id: string;
+        displayName: string;
+        calories: number | null;
+        referenceId?: string | null;
+        thumbnailUrl?: string | null;
+      }>;
     }>;
   }>;
 };
@@ -57,6 +65,7 @@ export type FormattedMealLog = {
   sourceType: string;
   totals: { kcal: number; proteinG: number | null; carbsG: number | null; fatG: number | null };
   items: FormattedMealLogItem[];
+  version?: number;
 };
 
 export type DayGroupItem = {
@@ -141,11 +150,12 @@ export type MealStatsResponse = {
 export const healthApi = {
   getDay: (localDate: string, timezone: string) =>
     apiRequest<HealthDayResponse>(
-      `/health/days/${localDate}?timezone=${encodeURIComponent(timezone)}`,
+      `/health/days/${localDate}?timezone=${encodeURIComponent(timezone)}&includeWater=false`,
     ),
 
   getCalendar: (month?: string, timezone?: string) => {
     const query = new URLSearchParams();
+    query.set('includeWater', 'false');
     if (month) query.set('month', month);
     if (timezone) query.set('timezone', timezone);
     const qs = query.toString();

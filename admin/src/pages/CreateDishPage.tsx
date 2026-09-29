@@ -25,6 +25,7 @@ import { dishesApi, type CreateDishDto, type NutritionPayload, type DishValidati
 import { mediaApi } from '../api/media'
 import { migrateMealTypeIds, type MealTypeOption } from '../lib/meal-types'
 import { formatApiError } from '../lib/api-error'
+import { useFoodScanReport, useUpdateFoodScanReport } from '../hooks/useFoodScanReports'
 
 const STEPS = [
   { id: 'basic', label: 'Thông tin cơ bản' },
@@ -117,6 +118,11 @@ export default function CreateDishPage() {
   const navigate = useNavigate()
   const { id: routeId } = useParams()
   const [searchParams, setSearchParams] = useSearchParams()
+  // Food Scan "missing dish" report this dish is being created from (/foods/new?scanReport=<id>).
+  const [scanReportId] = useState<string | null>(() => searchParams.get('scanReport'))
+  const scanReport = useFoodScanReport(scanReportId)
+  const updateScanReport = useUpdateFoodScanReport()
+  const scanPrefillDone = useRef(false)
   const createDish = useCreateDish()
   const updateDish = useUpdateDish()
   const lifecycle = useDishLifecycle()
@@ -203,7 +209,14 @@ export default function CreateDishPage() {
           hydrated.current = true
           skipAutosave.current = true
           const step = searchParams.get('step') || activeTab
-          navigate(`/foods/${id}?step=${step}`, { replace: true })
+          const scanQs = scanReportId ? `&scanReport=${scanReportId}` : ''
+          navigate(`/foods/${id}?step=${step}${scanQs}`, { replace: true })
+          if (scanReportId) {
+            updateScanReport.mutate({
+              id: scanReportId,
+              dto: { status: 'IN_PROGRESS', linkedDishId: id },
+            })
+          }
           return id
         })
         .finally(() => {
@@ -216,7 +229,7 @@ export default function CreateDishPage() {
 
   const changeStep = (step: StepId) => {
     setActiveTab(step)
-    setSearchParams({ step }, { replace: true })
+    setSearchParams(scanReportId ? { step, scanReport: scanReportId } : { step }, { replace: true })
   }
 
   const cancelAutosave = () => {
@@ -468,6 +481,66 @@ export default function CreateDishPage() {
     skipAutosave.current = true
   }, [existing.data, isEditMode, routeId])
 
+  // Prefill name / alias / photo from the Food Scan report (once per draft).
+  useEffect(() => {
+    const report = scanReport.data
+    // Only after /foods/new redirected to /foods/:id and the draft hydrated from server.
+    if (!report || !isEditMode || !dishId || !hydrated.current || scanPrefillDone.current) return
+    const storageKey = `mogu:scanPrefill:${report.id}:${dishId}`
+    if (sessionStorage.getItem(storageKey)) {
+      scanPrefillDone.current = true
+      return
+    }
+    // Defer one tick: the hydration render consumes `skipAutosave`, so this prefill gets autosaved.
+    const timer = window.setTimeout(() => {
+      if (scanPrefillDone.current) return
+      scanPrefillDone.current = true
+      sessionStorage.setItem(storageKey, '1')
+      applyScanPrefill(report)
+    }, 0)
+    return () => window.clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanReport.data, dishId, existing.data, isEditMode])
+
+  const applyScanPrefill = (report: NonNullable<typeof scanReport.data>) => {
+
+    const name = report.recognizedName?.trim() ?? ''
+    const alt =
+      report.guesses.find((g) => g.nameEn)?.nameEn ??
+      report.guesses.map((g) => g.nameVi).find((n) => n && n !== name) ??
+      ''
+    setBasic((b) => ({
+      ...b,
+      name: b.name || name,
+      altName: b.altName || alt,
+    }))
+    if (report.visibleIngredients.length) {
+      setIngredients((rows) =>
+        rows.length
+          ? rows
+          : report.visibleIngredients.map((ing, i) => ({
+              id: Date.now() + i,
+              clientRef: `scan-${report.id}-${i}`,
+              name: ing,
+              qty: '',
+              unit: '',
+              prep: '',
+              required: true,
+              resolutionStatus: 'NOT_FOUND',
+            }) as DishIngredientRow),
+      )
+    }
+    if (report.imageUrl && !media.coverUrl) {
+      void fetch(report.imageUrl)
+        .then((res) => (res.ok ? res.blob() : Promise.reject(new Error(String(res.status)))))
+        .then((blob) => {
+          const file = new File([blob], `scan-${report.id}.jpg`, { type: blob.type || 'image/jpeg' })
+          return uploadImages([file], true)
+        })
+        .catch(() => setSubmitError('Không tải được ảnh từ báo cáo quét. Có thể tải ảnh lên thủ công.'))
+    }
+  }
+
   useEffect(() => {
     const v = Number((existing.data as { version?: number } | undefined)?.version)
     if (!Number.isNaN(v) && v > versionRef.current) {
@@ -587,6 +660,12 @@ export default function CreateDishPage() {
       await lifecycle.submitForReview.mutateAsync({ id, note: reviewNote, reviewTeam })
       setDishStatus('PENDING_REVIEW')
       setCreatedId(`#${id.slice(0, 8).toUpperCase()}`)
+      if (scanReportId) {
+        updateScanReport.mutate({
+          id: scanReportId,
+          dto: { status: 'ADDED', linkedDishId: id },
+        })
+      }
       setSuccessOpen(true)
     } catch (err: unknown) {
       setSubmitError(formatApiError(err))

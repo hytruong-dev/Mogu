@@ -265,14 +265,14 @@ model Profile {
   userId String @unique @map("user_id") @db.Uuid
   // userId tham chiÃ¡ÂºÂ¿u auth.users.id Ã¢â¬â FK khÃÂ´ng khai bÃÂ¡o vÃÂ¬ auth schema khÃÂ¡c
 
-  displayName String? @map("display_name")
-  avatarUrl   String? @map("avatar_url")
-  bio         String? @db.Text
-  regionId    String? @map("region_id") @db.Uuid
+  displayName   String? @map("display_name")
+  avatarUrl     String? @map("avatar_url")
+  bio           String? @db.Text
+  regionId      String? @map("region_id") @db.Uuid
   avatarMediaId String? @map("avatar_media_id") @db.Uuid
   activityLevel String? @map("activity_level") @db.VarChar(32)
-  locale      String  @default("vi")
-  timezone    String  @default("Asia/Ho_Chi_Minh")
+  locale        String  @default("vi")
+  timezone      String  @default("Asia/Ho_Chi_Minh")
 
   accountStatus    AccountStatus    @default(PENDING_VERIFICATION) @map("account_status")
   onboardingStatus OnboardingStatus @default(NOT_STARTED) @map("onboarding_status")
@@ -296,8 +296,8 @@ model Profile {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  region                 Region?                    @relation(fields: [regionId], references: [id], onDelete: SetNull)
-  avatarMedia            UserMedia?                 @relation("ProfileAvatarMedia", fields: [avatarMediaId], references: [id], onDelete: SetNull)
+  region                 Region?                  @relation(fields: [regionId], references: [id], onDelete: SetNull)
+  avatarMedia            UserMedia?               @relation("ProfileAvatarMedia", fields: [avatarMediaId], references: [id], onDelete: SetNull)
   consents               UserConsent[]
   meals                  Meal[]
   mealLogs               MealLog[]
@@ -307,7 +307,7 @@ model Profile {
   userAllergens          UserAllergen[]
   userAvoidedIngredients UserAvoidedIngredient[]
   selectionPriorities    UserSelectionPriority[]
-  media                  UserMedia[]                @relation("UserOwnedMedia")
+  media                  UserMedia[]              @relation("UserOwnedMedia")
   achievements           UserAchievement[]
   restrictions           AccountRestriction[]
   savedDishes            SavedDish[]
@@ -337,8 +337,8 @@ model Profile {
   activityBuckets        ActivityBucket[]
   userSetting            UserSetting?
   pushInstallations      PushInstallation[]
-  following              UserFollow[]          @relation("UserFollows")
-  followers              UserFollow[]          @relation("UserFollowedBy")
+  following              UserFollow[]             @relation("UserFollows")
+  followers              UserFollow[]             @relation("UserFollowedBy")
   savedPosts             SavedPost[]
   savedArticles          SavedArticle[]
   privacyJobs            PrivacyJob[]
@@ -478,13 +478,13 @@ model UserAvoidedIngredient {
   userId  String  @map("user_id") @db.Uuid
   profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
-  ingredientName   String                     @map("ingredient_name") // free text, max 80 chars
-  ingredientId     String?                    @map("ingredient_id") @db.Uuid
-  ingredient       Ingredient?                @relation(fields: [ingredientId], references: [id], onDelete: SetNull)
-  normalizedText   String?                    @map("normalized_text") @db.VarChar(120)
-  mode             AvoidanceMode              @default(SOFT)
-  resolutionStatus AvoidanceResolutionStatus  @default(FREE_TEXT) @map("resolution_status")
-  reasonCode       String?                    @map("reason_code") @db.VarChar(64)
+  ingredientName   String                    @map("ingredient_name") // free text, max 80 chars
+  ingredientId     String?                   @map("ingredient_id") @db.Uuid
+  ingredient       Ingredient?               @relation(fields: [ingredientId], references: [id], onDelete: SetNull)
+  normalizedText   String?                   @map("normalized_text") @db.VarChar(120)
+  mode             AvoidanceMode             @default(SOFT)
+  resolutionStatus AvoidanceResolutionStatus @default(FREE_TEXT) @map("resolution_status")
+  reasonCode       String?                   @map("reason_code") @db.VarChar(64)
   reason           String?
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -725,11 +725,11 @@ model Ingredient {
   mergedIntoId       String?               @map("merged_into_id") @db.Uuid
   version            Int                   @default(1)
 
-  dishIngredients      DishIngredient[]
-  imageCandidates      IngredientImageCandidate[]
-  avoidedByUsers       UserAvoidedIngredient[]
-  mergedInto           Ingredient?  @relation("IngredientMerge", fields: [mergedIntoId], references: [id], onDelete: SetNull)
-  mergedFrom           Ingredient[] @relation("IngredientMerge")
+  dishIngredients DishIngredient[]
+  imageCandidates IngredientImageCandidate[]
+  avoidedByUsers  UserAvoidedIngredient[]
+  mergedInto      Ingredient?                @relation("IngredientMerge", fields: [mergedIntoId], references: [id], onDelete: SetNull)
+  mergedFrom      Ingredient[]               @relation("IngredientMerge")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -774,14 +774,18 @@ model IngredientImageCandidate {
 // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
 model Dish {
-  id               String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name             String     @db.VarChar(150)
-  slug             String     @db.VarChar(180)
-  alternateNames   String[]   @default([]) @map("alternate_names")
-  searchText       String     @default("") @map("search_text")
-  shortDescription String?    @map("short_description") @db.VarChar(300)
-  fullDescription  String?    @map("full_description")
-  status           DishStatus @default(DRAFT)
+  id                    String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                  String                      @db.VarChar(150)
+  slug                  String                      @db.VarChar(180)
+  alternateNames        String[]                    @default([]) @map("alternate_names")
+  searchText            String                      @default("") @map("search_text")
+  // Maintained by the food-scan SQL trigger (not an unaccent expression index).
+  foodScanNameFolded    String                      @default("") @map("food_scan_name_folded")
+  foodScanSearchFolded  String                      @default("") @map("food_scan_search_folded")
+  foodScanTextEmbedding Unsupported("vector(512)")? @map("food_scan_text_embedding")
+  shortDescription      String?                     @map("short_description") @db.VarChar(300)
+  fullDescription       String?                     @map("full_description")
+  status                DishStatus                  @default(DRAFT)
 
   regionId        String?         @map("region_id") @db.Uuid
   provinceId      String?         @map("province_id") @db.Uuid
@@ -792,12 +796,12 @@ model Dish {
   servings        Decimal?        @db.Decimal(6, 2)
   primaryMealSlot String?         @map("primary_meal_slot") @db.VarChar(50)
 
-  priceMin   Int?    @map("price_min")
-  priceMax   Int?    @map("price_max")
-  recipeTitle String? @map("recipe_title") @db.VarChar(200)
+  priceMin    Int?     @map("price_min")
+  priceMax    Int?     @map("price_max")
+  recipeTitle String?  @map("recipe_title") @db.VarChar(200)
   flavorTags  String[] @default([]) @map("flavor_tags")
-  currency   String  @default("VND") @db.Char(3)
-  isFeatured Boolean @default(false) @map("is_featured")
+  currency    String   @default("VND") @db.Char(3)
+  isFeatured  Boolean  @default(false) @map("is_featured")
 
   // Rating (denormalized, updated by trigger)
   ratingAvg   Decimal @default(0) @map("rating_avg") @db.Decimal(3, 2)
@@ -824,24 +828,26 @@ model Dish {
   region   Region?   @relation(fields: [regionId], references: [id], onDelete: Restrict)
   province Province? @relation(fields: [provinceId], references: [id], onDelete: Restrict)
 
-  categories           DishCategoryLink[]
-  mealTypes            DishMealType[]
-  dietTypes            DishDietType[]
-  dishGoals            DishGoal[]
-  dishIngredients      DishIngredient[]
-  dishAllergens        DishAllergen[]
-  nutrition            DishNutrition?
-  recipeSteps          RecipeStep[]
-  media                DishMedia[]
-  sources              DishSource[]
-  savedByUsers         SavedDish[]
-  recLogs              RecommendationLog[]
-  randomHistories      RandomHistory[]
-  randomCandidates     RandomCandidate[]
-  recommendationEvents RecommendationEvent[]
-  reviews              Review[]
-  weeklyPlanSlots      WeeklyPlanSlot[]
-  communityPosts       CommunityPost[]
+  categories             DishCategoryLink[]
+  mealTypes              DishMealType[]
+  dietTypes              DishDietType[]
+  dishGoals              DishGoal[]
+  dishIngredients        DishIngredient[]
+  dishAllergens          DishAllergen[]
+  nutrition              DishNutrition?
+  recipeSteps            RecipeStep[]
+  media                  DishMedia[]
+  sources                DishSource[]
+  savedByUsers           SavedDish[]
+  recLogs                RecommendationLog[]
+  randomHistories        RandomHistory[]
+  randomCandidates       RandomCandidate[]
+  recommendationEvents   RecommendationEvent[]
+  reviews                Review[]
+  weeklyPlanSlots        WeeklyPlanSlot[]
+  communityPosts         CommunityPost[]
+  foodScanEvents         FoodScanEvent[]             @relation("ChosenDishEvents")
+  foodScanMissingReports FoodScanMissingDishReport[] @relation("FoodScanMissingLinkedDish")
 
   @@index([status, publishedAt])
   @@index([regionId, provinceId])
@@ -905,7 +911,7 @@ model DishIngredient {
   quantityTo           Decimal?                    @map("quantity_to") @db.Decimal(10, 3)
   quantityText         String?                     @map("quantity_text") @db.VarChar(100)
   unit                 String?                     @db.VarChar(50)
-  preparation      String?                     @map("preparation") @db.VarChar(500)
+  preparation          String?                     @map("preparation") @db.VarChar(500)
   specification        String?                     @db.VarChar(200)
   alternativeNote      String?                     @map("alternative_note") @db.VarChar(200)
   normalizedWeightG    Decimal?                    @map("normalized_weight_g") @db.Decimal(10, 3)
@@ -1061,23 +1067,24 @@ model Review {
 }
 
 model DishMedia {
-  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  dishId           String           @map("dish_id") @db.Uuid
-  type             MediaType        @default(IMAGE)
-  storageKey       String           @map("storage_key") @db.VarChar(500)
-  bucket           String           @default("dish-images") @db.VarChar(100)
-  mimeType         String           @map("mime_type") @db.VarChar(100)
-  sizeBytes        Int              @map("size_bytes")
+  id               String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  dishId           String                      @map("dish_id") @db.Uuid
+  type             MediaType                   @default(IMAGE)
+  storageKey       String                      @map("storage_key") @db.VarChar(500)
+  bucket           String                      @default("dish-images") @db.VarChar(100)
+  mimeType         String                      @map("mime_type") @db.VarChar(100)
+  sizeBytes        Int                         @map("size_bytes")
   width            Int?
   height           Int?
-  durationSec      Int?             @map("duration_sec")
-  checksum         String?          @db.VarChar(100)
-  altText          String?          @map("alt_text") @db.VarChar(300)
-  credit           String?          @db.VarChar(300)
-  sourceUrl        String?          @map("source_url")
-  moderationStatus ModerationStatus @default(PENDING) @map("moderation_status")
-  isPrimary        Boolean          @default(false) @map("is_primary")
-  sortOrder        Int              @default(0) @map("sort_order")
+  durationSec      Int?                        @map("duration_sec")
+  checksum         String?                     @db.VarChar(100)
+  altText          String?                     @map("alt_text") @db.VarChar(300)
+  credit           String?                     @db.VarChar(300)
+  sourceUrl        String?                     @map("source_url")
+  moderationStatus ModerationStatus            @default(PENDING) @map("moderation_status")
+  isPrimary        Boolean                     @default(false) @map("is_primary")
+  sortOrder        Int                         @default(0) @map("sort_order")
+  imageEmbedding   Unsupported("vector(512)")? @map("image_embedding")
 
   dish Dish @relation(fields: [dishId], references: [id], onDelete: Cascade)
 
@@ -1086,6 +1093,61 @@ model DishMedia {
 
   @@index([dishId, moderationStatus])
   @@map("dish_media")
+}
+
+model FoodScanEvent {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId       String?   @map("user_id") @db.Uuid
+  imagePhash   String?   @map("image_phash")
+  extraction   Json?
+  shortlist    Json?
+  resultStatus String?   @map("result_status")
+  chosenDishId String?   @map("chosen_dish_id") @db.Uuid
+  correct      Boolean?
+  confirmedAt  DateTime? @map("confirmed_at") @db.Timestamptz(6)
+  model        String?
+  latencyMs    Int?      @map("latency_ms")
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  chosenDish Dish? @relation("ChosenDishEvents", fields: [chosenDishId], references: [id], onDelete: SetNull)
+
+  @@index([imagePhash])
+  @@index([userId])
+  @@map("food_scan_events")
+}
+
+/// Scanned dishes that are not in the catalog, queued for admins to add.
+model FoodScanMissingDishReport {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  scanEventId        String?   @map("scan_event_id") @db.Uuid
+  userId             String?   @map("user_id") @db.Uuid
+  imageBucket        String?   @map("image_bucket")
+  imageStorageKey    String?   @map("image_storage_key")
+  imagePhash         String?   @map("image_phash")
+  recognizedName     String?   @map("recognized_name")
+  guesses            Json      @default("[]")
+  category           String?
+  cuisine            String?
+  visibleIngredients Json      @default("[]") @map("visible_ingredients")
+  suggestedDishIds   Json      @default("[]") @map("suggested_dish_ids")
+  /// AUTO | USER
+  source             String    @default("AUTO")
+  /// NEW | IN_PROGRESS | ADDED | DISMISSED
+  status             String    @default("NEW")
+  reportCount        Int       @default(1) @map("report_count")
+  linkedDishId       String?   @map("linked_dish_id") @db.Uuid
+  handledBy          String?   @map("handled_by") @db.Uuid
+  handledAt          DateTime? @map("handled_at") @db.Timestamptz(6)
+  adminNote          String?   @map("admin_note")
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  linkedDish Dish? @relation("FoodScanMissingLinkedDish", fields: [linkedDishId], references: [id], onDelete: SetNull)
+
+  @@index([status, updatedAt(sort: Desc)])
+  @@index([imagePhash])
+  @@index([scanEventId])
+  @@map("food_scan_missing_dish_reports")
 }
 
 // âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
@@ -1529,10 +1591,10 @@ model Article {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  tags        ArticleTag[]
-  savedBy     SavedArticle[]
-  likes       ArticleLike[]
-  comments    ArticleComment[]
+  tags     ArticleTag[]
+  savedBy  SavedArticle[]
+  likes    ArticleLike[]
+  comments ArticleComment[]
 
   @@index([status, createdAt(sort: Desc)])
   @@index([status, publishAt])
@@ -1607,23 +1669,23 @@ model ArticleCommentLike {
 // -----------------------------------------------------------------------------
 
 model CommunityPost {
-  id               String         @id @default(uuid()) @db.Uuid
-  authorId         String         @map("author_id") @db.Uuid
-  author           Profile        @relation(fields: [authorId], references: [userId], onDelete: Cascade)
-  content          String
-  imageUrls        String[]       @map("image_urls")
-  status           PostStatus     @default(ACTIVE)
-  visibility       PostVisibility @default(PUBLIC)
-  commentsEnabled  Boolean        @default(true) @map("comments_enabled")
-  dishId           String?        @map("dish_id") @db.Uuid
-  dish             Dish?          @relation(fields: [dishId], references: [id], onDelete: SetNull)
-  placeId          String?        @map("place_id") @db.Uuid
-  place            Place?         @relation(fields: [placeId], references: [id], onDelete: SetNull)
-  clientRequestId  String?        @unique @map("client_request_id") @db.Uuid
-  likeCount        Int            @default(0) @map("like_count")
-  commentCount     Int            @default(0) @map("comment_count")
-  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id              String         @id @default(uuid()) @db.Uuid
+  authorId        String         @map("author_id") @db.Uuid
+  author          Profile        @relation(fields: [authorId], references: [userId], onDelete: Cascade)
+  content         String
+  imageUrls       String[]       @map("image_urls")
+  status          PostStatus     @default(ACTIVE)
+  visibility      PostVisibility @default(PUBLIC)
+  commentsEnabled Boolean        @default(true) @map("comments_enabled")
+  dishId          String?        @map("dish_id") @db.Uuid
+  dish            Dish?          @relation(fields: [dishId], references: [id], onDelete: SetNull)
+  placeId         String?        @map("place_id") @db.Uuid
+  place           Place?         @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  clientRequestId String?        @unique @map("client_request_id") @db.Uuid
+  likeCount       Int            @default(0) @map("like_count")
+  commentCount    Int            @default(0) @map("comment_count")
+  createdAt       DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   likes      PostLike[]
   comments   PostComment[]
@@ -1651,22 +1713,22 @@ model PostTag {
 }
 
 model CommunityMedia {
-  id         String               @id @default(uuid()) @db.Uuid
-  ownerId    String               @map("owner_id") @db.Uuid
-  owner      Profile              @relation(fields: [ownerId], references: [userId], onDelete: Cascade)
-  bucket     String               @default("community-media") @db.VarChar(64)
-  objectKey  String               @map("object_key") @db.VarChar(512)
-  mimeType   String               @map("mime_type") @db.VarChar(64)
-  sizeBytes  Int                  @map("size_bytes")
-  width      Int?
-  height     Int?
-  checksum   String?              @db.VarChar(128)
-  publicUrl  String?              @map("public_url")
-  altText    String?              @map("alt_text") @db.VarChar(300)
-  status     CommunityMediaStatus @default(UPLOAD_PENDING)
-  expiresAt  DateTime?            @map("expires_at") @db.Timestamptz(6)
-  createdAt  DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt  DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id        String               @id @default(uuid()) @db.Uuid
+  ownerId   String               @map("owner_id") @db.Uuid
+  owner     Profile              @relation(fields: [ownerId], references: [userId], onDelete: Cascade)
+  bucket    String               @default("community-media") @db.VarChar(64)
+  objectKey String               @map("object_key") @db.VarChar(512)
+  mimeType  String               @map("mime_type") @db.VarChar(64)
+  sizeBytes Int                  @map("size_bytes")
+  width     Int?
+  height    Int?
+  checksum  String?              @db.VarChar(128)
+  publicUrl String?              @map("public_url")
+  altText   String?              @map("alt_text") @db.VarChar(300)
+  status    CommunityMediaStatus @default(UPLOAD_PENDING)
+  expiresAt DateTime?            @map("expires_at") @db.Timestamptz(6)
+  createdAt DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   postLinks CommunityPostMedia[]
 
@@ -1739,14 +1801,14 @@ model ModerationReport {
 }
 
 model RecommendationFeedback {
-  id           String                        @id @default(uuid()) @db.Uuid
-  userId       String                        @map("user_id") @db.Uuid
-  user         Profile                       @relation(fields: [userId], references: [userId], onDelete: Cascade)
-  contentType  HiddenContentType             @map("content_type")
-  contentId    String                        @map("content_id") @db.Uuid
+  id           String                       @id @default(uuid()) @db.Uuid
+  userId       String                       @map("user_id") @db.Uuid
+  user         Profile                      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  contentType  HiddenContentType            @map("content_type")
+  contentId    String                       @map("content_id") @db.Uuid
   action       RecommendationFeedbackAction
-  rankingToken String?                       @map("ranking_token") @db.VarChar(191)
-  createdAt    DateTime                      @default(now()) @map("created_at") @db.Timestamptz(6)
+  rankingToken String?                      @map("ranking_token") @db.VarChar(191)
+  createdAt    DateTime                     @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([contentType, contentId])
@@ -1904,15 +1966,15 @@ model WeeklyPlanConfig {
   /// Local draft schedule: [{ type, enabled, time }] — time "HH:mm" or null
   mealSlotSchedule Json? @map("meal_slot_schedule")
 
-  avoidRepeat             Boolean @default(true) @map("avoid_repeat")
-  preferHomeCook          Boolean @default(false) @map("prefer_home_cook")
-  allowOutsideMeals       Boolean @default(true) @map("allow_outside_meals")
-  repeatWindowDays        Int     @default(7) @map("repeat_window_days")
-  preferNewDishes         Boolean @default(true) @map("prefer_new_dishes")
+  avoidRepeat             Boolean             @default(true) @map("avoid_repeat")
+  preferHomeCook          Boolean             @default(false) @map("prefer_home_cook")
+  allowOutsideMeals       Boolean             @default(true) @map("allow_outside_meals")
+  repeatWindowDays        Int                 @default(7) @map("repeat_window_days")
+  preferNewDishes         Boolean             @default(true) @map("prefer_new_dishes")
   likedDishPreference     LikedDishPreference @default(LIGHT) @map("liked_dish_preference")
-  keepLockedMeals         Boolean @default(true) @map("keep_locked_meals")
-  preserveLoggedDays      Boolean @default(true) @map("preserve_logged_days")
-  calorieTolerancePercent Int     @default(10) @map("calorie_tolerance_percent")
+  keepLockedMeals         Boolean             @default(true) @map("keep_locked_meals")
+  preserveLoggedDays      Boolean             @default(true) @map("preserve_logged_days")
+  calorieTolerancePercent Int                 @default(10) @map("calorie_tolerance_percent")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -2217,24 +2279,24 @@ enum DiaryItemReferenceType {
 }
 
 model DiaryMealLog {
-  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId   String  @map("user_id") @db.Uuid
-  profile  Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   mealSlot   DiaryMealSlot @map("meal_slot")
   occurredAt DateTime      @map("occurred_at")
   localDate  DateTime      @map("local_date") @db.Date
   timezone   String        @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
 
-  sourceType         DiaryMealSourceType @map("source_type")
-  randomizationId    String?             @map("randomization_id") @db.Uuid
-  weeklyPlanSlotId   String?             @map("weekly_plan_slot_id") @db.Uuid
-  note               String?
+  sourceType       DiaryMealSourceType @map("source_type")
+  randomizationId  String?             @map("randomization_id") @db.Uuid
+  weeklyPlanSlotId String?             @map("weekly_plan_slot_id") @db.Uuid
+  note             String?
 
-  totalKcal    Int      @default(0) @map("total_kcal")
-  totalProteinG Decimal? @map("total_protein_g") @db.Decimal(8, 2)
-  totalCarbsG   Decimal? @map("total_carbs_g") @db.Decimal(8, 2)
-  totalFatG     Decimal? @map("total_fat_g") @db.Decimal(8, 2)
+  totalKcal         Int      @default(0) @map("total_kcal")
+  totalProteinG     Decimal? @map("total_protein_g") @db.Decimal(8, 2)
+  totalCarbsG       Decimal? @map("total_carbs_g") @db.Decimal(8, 2)
+  totalFatG         Decimal? @map("total_fat_g") @db.Decimal(8, 2)
   nutritionCoverage Decimal? @map("nutrition_coverage") @db.Decimal(5, 4)
 
   version   Int       @default(1)
@@ -2244,6 +2306,10 @@ model DiaryMealLog {
 
   items DiaryMealLogItem[]
 
+  idempotencyKey String? @map("idempotency_key") @db.VarChar(128)
+  requestHash    String? @map("request_hash") @db.VarChar(64)
+
+  @@unique([userId, idempotencyKey])
   @@unique([weeklyPlanSlotId])
   @@index([userId, localDate, occurredAt])
   @@index([userId, occurredAt(sort: Desc)])
@@ -2251,9 +2317,9 @@ model DiaryMealLog {
 }
 
 model DiaryMealLogItem {
-  id         String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  mealLogId  String       @map("meal_log_id") @db.Uuid
-  mealLog    DiaryMealLog @relation(fields: [mealLogId], references: [id], onDelete: Cascade)
+  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  mealLogId String       @map("meal_log_id") @db.Uuid
+  mealLog   DiaryMealLog @relation(fields: [mealLogId], references: [id], onDelete: Cascade)
 
   referenceType DiaryItemReferenceType @map("reference_type")
   referenceId   String?                @map("reference_id") @db.Uuid
@@ -2276,16 +2342,16 @@ model DiaryMealLogItem {
 }
 
 model WaterLog {
-  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId   String  @map("user_id") @db.Uuid
-  profile  Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
-  amountMl   Int      @map("amount_ml")
-  occurredAt DateTime @map("occurred_at")
-  localDate  DateTime @map("local_date") @db.Date
-  timezone   String   @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
-  source     String   @default("MANUAL") @db.VarChar(32)
-  idempotencyKey String? @unique @map("idempotency_key") @db.VarChar(128)
+  amountMl       Int      @map("amount_ml")
+  occurredAt     DateTime @map("occurred_at")
+  localDate      DateTime @map("local_date") @db.Date
+  timezone       String   @default("Asia/Ho_Chi_Minh") @db.VarChar(64)
+  source         String   @default("MANUAL") @db.VarChar(32)
+  idempotencyKey String?  @unique @map("idempotency_key") @db.VarChar(128)
 
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -2294,9 +2360,9 @@ model WaterLog {
 }
 
 model CustomFood {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String   @map("user_id") @db.Uuid
-  profile     Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   name        String   @db.VarChar(200)
   calories    Decimal  @db.Decimal(8, 2)
@@ -2315,13 +2381,13 @@ model CustomFood {
 }
 
 model ProfileMeasurement {
-  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId       String   @map("user_id") @db.Uuid
-  profile      Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
-  type         String   @db.VarChar(32)
-  valueDecimal Decimal  @map("value_decimal") @db.Decimal(8, 2)
-  unit         String   @default("kg") @db.VarChar(16)
+  type         String  @db.VarChar(32)
+  valueDecimal Decimal @map("value_decimal") @db.Decimal(8, 2)
+  unit         String  @default("kg") @db.VarChar(16)
 
   measuredAt DateTime @default(now()) @map("measured_at")
   createdAt  DateTime @default(now()) @map("created_at")
@@ -2331,18 +2397,18 @@ model ProfileMeasurement {
 }
 
 model HealthTarget {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId     String   @map("user_id") @db.Uuid
-  profile    Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
-  mode       String   @default("SYSTEM_ESTIMATED") @db.VarChar(32)
-  energyKcal Int?     @map("energy_kcal")
-  proteinG   Float?   @map("protein_g")
-  carbsG     Float?   @map("carbs_g")
-  fatG       Float?   @map("fat_g")
-  waterMl    Int?     @map("water_ml")
+  mode       String @default("SYSTEM_ESTIMATED") @db.VarChar(32)
+  energyKcal Int?   @map("energy_kcal")
+  proteinG   Float? @map("protein_g")
+  carbsG     Float? @map("carbs_g")
+  fatG       Float? @map("fat_g")
+  waterMl    Int?   @map("water_ml")
   steps      Int?
-  version    Int      @default(1)
+  version    Int    @default(1)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -2352,9 +2418,9 @@ model HealthTarget {
 }
 
 model ActivityBucket {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  profile   Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   provider  String   @db.VarChar(64)
   type      String   @db.VarChar(32)
@@ -2363,7 +2429,7 @@ model ActivityBucket {
   value     Decimal  @db.Decimal(12, 2)
   dedupeKey String?  @map("dedupe_key") @db.VarChar(128)
 
-  syncedAt  DateTime @default(now()) @map("synced_at")
+  syncedAt DateTime @default(now()) @map("synced_at")
 
   @@unique([userId, provider, type, startAt, endAt, dedupeKey])
   @@map("activity_buckets")
@@ -2374,20 +2440,20 @@ model UserSetting {
   userId  String  @unique @map("user_id") @db.Uuid
   profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
-  pushEnabled       Boolean @default(true) @map("push_enabled")
-  mealReminders     Boolean @default(true) @map("meal_reminders")
-  waterReminders    Boolean @default(true) @map("water_reminders")
-  weeklyPlanNotif   Boolean @default(true) @map("weekly_plan_notif")
-  communityNotif    Boolean @default(true) @map("community_notif")
-  marketingNotif    Boolean @default(false) @map("marketing_notif")
-  shareData         Boolean @default(false) @map("share_data")
-  analyticsEnabled  Boolean @default(true) @map("analytics_enabled")
+  pushEnabled       Boolean           @default(true) @map("push_enabled")
+  mealReminders     Boolean           @default(true) @map("meal_reminders")
+  waterReminders    Boolean           @default(true) @map("water_reminders")
+  weeklyPlanNotif   Boolean           @default(true) @map("weekly_plan_notif")
+  communityNotif    Boolean           @default(true) @map("community_notif")
+  marketingNotif    Boolean           @default(false) @map("marketing_notif")
+  shareData         Boolean           @default(false) @map("share_data")
+  analyticsEnabled  Boolean           @default(true) @map("analytics_enabled")
   profileVisibility ProfileVisibility @default(PUBLIC) @map("profile_visibility")
-  showDietActivity  Boolean @default(true) @map("show_diet_activity")
-  allowComments     Boolean @default(true) @map("allow_comments")
-  appTheme          String  @default("system") @map("app_theme") @db.VarChar(32)
-  language          String  @default("vi") @db.VarChar(16)
-  version           Int     @default(1)
+  showDietActivity  Boolean           @default(true) @map("show_diet_activity")
+  allowComments     Boolean           @default(true) @map("allow_comments")
+  appTheme          String            @default("system") @map("app_theme") @db.VarChar(32)
+  language          String            @default("vi") @db.VarChar(16)
+  version           Int               @default(1)
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -2396,13 +2462,13 @@ model UserSetting {
 }
 
 model PushInstallation {
-  id       String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId   String  @map("user_id") @db.Uuid
-  profile  Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  id      String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId  String  @map("user_id") @db.Uuid
+  profile Profile @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
-  token        String   @db.VarChar(512)
-  platform     String   @db.VarChar(32)
-  appVersion   String?  @map("app_version") @db.VarChar(32)
+  token         String    @db.VarChar(512)
+  platform      String    @db.VarChar(32)
+  appVersion    String?   @map("app_version") @db.VarChar(32)
   invalidatedAt DateTime? @map("invalidated_at")
 
   createdAt DateTime @default(now()) @map("created_at")
@@ -2456,17 +2522,17 @@ model SavedArticle {
 }
 
 model OutboxEvent {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId      String?  @map("user_id") @db.Uuid
-  profile     Profile? @relation(fields: [userId], references: [userId], onDelete: SetNull)
-  eventType   String   @map("event_type") @db.VarChar(64)
-  aggregateId String?  @map("aggregate_id") @db.VarChar(64)
-  payload     Json     @default("{}")
-  status      String   @default("PENDING") @db.VarChar(32)
-  attempts    Int      @default(0)
-  lastError   String?  @map("last_error")
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String?   @map("user_id") @db.Uuid
+  profile     Profile?  @relation(fields: [userId], references: [userId], onDelete: SetNull)
+  eventType   String    @map("event_type") @db.VarChar(64)
+  aggregateId String?   @map("aggregate_id") @db.VarChar(64)
+  payload     Json      @default("{}")
+  status      String    @default("PENDING") @db.VarChar(32)
+  attempts    Int       @default(0)
+  lastError   String?   @map("last_error")
   processedAt DateTime? @map("processed_at")
-  createdAt   DateTime @default(now()) @map("created_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   @@index([status, createdAt])
   @@index([userId, eventType])
@@ -2497,21 +2563,21 @@ model PrivacyJob {
 }
 
 model UserMedia {
-  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId           String          @map("user_id") @db.Uuid
-  profile          Profile         @relation("UserOwnedMedia", fields: [userId], references: [userId], onDelete: Cascade)
-  purpose          UserMediaPurpose @default(AVATAR)
-  objectKey        String          @unique @map("object_key") @db.VarChar(512)
-  mimeType         String          @map("mime_type") @db.VarChar(64)
-  sizeBytes        Int             @map("size_bytes")
-  width            Int?
-  height           Int?
-  checksumSha256   String?         @map("checksum_sha256") @db.VarChar(128)
-  status           UserMediaStatus @default(UPLOAD_PENDING)
-  variants         Json            @default("{}")
-  rejectionReason  String?         @map("rejection_reason") @db.VarChar(128)
-  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
-  deletedAt        DateTime?       @map("deleted_at") @db.Timestamptz(6)
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String           @map("user_id") @db.Uuid
+  profile         Profile          @relation("UserOwnedMedia", fields: [userId], references: [userId], onDelete: Cascade)
+  purpose         UserMediaPurpose @default(AVATAR)
+  objectKey       String           @unique @map("object_key") @db.VarChar(512)
+  mimeType        String           @map("mime_type") @db.VarChar(64)
+  sizeBytes       Int              @map("size_bytes")
+  width           Int?
+  height          Int?
+  checksumSha256  String?          @map("checksum_sha256") @db.VarChar(128)
+  status          UserMediaStatus  @default(UPLOAD_PENDING)
+  variants        Json             @default("{}")
+  rejectionReason String?          @map("rejection_reason") @db.VarChar(128)
+  createdAt       DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt       DateTime?        @map("deleted_at") @db.Timestamptz(6)
 
   avatarForProfiles Profile[] @relation("ProfileAvatarMedia")
 
@@ -2601,20 +2667,20 @@ model AccountRestriction {
 }
 
 model AdminActionAudit {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  actorUserId    String   @map("actor_user_id") @db.Uuid
-  targetType     String   @map("target_type") @db.VarChar(64)
-  targetId       String   @map("target_id") @db.Uuid
-  action         String   @db.VarChar(64)
-  reasonCode     String?  @map("reason_code") @db.VarChar(64)
-  caseId         String?  @map("case_id") @db.VarChar(64)
-  requestId      String?  @map("request_id") @db.VarChar(64)
-  result         String   @default("SUCCESS") @db.VarChar(32)
-  beforeSanitized Json?   @map("before_sanitized")
-  afterSanitized  Json?   @map("after_sanitized")
-  ipHash         String?  @map("ip_hash") @db.VarChar(64)
-  userAgentHash  String?  @map("user_agent_hash") @db.VarChar(64)
-  occurredAt     DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorUserId     String   @map("actor_user_id") @db.Uuid
+  targetType      String   @map("target_type") @db.VarChar(64)
+  targetId        String   @map("target_id") @db.Uuid
+  action          String   @db.VarChar(64)
+  reasonCode      String?  @map("reason_code") @db.VarChar(64)
+  caseId          String?  @map("case_id") @db.VarChar(64)
+  requestId       String?  @map("request_id") @db.VarChar(64)
+  result          String   @default("SUCCESS") @db.VarChar(32)
+  beforeSanitized Json?    @map("before_sanitized")
+  afterSanitized  Json?    @map("after_sanitized")
+  ipHash          String?  @map("ip_hash") @db.VarChar(64)
+  userAgentHash   String?  @map("user_agent_hash") @db.VarChar(64)
+  occurredAt      DateTime @default(now()) @map("occurred_at") @db.Timestamptz(6)
 
   @@index([targetType, targetId, occurredAt(sort: Desc)])
   @@index([actorUserId, occurredAt(sort: Desc)])

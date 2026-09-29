@@ -1,5 +1,7 @@
 import { BlurView } from 'expo-blur';
 import { useState } from 'react';
+import { useNavigation, type NavigationProp } from '@react-navigation/native';
+import type { RootStackParamList } from '@/navigation/types';
 import { Pressable, Text, View } from 'react-native';
 import { Camera, Compass, HeartPulse, Home, UserRound } from '@/components/icons';
 import { FoodScanSheet } from './FoodScanSheet';
@@ -26,6 +28,7 @@ const tabs = [
 
 export function LiquidGlassBottomNav({ active, ...actions }: Props) {
   const [scanOpen, setScanOpen] = useState(false);
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const callbacks: Record<MainTab, (() => void) | undefined> = {
     home: actions.onHome,
     explore: actions.onExplore,
@@ -164,7 +167,14 @@ export function LiquidGlassBottomNav({ active, ...actions }: Props) {
           </View>
         </BlurView>
       </View>
-      <FoodScanSheet visible={scanOpen} onClose={() => setScanOpen(false)} />
+      <FoodScanSheet
+        visible={scanOpen}
+        onClose={() => setScanOpen(false)}
+        onViewDish={(dishId, title) => {
+          setScanOpen(false);
+          navigation.navigate('FoodDetail', { dishId, title });
+        }}
+      />
     </View>
   );
 }

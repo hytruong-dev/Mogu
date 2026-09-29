@@ -1,0 +1,1984 @@
+[
+  {
+    "id": "eval-001",
+    "expectedDishId": "66b3c005-650f-40f7-9bb2-5420ca7dd67a",
+    "expectedDishName": "Bún bò Huế",
+    "description": "Ảnh tô bún bò góc nghiêng cận cảnh thấy bắp bò và chả cua",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bún bò Huế",
+      "alternateNames": [
+        "Bún bò",
+        "Hue beef noodle soup"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún bò Huế",
+          "nameEn": "Hue beef noodle soup",
+          "confidence": 0.95
+        },
+        {
+          "nameVi": "Bún bò giò heo",
+          "nameEn": "Pork knuckle noodle",
+          "confidence": 0.75
+        },
+        {
+          "nameVi": "Bún riêu",
+          "nameEn": "Crab noodle soup",
+          "confidence": 0.2
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bún",
+        "Thịt bắp bò",
+        "Chả cua",
+        "Hành lá",
+        "Ớt sa tế"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-002",
+    "expectedDishId": "66b3c005-650f-40f7-9bb2-5420ca7dd67a",
+    "expectedDishName": "Bún bò Huế",
+    "description": "Ảnh bún bò chụp từ trên xuống, khách chỉ gọi 'Bún bò'",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bún bò",
+      "alternateNames": [
+        "Bún bò tái nạm"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún bò",
+          "nameEn": "Beef noodle",
+          "confidence": 0.88
+        },
+        {
+          "nameVi": "Bún bò Huế",
+          "nameEn": "Spicy beef noodle",
+          "confidence": 0.82
+        },
+        {
+          "nameVi": "Phở bò",
+          "nameEn": "Beef pho",
+          "confidence": 0.35
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bún sợi to",
+        "Thịt bò tái",
+        "Rau thơm",
+        "Nước dùng đỏ"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-003",
+    "expectedDishId": "65386dfc-6c40-4a84-be4e-27a84040b359",
+    "expectedDishName": "Bún chả Hà Nội",
+    "description": "Ảnh bún chả mẹt với bát nước chấm chả nướng và đĩa bún riêng",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bún chả",
+      "alternateNames": [
+        "Bún chả Hà Nội",
+        "Hanoi grilled pork with noodles"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún chả Hà Nội",
+          "nameEn": "Hanoi grilled pork noodle",
+          "confidence": 0.94
+        },
+        {
+          "nameVi": "Bún thịt nướng",
+          "nameEn": "Grilled pork noodle",
+          "confidence": 0.65
+        },
+        {
+          "nameVi": "Bún nem rán",
+          "nameEn": "Fried spring roll noodle",
+          "confidence": 0.3
+        }
+      ],
+      "category": "dry_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bún lá",
+        "Chả miếng nướng",
+        "Chả viên nướng",
+        "Đu đủ chua",
+        "Nước mắm pha"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-004",
+    "expectedDishId": "65386dfc-6c40-4a84-be4e-27a84040b359",
+    "expectedDishName": "Bún chả Hà Nội",
+    "description": "Ảnh bún chả chỉ thấy bát chả chan nước mắm",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Chả nướng than hoa",
+      "alternateNames": [
+        "Bún chả"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún chả",
+          "nameEn": "Grilled pork vermicelli",
+          "confidence": 0.85
+        },
+        {
+          "nameVi": "Thịt xiên nướng",
+          "nameEn": "Pork skewer",
+          "confidence": 0.6
+        },
+        {
+          "nameVi": "Bún thịt nướng",
+          "nameEn": "Grilled pork noodles",
+          "confidence": 0.4
+        }
+      ],
+      "category": "dry_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Thịt ba chỉ nướng",
+        "Nước mắm cà rốt đu đủ"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-005",
+    "expectedDishId": "61f0a6f7-932f-40a1-9b5d-7e5d4a8f657f",
+    "expectedDishName": "Bún đậu mắm tôm",
+    "description": "Mẹt bún đậu đầy đủ topping chả cốm, dồi sụn, thịt luộc",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bún đậu mắm tôm",
+      "alternateNames": [
+        "Bún đậu tá lả",
+        "Tofu vermicelli with shrimp paste"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún đậu mắm tôm",
+          "nameEn": "Tofu with fermented shrimp paste",
+          "confidence": 0.98
+        },
+        {
+          "nameVi": "Bún chả cốm",
+          "nameEn": "Green rice pork noodle",
+          "confidence": 0.4
+        },
+        {
+          "nameVi": "Mẹt cuốn thập cẩm",
+          "nameEn": "Platter wrap",
+          "confidence": 0.2
+        }
+      ],
+      "category": "dry_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bún lá cắt miếng",
+        "Đậu hũ chiên giòn",
+        "Chả cốm",
+        "Thịt chân giò luộc",
+        "Mắm tôm sủi bọt",
+        "Quất"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-006",
+    "expectedDishId": "c74a75e5-99aa-443e-a068-36a96a44eaf5",
+    "expectedDishName": "Bún riêu cua",
+    "description": "Tô bún riêu màu đỏ gạch cua, có đậu rán và cà chua",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bún riêu cua đồng",
+      "alternateNames": [
+        "Bún riêu",
+        "Crab paste vermicelli"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún riêu cua",
+          "nameEn": "Crab noodle soup",
+          "confidence": 0.93
+        },
+        {
+          "nameVi": "Bún canh cua",
+          "nameEn": "Crab noodle",
+          "confidence": 0.65
+        },
+        {
+          "nameVi": "Canh bún",
+          "nameEn": "Water spinach crab noodle",
+          "confidence": 0.5
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bún",
+        "Riêu cua",
+        "Cà chua bổ cau",
+        "Đậu hũ chiên",
+        "Huyết",
+        "Rau muống chẻ"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-007",
+    "expectedDishId": "c74a75e5-99aa-443e-a068-36a96a44eaf5",
+    "expectedDishName": "Bún riêu cua",
+    "description": "Khách chụp tô bún riêu ốc bò đặc biệt",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bún riêu ốc bò",
+      "alternateNames": [
+        "Bún riêu cua"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún riêu cua",
+          "nameEn": "Crab vermicelli soup",
+          "confidence": 0.89
+        },
+        {
+          "nameVi": "Bún ốc",
+          "nameEn": "Snail noodle soup",
+          "confidence": 0.7
+        },
+        {
+          "nameVi": "Bún riêu thập cẩm",
+          "nameEn": "Combination crab noodle",
+          "confidence": 0.65
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bún",
+        "Ốc bươu",
+        "Bắp bò",
+        "Riêu cua",
+        "Hành phi"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-008",
+    "expectedDishId": "c40b9305-3b84-46ec-a9e7-41d02f26782e",
+    "expectedDishName": "Phở gà",
+    "description": "Tô phở gà ta da vàng ươm lá chanh thái chỉ",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Phở gà Hà Nội",
+      "alternateNames": [
+        "Phở gà",
+        "Chicken pho noodle soup"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Phở gà",
+          "nameEn": "Chicken pho",
+          "confidence": 0.96
+        },
+        {
+          "nameVi": "Miến gà",
+          "nameEn": "Chicken glass noodle",
+          "confidence": 0.55
+        },
+        {
+          "nameVi": "Hủ tiếu gà",
+          "nameEn": "Chicken noodle soup",
+          "confidence": 0.3
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bánh phở",
+        "Thịt gà ta luộc xé phay",
+        "Da gà vàng",
+        "Lá chanh",
+        "Hành lá chẻ"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-009",
+    "expectedDishId": "c40b9305-3b84-46ec-a9e7-41d02f26782e",
+    "expectedDishName": "Phở gà",
+    "description": "Phở gà đùi chặt góc chụp chéo",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Phở đùi gà",
+      "alternateNames": [
+        "Phở gà"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Phở gà",
+          "nameEn": "Chicken pho noodle soup",
+          "confidence": 0.91
+        },
+        {
+          "nameVi": "Bún thang",
+          "nameEn": "Hanoi combination noodle",
+          "confidence": 0.4
+        },
+        {
+          "nameVi": "Mì gà",
+          "nameEn": "Chicken egg noodles",
+          "confidence": 0.25
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bánh phở trắng",
+        "Đùi gà chặt miếng",
+        "Nước dùng gà trong"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-010",
+    "expectedDishId": "6efd3333-68e2-44a0-a61a-9cef8187306f",
+    "expectedDishName": "Cơm tấm",
+    "description": "Đĩa cơm tấm sườn nướng kèm đồ chua và chén nước mắm",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Cơm tấm Sài Gòn",
+      "alternateNames": [
+        "Cơm tấm",
+        "Broken rice with grilled pork"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Cơm tấm",
+          "nameEn": "Broken rice",
+          "confidence": 0.97
+        },
+        {
+          "nameVi": "Cơm sườn nướng",
+          "nameEn": "Grilled pork chop rice",
+          "confidence": 0.85
+        },
+        {
+          "nameVi": "Cơm tấm sườn bì chả",
+          "nameEn": "Broken rice special",
+          "confidence": 0.8
+        }
+      ],
+      "category": "rice",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Gạo tấm",
+        "Sườn cốt lết nướng",
+        "Mỡ hành",
+        "Dưa leo",
+        "Cà chua",
+        "Nước mắm ngọt"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-011",
+    "expectedDishId": "d406af61-e988-47eb-b8b2-f3cf8a2f3954",
+    "expectedDishName": "Cơm sườn bì chả",
+    "description": "Đĩa cơm tấm đầy đủ sườn bì chả trứng ốp la",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Cơm tấm sườn bì chả trứng",
+      "alternateNames": [
+        "Cơm sườn bì chả",
+        "Broken rice with combo pork"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Cơm sườn bì chả",
+          "nameEn": "Broken rice pork combo",
+          "confidence": 0.93
+        },
+        {
+          "nameVi": "Cơm tấm",
+          "nameEn": "Broken rice",
+          "confidence": 0.88
+        },
+        {
+          "nameVi": "Cơm tấm sườn nướng",
+          "nameEn": "Broken rice pork chop",
+          "confidence": 0.7
+        }
+      ],
+      "category": "rice",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Cơm tấm",
+        "Sườn nướng caramen",
+        "Bì thính heo",
+        "Chả trứng hấp",
+        "Trứng ốp la lòng đào"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-012",
+    "expectedDishId": "4e5a4a79-eb69-4843-865b-81fcf7e57088",
+    "expectedDishName": "Cơm tấm sườn nướng",
+    "description": "Đĩa cơm tấm sườn nướng góc chụp xiên",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Cơm sườn nướng",
+      "alternateNames": [
+        "Cơm tấm sườn nướng",
+        "Grilled pork chop with rice"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Cơm tấm sườn nướng",
+          "nameEn": "Broken rice grilled pork",
+          "confidence": 0.94
+        },
+        {
+          "nameVi": "Cơm tấm",
+          "nameEn": "Broken rice",
+          "confidence": 0.85
+        },
+        {
+          "nameVi": "Cơm sườn",
+          "nameEn": "Pork chop rice",
+          "confidence": 0.75
+        }
+      ],
+      "category": "rice",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Cơm tấm",
+        "Sườn nướng sém cạnh",
+        "Đồ chua củ cải cà rốt",
+        "Mỡ hành tóp mỡ"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-013",
+    "expectedDishId": "9d996358-0076-4148-9ebf-15f2a3101300",
+    "expectedDishName": "Hủ tiếu Nam Vang",
+    "description": "Tô hủ tiếu nước Nam Vang tôm thịt trứng cút cần tây",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Hủ tiếu Nam Vang nước",
+      "alternateNames": [
+        "Hủ tiếu Nam Vang",
+        "Phnom Penh noodle soup"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Hủ tiếu Nam Vang",
+          "nameEn": "Phnom Penh clear noodle soup",
+          "confidence": 0.95
+        },
+        {
+          "nameVi": "Hủ tiếu Mỹ Tho",
+          "nameEn": "My Tho noodle soup",
+          "confidence": 0.6
+        },
+        {
+          "nameVi": "Hủ tiếu thập cẩm",
+          "nameEn": "Combination pork noodle",
+          "confidence": 0.5
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Sợi hủ tiếu dai",
+        "Tôm sú luộc",
+        "Thịt băm xào",
+        "Gan heo",
+        "Trứng cút",
+        "Cần tây",
+        "Tỏi phi"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-014",
+    "expectedDishId": "9d996358-0076-4148-9ebf-15f2a3101300",
+    "expectedDishName": "Hủ tiếu Nam Vang",
+    "description": "Hủ tiếu khô Nam Vang trộn sốt đen kèm chén súp rời",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Hủ tiếu khô Nam Vang",
+      "alternateNames": [
+        "Hủ tiếu Nam Vang",
+        "Dry Phnom Penh noodles"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Hủ tiếu Nam Vang",
+          "nameEn": "Phnom Penh noodles dry",
+          "confidence": 0.92
+        },
+        {
+          "nameVi": "Hủ tiếu khô",
+          "nameEn": "Dry glass noodles",
+          "confidence": 0.7
+        },
+        {
+          "nameVi": "Mì khô xá xíu",
+          "nameEn": "Dry char siu egg noodle",
+          "confidence": 0.35
+        }
+      ],
+      "category": "dry_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Hủ tiếu dai trộn tương",
+        "Thịt bằm",
+        "Tôm",
+        "Hẹ lá",
+        "Giá đỗ"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-015",
+    "expectedDishId": "b4ca8f3d-5998-4a82-8610-5fa07b6b76f6",
+    "expectedDishName": "Mì Quảng",
+    "description": "Tô Mì Quảng sợi vàng tôm thịt trứng bánh tráng mè nướng",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Mì Quảng tôm thịt",
+      "alternateNames": [
+        "Mì Quảng",
+        "Quang style noodles"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Mì Quảng",
+          "nameEn": "Quang style turmeric noodles",
+          "confidence": 0.96
+        },
+        {
+          "nameVi": "Cao lầu",
+          "nameEn": "Hoi An thick noodles",
+          "confidence": 0.45
+        },
+        {
+          "nameVi": "Bún tôm",
+          "nameEn": "Shrimp noodle",
+          "confidence": 0.2
+        }
+      ],
+      "category": "dry_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Sợi mì Quảng vàng",
+        "Tôm rim",
+        "Thịt ba chỉ rim",
+        "Đậu phộng rang",
+        "Bánh đa nướng",
+        "Rau bắp chuối"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-016",
+    "expectedDishId": "fcb91d57-fb2b-4096-bcae-93182065efd0",
+    "expectedDishName": "Cao lầu Hội An",
+    "description": "Bát cao lầu sợi đục thịt xá xíu và ram chiên giòn",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Cao lầu",
+      "alternateNames": [
+        "Cao lầu Hội An",
+        "Hoi An Cao Lau noodles"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Cao lầu Hội An",
+          "nameEn": "Hoi An Cao Lau noodles",
+          "confidence": 0.95
+        },
+        {
+          "nameVi": "Mì Quảng",
+          "nameEn": "Quang style noodles",
+          "confidence": 0.5
+        },
+        {
+          "nameVi": "Hủ tiếu xá xíu",
+          "nameEn": "Char siu pork noodle",
+          "confidence": 0.3
+        }
+      ],
+      "category": "dry_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Sợi cao lầu vuông",
+        "Thịt xíu thơm ngũ vị",
+        "Tép mỡ ram giòn",
+        "Rau đắng",
+        "Giá chần"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-017",
+    "expectedDishId": "9eb938be-b1f3-4014-9316-cb03f0399bdc",
+    "expectedDishName": "Bánh cuốn miền Bắc",
+    "description": "Đĩa bánh cuốn tráng mỏng rắc hành phi kèm chả lụa",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bánh cuốn nóng",
+      "alternateNames": [
+        "Bánh cuốn",
+        "Steamed rice rolls"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bánh cuốn miền Bắc",
+          "nameEn": "Northern steamed rice rolls",
+          "confidence": 0.92
+        },
+        {
+          "nameVi": "Bánh ướt",
+          "nameEn": "Steamed flat rice sheets",
+          "confidence": 0.65
+        },
+        {
+          "nameVi": "Bánh cuốn thịt nướng",
+          "nameEn": "Grilled pork rice rolls",
+          "confidence": 0.3
+        }
+      ],
+      "category": "snack",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bột gạo tráng mỏng",
+        "Nhân mộc nhĩ thịt băm",
+        "Hành phi vàng ruộm",
+        "Chả quế",
+        "Nước chấm ấm"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-018",
+    "expectedDishId": "935c8cdb-3fe0-41c4-ad54-b33232604448",
+    "expectedDishName": "Bánh xèo miền Trung",
+    "description": "Bánh xèo vỏ giòn nhỏ bằng bàn tay đúc khuôn đất",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bánh xèo miền Trung",
+      "alternateNames": [
+        "Bánh xèo vỏ giòn",
+        "Central Vietnamese crispy crepe"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bánh xèo miền Trung",
+          "nameEn": "Central crispy pancake",
+          "confidence": 0.94
+        },
+        {
+          "nameVi": "Bánh khọt",
+          "nameEn": "Mini savory pancakes",
+          "confidence": 0.55
+        },
+        {
+          "nameVi": "Bánh xèo miền Tây",
+          "nameEn": "Mekong giant pancake",
+          "confidence": 0.5
+        }
+      ],
+      "category": "snack",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Vỏ bánh xèo giòn",
+        "Tôm đất",
+        "Thịt ba chỉ",
+        "Giá đỗ",
+        "Rau cải xanh",
+        "Bánh tráng cuốn"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-019",
+    "expectedDishId": "5e5027db-6768-4dcb-adf2-a56d92bca857",
+    "expectedDishName": "Bánh khọt",
+    "description": "Đĩa bánh khọt Vũng Tàu vàng ươm tôm tươi rắc bột tôm cháy",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bánh khọt Vũng Tàu",
+      "alternateNames": [
+        "Bánh khọt",
+        "Mini crispy shrimp pancakes"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bánh khọt",
+          "nameEn": "Crispy mini shrimp pancakes",
+          "confidence": 0.96
+        },
+        {
+          "nameVi": "Bánh căn",
+          "nameEn": "Mini grilled rice cakes",
+          "confidence": 0.6
+        },
+        {
+          "nameVi": "Bánh xèo",
+          "nameEn": "Vietnamese crepe",
+          "confidence": 0.4
+        }
+      ],
+      "category": "snack",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Khuôn bánh tròn nhỏ giòn",
+        "Tôm nguyên con",
+        "Bột tôm đỏ",
+        "Hành lá",
+        "Nước cốt dừa"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-020",
+    "expectedDishId": "c586ef16-0801-4ab1-a17b-30255525de4a",
+    "expectedDishName": "Bánh canh cua",
+    "description": "Tô bánh canh cua nước sệt màu đỏ gạch tôm thịt cua",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bánh canh cua sệt",
+      "alternateNames": [
+        "Bánh canh cua",
+        "Crab tapioca noodle soup"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bánh canh cua",
+          "nameEn": "Thick crab tapioca noodle soup",
+          "confidence": 0.95
+        },
+        {
+          "nameVi": "Bánh canh ghẹ",
+          "nameEn": "Blue crab noodle soup",
+          "confidence": 0.7
+        },
+        {
+          "nameVi": "Súp cua",
+          "nameEn": "Crab soup",
+          "confidence": 0.4
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Sợi bánh canh trong dai",
+        "Thịt cua xé",
+        "Chả cua",
+        "Trứng cút",
+        "Huyết",
+        "Nước lèo sền sệt"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-021",
+    "expectedDishId": "6f160014-3d1f-420f-8077-2d6ff335b5ad",
+    "expectedDishName": "Bò kho miền Nam",
+    "description": "Tô bò kho màu cam sóng sánh thơm mùi sả hồi quế",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bò kho ăn bánh mì",
+      "alternateNames": [
+        "Bò kho",
+        "Vietnamese beef stew"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bò kho miền Nam",
+          "nameEn": "Southern beef stew",
+          "confidence": 0.93
+        },
+        {
+          "nameVi": "Bò sốt vang",
+          "nameEn": "Red wine beef stew",
+          "confidence": 0.65
+        },
+        {
+          "nameVi": "Cà ri bò",
+          "nameEn": "Beef curry",
+          "confidence": 0.4
+        }
+      ],
+      "category": "bread",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Nạm bò gân bò cắt khối",
+        "Cà rốt tỉa hoa",
+        "Sả cây đập dập",
+        "Rau húng quế",
+        "Muối tiêu chanh"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-022",
+    "expectedDishId": "6dcbf62f-af15-4621-9d1d-ad000cdfd3d6",
+    "expectedDishName": "Bún mắm",
+    "description": "Tô bún mắm miền Tây nước dùng đậm đà cá lóc heo quay",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bún mắm miền Tây",
+      "alternateNames": [
+        "Bún mắm",
+        "Fermented fish noodle soup"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún mắm",
+          "nameEn": "Fermented fish noodle soup",
+          "confidence": 0.96
+        },
+        {
+          "nameVi": "Bún nước lèo",
+          "nameEn": "Fish broth noodle soup",
+          "confidence": 0.7
+        },
+        {
+          "nameVi": "Lẩu mắm",
+          "nameEn": "Fermented fish hotpot",
+          "confidence": 0.45
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bún",
+        "Cá lóc luộc",
+        "Heo quay da giòn",
+        "Tôm",
+        "Cà tím cắt khúc",
+        "Rau đắng bông súng"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-023",
+    "expectedDishId": "adda28e1-627d-4d95-9c09-e0201bd2b184",
+    "expectedDishName": "Bún ốc",
+    "description": "Bát bún ốc chuối đậu hoặc ốc nguội nước chua thanh",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bún ốc Hà Nội",
+      "alternateNames": [
+        "Bún ốc",
+        "Snail vermicelli soup"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún ốc",
+          "nameEn": "Snail noodle soup",
+          "confidence": 0.94
+        },
+        {
+          "nameVi": "Bún riêu ốc",
+          "nameEn": "Crab and snail noodle",
+          "confidence": 0.65
+        },
+        {
+          "nameVi": "Canh ốc chuối đậu",
+          "nameEn": "Snail stew with green banana",
+          "confidence": 0.35
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Ốc nhồi giòn sần sật",
+        "Cà chua",
+        "Đậu phụ rán",
+        "Tía tô thái nhỏ",
+        "Dấm bỗng"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-024",
+    "expectedDishId": "a931df24-40b6-4d34-ab71-11ac3608c28b",
+    "expectedDishName": "Bún thịt nướng Miền Trung",
+    "description": "Tô bún thịt nướng sả chan nước lèo đậu gan",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bún thịt nướng tương đậu",
+      "alternateNames": [
+        "Bún thịt nướng Miền Trung",
+        "Central grilled pork vermicelli"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún thịt nướng Miền Trung",
+          "nameEn": "Central style grilled pork noodles",
+          "confidence": 0.93
+        },
+        {
+          "nameVi": "Bún thịt nướng Nam Bộ",
+          "nameEn": "Southern grilled pork noodles",
+          "confidence": 0.7
+        },
+        {
+          "nameVi": "Bún chả",
+          "nameEn": "Hanoi pork noodles",
+          "confidence": 0.4
+        }
+      ],
+      "category": "dry_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bún tươi",
+        "Thịt heo ướp sả nướng than",
+        "Đậu phộng rang giã dập",
+        "Rau sống hoa chuối",
+        "Nước lèo gan đậu"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-025",
+    "expectedDishId": "ecb8c7e8-0a11-431a-a56b-1afff48e9935",
+    "expectedDishName": "Cá kho tộ (kiểu Miền Nam)",
+    "description": "Niêu đất cá lóc kho tộ nước màu cánh gián rắc tiêu đen",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Cá kho tộ",
+      "alternateNames": [
+        "Cá lóc kho tộ",
+        "Caramelized fish in clay pot"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Cá kho tộ (kiểu Miền Nam)",
+          "nameEn": "Southern caramelized fish clay pot",
+          "confidence": 0.95
+        },
+        {
+          "nameVi": "Cá ba sa kho tộ",
+          "nameEn": "Braised catfish",
+          "confidence": 0.7
+        },
+        {
+          "nameVi": "Thịt kho tàu",
+          "nameEn": "Caramelized pork belly",
+          "confidence": 0.25
+        }
+      ],
+      "category": "other",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Khoanh cá lóc",
+        "Nước kho kẹo màu nâu cánh gián",
+        "Ớt chỉ thiên đỏ",
+        "Tiêu đen xay",
+        "Hành lá",
+        "Tóp mỡ"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-026",
+    "expectedDishId": "d34da009-dece-45f8-aaf2-6b8bed0adeb4",
+    "expectedDishName": "Canh chua cá lóc",
+    "description": "Tô canh chua cá lóc bạc hà thơm cà chua giá đỗ",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Canh chua cá lóc Nam Bộ",
+      "alternateNames": [
+        "Canh chua cá lóc",
+        "Sour fish soup"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Canh chua cá lóc",
+          "nameEn": "Vietnamese sour fish soup",
+          "confidence": 0.97
+        },
+        {
+          "nameVi": "Canh chua cá điêu hồng",
+          "nameEn": "Red tilapia sour soup",
+          "confidence": 0.65
+        },
+        {
+          "nameVi": "Lẩu cá kèo",
+          "nameEn": "Fish hotpot",
+          "confidence": 0.3
+        }
+      ],
+      "category": "other",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Khúc cá lóc",
+        "Dọc mùng (bạc hà)",
+        "Thơm (dứa)",
+        "Đậu bắp",
+        "Cà chua",
+        "Giá đỗ",
+        "Ngò gai ngò om"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-027",
+    "expectedDishId": "92fffccc-c0ba-4ab6-8f3d-2de9f42bcf8e",
+    "expectedDishName": "Cháo lòng",
+    "description": "Bát cháo lòng sánh mịn dồi huyết dạ dày phèo non rắc hành tiêu",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Cháo lòng heo",
+      "alternateNames": [
+        "Cháo lòng",
+        "Pork organ congee"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Cháo lòng",
+          "nameEn": "Pork offal porridge",
+          "confidence": 0.96
+        },
+        {
+          "nameVi": "Cháo huyết",
+          "nameEn": "Blood congee",
+          "confidence": 0.5
+        },
+        {
+          "nameVi": "Lòng lợn luộc",
+          "nameEn": "Boiled pork offal",
+          "confidence": 0.4
+        }
+      ],
+      "category": "snack",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Cháo gạo rang nấu nước dùng xương",
+        "Dồi chiên dồi hấp",
+        "Dạ dày heo",
+        "Gan heo",
+        "Huyết",
+        "Hành ngò"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-028",
+    "expectedDishId": "add36954-90b6-4a8e-a04c-3df85f61a4fe",
+    "expectedDishName": "Cơm chiên Dương Châu",
+    "description": "Đĩa cơm chiên hạt vàng rời lẫn lạp xưởng đậu Hà Lan bắp ngọt",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Cơm rang Dương Châu",
+      "alternateNames": [
+        "Cơm chiên Dương Châu",
+        "Yangzhou fried rice"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Cơm chiên Dương Châu",
+          "nameEn": "Yangzhou fried rice",
+          "confidence": 0.97
+        },
+        {
+          "nameVi": "Cơm chiên hải sản",
+          "nameEn": "Seafood fried rice",
+          "confidence": 0.5
+        },
+        {
+          "nameVi": "Cơm chiên trứng",
+          "nameEn": "Egg fried rice",
+          "confidence": 0.35
+        }
+      ],
+      "category": "rice",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Cơm rang vàng hạt tơi",
+        "Lạp xưởng hạt lựu",
+        "Đậu Hà Lan",
+        "Cà rốt xắt hạt lựu",
+        "Tôm khô",
+        "Trứng gà"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-029",
+    "expectedDishId": "fe9b331b-00c2-4e59-aa89-ad23dbf42a4e",
+    "expectedDishName": "Cơm gà Hội An",
+    "description": "Đĩa cơm vàng nghệ óng ánh thịt gà ta bóp gỏi hành tây rau răm",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Cơm gà phố Hội",
+      "alternateNames": [
+        "Cơm gà Hội An",
+        "Hoi An chicken rice"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Cơm gà Hội An",
+          "nameEn": "Hoi An chicken rice",
+          "confidence": 0.95
+        },
+        {
+          "nameVi": "Cơm gà Tam Kỳ",
+          "nameEn": "Tam Ky chicken rice",
+          "confidence": 0.7
+        },
+        {
+          "nameVi": "Cơm gà xối mỡ",
+          "nameEn": "Crispy fried chicken rice",
+          "confidence": 0.3
+        }
+      ],
+      "category": "rice",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Cơm dẻo nấu nước luộc gà nhuộm nghệ",
+        "Thịt gà xé trộn hành tây",
+        "Rau răm",
+        "Đồ chua đu đủ",
+        "Ớt rim Hội An"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-030",
+    "expectedDishId": "85802838-6ce2-4748-8fde-492c74dc9d40",
+    "expectedDishName": "Gà kho gừng",
+    "description": "Đĩa gà kho gừng sợi vàng nâu đậm vị",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Gà kho gừng thơm",
+      "alternateNames": [
+        "Gà kho gừng",
+        "Ginger chicken stew"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Gà kho gừng",
+          "nameEn": "Braised ginger chicken",
+          "confidence": 0.94
+        },
+        {
+          "nameVi": "Gà kho sả ớt",
+          "nameEn": "Lemongrass chili chicken",
+          "confidence": 0.65
+        },
+        {
+          "nameVi": "Thịt gà rang",
+          "nameEn": "Pan-roasted chicken",
+          "confidence": 0.4
+        }
+      ],
+      "category": "other",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Thịt gà chặt miếng vừa ăn",
+        "Gừng thái sợi",
+        "Nước kho vàng óng",
+        "Hành lá",
+        "Nước mắm tiêu"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-031",
+    "expectedDishId": "80433bf4-5f79-4439-9d2c-4156ddd6cca7",
+    "expectedDishName": "Miến gà",
+    "description": "Bát miến sợi trong vắt thịt gà nấm hương mộc nhĩ hành răm",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Miến gà măng khô",
+      "alternateNames": [
+        "Miến gà",
+        "Chicken glass noodles"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Miến gà",
+          "nameEn": "Chicken cellophane noodles",
+          "confidence": 0.95
+        },
+        {
+          "nameVi": "Phở gà",
+          "nameEn": "Chicken pho",
+          "confidence": 0.5
+        },
+        {
+          "nameVi": "Bún thang",
+          "nameEn": "Hanoi noodle soup",
+          "confidence": 0.35
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Miến dong sợi dai trong",
+        "Thịt ức và đùi gà luộc",
+        "Nấm hương",
+        "Măng khô xé",
+        "Rau răm hành hoa"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-032",
+    "expectedDishId": "9185628b-a3fa-4078-81da-b898fe7dc222",
+    "expectedDishName": "Nem nướng Nha Trang",
+    "description": "Mẹt nem nướng lụi vàng ruộm bánh tráng chiên giòn và bát nước chấm tôm thịt sệt",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Nem nướng Nha Trang cuốn",
+      "alternateNames": [
+        "Nem nướng Nha Trang",
+        "Nha Trang grilled pork rolls"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Nem nướng Nha Trang",
+          "nameEn": "Nha Trang grilled pork sausage",
+          "confidence": 0.98
+        },
+        {
+          "nameVi": "Nem lụi Huế",
+          "nameEn": "Hue lemongrass pork skewers",
+          "confidence": 0.6
+        },
+        {
+          "nameVi": "Bánh tráng cuốn thịt heo",
+          "nameEn": "Pork belly rolls",
+          "confidence": 0.3
+        }
+      ],
+      "category": "snack",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Nem nướng than hoa",
+        "Bánh tráng chiên giòn rụm",
+        "Xoài xanh thái lát",
+        "Dưa leo",
+        "Nước chấm tương sệt màu cam"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-033",
+    "expectedDishId": "6d9b0dee-a30c-4b02-8e2e-c2aec12f6f3a",
+    "expectedDishName": "Thịt ba chỉ rang cháy cạnh",
+    "description": "Đĩa thịt ba rọi xém vàng giòn mỡ bóng bẩy hành lá thơm",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Thịt rang cháy cạnh",
+      "alternateNames": [
+        "Thịt ba chỉ rang cháy cạnh",
+        "Crispy caramelized pork belly"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Thịt ba chỉ rang cháy cạnh",
+          "nameEn": "Pan-seared pork belly",
+          "confidence": 0.94
+        },
+        {
+          "nameVi": "Thịt kho tiêu",
+          "nameEn": "Pepper braised pork",
+          "confidence": 0.6
+        },
+        {
+          "nameVi": "Thịt xào chua ngọt",
+          "nameEn": "Sweet and sour pork",
+          "confidence": 0.25
+        }
+      ],
+      "category": "other",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Thịt ba chỉ thái mỏng viền xém nâu",
+        "Hành củ tím phi thơm",
+        "Hành lá",
+        "Nước mắm đường sệt"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-034",
+    "expectedDishId": "e5f66b2a-462d-4395-a673-e1541309c229",
+    "expectedDishName": "Thịt kho trứng (miền Nam)",
+    "description": "Nồi thịt kho tàu miếng thịt vuông núng nính kèm trứng vịt màu nâu hổ phách",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Thịt kho tàu nước dừa",
+      "alternateNames": [
+        "Thịt kho trứng (miền Nam)",
+        "Caramelized pork belly with eggs"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Thịt kho trứng (miền Nam)",
+          "nameEn": "Southern braised pork with eggs",
+          "confidence": 0.96
+        },
+        {
+          "nameVi": "Thịt kho tiêu",
+          "nameEn": "Pork stew with black pepper",
+          "confidence": 0.4
+        },
+        {
+          "nameVi": "Thịt kho măng",
+          "nameEn": "Pork bamboo stew",
+          "confidence": 0.2
+        }
+      ],
+      "category": "other",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Thịt ba rọi cắt khúc vuông lớn",
+        "Trứng vịt luộc kho ngấm màu",
+        "Nước dừa tươi kho kẹo trong vắt",
+        "Ớt sừng"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-035",
+    "expectedDishId": "0dc2276a-3064-4533-8bc0-27062e5e6061",
+    "expectedDishName": "Xôi mặn",
+    "description": "Hộp xôi nếp bóng dẻo phủ lạp xưởng chà bông mỡ hành patê",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Xôi mặn thập cẩm",
+      "alternateNames": [
+        "Xôi mặn",
+        "Savory sticky rice"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Xôi mặn",
+          "nameEn": "Vietnamese savory sticky rice",
+          "confidence": 0.97
+        },
+        {
+          "nameVi": "Xôi gà xé",
+          "nameEn": "Shredded chicken sticky rice",
+          "confidence": 0.6
+        },
+        {
+          "nameVi": "Xôi khúc",
+          "nameEn": "Khuc sticky rice cake",
+          "confidence": 0.25
+        }
+      ],
+      "category": "snack",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Xôi nếp dẻo",
+        "Lạp xưởng chiên thái lát",
+        "Chà bông heo (ruốc)",
+        "Hành phi thơm",
+        "Mỡ hành tóp mỡ",
+        "Pate gan"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-036",
+    "expectedDishId": "65597546-b9cd-44c0-88e2-94c7db43d2de",
+    "expectedDishName": "chả lụi",
+    "description": "Mẹt chả lụi Lagi nướng giòn rụm que tre kèm bánh tráng xoài dưa leo",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Chả lụi Lagi",
+      "alternateNames": [
+        "chả lụi",
+        "Grilled mini roll skewers"
+      ],
+      "guesses": [
+        {
+          "nameVi": "chả lụi",
+          "nameEn": "Grilled crispy rolls",
+          "confidence": 0.92
+        },
+        {
+          "nameVi": "Nem nướng",
+          "nameEn": "Grilled pork rolls",
+          "confidence": 0.7
+        },
+        {
+          "nameVi": "Ram tôm đất",
+          "nameEn": "Crispy shrimp spring rolls",
+          "confidence": 0.4
+        }
+      ],
+      "category": "snack",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Cuốn chả lụi nướng đỏ cam giòn rụm",
+        "Nước mắm đậu phộng sánh",
+        "Xoài xanh",
+        "Dưa leo",
+        "Bánh tráng cuốn"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-037",
+    "expectedDishId": "66b3c005-650f-40f7-9bb2-5420ca7dd67a",
+    "expectedDishName": "Bún bò Huế",
+    "description": "Ảnh khách chụp ở quán biển hiệu 'Bún bò giò nạc'",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bún bò giò nạc",
+      "alternateNames": [
+        "Bún bò"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún bò Huế",
+          "nameEn": "Hue beef noodle soup",
+          "confidence": 0.88
+        },
+        {
+          "nameVi": "Bún móng giò",
+          "nameEn": "Pork knuckle noodle soup",
+          "confidence": 0.65
+        },
+        {
+          "nameVi": "Bún giò heo",
+          "nameEn": "Pork hock noodle",
+          "confidence": 0.5
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Khoanh giò heo nạc",
+        "Thịt bắp bò",
+        "Sợi bún to tròn",
+        "Nước bún bò màu cam đỏ"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-038",
+    "expectedDishId": "6efd3333-68e2-44a0-a61a-9cef8187306f",
+    "expectedDishName": "Cơm tấm",
+    "description": "Khách chụp đĩa cơm tấm chỉ có miếng sườn nướng to che hết cơm",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Cơm đĩa sườn nướng",
+      "alternateNames": [
+        "Cơm sườn"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Cơm tấm",
+          "nameEn": "Broken rice",
+          "confidence": 0.9
+        },
+        {
+          "nameVi": "Cơm tấm sườn nướng",
+          "nameEn": "Grilled pork chop broken rice",
+          "confidence": 0.85
+        },
+        {
+          "nameVi": "Cơm sườn",
+          "nameEn": "Pork rice",
+          "confidence": 0.7
+        }
+      ],
+      "category": "rice",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Sườn cốt lết nướng mật ong",
+        "Hạt gạo tấm vụn",
+        "Mỡ hành"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-039",
+    "expectedDishId": "c40b9305-3b84-46ec-a9e7-41d02f26782e",
+    "expectedDishName": "Phở gà",
+    "description": "Bát phở gà trộn khô sốt chua ngọt lạc rang hành phi",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Phở gà trộn",
+      "alternateNames": [
+        "Phở gà"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Phở gà",
+          "nameEn": "Chicken pho",
+          "confidence": 0.89
+        },
+        {
+          "nameVi": "Phở trộn",
+          "nameEn": "Dry mixed pho",
+          "confidence": 0.75
+        },
+        {
+          "nameVi": "Mì gà trộn",
+          "nameEn": "Mixed chicken noodles",
+          "confidence": 0.35
+        }
+      ],
+      "category": "dry_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bánh phở mềm",
+        "Thịt gà xé sợi",
+        "Đậu phộng rang",
+        "Hành khô phi",
+        "Xì dầu tỏi ớt"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-040",
+    "expectedDishId": "9d996358-0076-4148-9ebf-15f2a3101300",
+    "expectedDishName": "Hủ tiếu Nam Vang",
+    "description": "Tô hủ tiếu tôm mực thịt bằm kiểu miền Tây",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Hủ tiếu tôm mực",
+      "alternateNames": [
+        "Hủ tiếu Nam Vang"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Hủ tiếu Nam Vang",
+          "nameEn": "Phnom Penh noodle soup",
+          "confidence": 0.91
+        },
+        {
+          "nameVi": "Hủ tiếu hải sản",
+          "nameEn": "Seafood glass noodle soup",
+          "confidence": 0.75
+        },
+        {
+          "nameVi": "Bánh canh tôm",
+          "nameEn": "Shrimp tapioca soup",
+          "confidence": 0.3
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Sợi hủ tiếu",
+        "Tôm bóc nõn",
+        "Mực tươi khía vảy rồng",
+        "Thịt nạc băm",
+        "Hẹ",
+        "Hành phi thơm"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-unknown-001",
+    "expectedDishId": null,
+    "expectedDishName": "Don Quảng Ngãi",
+    "description": "Bát canh don nước trong, hến nhỏ, hành lá",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Don Quảng Ngãi",
+      "alternateNames": [
+        "Quang Ngai clam soup"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Don Quảng Ngãi",
+          "nameEn": "Quang Ngai clam soup",
+          "confidence": 0.7
+        },
+        {
+          "nameVi": "Canh hến",
+          "nameEn": "Clam soup",
+          "confidence": 0.45
+        },
+        {
+          "nameVi": "Canh cua",
+          "nameEn": "Crab soup",
+          "confidence": 0.2
+        }
+      ],
+      "category": "soup",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Con don",
+        "Hành lá",
+        "Nước dùng",
+        "Ớt"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-unknown-002",
+    "expectedDishId": null,
+    "expectedDishName": "Bánh đập",
+    "description": "Bánh tráng nướng kẹp bánh ướt, chấm mắm nêm",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bánh đập",
+      "alternateNames": [
+        "Smashed rice cracker"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bánh đập",
+          "nameEn": "Smashed rice cracker",
+          "confidence": 0.72
+        },
+        {
+          "nameVi": "Bánh tráng nướng",
+          "nameEn": "Grilled rice paper",
+          "confidence": 0.4
+        }
+      ],
+      "category": "snack",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bánh tráng",
+        "Bánh ướt",
+        "Mắm nêm",
+        "Hành phi"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-unknown-003",
+    "expectedDishId": null,
+    "expectedDishName": "Cao lầu",
+    "description": "Tô cao lầu sợi vàng, thịt xíu, rau sống, bánh tráng giòn",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Cao lầu",
+      "alternateNames": [
+        "Cao lau noodles"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Cao lầu",
+          "nameEn": "Cao lau noodles",
+          "confidence": 0.75
+        },
+        {
+          "nameVi": "Mì Quảng",
+          "nameEn": "Quang noodles",
+          "confidence": 0.45
+        }
+      ],
+      "category": "dry_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Sợi cao lầu",
+        "Thịt xíu",
+        "Rau sống",
+        "Da heo chiên"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-unknown-004",
+    "expectedDishId": null,
+    "expectedDishName": "Bánh căn Phan Rang",
+    "description": "Khay bánh căn nhỏ, trứng cút, chén nước mắm",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bánh căn Phan Rang",
+      "alternateNames": [
+        "Phan Rang mini rice pancake"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bánh căn",
+          "nameEn": "Mini rice pancake",
+          "confidence": 0.7
+        },
+        {
+          "nameVi": "Bánh khọt",
+          "nameEn": "Mini savory pancake",
+          "confidence": 0.5
+        }
+      ],
+      "category": "snack",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bột gạo",
+        "Trứng cút",
+        "Hành lá",
+        "Nước mắm"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-unknown-005",
+    "expectedDishId": null,
+    "expectedDishName": "Bún sứa Nha Trang",
+    "description": "Tô bún nước trong có sứa và chả cá",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bún sứa Nha Trang",
+      "alternateNames": [
+        "Jellyfish noodle soup"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bún sứa",
+          "nameEn": "Jellyfish noodle soup",
+          "confidence": 0.68
+        },
+        {
+          "nameVi": "Bún chả cá",
+          "nameEn": "Fish cake noodle soup",
+          "confidence": 0.5
+        }
+      ],
+      "category": "soup_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bún",
+        "Sứa",
+        "Chả cá",
+        "Rau muống"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-unknown-006",
+    "expectedDishId": null,
+    "expectedDishName": "Bánh ít lá gai",
+    "description": "Bánh ít đen gói lá chuối hình chóp",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bánh ít lá gai",
+      "alternateNames": [
+        "Ramie leaf sticky cake"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bánh ít lá gai",
+          "nameEn": "Ramie leaf sticky cake",
+          "confidence": 0.7
+        },
+        {
+          "nameVi": "Bánh gai",
+          "nameEn": "Ramie leaf cake",
+          "confidence": 0.5
+        }
+      ],
+      "category": "dessert",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Lá gai",
+        "Nếp",
+        "Đậu xanh",
+        "Lá chuối"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-unknown-007",
+    "expectedDishId": null,
+    "expectedDishName": "Cơm hến Huế",
+    "description": "Chén cơm nguội trộn hến, tóp mỡ, rau thơm",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Cơm hến Huế",
+      "alternateNames": [
+        "Hue clam rice"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Cơm hến",
+          "nameEn": "Clam rice",
+          "confidence": 0.72
+        },
+        {
+          "nameVi": "Cơm trộn",
+          "nameEn": "Mixed rice",
+          "confidence": 0.3
+        }
+      ],
+      "category": "rice",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Cơm",
+        "Hến",
+        "Tóp mỡ",
+        "Rau thơm",
+        "Đậu phộng"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-unknown-008",
+    "expectedDishId": null,
+    "expectedDishName": "Bánh bèo chén",
+    "description": "Nhiều chén bánh bèo nhỏ rắc tôm chấy",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bánh bèo chén",
+      "alternateNames": [
+        "Water fern cake"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bánh bèo",
+          "nameEn": "Water fern cake",
+          "confidence": 0.74
+        },
+        {
+          "nameVi": "Bánh đúc",
+          "nameEn": "Rice cake",
+          "confidence": 0.3
+        }
+      ],
+      "category": "snack",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bột gạo",
+        "Tôm chấy",
+        "Mỡ hành",
+        "Nước mắm"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-unknown-009",
+    "expectedDishId": null,
+    "expectedDishName": "Mì Quảng ếch",
+    "description": "Tô mì Quảng ít nước với thịt ếch",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Mì Quảng ếch",
+      "alternateNames": [
+        "Quang noodles with frog"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Mì Quảng ếch",
+          "nameEn": "Quang noodles with frog",
+          "confidence": 0.66
+        },
+        {
+          "nameVi": "Mì Quảng",
+          "nameEn": "Quang noodles",
+          "confidence": 0.55
+        }
+      ],
+      "category": "dry_noodle",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Mì Quảng",
+        "Thịt ếch",
+        "Đậu phộng",
+        "Bánh tráng"
+      ],
+      "quality": "GOOD"
+    }
+  },
+  {
+    "id": "eval-unknown-010",
+    "expectedDishId": null,
+    "expectedDishName": "Bánh tráng cuốn thịt heo Trảng Bàng",
+    "description": "Bánh tráng phơi sương cuốn thịt luộc và rau",
+    "extraction": {
+      "isFood": true,
+      "primaryName": "Bánh tráng cuốn thịt heo Trảng Bàng",
+      "alternateNames": [
+        "Trang Bang rice paper rolls"
+      ],
+      "guesses": [
+        {
+          "nameVi": "Bánh tráng phơi sương cuốn thịt heo",
+          "nameEn": "Dew-dried rice paper rolls",
+          "confidence": 0.64
+        },
+        {
+          "nameVi": "Gỏi cuốn",
+          "nameEn": "Fresh spring rolls",
+          "confidence": 0.45
+        }
+      ],
+      "category": "roll",
+      "cuisine": "Vietnamese",
+      "visibleIngredients": [
+        "Bánh tráng phơi sương",
+        "Thịt heo luộc",
+        "Rau rừng",
+        "Mắm nêm"
+      ],
+      "quality": "GOOD"
+    }
+  }
+]

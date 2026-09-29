@@ -2,5 +2,9 @@
 .env.local
 .env.*.local
 .expo/
+.expo-voice-smoke/
 dist/
 node_modules/
+# Native projects are generated from app.json for development builds.
+/android/
+/ios/

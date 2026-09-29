@@ -11,11 +11,10 @@
       "resizeMode": "contain",
       "backgroundColor": "#FFFFFF"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "android": {
       "package": "com.mogu.app",
+      "permissions": ["android.permission.RECORD_AUDIO"],
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/noan/noan-adaptive-foreground-v1.png",
         "backgroundColor": "#FFC928"
@@ -37,11 +36,25 @@
         {
           "photosPermission": "NOAN cần quyền truy cập thư viện để bạn chọn ảnh món ăn hoặc ảnh đại diện.",
           "cameraPermission": "NOAN cần quyền camera để bạn chụp món ăn hoặc ảnh đại diện.",
-          "microphonePermission": false
+          "microphonePermission": "NOAN sử dụng micro khi bạn bật chế độ nấu ăn bằng giọng nói."
         }
       ],
       "expo-image",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "NOAN sử dụng micro khi bạn bật chế độ nấu ăn bằng giọng nói. Bạn có thể tắt micro bất cứ lúc nào.",
+          "speechRecognitionPermission": "NOAN cần nhận diện giọng nói để nghe yêu cầu của bạn trong lúc nấu ăn."
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "NOAN sử dụng micro khi bạn bật chế độ nấu ăn bằng giọng nói.",
+          "enableBackgroundPlayback": false
+        }
+      ]
     ]
   }
 }

@@ -105,6 +105,28 @@ const VALID_TRANSITIONS: Record<DishStatus, DishStatus[]> = {
   ARCHIVED: [],
 };
 
+export function buildDishSearchText(
+  name: string,
+  alternateNames?: string[],
+  extra?: {
+    categoryNames?: string[];
+    regionName?: string;
+    ingredientNames?: string[];
+    englishName?: string;
+  },
+): string {
+  const parts = [
+    name,
+    ...(alternateNames ?? []),
+    ...(extra?.categoryNames ?? []),
+    extra?.regionName,
+    ...(extra?.ingredientNames ?? []).slice(0, 5),
+    extra?.englishName,
+  ].filter((p): p is string => Boolean(p && typeof p === 'string' && p.trim()));
+
+  return [...new Set(parts.map((p) => p.trim()))].join(' ').toLowerCase();
+}
+
 @Injectable()
 export class DishCommandService {
   constructor(
@@ -723,9 +745,17 @@ export class DishCommandService {
     }
   }
 
-  private buildSearchText(name: string, alternateNames?: string[]): string {
-    const parts = [name, ...(alternateNames ?? [])];
-    return parts.join(' ').toLowerCase();
+  private buildSearchText(
+    name: string,
+    alternateNames?: string[],
+    extra?: {
+      categoryNames?: string[];
+      regionName?: string;
+      ingredientNames?: string[];
+      englishName?: string;
+    },
+  ): string {
+    return buildDishSearchText(name, alternateNames, extra);
   }
 
   private async audit(

@@ -11,7 +11,7 @@ export class HealthService {
     private readonly waterLogs: WaterLogsService,
   ) {}
 
-  async getDay(userId: string, localDate: string, timezone = 'Asia/Ho_Chi_Minh') {
+  async getDay(userId: string, localDate: string, timezone = 'Asia/Ho_Chi_Minh', includeWater = true) {
     const profile = await this.prisma.db.profile.findUnique({
       where: { userId },
       select: { goalKcal: true },
@@ -25,7 +25,7 @@ export class HealthService {
       .catch(() => null);
 
     const meals = await this.mealLogs.list(userId, localDate, timezone);
-    const water = await this.waterLogs.list(userId, localDate);
+    const water = includeWater ? await this.waterLogs.list(userId, localDate) : null;
 
     const consumedKcal = meals.items.reduce((s, m) => s + (m.totals.kcal || 0), 0);
     const proteinG = meals.items.reduce((s, m) => s + (m.totals.proteinG || 0), 0);
@@ -34,7 +34,7 @@ export class HealthService {
 
     const targetKcal = healthTarget?.energyKcal ?? profile?.goalKcal ?? null;
     const waterTargetMl = healthTarget?.waterMl ?? null;
-    const hasAny = meals.items.length > 0 || water.totalMl > 0;
+    const hasAny = meals.items.length > 0 || (water?.totalMl ?? 0) > 0;
 
     const mealGroups = (['BREAKFAST', 'LUNCH', 'DINNER', 'SNACK'] as const).map((slot) => {
       const slotMeals = meals.items.filter((m) => m.mealSlot === slot);
@@ -70,10 +70,10 @@ export class HealthService {
           targetG: healthTarget?.fatG ?? null,
         },
       },
-      water: {
-        consumedMl: hasAny ? water.totalMl : null,
+      ...(includeWater ? { water: {
+        consumedMl: hasAny ? water?.totalMl ?? 0 : null,
         targetMl: waterTargetMl,
-      },
+      } } : {}),
       steps: {
         count: null,
         target: healthTarget?.steps ?? null,
@@ -90,7 +90,7 @@ export class HealthService {
     };
   }
 
-  async getCalendar(userId: string, monthParam?: string, timezone = 'Asia/Ho_Chi_Minh') {
+  async getCalendar(userId: string, monthParam?: string, timezone = 'Asia/Ho_Chi_Minh', includeWater = true) {
     const month = monthParam ?? new Date().toISOString().slice(0, 7);
     const [yearStr, mStr] = month.split('-');
     const year = parseInt(yearStr, 10);
@@ -102,6 +102,7 @@ export class HealthService {
     const mealLogs = await (this.prisma.db as any).diaryMealLog.findMany({
       where: {
         userId,
+        deletedAt: null,
         localDate: {
           gte: startDate,
           lt: endDate,
@@ -110,7 +111,7 @@ export class HealthService {
       select: { localDate: true },
     });
 
-    const waterLogs = await (this.prisma.db as any).waterLog.findMany({
+    const waterLogs = includeWater ? await (this.prisma.db as any).waterLog.findMany({
       where: {
         userId,
         localDate: {
@@ -119,7 +120,7 @@ export class HealthService {
         },
       },
       select: { localDate: true },
-    });
+    }) : [];
 
     const dateMap = new Map<string, { mealCount: number; waterCount: number }>();
 
@@ -140,19 +141,21 @@ export class HealthService {
     const days: Array<{
       localDate: string;
       hasMealLog: boolean;
-      hasWaterLog: boolean;
+      hasWaterLog?: boolean;
       completionRatio: number;
     }> = [];
 
     dateMap.forEach((val, dateStr) => {
       const completionRatio = Math.min(
         1.0,
-        (val.mealCount > 0 ? 0.7 : 0) + (val.waterCount > 0 ? 0.3 : 0),
+        includeWater
+          ? (val.mealCount > 0 ? 0.7 : 0) + (val.waterCount > 0 ? 0.3 : 0)
+          : (val.mealCount > 0 ? 1 : 0),
       );
       days.push({
         localDate: dateStr,
         hasMealLog: val.mealCount > 0,
-        hasWaterLog: val.waterCount > 0,
+        ...(includeWater ? { hasWaterLog: val.waterCount > 0 } : {}),
         completionRatio,
       });
     });

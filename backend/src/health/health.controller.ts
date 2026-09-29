@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, DefaultValuePipe, Get, Param, ParseBoolPipe, Post, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { HealthService } from './health.service';
 import { MeasurementsTargetsService } from './measurements-targets.service';
@@ -15,24 +15,28 @@ export class HealthController {
 
   @Get('health/calendar')
   @ApiOperation({ summary: 'Xem lịch nhật ký sức khỏe theo tháng' })
+  @ApiQuery({ name: 'includeWater', required: false, type: Boolean, description: 'Mặc định true; false bỏ truy vấn và dữ liệu nước.' })
   getCalendar(
     @CurrentUser() user: any,
     @Query('month') month?: string,
     @Query('timezone') timezone?: string,
+    @Query('includeWater', new DefaultValuePipe(true), ParseBoolPipe) includeWater = true,
   ) {
     const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
-    return this.health.getCalendar(userId, month, timezone);
+    return this.health.getCalendar(userId, month, timezone, includeWater);
   }
 
   @Get('health/days/:localDate')
   @ApiOperation({ summary: 'Health day BFF' })
+  @ApiQuery({ name: 'includeWater', required: false, type: Boolean, description: 'Mặc định true; false bỏ truy vấn và dữ liệu nước.' })
   getDay(
     @CurrentUser() user: any,
     @Param('localDate') localDate: string,
     @Query('timezone') timezone?: string,
+    @Query('includeWater', new DefaultValuePipe(true), ParseBoolPipe) includeWater = true,
   ) {
     const userId = typeof user === 'string' ? user : (user.sub ?? user.id);
-    return this.health.getDay(userId, localDate, timezone || 'Asia/Ho_Chi_Minh');
+    return this.health.getDay(userId, localDate, timezone || 'Asia/Ho_Chi_Minh', includeWater);
   }
 
   @Post('activity-sync')

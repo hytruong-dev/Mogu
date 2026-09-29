@@ -17,6 +17,7 @@ import {
   LogOut,
   MapPin,
   Plus,
+  ScanSearch,
   Search,
   ShieldCheck,
   Sparkles,
@@ -31,6 +32,7 @@ import { Dialog, DialogContent } from './components/ui/dialog'
 import { PageSkeleton } from './components/ui/page-skeleton'
 import { useReviewQueue } from './hooks/useReviewQueue'
 import { useDashboardActivities } from './hooks/useDashboard'
+import { useFoodScanReportSummary } from './hooks/useFoodScanReports'
 import './App.css'
 
 // ─── Lazy pages ───────────────────────────────────────────────────────────────
@@ -49,6 +51,7 @@ const TopicsPage = lazy(() => import('./pages/TopicsPage'))
 const ArticlesPage = lazy(() => import('./pages/ArticlesPage'))
 const NotificationsPage = lazy(() => import('./pages/NotificationsPage'))
 const PlacesPage = lazy(() => import('./pages/PlacesPage'))
+const FoodScanReportsPage = lazy(() => import('./pages/FoodScanReportsPage'))
 
 // ─── React Query client ───────────────────────────────────────────────────────
 
@@ -90,6 +93,7 @@ const navGroups: NavGroup[] = [
       { path: '/foods', label: 'Kho món ăn', icon: Utensils, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN', 'REVIEWER'] },
       { path: '/food-data', label: 'Dữ liệu món ăn', icon: Leaf, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
       { path: '/ingest', label: 'Nhập món tự động', icon: CloudDownload, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
+      { path: '/food-scan-reports', label: 'Món chưa có (Scan)', icon: ScanSearch, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
     ],
   },
   {
@@ -124,6 +128,8 @@ function Sidebar({ currentPath }: { currentPath: string }) {
   const { hasRole } = useAuth()
   const { data: queueData } = useReviewQueue()
   const queueCount = queueData?.total ?? queueData?.data?.length ?? 0
+  const { data: scanSummary } = useFoodScanReportSummary()
+  const scanMissingCount = scanSummary?.new ?? 0
 
   return (
     <aside className="modern-sidebar">
@@ -155,7 +161,12 @@ function Sidebar({ currentPath }: { currentPath: string }) {
               <div className="sidebar-group-items">
                 {visibleItems.map(({ path, label, icon: Icon, badge }) => {
                   const isActive = currentPath === path || (path !== '/' && currentPath.startsWith(path))
-                  const itemBadge = path === '/review' ? (queueCount > 0 ? String(queueCount) : undefined) : badge
+                  const itemBadge =
+                    path === '/review'
+                      ? (queueCount > 0 ? String(queueCount) : undefined)
+                      : path === '/food-scan-reports'
+                        ? (scanMissingCount > 0 ? String(scanMissingCount) : undefined)
+                        : badge
                   return (
                     <button
                       key={path}
@@ -215,6 +226,7 @@ function CommandPaletteModal({
     { path: '/ingest', label: 'Nhập món tự động (AI)', category: 'KHO MÓN & DINH DƯỠNG', icon: CloudDownload, desc: 'Crawl dữ liệu, trích xuất AI và kiểm duyệt hàng loạt' },
     { path: '/topics', label: 'Quản lý chủ đề', category: 'KHÁM PHÁ & BÀI VIẾT', icon: BookOpen, desc: 'Các chuyên mục khám phá ẩm thực theo mùa và chủ đề' },
     { path: '/articles', label: 'Quản lý bài viết', category: 'KHÁM PHÁ & BÀI VIẾT', icon: FileText, desc: 'Soạn thảo, biên tập và xuất bản bài viết ẩm thực' },
+    { path: '/food-scan-reports', label: 'Món chưa có (Scan)', category: 'KHO MÓN & DINH DƯỠNG', icon: ScanSearch, desc: 'Ảnh người dùng quét mà kho món chưa có, cần bổ sung' },
     { path: '/review', label: 'Hàng đợi kiểm duyệt', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: ShieldCheck, desc: 'Duyệt công thức, nguyên liệu và đánh giá người dùng' },
     { path: '/community', label: 'Kiểm duyệt cộng đồng', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: Heart, desc: 'Kiểm tra bài đăng, bình luận và tương tác thành viên' },
     { path: '/reports', label: 'Báo cáo & Phân tích', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: Archive, desc: 'Thống kê vi phạm, phản hồi người dùng và số liệu' },
@@ -363,6 +375,8 @@ function Header() {
 
   const { data: activitiesData, isLoading: isActLoading } = useDashboardActivities(6)
   const activities = activitiesData?.items ?? []
+  const { data: scanSummary } = useFoodScanReportSummary()
+  const scanMissingCount = scanSummary?.new ?? 0
 
   // Resolve current active item and its group
   let currentGroupTitle = 'TỔNG QUAN'
@@ -497,7 +511,7 @@ function Header() {
               title="Thông báo hệ thống"
             >
               <Bell size={16} />
-              <span className="notif-ping-dot" />
+              {scanMissingCount > 0 && <span className="notif-ping-dot" />}
             </button>
 
             {notifMenuOpen && (
@@ -512,6 +526,23 @@ function Header() {
                   </span>
                 </div>
                 <div className="py-1 space-y-1 max-h-72 overflow-y-auto">
+                  {scanMissingCount > 0 && (
+                    <div
+                      className="mx-1 px-3 py-2 text-xs rounded-md cursor-pointer bg-rose-50 hover:bg-rose-100 transition-colors"
+                      onClick={() => {
+                        setNotifMenuOpen(false)
+                        navigate('/food-scan-reports')
+                      }}
+                    >
+                      <div className="font-semibold text-rose-800 flex items-center gap-1.5">
+                        <ScanSearch size={13} className="flex-shrink-0" />
+                        {scanMissingCount} món quét chưa có trong kho
+                      </div>
+                      <p className="text-[11px] text-rose-700/80 mt-0.5">
+                        Người dùng đã chụp các món Mogu chưa có. Bấm để bổ sung.
+                      </p>
+                    </div>
+                  )}
                   {isActLoading ? (
                     <div className="px-3 py-3 text-xs text-slate-500 text-center">Đang tải hoạt động...</div>
                   ) : !activities || activities.length === 0 ? (
@@ -525,7 +556,9 @@ function Header() {
                             ? 'bg-rose-500'
                             : act.type === 'IMPORT_JOB'
                               ? 'bg-blue-500'
-                              : 'bg-emerald-500'
+                              : act.type === 'FOOD_SCAN_MISSING'
+                                ? 'bg-rose-500'
+                                : 'bg-emerald-500'
                       return (
                         <div
                           key={act.id}
@@ -535,6 +568,8 @@ function Header() {
                             if (act.type === 'DISH_REVIEW') navigate('/review')
                             else if (act.type === 'MODERATION') navigate('/community')
                             else if (act.type === 'IMPORT_JOB') navigate('/ingest')
+                            else if (act.type === 'FOOD_SCAN_MISSING') navigate('/food-scan-reports')
+                            else if (act.route) navigate(act.route)
                           }}
                         >
                           <div className="font-semibold text-slate-800 flex items-center gap-1.5 truncate">
@@ -724,6 +759,7 @@ function AppRoutes() {
         <Route path="/articles" element={<ProtectedLayout currentPath="/articles"><ArticlesPage /></ProtectedLayout>} />
         <Route path="/places" element={<ProtectedLayout currentPath="/places"><PlacesPage /></ProtectedLayout>} />
         <Route path="/notifications" element={<ProtectedLayout currentPath="/notifications"><NotificationsPage /></ProtectedLayout>} />
+        <Route path="/food-scan-reports" element={<ProtectedLayout currentPath="/food-scan-reports"><FoodScanReportsPage /></ProtectedLayout>} />
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

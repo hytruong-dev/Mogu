@@ -527,6 +527,12 @@ const TASK_META: Record<
     priorityLabel: 'Lỗi',
     tone: 'muted',
   },
+  FOOD_SCAN_MISSING: {
+    label: 'Món quét chưa có trong kho',
+    note: 'Người dùng chụp món Mogu chưa có',
+    priorityLabel: 'Bổ sung món',
+    tone: 'amber',
+  },
 }
 
 function TasksWidget({

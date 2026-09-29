@@ -2,14 +2,7 @@
  * Food Detail Flow V2 — khớp docs/MOBILE_FOOD_DETAIL_UX_REDESIGN_2026.md
  */
 import { useRef, useState } from 'react';
-import {
-  Image,
-  ImageSourcePropType,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, ImageSourcePropType, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, RotateCcw } from '@/components/icons';
 import { OverviewPage } from './food-detail/OverviewPage';
@@ -89,6 +82,8 @@ export function FoodDetailFlowScreen({
   if (page === 'cooking') {
     return (
       <CookingPage
+        dishId={dishId}
+        servings={servings}
         dishName={dishName}
         image={image}
         ingredients={ingredients}
@@ -100,13 +95,7 @@ export function FoodDetailFlowScreen({
   }
 
   if (page === 'location') {
-    return (
-      <NearbyPage
-        dishName={dishName}
-        places={nearbyPlaces}
-        onBack={back}
-      />
-    );
+    return <NearbyPage dishName={dishName} places={nearbyPlaces} onBack={back} />;
   }
 
   if (page === 'confirmed') {
@@ -190,7 +179,7 @@ function ResultSimple({
         <Pressable onPress={onAgain} style={s.iconBtn}>
           <RotateCcw size={20} color={INK} />
         </Pressable>
-          </View>
+      </View>
       <View style={s.center}>
         <Text style={s.eyebrow}>NOAN chọn cho bạn</Text>
         {image ? (
@@ -201,10 +190,10 @@ function ResultSimple({
         <Text style={s.resultName}>{dishName}</Text>
         {meta ? <Text style={s.meta}>{meta}</Text> : null}
         {summary ? <Text style={s.summary}>{summary}</Text> : null}
-          </View>
+      </View>
       <Pressable onPress={onChoose} style={s.cta}>
         <Text style={s.ctaText}>Xem chi tiết món</Text>
-              </Pressable>
+      </Pressable>
     </SafeAreaView>
   );
 }
@@ -229,15 +218,13 @@ function ConfirmedSimple({
         <View style={s.iconBtn} />
       </View>
       <View style={s.center}>
-        {image ? (
-          <Image source={image} style={s.resultImg} resizeMode="cover" />
-        ) : null}
+        {image ? <Image source={image} style={s.resultImg} resizeMode="cover" /> : null}
         <Text style={s.resultName}>{dishName}</Text>
         <Text style={s.summary}>Đã chọn món. Chúc bạn ngon miệng!</Text>
-            </View>
+      </View>
       <Pressable onPress={onClose} style={s.cta}>
         <Text style={s.ctaText}>Hoàn tất</Text>
-        </Pressable>
+      </Pressable>
     </SafeAreaView>
   );
 }
@@ -251,7 +238,13 @@ const s = StyleSheet.create({
   resultImg: { width: 220, height: 160, borderRadius: 16 },
   resultName: { fontSize: 24, fontWeight: '800', color: INK, textAlign: 'center' },
   meta: { fontSize: 14, color: MUTED, textAlign: 'center' },
-  summary: { fontSize: 14, color: MUTED, textAlign: 'center', lineHeight: 20, paddingHorizontal: 12 },
+  summary: {
+    fontSize: 14,
+    color: MUTED,
+    textAlign: 'center',
+    lineHeight: 20,
+    paddingHorizontal: 12,
+  },
   cta: {
     minHeight: 52,
     borderRadius: 16,

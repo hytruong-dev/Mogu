@@ -11,6 +11,7 @@ import {
   DiaryMealSourceType,
   Prisma,
 } from '@prisma/client';
+import { createHash } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMealLogDto } from './dto/health.dto';
 import { mapNutritionToPlanServing } from '../dishes/eligibility/dish-nutrition.mapper';
@@ -41,6 +42,13 @@ export class MealLogsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(userId: string, dto: CreateMealLogDto, idempotencyKey?: string) {
+    const key = this.normalizeIdempotencyKey(idempotencyKey);
+    const requestHash = key ? this.hashCreateRequest(dto) : null;
+    if (key) {
+      const existing = await this.findByIdempotencyKey(userId, key);
+      if (existing) return this.replay(existing, requestHash!);
+    }
+
     const timezone = dto.timezone || 'Asia/Ho_Chi_Minh';
     const occurredAt = dto.occurredAt ? new Date(dto.occurredAt) : new Date();
     const localDateStr = localDateInTz(occurredAt, timezone);
@@ -50,7 +58,7 @@ export class MealLogsService {
 
     if (weeklyPlanSlotId) {
       const existing = await this.prisma.db.diaryMealLog.findFirst({
-        where: { weeklyPlanSlotId, deletedAt: null },
+        where: { userId, weeklyPlanSlotId, deletedAt: null },
         include: { items: { orderBy: { sortOrder: 'asc' } } },
       });
       if (existing) return this.format(existing);
@@ -71,6 +79,8 @@ export class MealLogsService {
     const created = await this.prisma.db.diaryMealLog.create({
       data: {
         userId,
+        idempotencyKey: key,
+        requestHash,
         mealSlot: dto.mealSlot,
         occurredAt,
         localDate,
@@ -92,9 +102,75 @@ export class MealLogsService {
         },
       },
       include: { items: { orderBy: { sortOrder: 'asc' } } },
+    }).catch(async (error: unknown) => {
+      // A concurrent retry can win between the lookup and the atomic insert.
+      // Only recover when this user's key actually exists; unrelated unique
+      // violations (including weekly-plan slots) must retain their error.
+      if (key && error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        const existing = await this.findByIdempotencyKey(userId, key);
+        if (existing) {
+          this.assertReplayable(existing, requestHash!);
+          return existing;
+        }
+      }
+      throw error;
     });
 
     return this.format(created);
+  }
+
+  private normalizeIdempotencyKey(value?: string): string | null {
+    if (value == null) return null;
+    if (typeof value !== 'string') {
+      throw new BadRequestException({ error: { code: 'INVALID_IDEMPOTENCY_KEY' } });
+    }
+    const key = value.trim();
+    if (!key || key.length > 128 || !/^[\x21-\x7e]+$/.test(key)) {
+      throw new BadRequestException({ error: { code: 'INVALID_IDEMPOTENCY_KEY' } });
+    }
+    return key;
+  }
+
+  private hashCreateRequest(dto: CreateMealLogDto): string {
+    // Explicit fields/defaults make the hash independent of JSON property order
+    // and server-generated timestamps or changing dish nutrition snapshots.
+    const payload = {
+      mealSlot: dto.mealSlot,
+      occurredAt: dto.occurredAt ? new Date(dto.occurredAt).toISOString() : null,
+      timezone: dto.timezone || 'Asia/Ho_Chi_Minh',
+      note: dto.note ?? null,
+      sourceType: dto.source?.type ?? DiaryMealSourceType.MANUAL,
+      randomizationId: dto.source?.randomizationId ?? null,
+      weeklyPlanSlotId: dto.source?.weeklyPlanSlotId ?? null,
+      items: dto.items.map((item) => ({
+        referenceType: item.referenceType,
+        referenceId: item.referenceId ?? null,
+        displayName: item.displayName || null,
+        quantity: item.quantity,
+        unitCode: item.unitCode || 'SERVING',
+        gramEquivalent: item.gramEquivalent ?? null,
+      })),
+    };
+    return createHash('sha256').update(JSON.stringify(payload)).digest('hex');
+  }
+
+  private findByIdempotencyKey(userId: string, idempotencyKey: string) {
+    return this.prisma.db.diaryMealLog.findUnique({
+      where: { userId_idempotencyKey: { userId, idempotencyKey } },
+      include: { items: { orderBy: { sortOrder: 'asc' } } },
+    });
+  }
+
+  private assertReplayable(log: { requestHash: string | null; deletedAt: Date | null }, requestHash: string) {
+    // Keep keys reserved after soft deletion rather than silently recreating food.
+    if (log.deletedAt || (log.requestHash && log.requestHash !== requestHash)) {
+      throw new ConflictException({ error: { code: 'IDEMPOTENCY_KEY_CONFLICT' } });
+    }
+  }
+
+  private replay(log: any, requestHash: string) {
+    this.assertReplayable(log, requestHash);
+    return this.format(log);
   }
 
   async list(userId: string, localDate?: string, timezone = 'Asia/Ho_Chi_Minh') {
@@ -844,7 +920,11 @@ export class MealLogsService {
         if (!dish) {
           throw new NotFoundException({ error: { code: 'DISH_NOT_FOUND' } });
         }
-        const mapped = mapNutritionToPlanServing(dish.nutrition as any);
+        const mapped = mapNutritionToPlanServing(
+          dish.nutrition
+            ? { ...dish.nutrition, servingsPerRecipe: dish.nutrition.servings }
+            : null,
+        );
         out.push({
           referenceType: DiaryItemReferenceType.DISH,
           referenceId: dish.id,
@@ -856,7 +936,7 @@ export class MealLogsService {
           proteinGSnapshot: mapped.proteinG,
           carbsGSnapshot: mapped.carbsG,
           fatGSnapshot: mapped.fatG,
-          nutritionBasis: (dish.nutrition as any)?.basis ?? 'PER_SERVING',
+          nutritionBasis: dish.nutrition ? 'PER_SERVING' : null,
         });
       } else {
         out.push({

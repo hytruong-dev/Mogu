@@ -408,8 +408,9 @@ export function HealthSkeleton() {
       <Bone width={160} height={22} style={{ marginBottom: 16 }} />
       <View style={[sk.card, { height: 120, marginBottom: 12 }]} />
       <BoneRow gap={10} style={{ marginBottom: 12 }}>
-        <Bone width="48%" height={96} radius={16} />
-        <Bone width="48%" height={96} radius={16} />
+        <Bone width="30%" height={96} radius={16} />
+        <Bone width="30%" height={96} radius={16} />
+        <Bone width="30%" height={96} radius={16} />
       </BoneRow>
       <View style={[sk.card, { height: 160 }]} />
     </View>

@@ -88,6 +88,7 @@ export class AdminDashboardService {
       logsInRange,
       logsPreviousRange,
       logsTotal,
+      foodScanMissingNew,
     ] = await Promise.all([
       this.prisma.db.dish.groupBy({
         by: ['status'],
@@ -150,6 +151,10 @@ export class AdminDashboardService {
         where: { loggedAt: { gte: prevFrom, lt: prevTo } },
       }),
       this.prisma.db.mealLog.count(),
+      // Missing table (migration not applied yet) must not break the dashboard.
+      this.prisma.db.foodScanMissingDishReport
+        .count({ where: { status: 'NEW' } })
+        .catch(() => 0),
     ]);
 
     const countBy = Object.fromEntries(
@@ -217,6 +222,12 @@ export class AdminDashboardService {
         route: '/ingest',
         priority: 'medium' as const,
       },
+      {
+        key: 'FOOD_SCAN_MISSING',
+        count: foodScanMissingNew,
+        route: '/food-scan-reports',
+        priority: 'medium' as const,
+      },
     ];
 
     const insight =
@@ -282,6 +293,7 @@ export class AdminDashboardService {
           growthPercent: logsGrowthPercent,
         },
       },
+      foodScanMissingNew,
       tasks,
       insight,
     };
@@ -674,7 +686,7 @@ export class AdminDashboardService {
     const cursorDate = opts.cursor ? new Date(opts.cursor) : null;
 
     const take = limit;
-    const [jobs, audits, reports, adminActions] = await Promise.all([
+    const [jobs, audits, reports, adminActions, scanReports] = await Promise.all([
       !typeFilter || typeFilter.includes('IMPORT_JOB')
         ? this.prisma.db.importJob.findMany({
             orderBy: { updatedAt: 'desc' },
@@ -719,6 +731,18 @@ export class AdminDashboardService {
             orderBy: { occurredAt: 'desc' },
             take,
           })
+        : Promise.resolve([]),
+      !typeFilter || typeFilter.includes('FOOD_SCAN_MISSING')
+        ? this.prisma.db.foodScanMissingDishReport
+            .findMany({
+              where: {
+                status: { in: ['NEW', 'IN_PROGRESS'] },
+                ...(cursorDate ? { updatedAt: { lt: cursorDate } } : {}),
+              },
+              orderBy: { updatedAt: 'desc' },
+              take,
+            })
+            .catch(() => [])
         : Promise.resolve([]),
     ]);
 
@@ -831,6 +855,19 @@ export class AdminDashboardService {
         },
         route: action.targetType === 'USER' ? '/users' : '/community',
         occurredAt: action.occurredAt.toISOString(),
+      });
+    }
+
+    for (const r of scanReports) {
+      items.push({
+        id: `foodscan:${r.id}`,
+        type: 'FOOD_SCAN_MISSING',
+        status: r.status === 'NEW' ? 'NEW' : 'IN_PROGRESS',
+        title: `Món chưa có trong DB: ${r.recognizedName ?? 'Không rõ tên'}`,
+        description: `${r.source === 'USER' ? 'Người dùng báo' : 'Tự động phát hiện'} • ${r.reportCount} lần quét`,
+        actor: { id: r.userId ?? 'system', displayName: 'Food Scan' },
+        route: '/food-scan-reports',
+        occurredAt: r.updatedAt.toISOString(),
       });
     }
 

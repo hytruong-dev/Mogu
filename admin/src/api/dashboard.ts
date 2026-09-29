@@ -42,6 +42,7 @@ export interface DashboardSummary {
       growthPercent: number | null
     }
   }
+  foodScanMissingNew?: number
   tasks: Array<{
     key: string
     count: number
@@ -85,7 +86,7 @@ export interface TrendingResponse {
 
 export interface ActivityItem {
   id: string
-  type: 'IMPORT_JOB' | 'DISH_REVIEW' | 'MODERATION' | 'ADMIN_ACTION' | string
+  type: 'IMPORT_JOB' | 'DISH_REVIEW' | 'MODERATION' | 'ADMIN_ACTION' | 'FOOD_SCAN_MISSING' | string
   status: 'DONE' | 'FAILED' | 'IN_PROGRESS' | 'INFO' | string
   title: string
   description: string

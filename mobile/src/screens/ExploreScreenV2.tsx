@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
-  Image,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -10,15 +8,22 @@ import {
   Text,
   View,
 } from 'react-native';
+import Animated, {
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+import * as Haptics from 'expo-haptics';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Bell, Bookmark, Plus, Search } from '@/components/icons';
+import { profileApi } from '../services/api/profile';
 import { ExploreDetailScreen, type ExploreDetailType } from './ExploreDetailScreen';
 import { ScreenSlideTransition } from '../components/ui/screen-transition';
 import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomNav';
 import { NoanWordmark } from '../components/brand/NoanWordmark';
 import { ExploreFeedSkeleton } from '../components/skeletons/ScreenSkeletons';
-import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Text as UiText } from '../components/ui/text';
 import {
   articlesApi,
   communityApi,
@@ -39,7 +44,7 @@ import {
   ArticleFeedItem,
   DishFeedItem,
   PostFeedItem,
-  TopicCircles,
+  StoriesRow,
 } from './explore/FeedItems';
 import { resolveDishImageUrl } from './explore/utils';
 import { CreatePostScreen } from './explore/CreatePostScreen';
@@ -54,14 +59,72 @@ import { SavedCollectionsScreen } from './explore/SavedCollectionsScreen';
 import { TopicFeedScreen } from './explore/TopicFeedScreen';
 import type { ContentActionTarget } from './explore/buildContentActions';
 import {
-  CREAM,
+  BORDER,
   CORAL_DOT,
+  FEED_BG,
   H_PAD,
   INK,
   MUTED,
+  TERTIARY,
   WHITE,
   YELLOW,
 } from './explore/tokens';
+
+const AnimatedFlatList = Animated.FlatList as unknown as typeof import('react-native').FlatList;
+
+function ScopeTabs({
+  scope,
+  onChange,
+}: {
+  scope: 'forYou' | 'following';
+  onChange: (s: 'forYou' | 'following') => void;
+}) {
+  const [width, setWidth] = useState(0);
+  const x = useSharedValue(scope === 'forYou' ? 0 : 1);
+
+  useEffect(() => {
+    x.value = withTiming(scope === 'forYou' ? 0 : 1, { duration: 220 });
+  }, [scope, x]);
+
+  const half = width / 2;
+  const indicator = useAnimatedStyle(() => ({
+    transform: [{ translateX: x.value * half + half * 0.3 }],
+    width: half * 0.4,
+  }));
+
+  const tabs: Array<{ key: 'forYou' | 'following'; label: string }> = [
+    { key: 'forYou', label: 'Dành cho bạn' },
+    { key: 'following', label: 'Đang theo dõi' },
+  ];
+
+  return (
+    <View
+      style={styles.tabsWrap}
+      onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+      accessibilityRole="tablist"
+    >
+      {tabs.map((t) => {
+        const active = scope === t.key;
+        return (
+          <Pressable
+            key={t.key}
+            onPress={() => {
+              if (active) return;
+              void Haptics.selectionAsync().catch(() => undefined);
+              onChange(t.key);
+            }}
+            style={styles.tabBtn}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active }}
+          >
+            <Text style={[styles.tabTxt, active && styles.tabTxtActive]}>{t.label}</Text>
+          </Pressable>
+        );
+      })}
+      {width > 0 ? <Animated.View style={[styles.tabIndicator, indicator]} /> : null}
+    </View>
+  );
+}
 
 type Props = {
   onBack: () => void;
@@ -179,6 +242,36 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
   const [shareSheetOpen, setShareSheetOpen] = useState(false);
   const [shareArticlePayload, setShareArticlePayload] = useState<ExploreShareArticle | null>(null);
   const [unreadNotif, setUnreadNotif] = useState(0);
+  const [me, setMe] = useState<{ name: string; avatarUrl: string | null }>({
+    name: 'Bạn',
+    avatarUrl: null,
+  });
+
+  const scrollY = useSharedValue(0);
+  const onScroll = useAnimatedScrollHandler((e) => {
+    scrollY.value = e.contentOffset.y;
+  });
+  const headerShadow = useAnimatedStyle(() => ({
+    borderBottomColor: `rgba(232,224,210,${interpolate(scrollY.value, [0, 24], [0, 1], 'clamp')})`,
+    shadowOpacity: interpolate(scrollY.value, [0, 24], [0, 0.08], 'clamp'),
+  }));
+
+  useEffect(() => {
+    void profileApi
+      .me<{
+        displayName?: string | null;
+        basic?: { displayName?: string | null };
+        avatarUrl?: string | null;
+        avatar?: { url?: string | null; thumbnailUrl?: string | null };
+      }>()
+      .then((p) =>
+        setMe({
+          name: p.basic?.displayName ?? p.displayName ?? 'Bạn',
+          avatarUrl: p.avatar?.thumbnailUrl ?? p.avatar?.url ?? p.avatarUrl ?? null,
+        }),
+      )
+      .catch(() => undefined);
+  }, []);
 
   useEffect(() => {
     const unsub = notificationRealtime.subscribeToUnreadCount((cnt) => {
@@ -711,98 +804,45 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
     );
   }, []);
 
+  const changeScope = useCallback(
+    (next: FeedScope) => {
+      if (next === scope) return;
+      setScope(next);
+      setItems([]);
+    },
+    [scope],
+  );
+
+  const openCreate = useCallback(() => setCreateOpen(true), []);
+
   const listHeader = useMemo(
     () => (
       <View>
-        <View style={styles.header}>
-          <NoanWordmark width={104} height={40} />
-          <View style={styles.headerRight}>
-            <Pressable
-              onPress={() => setSearchOpen(true)}
-              style={styles.iconBtn}
-              accessibilityLabel="Tìm kiếm"
-            >
-              <Search size={24} color={INK} />
-      </Pressable>
-            <Pressable
-              onPress={() => setSavedOpen(true)}
-              style={styles.iconBtn}
-              accessibilityLabel="Đã lưu"
-            >
-              <Bookmark size={22} color={INK} />
-    </Pressable>
-            <Pressable
-              style={styles.iconBtn}
-              accessibilityLabel="Thông báo"
-              onPress={() => onNotification?.()}
-            >
-              <Bell size={24} color={INK} />
-              {unreadNotif > 0 ? <View style={styles.notifDot} /> : null}
-            </Pressable>
-          </View>
-        </View>
-
-        <Tabs
-          value={scope}
-          onValueChange={(v) => {
-            const next = v as FeedScope;
-            if (next === scope) return;
-            setScope(next);
-            setItems([]);
-          }}
-          className="mb-3 mt-2"
+        <Pressable
+          onPress={() => setSearchOpen(true)}
+          style={styles.searchPill}
+          accessibilityRole="search"
+          accessibilityLabel="Tìm món ăn, bài viết, người dùng"
         >
-          <TabsList
-            className="h-12 w-full flex-row rounded-full bg-card p-1"
-            style={styles.switchTrack}
-          >
-            <TabsTrigger
-              value="forYou"
-              className="h-10 flex-1 rounded-full border-0 shadow-none"
-              style={StyleSheet.flatten([
-                styles.switchPill,
-                scope === 'forYou' && styles.switchActive,
-              ])}
-            >
-              <UiText
-                style={StyleSheet.flatten([
-                  styles.switchTxt,
-                  scope === 'forYou' && styles.switchTxtActive,
-                ])}
-              >
-                Dành cho bạn
-              </UiText>
-            </TabsTrigger>
-            <TabsTrigger
-              value="following"
-              className="h-10 flex-1 rounded-full border-0 shadow-none"
-              style={StyleSheet.flatten([
-                styles.switchPill,
-                scope === 'following' && styles.switchActive,
-              ])}
-            >
-              <UiText
-                style={StyleSheet.flatten([
-                  styles.switchTxt,
-                  scope === 'following' && styles.switchTxtActive,
-                ])}
-              >
-                Đang theo dõi
-              </UiText>
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
+          <Search size={18} color={TERTIARY} />
+          <Text style={styles.searchPlaceholder} numberOfLines={1}>
+            Tìm món ăn, bài viết, bạn bè…
+          </Text>
+        </Pressable>
 
         {scope === 'forYou' ? (
-          <TopicCircles topics={topics} onPress={(t) => setTopicFeed(t)} />
+          <StoriesRow
+            topics={topics}
+            onPress={(t) => setTopicFeed(t)}
+          />
         ) : (
-          <Text style={styles.followingHint}>Nội dung từ người bạn đang theo dõi</Text>
+          <View style={styles.followingHintWrap}>
+            <Text style={styles.followingHint}>Bài mới nhất từ những người bạn theo dõi</Text>
+          </View>
         )}
-
-        <View style={styles.feedHeaderDivider} />
       </View>
     ),
-    [scope, topics, unreadNotif, onNotification],
+    [scope, topics],
   );
 
   const renderItem = useCallback(
@@ -960,25 +1000,75 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
 
   return (
     <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>
+      <Animated.View style={[styles.topBar, headerShadow]}>
+        <View style={styles.header}>
+          <NoanWordmark width={96} height={36} />
+          <View style={styles.headerRight}>
+            <Pressable
+              onPress={() => setSavedOpen(true)}
+              style={styles.iconBtn}
+              accessibilityRole="button"
+              accessibilityLabel="Bộ sưu tập đã lưu"
+            >
+              <Bookmark size={22} color={INK} />
+            </Pressable>
+            <Pressable
+              style={styles.iconBtn}
+              accessibilityRole="button"
+              accessibilityLabel={
+                unreadNotif > 0 ? `Thông báo, ${unreadNotif} chưa đọc` : 'Thông báo'
+              }
+              onPress={() => onNotification?.()}
+            >
+              <Bell size={23} color={INK} />
+              {unreadNotif > 0 ? (
+                <View style={styles.notifBadge}>
+                  <Text style={styles.notifBadgeTxt}>
+                    {unreadNotif > 99 ? '99+' : unreadNotif}
+                  </Text>
+                </View>
+              ) : null}
+            </Pressable>
+          </View>
+        </View>
+        <ScopeTabs scope={scope} onChange={changeScope} />
+      </Animated.View>
+
       {loading && items.length === 0 ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
         >
           {listHeader}
-          <ExploreFeedSkeleton scope={scope} />
+          <View style={styles.skeletonWrap}>
+            <ExploreFeedSkeleton scope={scope} />
+          </View>
         </ScrollView>
       ) : (
-        <FlatList
+        <AnimatedFlatList
           data={items}
           keyExtractor={(it) => it.key}
           ListHeaderComponent={listHeader}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          onScroll={onScroll as any}
+          scrollEventThrottle={16}
+          removeClippedSubviews
+          initialNumToRender={4}
+          maxToRenderPerBatch={4}
+          windowSize={7}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={INK}
+              colors={[INK]}
+              progressBackgroundColor={YELLOW}
+            />
+          }
           onEndReached={() => void onEndReached()}
-          onEndReachedThreshold={0.4}
+          onEndReachedThreshold={0.6}
           onViewableItemsChanged={onViewableItemsChanged}
           viewabilityConfig={viewabilityConfig}
           ListFooterComponent={
@@ -999,13 +1089,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
             ) : scope === 'following' ? (
               <View style={styles.emptyWrap}>
                 <Text style={styles.emptyTxt}>Theo dõi mọi người để thấy bài đăng</Text>
-                <Pressable
-                  onPress={() => {
-                    setScope('forYou');
-                    setItems([]);
-                  }}
-                  style={styles.retryBtn}
-                >
+                <Pressable onPress={() => changeScope('forYou')} style={styles.retryBtn}>
                   <Text style={styles.retryTxt}>Khám phá dành cho bạn</Text>
         </Pressable>
       </View>
@@ -1260,73 +1344,81 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: CREAM },
-  listContent: { paddingHorizontal: H_PAD, paddingBottom: 130 },
+  root: { flex: 1, backgroundColor: FEED_BG },
+  listContent: { paddingTop: 10, paddingBottom: 140 },
+  skeletonWrap: { paddingHorizontal: H_PAD },
+  topBar: {
+    backgroundColor: WHITE,
+    paddingHorizontal: H_PAD,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: 'transparent',
+    shadowColor: '#6B4E12',
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 0,
+    zIndex: 10,
+  },
   header: {
-    height: 56,
+    height: 52,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  brand: { width: 104, height: 40 },
-  headerRight: { flexDirection: 'row', alignItems: 'center' },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   iconBtn: {
-    width: 44,
-    height: 44,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#F7F1E3',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  notifDot: {
+  notifBadge: {
     position: 'absolute',
-    top: 10,
-    right: 10,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    top: 2,
+    right: 0,
+    minWidth: 18,
+    height: 18,
+    paddingHorizontal: 4,
+    borderRadius: 9,
     backgroundColor: CORAL_DOT,
-  },
-  followingHint: {
-    fontSize: 13,
-    color: MUTED,
-    marginBottom: 12,
-    marginTop: 2,
-  },
-  feedHeaderDivider: {
-    marginTop: 12,
-    marginHorizontal: -H_PAD,
-    height: 8,
-    backgroundColor: '#F0E8D8',
-  },
-  switchTrack: {
-    backgroundColor: WHITE,
-    borderRadius: 999,
-    padding: 4,
-    height: 48,
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  switchPill: {
-    flex: 1,
-    height: 40,
-    borderRadius: 999,
+    borderWidth: 2,
+    borderColor: WHITE,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'transparent',
   },
-  switchActive: {
+  notifBadgeTxt: { color: WHITE, fontSize: 10, fontWeight: '800', lineHeight: 12 },
+
+  tabsWrap: { flexDirection: 'row', height: 44 },
+  tabBtn: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  tabTxt: { fontSize: 15, fontWeight: '600', color: TERTIARY },
+  tabTxtActive: { color: INK, fontWeight: '800' },
+  tabIndicator: {
+    position: 'absolute',
+    left: 0,
+    bottom: 0,
+    height: 3,
+    borderRadius: 2,
     backgroundColor: YELLOW,
   },
-  switchTxt: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: MUTED,
-    textAlign: 'center',
+
+  searchPill: {
+    marginHorizontal: 12,
+    marginBottom: 6,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: WHITE,
+    borderWidth: 1,
+    borderColor: BORDER,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 16,
   },
-  switchTxtActive: {
-    color: INK,
-    fontWeight: '800',
-  },
+  searchPlaceholder: { flex: 1, fontSize: 15, color: TERTIARY },
+  followingHintWrap: { paddingHorizontal: H_PAD, paddingVertical: 10 },
+  followingHint: { fontSize: 13, color: MUTED },
+
   fab: {
     position: 'absolute',
     right: 20,
@@ -1337,20 +1429,20 @@ const styles = StyleSheet.create({
     backgroundColor: YELLOW,
     alignItems: 'center',
     justifyContent: 'center',
-    elevation: 4,
+    elevation: 6,
     shadowColor: '#5D490F',
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
   },
-  emptyWrap: { alignItems: 'center', paddingVertical: 40, gap: 12 },
+  emptyWrap: { alignItems: 'center', paddingVertical: 40, paddingHorizontal: H_PAD, gap: 12 },
   emptyErr: { color: '#E53E3E', textAlign: 'center' },
   emptyTxt: { color: MUTED, textAlign: 'center', marginTop: 40 },
   retryBtn: {
     backgroundColor: YELLOW,
     borderRadius: 999,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingHorizontal: 18,
+    paddingVertical: 11,
   },
   retryTxt: { fontWeight: '700', color: INK },
   toast: {

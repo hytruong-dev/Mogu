@@ -10,7 +10,15 @@ export const BORDER = '#E8E0D2';
 export const RED_LIKE = '#FF5F57';
 export const CORAL_DOT = '#FF796F';
 export const DIVIDER = '#EDE6D8';
+export const HONEY = '#C98A00';
+
+/** Feed background (slightly deeper than cream so white cards pop). */
+export const FEED_BG = '#FBF3E1';
+/** Instagram-like story ring gradient, tuned to NOAN palette. */
+export const STORY_RING: [string, string, string] = ['#FFD54F', '#FF9F43', '#FF5F57'];
 
 export const H_PAD = 16;
-export const MEDIA_RADIUS = 14;
-export const POST_GAP = 22;
+export const CARD_PAD = 14;
+export const CARD_RADIUS = 22;
+export const MEDIA_RADIUS = 16;
+export const POST_GAP = 14;

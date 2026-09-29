@@ -114,7 +114,9 @@ async function getValidSession(): Promise<Session | null> {
 
 export async function apiRequest<T>(path: string, options: Options = {}): Promise<T> {
   const { auth = true, retry = true, headers, ...requestOptions } = options;
+  if (options.signal?.aborted) throw new Error('Request aborted');
   const session = auth ? await getValidSession() : null;
+  if (options.signal?.aborted) throw new Error('Request aborted');
   const tz = getDeviceTimeZone();
   const todayDate = getTodayISO(tz);
   const requestId =
@@ -126,13 +128,8 @@ export async function apiRequest<T>(path: string, options: Options = {}): Promis
   // Fastify rejects empty body when Content-Type is application/json.
   // POST/PUT/PATCH without body → send "{}" so Content-Type is valid.
   const hasBody =
-    requestOptions.body !== undefined &&
-    requestOptions.body !== null &&
-    requestOptions.body !== '';
-  const body =
-    !hasBody && ['POST', 'PUT', 'PATCH'].includes(method)
-      ? '{}'
-      : requestOptions.body;
+    requestOptions.body !== undefined && requestOptions.body !== null && requestOptions.body !== '';
+  const body = !hasBody && ['POST', 'PUT', 'PATCH'].includes(method) ? '{}' : requestOptions.body;
 
   let response: Response;
   try {
@@ -141,7 +138,9 @@ export async function apiRequest<T>(path: string, options: Options = {}): Promis
       body,
       headers: {
         Accept: 'application/json',
-        ...(body != null ? { 'Content-Type': 'application/json' } : {}),
+        ...(body != null && !(typeof FormData !== 'undefined' && body instanceof FormData)
+          ? { 'Content-Type': 'application/json' }
+          : {}),
         'X-Timezone': tz,
         'X-Local-Date': todayDate,
         'X-Request-Id': requestId,
