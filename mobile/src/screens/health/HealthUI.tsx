@@ -262,11 +262,14 @@ export function SubHeader({
   onBack,
   align = 'center',
   right,
+  chevron = false,
 }: {
   title: string;
   onBack: () => void;
   align?: 'center' | 'left';
   right?: ReactNode;
+  /** Dùng mũi tên "<" như design màn Tổng quan. */
+  chevron?: boolean;
 }) {
   return (
     <View style={s.subHeader}>
@@ -277,7 +280,7 @@ export function SubHeader({
         accessibilityLabel="Quay lại"
         style={s.iconBtn}
       >
-        <ArrowLeft size={24} color={HC.ink} />
+        {chevron ? <ChevronLeft size={26} color={HC.ink} /> : <ArrowLeft size={24} color={HC.ink} />}
       </Pressable>
       <Text
         numberOfLines={1}

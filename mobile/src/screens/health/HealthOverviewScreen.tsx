@@ -127,7 +127,7 @@ export function HealthOverviewScreen({
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right', 'bottom']}>
       <View style={{ paddingHorizontal: 20 }}>
-        <SubHeader title="Tổng quan dinh dưỡng" onBack={onBack} />
+        <SubHeader title="Tổng quan dinh dưỡng" onBack={onBack} chevron />
         <DatePill label={formatDayLabel(date)} onPrev={onPrev} onNext={onNext} onPress={onPickDate} style={{ marginHorizontal: 20 }} />
       </View>
       <ScrollView contentContainerStyle={{ padding: 20, paddingBottom: 40 }} showsVerticalScrollIndicator={false}>

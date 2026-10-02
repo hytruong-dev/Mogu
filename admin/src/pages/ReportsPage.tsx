@@ -14,6 +14,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
 import { Progress } from '../components/ui/progress'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { exploreAdminApi, type ExploreAnalytics } from '../api/explore'
 
 function StatCard({
@@ -234,32 +235,19 @@ export default function ReportsPage() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <div className="flex items-center rounded-lg border border-input bg-background p-1">
-            <button
-              onClick={() => setRange('7d')}
-              className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
-                range === '7d' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              7 ngày
-            </button>
-            <button
-              onClick={() => setRange('30d')}
-              className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
-                range === '30d' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              30 ngày
-            </button>
-            <button
-              onClick={() => setRange('90d')}
-              className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
-                range === '90d' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              90 ngày
-            </button>
-          </div>
+          <Tabs value={range} onValueChange={(val) => setRange(val as typeof range)}>
+            <TabsList className="h-9 p-1">
+              <TabsTrigger value="7d" className="text-xs font-semibold px-3 py-1">
+                7 ngày
+              </TabsTrigger>
+              <TabsTrigger value="30d" className="text-xs font-semibold px-3 py-1">
+                30 ngày
+              </TabsTrigger>
+              <TabsTrigger value="90d" className="text-xs font-semibold px-3 py-1">
+                90 ngày
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 

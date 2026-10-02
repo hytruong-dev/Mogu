@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { DishDifficulty } from '@prisma/client';
+import { DishDifficulty, DishType, NutritionMethod } from '@prisma/client';
 import { Type, Transform } from 'class-transformer';
 import {
   IsArray,
@@ -123,6 +123,27 @@ export class CreateNutritionDto {
   @IsNumber()
   @Min(0)
   sodiumMg?: number;
+
+  @ApiPropertyOptional({ enum: NutritionMethod, description: 'Phương pháp tính' })
+  @IsOptional()
+  @IsEnum(NutritionMethod)
+  method?: NutritionMethod;
+
+  @ApiPropertyOptional({ description: 'Độ tin cậy 0-100' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  confidence?: number;
+
+  @ApiPropertyOptional({ description: 'URL nguồn dinh dưỡng' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(2000)
+  sourceUrl?: string;
+
+  @ApiPropertyOptional({ description: 'Provenance JSON (nguồn tham khảo, per-ingredient breakdown)' })
+  @IsOptional()
+  provenance?: Record<string, unknown>;
 }
 
 // ── Bước nấu ─────────────────────────────────────────────────────────────────
@@ -231,6 +252,30 @@ export class CreateDishDto {
   @IsInt()
   @Min(0)
   priceMax?: number;
+
+  @ApiPropertyOptional({ description: 'Giá ăn ngoài tối thiểu / 1 phần (VND)', minimum: 0 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  dineOutPriceMin?: number;
+
+  @ApiPropertyOptional({ description: 'Giá ăn ngoài tối đa / 1 phần (VND)', minimum: 0 })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  dineOutPriceMax?: number;
+
+  @ApiPropertyOptional({ enum: DishType, description: 'Loại món: WET (món nước) / DRY (món khô)', nullable: true })
+  @IsOptional()
+  @Transform(({ value }) => (value === '' ? undefined : value))
+  @IsEnum(DishType)
+  dishType?: DishType | null;
+
+  @ApiPropertyOptional({ description: 'Link video hướng dẫn (YouTube)', maxLength: 500, nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  videoUrl?: string | null;
 
   @ApiPropertyOptional({ description: 'Buổi ăn chính (BREAKFAST/LUNCH/DINNER/SNACK)', maxLength: 50 })
   @IsOptional()

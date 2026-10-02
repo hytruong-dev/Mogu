@@ -10,9 +10,16 @@ describe('IngredientParserService', () => {
   it.each([
     ['1–2 muỗng canh nước mắm', 1, 2, 'TBSP'],
     ['1/2 muỗng cà phê muối', 0.5, null, 'TSP'],
-    ['muối vừa đủ', null, null, 'VỪA_ĐỦ'],
+    ['muối vừa đủ', 1, null, 'VỪA_ĐỦ'],
   ])('parse quantity %s', (raw, quantity, quantityTo, unitCode) => {
     expect(parser.parse(raw)).toMatchObject({ quantity, quantityTo, unitCode });
+  });
+
+  it('định lượng mặc định = 1 và đánh dấu quantityDefaulted khi không bắt được số', () => {
+    const parsed = parser.parse('rau thơm ăn kèm');
+    expect(parsed.quantity).toBe(1);
+    expect(parsed.parseMetadata).toEqual({ quantityDefaulted: true });
+    expect(parser.parse('200 g bún').parseMetadata).toBeUndefined();
   });
 
   it('tách specification và preparation', () => {

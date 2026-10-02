@@ -1,6 +1,7 @@
 import api from './client'
 import type { CursorPage, Dish } from '../types'
 import { mediaApi } from './media'
+import type { PendingIngredientIssue } from './ingredients'
 
 export interface AdminDishQuery {
   q?: string
@@ -20,6 +21,7 @@ export interface DishValidationResult {
   sections: { key: string; status: string }[]
   blockingErrors: { code: string; message: string; section: string }[]
   warnings: { code: string; message: string }[]
+  ingredientIssues?: PendingIngredientIssue[]
   canSubmitReview: boolean
 }
 
@@ -40,6 +42,10 @@ function toBackendBody(dto: Partial<CreateDishDto>) {
     servings: d.servings,
     priceMin: d.priceMin ?? d.priceMin,
     priceMax: d.priceMax ?? d.priceMax,
+    dineOutPriceMin: d.dineOutPriceMin,
+    dineOutPriceMax: d.dineOutPriceMax,
+    dishType: d.dishType,
+    videoUrl: d.videoUrl,
     primaryMealSlot: d.primaryMealSlot ?? d.primaryMealSlot,
     categoryIds: d.categoryIds,
     mealTypeIds: d.mealTypeIds ?? d.mealTypeIds,
@@ -57,6 +63,10 @@ function toBackendBody(dto: Partial<CreateDishDto>) {
           sodiumMg: d.nutrition.sodiumMg ?? d.nutrition.sodiumMg,
           servingName: d.nutrition.servingName ?? d.nutrition.servingName,
           servingG: d.nutrition.servingG ?? d.nutrition.servingG,
+          method: d.nutrition.method,
+          confidence: d.nutrition.confidence,
+          sourceUrl: d.nutrition.sourceUrl,
+          provenance: d.nutrition.provenance,
         }
       : undefined,
     ingredients: d.ingredients?.map((i: any) => ({
@@ -88,6 +98,7 @@ function normalizeValidation(raw: any): DishValidationResult | null {
     sections: raw?.sections ?? [],
     blockingErrors: blocking,
     warnings: raw?.warnings ?? [],
+    ingredientIssues: raw?.ingredientIssues ?? [],
     canSubmitReview: raw?.canSubmitReview ?? blocking.length === 0,
   }
 }
@@ -108,6 +119,10 @@ export interface NutritionPayload {
   sodiumMg?: number
   servingName?: string
   servingG?: number
+  method?: 'AI_ESTIMATED' | 'INGREDIENT_CALCULATED' | 'SOURCE_VERIFIED'
+  confidence?: number
+  sourceUrl?: string | null
+  provenance?: Record<string, unknown> | null
 }
 
 export interface IngredientRow {
@@ -138,6 +153,10 @@ export interface CreateDishDto {
   servings?: number
   priceMin?: number
   priceMax?: number
+  dineOutPriceMin?: number
+  dineOutPriceMax?: number
+  dishType?: 'WET' | 'DRY' | null
+  videoUrl?: string | null
   primaryMealSlot?: string
   shortDescription?: string
   fullDescription?: string

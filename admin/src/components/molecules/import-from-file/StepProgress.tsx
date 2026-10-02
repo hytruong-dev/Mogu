@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import type { ProgressLog, ProgressStep } from './types'
 import { GreenSwitch } from './widgets'
+import { Progress } from '../../ui/progress'
 import { cn } from '@/lib/utils'
 
 interface Props {
@@ -31,9 +32,7 @@ export function StepProgress({ percent, created, total, eta, steps, logs, autoOp
         <p className="mt-1 text-sm font-medium text-black">{created} / {total} món</p>
         <p className="text-xs text-[#6B7280]">Ước tính còn {eta}</p>
         <div className="mt-3">
-          <div className="h-2.5 overflow-hidden rounded-full bg-[#E5E7EB]">
-            <div className="h-full rounded-full bg-[#22C55E] transition-all duration-300" style={{ width: `${percent}%` }} />
-          </div>
+          <Progress value={percent} indicatorClassName="bg-[#22C55E]" className="h-2.5 bg-[#E5E7EB]" />
           <div className="mt-1 flex justify-between text-[10px] text-[#9CA3AF]">
             <span>0%</span>
             <span>50%</span>

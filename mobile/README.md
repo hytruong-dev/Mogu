@@ -29,6 +29,8 @@ Lưu ý cấu hình: không đặt `microphonePermission: false` cho `expo-image
 
 Giọng NOAN ưu tiên cloud TTS. Khi không có mạng, app dùng audio đã cache, rồi fallback `expo-speech` tiếng Việt trên thiết bị nếu có. UI báo rõ khi dùng giọng thiết bị; chất lượng phụ thuộc voice đã cài. Thao tác vật lý và transcript luôn dùng được. Backend cần cấu hình Azure Speech hoặc một endpoint OpenAI hỗ trợ API speech thực sự (endpoint tương thích chat chưa chắc hỗ trợ audio).
 
+Hồ sơ giọng “NOAN vào bếp”, cách cấu hình và lưu ý về giọng riêng có đồng ý của người lồng tiếng: xem `../docs/NOAN_COOKING_VOICE.md`.
+
 # Test:
 `npm run typecheck`
 
@@ -49,4 +51,3 @@ Kiểm thử nghiệm thu cần máy thật đã đăng nhập và key cloud h�
 Không thể dùng kết quả build hoặc test mock thay cho thử nghiệm STT tiếng Việt/micro trong bếp trên máy thật.
 
 #License:
-

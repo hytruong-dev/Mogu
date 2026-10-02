@@ -35,8 +35,8 @@ export type CookingVoiceAnswer = {
   action?: CookingVoiceServerAction;
   audioUrl?: string | null;
 };
-// v2 persists the original server URLs, never ephemeral cache file paths.
-const scriptKey = (id: string) => `cooking-voice-script:v2:${id}`;
+// v3 drops old script audio after the NOAN voice-profile change. Keep original server URLs.
+const scriptKey = (id: string) => `cooking-voice-script:v3:${id}`;
 const audioDownloads = new Map<string, Promise<string>>();
 // Deterministic filename; collisions are checked through the separate URL index.
 function hash(value: string): string {

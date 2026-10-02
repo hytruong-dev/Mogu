@@ -1,6 +1,10 @@
 import { useState } from 'react'
+import { AlertCircle } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { Label } from '../components/ui/label'
+import { Alert, AlertDescription } from '../components/ui/alert'
 import api from '../api/client'
 
 export default function LoginPage() {
@@ -50,55 +54,64 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="login-page">
-      <div className="login-card">
-        <div className="brand" style={{ marginBottom: 24 }}>
-          Mogu<span>ADMIN</span>
-        </div>
-        <h2 style={{ marginBottom: 6 }}>Đăng nhập</h2>
-        <p style={{ color: 'var(--text-muted)', marginBottom: 24, fontSize: 14 }}>
-          Chỉ dành cho quản trị viên hệ thống
-        </p>
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <label>
-            <span style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>
-              Tên đăng nhập
-            </span>
-            <Input
-              type="text"
-              placeholder="superadmin"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              autoCapitalize="none"
-              autoCorrect="off"
-            />
-          </label>
-          <label>
-            <span style={{ fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 6 }}>
-              Mật khẩu
-            </span>
-            <Input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </label>
-          {error && (
-            <div style={{ color: 'var(--red)', fontSize: 13, padding: '8px 12px', background: '#fff1f0', borderRadius: 6 }}>
-              {error}
+    <div className="login-page flex min-h-screen items-center justify-center bg-muted/40 p-4">
+      <Card className="login-card w-full max-w-sm shadow-xl border border-border">
+        <CardHeader className="text-center pb-4">
+          <div className="brand mb-3 text-xl font-black tracking-tight text-foreground">
+            Mogu<span className="text-amber-500 font-extrabold ml-1">ADMIN</span>
+          </div>
+          <CardTitle className="text-xl font-bold">Đăng nhập</CardTitle>
+          <CardDescription className="text-xs">
+            Chỉ dành cho quản trị viên hệ thống
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            <div className="space-y-1.5 text-left">
+              <Label htmlFor="login-username" className="text-xs font-semibold">
+                Tên đăng nhập
+              </Label>
+              <Input
+                id="login-username"
+                type="text"
+                placeholder="superadmin"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                autoCapitalize="none"
+                autoCorrect="off"
+                className="h-10 text-sm"
+              />
             </div>
-          )}
-          <Button type="submit" disabled={loading} style={{ marginTop: 4 }}>
-            {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-          </Button>
-        </form>
-        <p style={{ marginTop: 16, fontSize: 12, color: 'var(--text-muted)', textAlign: 'center' }}>
-          Quên mật khẩu? Liên hệ Super Admin để được hỗ trợ.
-        </p>
-      </div>
+            <div className="space-y-1.5 text-left">
+              <Label htmlFor="login-password" className="text-xs font-semibold">
+                Mật khẩu
+              </Label>
+              <Input
+                id="login-password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="h-10 text-sm"
+              />
+            </div>
+            {error && (
+              <Alert variant="destructive" className="py-2.5 px-3">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription className="text-xs ml-2">{error}</AlertDescription>
+              </Alert>
+            )}
+            <Button type="submit" disabled={loading} className="w-full mt-2 h-10 font-semibold">
+              {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+            </Button>
+          </form>
+          <p className="mt-4 text-[11px] text-muted-foreground text-center">
+            Quên mật khẩu? Liên hệ Super Admin để được hỗ trợ.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   )
 }

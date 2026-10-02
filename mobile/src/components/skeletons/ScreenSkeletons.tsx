@@ -16,7 +16,7 @@ export function Bone({ width = '100%', height = 14, radius = 8, style, className
   return (
     <Skeleton
       className={cn('bg-muted', className)}
-      style={[{ width, height, borderRadius: radius }, style]}
+      style={[{ width, height, borderRadius: radius, backgroundColor: '#EDE4D0' }, style]}
     />
   );
 }
@@ -219,36 +219,84 @@ export function EditPlanSkeleton() {
 export function WeeklyPlanSkeleton() {
   return (
     <View style={sk.pad}>
-      <BoneRow style={{ marginBottom: 16 }} gap={8}>
-        {Array.from({ length: 7 }).map((_, i) => (
-          <Bone key={i} width={40} height={56} radius={12} />
-        ))}
-      </BoneRow>
-      <Bone width={180} height={18} style={{ marginBottom: 14 }} />
-      {[0, 1, 2].map((i) => (
-        <View key={i} style={[sk.card, sk.mealCard]}>
-          <Bone width={88} height={88} radius={12} />
-          <View style={{ flex: 1, gap: 8, paddingVertical: 4 }}>
-            <Bone width={72} height={12} />
-            <Bone width="70%" height={16} />
-            <Bone width="45%" height={12} />
-            <Bone width={56} height={12} />
+      {/* Overview card */}
+      <View style={[sk.card, { padding: 14, gap: 10, marginBottom: 10 }]}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <View style={{ gap: 6 }}>
+            <Bone width={76} height={20} radius={999} />
+            <Bone width={130} height={18} />
           </View>
-          <View style={{ gap: 10, alignItems: 'center' }}>
-            <BoneCircle size={28} />
-            <BoneCircle size={28} />
-          </View>
+          <Bone width={86} height={34} radius={999} />
         </View>
-      ))}
-      <View style={[sk.card, { marginTop: 4 }]}>
-        <BoneRow gap={12}>
-          <BoneCircle size={40} />
-          <View style={{ flex: 1, gap: 8 }}>
-            <Bone width="60%" height={14} />
-            <Bone width="40%" height={12} />
+        <BoneRow gap={10}>
+          <View style={{ flex: 1, backgroundColor: '#FAF6EE', borderRadius: 14, padding: 10, gap: 6 }}>
+            <Bone width={70} height={12} />
+            <Bone width={85} height={16} />
+            <Bone width="100%" height={6} radius={3} />
+          </View>
+          <View style={{ flex: 1, backgroundColor: '#FAF6EE', borderRadius: 14, padding: 10, gap: 6 }}>
+            <Bone width={70} height={12} />
+            <Bone width={95} height={16} />
+            <Bone width="100%" height={6} radius={3} />
           </View>
         </BoneRow>
       </View>
+
+      {/* Calendar row */}
+      <View style={[sk.card, { padding: 6, marginBottom: 10 }]}>
+        <BoneRow style={{ justifyContent: 'space-between' }} gap={6}>
+          {Array.from({ length: 7 }).map((_, i) => (
+            <View key={i} style={{ flex: 1, alignItems: 'center', gap: 4, paddingVertical: 4 }}>
+              <Bone width={20} height={10} />
+              <Bone width={22} height={14} radius={4} />
+            </View>
+          ))}
+        </BoneRow>
+      </View>
+
+      {/* Day header */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10, paddingHorizontal: 4 }}>
+        <Bone width={120} height={18} />
+        <BoneRow gap={6}>
+          <Bone width={36} height={20} radius={999} />
+          <Bone width={58} height={20} radius={999} />
+          <Bone width={30} height={20} radius={999} />
+        </BoneRow>
+      </View>
+
+      {/* 3 Meal cards */}
+      {[0, 1, 2].map((i) => (
+        <View key={i} style={[sk.card, sk.mealCard]}>
+          <Bone width={76} height={76} radius={14} />
+          <View style={{ flex: 1, gap: 6, paddingVertical: 2 }}>
+            <Bone width={64} height={16} radius={999} />
+            <Bone width={i === 0 ? '80%' : i === 1 ? '70%' : '75%'} height={16} />
+            <Bone width={100} height={12} />
+          </View>
+          <View style={{ gap: 8, alignItems: 'center' }}>
+            <BoneCircle size={32} />
+            <BoneCircle size={32} />
+          </View>
+        </View>
+      ))}
+
+      {/* Tool grid */}
+      <BoneRow gap={10} style={{ marginTop: 2 }}>
+        <View style={[sk.card, { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12 }]}>
+          <Bone width={36} height={36} radius={12} />
+          <View style={{ flex: 1, gap: 4 }}>
+            <Bone width={70} height={13} />
+            <Bone width={60} height={11} />
+          </View>
+        </View>
+        <View style={[sk.card, { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10, padding: 12 }]}>
+          <Bone width={36} height={36} radius={12} />
+          <View style={{ flex: 1, gap: 4 }}>
+            <Bone width={70} height={13} />
+            <Bone width={60} height={11} />
+          </View>
+        </View>
+      </BoneRow>
     </View>
   );
 }
@@ -419,22 +467,20 @@ export function HealthSkeleton() {
 
 export function DishFeedSkeleton() {
   return (
-    <View style={sk.feedBlock}>
-      <View style={sk.dishMediaWrap}>
-        <Bone width="100%" height={220} radius={14} style={sk.fill} />
-        <View style={sk.badgeWrap}>
-          <Bone width={64} height={24} radius={999} style={{ backgroundColor: '#FFE27A' }} />
-        </View>
+    <View style={sk.exploreCard}>
+      <View style={[sk.exploreMediaWrap, { marginTop: 10 }]}>
+        <Bone width="100%" height={200} radius={16} />
       </View>
-      <Bone width="72%" height={22} radius={6} style={{ marginTop: 12 }} />
-      <Bone width="40%" height={14} radius={4} style={{ marginTop: 6 }} />
-      <View style={sk.feedActionRow}>
-        <View style={sk.feedActionLeft}>
-          <BoneCircle size={24} />
-          <BoneCircle size={24} />
-          <Bone width={52} height={22} radius={6} />
+      <View style={sk.exploreBody}>
+        <Bone width="72%" height={20} radius={6} />
+        <Bone width="40%" height={14} radius={4} />
+      </View>
+      <View style={sk.exploreActionRow}>
+        <View style={sk.exploreActionLeft}>
+          <Bone width={52} height={24} radius={12} />
+          <Bone width={44} height={24} radius={12} />
         </View>
-        <BoneCircle size={20} />
+        <BoneCircle size={24} />
       </View>
     </View>
   );
@@ -442,58 +488,81 @@ export function DishFeedSkeleton() {
 
 export function PostFeedSkeleton() {
   return (
-    <View style={sk.feedBlock}>
-      <View style={sk.postHeader}>
-        <BoneCircle size={40} />
+    <View style={sk.exploreCard}>
+      {/* Header */}
+      <View style={sk.exploreHeader}>
+        <BoneCircle size={42} />
         <View style={{ flex: 1, gap: 5 }}>
-          <Bone width={110} height={14} radius={4} />
-          <Bone width={65} height={11} radius={4} />
+          <Bone width={110} height={15} radius={4} />
+          <Bone width={90} height={12} radius={4} />
         </View>
-        <Bone width={76} height={28} radius={999} style={{ backgroundColor: '#FFE27A' }} />
-        <BoneCircle size={20} />
-      </View>
-      <View style={sk.postMediaWrap}>
-        <Bone width="100%" height={320} radius={14} style={sk.fill} />
-      </View>
-      <View style={sk.feedActionRow}>
-        <View style={sk.feedActionLeft}>
-          <BoneCircle size={24} />
-          <BoneCircle size={24} />
-          <BoneCircle size={22} />
-        </View>
+        <Bone width={86} height={32} radius={999} style={{ backgroundColor: '#FFD54F' }} />
         <BoneCircle size={22} />
       </View>
-      <Bone width={85} height={13} radius={4} style={{ marginTop: 8 }} />
-      <Bone width="90%" height={14} radius={4} style={{ marginTop: 6 }} />
-      <Bone width="55%" height={14} radius={4} style={{ marginTop: 4 }} />
+
+      {/* Caption text */}
+      <View style={[sk.exploreBody, { paddingTop: 2, paddingBottom: 10 }]}>
+        <Bone width="92%" height={16} radius={4} />
+        <Bone width="55%" height={16} radius={4} />
+      </View>
+
+      {/* Action Row */}
+      <View style={sk.exploreActionRow}>
+        <View style={sk.exploreActionLeft}>
+          <Bone width={52} height={24} radius={12} />
+          <Bone width={44} height={24} radius={12} />
+          <BoneCircle size={24} />
+        </View>
+        <BoneCircle size={24} />
+      </View>
     </View>
   );
 }
 
 export function ArticleFeedSkeleton() {
   return (
-    <View style={sk.feedBlock}>
-      <View style={sk.postHeader}>
-        <BoneCircle size={40} />
+    <View style={sk.exploreCard}>
+      {/* Header */}
+      <View style={sk.exploreHeader}>
+        <BoneCircle size={42} />
         <View style={{ flex: 1, gap: 5 }}>
-          <Bone width={110} height={14} radius={4} />
-          <Bone width={65} height={11} radius={4} />
+          <Bone width={110} height={15} radius={4} />
+          <Bone width={160} height={12} radius={4} />
         </View>
-        <BoneCircle size={20} />
+        <BoneCircle size={22} />
       </View>
-      <View style={sk.dishMediaWrap}>
-        <Bone width="100%" height={220} radius={14} style={sk.fill} />
-        <View style={sk.badgeWrap}>
-          <Bone width={64} height={24} radius={999} style={{ backgroundColor: '#FFE27A' }} />
+
+      {/* Media */}
+      <View style={sk.exploreMediaWrap}>
+        <Bone width="100%" height={210} radius={16} />
+        <View style={sk.readBadge}>
+          <Bone width={80} height={24} radius={999} style={{ backgroundColor: 'rgba(0,0,0,0.55)' }} />
         </View>
       </View>
-      <Bone width={78} height={20} radius={999} style={{ marginTop: 10, backgroundColor: '#FFE27A' }} />
-      <Bone width="80%" height={22} radius={6} style={{ marginTop: 8 }} />
-      <Bone width={75} height={13} radius={4} style={{ marginTop: 6 }} />
-      <View style={sk.feedActionRow}>
-        <View style={sk.feedActionLeft}>
-          <Bone width={52} height={22} radius={6} />
+
+      {/* Body */}
+      <View style={sk.exploreBody}>
+        <Bone width="90%" height={20} radius={6} />
+        <Bone width="60%" height={20} radius={6} />
+        <Bone width="95%" height={14} radius={4} style={{ marginTop: 4 }} />
+        <Bone width="75%" height={14} radius={4} />
+
+        {/* Tags */}
+        <BoneRow gap={8} style={{ marginTop: 4 }}>
+          <Bone width={65} height={14} radius={4} style={{ backgroundColor: '#FFF0BA' }} />
+          <Bone width={58} height={14} radius={4} style={{ backgroundColor: '#FFF0BA' }} />
+          <Bone width={62} height={14} radius={4} style={{ backgroundColor: '#FFF0BA' }} />
+        </BoneRow>
+      </View>
+
+      {/* Action Row */}
+      <View style={sk.exploreActionRow}>
+        <View style={sk.exploreActionLeft}>
+          <Bone width={52} height={24} radius={12} />
+          <Bone width={44} height={24} radius={12} />
+          <BoneCircle size={24} />
         </View>
+        <BoneCircle size={24} />
       </View>
     </View>
   );
@@ -502,17 +571,16 @@ export function ArticleFeedSkeleton() {
 export function ExploreFeedSkeleton({ scope = 'forYou' }: { scope?: 'forYou' | 'following' }) {
   if (scope === 'following') {
     return (
-      <View style={{ gap: 4 }}>
+      <View style={{ gap: 0 }}>
         <PostFeedSkeleton />
         <PostFeedSkeleton />
       </View>
     );
   }
   return (
-    <View style={{ gap: 4 }}>
+    <View style={{ gap: 0 }}>
       <ArticleFeedSkeleton />
       <PostFeedSkeleton />
-      <ArticleFeedSkeleton />
     </View>
   );
 }
@@ -602,5 +670,57 @@ const sk = {
     alignItems: 'center',
     gap: 10,
     marginBottom: 12,
+  } as ViewStyle,
+  exploreCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    marginHorizontal: 12,
+    marginBottom: 14,
+    paddingBottom: 6,
+    borderWidth: 1,
+    borderColor: '#EDE6D8',
+    shadowColor: '#6B4E12',
+    shadowOpacity: 0.07,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  } as ViewStyle,
+  exploreHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 10,
+    gap: 10,
+  } as ViewStyle,
+  exploreMediaWrap: {
+    marginHorizontal: 10,
+    borderRadius: 16,
+    overflow: 'hidden',
+    position: 'relative',
+    backgroundColor: '#F0EBE0',
+  } as ViewStyle,
+  readBadge: {
+    position: 'absolute',
+    right: 10,
+    bottom: 10,
+  } as ViewStyle,
+  exploreBody: {
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    gap: 6,
+  } as ViewStyle,
+  exploreActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingTop: 8,
+    paddingBottom: 6,
+  } as ViewStyle,
+  exploreActionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   } as ViewStyle,
 };

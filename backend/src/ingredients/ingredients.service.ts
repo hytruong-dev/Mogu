@@ -49,12 +49,16 @@ export class IngredientsService {
         id: true,
         code: true,
         name: true,
+        nameEn: true,
+        description: true,
+        groupLabel: true,
         synonyms: true,
         unit: true,
         allergenCode: true,
         imageUrl: true,
         status: true,
         imageStatus: true,
+        createdVia: true,
         isActive: true,
       },
       take: Math.min(limit, 100),
@@ -77,29 +81,51 @@ export class IngredientsService {
     allergenCode?: string;
     isActive?: boolean;
     status?: string;
+    activationStatus?: 'all' | 'unactivated' | 'activated';
     page?: number;
     limit?: number;
   }) {
-    const { q, allergenCode, isActive, status, page = 1, limit = 20 } = query;
+    const { q, allergenCode, isActive, status, activationStatus, page = 1, limit = 20 } = query;
     const take = Math.min(limit, 100);
     const skip = (page - 1) * take;
 
-    const where: any = {
-      ...(allergenCode ? { allergenCode } : {}),
-      ...(isActive !== undefined ? { isActive } : {}),
-      ...(status ? { status: status as IngredientStatus } : {}),
-      ...(q
-        ? {
-            OR: [
-              { name: { contains: q, mode: 'insensitive' } },
-              { code: { contains: q, mode: 'insensitive' } },
-              { synonyms: { has: q } },
-            ],
-          }
-        : {}),
+    const baseAnd: any[] = [];
+    if (allergenCode) baseAnd.push({ allergenCode });
+    if (q) {
+      baseAnd.push({
+        OR: [
+          { name: { contains: q, mode: 'insensitive' } },
+          { code: { contains: q, mode: 'insensitive' } },
+          { synonyms: { has: q } },
+        ],
+      });
+    }
+
+    const unactivatedCondition = {
+      OR: [
+        { status: IngredientStatus.PENDING_REVIEW },
+        { status: { not: IngredientStatus.ACTIVE } },
+        { isActive: false },
+      ],
+    };
+    const activatedCondition = {
+      status: IngredientStatus.ACTIVE,
+      isActive: true,
     };
 
-    const [total, items] = await Promise.all([
+    const currentAnd: any[] = [...baseAnd];
+    if (activationStatus === 'activated') {
+      currentAnd.push(activatedCondition);
+    } else if (activationStatus === 'unactivated') {
+      currentAnd.push(unactivatedCondition);
+    } else {
+      if (isActive !== undefined) currentAnd.push({ isActive });
+      if (status) currentAnd.push({ status: status as IngredientStatus });
+    }
+
+    const where = currentAnd.length > 0 ? { AND: currentAnd } : {};
+
+    const [total, items, totalAll, unactivatedCount, activatedCount] = await Promise.all([
       this.prisma.db.ingredient.count({ where }),
       this.prisma.db.ingredient.findMany({
         where,
@@ -110,6 +136,15 @@ export class IngredientsService {
           _count: { select: { dishIngredients: true } },
         },
       }),
+      this.prisma.db.ingredient.count({
+        where: baseAnd.length > 0 ? { AND: baseAnd } : {},
+      }),
+      this.prisma.db.ingredient.count({
+        where: { AND: [...baseAnd, unactivatedCondition] },
+      }),
+      this.prisma.db.ingredient.count({
+        where: { AND: [...baseAnd, activatedCondition] },
+      }),
     ]);
 
     return {
@@ -118,6 +153,11 @@ export class IngredientsService {
         dishCount: _count.dishIngredients,
       })),
       pagination: { page, limit: take, total, totalPages: Math.ceil(total / take) },
+      counts: {
+        all: totalAll,
+        unactivated: unactivatedCount,
+        activated: activatedCount,
+      },
     };
   }
 
@@ -196,7 +236,7 @@ export class IngredientsService {
     });
   }
 
-  async softDelete(id: string) {
+  async delete(id: string) {
     const existing = await this.prisma.db.ingredient.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundException({
@@ -207,14 +247,32 @@ export class IngredientsService {
       });
     }
 
-    return this.prisma.db.ingredient.update({
-      where: { id },
-      data: {
-        isActive: false,
-        status: IngredientStatus.INACTIVE,
-        version: { increment: 1 },
-      },
+    // Gỡ các liên kết trước khi xóa hoàn toàn bản ghi
+    await this.prisma.db.ingredientImageCandidate.deleteMany({
+      where: { ingredientId: id },
     });
+
+    await this.prisma.db.dishIngredient.updateMany({
+      where: { ingredientId: id },
+      data: { ingredientId: null },
+    });
+
+    await this.prisma.db.userAvoidedIngredient.deleteMany({
+      where: { ingredientId: id },
+    });
+
+    await this.prisma.db.ingredient.updateMany({
+      where: { mergedIntoId: id },
+      data: { mergedIntoId: null },
+    });
+
+    return this.prisma.db.ingredient.delete({
+      where: { id },
+    });
+  }
+
+  async softDelete(id: string) {
+    return this.delete(id);
   }
 
   async listImageCandidates(ingredientId: string) {

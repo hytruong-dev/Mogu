@@ -1,5 +1,6 @@
 import { CheckCircle2, Circle } from 'lucide-react'
 import { FilterChip } from '../atoms/FilterChip'
+import { Progress } from '../ui/progress'
 import type { ClassificationState } from './ClassificationPanel'
 
 interface SummaryPanelProps {
@@ -8,6 +9,11 @@ interface SummaryPanelProps {
   mealTypes: { id: string; name: string }[]
   goals: { id: string; name: string }[]
   dietTypes: { id: string; name: string }[]
+}
+
+function fmtPrice(v: string) {
+  const n = Number(String(v ?? '').replace(/\D/g, ''))
+  return n ? `${n.toLocaleString('vi-VN')} đ` : '0 đ'
 }
 
 const SUGGESTIONS = [
@@ -62,9 +68,21 @@ export function SummaryPanel({ state, categories, mealTypes, goals, dietTypes }:
             </div>
           ))}
           <div className="flex items-center gap-4 py-3 text-sm">
-            <span className="w-24 shrink-0 text-muted-foreground">Khoảng giá</span>
+            <span className="w-24 shrink-0 text-muted-foreground">Giá nấu nhà</span>
             <span className="font-medium">
-              {state.priceFrom || '0'} đ – {state.priceTo || '0'} đ
+              {fmtPrice(state.priceFrom)} – {fmtPrice(state.priceTo)}
+              <span className="ml-1 text-xs text-muted-foreground">(cả công thức)</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-4 py-3 text-sm">
+            <span className="w-24 shrink-0 text-muted-foreground">Giá ăn ngoài</span>
+            <span className="font-medium">
+              {state.dineOutPriceFrom || state.dineOutPriceTo
+                ? `${fmtPrice(state.dineOutPriceFrom)} – ${fmtPrice(state.dineOutPriceTo)}`
+                : '—'}
+              {(state.dineOutPriceFrom || state.dineOutPriceTo) && (
+                <span className="ml-1 text-xs text-muted-foreground">(1 phần)</span>
+              )}
             </span>
           </div>
         </div>
@@ -109,9 +127,7 @@ export function SummaryPanel({ state, categories, mealTypes, goals, dietTypes }:
               {completed} / {total}
             </span>
           </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: `${progressPct}%` }} />
-          </div>
+          <Progress value={progressPct} indicatorClassName="bg-emerald-500" className="mt-2 h-2" />
         </div>
       </div>
     </div>

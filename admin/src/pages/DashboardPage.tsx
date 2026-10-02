@@ -27,6 +27,8 @@ import {
   XCircle,
   Zap,
 } from 'lucide-react'
+import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
+import { Image } from '../components/ui/image'
 import { useNavigate } from 'react-router-dom'
 import {
   Area,
@@ -328,11 +330,17 @@ function PopularFoodsWidget({
                   {dish.rank}
                 </span>
                 {dish.imageUrl ? (
-                  <img
-                    src={dish.imageUrl}
-                    alt={dish.name}
-                    className="h-9 w-9 shrink-0 rounded-lg object-cover border border-border/80 shadow-2xs"
-                  />
+                  <div className="relative group/thumb h-9 w-9 shrink-0">
+                    <Image
+                      src={dish.imageUrl}
+                      alt={dish.name}
+                      aspectRatio="square"
+                      zoomable
+                      title={dish.name}
+                      subtitle={`Top #${dish.rank} phổ biến`}
+                      className="h-9 w-9 rounded-lg object-cover border border-border/80 shadow-2xs"
+                    />
+                  </div>
                 ) : (
                   <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted border border-border/70">
                     <Utensils size={14} className="text-muted-foreground" />
@@ -955,9 +963,15 @@ function DishQuickModal({
 
         <div className="space-y-4 py-3">
           {dish.imageUrl ? (
-            <div className="overflow-hidden rounded-xl border border-border shadow-xs h-48 w-full bg-muted">
-              <img src={dish.imageUrl} alt={dish.name} className="h-full w-full object-cover" />
-            </div>
+            <Image
+              src={dish.imageUrl}
+              alt={dish.name}
+              aspectRatio="video"
+              zoomable
+              title={dish.name}
+              subtitle={`Top #${dish.rank} Thịnh hành`}
+              className="h-48 w-full object-cover rounded-xl border border-border shadow-xs"
+            />
           ) : (
             <div className="flex h-32 w-full items-center justify-center rounded-xl bg-muted border border-border text-muted-foreground">
               <Utensils size={32} />
@@ -1020,6 +1034,7 @@ function DishQuickModal({
 
 export default function DashboardPage() {
   const navigate = useNavigate()
+  const { lightboxProps } = useMediaLightbox()
   const [chartDays, setChartDays] = useState(7)
   const range = chartDays === 30 ? '30d' : '7d'
   const [selectedDish, setSelectedDish] = useState<TrendingDishItem | null>(null)
@@ -1272,6 +1287,8 @@ export default function DashboardPage() {
         onOpenChange={setPreviewOpen}
         onNavigateDish={(id) => navigate(`/foods?q=${encodeURIComponent(id)}`)}
       />
+
+      <MediaLightbox {...lightboxProps} />
     </div>
   )
 }

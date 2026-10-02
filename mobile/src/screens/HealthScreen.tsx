@@ -17,6 +17,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Svg, { Path } from 'react-native-svg';
 import { Bell, ChevronRight, CloudOff, FileText, MoreVertical, Plus, RefreshCw, Utensils } from '@/components/icons';
 import { ExploreDetailScreen } from './ExploreDetailScreen';
 import { HealthOverviewScreen } from './health/HealthOverviewScreen';
@@ -50,7 +51,7 @@ import {
   type MealSlot,
 } from './health/HealthUI';
 
-const mascot = require('../assets/images/noan/noan-mascot-master-v1.png');
+const mascot = require('../assets/images/noan/mascot/noan-sitting-health-empty-v1.png');
 
 type Props = {
   onHome: () => void;
@@ -238,12 +239,7 @@ export function HealthScreen({ onHome, onExplore, onRandom, onProfile, onNotific
                   </View>
                   <ChevronRight size={20} color={HC.ink} />
                 </HCard>
-                <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 12, minHeight: 140 }}>
-                  <Image source={mascot} style={{ width: 150, height: 140 }} resizeMode="contain" />
-                  <Text style={{ flex: 1, fontSize: 17, fontWeight: '700', color: HC.ink, textAlign: 'center', marginBottom: 44 }}>
-                    Bắt đầu từ bữa ăn{'\n'}của bạn nhé
-                  </Text>
-                </View>
+                <EmptyMascot />
               </>
             )}
           </>
@@ -379,8 +375,34 @@ function guessSlot(): MealSlot {
 
 function JournalIcon() {
   return (
-    <View style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: HC.chip, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{ width: 44, height: 44, borderRadius: 14, backgroundColor: HC.chip, alignItems: 'center', justifyContent: 'center' }}>
       <FileText size={22} color={HC.ink} />
+    </View>
+  );
+}
+
+/** Màn 01 — nghé ngồi bên trái + lời nhắc kèm nét lấp lánh vàng. */
+function EmptyMascot() {
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'flex-end', marginTop: 8, marginLeft: -8, minHeight: 170 }}>
+      <Image
+        source={mascot}
+        style={{ width: 170, height: 166 }}
+        resizeMode="contain"
+        accessibilityIgnoresInvertColors
+        importantForAccessibility="no"
+      />
+      <View style={{ flex: 1, alignItems: 'center', marginBottom: 58, paddingLeft: 4 }}>
+        <Svg width={22} height={22} viewBox="0 0 22 22" style={{ position: 'absolute', left: 0, top: -22 }}>
+          <Path d="M4 13 L9 17" stroke={HC.yellow} strokeWidth={2.6} strokeLinecap="round" />
+          <Path d="M9 4 L11 11" stroke={HC.yellow} strokeWidth={2.6} strokeLinecap="round" />
+          <Path d="M17 3 L15 10" stroke={HC.yellow} strokeWidth={2.6} strokeLinecap="round" />
+        </Svg>
+        <Text style={{ fontSize: 17, lineHeight: 25, fontWeight: '700', color: HC.ink, textAlign: 'center' }}>
+          Bắt đầu từ bữa ăn{'\n'}của bạn nhé
+        </Text>
+        <View style={{ position: 'absolute', left: 0, bottom: -30, width: 9, height: 9, borderRadius: 5, backgroundColor: HC.yellow }} />
+      </View>
     </View>
   );
 }
@@ -452,10 +474,17 @@ function MacroRow({ day, hasMeals, onPress }: { day?: HealthDayResponse; hasMeal
               <MacroIcon kind={m.key} size={18} />
               <Text numberOfLines={1} style={{ fontSize: 13, color: HC.ink, flexShrink: 1 }}>{m.label}</Text>
             </View>
-            <Text style={{ marginTop: 10 }}>
-              <Text style={{ fontSize: 22, fontWeight: '800', color: HC.ink }}>{v == null ? '—' : fmtNum(v)}</Text>
-              <Text style={{ fontSize: 13, color: HC.sub }}> g</Text>
-            </Text>
+            {v == null ? (
+              <View style={{ alignItems: 'center', marginTop: 8 }}>
+                <Text style={{ fontSize: 22, fontWeight: '800', color: HC.ink, lineHeight: 26 }}>—</Text>
+                <Text style={{ fontSize: 12, color: HC.sub, marginTop: 2 }}>g</Text>
+              </View>
+            ) : (
+              <Text style={{ marginTop: 10 }}>
+                <Text style={{ fontSize: 22, fontWeight: '800', color: HC.ink }}>{fmtNum(v)}</Text>
+                <Text style={{ fontSize: 13, color: HC.sub }}> g</Text>
+              </Text>
+            )}
           </HCard>
         );
       })}
@@ -490,7 +519,7 @@ function JournalCard({
           <Text style={{ fontSize: 16, fontWeight: '800', color: HC.ink }}>Nhật ký bữa ăn</Text>
           <Text style={{ fontSize: 13, color: HC.sub, marginTop: 2 }}>{mealCount} bữa đã ghi</Text>
         </View>
-        <Text style={{ fontSize: 14, fontWeight: '700', color: HC.yellowDeep }}>Xem nhật ký</Text>
+        <Text style={{ fontSize: 14, fontWeight: '700', color: '#9A6A00' }}>Xem nhật ký</Text>
         <ChevronRight size={18} color={HC.ink} />
       </Pressable>
       <View style={{ gap: 10, marginTop: 6 }}>

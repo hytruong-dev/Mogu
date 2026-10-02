@@ -26,24 +26,81 @@ async function main() {
   }
   console.log(`✅ Regions: ${regions.length}`);
 
-  // ── Provinces ─────────────────────────────────────────────────────────────
+  // ── Provinces (63 tỉnh/thành chuẩn từ https://provinces.open-api.vn/ + đặc sản Hội An) ──
   const northId = (await client.query(`SELECT id FROM regions WHERE code='north'`)).rows[0].id;
   const centralId = (await client.query(`SELECT id FROM regions WHERE code='central'`)).rows[0].id;
   const southId = (await client.query(`SELECT id FROM regions WHERE code='south'`)).rows[0].id;
 
   const provinces = [
+    // Miền Bắc (25)
     { code: 'hanoi', name: 'Hà Nội', regionId: northId },
-    { code: 'haiphong', name: 'Hải Phòng', regionId: northId },
-    { code: 'namdinh', name: 'Nam Định', regionId: northId },
+    { code: 'hagiang', name: 'Hà Giang', regionId: northId },
+    { code: 'caobang', name: 'Cao Bằng', regionId: northId },
+    { code: 'backan', name: 'Bắc Kạn', regionId: northId },
+    { code: 'tuyenquang', name: 'Tuyên Quang', regionId: northId },
+    { code: 'laocai', name: 'Lào Cai', regionId: northId },
+    { code: 'dienbien', name: 'Điện Biên', regionId: northId },
+    { code: 'laichau', name: 'Lai Châu', regionId: northId },
+    { code: 'sonla', name: 'Sơn La', regionId: northId },
+    { code: 'yenbai', name: 'Yên Bái', regionId: northId },
+    { code: 'hoabinh', name: 'Hoà Bình', regionId: northId },
     { code: 'thainguyen', name: 'Thái Nguyên', regionId: northId },
+    { code: 'langson', name: 'Lạng Sơn', regionId: northId },
+    { code: 'quangninh', name: 'Quảng Ninh', regionId: northId },
+    { code: 'bacgiang', name: 'Bắc Giang', regionId: northId },
+    { code: 'phutho', name: 'Phú Thọ', regionId: northId },
+    { code: 'vinhphuc', name: 'Vĩnh Phúc', regionId: northId },
+    { code: 'bacninh', name: 'Bắc Ninh', regionId: northId },
+    { code: 'haiduong', name: 'Hải Dương', regionId: northId },
+    { code: 'haiphong', name: 'Hải Phòng', regionId: northId },
+    { code: 'hungyen', name: 'Hưng Yên', regionId: northId },
+    { code: 'thaibinh', name: 'Thái Bình', regionId: northId },
+    { code: 'hanam', name: 'Hà Nam', regionId: northId },
+    { code: 'namdinh', name: 'Nam Định', regionId: northId },
+    { code: 'ninhbinh', name: 'Ninh Bình', regionId: northId },
+
+    // Miền Trung (19 + Hội An = 20)
+    { code: 'thanhhoa', name: 'Thanh Hóa', regionId: centralId },
+    { code: 'nghean', name: 'Nghệ An', regionId: centralId },
+    { code: 'hatinh', name: 'Hà Tĩnh', regionId: centralId },
+    { code: 'quangbinh', name: 'Quảng Bình', regionId: centralId },
+    { code: 'quangtri', name: 'Quảng Trị', regionId: centralId },
+    { code: 'hue', name: 'Thừa Thiên Huế', regionId: centralId },
     { code: 'danang', name: 'Đà Nẵng', regionId: centralId },
-    { code: 'hue', name: 'Huế', regionId: centralId },
     { code: 'hoian', name: 'Hội An', regionId: centralId },
     { code: 'quangnam', name: 'Quảng Nam', regionId: centralId },
-    { code: 'hochiminh', name: 'TP. Hồ Chí Minh', regionId: southId },
-    { code: 'cantho', name: 'Cần Thơ', regionId: southId },
+    { code: 'quangngai', name: 'Quảng Ngãi', regionId: centralId },
+    { code: 'binhdinh', name: 'Bình Định', regionId: centralId },
+    { code: 'phuyen', name: 'Phú Yên', regionId: centralId },
+    { code: 'khanhhoa', name: 'Khánh Hòa', regionId: centralId },
+    { code: 'ninhthuan', name: 'Ninh Thuận', regionId: centralId },
+    { code: 'binhthuan', name: 'Bình Thuận', regionId: centralId },
+    { code: 'kontum', name: 'Kon Tum', regionId: centralId },
+    { code: 'gialai', name: 'Gia Lai', regionId: centralId },
+    { code: 'daklak', name: 'Đắk Lắk', regionId: centralId },
+    { code: 'daknong', name: 'Đắk Nông', regionId: centralId },
+    { code: 'lamdong', name: 'Lâm Đồng', regionId: centralId },
+
+    // Miền Nam (19)
+    { code: 'binhphuoc', name: 'Bình Phước', regionId: southId },
+    { code: 'tayninh', name: 'Tây Ninh', regionId: southId },
     { code: 'binhduong', name: 'Bình Dương', regionId: southId },
     { code: 'dongnai', name: 'Đồng Nai', regionId: southId },
+    { code: 'bariavungtau', name: 'Bà Rịa - Vũng Tàu', regionId: southId },
+    { code: 'hochiminh', name: 'TP. Hồ Chí Minh', regionId: southId },
+    { code: 'longan', name: 'Long An', regionId: southId },
+    { code: 'tiengiang', name: 'Tiền Giang', regionId: southId },
+    { code: 'bentre', name: 'Bến Tre', regionId: southId },
+    { code: 'travinh', name: 'Trà Vinh', regionId: southId },
+    { code: 'vinhlong', name: 'Vĩnh Long', regionId: southId },
+    { code: 'dongthap', name: 'Đồng Tháp', regionId: southId },
+    { code: 'angiang', name: 'An Giang', regionId: southId },
+    { code: 'kiengiang', name: 'Kiên Giang', regionId: southId },
+    { code: 'cantho', name: 'Cần Thơ', regionId: southId },
+    { code: 'haugiang', name: 'Hậu Giang', regionId: southId },
+    { code: 'soctrang', name: 'Sóc Trăng', regionId: southId },
+    { code: 'baclieu', name: 'Bạc Liêu', regionId: southId },
+    { code: 'camau', name: 'Cà Mau', regionId: southId },
   ];
   for (const p of provinces) {
     await client.query(

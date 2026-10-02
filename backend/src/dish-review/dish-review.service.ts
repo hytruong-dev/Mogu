@@ -6,6 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { RequestChangesDto, ReviewActionDto } from './dto/review-action.dto';
+import { IngredientCatalogService } from '../ingredients/ingredient-catalog.service';
 
 @Injectable()
 export class DishReviewService {
@@ -14,6 +15,7 @@ export class DishReviewService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
+    private readonly catalog: IngredientCatalogService,
   ) {
     this.supabaseUrl = this.config.get<string>('SUPABASE_URL', '');
   }
@@ -85,29 +87,14 @@ export class DishReviewService {
       });
     }
 
-    const ingredients = await this.prisma.db.dishIngredient.findMany({
-      where: { dishId },
-      include: { ingredient: { select: { id: true, status: true, name: true } } },
-    });
-
-    const unresolved = ingredients.filter(
-      (row) =>
-        !row.ingredientId ||
-        !row.ingredient ||
-        row.ingredient.status !== 'ACTIVE',
-    );
+    const unresolved = await this.catalog.findUnapprovedForDish(dishId);
     if (unresolved.length) {
       throw new BadRequestException({
         message: 'Còn nguyên liệu chưa liên kết hoặc chưa duyệt ACTIVE.',
         error: {
           code: 'INGREDIENTS_NOT_READY',
           message: 'Còn nguyên liệu chưa liên kết hoặc chưa duyệt ACTIVE.',
-          unresolved: unresolved.map((r) => ({
-            dishIngredientId: r.id,
-            rawText: r.rawText,
-            ingredientId: r.ingredientId,
-            status: r.ingredient?.status ?? null,
-          })),
+          unresolved,
         },
       });
     }

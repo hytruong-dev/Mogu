@@ -1,4 +1,4 @@
-import { Suspense, lazy, useState, useEffect, useRef, type ReactNode } from 'react'
+import { Suspense, lazy, useState, useEffect, type ReactNode } from 'react'
 import { BrowserRouter, Navigate, Route, Routes, useNavigate, useLocation } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
@@ -27,8 +27,18 @@ import {
 import { AuthProvider, useAuth, type AdminRole } from './providers/AuthProvider'
 import { Button } from './components/ui/button'
 import { Badge } from './components/ui/badge'
+import { Input } from './components/ui/input'
 import { Separator } from './components/ui/separator'
 import { Dialog, DialogContent } from './components/ui/dialog'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+} from './components/ui/dropdown-menu'
+import { Avatar, AvatarFallback } from './components/ui/avatar'
 import { PageSkeleton } from './components/ui/page-skeleton'
 import { useReviewQueue } from './hooks/useReviewQueue'
 import { useDashboardActivities } from './hooks/useDashboard'
@@ -254,12 +264,12 @@ function CommandPaletteModal({
       <DialogContent className="max-w-xl p-0 overflow-hidden rounded-xl border border-border shadow-2xl bg-white">
         <div className="flex items-center px-4 border-b border-border/70 h-13">
           <Search size={17} className="text-slate-400 mr-3 flex-shrink-0" />
-          <input
+          <Input
             autoFocus
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Tìm kiếm trang, chức năng hoặc thao tác nhanh..."
-            className="w-full bg-transparent border-none outline-none text-sm text-slate-800 placeholder:text-slate-400 h-12"
+            className="w-full bg-transparent border-none shadow-none outline-none focus-visible:ring-0 text-sm text-slate-800 placeholder:text-slate-400 h-12"
           />
           <Badge variant="outline" className="text-[10px] font-bold text-slate-400 border-slate-200">
             ESC
@@ -328,13 +338,6 @@ function Header() {
   const initial = displayName[0]?.toUpperCase() ?? 'A'
 
   const [commandOpen, setCommandOpen] = useState(false)
-  const [createMenuOpen, setCreateMenuOpen] = useState(false)
-  const [notifMenuOpen, setNotifMenuOpen] = useState(false)
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
-
-  const createMenuRef = useRef<HTMLDivElement>(null)
-  const notifMenuRef = useRef<HTMLDivElement>(null)
-  const userMenuRef = useRef<HTMLDivElement>(null)
 
   // Listen for Cmd+K / Ctrl+K
   useEffect(() => {
@@ -346,24 +349,6 @@ function Header() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
-
-  // Close dropdowns on outside click
-  useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      const target = e.target as Node
-      if (createMenuRef.current && !createMenuRef.current.contains(target)) {
-        setCreateMenuOpen(false)
-      }
-      if (notifMenuRef.current && !notifMenuRef.current.contains(target)) {
-        setNotifMenuOpen(false)
-      }
-      if (userMenuRef.current && !userMenuRef.current.contains(target)) {
-        setUserMenuOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleOutsideClick)
-    return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [])
 
   const roleLabel = () => {
@@ -434,241 +419,191 @@ function Header() {
         {/* Right: Actions & Profile */}
         <div className="topbar-right">
           {/* Quick Create Dropdown */}
-          <div className="relative" ref={createMenuRef}>
-            <Button
-              size="sm"
-              className="quick-create-btn"
-              onClick={() => {
-                setCreateMenuOpen((v) => !v)
-                setNotifMenuOpen(false)
-                setUserMenuOpen(false)
-              }}
-            >
-              <Plus size={15} />
-              <span>Tạo mới</span>
-              <ChevronDown size={13} className="opacity-70" />
-            </Button>
-
-            {createMenuOpen && (
-              <div className="nav-dropdown-menu">
-                <div className="text-[10.5px] font-bold text-slate-400 px-3 py-1 uppercase tracking-wider">
-                  Tạo nội dung mới
-                </div>
-                <button
-                  className="dropdown-item-btn"
-                  onClick={() => {
-                    setCreateMenuOpen(false)
-                    navigate('/foods/new')
-                  }}
-                >
-                  <Utensils size={15} className="text-amber-500" />
-                  <span>Thêm món ăn mới</span>
-                </button>
-                <button
-                  className="dropdown-item-btn"
-                  onClick={() => {
-                    setCreateMenuOpen(false)
-                    navigate('/articles')
-                  }}
-                >
-                  <FileText size={15} className="text-blue-500" />
-                  <span>Soạn bài viết mới</span>
-                </button>
-                <button
-                  className="dropdown-item-btn"
-                  onClick={() => {
-                    setCreateMenuOpen(false)
-                    navigate('/topics')
-                  }}
-                >
-                  <BookOpen size={15} className="text-emerald-500" />
-                  <span>Tạo chủ đề mới</span>
-                </button>
-                <Separator className="my-1" />
-                <button
-                  className="dropdown-item-btn"
-                  onClick={() => {
-                    setCreateMenuOpen(false)
-                    navigate('/ingest')
-                  }}
-                >
-                  <CloudDownload size={15} className="text-indigo-500" />
-                  <span>Nhập món tự động (AI)</span>
-                </button>
-              </div>
-            )}
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" className="quick-create-btn">
+                <Plus size={15} />
+                <span>Tạo mới</span>
+                <ChevronDown size={13} className="opacity-70" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 p-1.5 shadow-xl rounded-xl">
+              <DropdownMenuLabel className="text-[10.5px] font-bold text-slate-400 px-3 py-1 uppercase tracking-wider">
+                Tạo nội dung mới
+              </DropdownMenuLabel>
+              <DropdownMenuItem
+                onClick={() => navigate('/foods/new')}
+                className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium"
+              >
+                <Utensils size={15} className="text-amber-500" />
+                <span>Thêm món ăn mới</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => navigate('/articles')}
+                className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium"
+              >
+                <FileText size={15} className="text-blue-500" />
+                <span>Soạn bài viết mới</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => navigate('/topics')}
+                className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium"
+              >
+                <BookOpen size={15} className="text-emerald-500" />
+                <span>Tạo chủ đề mới</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="my-1" />
+              <DropdownMenuItem
+                onClick={() => navigate('/ingest')}
+                className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium"
+              >
+                <CloudDownload size={15} className="text-indigo-500" />
+                <span>Nhập món tự động (AI)</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {/* Notification Bell */}
-          <div className="relative" ref={notifMenuRef}>
-            <button
-              className={`topbar-icon-btn ${notifMenuOpen ? 'is-active' : ''}`}
-              onClick={() => {
-                setNotifMenuOpen((v) => !v)
-                setCreateMenuOpen(false)
-                setUserMenuOpen(false)
-              }}
-              title="Thông báo hệ thống"
-            >
-              <Bell size={16} />
-              {scanMissingCount > 0 && <span className="notif-ping-dot" />}
-            </button>
-
-            {notifMenuOpen && (
-              <div className="nav-dropdown-menu notif-dropdown-menu">
-                <div className="flex items-center justify-between px-3 py-2 border-b border-border/60">
-                  <span className="text-xs font-bold text-slate-800">Hoạt động gần đây</span>
-                  <span
-                    className="text-[11px] font-medium text-amber-600 cursor-pointer hover:underline"
-                    onClick={() => setNotifMenuOpen(false)}
-                  >
-                    Đóng
-                  </span>
-                </div>
-                <div className="py-1 space-y-1 max-h-72 overflow-y-auto">
-                  {scanMissingCount > 0 && (
-                    <div
-                      className="mx-1 px-3 py-2 text-xs rounded-md cursor-pointer bg-rose-50 hover:bg-rose-100 transition-colors"
-                      onClick={() => {
-                        setNotifMenuOpen(false)
-                        navigate('/food-scan-reports')
-                      }}
-                    >
-                      <div className="font-semibold text-rose-800 flex items-center gap-1.5">
-                        <ScanSearch size={13} className="flex-shrink-0" />
-                        {scanMissingCount} món quét chưa có trong kho
-                      </div>
-                      <p className="text-[11px] text-rose-700/80 mt-0.5">
-                        Người dùng đã chụp các món Mogu chưa có. Bấm để bổ sung.
-                      </p>
-                    </div>
-                  )}
-                  {isActLoading ? (
-                    <div className="px-3 py-3 text-xs text-slate-500 text-center">Đang tải hoạt động...</div>
-                  ) : !activities || activities.length === 0 ? (
-                    <div className="px-3 py-3 text-xs text-slate-500 text-center">Chưa có hoạt động mới</div>
-                  ) : (
-                    activities.map((act) => {
-                      const dotColor =
-                        act.type === 'DISH_REVIEW'
-                          ? 'bg-amber-500'
-                          : act.type === 'MODERATION'
-                            ? 'bg-rose-500'
-                            : act.type === 'IMPORT_JOB'
-                              ? 'bg-blue-500'
-                              : act.type === 'FOOD_SCAN_MISSING'
-                                ? 'bg-rose-500'
-                                : 'bg-emerald-500'
-                      return (
-                        <div
-                          key={act.id}
-                          className="px-3 py-2 text-xs hover:bg-slate-50 rounded-md cursor-pointer transition-colors"
-                          onClick={() => {
-                            setNotifMenuOpen(false)
-                            if (act.type === 'DISH_REVIEW') navigate('/review')
-                            else if (act.type === 'MODERATION') navigate('/community')
-                            else if (act.type === 'IMPORT_JOB') navigate('/ingest')
-                            else if (act.type === 'FOOD_SCAN_MISSING') navigate('/food-scan-reports')
-                            else if (act.route) navigate(act.route)
-                          }}
-                        >
-                          <div className="font-semibold text-slate-800 flex items-center gap-1.5 truncate">
-                            <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColor}`} />
-                            <span className="truncate">{act.title}</span>
-                          </div>
-                          {act.description && (
-                            <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">{act.description}</p>
-                          )}
-                          <span className="text-[10px] text-slate-400 mt-1 block">
-                            {new Date(act.occurredAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
-                      )
-                    })
-                  )}
-                </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="topbar-icon-btn relative"
+                title="Thông báo hệ thống"
+              >
+                <Bell size={16} />
+                {scanMissingCount > 0 && <span className="notif-ping-dot" />}
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80 p-0 shadow-xl overflow-hidden rounded-xl border border-border">
+              <div className="flex items-center justify-between px-3 py-2 border-b border-border/60 bg-slate-50/50">
+                <span className="text-xs font-bold text-slate-800">Hoạt động gần đây</span>
+                <span className="text-[11px] font-medium text-amber-600">
+                  Mogu Cloud
+                </span>
               </div>
-            )}
-          </div>
+              <div className="p-1 space-y-1 max-h-72 overflow-y-auto">
+                {scanMissingCount > 0 && (
+                  <DropdownMenuItem
+                    className="mx-1 px-3 py-2 text-xs rounded-md cursor-pointer bg-rose-50 hover:bg-rose-100 transition-colors flex flex-col items-start gap-0.5"
+                    onClick={() => navigate('/food-scan-reports')}
+                  >
+                    <div className="font-semibold text-rose-800 flex items-center gap-1.5">
+                      <ScanSearch size={13} className="flex-shrink-0" />
+                      {scanMissingCount} món quét chưa có trong kho
+                    </div>
+                    <p className="text-[11px] text-rose-700/80">
+                      Người dùng đã chụp các món Mogu chưa có. Bấm để bổ sung.
+                    </p>
+                  </DropdownMenuItem>
+                )}
+                {isActLoading ? (
+                  <div className="px-3 py-3 text-xs text-slate-500 text-center">Đang tải hoạt động...</div>
+                ) : !activities || activities.length === 0 ? (
+                  <div className="px-3 py-3 text-xs text-slate-500 text-center">Chưa có hoạt động mới</div>
+                ) : (
+                  activities.map((act) => {
+                    const dotColor =
+                      act.type === 'DISH_REVIEW'
+                        ? 'bg-amber-500'
+                        : act.type === 'MODERATION'
+                          ? 'bg-rose-500'
+                          : act.type === 'IMPORT_JOB'
+                            ? 'bg-blue-500'
+                            : act.type === 'FOOD_SCAN_MISSING'
+                              ? 'bg-rose-500'
+                              : 'bg-emerald-500'
+                    return (
+                      <DropdownMenuItem
+                        key={act.id}
+                        className="px-3 py-2 text-xs hover:bg-slate-50 rounded-md cursor-pointer transition-colors flex flex-col items-start gap-0.5"
+                        onClick={() => {
+                          if (act.type === 'DISH_REVIEW') navigate('/review')
+                          else if (act.type === 'MODERATION') navigate('/community')
+                          else if (act.type === 'IMPORT_JOB') navigate('/ingest')
+                          else if (act.type === 'FOOD_SCAN_MISSING') navigate('/food-scan-reports')
+                          else if (act.route) navigate(act.route)
+                        }}
+                      >
+                        <div className="font-semibold text-slate-800 flex items-center gap-1.5 truncate w-full">
+                          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColor}`} />
+                          <span className="truncate">{act.title}</span>
+                        </div>
+                        {act.description && (
+                          <p className="text-[11px] text-slate-500 line-clamp-2">{act.description}</p>
+                        )}
+                        <span className="text-[10px] text-slate-400 mt-0.5 block">
+                          {new Date(act.occurredAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </DropdownMenuItem>
+                    )
+                  })
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Separator orientation="vertical" className="h-5 mx-0.5" />
 
           {/* User Profile Trigger & Dropdown */}
-          <div className="relative" ref={userMenuRef}>
-            <button
-              className={`topbar-profile-trigger ${userMenuOpen ? 'is-open' : ''}`}
-              onClick={() => {
-                setUserMenuOpen((v) => !v)
-                setCreateMenuOpen(false)
-                setNotifMenuOpen(false)
-              }}
-            >
-              <div className="topbar-avatar">{initial}</div>
-              <div className="topbar-user-meta">
-                <span className="topbar-user-name">{displayName}</span>
-                <span className="topbar-user-role">{roleLabel()}</span>
-              </div>
-              <ChevronDown size={13} className="text-slate-400 ml-0.5" />
-            </button>
-
-            {userMenuOpen && (
-              <div className="nav-dropdown-menu">
-                <div className="dropdown-user-header">
-                  <div className="topbar-avatar">{initial}</div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-bold text-slate-800 truncate">{displayName}</span>
-                    <span className="text-[10.5px] text-slate-500 truncate">{roleLabel()} • Mogu Cloud</span>
-                  </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="topbar-profile-trigger">
+                <Avatar className="h-7 w-7 text-xs font-bold border border-border">
+                  <AvatarFallback className="bg-amber-500/15 text-amber-700 font-bold">{initial}</AvatarFallback>
+                </Avatar>
+                <div className="topbar-user-meta">
+                  <span className="topbar-user-name">{displayName}</span>
+                  <span className="topbar-user-role">{roleLabel()}</span>
                 </div>
-
-                <button
-                  className="dropdown-item-btn"
-                  onClick={() => {
-                    setUserMenuOpen(false)
-                    navigate('/dashboard')
-                  }}
-                >
-                  <LayoutDashboard size={14} className="text-slate-500" />
-                  <span>Bảng điều khiển</span>
-                </button>
-
-                <button
-                  className="dropdown-item-btn"
-                  onClick={() => {
-                    setUserMenuOpen(false)
-                    navigate('/users')
-                  }}
-                >
-                  <Users size={14} className="text-slate-500" />
-                  <span>Quản lý người dùng</span>
-                </button>
-
-                <button
-                  className="dropdown-item-btn"
-                  onClick={() => {
-                    setUserMenuOpen(false)
-                    setCommandOpen(true)
-                  }}
-                >
-                  <Command size={14} className="text-slate-500" />
-                  <span>Lối tắt bàn phím (⌘K)</span>
-                </button>
-
-                <Separator className="my-1" />
-
-                <button
-                  className="dropdown-item-btn danger"
-                  onClick={() => {
-                    setUserMenuOpen(false)
-                    signOut()
-                  }}
-                >
-                  <LogOut size={14} />
-                  <span>Đăng xuất</span>
-                </button>
+                <ChevronDown size={13} className="text-slate-400 ml-0.5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56 p-1.5 shadow-xl rounded-xl">
+              <div className="flex items-center gap-2.5 px-3 py-2 border-b border-border/60 mb-1">
+                <Avatar className="h-8 w-8 text-xs font-bold border border-border">
+                  <AvatarFallback className="bg-amber-500/15 text-amber-700 font-bold">{initial}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-xs font-bold text-slate-800 truncate">{displayName}</span>
+                  <span className="text-[10.5px] text-slate-500 truncate">{roleLabel()} • Mogu Cloud</span>
+                </div>
               </div>
-            )}
-          </div>
+
+              <DropdownMenuItem
+                onClick={() => navigate('/dashboard')}
+                className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium"
+              >
+                <LayoutDashboard size={14} className="text-slate-500" />
+                <span>Bảng điều khiển</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={() => navigate('/users')}
+                className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium"
+              >
+                <Users size={14} className="text-slate-500" />
+                <span>Quản lý người dùng</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                onClick={() => setCommandOpen(true)}
+                className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium"
+              >
+                <Command size={14} className="text-slate-500" />
+                <span>Lối tắt bàn phím (⌘K)</span>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator className="my-1" />
+
+              <DropdownMenuItem
+                onClick={signOut}
+                className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium text-rose-600 focus:text-rose-600 focus:bg-rose-50"
+              >
+                <LogOut size={14} />
+                <span>Đăng xuất</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 

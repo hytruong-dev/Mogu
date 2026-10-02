@@ -8,6 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../ui/dialog'
+import { Image } from '../ui/image'
 
 interface HideConfirmDialogProps {
   open: boolean
@@ -49,7 +50,7 @@ export function HideConfirmDialog({
 
         <div className="fd-hide-item">
           {itemImageUrl ? (
-            <img src={itemImageUrl} alt="" />
+            <Image src={itemImageUrl} alt={itemName} aspectRatio="square" className="w-10 h-10 rounded-lg object-cover" />
           ) : (
             <div className="fd-hide-item-placeholder">🌿</div>
           )}

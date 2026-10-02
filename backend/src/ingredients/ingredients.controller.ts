@@ -16,7 +16,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { SystemRole } from '@prisma/client';
+import { IngredientCreatedVia, SystemRole } from '@prisma/client';
 import { Public } from '../auth/decorators/public.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -59,6 +59,7 @@ export class AdminIngredientsController {
   @ApiQuery({ name: 'allergenCode', required: false })
   @ApiQuery({ name: 'isActive', required: false, type: Boolean })
   @ApiQuery({ name: 'status', required: false })
+  @ApiQuery({ name: 'activationStatus', required: false, enum: ['all', 'unactivated', 'activated'] })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   adminList(
@@ -66,6 +67,7 @@ export class AdminIngredientsController {
     @Query('allergenCode') allergenCode?: string,
     @Query('isActive') isActive?: string,
     @Query('status') status?: string,
+    @Query('activationStatus') activationStatus?: 'all' | 'unactivated' | 'activated',
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
@@ -74,6 +76,7 @@ export class AdminIngredientsController {
       allergenCode,
       isActive: isActive !== undefined ? isActive === 'true' : undefined,
       status,
+      activationStatus,
       page: page ? Number(page) : 1,
       limit: limit ? Number(limit) : 20,
     });
@@ -86,8 +89,17 @@ export class AdminIngredientsController {
     const result = await this.catalog.resolveOrProvisionBatch(dto.items, {
       createMissing: dto.createMissing ?? true,
       enqueueImageEnrichment: true,
+      createdVia: IngredientCreatedVia.ADMIN_PICKER,
     });
     return { items: result.items, createdIds: result.createdIds };
+  }
+
+  @Get('pending-summary')
+  @Roles(SystemRole.CONTENT_ADMIN, SystemRole.REVIEWER, SystemRole.SUPER_ADMIN)
+  @ApiOperation({ summary: '[Admin] Danh sách nguyên liệu chưa ACTIVE của món' })
+  @ApiQuery({ name: 'dishId', required: true })
+  pendingSummary(@Query('dishId') dishId: string) {
+    return this.catalog.findUnapprovedForDish(dishId);
   }
 
   @Post()
@@ -109,9 +121,26 @@ export class AdminIngredientsController {
   @ApiOperation({ summary: '[Admin] Duyệt nguyên liệu → ACTIVE' })
   approve(
     @Param('id') id: string,
-    @Body() body?: { allergenCode?: string | null; synonyms?: string[] },
+    @Body()
+    body?: {
+      name?: string;
+      nameEn?: string;
+      description?: string;
+      groupLabel?: string;
+      unit?: string;
+      allergenCode?: string | null;
+      synonyms?: string[];
+      imageCandidateId?: string;
+    },
   ) {
     return this.catalog.approveIngredient(id, body);
+  }
+
+  @Post(':id/merge')
+  @Roles(SystemRole.CONTENT_ADMIN, SystemRole.SUPER_ADMIN)
+  @ApiOperation({ summary: '[Admin] Gộp nguyên liệu vào nguyên liệu đích' })
+  merge(@Param('id') id: string, @Body() body: { targetId: string }) {
+    return this.catalog.mergeIngredient(id, body.targetId);
   }
 
   @Post(':id/reject')
@@ -123,9 +152,9 @@ export class AdminIngredientsController {
 
   @Delete(':id')
   @Roles(SystemRole.CONTENT_ADMIN, SystemRole.SUPER_ADMIN)
-  @ApiOperation({ summary: '[Admin] Deactivate nguyên liệu (soft delete)' })
-  softDelete(@Param('id') id: string) {
-    return this.ingredientsService.softDelete(id);
+  @ApiOperation({ summary: '[Admin] Xóa nguyên liệu' })
+  delete(@Param('id') id: string) {
+    return this.ingredientsService.delete(id);
   }
 
   @Post(':id/presign-upload')

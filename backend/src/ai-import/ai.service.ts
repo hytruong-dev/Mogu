@@ -4,6 +4,8 @@ import OpenAI from 'openai';
 import {
   AiImportProvider,
   DishExtractionRequest,
+  IngredientAdjudicationDecision,
+  IngredientAdjudicationRequest,
 } from './ai-provider';
 import {
   DishExtractionV11,
@@ -49,6 +51,27 @@ export interface AiNutritionResult {
   sodiumMg: number;
   servingName: string;
   servingG: number;
+  /** Nguồn tham chiếu AI nêu (VFCT/USDA/...), để ghi vào provenance. */
+  reference?: string | null;
+}
+
+export interface AiIngredientNutritionResult {
+  name: string;
+  per100g: {
+    caloriesKcal: number | null;
+    proteinG: number | null;
+    carbsG: number | null;
+    fatG: number | null;
+    fiberG: number | null;
+    sodiumMg: number | null;
+  };
+}
+
+export interface TavilyWebResult {
+  url: string;
+  title: string;
+  content?: string;
+  score?: number;
 }
 
 /**
@@ -68,7 +91,7 @@ const envTrustedDomains = (process.env.AI_IMPORT_IMAGE_TRUSTED_DOMAINS ?? '')
   .map((d) => d.trim())
   .filter(Boolean);
 
-const TRUSTED_VN_FOOD_DOMAINS =
+export const TRUSTED_VN_FOOD_DOMAINS =
   envTrustedDomains.length > 0 ? envTrustedDomains : DEFAULT_TRUSTED_VN_FOOD_DOMAINS;
 
 @Injectable()
@@ -78,22 +101,39 @@ export class AiService implements AiImportProvider {
   private readonly model: string;
 
   constructor(private readonly config: ConfigService) {
-    const apiKey = this.config.get<string>('XKIRO_API_KEY') ?? '';
+    const apiKey = (process.env.XKIRO_API_KEY || this.config.get<string>('XKIRO_API_KEY') || '').trim();
+    const baseURL = (process.env.XKIRO_BASE_URL || this.config.get<string>('XKIRO_BASE_URL') || 'https://api.xkiro.com/v1').trim();
+    this.model = (process.env.XKIRO_MODEL || this.config.get<string>('XKIRO_MODEL') || 'deepseek/deepseek-chat-v3.1').trim();
     this.client = new OpenAI({
-      baseURL: this.config.get<string>('XKIRO_BASE_URL') ?? 'https://api.xkiro.com/v1',
+      baseURL,
       apiKey,
     });
-    this.model = this.config.get<string>('XKIRO_MODEL') ?? 'deepseek/deepseek-chat-v3.1';
-    this.logger.log(`AI model: ${this.model}`);
+    const maskedKey = apiKey ? `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 4)}` : '(none)';
+    this.logger.log(`AI initialized: model=${this.model}, baseURL=${baseURL}, apiKey=${maskedKey}`);
   }
 
   async extractDish(request: DishExtractionRequest): Promise<DishExtractionV11> {
+    const evidence = request.evidence;
+    const evidenceBlock = evidence
+      ? `
+NGUỒN CÔNG THỨC UY TÍN (bắt buộc bám theo, KHÔNG bịa khác nguồn; chỉ chuẩn hóa văn phong, tách sơ chế, bổ sung gia vị thiếu rõ ràng):
+- URL: ${evidence.sourceUrl}
+- Tiêu đề nguồn: ${evidence.title ?? 'không có'}
+- Khẩu phần nguồn: ${evidence.servings ?? 'không rõ'} | Chuẩn bị: ${evidence.prepMinutes ?? '?'} phút | Nấu: ${evidence.cookMinutes ?? '?'} phút
+- Nguyên liệu nguồn (${evidence.ingredients.length}):
+${evidence.ingredients.map((item) => `  • ${item}`).join('\n')}
+- Các bước nguồn (${evidence.steps.length}) — GIỮ ĐÚNG THỨ TỰ và số bước, mỗi bước AI có thể viết lại chi tiết hơn nhưng không đổi nội dung:
+${evidence.steps.map((step, index) => `  ${index + 1}. ${step.title ? `[${step.title}] ` : ''}${step.text}`).join('\n')}
+`
+      : `
+Không có nguồn công thức. Hãy sinh công thức chuẩn, phổ biến nhất (5-8 bước) theo cách nấu truyền thống của món.
+`;
     const prompt = `Bạn là hệ thống trích xuất món ăn Việt Nam. Chỉ trả về một JSON object hợp lệ theo schemaVersion 1.1, không Markdown và không giải thích.
 
 Món: ${request.dishName}
 Vùng gợi ý: ${request.regionName ?? 'không có'}
 Từ khóa: ${(request.relatedKeywords ?? []).join(', ') || 'không có'}
-
+${evidenceBlock}
 Taxonomy candidate được phép dùng:
 ${JSON.stringify({
       regions: request.taxonomy.regions,
@@ -110,7 +150,7 @@ ${JSON.stringify({
 Contract bắt buộc:
 {
   "schemaVersion":"1.1",
-  "basic":{"name":"string","alternateNames":[],"shortDescription":"string","fullDescription":null,"difficulty":"EASY|MEDIUM|HARD","prepMinutes":0,"cookMinutes":0,"servings":1,"servingSize":null,"priceMin":null,"priceMax":null,"origin":{"originText":null,"regionCode":null,"provinceCode":null,"isRegionalSpecialty":false,"confidence":0,"reason":null}},
+  "basic":{"name":"string","alternateNames":[],"shortDescription":"string","fullDescription":null,"difficulty":"EASY|MEDIUM|HARD","prepMinutes":0,"cookMinutes":0,"servings":1,"servingSize":null,"priceMin":null,"priceMax":null,"pricing":{"homeCook":{"min":0,"max":0,"basis":"WHOLE_RECIPE"},"dineOut":{"min":0,"max":0,"basis":"PER_SERVING"},"note":null},"origin":{"originText":null,"regionCode":null,"provinceCode":null,"isRegionalSpecialty":false,"confidence":0,"reason":null}},
   "classification":{"categoryCodes":[],"mealTypeCodes":[],"goalCodes":[],"dietTypeCodes":[],"flavorCodes":[],"dishTypeCode":null,"confidenceByField":{}},
   "ingredients":[{"rawText":"string","name":"string","canonicalNameCandidate":null,"quantity":null,"quantityTo":null,"quantityText":null,"unitCode":null,"specification":null,"preparation":null,"group":null,"optional":false,"normalizedWeightGram":null}],
   "recipe":{"title":"string","servings":1,"prepMinutes":0,"cookMinutes":0,"difficulty":"EASY|MEDIUM|HARD","steps":[{"stepNumber":1,"title":"string","description":"string","durationMinutes":null,"tips":null}]},
@@ -119,13 +159,23 @@ Contract bắt buộc:
 
 Yêu cầu chất lượng dữ liệu:
 - Mỗi nguyên liệu phải có quantity hoặc quantityText, unitCode phù hợp và preparation cụ thể nếu cần sơ chế; rawText phải chứa đầy đủ số lượng + đơn vị + tên + sơ chế.
-- Giá phải là khoảng chi phí nguyên liệu thực tế cho toàn công thức tại Việt Nam, priceMin > 0 và priceMax >= priceMin.
+- Giá: TÁCH RÕ 2 loại theo mặt bằng Việt Nam 2026.
+  • pricing.homeCook = chi phí mua nguyên liệu để tự nấu TOÀN BỘ công thức (basis WHOLE_RECIPE), min > 0, max >= min. priceMin/priceMax = homeCook.min/max.
+  • pricing.dineOut = giá ăn ngoài quán cho 1 PHẦN (basis PER_SERVING) ở quán bình dân -> quán khá; ví dụ bún bò Huế 35000-60000, cơm tấm 30000-55000, phở bò 40000-70000.
+  • pricing.note: ghi ngắn cơ sở ước tính (vd "giá chợ TP.HCM, 4 phần").
+- Vùng miền / xuất xứ (basic.origin): nếu món là ĐẶC SẢN có địa danh rõ ràng thì BẮT BUỘC điền regionCode + provinceCode đúng theo taxonomy và isRegionalSpecialty=true, originText dạng "Tỉnh, Vùng".
+  Ví dụ: "Bún bò Huế" -> regionCode "CENTRAL", provinceCode "HUE", originText "Thừa Thiên Huế, Miền Trung", isRegionalSpecialty true, confidence 95.
+  "Mì Quảng" -> CENTRAL/QN "Quảng Nam, Miền Trung". "Bún chả" -> NORTH/HN "Hà Nội, Miền Bắc". "Cơm tấm" -> SOUTH/HCM "TP. Hồ Chí Minh, Miền Nam".
+  Món phổ thông không có địa danh (vd "Thịt kho trứng") -> regionCode theo vùng phổ biến nhất hoặc null, provinceCode null, isRegionalSpecialty false.
+- Phân loại: categoryCodes phải chọn mã CỤ THỂ nhất trong taxonomy (bún/phở/mì/hủ tiếu -> NOODLE; canh/súp/cháo -> SOUP; cơm -> RICE; lẩu -> HOT_POT ...), KHÔNG dùng OTHER nếu có mã phù hợp. dishTypeCode = "WET" cho món nước (bún, phở, canh, cháo, lẩu, súp) hoặc "DRY" cho món khô.
 - recipe.title phải là tên công thức tự nhiên, ví dụ "Cách làm cá bống kho tộ chuẩn vị".
 - Công thức cần 4-8 bước chi tiết. Mỗi description phải nêu thao tác, thời gian hoặc dấu hiệu hoàn thành, nhiệt độ/lửa khi phù hợp; không viết mô tả sơ sài.
 - flavorCodes dùng các mã ổn định phù hợp trong: THANH_NHE, DAM_DA, CAY, KHONG_CAY, CHUA, NGOT, BEO, MAN.
 - Không phát minh taxonomy code ngoài candidate list, ngoại trừ flavorCodes theo danh sách ổn định vừa nêu.
 - rawText phải giữ nguyên chuỗi nguyên liệu tự nhiên.`;
-    const value = await this.completeJson(prompt, 4500);
+    // Schema v1.1 + pricing + origin + 4-8 bước chi tiết bằng tiếng Việt dễ vượt 4500 token
+    // (tiếng Việt tốn ~2-3 token/từ) -> cấp ngân sách rộng hơn để tránh JSON bị cắt giữa chừng.
+    const value = await this.completeJson(prompt, 8000);
     return DishExtractionV11Schema.parse(value);
   }
 
@@ -144,19 +194,112 @@ Lỗi: ${JSON.stringify(request.invalidFields)}`;
     return value as Record<string, unknown>;
   }
 
+  /**
+   * L3 — Phân xử nguyên liệu chưa khớp deterministic: với mỗi item, AI quyết định
+   * ứng viên nào trong kho là CÙNG một nguyên liệu (khác tên gọi) hay thực sự khác.
+   * Một lần gọi cho cả batch; lỗi AI → trả [] để pipeline tiếp tục (tạo PENDING).
+   */
+  async adjudicateIngredientMatches(
+    request: IngredientAdjudicationRequest,
+  ): Promise<IngredientAdjudicationDecision[]> {
+    const items = request.items.filter((item) => item.candidates.length > 0 || item.name);
+    if (!items.length) return [];
+
+    const payload = items.map((item) => ({
+      ref: item.ref,
+      name: item.name,
+      rawText: item.rawText ?? undefined,
+      candidates: item.candidates.slice(0, 5).map((c) => ({
+        id: c.id,
+        name: c.name,
+        synonyms: (c.synonyms ?? []).slice(0, 6),
+      })),
+    }));
+
+    const prompt = `Bạn là chuyên gia nguyên liệu ẩm thực Việt Nam, nhiệm vụ: CHỐNG TRÙNG LẶP kho nguyên liệu.
+Món đang nhập: "${request.dishName}". Danh sách nguyên liệu của món: ${request.allIngredientNames.join(' | ')}.
+
+Với mỗi item dưới đây, hãy xét xem "name" có phải CÙNG MỘT nguyên liệu với một trong các "candidates" (đã có trong kho) hay không.
+Quy tắc:
+- CÙNG nguyên liệu khi chỉ khác cách gọi vùng miền / từ đồng nghĩa / bộ phận gọi tắt / bổ nghĩa không đổi bản chất.
+  Ví dụ: "chân giò heo" = "giò heo" = "chân giò"; "thịt lợn" = "thịt heo"; "hành hoa" = "hành lá"; "lạc" = "đậu phộng"; "rau mùi" = "ngò rí"; "cà chua chín" = "cà chua".
+- KHÁC nguyên liệu khi khác loài, khác bộ phận có giá trị dinh dưỡng/ẩm thực khác, hoặc dạng chế biến khác hẳn.
+  Ví dụ: "nước mắm chay" ≠ "nước mắm"; "thịt ba chỉ" ≠ "thịt nạc"; "hành tím" ≠ "hành tây"; "bắp bò" ≠ "bắp (ngô)"; "tôm khô" ≠ "tôm tươi"; "đường phèn" ≠ "đường cát".
+- Nếu không chắc chắn (confidence < 85) hãy trả matchId = null.
+- synonyms: liệt kê 1-4 tên gọi khác tiếng Việt phổ biến của chính "name" (không lặp lại name), để hệ thống học dần.
+
+Items: ${JSON.stringify(payload)}
+
+Chỉ trả về JSON object dạng:
+{"decisions":[{"ref":"string","matchId":"id ứng viên hoặc null","confidence":0-100,"synonyms":["..."],"reason":"ngắn gọn"}]}`;
+
+    try {
+      const value = (await this.completeJson(prompt, 1800)) as {
+        decisions?: unknown;
+      };
+      const raw = Array.isArray(value?.decisions) ? value.decisions : [];
+      const allowed = new Map(items.map((item) => [item.ref, new Set(item.candidates.map((c) => c.id))]));
+      const decisions: IngredientAdjudicationDecision[] = [];
+      for (const entry of raw as Array<Record<string, unknown>>) {
+        const ref = typeof entry.ref === 'string' ? entry.ref : null;
+        if (!ref || !allowed.has(ref)) continue;
+        const matchId =
+          typeof entry.matchId === 'string' && allowed.get(ref)!.has(entry.matchId)
+            ? entry.matchId
+            : null;
+        const confidence = Math.max(0, Math.min(100, Math.round(Number(entry.confidence) || 0)));
+        const synonyms = Array.isArray(entry.synonyms)
+          ? (entry.synonyms as unknown[])
+            .filter((s): s is string => typeof s === 'string' && Boolean(s.trim()))
+            .map((s) => s.trim().substring(0, 98))
+            .slice(0, 6)
+          : [];
+        decisions.push({
+          ref,
+          matchId,
+          confidence,
+          synonyms,
+          reason: typeof entry.reason === 'string' ? entry.reason.substring(0, 200) : undefined,
+        });
+      }
+      return decisions;
+    } catch (error) {
+      this.logger.warn(
+        `adjudicateIngredientMatches thất bại — bỏ qua bước AI: ${(error as Error).message}`,
+      );
+      return [];
+    }
+  }
+
   private async completeJson(prompt: string, maxTokens: number): Promise<unknown> {
-    const response = await this.client.chat.completions.create({
-      model: this.model,
-      messages: [{ role: 'user', content: prompt }],
-      max_tokens: maxTokens,
-      temperature: 0.1,
-      response_format: { type: 'json_object' },
-    });
-    const content = response.choices[0]?.message?.content;
-    if (!content?.trim()) throw new Error('AI_IMPORT_EMPTY_RESPONSE');
+    const attempt = async (tokens: number) => {
+      const response = await this.client.chat.completions.create({
+        model: this.model,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: tokens,
+        temperature: 0.1,
+        response_format: { type: 'json_object' },
+      });
+      const choice = response.choices[0];
+      const content = choice?.message?.content;
+      if (!content?.trim()) throw new Error('AI_IMPORT_EMPTY_RESPONSE');
+      return { content, truncated: choice?.finish_reason === 'length' };
+    };
+
+    let { content, truncated } = await attempt(maxTokens);
     try {
       return JSON.parse(content);
     } catch (error) {
+      // JSON bị cắt do hết max_tokens -> thử lại 1 lần với ngân sách gấp đôi (tối đa 16k).
+      if (truncated || /Unterminated|Unexpected end/i.test((error as Error).message)) {
+        this.logger.warn(`AI JSON bị cắt (${maxTokens} tokens) — thử lại với ngân sách lớn hơn`);
+        ({ content } = await attempt(Math.min(maxTokens * 2, 16_000)));
+        try {
+          return JSON.parse(content);
+        } catch (retryError) {
+          throw new Error(`AI_IMPORT_INVALID_JSON: ${(retryError as Error).message}`);
+        }
+      }
       throw new Error(`AI_IMPORT_INVALID_JSON: ${(error as Error).message}`);
     }
   }
@@ -234,8 +377,10 @@ Trả về JSON thuần (KHÔNG có markdown, KHÔNG có text trước/sau JSON)
       .map((i) => `- ${i.quantity} ${i.unit} ${i.name}`)
       .join('\n');
 
-    const prompt = `Ước tính dinh dưỡng cho 1 khẩu phần của món "${dishName}" với nguyên liệu sau:
+    const prompt = `Bạn là chuyên gia dinh dưỡng. Ước tính dinh dưỡng cho 1 khẩu phần của món "${dishName}" với nguyên liệu sau:
 ${ingredientList}
+
+Phương pháp: cộng dồn theo từng nguyên liệu dựa trên "Bảng thành phần thực phẩm Việt Nam 2007 (Viện Dinh dưỡng Quốc gia)" và "USDA FoodData Central", rồi chia theo số khẩu phần. Nêu rõ nguồn tham chiếu trong "reference".
 
 Trả về JSON thuần (không có markdown):
 {
@@ -246,18 +391,114 @@ Trả về JSON thuần (không có markdown):
   "fiberG": gram chất xơ,
   "sodiumMg": mg natri,
   "servingName": "tên khẩu phần VD: 1 tô (500g)",
-  "servingG": gram khẩu phần
+  "servingG": gram khẩu phần,
+  "reference": "nguồn dữ liệu đã dùng, VD: VFCT 2007 (bún, thịt bò), USDA FDC (sả, ớt)"
 }`;
 
     const response = await this.client.chat.completions.create({
       model: this.model,
       messages: [{ role: 'user', content: prompt }],
-      max_tokens: 300,
+      max_tokens: 400,
       temperature: 0.2,
     });
 
     const content = response.choices[0]?.message?.content ?? '';
     return this.parseJson<AiNutritionResult>(content, this.defaultNutrition());
+  }
+
+  /**
+   * Fallback per-ingredient: AI trả giá trị /100g cho các nguyên liệu không có trong VFCT/USDA.
+   * Trả mảng cùng thứ tự input; phần tử null nếu AI không biết.
+   */
+  async estimateIngredientNutrition(
+    ingredients: Array<{ name: string; grams: number }>,
+  ): Promise<Array<AiIngredientNutritionResult | null>> {
+    if (!ingredients.length) return [];
+    const prompt = `Bạn là chuyên gia dinh dưỡng. Với MỖI nguyên liệu dưới đây, cho giá trị dinh dưỡng trên 100g phần ăn được (tham chiếu Bảng thành phần thực phẩm Việt Nam 2007 / USDA FDC). Nếu không chắc, trả null cho nguyên liệu đó.
+${ingredients.map((item, index) => `${index + 1}. ${item.name}`).join('\n')}
+
+Trả về JSON thuần: {"items":[{"name":"tên","per100g":{"caloriesKcal":0,"proteinG":0,"carbsG":0,"fatG":0,"fiberG":0,"sodiumMg":0}} | null, ...]} đúng thứ tự và đúng số lượng ${ingredients.length}.`;
+    try {
+      const response = await this.client.chat.completions.create({
+        model: this.model,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 120 * ingredients.length + 200,
+        temperature: 0.1,
+        response_format: { type: 'json_object' },
+      });
+      const content = response.choices[0]?.message?.content ?? '';
+      const parsed = this.parseJson<{ items?: Array<AiIngredientNutritionResult | null> }>(content, {});
+      const items = Array.isArray(parsed.items) ? parsed.items : [];
+      return ingredients.map((item, index) => {
+        const value = items[index];
+        if (!value || typeof value !== 'object' || !value.per100g) return null;
+        const p = value.per100g;
+        const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : null);
+        return {
+          name: typeof value.name === 'string' && value.name ? value.name : item.name,
+          per100g: {
+            caloriesKcal: num(p.caloriesKcal),
+            proteinG: num(p.proteinG),
+            carbsG: num(p.carbsG),
+            fatG: num(p.fatG),
+            fiberG: num(p.fiberG),
+            sodiumMg: num(p.sodiumMg),
+          },
+        };
+      });
+    } catch (error) {
+      this.logger.warn(`estimateIngredientNutrition failed: ${(error as Error).message}`);
+      return ingredients.map(() => null);
+    }
+  }
+
+  /**
+   * Tavily web search (không phải image). Dùng cho tìm trang công thức/YouTube.
+   * Fail-soft: trả [] khi không có key hoặc lỗi.
+   */
+  async searchWeb(
+    query: string,
+    options: { includeDomains?: string[]; maxResults?: number } = {},
+  ): Promise<TavilyWebResult[]> {
+    const tavilyKey = this.config.get<string>('TAVILY_API_KEY');
+    if (!tavilyKey) return [];
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10_000);
+      const res = await fetch('https://api.tavily.com/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${tavilyKey}`,
+        },
+        body: JSON.stringify({
+          query,
+          search_depth: 'basic',
+          include_images: false,
+          max_results: options.maxResults ?? 5,
+          ...(options.includeDomains?.length ? { include_domains: options.includeDomains } : {}),
+        }),
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timer));
+      if (!res.ok) {
+        this.logger.warn(`Tavily web search HTTP ${res.status}`);
+        return [];
+      }
+      const data = (await res.json()) as {
+        results?: Array<{ url?: string; title?: string; content?: string; score?: number }>;
+      };
+      return (data.results ?? [])
+        .filter((item) => item.url && /^https?:\/\//i.test(item.url))
+        .map((item) => ({
+          url: item.url!,
+          title: item.title ?? '',
+          content: item.content,
+          score: item.score,
+        }));
+    } catch (error) {
+      this.logger.warn(`Tavily web search failed: ${(error as Error).message}`);
+      return [];
+    }
   }
 
   /**

@@ -42,6 +42,20 @@ export interface OriginCandidate {
   reason?: string | null;
 }
 
+export interface PriceRange {
+  min: number | null;
+  max: number | null;
+  /** WHOLE_RECIPE = toàn công thức, PER_SERVING = 1 phần. */
+  basis: 'WHOLE_RECIPE' | 'PER_SERVING';
+}
+
+/** Tách giá nguyên liệu nấu tại nhà và giá ăn ngoài quán (schema 1.1, optional). */
+export interface PricingCandidate {
+  homeCook?: PriceRange | null;
+  dineOut?: PriceRange | null;
+  note?: string | null;
+}
+
 export interface DishClassificationCandidate {
   categoryCodes: string[];
   mealTypeCodes: string[];
@@ -65,6 +79,8 @@ export interface ExtractedIngredient {
   group?: string | null;
   optional: boolean;
   normalizedWeightGram?: number | null;
+  /** Metadata từ parser (vd quantityDefaulted khi không bắt được số). */
+  parseMetadata?: { quantityDefaulted?: boolean } | null;
 }
 
 export interface ExtractedRecipeStep {
@@ -98,12 +114,30 @@ export interface DishExtractionV11 {
     servingSize?: string | null;
     priceMin?: number | null;
     priceMax?: number | null;
+    pricing?: PricingCandidate | null;
     origin: OriginCandidate;
   };
   classification: DishClassificationCandidate;
   ingredients: ExtractedIngredient[];
   recipe: ExtractedRecipe;
   generalTips?: string[];
+}
+
+/** Bằng chứng công thức từ nguồn uy tín (Schema.org Recipe) để AI chuẩn hóa thay vì bịa. */
+export interface RecipeEvidence {
+  sourceUrl: string;
+  sourceDomain?: string | null;
+  title?: string | null;
+  description?: string | null;
+  ingredients: string[];
+  steps: Array<{ title?: string | null; text: string; imageUrls?: string[] }>;
+  servings?: number | null;
+  prepMinutes?: number | null;
+  cookMinutes?: number | null;
+  totalMinutes?: number | null;
+  videoUrl?: string | null;
+  imageUrl?: string | null;
+  nutrition?: Record<string, number | null> | null;
 }
 
 export interface IngredientCandidate {

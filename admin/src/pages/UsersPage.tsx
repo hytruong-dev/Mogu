@@ -25,9 +25,15 @@ import {
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
+import { Input } from '../components/ui/input'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
+import { Select } from '../components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 import { Skeleton } from '../components/ui/skeleton'
 import { PageSkeleton, StatsSkeleton, TableSkeleton } from '../components/ui/page-skeleton'
 import { Spinner } from '../components/ui/spinner'
+import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import {
   useAdminUser,
   useAdminUserActions,
@@ -104,9 +110,11 @@ function Stat({
 function UserDrawer({
   userId,
   close,
+  onPreviewAvatar,
 }: {
   userId: string
   close: () => void
+  onPreviewAvatar?: (url: string, title?: string, subtitle?: string) => void
 }) {
   const { data, isLoading, isError, refetch, error } = useAdminUser(userId)
   const actions = useAdminUserActions()
@@ -118,7 +126,6 @@ function UserDrawer({
   const [suspendModalOpen, setSuspendModalOpen] = useState(false)
   const [suspendReason, setSuspendReason] = useState('POLICY_VIOLATION')
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-
   // Clear feedback when user changes
   useEffect(() => {
     setFeedback(null)
@@ -167,7 +174,6 @@ function UserDrawer({
   }
 
   const handleEndSuspension = async () => {
-    if (!confirm('Bạn có chắc chắn muốn gỡ đình chỉ cho tài khoản này?')) return
     try {
       setFeedback(null)
       await actions.endSuspension.mutateAsync({
@@ -184,7 +190,6 @@ function UserDrawer({
     try {
       setFeedback(null)
       if (current) {
-        if (!confirm(`Bạn có chắc muốn thu hồi quyền ${role}?`)) return
         await actions.revokeRole.mutateAsync({ userId, role })
         setFeedback({ type: 'success', text: `Đã thu hồi quyền ${role}.` })
       } else {
@@ -197,7 +202,6 @@ function UserDrawer({
   }
 
   const handleRevokeAllSessions = async () => {
-    if (!confirm('Bạn có chắc chắn muốn thu hồi tất cả phiên đăng nhập của người dùng này?')) return
     try {
       setFeedback(null)
       await actions.revokeSessions.mutateAsync(userId)
@@ -222,9 +226,9 @@ function UserDrawer({
           <User size={18} className="text-amber-600" />
           <b>Chi tiết người dùng</b>
         </div>
-        <button type="button" onClick={close} aria-label="Đóng bảng chi tiết">
+        <Button type="button" variant="ghost" size="icon" onClick={close} aria-label="Đóng bảng chi tiết" className="h-8 w-8">
           <X size={16} />
-        </button>
+        </Button>
       </header>
 
       {isLoading && <PageSkeleton rows={6} withAvatar className="p-5" />}
@@ -243,51 +247,35 @@ function UserDrawer({
       {data && (
         <>
           {/* ── Sub Navigation Tabs ── */}
-          <div className="flex border-b border-border text-xs font-semibold px-4 gap-2 pt-2 bg-muted/20">
-            <button
-              type="button"
-              onClick={() => setActiveTab('info')}
-              className={`pb-2 px-2 border-b-2 transition-colors flex items-center gap-1.5 ${
-                activeTab === 'info'
-                  ? 'border-amber-500 text-amber-600 font-bold'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <User size={14} /> Thông tin
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('roles')}
-              className={`pb-2 px-2 border-b-2 transition-colors flex items-center gap-1.5 ${
-                activeTab === 'roles'
-                  ? 'border-amber-500 text-amber-600 font-bold'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Shield size={14} /> Vai trò ({data.access.roles.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('sessions')}
-              className={`pb-2 px-2 border-b-2 transition-colors flex items-center gap-1.5 ${
-                activeTab === 'sessions'
-                  ? 'border-amber-500 text-amber-600 font-bold'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <Smartphone size={14} /> Phiên ({data.access.activeSessionCount ?? 0})
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('audit')}
-              className={`pb-2 px-2 border-b-2 transition-colors flex items-center gap-1.5 ${
-                activeTab === 'audit'
-                  ? 'border-amber-500 text-amber-600 font-bold'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <History size={14} /> Lịch sử
-            </button>
+          <div className="border-b border-border px-4 pt-2 bg-muted/20">
+            <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as typeof activeTab)}>
+              <TabsList className="bg-transparent h-9 p-0 gap-2">
+                <TabsTrigger
+                  value="info"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-amber-500 data-[state=active]:text-amber-600 data-[state=active]:shadow-none rounded-none bg-transparent px-2 pb-2 text-xs flex items-center gap-1.5 font-semibold"
+                >
+                  <User size={14} /> Thông tin
+                </TabsTrigger>
+                <TabsTrigger
+                  value="roles"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-amber-500 data-[state=active]:text-amber-600 data-[state=active]:shadow-none rounded-none bg-transparent px-2 pb-2 text-xs flex items-center gap-1.5 font-semibold"
+                >
+                  <Shield size={14} /> Vai trò ({data.access.roles.length})
+                </TabsTrigger>
+                <TabsTrigger
+                  value="sessions"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-amber-500 data-[state=active]:text-amber-600 data-[state=active]:shadow-none rounded-none bg-transparent px-2 pb-2 text-xs flex items-center gap-1.5 font-semibold"
+                >
+                  <Smartphone size={14} /> Phiên ({data.access.activeSessionCount ?? 0})
+                </TabsTrigger>
+                <TabsTrigger
+                  value="audit"
+                  className="data-[state=active]:border-b-2 data-[state=active]:border-amber-500 data-[state=active]:text-amber-600 data-[state=active]:shadow-none rounded-none bg-transparent px-2 pb-2 text-xs flex items-center gap-1.5 font-semibold"
+                >
+                  <History size={14} /> Lịch sử
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
 
           <div className="user-drawer-body">
@@ -314,14 +302,11 @@ function UserDrawer({
               <>
                 {/* ── Profile Hero Card ── */}
                 <div className="drawer-profile-card">
-                  <div className="relative">
-                    <img
-                      src={data.identity.avatarUrl || avatarFallback}
-                      alt={data.identity.displayName ?? 'Avatar'}
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = avatarFallback
-                      }}
-                    />
+                  <div className="relative group cursor-zoom-in">
+                    <Avatar className="h-20 w-20 cursor-zoom-in" onClick={() => onPreviewAvatar?.(data.identity.avatarUrl || avatarFallback, data.identity.displayName ?? 'Avatar người dùng', data.identity.email ?? undefined)}>
+                      <AvatarImage src={data.identity.avatarUrl || avatarFallback} alt={data.identity.displayName ?? 'Avatar'} />
+                      <AvatarFallback>{(data.identity.displayName ?? data.identity.email ?? 'U').slice(0, 1).toUpperCase()}</AvatarFallback>
+                    </Avatar>
                     {data.account.status === 'ACTIVE' && (
                       <span className="online-indicator" title="Tài khoản đang hoạt động" />
                     )}
@@ -391,16 +376,16 @@ function UserDrawer({
                 {suspendModalOpen && (
                   <div className="p-3 my-3 border border-rose-200 bg-rose-50 rounded-lg space-y-2">
                     <b className="text-xs text-rose-900 block">Chọn lý do đình chỉ tài khoản:</b>
-                    <select
+                    <Select
                       value={suspendReason}
                       onChange={(e) => setSuspendReason(e.target.value)}
-                      className="w-full text-xs border rounded p-1.5 bg-white text-slate-800"
+                      className="w-full text-xs"
                     >
                       <option value="POLICY_VIOLATION">Vi phạm chính sách cộng đồng (POLICY_VIOLATION)</option>
                       <option value="SPAM">Phát tán spam, quảng cáo lừa đảo (SPAM)</option>
                       <option value="HARASSMENT">Quấy rối, công kích người khác (HARASSMENT)</option>
                       <option value="SECURITY_CONCERN">Nghi ngờ xâm phạm bảo mật (SECURITY_CONCERN)</option>
-                    </select>
+                    </Select>
                     <div className="flex gap-2 justify-end pt-1">
                       <Button size="sm" variant="outline" onClick={() => setSuspendModalOpen(false)}>
                         Hủy
@@ -638,6 +623,7 @@ function UserDrawer({
 }
 
 export default function UsersPage() {
+  const { lightboxProps, openImage } = useMediaLightbox()
   const [q, setQ] = useState('')
   const [debouncedQ, setDebouncedQ] = useState('')
   const [status, setStatus] = useState('')
@@ -768,11 +754,12 @@ export default function UsersPage() {
           <div className="filters">
             <div className="search-box">
               <Search size={16} className="search-icon" />
-              <input
+              <Input
                 type="text"
                 placeholder="Tìm theo tên, username, email..."
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
+                className="pl-9 pr-8 h-9 text-xs"
               />
               {q && (
                 <button
@@ -786,7 +773,7 @@ export default function UsersPage() {
               )}
             </div>
 
-            <select
+            <Select
               className="filter-select"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
@@ -797,7 +784,7 @@ export default function UsersPage() {
               <option value="PENDING_VERIFICATION">Chờ xác minh</option>
               <option value="LOCKED">Đã khóa</option>
               <option value="SUSPENDED">Bị hạn chế</option>
-            </select>
+            </Select>
 
             {hasActiveFilter && (
               <Button
@@ -817,15 +804,16 @@ export default function UsersPage() {
               </span>
             </div>
 
-            <button
+            <Button
               type="button"
-              className="export-btn"
+              variant="outline"
+              className="export-btn h-9 gap-1.5"
               disabled={isExporting || actions.createExport.isPending}
               onClick={handleExport}
             >
               {isExporting || actions.createExport.isPending ? <Spinner size="sm" /> : <Upload size={15} />}
               {isExporting ? 'Đang xuất...' : 'Xuất danh sách'}
-            </button>
+            </Button>
           </div>
 
           {/* ── Loading State ── */}
@@ -865,37 +853,34 @@ export default function UsersPage() {
           {!list.isLoading && !list.isError && items.length > 0 && (
             <>
               <div className="table-responsive">
-                <table className="modern-data-table">
-                  <thead>
-                    <tr>
-                      <th className="col-user">Người dùng</th>
-                      <th className="col-goal">Mục tiêu</th>
-                      <th className="col-status">Trạng thái</th>
-                      <th className="col-activity">Hoạt động gần nhất</th>
-                      <th className="col-joined">Ngày tham gia</th>
-                      <th className="col-actions">Thao tác</th>
-                    </tr>
-                  </thead>
-                  <tbody>
+                <Table className="modern-data-table">
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="col-user">Người dùng</TableHead>
+                      <TableHead className="col-goal">Mục tiêu</TableHead>
+                      <TableHead className="col-status">Trạng thái</TableHead>
+                      <TableHead className="col-activity">Hoạt động gần nhất</TableHead>
+                      <TableHead className="col-joined">Ngày tham gia</TableHead>
+                      <TableHead className="col-actions">Thao tác</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
                     {items.map((u) => {
                       const isSelected = selectedId === u.userId
                       return (
-                        <tr
+                        <TableRow
                           key={u.userId}
                           className={isSelected ? 'selected-row' : ''}
                           onClick={() => setSelectedId(u.userId)}
                         >
                           {/* ── User info cell ── */}
-                          <td>
+                          <TableCell>
                             <div className="user-cell">
-                              <div className="user-avatar-wrap">
-                                <img
-                                  src={u.avatarUrl || avatarFallback}
-                                  alt={u.displayName ?? u.username ?? 'Avatar'}
-                                  onError={(e) => {
-                                    (e.currentTarget as HTMLImageElement).src = avatarFallback
-                                  }}
-                                />
+                              <div className="user-avatar-wrap relative group/avatar cursor-zoom-in" onClick={(e) => e.stopPropagation()}>
+                                <Avatar className="h-full w-full cursor-zoom-in" onClick={() => openImage(u.avatarUrl || avatarFallback, u.displayName ?? u.username ?? 'Avatar người dùng', u.email)}>
+                                  <AvatarImage src={u.avatarUrl || avatarFallback} alt={u.displayName ?? u.username ?? 'Avatar'} />
+                                  <AvatarFallback>{(u.displayName ?? u.username ?? 'U').slice(0, 1).toUpperCase()}</AvatarFallback>
+                                </Avatar>
                                 {u.accountStatus === 'ACTIVE' && (
                                   <span className="online-indicator" title="Đang hoạt động" />
                                 )}
@@ -909,10 +894,10 @@ export default function UsersPage() {
                                 </span>
                               </div>
                             </div>
-                          </td>
+                          </TableCell>
 
                           {/* ── Primary goal cell ── */}
-                          <td>
+                          <TableCell>
                             {u.primaryGoal ? (
                               <span className="goal-chip">
                                 <Target size={12} />
@@ -921,39 +906,40 @@ export default function UsersPage() {
                             ) : (
                               <span className="goal-empty">—</span>
                             )}
-                          </td>
+                          </TableCell>
 
                           {/* ── Account status cell ── */}
-                          <td>
+                          <TableCell>
                             <span className={`status-badge ${u.accountStatus.toLowerCase()}`}>
                               <span className="status-dot" />
                               {statusLabel(u.accountStatus)}
                             </span>
-                          </td>
+                          </TableCell>
 
                           {/* ── Last active cell ── */}
-                          <td>
+                          <TableCell>
                             <div className="time-cell">
                               <Clock size={13} />
                               <span title={u.lastActiveAt ? new Date(u.lastActiveAt).toLocaleString('vi-VN') : undefined}>
                                 {relativeTime(u.lastActiveAt)}
                               </span>
                             </div>
-                          </td>
+                          </TableCell>
 
                           {/* ── Joined date cell ── */}
-                          <td>
+                          <TableCell>
                             <div className="date-cell">
                               <Calendar size={13} />
                               <span>{new Date(u.joinedAt).toLocaleDateString('vi-VN')}</span>
                             </div>
-                          </td>
+                          </TableCell>
 
                           {/* ── Row action button ── */}
-                          <td className="col-actions">
-                            <button
+                          <TableCell className="col-actions">
+                            <Button
                               type="button"
-                              className="action-icon-btn"
+                              variant="ghost"
+                              size="icon"
                               title="Xem chi tiết người dùng"
                               onClick={(e) => {
                                 e.stopPropagation()
@@ -961,13 +947,13 @@ export default function UsersPage() {
                               }}
                             >
                               <ChevronRight size={17} />
-                            </button>
-                          </td>
-                        </tr>
+                            </Button>
+                          </TableCell>
+                        </TableRow>
                       )
                     })}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
 
               {/* ── Modern Pagination Footer ── */}
@@ -1006,9 +992,15 @@ export default function UsersPage() {
 
         {/* ── User Detail Drawer ── */}
         {selectedId && (
-          <UserDrawer userId={selectedId} close={() => setSelectedId(null)} />
+          <UserDrawer
+            userId={selectedId}
+            close={() => setSelectedId(null)}
+            onPreviewAvatar={openImage}
+          />
         )}
       </div>
+
+      <MediaLightbox {...lightboxProps} />
     </>
   )
 }

@@ -23,6 +23,7 @@ export class ImportJobDto {
   @ApiPropertyOptional() currentStepMessage?: string;
   @ApiPropertyOptional() resultDishId?: string;
   @ApiPropertyOptional() suggestedImageUrl?: string;
+  @ApiPropertyOptional() pendingIngredientCount?: number;
   @ApiPropertyOptional() errorMessage?: string;
   @ApiProperty() sourceTypes: string[];
   @ApiPropertyOptional() regionHint?: string;
@@ -62,5 +63,6 @@ export interface WsJobProgress {
   message: string;
   resultDishId?: string;
   suggestedImageUrl?: string;
+  pendingIngredientCount?: number;
   errorMessage?: string;
 }

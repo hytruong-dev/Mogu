@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 import { getDeviceTimeZone, getTodayISO } from '../../lib/dates';
 import { clearSession, getSession, saveSession } from './storage';
 import { ApiError, type Session } from './types';
@@ -30,10 +31,23 @@ function resolveApiUrl(): string {
     }
   }
 
+  const isAndroidEmulator =
+    Platform.OS === 'android' &&
+    ((Platform.constants as any)?.Brand === 'google' ||
+      (Platform.constants as any)?.Model?.toLowerCase().includes('emulator') ||
+      (Platform.constants as any)?.Model?.toLowerCase().includes('sdk_gphone'));
+
+  // On physical Android devices, 10.0.2.2 does not route to host machine.
+  // Use localhost which routes through ADB reverse (adb reverse tcp:3001 tcp:3001).
+  if (Platform.OS === 'android' && !isAndroidEmulator && envUrl.includes('10.0.2.2')) {
+    return envUrl.replace('10.0.2.2', 'localhost');
+  }
+
   return envUrl;
 }
 
 export const API_URL = resolveApiUrl();
+console.log('[API_URL resolved]', API_URL, 'Brand:', (Platform.constants as any)?.Brand, 'Model:', (Platform.constants as any)?.Model);
 
 type Options = RequestInit & { auth?: boolean; retry?: boolean };
 

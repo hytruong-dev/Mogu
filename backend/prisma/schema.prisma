@@ -142,6 +142,14 @@ enum DishDifficulty {
   @@map("dish_difficulty")
 }
 
+/// Loại món theo kết cấu: WET = món nước (bún/phở/canh/lẩu), DRY = món khô.
+enum DishType {
+  WET
+  DRY
+
+  @@map("dish_type")
+}
+
 enum AllergenLevel {
   CONTAINS
   MAY_CONTAIN
@@ -708,10 +716,22 @@ enum IngredientImageStatus {
   @@map("ingredient_image_status")
 }
 
+enum IngredientCreatedVia {
+  MANUAL
+  AI_IMPORT
+  ADMIN_PICKER
+  FILE_IMPORT
+
+  @@map("ingredient_created_via")
+}
+
 model Ingredient {
   id                 String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   code               String                @unique @db.VarChar(100)
   name               String                @db.VarChar(200)
+  nameEn             String?               @map("name_en") @db.VarChar(200)
+  description        String?               @db.VarChar(500)
+  groupLabel         String?               @map("group_label") @db.VarChar(100)
   identityNormalized String                @unique @map("identity_normalized") @db.VarChar(200)
   searchFolded       String                @default("") @map("search_folded") @db.VarChar(200)
   synonyms           String[]              @default([])
@@ -719,6 +739,9 @@ model Ingredient {
   allergenCode       String?               @map("allergen_code") @db.VarChar(50)
   status             IngredientStatus      @default(PENDING_REVIEW)
   isActive           Boolean               @default(false) @map("is_active")
+  createdVia         IngredientCreatedVia  @default(MANUAL) @map("created_via")
+  enrichment         Json?
+  enrichedAt         DateTime?             @map("enriched_at")
   imageStatus        IngredientImageStatus @default(NOT_REQUESTED) @map("image_status")
   imageUrl           String?               @map("image_url")
   imageKey           String?               @map("image_key") @db.VarChar(500)
@@ -798,6 +821,11 @@ model Dish {
 
   priceMin    Int?     @map("price_min")
   priceMax    Int?     @map("price_max")
+  // Giá ăn ngoài quán (1 phần) — tách biệt với priceMin/priceMax (chi phí nguyên liệu nấu tại nhà)
+  dineOutPriceMin Int?      @map("dine_out_price_min")
+  dineOutPriceMax Int?      @map("dine_out_price_max")
+  dishType        DishType? @map("dish_type")
+  videoUrl        String?   @map("video_url") @db.VarChar(500)
   recipeTitle String?  @map("recipe_title") @db.VarChar(200)
   flavorTags  String[] @default([]) @map("flavor_tags")
   currency    String   @default("VND") @db.Char(3)

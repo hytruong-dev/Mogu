@@ -13,10 +13,13 @@ import {
   ArrowLeft,
   BarChart3,
   Bookmark,
+  ChefHat,
   ChevronRight,
   Clock3,
+  Salad,
   Users,
 } from '@/components/icons';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { AppImage } from '../../components/ui/app-image';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
 import { Text as UiText } from '../../components/ui/text';
@@ -47,7 +50,8 @@ import { NutritionSheet } from './NutritionSheet';
 const { width: SW } = Dimensions.get('window');
 const H_PAD = 16;
 const GRID_GAP = 8;
-const COL_W = Math.floor((SW - H_PAD * 2 - GRID_GAP * 3) / 4);
+const COLS = 3;
+const COL_W = Math.floor((SW - H_PAD * 2 - GRID_GAP * (COLS - 1)) / COLS);
 
 type Props = {
   dishId?: string;
@@ -102,12 +106,18 @@ export function RecipePage({
     const qty = formatQuantityUnit(ing.quantity, ing.unit, baseServings, servings);
     const name = ingredientDisplayName(ing);
     return (
-      <View key={`ing-${index}`} style={styles.ingCard}>
+      <Animated.View
+        key={`ing-${index}`}
+        entering={FadeInDown.delay(Math.min(index, 12) * 35).duration(260)}
+        style={styles.ingCard}
+      >
         <View style={styles.ingImgWrap}>
           {ing.imageUrl ? (
             <AppImage uri={ing.imageUrl} style={styles.ingImg} contentFit="cover" />
           ) : (
-            <View style={[styles.ingImg, styles.ingImgPh]} />
+            <View style={[styles.ingImg, styles.ingImgPh]}>
+              <Salad size={24} color="#C9A64A" />
+            </View>
           )}
         </View>
         <Text style={styles.ingName} numberOfLines={1} ellipsizeMode="tail">
@@ -123,7 +133,7 @@ export function RecipePage({
             -
           </Text>
         )}
-      </View>
+      </Animated.View>
     );
   };
 
@@ -212,9 +222,11 @@ export function RecipePage({
         </View>
 
         <TabsContent value="ingredients" className="flex-1" style={styles.tabContent}>
-          <ScrollView
+          <Animated.ScrollView
+            key="tab-ing"
+            entering={FadeIn.duration(220)}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 110 + insets.bottom, paddingHorizontal: H_PAD }}
+            contentContainerStyle={{ paddingBottom: 110 + insets.bottom, paddingHorizontal: H_PAD, paddingTop: 4 }}
           >
             {ingredients.length === 0 ? (
               <Text style={styles.emptyNote}>Chưa có danh sách nguyên liệu.</Text>
@@ -239,20 +251,24 @@ export function RecipePage({
                 style={styles.nutritionRow}
                 accessibilityLabel="Xem dinh dưỡng"
               >
-                <BarChart3 size={18} color={INK} />
+                <View style={styles.nutritionIcon}>
+                  <BarChart3 size={18} color={INK} />
+                </View>
                 <Text style={styles.nutritionText}>
                   Dinh dưỡng • {kcal} kcal/khẩu phần
                 </Text>
                 <ChevronRight size={18} color={TERTIARY} />
               </Pressable>
             ) : null}
-          </ScrollView>
+          </Animated.ScrollView>
         </TabsContent>
 
         <TabsContent value="steps" className="flex-1" style={styles.tabContent}>
-          <ScrollView
+          <Animated.ScrollView
+            key="tab-steps"
+            entering={FadeIn.duration(220)}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 110 + insets.bottom, paddingHorizontal: H_PAD }}
+            contentContainerStyle={{ paddingBottom: 110 + insets.bottom, paddingHorizontal: H_PAD, paddingTop: 4 }}
           >
             <Text style={styles.sectionTitle}>Cách chế biến</Text>
             <Text style={styles.stepsSummary}>
@@ -260,21 +276,33 @@ export function RecipePage({
               {totalDur != null ? ` · khoảng ${totalDur} phút` : ''}
             </Text>
 
-            {steps.map((st) => (
-              <View key={`step-${st.stepOrder}`} style={styles.stepRow}>
-                <View style={styles.stepNum}>
-                  <Text style={styles.stepNumText}>{st.stepOrder}</Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.stepTitle} numberOfLines={2}>
-                    {st.title}
-                  </Text>
-                  {st.durationMin != null ? (
-                    <Text style={styles.stepDur}>{st.durationMin} phút</Text>
-                  ) : null}
-                </View>
-              </View>
-            ))}
+            <View style={styles.stepList}>
+              {steps.map((st, i) => (
+                <Animated.View
+                  key={`step-${st.stepOrder}`}
+                  entering={FadeInDown.delay(Math.min(i, 10) * 45).duration(280)}
+                  style={styles.stepRow}
+                >
+                  <View style={styles.stepRail}>
+                    <View style={styles.stepNum}>
+                      <Text style={styles.stepNumText}>{st.stepOrder}</Text>
+                    </View>
+                    {i < steps.length - 1 ? <View style={styles.stepLine} /> : null}
+                  </View>
+                  <View style={styles.stepBody}>
+                    <Text style={styles.stepTitle} numberOfLines={2}>
+                      {st.title}
+                    </Text>
+                    {st.durationMin != null ? (
+                      <View style={styles.stepDurPill}>
+                        <Clock3 size={12} color={MUTED} />
+                        <Text style={styles.stepDur}>{st.durationMin} phút</Text>
+                      </View>
+                    ) : null}
+                  </View>
+                </Animated.View>
+              ))}
+            </View>
 
             {steps.length === 0 ? (
               <Text style={styles.emptyNote}>Chưa có các bước chế biến.</Text>
@@ -285,7 +313,7 @@ export function RecipePage({
                 <Text style={styles.emptyNote}>Video: có sẵn (phát trong phiên bản sau).</Text>
               </View>
             ) : null}
-          </ScrollView>
+          </Animated.ScrollView>
         </TabsContent>
       </Tabs>
 
@@ -296,6 +324,7 @@ export function RecipePage({
           style={[styles.cta, steps.length === 0 && { opacity: 0.5 }]}
           accessibilityLabel="Bắt đầu nấu"
         >
+          <ChefHat size={20} color={INK} />
           <Text style={styles.ctaText}>Bắt đầu nấu</Text>
         </Pressable>
       </View>
@@ -385,36 +414,38 @@ const styles = StyleSheet.create({
   ingCard: {
     width: COL_W,
     backgroundColor: WHITE,
-    borderRadius: 10,
-    paddingHorizontal: 4,
-    paddingTop: 8,
-    paddingBottom: 8,
+    borderRadius: 16,
+    paddingHorizontal: 8,
+    paddingTop: 12,
+    paddingBottom: 12,
     alignItems: 'center',
     alignSelf: 'flex-start',
     ...cardShadow,
+    shadowOpacity: 0.06,
+    elevation: 2,
   },
   ingImgWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 8,
+    width: 60,
+    height: 60,
+    borderRadius: 14,
     overflow: 'hidden',
-    backgroundColor: '#F0EBE0',
+    backgroundColor: '#FFF6DC',
   },
   ingImg: { width: '100%', height: '100%' },
-  ingImgPh: { backgroundColor: '#F0EBE0' },
+  ingImgPh: { backgroundColor: '#FFF6DC', alignItems: 'center', justifyContent: 'center' },
   ingName: {
     width: '100%',
-    marginTop: 4,
-    fontSize: 11,
+    marginTop: 8,
+    fontSize: 13,
     fontWeight: '600',
     color: INK,
     textAlign: 'center',
-    lineHeight: 14,
+    lineHeight: 17,
   },
   ingQty: {
     width: '100%',
-    marginTop: 2,
-    fontSize: 11,
+    marginTop: 3,
+    fontSize: 12.5,
     fontWeight: '700',
     color: ORANGE_QTY,
     textAlign: 'center',
@@ -431,28 +462,54 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     ...cardShadow,
   },
-  nutritionText: { flex: 1, fontSize: 14, fontWeight: '600', color: INK },
-  stepsSummary: { fontSize: 13, color: MUTED, marginTop: 4, marginBottom: 8 },
-  stepRow: {
-    flexDirection: 'row',
-    gap: 12,
-    paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: BORDER,
-  },
-  stepNum: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: WHITE,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: BORDER,
+  nutritionText: { flex: 1, fontSize: 14, fontWeight: '700', color: INK },
+  nutritionIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: '#FFF2B8',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepNumText: { fontSize: 13, fontWeight: '700', color: INK },
-  stepTitle: { fontSize: 15, fontWeight: '700', color: INK },
-  stepDur: { fontSize: 13, color: MUTED, marginTop: 2 },
+  stepsSummary: { fontSize: 13, color: MUTED, marginTop: 4, marginBottom: 8 },
+  stepList: { marginTop: 6 },
+  stepRow: { flexDirection: 'row', gap: 12 },
+  stepRail: { width: 32, alignItems: 'center' },
+  stepNum: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: YELLOW,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+  stepLine: { flex: 1, width: 2, borderRadius: 1, backgroundColor: '#F1E4BE', marginVertical: 4 },
+  stepBody: {
+    flex: 1,
+    backgroundColor: WHITE,
+    borderRadius: 16,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 10,
+    gap: 6,
+    ...cardShadow,
+    shadowOpacity: 0.06,
+    elevation: 2,
+  },
+  stepNumText: { fontSize: 14, fontWeight: '800', color: INK },
+  stepTitle: { fontSize: 15, fontWeight: '700', color: INK, lineHeight: 21 },
+  stepDurPill: {
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: PILL_BG,
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  stepDur: { fontSize: 12, fontWeight: '600', color: MUTED },
   emptyNote: { fontSize: 14, color: MUTED, marginTop: 8 },
   videoNote: { marginTop: 12 },
   footer: {
@@ -465,12 +522,18 @@ const styles = StyleSheet.create({
     backgroundColor: CREAM,
   },
   cta: {
-    minHeight: 54,
+    minHeight: 56,
     borderRadius: 999,
     backgroundColor: YELLOW,
+    flexDirection: 'row',
+    gap: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    ...cardShadow,
+    shadowColor: '#C79200',
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 5,
   },
   ctaText: { fontSize: 16, fontWeight: '800', color: INK },
 });

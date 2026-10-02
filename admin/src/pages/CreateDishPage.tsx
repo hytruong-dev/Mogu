@@ -2,14 +2,27 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { Badge } from '../components/ui/badge'
 import { StepTabs } from '../components/molecules/StepTabs'
-import { ClassificationPanel, type ClassificationState } from '../components/molecules/ClassificationPanel'
+import {
+  ClassificationPanel,
+  dishTypeFromApi,
+  dishTypeToApi,
+  type ClassificationState,
+} from '../components/molecules/ClassificationPanel'
 import { SummaryPanel } from '../components/molecules/SummaryPanel'
 import { BasicInfoForm, type BasicInfoState } from '../components/molecules/BasicInfoForm'
 import { PreviewPanel } from '../components/molecules/PreviewPanel'
 import { IngredientsTable, type DishIngredientRow } from '../components/molecules/IngredientsTable'
 import { IngredientSummaryPanel } from '../components/molecules/IngredientSummaryPanel'
-import { NutritionForm, defaultNutrition, type NutritionState } from '../components/molecules/NutritionForm'
+import {
+  NutritionForm,
+  defaultNutrition,
+  methodFromApi,
+  methodToApi,
+  sourceLabelFromProvenance,
+  type NutritionState,
+} from '../components/molecules/NutritionForm'
 import { NutritionPreviewPanel } from '../components/molecules/NutritionPreviewPanel'
 import { RecipeForm, defaultRecipe, type RecipeState } from '../components/molecules/RecipeForm'
 import { RecipePreviewPanel } from '../components/molecules/RecipePreviewPanel'
@@ -18,6 +31,8 @@ import { MediaPreviewPanel } from '../components/molecules/MediaPreviewPanel'
 import { ReviewDishPanel } from '../components/molecules/ReviewDishPanel'
 import { ReviewSidePanel } from '../components/molecules/ReviewSidePanel'
 import { SubmitSuccessModal } from '../components/molecules/SubmitSuccessModal'
+import { SubmitReviewBlockedDialog } from '../components/molecules/SubmitReviewBlockedDialog'
+import { PendingIngredientsPanel } from '../components/molecules/PendingIngredientsPanel'
 import { PageSkeleton } from '../components/ui/page-skeleton'
 import { useAdminDish, useCreateDish, useDishLifecycle, useUpdateDish } from '../hooks/useDishes'
 import { useCategories, useDietTypes, useGoals, useMealTypes, useProvinces, useRegions } from '../hooks/useTaxonomy'
@@ -63,6 +78,19 @@ function buildDishPayload(args: {
   if (nutrition.sodiumMg) nutritionPayload.sodiumMg = Number(nutrition.sodiumMg)
   if (nutrition.servingLabel) nutritionPayload.servingName = nutrition.servingLabel
   if (nutrition.servingG) nutritionPayload.servingG = Number(nutrition.servingG)
+  if (Object.keys(nutritionPayload).length) {
+    nutritionPayload.method = methodToApi(nutrition.method)
+    if (nutrition.confidence) {
+      const c = Number(nutrition.confidence)
+      if (Number.isFinite(c)) nutritionPayload.confidence = Math.max(0, Math.min(100, Math.round(c)))
+    }
+    nutritionPayload.sourceUrl = nutrition.sourceUrl?.trim() || null
+    if (nutrition.provenance) nutritionPayload.provenance = nutrition.provenance as Record<string, unknown>
+  }
+  const parsePrice = (v: string) => {
+    const n = Number(String(v ?? '').replace(/\D/g, ''))
+    return n ? n : undefined
+  }
   return {
     name: basic.name || undefined,
     alternateNames: basic.altName ? [basic.altName] : undefined,
@@ -82,8 +110,12 @@ function buildDishPayload(args: {
     prepMinutes: recipe.prepMin ? Number(recipe.prepMin) : undefined,
     cookMinutes: recipe.cookMin ? Number(recipe.cookMin) : undefined,
     servings: Number(recipe.servings) || servings,
-    priceMin: classification.priceFrom ? Number(classification.priceFrom.replace(/\D/g, '')) : undefined,
-    priceMax: classification.priceTo ? Number(classification.priceTo.replace(/\D/g, '')) : undefined,
+    priceMin: parsePrice(classification.priceFrom),
+    priceMax: parsePrice(classification.priceTo),
+    dineOutPriceMin: parsePrice(classification.dineOutPriceFrom),
+    dineOutPriceMax: parsePrice(classification.dineOutPriceTo),
+    dishType: dishTypeToApi(classification.dishType),
+    videoUrl: recipe.videoUrl.trim() || null,
     nutrition: Object.keys(nutritionPayload).length ? nutritionPayload : undefined,
     createMissingIngredients: true,
     ingredients: ingredients.filter((i) => i.name.trim()).map((i, idx) => ({
@@ -172,6 +204,8 @@ export default function CreateDishPage() {
     dishType: 'batKy',
     priceFrom: '',
     priceTo: '',
+    dineOutPriceFrom: '',
+    dineOutPriceTo: '',
   })
   const [ingredients, setIngredients] = useState<DishIngredientRow[]>([])
   const [servings, setServings] = useState(4)
@@ -189,7 +223,46 @@ export default function CreateDishPage() {
   const [validation, setValidation] = useState<DishValidationResult | null>(null)
   const [dishStatus, setDishStatus] = useState<string>('DRAFT')
   const [submitting, setSubmitting] = useState(false)
+  const [blockedOpen, setBlockedOpen] = useState(false)
   const draftPromiseRef = useRef<Promise<string> | null>(null)
+
+  // Nguyên liệu đã lưu trên server nhưng chưa ACTIVE (tự động tìm, chờ duyệt / từ chối / chưa link).
+  const savedDishIngredients: any[] = (existing.data as any)?.dishIngredients ?? []
+  const hasUnapprovedSaved = savedDishIngredients.some(
+    (di) => !di.ingredient || di.ingredient.status !== 'ACTIVE',
+  )
+
+  // Sau khi duyệt/gộp trong panel, detail được refetch → đồng bộ ingredientId/status/ảnh
+  // cho các dòng cục bộ (gộp sẽ đổi ingredientId sang nguyên liệu đích).
+  useEffect(() => {
+    if (!hydrated.current || !savedDishIngredients.length) return
+    setIngredients((rows) => {
+      let changed = false
+      const next = rows.map((row) => {
+        const key = row.name.trim().toLowerCase()
+        const match = savedDishIngredients.find(
+          (di) =>
+            (di.parsedName ?? di.ingredient?.name ?? di.rawText ?? '').trim().toLowerCase() === key ||
+            (di.rawText ?? '').trim().toLowerCase() === key,
+        )
+        const ing = match?.ingredient
+        if (!ing) return row
+        if (row.ingredientId === ing.id && row.ingredientStatus === ing.status && row.ingredientImageUrl === (ing.imageUrl ?? undefined)) {
+          return row
+        }
+        changed = true
+        return {
+          ...row,
+          ingredientId: ing.id,
+          ingredientImageUrl: ing.imageUrl ?? undefined,
+          ingredientStatus: ing.status,
+          resolutionStatus: ing.status === 'PENDING_REVIEW' ? 'PENDING_REVIEW' : 'LINKED',
+        } as DishIngredientRow
+      })
+      return changed ? next : rows
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existing.data])
 
   const close = () => navigate('/foods')
 
@@ -366,6 +439,9 @@ export default function CreateDishPage() {
       goalIds: (dish.dishGoals ?? []).map((x: any) => x.goalId).filter(Boolean),
       priceFrom: dish.priceMin != null ? String(dish.priceMin) : '',
       priceTo: dish.priceMax != null ? String(dish.priceMax) : '',
+      dineOutPriceFrom: dish.dineOutPriceMin != null ? String(dish.dineOutPriceMin) : '',
+      dineOutPriceTo: dish.dineOutPriceMax != null ? String(dish.dineOutPriceMax) : '',
+      dishType: dishTypeFromApi(dish.dishType),
       flavors: (dish.flavorTags ?? []).map((code: string) => ({
         THANH_NHE: 'Thanh nhẹ',
         DAM_DA: 'Đậm đà',
@@ -435,6 +511,11 @@ export default function CreateDishPage() {
         sodiumMg: dish.nutrition.sodiumMg != null ? String(dish.nutrition.sodiumMg) : '',
         servingLabel: dish.nutrition.servingName ?? n.servingLabel,
         servingG: dish.nutrition.servingG != null ? String(dish.nutrition.servingG) : n.servingG,
+        method: methodFromApi(dish.nutrition.method),
+        source: sourceLabelFromProvenance(dish.nutrition.provenance ?? null, dish.nutrition.method),
+        sourceUrl: dish.nutrition.sourceUrl ?? '',
+        confidence: dish.nutrition.confidence != null ? String(dish.nutrition.confidence) : n.confidence,
+        provenance: dish.nutrition.provenance ?? null,
       }))
     }
     if (dish.recipeSteps?.length) {
@@ -445,6 +526,7 @@ export default function CreateDishPage() {
         prepMin: dish.prepMinutes != null ? String(dish.prepMinutes) : r.prepMin,
         cookMin: dish.cookMinutes != null ? String(dish.cookMinutes) : r.cookMin,
         difficulty: dish.difficulty ?? r.difficulty,
+        videoUrl: dish.videoUrl ?? r.videoUrl,
         steps: dish.recipeSteps.map((s: any) => ({
           id: Date.now() + Math.random(),
           title: ((s.instruction ?? '').split('\n')[0] ?? '')
@@ -452,9 +534,12 @@ export default function CreateDishPage() {
             .trim(),
           body: (s.instruction ?? '').split('\n').slice(1).join('\n'),
           durationMin: s.durationMin != null ? String(s.durationMin) : '',
+          imageUrl: s.imageUrl ?? undefined,
           open: true,
         })),
       }))
+    } else if (dish.videoUrl) {
+      setRecipe((r) => ({ ...r, videoUrl: dish.videoUrl }))
     }
     if (dish.media?.length) {
       const items = dish.media.map((m: any, i: number) => ({
@@ -651,6 +736,7 @@ export default function CreateDishPage() {
       setValidation(v)
       if (v && !v.canSubmitReview) {
         setSubmitError(v.blockingErrors.map((e) => e.message).join(' '))
+        setBlockedOpen(true)
         return
       }
       if (!v) {
@@ -668,9 +754,33 @@ export default function CreateDishPage() {
       }
       setSuccessOpen(true)
     } catch (err: unknown) {
+      const body = (err as any)?.response?.data?.error ?? (err as any)?.response?.data
+      if (body?.code === 'PUBLISH_REQUIREMENT_FAILED') {
+        setValidation((prev) => ({
+          completionPercent: prev?.completionPercent ?? 0,
+          sections: prev?.sections ?? [],
+          warnings: prev?.warnings ?? [],
+          blockingErrors: body.details ?? prev?.blockingErrors ?? [],
+          ingredientIssues: body.ingredientIssues ?? prev?.ingredientIssues ?? [],
+          canSubmitReview: false,
+        }))
+        setBlockedOpen(true)
+      }
       setSubmitError(formatApiError(err))
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const revalidate = async () => {
+    const id = dishIdRef.current
+    if (!id) return
+    try {
+      const v = await dishesApi.validate(id)
+      setValidation(v)
+      if (v?.canSubmitReview) setSubmitError('')
+    } catch {
+      /* ignore */
     }
   }
 
@@ -694,13 +804,20 @@ export default function CreateDishPage() {
           {phase === 'review' ? (
             <>
               <div className="flex items-center gap-3">
-                <button type="button" onClick={() => setPhase('wizard')} className="rounded-full p-1 hover:bg-black/5">
-                  <ChevronLeft size={22} />
-                </button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPhase('wizard')}
+                  className="rounded-full h-8 w-8"
+                  aria-label="Quay lại wizard"
+                >
+                  <ChevronLeft size={20} />
+                </Button>
                 <h1 className="m-0 text-[28px] font-extrabold tracking-tight">Kiểm tra món ăn</h1>
-                <span className="rounded-md bg-gray-200 px-2 py-0.5 text-xs font-bold text-gray-600">
+                <Badge variant={dishStatus === 'PENDING_REVIEW' ? 'warning' : 'secondary'}>
                   {dishStatus === 'PENDING_REVIEW' ? 'CHỜ DUYỆT' : 'BẢN NHÁP'}
-                </span>
+                </Badge>
                 <span className="text-sm text-gray-400">{createdId}</span>
               </div>
             </>
@@ -720,9 +837,16 @@ export default function CreateDishPage() {
             </>
           )}
         </div>
-        <button onClick={close} className="mt-1 rounded-full p-1 hover:bg-black/5">
-          <X size={24} />
-        </button>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={close}
+          className="rounded-full h-9 w-9 text-muted-foreground hover:text-foreground"
+          aria-label="Đóng"
+        >
+          <X size={20} />
+        </Button>
       </header>
 
       {/* Step tabs */}
@@ -752,9 +876,9 @@ export default function CreateDishPage() {
             <p className="mb-4 text-sm text-red-600">{editErrMsg}</p>
             <div className="flex items-center justify-center gap-3">
               {isDeleted && (
-                <button
+                <Button
                   type="button"
-                  className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 disabled:opacity-50"
+                  variant="destructive"
                   disabled={lifecycle.restore.isPending}
                   onClick={async () => {
                     if (queryDishId) {
@@ -764,23 +888,24 @@ export default function CreateDishPage() {
                   }}
                 >
                   {lifecycle.restore.isPending ? 'Đang khôi phục...' : 'Khôi phục món ăn'}
-                </button>
+                </Button>
               )}
-              <button
+              <Button
                 type="button"
-                className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+                variant="outline"
                 onClick={() => navigate('/foods')}
               >
                 Về danh sách món
-              </button>
+              </Button>
               {!isDeleted && !isNotFound && (
-                <button
+                <Button
                   type="button"
-                  className="rounded-lg bg-red-100 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-200"
+                  variant="secondary"
+                  className="text-red-700 bg-red-100 hover:bg-red-200"
                   onClick={() => void existing.refetch()}
                 >
                   Thử lại
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -863,12 +988,17 @@ export default function CreateDishPage() {
 
         {phase === 'wizard' && activeTab === 'ingredients' && !isLoadingEdit && !loadEditFailed && (
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[1fr_430px]">
-            <IngredientsTable
-              rows={ingredients}
-              onChange={setIngredients}
-              servings={servings}
-              onServingsChange={setServings}
-            />
+            <div className="space-y-4">
+              {dishId && hasUnapprovedSaved && (
+                <PendingIngredientsPanel dishId={dishId} compact onChanged={() => { void revalidate() }} />
+              )}
+              <IngredientsTable
+                rows={ingredients}
+                onChange={setIngredients}
+                servings={servings}
+                onServingsChange={setServings}
+              />
+            </div>
             <IngredientSummaryPanel rows={ingredients} servings={servings} />
           </div>
         )}
@@ -949,6 +1079,16 @@ export default function CreateDishPage() {
           </>
         )}
       </footer>
+
+      <SubmitReviewBlockedDialog
+        open={blockedOpen}
+        onOpenChange={setBlockedOpen}
+        dishId={dishId}
+        dishName={basic.name}
+        validation={validation}
+        onIngredientsChanged={() => { void revalidate() }}
+        onResolved={() => { void handleSubmit() }}
+      />
 
       <SubmitSuccessModal
         open={successOpen}

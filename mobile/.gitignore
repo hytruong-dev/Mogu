@@ -6,5 +6,6 @@
 dist/
 node_modules/
 # Native projects are generated from app.json for development builds.
+.backup-uncompressed/
 /android/
 /ios/

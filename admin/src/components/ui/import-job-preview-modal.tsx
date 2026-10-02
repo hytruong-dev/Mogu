@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   CheckCircle2, ChefHat, Clock3, Edit3,
-  Flame, ImageOff, Leaf, Utensils, X,
+  Flame, ImageOff, Leaf, MapPin, Play, Utensils, X, ZoomIn,
 } from 'lucide-react'
 import { Button } from './button'
+import { Image } from './image'
+import { Dialog, DialogContent } from './dialog'
+import { MediaLightbox, useMediaLightbox } from './media-lightbox'
 import { useImportJob } from '../../hooks/useImportJobs'
 import { useAdminDish } from '../../hooks/useDishes'
 
@@ -17,11 +20,38 @@ const DIFF_LABEL: Record<string, string> = {
   EASY: 'Dễ', MEDIUM: 'Trung bình', HARD: 'Khó',
 }
 
+const NUTRITION_METHOD_LABEL: Record<string, string> = {
+  INGREDIENT_CALCULATED: 'Tính từ nguyên liệu (VFCT/USDA)',
+  SOURCE_VERIFIED: 'Theo nguồn công thức',
+  AI_ESTIMATED: 'AI ước lượng',
+}
+
+const NUTRITION_PROVIDER_LABEL: Record<string, string> = {
+  VIETNAM_FCT_2007: 'VFCT 2007 – Viện Dinh dưỡng',
+  USDA_FDC: 'USDA FoodData Central',
+  RECIPE_SOURCE: 'Trang nguồn công thức',
+  AI_ESTIMATE: 'AI ước lượng',
+}
+
+function safeHost(url: string) {
+  try {
+    return new URL(url).hostname
+  } catch {
+    return url
+  }
+}
+
+function youtubeThumb(url: string): string | null {
+  const m = url.match(/(?:v=|youtu\.be\/|embed\/)([A-Za-z0-9_-]{6,})/)
+  return m?.[1] ? `https://img.youtube.com/vi/${m[1]}/mqdefault.jpg` : null
+}
+
 export function ImportJobPreviewModal({ jobId, onClose }: Props) {
   const navigate = useNavigate()
   const { data: job } = useImportJob(jobId)
   const { data: dish } = useAdminDish(job?.resultDishId ?? '')
   const [imgError, setImgError] = useState(false)
+  const { openImage, openVideo, lightboxProps } = useMediaLightbox()
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -47,27 +77,8 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
   }
 
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 300,
-        background: 'rgba(0,0,0,0.55)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '20px 16px',
-        backdropFilter: 'blur(4px)',
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background: '#faf7f2',
-          borderRadius: 20,
-          width: '100%', maxWidth: 740,
-          maxHeight: '92vh', overflowY: 'auto',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.28)',
-          display: 'flex', flexDirection: 'column',
-        }}
-      >
+    <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
+      <DialogContent className="max-w-[740px] p-0 overflow-y-auto bg-[#faf7f2] border-none rounded-[20px] max-h-[92vh]">
         {/* ── Hero image ── */}
         <div style={{
           position: 'relative',
@@ -79,11 +90,15 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
           {displayImg ? (
-            <>
-              <img src={displayImg} alt={job.query} onError={() => setImgError(true)}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div
+              onClick={() => openImage(displayImg, dish?.name || job.query, 'Ảnh món ăn')}
+              style={{ width: '100%', height: '100%', position: 'relative', cursor: 'zoom-in' }}
+              title="Bấm để xem ảnh lớn"
+            >
+              <Image src={displayImg} alt={job.query} onError={() => setImgError(true)}
+                className="h-full w-full object-cover" />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 55%)' }} />
-            </>
+            </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, color: '#888' }}>
               <ImageOff size={28} />
@@ -92,14 +107,14 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
           )}
 
           {/* Close */}
-          <button onClick={onClose} style={{
-            position: 'absolute', top: 12, right: 12,
-            background: 'rgba(0,0,0,0.45)', border: 'none', borderRadius: '50%',
-            width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: '#fff',
-          }}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="absolute top-3 right-3 rounded-full bg-black/45 text-white hover:bg-black/60 hover:text-white h-9 w-9"
+          >
             <X size={18} />
-          </button>
+          </Button>
 
           {/* Badge */}
           <div style={{
@@ -145,8 +160,32 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
               { icon: <Flame size={16} />,    label: 'Nấu',      value: dish?.cookMinutes ? `${dish.cookMinutes} phút` : '—' },
               { icon: <Utensils size={16} />, label: 'Khẩu phần', value: dish?.servings   ? `${dish.servings} người`  : '—' },
               { icon: <ChefHat size={16} />,  label: 'Độ khó',   value: dish?.difficulty  ? DIFF_LABEL[dish.difficulty] ?? dish.difficulty : '—' },
-              { icon: <span style={{ fontSize: 15 }}>💰</span>, label: 'Giá từ', value: dish?.priceMin ? `${Number(dish.priceMin).toLocaleString('vi-VN')}₫` : '—' },
-              { icon: <span style={{ fontSize: 15 }}>💰</span>, label: 'Giá đến', value: dish?.priceMax ? `${Number(dish.priceMax).toLocaleString('vi-VN')}₫` : '—' },
+              {
+                icon: <span style={{ fontSize: 15 }}>🏠</span>,
+                label: 'Nấu nhà (cả công thức)',
+                value: dish?.priceMin || dish?.priceMax
+                  ? `${Number(dish.priceMin ?? 0).toLocaleString('vi-VN')}–${Number(dish.priceMax ?? dish.priceMin ?? 0).toLocaleString('vi-VN')}₫`
+                  : '—',
+              },
+              {
+                icon: <span style={{ fontSize: 15 }}>🍽️</span>,
+                label: 'Ăn ngoài (1 phần)',
+                value: (dish as any)?.dineOutPriceMin || (dish as any)?.dineOutPriceMax
+                  ? `${Number((dish as any).dineOutPriceMin ?? 0).toLocaleString('vi-VN')}–${Number((dish as any).dineOutPriceMax ?? (dish as any).dineOutPriceMin ?? 0).toLocaleString('vi-VN')}₫`
+                  : '—',
+              },
+              {
+                icon: <span style={{ fontSize: 15 }}>🍜</span>,
+                label: 'Loại món',
+                value: (dish as any)?.dishType === 'WET' ? 'Món nước' : (dish as any)?.dishType === 'DRY' ? 'Món khô' : '—',
+              },
+              {
+                icon: <MapPin size={16} />,
+                label: 'Xuất xứ',
+                value: (dish as any)?.originText
+                  ?? [(dish as any)?.province?.name, (dish as any)?.region?.name].filter(Boolean).join(', ')
+                  ?? '—',
+              },
             ].map((item) => (
               <div key={item.label} style={{ background: '#fff', borderRadius: 12, padding: '12px 14px', border: '1px solid #ede8df', display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <div style={{ color: '#f0a500' }}>{item.icon}</div>
@@ -180,6 +219,74 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
                   </div>
                 ))}
               </div>
+
+              {/* Method + provenance */}
+              <div style={{ marginTop: 10, background: '#fff', border: '1px solid #ede8df', borderRadius: 10, padding: '10px 14px', fontSize: 12, color: '#555', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+                  <span style={{ fontWeight: 700, color: '#1a1008' }}>Phương pháp:</span>
+                  <span style={{ background: '#fff8e1', color: '#b36b00', borderRadius: 20, padding: '2px 10px', fontWeight: 600 }}>
+                    {NUTRITION_METHOD_LABEL[nutrition.method as string] ?? nutrition.method ?? 'Không rõ'}
+                  </span>
+                  {nutrition.confidence != null && (
+                    <span style={{ color: '#888' }}>Độ tin cậy {nutrition.confidence}%</span>
+                  )}
+                  {nutrition.provenance?.coveragePct != null && (
+                    <span style={{ color: '#888' }}>Độ phủ {nutrition.provenance.coveragePct}%</span>
+                  )}
+                </div>
+                {(nutrition.provenance?.references?.length > 0 || nutrition.sourceUrl) && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    <span style={{ fontWeight: 700, color: '#1a1008' }}>Nguồn:</span>
+                    {(nutrition.provenance?.references ?? []).map((r: any) => (
+                      <a key={`${r.provider}-${r.url}`} href={r.url} target="_blank" rel="noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }}>
+                        {NUTRITION_PROVIDER_LABEL[r.provider] ?? r.title ?? r.provider}
+                      </a>
+                    ))}
+                    {nutrition.sourceUrl && !(nutrition.provenance?.references ?? []).some((r: any) => r.url === nutrition.sourceUrl) && (
+                      <a href={nutrition.sourceUrl} target="_blank" rel="noreferrer" style={{ color: '#2563eb', textDecoration: 'underline' }}>
+                        {safeHost(nutrition.sourceUrl)}
+                      </a>
+                    )}
+                  </div>
+                )}
+                {nutrition.provenance?.uncovered?.length > 0 && (
+                  <div style={{ color: '#b45309' }}>
+                    Chưa khớp CSDL: {nutrition.provenance.uncovered.join(', ')}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Video */}
+          {(dish as any)?.videoUrl && (
+            <div style={{ background: '#fff', border: '1px solid #ede8df', borderRadius: 12, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+              {youtubeThumb((dish as any).videoUrl) && (
+                <button
+                  type="button"
+                  onClick={() => openVideo((dish as any).videoUrl, `Video: ${dish?.name || job.query}`)}
+                  className="group relative overflow-hidden rounded-lg bg-black shrink-0 border-0 p-0"
+                  style={{ width: 96, height: 54, cursor: 'pointer' }}
+                  title="Nhấn để phát video"
+                >
+                  <Image src={youtubeThumb((dish as any).videoUrl)!} alt="video" className="h-full w-full object-cover" />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/10 transition">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow transition group-hover:scale-110">
+                      <Play className="ml-0.5 h-3.5 w-3.5 fill-white" />
+                    </div>
+                  </div>
+                </button>
+              )}
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: 12, color: '#999' }}>🎬 Video hướng dẫn</div>
+                <button
+                  type="button"
+                  onClick={() => openVideo((dish as any).videoUrl, `Video: ${dish?.name || job.query}`)}
+                  style={{ background: 'none', border: 'none', padding: 0, fontSize: 13, color: '#2563eb', textDecoration: 'underline', wordBreak: 'break-all', cursor: 'pointer', textAlign: 'left' }}
+                >
+                  {(dish as any).videoUrl}
+                </button>
+              </div>
             </div>
           )}
 
@@ -202,16 +309,28 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
                       minWidth: 0,
                     }}>
                       {/* Ảnh ingredient */}
-                      <div style={{
-                        width: 44, height: 44, borderRadius: 10, flexShrink: 0,
-                        background: '#f5f0e8',
-                        overflow: 'hidden',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        {imgUrl
-                          ? <img src={imgUrl} alt={name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          : <span style={{ fontSize: 20 }}>🥄</span>
-                        }
+                      <div
+                        className="group relative"
+                        style={{
+                          width: 44, height: 44, borderRadius: 10, flexShrink: 0,
+                          background: '#f5f0e8',
+                          overflow: 'hidden',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          cursor: imgUrl ? 'zoom-in' : 'default',
+                        }}
+                        onClick={() => imgUrl && openImage(imgUrl, name, 'Nguyên liệu')}
+                        title={imgUrl ? 'Bấm để xem ảnh lớn' : undefined}
+                      >
+                        {imgUrl ? (
+                          <>
+                            <Image src={imgUrl} alt={name} className="h-full w-full object-cover" />
+                            <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                              <ZoomIn className="h-3.5 w-3.5 text-white drop-shadow" />
+                            </div>
+                          </>
+                        ) : (
+                          <span style={{ fontSize: 20 }}>🥄</span>
+                        )}
                       </div>
                       <div style={{ minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#1a1008', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -262,7 +381,25 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
                         )}
                       </div>
                       {/* Body */}
-                      <div style={{ padding: '12px 16px' }}>
+                      <div style={{ padding: '12px 16px', display: 'flex', gap: 12 }}>
+                        {step.imageUrl && (
+                          <div
+                            className="group relative shrink-0 cursor-zoom-in overflow-hidden rounded-lg"
+                            style={{ width: 120, height: 80, background: '#f5f0e8' }}
+                            onClick={() => openImage(step.imageUrl, `${dish?.name || job.query} - ${titleLine}`)}
+                            title="Bấm để xem ảnh lớn"
+                          >
+                            <Image
+                              src={step.imageUrl}
+                              alt={titleLine}
+                              className="h-full w-full object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                              <ZoomIn className="h-4 w-4 text-white drop-shadow" />
+                            </div>
+                          </div>
+                        )}
+                        <div style={{ minWidth: 0, flex: 1 }}>
                         <p style={{ margin: 0, fontSize: 13.5, color: '#444', lineHeight: 1.75 }}>
                           {bodyLines.join('\n') || (hasTitle ? '' : step.instruction)}
                         </p>
@@ -271,6 +408,7 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
                             {tipLine}
                           </p>
                         )}
+                        </div>
                       </div>
                     </div>
                   )
@@ -314,7 +452,8 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+      <MediaLightbox {...lightboxProps} />
+    </Dialog>
   )
 }

@@ -83,7 +83,7 @@ export function parseCookingIntent(
     [/^(con bao lau|con may phut)$/, 'TIMER_STATUS'],
     [/^(dung|dung lai|doi chut|khoan|tam dung)$/, 'PAUSE'],
     [/^(tiep tuc|nghe tiep)$/, 'RESUME'],
-    [/^(hoan tat|ket thuc|nau xong)$/, 'FINISH'],
+    [/^(hoan tat|ket thuc|nau xong|hoan thanh)$/, 'FINISH'],
     [/^(co|vang|u|dong y|dung roi|yes)$/, 'YES'],
     [/^(khong|khong dong y|huy|thoi|no)$/, 'NO'],
   ];
@@ -106,3 +106,25 @@ export function parseCookingIntent(
     .trim();
   return { type: 'ASK', question };
 }
+
+export function validateCookingAction(
+  action: { type: string; stepIndex?: number | null; seconds?: number | null },
+  count: number,
+): CookingAction | null {
+  if (action.type === 'GOTO')
+    return Number.isInteger(action.stepIndex) && action.stepIndex! >= 0 && action.stepIndex! < count
+      ? { type: 'GOTO', stepIndex: action.stepIndex! }
+      : null;
+  if (action.type === 'SET_TIMER')
+    return Number.isInteger(action.seconds) && action.seconds! > 0 && action.seconds! <= 86400
+      ? { type: 'SET_TIMER', seconds: action.seconds! }
+      : null;
+  if (
+    ['NEXT', 'PREV', 'START_TIMER', 'PAUSE_TIMER', 'READ_INGREDIENTS', 'REPEAT'].includes(
+      action.type,
+    )
+  )
+    return { type: action.type } as CookingAction;
+  return null;
+}
+

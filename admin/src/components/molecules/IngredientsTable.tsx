@@ -1,7 +1,11 @@
 import { useMemo, useState } from 'react'
-import { Circle, CircleCheck, Plus, Search, Trash2 } from 'lucide-react'
+import { CircleCheck, Plus, Search, Trash2 } from 'lucide-react'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
+import { Button } from '../ui/button'
+import { Checkbox } from '../ui/checkbox'
+import { Select } from '../ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import IngredientPicker from '../ui/ingredient-picker'
 import { cn } from '@/lib/utils'
@@ -55,20 +59,15 @@ function SmallSelect({
   onChange: (v: string) => void
 }) {
   return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-black/10 bg-white pl-3 pr-8 text-sm outline-none focus:border-mogu-yellow"
-      >
-        {options.map((o) => (
-          <option key={o} value={o}>{o}</option>
-        ))}
-      </select>
-      <svg className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <path d="m6 9 6 6 6-6" />
-      </svg>
-    </div>
+    <Select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="h-10 rounded-lg border border-black/10 bg-white text-sm"
+    >
+      {options.map((o) => (
+        <option key={o} value={o}>{o}</option>
+      ))}
+    </Select>
   )
 }
 
@@ -129,46 +128,48 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
 
       <div className="mt-4 flex flex-wrap items-center gap-4">
         <div className="relative max-w-[340px] flex-1">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
+          <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Lọc trong danh sách thành phần..."
-            className="h-11 w-full rounded-xl border border-black/10 bg-white pl-10 pr-4 text-sm outline-none focus:border-mogu-yellow"
+            className="h-11 w-full rounded-xl border-black/10 bg-white pl-10 pr-4 text-sm focus-visible:ring-mogu-yellow"
           />
         </div>
-        <button
+        <Button
           type="button"
           onClick={addRow}
-          className="flex h-11 items-center gap-2 rounded-xl border-2 border-mogu-yellow bg-white px-5 text-sm font-semibold transition hover:bg-mogu-yellow-light"
+          className="flex h-11 items-center gap-2 rounded-xl border-2 border-mogu-yellow bg-white px-5 text-sm font-semibold text-foreground hover:bg-mogu-yellow-light"
+          variant="outline"
         >
           <Plus className="h-4 w-4" />
           Thêm nguyên liệu mới
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="link"
           onClick={() => setPasteOpen(true)}
           className="ml-2 text-sm font-semibold text-gray-900 underline underline-offset-4 hover:text-mogu-yellow-dark"
         >
           Nhập nhanh từ văn bản
-        </button>
+        </Button>
       </div>
 
-      <table className="mt-5 w-full">
-        <thead>
-          <tr className="border-b border-black/10 text-left text-sm text-gray-800">
-            <th className="w-[24%] pb-3 font-semibold">Nguyên liệu</th>
-            <th className="w-[13%] pb-3 font-semibold">Số lượng</th>
-            <th className="w-[13%] pb-3 font-semibold">Đơn vị</th>
-            <th className="w-[22%] pb-3 font-semibold">Cách sơ chế</th>
-            <th className="w-[16%] pb-3 font-semibold">Bắt buộc</th>
-            <th className="w-[12%] pb-3 font-semibold">Hành động</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table className="mt-5">
+        <TableHeader>
+          <TableRow className="border-b border-black/10 text-left text-sm text-gray-800">
+            <TableHead className="w-[24%] pb-3 font-semibold">Nguyên liệu</TableHead>
+            <TableHead className="w-[13%] pb-3 font-semibold">Số lượng</TableHead>
+            <TableHead className="w-[13%] pb-3 font-semibold">Đơn vị</TableHead>
+            <TableHead className="w-[22%] pb-3 font-semibold">Cách sơ chế</TableHead>
+            <TableHead className="w-[16%] pb-3 font-semibold">Bắt buộc</TableHead>
+            <TableHead className="w-[12%] pb-3 font-semibold">Hành động</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {visible.map((row) => (
-            <tr key={row.id} className="border-b border-black/5">
-              <td className="py-2.5 pr-4">
+            <TableRow key={row.id} className="border-b border-black/5">
+              <TableCell className="py-2.5 pr-4">
                 <IngredientPicker
                   value={row.name}
                   ingredientId={row.ingredientId}
@@ -196,70 +197,66 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
                   placeholder="Tìm nguyên liệu..."
                   style={{ flex: 'unset', width: '100%' }}
                 />
-              </td>
-              <td className="py-2.5 pr-4">
+              </TableCell>
+              <TableCell className="py-2.5 pr-4">
                 <Input
                   value={row.qty}
                   onChange={(e) => update(row.id, { qty: e.target.value })}
                   className="h-10 rounded-lg border-black/10 shadow-none focus-visible:border-mogu-yellow focus-visible:ring-mogu-yellow/30"
                 />
-              </td>
-              <td className="py-2.5 pr-4">
+              </TableCell>
+              <TableCell className="py-2.5 pr-4">
                 <SmallSelect value={row.unit} options={UNIT_OPTIONS} onChange={(unit) => update(row.id, { unit })} />
-              </td>
-              <td className="py-2.5 pr-4">
+              </TableCell>
+              <TableCell className="py-2.5 pr-4">
                 <Input
                   value={row.prep}
                   onChange={(e) => update(row.id, { prep: e.target.value })}
                   placeholder="vd: luộc và xé"
                   className="h-10 rounded-lg border-black/10 shadow-none focus-visible:border-mogu-yellow focus-visible:ring-mogu-yellow/30"
                 />
-              </td>
-              <td className="py-2.5 pr-4">
-                <button
-                  type="button"
-                  onClick={() => update(row.id, { required: !row.required })}
-                  className={cn('flex items-center gap-2 text-sm font-medium', row.required ? 'text-gray-900' : 'text-gray-500')}
-                >
-                  {row.required ? (
-                    <CircleCheck className="h-5 w-5 text-ok-green" strokeWidth={1.8} />
-                  ) : (
-                    <Circle className="h-5 w-5 text-gray-300" strokeWidth={1.8} />
-                  )}
-                  {row.required ? 'Bắt buộc' : 'Tùy chọn'}
-                </button>
-              </td>
-              <td className="py-2.5">
-                <button type="button" onClick={() => removeRow(row.id)} className="text-gray-400 transition hover:text-red-500">
+              </TableCell>
+              <TableCell className="py-2.5 pr-4">
+                <label className="flex items-center gap-2 cursor-pointer text-sm font-medium">
+                  <Checkbox
+                    checked={row.required}
+                    onCheckedChange={(checked) => update(row.id, { required: Boolean(checked) })}
+                  />
+                  <span>{row.required ? 'Bắt buộc' : 'Tùy chọn'}</span>
+                </label>
+              </TableCell>
+              <TableCell className="py-2.5">
+                <Button type="button" variant="ghost" size="icon" onClick={() => removeRow(row.id)} className="text-gray-400 hover:text-red-500">
                   <Trash2 className="h-[18px] w-[18px]" />
-                </button>
-              </td>
-            </tr>
+                </Button>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
 
       {rows.length === 0 && (
         <p className="mt-4 text-sm text-gray-400">Chưa có nguyên liệu. Bấm “Thêm nguyên liệu mới” để bắt đầu.</p>
       )}
 
-      <button
+      <Button
         type="button"
+        variant="secondary"
         onClick={addRow}
-        className="mt-4 flex h-10 items-center gap-2 rounded-xl bg-gray-100 px-4 text-sm font-medium transition hover:bg-gray-200"
+        className="mt-4 flex h-10 items-center gap-2 rounded-xl text-sm font-medium"
       >
         <Plus className="h-4 w-4" />
         Thêm dòng
-      </button>
+      </Button>
 
       <div className="mt-6 flex items-center gap-3">
         <span className="text-[15px] font-medium">Định lượng cho</span>
-        <input
+        <Input
           type="number"
           min={1}
           value={servings}
           onChange={(e) => onServingsChange(Math.max(1, Number(e.target.value) || 1))}
-          className="h-10 w-20 rounded-lg border border-black/10 bg-white px-3 text-center text-sm outline-none focus:border-mogu-yellow"
+          className="h-10 w-20 text-center text-sm"
         />
         <span className="text-[15px]">khẩu phần</span>
       </div>
@@ -312,8 +309,8 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
           <p className="mb-2 text-sm text-gray-500">Mỗi dòng một nguyên liệu, ví dụ: <code>Thịt gà 400 g</code></p>
           <Textarea rows={8} value={pasteText} onChange={(e) => setPasteText(e.target.value)} placeholder={'Bánh phở 500 g\nThịt gà 400 g'} />
           <div className="mt-4 flex justify-end gap-2">
-            <button type="button" className="h-10 rounded-xl border border-black/10 px-4 text-sm" onClick={() => setPasteOpen(false)}>Hủy</button>
-            <button type="button" className="h-10 rounded-xl bg-mogu-yellow px-4 text-sm font-semibold" onClick={applyPaste}>Thêm vào bảng</button>
+            <Button type="button" variant="outline" onClick={() => setPasteOpen(false)}>Hủy</Button>
+            <Button type="button" onClick={applyPaste}>Thêm vào bảng</Button>
           </div>
         </DialogContent>
       </Dialog>

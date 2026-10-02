@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service';
+import { noanCookingGreeting } from './noan-voice-profile';
 import { VoiceCacheService } from './voice-cache.service';
 import { MAX_TEXT_LENGTH, SCRIPT_VERSION } from './tts.provider';
 
@@ -41,7 +42,7 @@ export class CookingScriptService {
   }
   async script(dishId: string) {
     const dish = await this.recipe(dishId);
-    const greeting = `Chào bạn, mình là NOAN. Hôm nay cùng nấu món ${dish.name} nhé. Khi sẵn sàng, bạn nói bắt đầu nhé.`;
+    const greeting = noanCookingGreeting(dish.name);
     const ingredients = ingredientsSummary(dish.dishIngredients);
     const steps = dish.recipeSteps.map((step) => ({
       stepOrder: step.stepOrder,

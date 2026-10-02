@@ -1,3 +1,10 @@
+import * as path from 'path';
+import * as dotenv from 'dotenv';
+
+// Load .env and .env.local with override: true so that project config always takes precedence over OS environment variables
+dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
+dotenv.config({ path: path.resolve(process.cwd(), '.env.local'), override: true });
+
 import { NestFactory, Reflector } from '@nestjs/core';
 import multipart from '@fastify/multipart';
 import type { FastifyInstance } from 'fastify';

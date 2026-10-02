@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react'
 import { Check, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Checkbox } from '../../ui/checkbox'
+import { Switch } from '../../ui/switch'
+import { Button } from '../../ui/button'
 
 export const WIZARD_STEPS = [
   { n: 1, key: 'upload', label: 'Tải file' },
@@ -77,18 +80,11 @@ export function YellowCheck({
 }) {
   return (
     <label className="flex cursor-pointer items-start gap-2.5">
-      <button
-        type="button"
-        role="checkbox"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={cn(
-          'mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[4px] border transition',
-          checked ? 'border-mogu-yellow bg-mogu-yellow' : 'border-black/25 bg-white',
-        )}
-      >
-        {checked && <Check className="h-3 w-3 text-black" strokeWidth={3} />}
-      </button>
+      <Checkbox
+        checked={checked}
+        onCheckedChange={(c) => onChange(!!c)}
+        className="mt-0.5 data-[state=checked]:bg-mogu-yellow data-[state=checked]:text-black data-[state=checked]:border-mogu-yellow"
+      />
       <span>
         <span className="text-sm font-medium text-black">{label}</span>
         {hint && <span className="mt-0.5 block text-xs text-[#6B7280]">{hint}</span>}
@@ -178,17 +174,18 @@ export function GhostBtn({
   className?: string
 }) {
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-black/10 bg-white px-4 text-sm font-semibold text-black transition hover:bg-black/[0.03] disabled:cursor-not-allowed disabled:opacity-40',
+        'h-10 px-4 text-sm font-semibold text-black bg-white hover:bg-black/[0.03]',
         className,
       )}
     >
       {children}
-    </button>
+    </Button>
   )
 }
 
@@ -204,17 +201,17 @@ export function PrimaryBtn({
   className?: string
 }) {
   return (
-    <button
+    <Button
       type="button"
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-mogu-yellow px-5 text-sm font-bold text-black transition hover:bg-mogu-yellow-dark disabled:cursor-not-allowed disabled:opacity-40',
+        'h-10 bg-mogu-yellow px-5 text-sm font-bold text-black hover:bg-mogu-yellow-dark shadow-none',
         className,
       )}
     >
       {children}
-    </button>
+    </Button>
   )
 }
 
@@ -229,23 +226,11 @@ export function YellowSwitch({
 }) {
   return (
     <label className="flex cursor-pointer items-center gap-2.5">
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={cn(
-          'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors',
-          checked ? 'bg-mogu-yellow' : 'bg-[#D1D5DB]',
-        )}
-      >
-        <span
-          className={cn(
-            'absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform',
-            checked && 'translate-x-4',
-          )}
-        />
-      </button>
+      <Switch
+        checked={checked}
+        onCheckedChange={onChange}
+        className="data-[state=checked]:bg-mogu-yellow"
+      />
       {label && <span className="text-sm font-medium text-black">{label}</span>}
     </label>
   )
@@ -262,23 +247,11 @@ export function GreenSwitch({
 }) {
   return (
     <label className="flex cursor-pointer items-center gap-2.5">
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={cn(
-          'relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors',
-          checked ? 'bg-[#22C55E]' : 'bg-[#D1D5DB]',
-        )}
-      >
-        <span
-          className={cn(
-            'absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform',
-            checked && 'translate-x-4',
-          )}
-        />
-      </button>
+      <Switch
+        checked={checked}
+        onCheckedChange={onChange}
+        className="data-[state=checked]:bg-[#22C55E]"
+      />
       {label && <span className="text-sm font-medium text-black">{label}</span>}
     </label>
   )

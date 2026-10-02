@@ -1,5 +1,175 @@
 import { IngredientCatalogService } from './ingredient-catalog.service';
-import { IngredientStatus } from '@prisma/client';
+import {
+  IngredientCreatedVia,
+  IngredientImageStatus,
+  IngredientStatus,
+} from '@prisma/client';
+
+const baseNormalizer = {
+  identityKey: (v: string) => v.toLowerCase().trim(),
+  searchFolded: (v: string) => v.toLowerCase().trim(),
+  cleanDisplayName: (v: string) => v.trim(),
+  slugCode: () => 'code-x',
+};
+
+function makeService(prisma: any, resolver: any = {}, queue: any = {}) {
+  return new IngredientCatalogService(
+    prisma,
+    baseNormalizer as any,
+    resolver,
+    { enqueueNewIngredients: jest.fn().mockResolvedValue(0), enabled: false, ...queue },
+  );
+}
+
+describe('IngredientCatalogService createdVia / approve / merge / findUnapprovedForDish', () => {
+  it('passes createdVia to newly provisioned ingredients', async () => {
+    const create = jest.fn().mockResolvedValue({ id: 'n1', name: 'Lá lốt' });
+    const prisma = { db: { ingredient: { create, findUnique: jest.fn() } } };
+    const resolver = {
+      resolveExistingBatch: jest.fn().mockResolvedValue(
+        new Map([
+          ['x', { clientRef: 'x', inputKey: 'lá lốt', outcome: 'INVALID', ingredientId: null, canonicalName: 'Lá lốt', isNew: false, candidates: [] }],
+        ]),
+      ),
+    };
+    const service = makeService(prisma, resolver);
+
+    await service.resolveOrProvisionBatch([{ clientRef: 'x', rawName: 'Lá lốt' }], {
+      createMissing: true,
+      enqueueImageEnrichment: false,
+      createdVia: IngredientCreatedVia.AI_IMPORT,
+    });
+
+    expect(create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          createdVia: IngredientCreatedVia.AI_IMPORT,
+          status: IngredientStatus.PENDING_REVIEW,
+          isActive: false,
+        }),
+      }),
+    );
+  });
+
+  it('approve promotes provisional image to APPROVED and applies metadata patch', async () => {
+    const update = jest.fn().mockImplementation(async ({ data }) => ({ id: 'i1', ...data }));
+    const prisma = {
+      db: {
+        ingredient: {
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'i1',
+            imageUrl: 'https://cdn/x.jpg',
+            imageKey: 'x.jpg',
+            imageStatus: IngredientImageStatus.PENDING_REVIEW,
+          }),
+          update,
+        },
+      },
+    };
+    const service = makeService(prisma);
+
+    await service.approveIngredient('i1', {
+      nameEn: 'betel leaf',
+      description: 'Lá thơm',
+      synonyms: ['lá lốt rừng'],
+    });
+
+    const data = update.mock.calls[0][0].data;
+    expect(data.status).toBe(IngredientStatus.ACTIVE);
+    expect(data.isActive).toBe(true);
+    expect(data.imageStatus).toBe(IngredientImageStatus.APPROVED);
+    expect(data.imageUrl).toBe('https://cdn/x.jpg');
+    expect(data.nameEn).toBe('betel leaf');
+    expect(data.synonyms).toEqual(['lá lốt rừng']);
+  });
+
+  it('approve without image keeps imageStatus untouched', async () => {
+    const update = jest.fn().mockImplementation(async ({ data }) => data);
+    const prisma = {
+      db: {
+        ingredient: {
+          findUnique: jest.fn().mockResolvedValue({
+            id: 'i1',
+            imageUrl: null,
+            imageKey: null,
+            imageStatus: IngredientImageStatus.NOT_FOUND,
+          }),
+          update,
+        },
+      },
+    };
+    await makeService(prisma).approveIngredient('i1');
+    expect(update.mock.calls[0][0].data.imageStatus).toBe(IngredientImageStatus.NOT_FOUND);
+  });
+
+  it('merge repoints dish ingredients, adds synonym to target, marks source MERGED', async () => {
+    const tx = {
+      dishIngredient: { updateMany: jest.fn().mockResolvedValue({ count: 3 }) },
+      ingredient: { update: jest.fn().mockImplementation(async ({ where, data }) => ({ id: where.id, ...data })) },
+    };
+    const prisma = {
+      db: {
+        ingredient: {
+          findUnique: jest.fn().mockImplementation(async ({ where }) =>
+            where.id === 'src'
+              ? { id: 'src', name: 'Thịt heo', status: IngredientStatus.PENDING_REVIEW, synonyms: [] }
+              : { id: 'dst', name: 'Thịt lợn', status: IngredientStatus.ACTIVE, synonyms: ['heo'] },
+          ),
+        },
+        $transaction: jest.fn().mockImplementation(async (fn: any) => fn(tx)),
+      },
+    };
+
+    const res = await makeService(prisma).mergeIngredient('src', 'dst');
+
+    expect(tx.dishIngredient.updateMany).toHaveBeenCalledWith({
+      where: { ingredientId: 'src' },
+      data: { ingredientId: 'dst' },
+    });
+    expect(tx.ingredient.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'dst' },
+        data: expect.objectContaining({ synonyms: ['heo', 'Thịt heo'] }),
+      }),
+    );
+    expect(tx.ingredient.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'src' },
+        data: expect.objectContaining({ status: IngredientStatus.MERGED, mergedIntoId: 'dst', isActive: false }),
+      }),
+    );
+    expect(res.redirectedDishesCount).toBe(3);
+  });
+
+  it('merge rejects merging into itself', async () => {
+    await expect(makeService({ db: {} }).mergeIngredient('a', 'a')).rejects.toThrow();
+  });
+
+  it('findUnapprovedForDish returns only non-ACTIVE / unlinked rows with reason', async () => {
+    const prisma = {
+      db: {
+        dishIngredient: {
+          findMany: jest.fn().mockResolvedValue([
+            { id: 'd1', rawText: 'Muối', parsedName: 'Muối', ingredientId: 'a', ingredient: { id: 'a', name: 'Muối', status: IngredientStatus.ACTIVE } },
+            { id: 'd2', rawText: 'Lá lốt', parsedName: 'Lá lốt', ingredientId: 'b', ingredient: { id: 'b', name: 'Lá lốt', status: IngredientStatus.PENDING_REVIEW, imageUrl: 'u', imageStatus: IngredientImageStatus.PENDING_REVIEW } },
+            { id: 'd3', rawText: 'Bột ngọt lạ', parsedName: null, ingredientId: null, ingredient: null },
+            { id: 'd4', rawText: 'X', parsedName: 'X', ingredientId: 'c', ingredient: { id: 'c', name: 'X', status: IngredientStatus.REJECTED } },
+          ]),
+        },
+      },
+    };
+
+    const issues = await makeService(prisma).findUnapprovedForDish('dish-1');
+
+    expect(issues.map((i) => [i.dishIngredientId, i.reason])).toEqual([
+      ['d2', 'PENDING_REVIEW'],
+      ['d3', 'UNLINKED'],
+      ['d4', 'REJECTED'],
+    ]);
+    expect(issues[0].imageStatus).toBe(IngredientImageStatus.PENDING_REVIEW);
+    expect(issues[1].name).toBe('Bột ngọt lạ');
+  });
+});
 
 describe('IngredientCatalogService.resolveOrProvisionBatch linking', () => {
   it('maps same identity to one id across clientRefs and links all rows', async () => {

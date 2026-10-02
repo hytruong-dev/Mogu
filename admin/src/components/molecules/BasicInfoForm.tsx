@@ -2,6 +2,8 @@ import { useEffect, useMemo } from 'react'
 import { ChevronDown, Moon, Soup, Sun, SunMedium, X, type LucideIcon } from 'lucide-react'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
+import { Label } from '../ui/label'
+import { Select } from '../ui/select'
 import { cn } from '@/lib/utils'
 import {
   type MealTypeOption,
@@ -127,32 +129,36 @@ export function BasicInfoForm({
       {/* Vùng miền + Tỉnh/thành */}
       <div className="mt-7 grid grid-cols-2 gap-6">
         <div>
-          <label className="text-[15px] font-semibold">
+          <Label className="text-[15px] font-semibold text-foreground">
             Vùng miền <span className="text-red-500">*</span>
-          </label>
-          <select
-            value={state.regionId ?? ''}
-            onChange={(e) => onChange({ ...state, regionId: e.target.value || undefined, provinceId: undefined })}
-            className="mt-2 h-12 w-full rounded-xl border border-black/10 bg-white px-4 text-[15px] outline-none focus:border-mogu-yellow focus:ring-2 focus:ring-mogu-yellow/30"
-          >
-            <option value="">Chọn vùng miền...</option>
-            {regions.map((r) => (
-              <option key={r.id} value={r.id}>{r.name}</option>
-            ))}
-          </select>
+          </Label>
+          <div className="mt-2">
+            <Select
+              value={state.regionId ?? ''}
+              onChange={(e) => onChange({ ...state, regionId: e.target.value || undefined, provinceId: undefined })}
+              className="h-12 rounded-xl border border-black/10 bg-white px-4 text-[15px]"
+            >
+              <option value="">Chọn vùng miền...</option>
+              {regions.map((r) => (
+                <option key={r.id} value={r.id}>{r.name}</option>
+              ))}
+            </Select>
+          </div>
         </div>
         <div>
-          <label className="text-[15px] font-semibold">Tỉnh/thành</label>
-          <select
-            value={state.provinceId ?? ''}
-            onChange={(e) => onChange({ ...state, provinceId: e.target.value || undefined })}
-            className="mt-2 h-12 w-full rounded-xl border border-black/10 bg-white px-4 text-[15px] outline-none focus:border-mogu-yellow focus:ring-2 focus:ring-mogu-yellow/30"
-          >
-            <option value="">Chọn tỉnh/thành...</option>
-            {filteredProvinces.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
+          <Label className="text-[15px] font-semibold text-foreground">Tỉnh/thành</Label>
+          <div className="mt-2">
+            <Select
+              value={state.provinceId ?? ''}
+              onChange={(e) => onChange({ ...state, provinceId: e.target.value || undefined })}
+              className="h-12 rounded-xl border border-black/10 bg-white px-4 text-[15px]"
+            >
+              <option value="">Chọn tỉnh/thành...</option>
+              {filteredProvinces.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </Select>
+          </div>
         </div>
       </div>
 

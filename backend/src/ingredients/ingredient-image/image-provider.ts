@@ -13,6 +13,9 @@ export interface IngredientImageSearchHit {
   mimeType?: string;
   title?: string;
   description?: string;
+  tier?: 'A' | 'B' | 'C' | 'D';
+  entityMatch?: boolean;
+  tags?: string[];
 }
 
 export interface IngredientImageProvider {

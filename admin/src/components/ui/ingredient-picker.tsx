@@ -3,6 +3,8 @@
  */
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { ingredientsApi, type Ingredient } from '../../api/ingredients'
+import { Image } from './image'
+import { Input } from './input'
 
 interface Props {
   value: string
@@ -164,13 +166,15 @@ export default function IngredientPicker({
   }, [])
 
   const statusLabel =
-    resolutionStatus === 'PENDING_REVIEW' || ingredientStatus === 'PENDING_REVIEW'
-      ? 'Cần duyệt'
-      : resolutionStatus === 'LINKED' || _ingredientId
-        ? 'Đã liên kết'
-        : resolutionStatus === 'PROVISIONING'
-          ? 'Đang tạo...'
-          : null
+    ingredientStatus === 'REJECTED'
+      ? 'Đã từ chối'
+      : resolutionStatus === 'PENDING_REVIEW' || ingredientStatus === 'PENDING_REVIEW'
+        ? 'Tự động tìm - cần duyệt'
+        : resolutionStatus === 'LINKED' || _ingredientId
+          ? 'Đã liên kết'
+          : resolutionStatus === 'PROVISIONING'
+            ? 'Đang tạo...'
+            : null
 
   return (
     <div className="ing-picker-wrap" style={{ position: 'relative', flex: 2, ...style }}>
@@ -188,10 +192,11 @@ export default function IngredientPicker({
           aria-hidden
         >
           {ingredientImageUrl ? (
-            <img
+            <Image
               src={ingredientImageUrl}
               alt=""
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              aspectRatio="square"
+              className="h-full w-full object-cover"
             />
           ) : (
             <div
@@ -209,7 +214,7 @@ export default function IngredientPicker({
             </div>
           )}
         </div>
-        <input
+        <Input
           ref={inputRef}
           value={query}
           onChange={handleInput}
@@ -220,17 +225,7 @@ export default function IngredientPicker({
           placeholder={placeholder}
           autoComplete="off"
           aria-busy={loading || provisioning}
-          style={{
-            width: '100%',
-            padding: '0 12px',
-            height: 38,
-            border: '1.5px solid var(--border, #e8e8e8)',
-            borderRadius: 8,
-            fontSize: 14,
-            outline: 'none',
-            background: '#fff',
-            boxSizing: 'border-box',
-          }}
+          className="h-[38px] w-full bg-white text-sm"
         />
       </div>
 
@@ -241,11 +236,13 @@ export default function IngredientPicker({
             fontSize: 11,
             fontWeight: 600,
             color:
-              statusLabel === 'Cần duyệt'
-                ? '#b45309'
-                : statusLabel === 'Đã liên kết'
-                  ? '#15803d'
-                  : '#666',
+              statusLabel === 'Đã từ chối'
+                ? '#dc2626'
+                : statusLabel === 'Tự động tìm - cần duyệt'
+                  ? '#b45309'
+                  : statusLabel === 'Đã liên kết'
+                    ? '#15803d'
+                    : '#666',
           }}
         >
           {statusLabel}
@@ -314,10 +311,11 @@ export default function IngredientPicker({
                 }}
               >
                 {ing.imageUrl ? (
-                  <img
+                  <Image
                     src={ing.imageUrl}
                     alt={ing.name}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    aspectRatio="square"
+                    className="h-full w-full object-cover"
                   />
                 ) : (
                   <div
@@ -349,7 +347,10 @@ export default function IngredientPicker({
                   {ing.name}
                 </div>
                 {ing.status === 'PENDING_REVIEW' && (
-                  <div style={{ fontSize: 11, color: '#b45309' }}>Cần duyệt</div>
+                  <div style={{ fontSize: 11, color: '#b45309' }}>Tự động tìm - cần duyệt</div>
+                )}
+                {ing.status === 'REJECTED' && (
+                  <div style={{ fontSize: 11, color: '#dc2626' }}>Đã từ chối</div>
                 )}
               </div>
               {ing.allergenCode && (

@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
-import { Circle, CircleCheck, Image as ImageIcon, UploadCloud } from 'lucide-react'
+import { Circle, CircleCheck, UploadCloud } from 'lucide-react'
+import { Image } from '../ui/image'
+import { MediaLightbox, useMediaLightbox } from '../ui/media-lightbox'
 import type { BasicInfoState } from './BasicInfoForm'
 
 interface PreviewPanelProps {
@@ -75,6 +77,7 @@ export function PreviewPanel({
   }
 
   const openPicker = () => fileRef.current?.click()
+  const { lightboxProps } = useMediaLightbox()
 
   return (
     <div className="space-y-5">
@@ -110,7 +113,9 @@ export function PreviewPanel({
           }`}
         >
           {shownUrl ? (
-            <img src={shownUrl} alt="Ảnh món ăn" className="max-h-40 w-full object-cover px-4" />
+            <div className="max-h-40 w-full overflow-hidden px-4">
+              <Image src={shownUrl} alt="Ảnh món ăn" className="max-h-40 w-full object-cover rounded-lg" />
+            </div>
           ) : (
             <>
               <UploadCloud className="h-8 w-8 text-gray-800 group-hover:text-mogu-yellow-dark" />
@@ -133,12 +138,17 @@ export function PreviewPanel({
 
         <div className="mt-4 rounded-xl border border-black/10 p-4">
           <div className="flex gap-4">
-            <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-black/5 bg-gray-100">
-              {shownUrl ? (
-                <img src={shownUrl} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <ImageIcon className="h-7 w-7 text-gray-400" />
-              )}
+            <div className="group relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-black/5 bg-gray-100">
+              <Image
+                src={shownUrl}
+                alt={state.name || 'Ảnh món ăn'}
+                aspectRatio="square"
+                zoomable
+                title={state.name || 'Ảnh món ăn'}
+                subtitle={regionName}
+                fallbackIcon="image"
+                className="h-full w-full object-cover"
+              />
             </div>
             <div className="min-w-0">
               <h4 className="text-lg font-bold leading-tight">{state.name || 'Tên món ăn'}</h4>
@@ -181,6 +191,8 @@ export function PreviewPanel({
           })}
         </ul>
       </div>
+
+      <MediaLightbox {...lightboxProps} />
     </div>
   )
 }

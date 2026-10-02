@@ -833,22 +833,23 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
         {scope === 'forYou' ? (
           <StoriesRow
             topics={topics}
+            loading={loading && items.length === 0}
             onPress={(t) => setTopicFeed(t)}
           />
         ) : (
           <View style={styles.followingHintWrap}>
             <Text style={styles.followingHint}>Bài mới nhất từ những người bạn theo dõi</Text>
-          </View>
+        </View>
         )}
       </View>
     ),
-    [scope, topics],
+    [scope, topics, loading, items.length],
   );
 
   const renderItem = useCallback(
     ({ item }: { item: FeedItem }) => {
       if (item.kind === 'dish') {
-        return (
+  return (
           <DishFeedItem
             dish={item.dish}
             onPress={() => openDetail('food', item.dish.id, { rankingToken: item.rankingToken })}
@@ -1011,7 +1012,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
               accessibilityLabel="Bộ sưu tập đã lưu"
             >
               <Bookmark size={22} color={INK} />
-            </Pressable>
+      </Pressable>
             <Pressable
               style={styles.iconBtn}
               accessibilityRole="button"
@@ -1026,10 +1027,10 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
                   <Text style={styles.notifBadgeTxt}>
                     {unreadNotif > 99 ? '99+' : unreadNotif}
                   </Text>
-                </View>
+          </View>
               ) : null}
             </Pressable>
-          </View>
+        </View>
         </View>
         <ScopeTabs scope={scope} onChange={changeScope} />
       </Animated.View>
@@ -1043,7 +1044,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
           <View style={styles.skeletonWrap}>
             <ExploreFeedSkeleton scope={scope} />
           </View>
-        </ScrollView>
+    </ScrollView>
       ) : (
         <AnimatedFlatList
           data={items}
@@ -1346,7 +1347,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: FEED_BG },
   listContent: { paddingTop: 10, paddingBottom: 140 },
-  skeletonWrap: { paddingHorizontal: H_PAD },
+  skeletonWrap: { paddingHorizontal: 0 },
   topBar: {
     backgroundColor: WHITE,
     paddingHorizontal: H_PAD,

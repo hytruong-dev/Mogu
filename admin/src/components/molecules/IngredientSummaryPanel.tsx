@@ -1,4 +1,5 @@
 import { ChefHat, CircleCheck, Info, Scale, ShieldCheck, TriangleAlert } from 'lucide-react'
+import { Progress } from '../ui/progress'
 import type { DishIngredientRow } from './IngredientsTable'
 
 interface IngredientSummaryPanelProps {
@@ -83,12 +84,11 @@ export function IngredientSummaryPanel({ rows, servings }: IngredientSummaryPane
             <span className="text-[15px] font-bold">Mức độ hoàn thiện</span>
             <span className="text-[15px] font-bold">{completion} %</span>
           </div>
-          <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-gray-100">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-ok-green to-green-400"
-              style={{ width: `${completion}%` }}
-            />
-          </div>
+          <Progress
+            value={completion}
+            indicatorClassName="bg-gradient-to-r from-ok-green to-green-400"
+            className="mt-3 h-2.5 bg-gray-100"
+          />
         </div>
       </div>
     </div>

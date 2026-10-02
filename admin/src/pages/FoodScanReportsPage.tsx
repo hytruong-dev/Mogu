@@ -13,10 +13,13 @@ import {
   Users,
   XCircle,
 } from 'lucide-react'
+import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import { Card, CardContent } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
+import { Checkbox } from '../components/ui/checkbox'
+import { Image } from '../components/ui/image'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import {
   Dialog,
@@ -169,11 +172,10 @@ function LinkDishDialog({
           </div>
           {report?.recognizedName && (
             <label className="flex items-start gap-2 text-sm cursor-pointer select-none">
-              <input
-                type="checkbox"
+              <Checkbox
                 checked={addAlias}
-                onChange={(e) => setAddAlias(e.target.checked)}
-                className="mt-0.5 accent-amber-600"
+                onCheckedChange={setAddAlias}
+                className="mt-0.5"
               />
               <span>
                 Thêm <b>"{report.recognizedName}"</b> làm tên gọi khác của món, để lần sau quét ra đúng món.
@@ -216,13 +218,16 @@ function ReportCard({
 
   return (
     <Card className="overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-      <div className="relative aspect-[4/3] bg-muted">
+      <div className="group relative aspect-[4/3] bg-muted overflow-hidden">
         {report.imageUrl ? (
-          <img
+          <Image
             src={report.imageUrl}
             alt={report.recognizedName ?? 'Ảnh người dùng chụp'}
-            className="h-full w-full object-cover"
-            loading="lazy"
+            aspectRatio="video"
+            zoomable
+            title={report.recognizedName || 'Ảnh quét từ camera'}
+            subtitle={`${report.source === 'USER' ? 'Người dùng báo' : 'Hệ thống'}${report.guesses?.[0]?.confidence != null ? ` · Độ tin cậy: ${Math.round(report.guesses[0].confidence * 100)}%` : ''}`}
+            className="h-full w-full object-cover transition group-hover:scale-105"
           />
         ) : (
           <div className="h-full w-full flex flex-col items-center justify-center text-muted-foreground gap-1">
@@ -274,13 +279,14 @@ function ReportCard({
           </p>
         )}
         {report.linkedDish && (
-          <button
+          <Button
             type="button"
+            variant="link"
             onClick={() => navigate(`/foods/${report.linkedDish!.id}`)}
-            className="text-xs text-emerald-700 font-semibold flex items-center gap-1 hover:underline text-left"
+            className="text-xs text-emerald-700 font-semibold flex items-center gap-1 hover:underline text-left p-0 h-auto justify-start"
           >
             <CheckCircle2 size={13} /> Đã liên kết: {report.linkedDish.name}
-          </button>
+          </Button>
         )}
         <div className="text-[11px] text-muted-foreground flex items-center gap-1 mt-auto pt-1">
           <Clock size={11} /> {timeAgo(report.updatedAt)}
@@ -330,6 +336,7 @@ export default function FoodScanReportsPage() {
   const [q, setQ] = useState('')
   const [debouncedQ, setDebouncedQ] = useState('')
   const [linkTarget, setLinkTarget] = useState<FoodScanReport | null>(null)
+  const { lightboxProps } = useMediaLightbox()
   const { data: summary } = useFoodScanReportSummary()
   const { data, isLoading, isError } = useFoodScanReports({
     status,
@@ -415,12 +422,17 @@ export default function FoodScanReportsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {items.map((r) => (
-            <ReportCard key={r.id} report={r} onLink={setLinkTarget} />
+            <ReportCard
+              key={r.id}
+              report={r}
+              onLink={setLinkTarget}
+            />
           ))}
         </div>
       )}
 
       <LinkDishDialog report={linkTarget} onClose={() => setLinkTarget(null)} />
+      <MediaLightbox {...lightboxProps} />
     </div>
   )
 }

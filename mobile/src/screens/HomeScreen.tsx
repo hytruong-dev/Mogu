@@ -3,50 +3,78 @@ import { useQuery } from '@tanstack/react-query';
 import { useFocusEffect } from '@react-navigation/native';
 import {
   Image,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
+  StyleSheet,
   Text,
-  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
+import Animated, {
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 import {
   Bell,
+  CalendarDays,
+  Check,
   ChevronRight,
   Cloud,
   CloudFog,
   CloudLightning,
   CloudRain,
-  Edit3,
+  Coins,
   Flame,
+  Pencil,
   Sparkles,
   Sun,
+  Utensils,
 } from '@/components/icons';
 import { LiquidGlassBottomNav } from '../components/organisms/LiquidGlassBottomNav';
 import { NoanWordmark } from '../components/brand/NoanWordmark';
 import { AvatarImage } from '../components/organisms/AvatarImage';
-import { Progress } from '../components/ui/progress';
 import { getTodayISO, getDeviceTimeZone } from '../lib/dates';
 import { computeWeeklyForecast } from '../lib/weekly-forecast';
 import { formatWeeklyPlanGenerationError } from '../lib/api-error';
 import { homeApi } from '../services/api/home';
-import { profileApi } from '../services/api/profile';
 import { useProfileDashboard } from '../hooks/useProfileDashboard';
-import type { HomeDashboard, WeatherData } from '../services/api/types';
+import type { WeatherData, WeeklyPlan, WeeklyPlanSlot } from '../services/api/types';
 import { getCurrentWeeklyPlan } from '../services/api/weekly-plan';
-import type { WeeklyPlan } from '../services/api/types';
 import { notificationRealtime } from '../services/notification-realtime';
 
-const cardShadow = {
-  shadowColor: '#B19B66',
-  shadowOpacity: 0.1,
-  shadowRadius: 12,
-  shadowOffset: { width: 0, height: 4 },
-  elevation: 3,
+// ─── Design tokens ────────────────────────────────────────────────────────────
+const BG = '#F7F2E8';
+const INK = '#16130C';
+const MUTED = '#8C8472';
+const LINE = '#EFE6D2';
+const YELLOW = '#FFC51A';
+const GOLD = '#B98300';
+
+/** Soft shadow on iOS; hairline border on Android (avoids dark elevation halos). */
+const softCard = {
+  backgroundColor: '#fff',
+  borderWidth: 1,
+  borderColor: LINE,
+  ...(Platform.OS === 'ios'
+    ? { shadowColor: '#8A6D2B', shadowOpacity: 0.08, shadowRadius: 14, shadowOffset: { width: 0, height: 5 } }
+    : { elevation: 0 }),
 };
+
+const SLOT_LABEL: Record<string, string> = {
+  MORNING: 'Bữa sáng',
+  LUNCH: 'Bữa trưa',
+  DINNER: 'Bữa tối',
+  SNACK: 'Bữa phụ',
+};
+const SLOT_ORDER: Record<string, number> = { MORNING: 0, LUNCH: 1, SNACK: 2, DINNER: 3 };
 
 type Props = {
   onRandom: () => void;
@@ -76,10 +104,21 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
     refetchOnMount: 'always',
   });
 
+  const {
+    data: plan = null,
+    isLoading: planLoading,
+    refetch: refetchPlan,
+  } = useQuery({
+    queryKey: ['home', 'weekly-plan-current'],
+    queryFn: () => getCurrentWeeklyPlan(),
+    staleTime: 15_000,
+  });
+
   useFocusEffect(
     useCallback(() => {
       void refetchDashboard();
-    }, [refetchDashboard]),
+      void refetchPlan();
+    }, [refetchDashboard, refetchPlan]),
   );
 
   const loading = isLoading && !dashboard;
@@ -103,30 +142,26 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await Promise.all([refetchDashboard(), notificationRealtime.refreshUnreadCount()]);
+    await Promise.all([refetchDashboard(), refetchPlan(), notificationRealtime.refreshUnreadCount()]);
     setRefreshing(false);
-  }, [refetchDashboard]);
+  }, [refetchDashboard, refetchPlan]);
 
   const [realtimeUnreadCount, setRealtimeUnreadCount] = useState<number | null>(null);
-
-  useEffect(() => {
-    const unsub = notificationRealtime.subscribeToUnreadCount((cnt) => {
-      setRealtimeUnreadCount(cnt);
-    });
-    return unsub;
-  }, []);
+  useEffect(() => notificationRealtime.subscribeToUnreadCount(setRealtimeUnreadCount), []);
 
   const unreadCount = realtimeUnreadCount ?? dashboard?.unreadCount ?? 0;
   const greeting = dashboard?.greeting?.full ?? null;
+  const openPlan = onWeeklyPlan ?? (() => {});
+  const editPlan = onEditPlan ?? (() => {});
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F7F2E8' }} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: BG }} edges={['top', 'left', 'right']}>
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: 120 }}
+        contentContainerStyle={{ paddingBottom: 130 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFC51A" colors={['#FFC51A']} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={YELLOW} colors={[YELLOW]} />
         }
       >
         <HomeHeader
@@ -137,9 +172,20 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
           gender={dash?.profile?.gender}
           seed={dash?.profile?.username ?? dash?.profile?.displayName}
         />
+
         <GreetingRow greeting={greeting} loading={loading} weather={weather} />
-        <RandomHero onPress={onRandom} />
-        <WeeklyPlanCard onEdit={onEditPlan ?? (() => {})} onOpenPlan={onWeeklyPlan ?? (() => {})} />
+
+        <Animated.View entering={FadeInDown.duration(380).withInitialValues({ opacity: 0, transform: [{ translateY: 12 }] })}>
+          <RandomHero onPress={onRandom} />
+        </Animated.View>
+
+        {planLoading && !plan ? (
+          <PlanSkeleton />
+        ) : (
+          <Animated.View entering={FadeInDown.delay(120).duration(380).withInitialValues({ opacity: 0, transform: [{ translateY: 12 }] })}>
+            <PlanSection plan={plan} onOpenPlan={openPlan} onEdit={editPlan} />
+          </Animated.View>
+        )}
       </ScrollView>
       <LiquidGlassBottomNav
         active="home"
@@ -152,14 +198,45 @@ export function HomeScreen({ onRandom, onExplore, onHealth, onProfile, onNotific
   );
 }
 
-// HomeHeader
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+function usePulse() {
+  const v = useSharedValue(0.55);
+  useEffect(() => {
+    v.value = withRepeat(withTiming(1, { duration: 750, easing: Easing.inOut(Easing.quad) }), -1, true);
+  }, [v]);
+  return useAnimatedStyle(() => ({ opacity: v.value }));
+}
+
+function Bone({ w, h, r = 8, style }: { w: number | `${number}%`; h: number; r?: number; style?: object }) {
+  const pulse = usePulse();
+  return <Animated.View style={[{ width: w, height: h, borderRadius: r, backgroundColor: '#EFE5CF' }, pulse, style]} />;
+}
+
+function PlanSkeleton() {
+  return (
+    <View style={s.section}>
+      <Bone w={130} h={20} style={{ marginBottom: 12 }} />
+      <View style={[s.card, { padding: 16, gap: 14 }]}>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={{ flex: 1 }}>
+              <Bone w="100%" h={150} r={18} />
+            </View>
+          ))}
+        </View>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <Bone w="48%" h={64} r={14} />
+          <Bone w="48%" h={64} r={14} />
+        </View>
+        <Bone w="100%" h={46} r={23} />
+      </View>
+    </View>
+  );
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────────
 function HomeHeader({
-  unreadCount,
-  onNotification,
-  onProfile,
-  avatarUri,
-  gender,
-  seed,
+  unreadCount, onNotification, onProfile, avatarUri, gender, seed,
 }: {
   unreadCount: number;
   onNotification: () => void;
@@ -170,22 +247,27 @@ function HomeHeader({
 }) {
   const badgeText = unreadCount > 99 ? '99+' : String(unreadCount);
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, height: 64 }}>
-      <NoanWordmark width={112} height={42} />
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
-        <Pressable style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }} onPress={onNotification}>
-          <Bell size={26} color="#111" strokeWidth={2} />
+    <View style={s.header}>
+      <NoanWordmark width={108} height={40} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Thông báo"
+          style={s.bellBtn}
+          onPress={onNotification}
+          hitSlop={6}
+        >
+          <Bell size={22} color={INK} strokeWidth={2} />
           {unreadCount > 0 && (
-            <View style={{ position: 'absolute', right: 0, top: 0, minWidth: 16, height: 16, borderRadius: 8, backgroundColor: '#FF5A42', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 3 }}>
-              <Text style={{ color: '#fff', fontSize: 9, fontWeight: '700' }}>{badgeText}</Text>
+            <View style={s.badge}>
+              <Text style={s.badgeText}>{badgeText}</Text>
             </View>
           )}
         </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel="Mở hồ sơ cá nhân"
-          onPress={onProfile} style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Mở hồ sơ cá nhân" onPress={onProfile} hitSlop={6}>
           <AvatarImage
             uri={avatarUri}
-            size={42}
+            size={44}
             gender={gender}
             seed={seed}
             isCurrentUser
@@ -197,284 +279,386 @@ function HomeHeader({
   );
 }
 
-// GreetingRow
+// ─── Greeting ─────────────────────────────────────────────────────────────────
 const WEATHER_ICON_MAP: Record<string, React.ElementType> = {
   sunny: Sun, cloudy: Cloud, rainy: CloudRain, stormy: CloudLightning, foggy: CloudFog,
 };
 const WEATHER_ICON_COLOR: Record<string, string> = {
-  sunny: '#FFC51A', cloudy: '#9BABB8', rainy: '#7BA9EA', stormy: '#7B6FDC', foggy: '#AABBC8',
+  sunny: YELLOW, cloudy: '#9BABB8', rainy: '#7BA9EA', stormy: '#7B6FDC', foggy: '#AABBC8',
 };
 
 function GreetingRow({ greeting, loading, weather }: { greeting: string | null; loading: boolean; weather: WeatherData | null }) {
   const WeatherIcon = weather ? (WEATHER_ICON_MAP[weather.iconCode] ?? Sun) : null;
-  const iconColor = weather ? (WEATHER_ICON_COLOR[weather.iconCode] ?? '#FFC51A') : '#FFC51A';
+  const iconColor = weather ? (WEATHER_ICON_COLOR[weather.iconCode] ?? YELLOW) : YELLOW;
   return (
-    <View style={{ paddingHorizontal: 20, marginTop: 6 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <View style={{ flex: 1 }}>
-          {loading ? (
-            <View style={{ height: 30, width: 200, borderRadius: 8, backgroundColor: '#EFE6D0' }} />
-          ) : (
-            <Text style={{ fontSize: 26, fontWeight: '800', color: '#111', letterSpacing: -0.5, lineHeight: 32 }}>
-              {greeting ?? 'Chào bạn!'}
-            </Text>
-          )}
-          <Text style={{ marginTop: 4, fontSize: 15, color: '#777', lineHeight: 22 }}>
-            Hôm nay bạn muốn ăn gì?
-          </Text>
+    <View style={{ paddingHorizontal: 20, marginTop: 8 }}>
+      {loading ? (
+        <View style={{ gap: 8 }}>
+          <Bone w={230} h={28} />
+          <Bone w={160} h={16} />
         </View>
-        {weather && WeatherIcon && (
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: '#EDE0C4', marginTop: 4 }}>
-            <WeatherIcon size={16} color={iconColor} strokeWidth={1.8} />
-            <Text style={{ fontSize: 12, color: '#333', fontWeight: '500' }}>
-              {weather.tempC}° · {weather.description}
-            </Text>
+      ) : (
+        <Animated.View entering={FadeInDown.duration(320).withInitialValues({ opacity: 0, transform: [{ translateY: 8 }] })}>
+          <Text style={s.greeting} numberOfLines={2}>{greeting ?? 'Chào bạn!'}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6, flexWrap: 'wrap' }}>
+            <Text style={s.subGreeting}>Hôm nay bạn muốn ăn gì?</Text>
+            {weather && WeatherIcon ? (
+              <View style={s.weatherChip}>
+                <WeatherIcon size={14} color={iconColor} strokeWidth={2} />
+                <Text style={s.weatherText}>{weather.tempC}° · {weather.description}</Text>
+              </View>
+            ) : null}
           </View>
-        )}
-      </View>
+        </Animated.View>
+      )}
     </View>
   );
 }
 
-// RandomHero
+// ─── Hero ─────────────────────────────────────────────────────────────────────
 function RandomHero({ onPress }: { onPress: () => void }) {
   return (
-    <View style={{ marginHorizontal: 20, marginTop: 16 }}>
-      <LinearGradient
-        colors={['#FFD43E', '#FFC82A', '#FFBC1A']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={{ borderRadius: 22, overflow: 'hidden', height: 190, ...cardShadow }}
-      >
-        <View style={{ position: 'absolute', width: 10, height: 10, backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: 2, right: 148, top: 28, transform: [{ rotate: '45deg' }] }} />
-        <View style={{ position: 'absolute', width: 7, height: 7, backgroundColor: 'rgba(255,255,255,0.7)', borderRadius: 1.5, right: 160, bottom: 52, transform: [{ rotate: '45deg' }] }} />
-        <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '60%', paddingLeft: 22, paddingTop: 24, justifyContent: 'flex-start' }}>
-          <Text style={{ fontSize: 22, fontWeight: '800', color: '#111', lineHeight: 29, letterSpacing: -0.3 }}>
-            Để NOAN chọn{'\n'}món cho bạn
-          </Text>
-          <Text style={{ marginTop: 8, fontSize: 11, color: '#6B5A1E', lineHeight: 16 }}>
-            Phù hợp với mục tiêu, tâm trạng{'\n'}và ngân sách hôm nay.
-          </Text>
-          <TouchableOpacity
-            onPress={onPress}
-            activeOpacity={0.85}
-            style={{ marginTop: 14, width: 158, height: 42, borderRadius: 21, backgroundColor: '#111', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-          >
-            <Sparkles size={18} color="#FFC51A" fill="#FFC51A" />
-            <Text style={{ color: '#FFC51A', fontSize: 15, fontWeight: '700' }}>Chọn món ngay</Text>
-          </TouchableOpacity>
+    <Pressable onPress={onPress} accessibilityRole="button" accessibilityLabel="Để NOAN chọn món cho bạn" style={s.heroWrap}>
+      <LinearGradient colors={['#FFDA55', '#FFC82A', '#FFB61A']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={s.hero}>
+        <View style={[s.heroBlob, { width: 180, height: 180, right: -40, top: -50 }]} />
+        <View style={[s.heroBlob, { width: 90, height: 90, right: 120, bottom: -40 }]} />
+        <View style={s.heroText}>
+          <View style={s.heroTag}>
+            <Sparkles size={12} color={GOLD} fill={GOLD} />
+            <Text style={s.heroTagText}>Gợi ý thông minh</Text>
+          </View>
+          <Text style={s.heroTitle}>Để NOAN chọn{'\n'}món cho bạn</Text>
+          <Text style={s.heroSub}>Hợp mục tiêu, tâm trạng{'\n'}và ngân sách hôm nay.</Text>
+          <View style={s.heroBtn}>
+            <Sparkles size={16} color={YELLOW} fill={YELLOW} />
+            <Text style={s.heroBtnText}>Chọn món ngay</Text>
+          </View>
         </View>
         <Image
           source={require('../assets/images/noan/noan-serving-v1.png')}
           resizeMode="contain"
-          style={{ position: 'absolute', right: -10, bottom: -4, width: 178, height: 190 }}
+          style={s.heroImg}
         />
       </LinearGradient>
+    </Pressable>
+  );
+}
+
+// ─── Plan section ─────────────────────────────────────────────────────────────
+function SectionTitle({ title, action, onAction }: { title: string; action?: string; onAction?: () => void }) {
+  return (
+    <View style={s.sectionHead}>
+      <Text style={s.sectionTitle}>{title}</Text>
+      {action && onAction ? (
+        <Pressable onPress={onAction} hitSlop={8} style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }}>
+          <Text style={s.sectionAction}>{action}</Text>
+          <ChevronRight size={16} color={GOLD} />
+        </Pressable>
+      ) : null}
     </View>
   );
 }
 
-// WeeklyPlanCard
-function WeeklyPlanCard({ onEdit, onOpenPlan }: { onEdit: () => void; onOpenPlan: () => void }) {
-  const [plan, setPlan] = useState<WeeklyPlan | null>(null);
-
-  useFocusEffect(
-    useCallback(() => {
-      getCurrentWeeklyPlan()
-        .then((p) => setPlan(p))
-        .catch(() => {});
-    }, [])
-  );
-
+function PlanSection({ plan, onOpenPlan, onEdit }: { plan: WeeklyPlan | null; onOpenPlan: () => void; onEdit: () => void }) {
   const todayIso = getTodayISO();
-  const isPlanExpired = !!plan && (
-    (plan.status === 'COMPLETED' || plan.status === 'ARCHIVED') ||
-    (plan.endDate && todayIso >= plan.endDate.split('T')[0]) ||
-    (Array.isArray(plan.days) && plan.days.length > 0 && plan.days.every((d) => d.date < todayIso))
-  );
-
-  const hasPlan = plan && plan.status !== 'GENERATING' && plan.status !== 'FAILED' && !isPlanExpired;
-  const budget = plan?.budgetLimitVnd ?? 500000;
-  const { forecastSpent: spent, forecastKcal: calConsumed } = computeWeeklyForecast(plan ?? {});
-  const calTotal = plan?.targetKcal ?? 14000;
-  const budgetPercent = Math.min((spent / budget) * 100, 100);
-  const calPercent = Math.min((calConsumed / calTotal) * 100, 100);
-  const calPctRounded = Math.round(calPercent);
-  const durationDays = plan
-    ? Math.max(1, Math.round((new Date(plan.endDate).getTime() - new Date(plan.startDate).getTime()) / 86400000))
-    : 7;
-  const totalMeals = durationDays * 3;
 
   if (plan?.status === 'FAILED') {
     return (
-      <View style={{ marginHorizontal: 20, marginTop: 20 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <Text style={{ fontSize: 18, fontWeight: '800', color: '#111', letterSpacing: -0.4 }}>Kế hoạch tuần</Text>
-        </View>
-        <View style={{ borderRadius: 18, backgroundColor: '#fff', overflow: 'hidden', ...cardShadow, padding: 16, alignItems: 'center', gap: 10 }}>
-          <Text style={{ fontSize: 14, fontWeight: '600', color: '#B91C1C' }}>Tạo kế hoạch thất bại</Text>
-          <Text style={{ fontSize: 13, color: '#555', textAlign: 'center', lineHeight: 20 }}>
-            {formatWeeklyPlanGenerationError(plan.generationErrorCode)}
-          </Text>
-          <TouchableOpacity
-            onPress={onOpenPlan}
-            style={{ height: 44, borderRadius: 12, borderWidth: 1.5, borderColor: '#F0C040', paddingHorizontal: 24, alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#C08000' }}>Chỉnh & tạo lại</Text>
-          </TouchableOpacity>
+      <View style={s.section}>
+        <SectionTitle title="Kế hoạch tuần" />
+        <View style={[s.card, s.emptyCard]}>
+          <Image source={require('../assets/images/noan/noan-thinking-v1.png')} style={s.emptyImg} resizeMode="contain" />
+          <View style={{ flex: 1 }}>
+            <Text style={[s.emptyTitle, { color: '#B91C1C' }]}>Tạo kế hoạch thất bại</Text>
+            <Text style={s.emptySub}>{formatWeeklyPlanGenerationError(plan.generationErrorCode)}</Text>
+            <Pressable onPress={onOpenPlan} style={s.primaryBtnSm}>
+              <Text style={s.primaryBtnSmText}>Chỉnh & tạo lại</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     );
   }
+
+  const isPlanExpired = !!plan && (
+    plan.status === 'COMPLETED' || plan.status === 'ARCHIVED' ||
+    (!!plan.endDate && todayIso >= plan.endDate.split('T')[0]) ||
+    (Array.isArray(plan.days) && plan.days.length > 0 && plan.days.every((d) => d.date.split('T')[0] < todayIso))
+  );
+  const hasPlan = !!plan && plan.status !== 'GENERATING' && !isPlanExpired;
 
   if (!hasPlan) {
+    const generating = plan?.status === 'GENERATING';
     return (
-      <View style={{ marginHorizontal: 20, marginTop: 20 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <Text style={{ fontSize: 18, fontWeight: '800', color: '#111', letterSpacing: -0.4 }}>Kế hoạch tuần</Text>
-        </View>
-        <View style={{ borderRadius: 18, backgroundColor: '#fff', overflow: 'hidden', ...cardShadow, padding: 16, alignItems: 'center', gap: 10 }}>
-          <Text style={{ fontSize: 14, color: '#999' }}>
-            {isPlanExpired
-              ? 'Kế hoạch tuần trước đã hoàn thành. Hãy lên kế hoạch tuần này!'
-              : 'Chưa có kế hoạch. Nhấn để tạo thực đơn tuần!'}
-          </Text>
-          <TouchableOpacity
-            onPress={onEdit}
-            style={{ height: 44, borderRadius: 12, borderWidth: 1.5, borderColor: '#F0C040', paddingHorizontal: 24, alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Text style={{ fontSize: 14, fontWeight: '700', color: '#C08000' }}>Lên kế hoạch tuần này</Text>
-          </TouchableOpacity>
+      <View style={s.section}>
+        <SectionTitle title="Kế hoạch tuần" />
+        <View style={[s.card, s.emptyCard]}>
+          <Image source={require('../assets/images/noan/noan-thinking-v1.png')} style={s.emptyImg} resizeMode="contain" />
+          <View style={{ flex: 1 }}>
+            <Text style={s.emptyTitle}>
+              {generating ? 'NOAN đang lên thực đơn…' : isPlanExpired ? 'Tuần mới, thực đơn mới!' : 'Chưa có thực đơn tuần'}
+            </Text>
+            <Text style={s.emptySub}>
+              {generating
+                ? 'Chờ chút nhé, thực đơn sẽ sẵn sàng ngay.'
+                : isPlanExpired
+                  ? 'Kế hoạch tuần trước đã xong. Lên kế hoạch cho tuần này nhé.'
+                  : 'Để NOAN gợi ý 7 ngày ăn ngon, đúng ngân sách.'}
+            </Text>
+            <Pressable onPress={generating ? onOpenPlan : onEdit} style={s.primaryBtnSm}>
+              <Text style={s.primaryBtnSmText}>{generating ? 'Xem tiến trình' : 'Lên kế hoạch ngay'}</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     );
   }
 
-  const start = plan!.startDate.split('T')[0];
-  const end = plan!.endDate.split('T')[0];
+  const p = plan!;
+  const budget = p.budgetLimitVnd || 500000;
+  const { forecastSpent: spent, forecastKcal: kcal } = computeWeeklyForecast(p);
+  const kcalTarget = p.targetKcal || 14000;
+  const budgetPct = Math.min(spent / budget, 1);
+  const kcalPct = Math.min(kcal / kcalTarget, 1);
+
+  const start = p.startDate.split('T')[0];
+  const end = p.endDate.split('T')[0];
   const [, sm, sd] = start.split('-');
   const [, em, ed] = end.split('-');
-  const monthLabel = Number(sm) === Number(em)
-    ? `${Number(sd)} – ${Number(ed)} tháng ${Number(sm)}`
-    : `${Number(sd)}/${Number(sm)} – ${Number(ed)}/${Number(em)}`;
-  const slotCount = Array.isArray(plan!.days)
-    ? plan!.days.reduce((n, d) => n + (d.slots?.length ?? 0), 0)
-    : totalMeals;
-  const remaining = Math.max(0, budget - spent);
+  const rangeLabel = `${Number(sd)}/${Number(sm)} – ${Number(ed)}/${Number(em)}`;
+
+  const todayDay = p.days?.find((d) => d.date.split('T')[0] === todayIso);
+  const todaySlots = [...(todayDay?.slots ?? [])].sort(
+    (a, b) => (SLOT_ORDER[a.mealSlot] ?? 9) - (SLOT_ORDER[b.mealSlot] ?? 9),
+  );
+  const doneCount = todaySlots.filter((sl) => sl.status === 'COMPLETED').length;
+
   const statusLabel =
-    plan!.status === 'READY' ? 'Sẵn sàng' :
-    plan!.status === 'ACTIVE' ? 'Đang chạy' :
-    plan!.status === 'COMPLETED' ? 'Hoàn thành' : 'Kế hoạch';
+    p.status === 'READY' ? 'Sẵn sàng' :
+    p.status === 'ACTIVE' ? 'Đang áp dụng' : 'Kế hoạch';
 
   return (
-    <View style={{ marginHorizontal: 20, marginTop: 20 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-        <Text style={{ fontSize: 18, fontWeight: '800', color: '#111', letterSpacing: -0.4 }}>Kế hoạch tuần</Text>
-        <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', gap: 2 }} onPress={onOpenPlan} hitSlop={8}>
-          <Text style={{ fontSize: 14, fontWeight: '600', color: '#D99E00' }}>Xem chi tiết</Text>
-          <ChevronRight size={16} color="#D99E00" />
-        </TouchableOpacity>
+    <>
+      {todaySlots.length > 0 && (
+        <View style={s.section}>
+          <SectionTitle title="Bữa ăn hôm nay" action={`${doneCount}/${todaySlots.length} đã ăn`} onAction={onOpenPlan} />
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {todaySlots.map((slot) => (
+              <TodayMealCard key={slot.id} slot={slot} onPress={onOpenPlan} />
+            ))}
+          </View>
+        </View>
+      )}
+
+      <View style={s.section}>
+        <SectionTitle title="Kế hoạch tuần" action="Xem chi tiết" onAction={onOpenPlan} />
+        <Pressable onPress={onOpenPlan} style={[s.card, { padding: 16 }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <View style={s.planIcon}>
+              <CalendarDays size={22} color={GOLD} strokeWidth={2} />
+            </View>
+            <View style={{ flex: 1, marginLeft: 12 }}>
+              <Text style={s.planRange}>{rangeLabel}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 3 }}>
+                <View style={s.statusDot} />
+                <Text style={s.planMeta}>{statusLabel} · {p.days?.length ?? 7} ngày</Text>
+              </View>
+            </View>
+            <Pressable onPress={onEdit} hitSlop={10} style={s.editBtn} accessibilityLabel="Chỉnh kế hoạch">
+              <Pencil size={15} color="#6B6352" strokeWidth={2} />
+            </Pressable>
+          </View>
+
+          <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
+            <StatTile
+              Icon={Coins}
+              color={GOLD}
+              bg="#FFF7DB"
+              label="Ngân sách"
+              value={`${Math.round(spent / 1000)}K`}
+              total={`/ ${Math.round(budget / 1000)}K`}
+              pct={budgetPct}
+              barColor={YELLOW}
+            />
+            <StatTile
+              Icon={Flame}
+              color="#E0572B"
+              bg="#FFF0E8"
+              label="Năng lượng"
+              value={kcal.toLocaleString('vi-VN')}
+              total={`/ ${kcalTarget.toLocaleString('vi-VN')}`}
+              pct={kcalPct}
+              barColor="#FF7A45"
+            />
+          </View>
+
+          <View style={s.openBtn}>
+            <Text style={s.openBtnText}>Mở thực đơn</Text>
+            <ChevronRight size={17} color={INK} />
+          </View>
+        </Pressable>
       </View>
-      <View style={{ borderRadius: 20, backgroundColor: '#fff', overflow: 'hidden', ...cardShadow, padding: 16 }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <View style={{
-            flexDirection: 'row', alignItems: 'center', gap: 6,
-            backgroundColor: '#DCFCE7', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999,
-          }}>
-            <Text style={{ fontSize: 12, fontWeight: '700', color: '#15803D' }}>✔ {statusLabel}</Text>
-          </View>
-          <TouchableOpacity
-            onPress={onEdit}
-            hitSlop={10}
-            style={{ width: 34, height: 34, borderRadius: 17, backgroundColor: '#F5F2EB', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <Edit3 size={15} color="#888" strokeWidth={1.8} />
-          </TouchableOpacity>
-        </View>
+    </>
+  );
+}
 
-        <Text style={{ fontSize: 20, fontWeight: '800', color: '#111', marginTop: 12, letterSpacing: -0.3 }}>
-          {monthLabel}
+function TodayMealCard({ slot, onPress }: { slot: WeeklyPlanSlot; onPress: () => void }) {
+  const done = slot.status === 'COMPLETED';
+  const skipped = slot.status === 'SKIPPED';
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[s.mealCard, skipped && { opacity: 0.5 }]}
+      accessibilityRole="button"
+      accessibilityLabel={`${SLOT_LABEL[slot.mealSlot] ?? 'Bữa ăn'}, ${slot.dish?.name ?? ''}`}
+    >
+      {slot.dish?.imageUrl ? (
+        <Image source={{ uri: slot.dish.imageUrl }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+      ) : (
+        <View style={[StyleSheet.absoluteFill, { alignItems: 'center', justifyContent: 'center' }]}>
+          <Utensils size={28} color="#D9C79A" />
+        </View>
+      )}
+      <LinearGradient
+        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.25)', 'rgba(0,0,0,0.78)']}
+        locations={[0.35, 0.6, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+      <View style={s.mealTop}>
+        <View style={s.mealSlotTag}>
+          <Text style={s.mealSlotTagText}>{SLOT_LABEL[slot.mealSlot] ?? 'Bữa ăn'}</Text>
+        </View>
+        {done && (
+          <View style={s.mealDone}>
+            <Check size={11} color="#fff" strokeWidth={3.5} />
+          </View>
+        )}
+      </View>
+      <View style={s.mealBottom}>
+        <Text style={s.mealName} numberOfLines={2}>{slot.dish?.name ?? 'Chưa có món'}</Text>
+        <Text style={s.mealMeta} numberOfLines={1}>
+          {Math.round((slot.dish?.priceVnd ?? 0) / 1000)}K · {slot.dish?.kcal ?? 0} kcal
         </Text>
-        <Text style={{ fontSize: 13, color: '#999', marginTop: 2 }}>
-          {slotCount} bữa · {durationDays} ngày
-        </Text>
+      </View>
+    </Pressable>
+  );
+}
 
-        <View style={{ marginTop: 16, gap: 14 }}>
-          <View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-                <Text style={{ fontSize: 15 }}>🪙</Text>
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#333' }}>Ngân sách dự kiến</Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#111' }}>
-                  {Math.round(spent / 1000)}K / {Math.round(budget / 1000)}K
-                </Text>
-                <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20, backgroundColor: '#DCFCE7' }}>
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#15803D' }}>
-                    Còn {Math.round(remaining / 1000)}K
-                  </Text>
-                </View>
-              </View>
-            </View>
-            <View style={{ height: 8, borderRadius: 4, overflow: 'hidden' }}>
-              <Progress value={budgetPercent} className="h-2 bg-muted" indicatorClassName="bg-primary" />
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
-              <Text style={{ fontSize: 11.5, color: '#AAA' }}>Đã chi tiêu (thực tế) {Math.round(spent / 1000)}K</Text>
-              <Text style={{ fontSize: 11.5, color: '#AAA' }}>Còn lại {Math.round(remaining / 1000)}K</Text>
-            </View>
-          </View>
-
-          <View>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 7 }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 7 }}>
-                <Flame size={17} color="#FF6030" fill="#FF6030" />
-                <Text style={{ fontSize: 13, fontWeight: '600', color: '#333' }}>Năng lượng dự kiến</Text>
-              </View>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                <Text style={{ fontSize: 13, fontWeight: '700', color: '#111' }}>
-                  {calConsumed.toLocaleString('vi-VN')} / {calTotal.toLocaleString('vi-VN')} kcal
-                </Text>
-                <View style={{ paddingHorizontal: 8, paddingVertical: 2, borderRadius: 20, backgroundColor: '#FFEDD5' }}>
-                  <Text style={{ fontSize: 11, fontWeight: '700', color: '#C2410C' }}>{calPctRounded}%</Text>
-                </View>
-              </View>
-            </View>
-            <View style={{ height: 8, borderRadius: 4, overflow: 'hidden' }}>
-              <Progress value={calPercent} className="h-2 bg-muted" indicatorClassName="bg-accent" />
-            </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
-              <Text style={{ fontSize: 11.5, color: '#AAA' }}>
-                Đã nạp (thực tế) {calConsumed.toLocaleString('vi-VN')} kcal
-              </Text>
-              <Text style={{ fontSize: 11.5, color: '#AAA' }}>
-                Mục tiêu {calTotal.toLocaleString('vi-VN')} kcal
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 12 }}>
-          <Text style={{ fontSize: 12, color: '#BBB' }}>ⓘ</Text>
-          <Text style={{ fontSize: 12, color: '#BBB', flex: 1 }}>
-            Thực tế sẽ được cập nhật khi hoàn thành bữa
-          </Text>
-        </View>
-
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={onOpenPlan}
-          style={{
-            marginTop: 14, height: 48, borderRadius: 999, borderWidth: 1.5,
-            borderColor: '#F0C040', backgroundColor: '#fff',
-            flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
-          }}
-        >
-          <Text style={{ fontSize: 15, fontWeight: '700', color: '#C08000' }}>Mở thực đơn</Text>
-          <ChevronRight size={17} color="#C08000" />
-        </TouchableOpacity>
+function StatTile({ Icon, color, bg, label, value, total, pct, barColor }: {
+  Icon: React.ElementType; color: string; bg: string; label: string;
+  value: string; total: string; pct: number; barColor: string;
+}) {
+  return (
+    <View style={[s.statTile, { backgroundColor: bg }]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <Icon size={14} color={color} strokeWidth={2.2} />
+        <Text style={s.statLabel}>{label}</Text>
+      </View>
+      <Text style={s.statValue} numberOfLines={1}>
+        {value}<Text style={s.statTotal}> {total}</Text>
+      </Text>
+      <View style={s.statTrack}>
+        <View style={[s.statFill, { width: `${Math.max(pct * 100, 3)}%`, backgroundColor: barColor }]} />
       </View>
     </View>
   );
 }
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
+const s = StyleSheet.create({
+  header: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 20, height: 62,
+  },
+  bellBtn: {
+    width: 44, height: 44, borderRadius: 22, backgroundColor: '#fff',
+    alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: LINE,
+  },
+  badge: {
+    position: 'absolute', right: 6, top: 6, minWidth: 16, height: 16, borderRadius: 8,
+    backgroundColor: '#FF5A42', alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 3, borderWidth: 1.5, borderColor: '#fff',
+  },
+  badgeText: { color: '#fff', fontSize: 9, fontWeight: '800' },
+
+  greeting: { fontSize: 26, fontWeight: '800', color: INK, letterSpacing: -0.5, lineHeight: 32 },
+  subGreeting: { fontSize: 15, color: MUTED, lineHeight: 21 },
+  weatherChip: {
+    flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 9, paddingVertical: 4,
+    borderRadius: 20, backgroundColor: '#fff', borderWidth: 1, borderColor: LINE,
+  },
+  weatherText: { fontSize: 12, color: '#4A4435', fontWeight: '600' },
+
+  heroWrap: { marginHorizontal: 20, marginTop: 18, borderRadius: 26 },
+  hero: { borderRadius: 26, overflow: 'hidden', height: 196 },
+  heroBlob: { position: 'absolute', borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.22)' },
+  heroText: { position: 'absolute', left: 20, top: 18, bottom: 18, width: '58%', justifyContent: 'space-between' },
+  heroTag: {
+    flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.65)', paddingHorizontal: 8, paddingVertical: 3, borderRadius: 999,
+  },
+  heroTagText: { fontSize: 11, fontWeight: '700', color: GOLD },
+  heroTitle: { fontSize: 22, fontWeight: '800', color: INK, lineHeight: 27, letterSpacing: -0.4 },
+  heroSub: { fontSize: 12, color: '#6B5A1E', lineHeight: 17 },
+  heroBtn: {
+    alignSelf: 'flex-start', height: 42, borderRadius: 21, backgroundColor: INK, paddingHorizontal: 18,
+    flexDirection: 'row', alignItems: 'center', gap: 7,
+  },
+  heroBtnText: { color: YELLOW, fontSize: 14.5, fontWeight: '800' },
+  heroImg: { position: 'absolute', right: -8, bottom: -6, width: 170, height: 184 },
+
+  section: { marginHorizontal: 20, marginTop: 24 },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  sectionTitle: { fontSize: 18, fontWeight: '800', color: INK, letterSpacing: -0.4 },
+  sectionAction: { fontSize: 13.5, fontWeight: '700', color: GOLD },
+
+  card: { ...softCard, borderRadius: 22 },
+
+  emptyCard: { flexDirection: 'row', alignItems: 'center', padding: 14, gap: 12 },
+  emptyImg: { width: 92, height: 100 },
+  emptyTitle: { fontSize: 16, fontWeight: '800', color: INK },
+  emptySub: { fontSize: 13, color: MUTED, lineHeight: 19, marginTop: 4 },
+  primaryBtnSm: {
+    alignSelf: 'flex-start', marginTop: 12, height: 40, borderRadius: 20, paddingHorizontal: 18,
+    backgroundColor: YELLOW, alignItems: 'center', justifyContent: 'center',
+  },
+  primaryBtnSmText: { fontSize: 14, fontWeight: '800', color: INK },
+
+  mealCard: {
+    flex: 1, height: 150, borderRadius: 18, overflow: 'hidden', backgroundColor: '#F6EEDB',
+  },
+  mealTop: {
+    position: 'absolute', left: 7, right: 7, top: 7,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+  },
+  mealSlotTag: {
+    backgroundColor: 'rgba(255,255,255,0.92)', paddingHorizontal: 7, paddingVertical: 2, borderRadius: 999,
+  },
+  mealSlotTagText: { fontSize: 10.5, fontWeight: '800', color: '#4A4435' },
+  mealDone: {
+    width: 20, height: 20, borderRadius: 10, backgroundColor: '#22A45D',
+    alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#fff',
+  },
+  mealBottom: { position: 'absolute', left: 9, right: 9, bottom: 9, gap: 2 },
+  mealName: { fontSize: 13, fontWeight: '800', color: '#fff', lineHeight: 16 },
+  mealMeta: { fontSize: 11, fontWeight: '600', color: 'rgba(255,255,255,0.85)' },
+
+  planIcon: { width: 46, height: 46, borderRadius: 15, backgroundColor: '#FFF4CC', alignItems: 'center', justifyContent: 'center' },
+  planRange: { fontSize: 18, fontWeight: '800', color: INK, letterSpacing: -0.3 },
+  planMeta: { fontSize: 13, color: MUTED, fontWeight: '500' },
+  statusDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: '#22A45D' },
+  editBtn: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F5F0E4', alignItems: 'center', justifyContent: 'center' },
+
+  statTile: { flex: 1, borderRadius: 16, padding: 12, gap: 6 },
+  statLabel: { fontSize: 12, fontWeight: '600', color: '#6B6352' },
+  statValue: { fontSize: 17, fontWeight: '800', color: INK },
+  statTotal: { fontSize: 12, fontWeight: '600', color: MUTED },
+  statTrack: { height: 6, borderRadius: 3, backgroundColor: 'rgba(0,0,0,0.07)', overflow: 'hidden' },
+  statFill: { height: 6, borderRadius: 3 },
+
+  openBtn: {
+    marginTop: 14, height: 48, borderRadius: 24, backgroundColor: YELLOW,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4,
+  },
+  openBtnText: { fontSize: 15, fontWeight: '800', color: INK },
+});

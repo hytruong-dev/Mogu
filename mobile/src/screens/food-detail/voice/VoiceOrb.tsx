@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react';
-import { AccessibilityInfo, Image, Linking, StyleSheet, View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Text } from '@/components/ui/text';
+import { AccessibilityInfo, Image, Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  FadeIn,
+  FadeOut,
+  LinearTransition,
+  cancelAnimation,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
+import { HelpCircle, Mic, MicOff, Square, VolumeX } from '@/components/icons';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import { INK, MUTED, WHITE, YELLOW, YELLOW_SOFT, cardShadow } from '../tokens';
 import type { useCookingVoice } from './useCookingVoice';
 
 type Voice = ReturnType<typeof useCookingVoice>;
@@ -21,15 +30,30 @@ const labels: Record<Voice['state'], string> = {
   waiting: 'Sẵn sàng nghe bạn',
   speaking: 'NOAN đang nói',
   listening: 'Đang nghe…',
-  thinking: 'NOAN đang suy nghĩ',
+  thinking: 'NOAN đang suy nghĩ…',
   paused: 'Micro đang tạm dừng',
   ended: 'Đã kết thúc',
 };
+
+const DOT: Record<Voice['state'], string> = {
+  idle: '#C9BFAE',
+  greeting: '#F5B900',
+  waiting: '#2F9E44',
+  speaking: '#F5B900',
+  listening: '#E5484D',
+  thinking: '#7C83D8',
+  paused: '#C9BFAE',
+  ended: '#C9BFAE',
+};
+
+const mascot = require('../../../assets/images/noan/noan-mascot-master-v1.png');
 
 export function VoiceOrb({ voice, started, onStartCooking, onMute, onInterrupt }: Props) {
   const [help, setHelp] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(true);
   const level = useSharedValue(0);
+  const breathe = useSharedValue(0);
+
   useEffect(() => {
     void AccessibilityInfo.isReduceMotionEnabled().then(setReducedMotion);
     const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReducedMotion);
@@ -40,173 +64,273 @@ export function VoiceOrb({ voice, started, onStartCooking, onMute, onInterrupt }
       ? 0
       : withTiming(Math.min(1, Math.max(0, voice.volume)), { duration: 180 });
   }, [voice.volume, reducedMotion, level]);
+
+  const active = voice.enabled && voice.state !== 'paused' && voice.state !== 'ended';
+  useEffect(() => {
+    if (active && !reducedMotion) {
+      breathe.value = withRepeat(
+        withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
+        -1,
+        true,
+      );
+    } else {
+      cancelAnimation(breathe);
+      breathe.value = withTiming(0, { duration: 200 });
+    }
+  }, [active, reducedMotion, breathe]);
+
   const ring = useAnimatedStyle(() => ({
-    transform: [{ scale: 1 + level.value * 0.22 }],
-    opacity: 0.35 + level.value * 0.4,
+    transform: [{ scale: 1 + level.value * 0.25 + breathe.value * 0.08 }],
+    opacity: 0.45 + level.value * 0.4 - breathe.value * 0.15,
   }));
+
   const speaking = voice.state === 'speaking' || voice.state === 'greeting';
+  const listening = voice.state === 'listening';
+  const busy = voice.state === 'greeting' || voice.state === 'thinking' || voice.state === 'speaking';
+
   return (
-    <Card className="mt-4 gap-3 rounded-3xl border-border bg-card p-4 shadow-none">
-      <View className="flex-row items-center gap-3">
+    <Animated.View layout={LinearTransition.duration(220)} style={s.card}>
+      <View style={s.head}>
         <View style={s.orb} accessible={false} importantForAccessibility="no-hide-descendants">
           <Animated.View style={[s.ring, ring]} />
-          <Image
-            source={require('../../../assets/images/noan/noan-mascot-master-v1.png')}
-            style={s.mascot}
-            resizeMode="contain"
-          />
+          <View style={s.orbInner}>
+            <Image source={mascot} style={s.mascot} resizeMode="contain" />
+          </View>
         </View>
-        <View className="flex-1">
-          <Text className="font-bold text-foreground" accessibilityLiveRegion="polite">
-            {labels[voice.state]}
-          </Text>
-          <Text className="mt-1 text-sm text-muted-foreground">
+        <View style={{ flex: 1 }}>
+          <View style={s.titleRow}>
+            {voice.enabled ? <View style={[s.dot, { backgroundColor: DOT[voice.state] }]} /> : null}
+            <Text style={s.title} accessibilityLiveRegion="polite">
+              {labels[voice.state]}
+            </Text>
+          </View>
+          <Text style={s.sub}>
             {voice.enabled
               ? 'Micro tắt khi NOAN nói. Chạm Dừng để ngắt.'
-              : 'Chỉ bật giọng nói khi bạn chọn. Các nút nấu luôn dùng được.'}
+              : 'Bật giọng nói để NOAN đọc bước và nghe lệnh của bạn.'}
           </Text>
         </View>
+        <Pressable
+          onPress={() => setHelp(true)}
+          hitSlop={8}
+          style={s.helpBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Mở hướng dẫn lệnh giọng nói"
+        >
+          <HelpCircle size={20} color={MUTED} />
+        </Pressable>
       </View>
+
       {!voice.enabled ? (
-        <Button
+        <Pressable
           onPress={() => void voice.start()}
-          className="min-h-12 rounded-2xl active:opacity-80"
+          style={s.primary}
+          className="active:opacity-80"
+          accessibilityRole="button"
           accessibilityLabel="Nấu cùng NOAN, bật phiên giọng nói"
         >
-          <Text>Nấu cùng NOAN</Text>
-        </Button>
+          <Mic size={18} color={INK} />
+          <Text style={s.primaryText}>Bật giọng NOAN</Text>
+        </Pressable>
       ) : (
-        <>
+        <Animated.View entering={FadeIn.duration(220)} exiting={FadeOut.duration(150)} style={{ gap: 10 }}>
           {!started && (
-            <Button
+            <Pressable
               onPress={onStartCooking}
-              disabled={
-                voice.state === 'greeting' ||
-                voice.state === 'thinking' ||
-                voice.state === 'speaking'
-              }
-              className="min-h-12 rounded-2xl active:opacity-80"
+              disabled={busy}
+              style={[s.primary, busy && { opacity: 0.5 }]}
+              accessibilityRole="button"
+              accessibilityLabel="Bắt đầu nấu"
             >
-              <Text>Bắt đầu nấu</Text>
-            </Button>
+              <Text style={s.primaryText}>Bắt đầu nấu</Text>
+            </Pressable>
           )}
-          {!!voice.transcript && (
-            <Text className="text-sm font-semibold text-foreground">Bạn: {voice.transcript}</Text>
-          )}
-          {!!voice.interimTranscript && (
-            <Text className="text-sm text-muted-foreground">
-              Đang nghe: {voice.interimTranscript}
-            </Text>
-          )}
-          {!!voice.reply && (
-            <Text className="text-sm text-foreground" accessibilityLiveRegion="polite">
-              NOAN: {voice.reply}
-            </Text>
-          )}
-          <View className="flex-row flex-wrap gap-2">
-            <Button
-              variant="secondary"
+
+          {voice.transcript || voice.interimTranscript || voice.reply ? (
+            <View style={s.chat}>
+              {!!voice.transcript && (
+                <View style={[s.bubble, s.bubbleMe]}>
+                  <Text style={s.bubbleText}>{voice.transcript}</Text>
+                </View>
+              )}
+              {!!voice.interimTranscript && (
+                <View style={[s.bubble, s.bubbleMe, { opacity: 0.6 }]}>
+                  <Text style={s.bubbleText}>{voice.interimTranscript}…</Text>
+                </View>
+              )}
+              {!!voice.reply && (
+                <View style={[s.bubble, s.bubbleNoan]}>
+                  <Text style={s.bubbleText} accessibilityLiveRegion="polite">
+                    {voice.reply}
+                  </Text>
+                </View>
+              )}
+            </View>
+          ) : null}
+
+          <View style={s.controls}>
+            <Pressable
               onPress={() => {
                 onInterrupt();
                 if (speaking) voice.stopSpeaking();
                 else void voice.toggleMic();
               }}
-              className="min-h-12 rounded-2xl active:opacity-80"
+              style={[s.ctrl, listening && s.ctrlLive]}
+              className="active:opacity-80"
+              accessibilityRole="button"
               accessibilityLabel={
-                speaking
-                  ? 'Dừng NOAN đang nói'
-                  : voice.state === 'listening'
-                    ? 'Tạm dừng micro'
-                    : 'Bật micro để nói'
+                speaking ? 'Dừng NOAN đang nói' : listening ? 'Tạm dừng micro' : 'Bật micro để nói'
               }
             >
-              <Text>
-                {speaking ? 'Dừng' : voice.state === 'listening' ? 'Tắt micro' : 'Bật micro'}
+              {speaking ? (
+                <Square size={16} color={INK} fill={INK} />
+              ) : listening ? (
+                <MicOff size={18} color={WHITE} />
+              ) : (
+                <Mic size={18} color={INK} />
+              )}
+              <Text style={[s.ctrlText, listening && { color: WHITE }]}>
+                {speaking ? 'Dừng' : listening ? 'Tắt micro' : 'Bật micro'}
               </Text>
-            </Button>
-            <Button
-              variant="ghost"
+            </Pressable>
+            <Pressable
               onPress={onMute}
-              className="min-h-12 rounded-2xl active:opacity-80"
+              style={[s.ctrl, s.ctrlGhost]}
+              className="active:opacity-80"
+              accessibilityRole="button"
+              accessibilityLabel="Tắt giọng NOAN"
             >
-              <Text>Tắt giọng NOAN</Text>
-            </Button>
+              <VolumeX size={18} color={MUTED} />
+              <Text style={[s.ctrlText, { color: MUTED }]}>Tắt giọng</Text>
+            </Pressable>
           </View>
-        </>
+        </Animated.View>
       )}
+
       {!!voice.error && (
-        <Text className="text-sm text-destructive" accessibilityLiveRegion="polite">
+        <Text style={s.error} accessibilityLiveRegion="polite">
           {voice.error}
         </Text>
       )}
       {voice.mode === 'model-required' && voice.enabled && (
-        <Button
-          variant="secondary"
-          onPress={() => void voice.downloadModel()}
-          className="min-h-12 active:opacity-80"
-        >
-          <Text>Tải mô hình tiếng Việt</Text>
-        </Button>
+        <Pressable onPress={() => void voice.downloadModel()} style={[s.ctrl, s.ctrlWide]}>
+          <Text style={s.ctrlText}>Tải mô hình tiếng Việt</Text>
+        </Pressable>
       )}
       {voice.mode === 'permission-denied' && voice.enabled && (
-        <Button
-          variant="secondary"
-          onPress={() => void Linking.openSettings()}
-          className="min-h-12 active:opacity-80"
-        >
-          <Text>Mở cài đặt quyền micro</Text>
-        </Button>
+        <Pressable onPress={() => void Linking.openSettings()} style={[s.ctrl, s.ctrlWide]}>
+          <Text style={s.ctrlText}>Mở cài đặt quyền micro</Text>
+        </Pressable>
       )}
       {voice.enabled && voice.mode === 'unavailable' && (
-        <Text className="text-sm text-muted-foreground">
-          Bản này chưa hỗ trợ micro. Bạn vẫn nghe NOAN và dùng các nút; cần Development Build để ra
-          lệnh.
+        <Text style={s.note}>
+          Bản này chưa hỗ trợ micro. Bạn vẫn nghe NOAN và dùng các nút; cần Development Build để ra lệnh.
         </Text>
       )}
-      <Button
-        variant="ghost"
-        onPress={() => setHelp(true)}
-        className="min-h-12 self-start active:opacity-80"
-        accessibilityLabel="Mở hướng dẫn lệnh giọng nói"
-      >
-        <Text>Nhắc lệnh</Text>
-      </Button>
-      <Drawer open={help} onOpenChange={setHelp}>
+
+      <Drawer open={help} onOpenChange={setHelp} snapHeight={520}>
         <DrawerHeader>
           <DrawerTitle>Nhờ NOAN giúp nấu</DrawerTitle>
         </DrawerHeader>
         <DrawerContent className="gap-3 px-5 pb-6">
-          <Text>
+          <Text style={s.helpText}>
             Nói “NOAN” trước lệnh khi micro đang nghe. Khi NOAN hỏi, bạn có thể trả lời ngay.
           </Text>
-          <Text>Bắt đầu · Bước tiếp · Quay lại · Đọc lại · Nguyên liệu</Text>
-          <Text>Hẹn giờ 5 phút · Bắt đầu hẹn giờ · Tạm dừng hẹn giờ · Còn bao lâu</Text>
-          <Text>
-            Chuyển bước chưa xong cần xác nhận “có” hoặc “không”. Chạm Dừng khi NOAN đang nói —
-            micro không nghe lúc phát giọng.
+          <View style={s.cmdWrap}>
+            {['Bắt đầu', 'Bước tiếp', 'Quay lại', 'Đọc lại', 'Nguyên liệu', 'Hẹn giờ 5 phút', 'Tạm dừng hẹn giờ', 'Còn bao lâu'].map(
+              (c) => (
+                <View key={c} style={s.cmd}>
+                  <Text style={s.cmdText}>{c}</Text>
+                </View>
+              ),
+            )}
+          </View>
+          <Text style={s.helpText}>
+            Chuyển bước chưa xong cần xác nhận “có” hoặc “không”. Micro không nghe lúc NOAN đang nói.
           </Text>
-          <Text>
-            Mất mạng: lệnh điều khiển và giọng đã lưu vẫn dùng được. Khi cần, NOAN dùng giọng tiếng
-            Việt trên thiết bị nếu đã cài và thông báo rõ cho bạn.
+          <Text style={s.helpText}>
+            Mất mạng: lệnh điều khiển và giọng đã lưu vẫn dùng được.
           </Text>
-          <Button onPress={() => setHelp(false)} className="min-h-12 active:opacity-80">
-            <Text>Đã hiểu</Text>
-          </Button>
+          <Pressable onPress={() => setHelp(false)} style={[s.primary, { marginTop: 6 }]}>
+            <Text style={s.primaryText}>Đã hiểu</Text>
+          </Pressable>
         </DrawerContent>
       </Drawer>
-    </Card>
+    </Animated.View>
   );
 }
+
 const s = StyleSheet.create({
-  orb: { width: 68, height: 68, alignItems: 'center', justifyContent: 'center' },
+  card: {
+    marginTop: 14,
+    backgroundColor: WHITE,
+    borderRadius: 22,
+    padding: 16,
+    gap: 14,
+    borderWidth: 1,
+    borderColor: '#F3E7C9',
+    ...cardShadow,
+  },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  orb: { width: 60, height: 60, alignItems: 'center', justifyContent: 'center' },
   ring: {
     position: 'absolute',
     width: 60,
     height: 60,
     borderRadius: 30,
-    borderWidth: 3,
-    borderColor: '#D7A900',
-    backgroundColor: '#FFF1B8',
+    backgroundColor: '#FFE58A',
   },
-  mascot: { width: 60, height: 60 },
+  orbInner: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: YELLOW_SOFT,
+    borderWidth: 2,
+    borderColor: WHITE,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  mascot: { width: 46, height: 46 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  title: { fontSize: 16, fontWeight: '800', color: INK },
+  sub: { fontSize: 13, lineHeight: 18, color: MUTED, marginTop: 3 },
+  helpBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  primary: {
+    minHeight: 50,
+    borderRadius: 999,
+    backgroundColor: YELLOW,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  primaryText: { fontSize: 15, fontWeight: '800', color: INK },
+  chat: { gap: 6 },
+  bubble: { maxWidth: '88%', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 16 },
+  bubbleMe: { alignSelf: 'flex-end', backgroundColor: '#F3EFE6', borderBottomRightRadius: 4 },
+  bubbleNoan: { alignSelf: 'flex-start', backgroundColor: YELLOW_SOFT, borderBottomLeftRadius: 4 },
+  bubbleText: { fontSize: 14, lineHeight: 20, color: INK },
+  controls: { flexDirection: 'row', gap: 10 },
+  ctrl: {
+    flex: 1,
+    minHeight: 46,
+    borderRadius: 999,
+    backgroundColor: '#FFF2B8',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+  },
+  ctrlLive: { backgroundColor: '#E5484D' },
+  ctrlGhost: { backgroundColor: '#F6F2EA' },
+  ctrlWide: { flex: 0, alignSelf: 'stretch' },
+  ctrlText: { fontSize: 14, fontWeight: '700', color: INK },
+  error: { fontSize: 13, color: '#C0392B' },
+  note: { fontSize: 13, color: MUTED, lineHeight: 18 },
+  helpText: { fontSize: 14, lineHeight: 21, color: INK },
+  cmdWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  cmd: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: '#FFF2B8' },
+  cmdText: { fontSize: 13, fontWeight: '700', color: INK },
 });

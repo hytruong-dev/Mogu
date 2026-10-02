@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { Cloud, Play, Save, X } from 'lucide-react'
+import { Dialog, DialogContent, DialogTitle } from '../../ui/dialog'
+import { Checkbox } from '../../ui/checkbox'
 import { dishImportsApi, type ImportValidationSummary } from '../../../api/dish-imports'
 import { parseCsvPreview } from '../../../lib/spreadsheet'
 import { autoMapField } from './demo-data'
@@ -176,8 +177,6 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
     )
   }
 
-  if (!open) return null
-
   const stepperCurrent = (phase === 'upload' ? 1 : phase === 'mapping' ? 2 : phase === 'validate' ? 3 : 4) as 1 | 2 | 3 | 4
   const showStepper = phase === 'upload' || phase === 'mapping' || phase === 'validate' || phase === 'confirm'
   const fileName = file?.name ?? 'mogu-dishes-august.xlsx'
@@ -193,14 +192,16 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
         : phase === 'complete' ? 'Nhập dữ liệu hoàn tất'
           : 'Nhập món ăn từ file'
 
-  return createPortal(
-    <div className="fixed inset-0 z-[420] flex items-center justify-center bg-black/50 p-4">
-      <div className="relative flex max-h-[92vh] w-full max-w-[1100px] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <header className="shrink-0 border-b border-black/[0.08] px-6 pb-4 pt-5">
+  if (!open) return null
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+      <DialogContent className="max-w-[1100px] w-full max-h-[92vh] flex flex-col overflow-hidden p-0 rounded-2xl bg-white shadow-2xl [&>button]:top-5 [&>button]:right-6">
+        <header className="shrink-0 border-b border-black/[0.08] px-6 pb-4 pt-5 pr-14">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2.5">
-                <h2 className="text-lg font-bold text-black">{title}</h2>
+                <DialogTitle className="text-lg font-bold text-black">{title}</DialogTitle>
                 {apiError && <p className="mt-1 text-xs text-red-600">{apiError}</p>}
                 {phase === 'progress' && (
                   <span className="rounded-full bg-[#DBEAFE] px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-[#1D4ED8]">
@@ -217,14 +218,6 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
                 <p className="mt-0.5 text-xs text-[#6B7280]">Batch #BATCH-2026-0812</p>
               )}
             </div>
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-md p-1 text-[#6B7280] hover:bg-black/5 hover:text-black"
-              aria-label="Đóng"
-            >
-              <X className="h-5 w-5" />
-            </button>
           </div>
           {showStepper && (
             <div className="mt-4">
@@ -393,11 +386,10 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
           {phase === 'confirm' && (
             <div className="space-y-3">
               <label className="flex cursor-pointer items-start gap-2.5">
-                <input
-                  type="checkbox"
+                <Checkbox
                   checked={options.confirmed}
-                  onChange={(e) => patchOptions({ confirmed: e.target.checked })}
-                  className="mt-0.5 h-[18px] w-[18px] accent-[#FACC15]"
+                  onCheckedChange={(checked) => patchOptions({ confirmed: !!checked })}
+                  className="mt-0.5 data-[state=checked]:bg-mogu-yellow data-[state=checked]:text-black data-[state=checked]:border-mogu-yellow"
                 />
                 <span>
                   <span className="text-sm font-medium">Tôi đã kiểm tra dữ liệu và đồng ý bắt đầu nhập</span>
@@ -467,8 +459,7 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
             </div>
           )}
         </footer>
-      </div>
-    </div>,
-    document.body,
+      </DialogContent>
+    </Dialog>
   )
 }

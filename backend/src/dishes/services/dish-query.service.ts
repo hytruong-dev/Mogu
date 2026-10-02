@@ -298,6 +298,57 @@ export class DishQueryService {
       });
     }
 
+    const unapprovedIngredients = ingredients.filter(
+      (row: any) =>
+        !row.ingredientId ||
+        !row.ingredient ||
+        row.ingredient.status !== 'ACTIVE',
+    );
+
+    const ingredientIssues = unapprovedIngredients.map((row: any) => {
+      let reason:
+        | 'UNLINKED'
+        | 'PENDING_REVIEW'
+        | 'REJECTED'
+        | 'MERGED'
+        | 'INACTIVE';
+      if (!row.ingredientId || !row.ingredient) {
+        reason = 'UNLINKED';
+      } else {
+        reason = row.ingredient.status;
+      }
+      return {
+        dishIngredientId: row.id,
+        rawText: row.rawText,
+        parsedName: row.parsedName,
+        quantity: row.quantity?.toString() ?? null,
+        unit: row.unit,
+        ingredientId: row.ingredientId,
+        ingredientName: row.ingredient?.name ?? row.parsedName ?? row.rawText,
+        status: row.ingredient?.status ?? null,
+        imageStatus: row.ingredient?.imageStatus ?? null,
+        imageUrl: row.ingredient?.imageUrl ?? null,
+        createdVia: row.ingredient?.createdVia ?? null,
+        reason,
+      };
+    });
+
+    if (ingredientIssues.length > 0) {
+      const names = ingredientIssues
+        .map((i: any) => `"${i.ingredientName}"`)
+        .slice(0, 5)
+        .join(', ');
+      const extra =
+        ingredientIssues.length > 5
+          ? ` và ${ingredientIssues.length - 5} nguyên liệu khác`
+          : '';
+      blockingErrors.push({
+        code: 'INGREDIENTS_NOT_APPROVED',
+        message: `${ingredientIssues.length} nguyên liệu chưa được phê duyệt (${names}${extra}). Vui lòng kiểm tra và cấp quyền phát hành trước khi gửi duyệt.`,
+        section: 'INGREDIENTS',
+      });
+    }
+
     if (nutrition?.sodiumMg != null && Number(nutrition.sodiumMg) >= 800) {
       warnings.push({
         code: 'HIGH_SODIUM',
@@ -333,7 +384,7 @@ export class DishQueryService {
     const sections = [
       { key: 'BASIC_INFO', status: nameOk ? 'COMPLETE' : 'ERROR' },
       { key: 'CLASSIFICATION', status: hasCategory && hasMealType ? 'COMPLETE' : 'ERROR' },
-      { key: 'INGREDIENTS', status: ingredients.length ? 'COMPLETE' : 'ERROR' },
+      { key: 'INGREDIENTS', status: ingredients.length && ingredientIssues.length === 0 ? 'COMPLETE' : 'ERROR' },
       { key: 'NUTRITION', status: warnings.some((w) => w.code === 'HIGH_SODIUM') ? 'WARNING' : nutrition ? 'COMPLETE' : 'WARNING' },
       { key: 'RECIPE', status: ((dish as any).recipeSteps ?? []).length ? 'COMPLETE' : 'WARNING' },
       { key: 'MEDIA', status: hasCover ? 'COMPLETE' : 'ERROR' },
@@ -349,6 +400,7 @@ export class DishQueryService {
       sections,
       blockingErrors,
       warnings,
+      ingredientIssues,
       canSubmitReview: blockingErrors.length === 0,
     };
   }
@@ -503,7 +555,21 @@ export class DishQueryService {
         orderBy: { sortOrder: 'asc' as const },
         include: {
           ingredient: {
-            select: { id: true, code: true, name: true, allergenCode: true, imageUrl: true },
+            select: {
+              id: true,
+              code: true,
+              name: true,
+              nameEn: true,
+              description: true,
+              groupLabel: true,
+              unit: true,
+              allergenCode: true,
+              imageUrl: true,
+              imageStatus: true,
+              status: true,
+              createdVia: true,
+              synonyms: true,
+            },
           },
         },
       },

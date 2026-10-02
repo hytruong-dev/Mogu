@@ -23,6 +23,7 @@ import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { Switch } from '../components/ui/switch'
 import { Textarea } from '../components/ui/textarea'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 
 function DietTypeFormDialog({
   open,
@@ -256,55 +257,23 @@ export default function DietTypesPage({
       </div>
 
       <div className="fd-table-wrap">
-        <table className="fd-table">
-          <thead>
-            <tr>
-              <th>Mã</th>
-              <th>Trạng thái</th>
-              <th style={{ width: 150 }}>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading && <tr><td colSpan={3} className="fd-empty p-0"><TableSkeleton rows={5} cols={3} /></td></tr>}
-            {!isLoading && pageItems.length === 0 && <tr><td colSpan={3} className="fd-empty">Không có chế độ ăn nào</td></tr>}
+        <Table className="fd-table">
+          <TableHeader><TableRow><TableHead>Mã</TableHead><TableHead>Trạng thái</TableHead><TableHead style={{ width: 150 }}>Hành động</TableHead></TableRow></TableHeader>
+          <TableBody>
+            {isLoading && <TableRow><TableCell colSpan={3} className="fd-empty p-0"><TableSkeleton rows={5} cols={3} /></TableCell></TableRow>}
+            {!isLoading && pageItems.length === 0 && <TableRow><TableCell colSpan={3} className="fd-empty">Không có chế độ ăn nào</TableCell></TableRow>}
             {pageItems.map((item) => (
-              <tr key={item.id} style={{ cursor: 'default' }}>
-                <td>
-                  <div className="fd-name-cell">
-                    <strong style={{ fontFamily: 'ui-monospace, monospace' }}>{item.code}</strong>
-                    <span>{item.name}</span>
-                  </div>
-                </td>
-                <td>
-                  <span className={`fd-status ${item.isActive ? 'is-on' : 'is-off'}`}>
-                    {item.isActive ? 'Kích hoạt' : 'Đã ẩn'}
-                  </span>
-                </td>
-                <td>
-                  <div className="fd-row-actions">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditItem(item)
-                        setModalOpen(true)
-                      }}
-                    >
-                      <Pencil size={13} /> Sửa
-                    </button>
-                    <button
-                      type="button"
-                      className="is-danger"
-                      disabled={!item.isActive}
-                      onClick={() => setHideItem(item)}
-                    >
-                      <EyeOff size={13} /> Ẩn
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              <TableRow key={item.id}>
+                <TableCell><div className="fd-name-cell"><strong style={{ fontFamily: 'ui-monospace, monospace' }}>{item.code}</strong><span>{item.name}</span></div></TableCell>
+                <TableCell><span className={`fd-status ${item.isActive ? 'is-on' : 'is-off'}`}>{item.isActive ? 'Kích hoạt' : 'Đã ẩn'}</span></TableCell>
+                <TableCell><div className="fd-row-actions">
+                  <Button variant="outline" size="sm" onClick={() => { setEditItem(item); setModalOpen(true) }}><Pencil size={13} /> Sửa</Button>
+                  <Button variant="destructive" size="sm" disabled={!item.isActive} onClick={() => setHideItem(item)}><EyeOff size={13} /> Ẩn</Button>
+                </div></TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       <FoodDataPagination

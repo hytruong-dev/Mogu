@@ -78,7 +78,13 @@ export function SavedCollectionsScreen({
       ]);
       setArticles((a as any).data ?? (a as any).items?.map((x: any) => x.article) ?? []);
       setPosts(p.items?.map((x) => x.post) ?? []);
-      setDishes((d as any).data ?? (Array.isArray(d) ? d : []));
+      const rawDishes = (d as any).data ?? (Array.isArray(d) ? d : []);
+      const mappedDishes = rawDishes.map((x: any) => ({
+        ...(x.dish ?? x),
+        id: x.dishId ?? x.dish?.id ?? x.id,
+        savedRecordId: x.id,
+      }));
+      setDishes(mappedDishes);
     } finally {
       setLoading(false);
     }
@@ -175,9 +181,9 @@ export function SavedCollectionsScreen({
           ListEmptyComponent={<Text style={styles.empty}>Chưa lưu món nào</Text>}
           renderItem={({ item }) => (
             <View style={styles.row}>
-              <Pressable style={{ flex: 1 }} onPress={() => onOpenDish?.(item.id)}>
+              <Pressable style={{ flex: 1 }} onPress={() => onOpenDish?.((item as any).dishId ?? item.id)}>
                 <Text style={styles.rowTitle} numberOfLines={2}>
-                  {item.name}
+                  {item.name ?? (item as any).dish?.name}
                 </Text>
               </Pressable>
               <Pressable

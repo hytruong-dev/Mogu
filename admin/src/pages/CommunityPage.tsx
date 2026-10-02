@@ -20,7 +20,9 @@ import {
   Trash2,
   User as UserIcon,
   X,
+  ZoomIn,
 } from 'lucide-react'
+import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
@@ -33,6 +35,13 @@ import {
   DialogTitle,
 } from '../components/ui/dialog'
 import { Spinner } from '../components/ui/spinner'
+import { Select } from '../components/ui/select'
+import { Image } from '../components/ui/image'
+import { Input } from '../components/ui/input'
+import { Textarea } from '../components/ui/textarea'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
+import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 import { TableSkeleton } from '../components/ui/page-skeleton'
 import {
   moderationAdminApi,
@@ -173,7 +182,7 @@ export default function CommunityPage() {
 
   // Action confirmation modal state
   const [confirmAction, setConfirmAction] = useState<ActionConfig | null>(null)
-  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const { openImage, openGallery, lightboxProps } = useMediaLightbox()
 
   // Posts tab state
   const [posts, setPosts] = useState<AdminPostItem[]>([])
@@ -431,30 +440,25 @@ export default function CommunityPage() {
         </div>
 
         <div className="mod-tab-switch">
-          <button
-            className={`mod-tab-btn ${tab === 'reports' ? 'active' : ''}`}
-            onClick={() => setTab('reports')}
-          >
-            <Flag size={15} />
-            Báo cáo vi phạm
-            {stats && stats.pending > 0 ? (
-              <span className="mod-tab-badge bg-rose-500 text-white">{stats.pending}</span>
-            ) : null}
-          </button>
-          <button
-            className={`mod-tab-btn ${tab === 'posts' ? 'active' : ''}`}
-            onClick={() => setTab('posts')}
-          >
-            <FileText size={15} />
-            Quản lý bài đăng
-          </button>
-          <button
-            className={`mod-tab-btn ${tab === 'comments' ? 'active' : ''}`}
-            onClick={() => setTab('comments')}
-          >
-            <MessageSquare size={15} />
-            Kiểm duyệt bình luận
-          </button>
+          <Tabs value={tab} onValueChange={(val) => setTab(val as typeof tab)}>
+            <TabsList className="bg-muted p-1 h-auto gap-1">
+              <TabsTrigger value="reports" className="gap-2 px-3 py-1.5 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                <Flag size={15} />
+                Báo cáo vi phạm
+                {stats && stats.pending > 0 ? (
+                  <span className="mod-tab-badge bg-rose-500 text-white">{stats.pending}</span>
+                ) : null}
+              </TabsTrigger>
+              <TabsTrigger value="posts" className="gap-2 px-3 py-1.5 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                <FileText size={15} />
+                Quản lý bài đăng
+              </TabsTrigger>
+              <TabsTrigger value="comments" className="gap-2 px-3 py-1.5 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-sm">
+                <MessageSquare size={15} />
+                Kiểm duyệt bình luận
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
       </div>
 
@@ -527,7 +531,7 @@ export default function CommunityPage() {
               </div>
 
               {/* Target Type Filter */}
-              <select
+              <Select
                 className="mod-filter-select"
                 value={targetType}
                 onChange={(e) => setTargetType(e.target.value)}
@@ -537,10 +541,10 @@ export default function CommunityPage() {
                     {f.label}
                   </option>
                 ))}
-              </select>
+              </Select>
 
               {/* Violation Reason Filter */}
-              <select
+              <Select
                 className="mod-filter-select"
                 value={reasonCode}
                 onChange={(e) => setReasonCode(e.target.value)}
@@ -550,7 +554,7 @@ export default function CommunityPage() {
                     {r.label}
                   </option>
                 ))}
-              </select>
+              </Select>
 
               {(targetType || reasonCode || statusFilter !== 'OPEN') && (
                 <Button
@@ -572,14 +576,14 @@ export default function CommunityPage() {
 
             <div className="mod-toolbar-right">
               {/* Search within queue */}
-              <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-                <input
+              <div className="relative flex items-center">
+                <Search size={14} className="absolute left-3 text-muted-foreground pointer-events-none" />
+                <Input
                   type="text"
                   placeholder="Tìm theo nội dung, người dùng..."
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
-                  className="h-9 pl-8 pr-3 text-xs rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-amber-500/20 w-48 transition-all focus:w-64"
+                  className="h-9 pl-8 pr-3 text-xs w-48 transition-all focus:w-64"
                 />
               </div>
 
@@ -652,7 +656,10 @@ export default function CommunityPage() {
                         </div>
 
                         <div className="mod-queue-card-user">
-                          <img src={authorAvatar} alt="" />
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={authorAvatar} alt={authorName} />
+                            <AvatarFallback>{authorName.slice(0, 1)}</AvatarFallback>
+                          </Avatar>
                           <span>{authorName}</span>
                         </div>
 
@@ -697,7 +704,10 @@ export default function CommunityPage() {
 
                     <div className="mod-ticket-reporter">
                       <span>Báo cáo bởi:</span>
-                      <img src={detail.reporter.avatarUrl || '/assets/avatar.jpg'} alt="" />
+                      <Avatar className="h-8 w-8 cursor-zoom-in" onClick={() => openImage(detail.reporter.avatarUrl || '/assets/avatar.jpg', detail.reporter.displayName || 'Người dùng', 'Người báo cáo')}>
+                        <AvatarImage src={detail.reporter.avatarUrl || '/assets/avatar.jpg'} alt={detail.reporter.displayName || 'Người dùng'} />
+                        <AvatarFallback>{(detail.reporter.displayName || 'U').slice(0, 1)}</AvatarFallback>
+                      </Avatar>
                       <strong className="text-zinc-800">
                         {detail.reporter.displayName || 'Người dùng'}
                       </strong>
@@ -715,10 +725,10 @@ export default function CommunityPage() {
                     {/* Author Mini Profile */}
                     <div className="mod-author-row">
                       <div className="mod-author-profile">
-                        <img
-                          src={detail.preview?.author?.avatarUrl || '/assets/avatar.jpg'}
-                          alt=""
-                        />
+                        <Avatar className="h-8 w-8 cursor-zoom-in" onClick={() => openImage(detail.preview?.author?.avatarUrl || '/assets/avatar.jpg', detail.preview?.author?.displayName || 'Tác giả', 'Tác giả nội dung')}>
+                          <AvatarImage src={detail.preview?.author?.avatarUrl || '/assets/avatar.jpg'} alt={detail.preview?.author?.displayName || 'Tác giả'} />
+                          <AvatarFallback>{(detail.preview?.author?.displayName || 'T').slice(0, 1)}</AvatarFallback>
+                        </Avatar>
                         <div>
                           <p className="mod-author-name">
                             {detail.preview?.author?.displayName || 'Tác giả không xác định'}
@@ -754,11 +764,21 @@ export default function CommunityPage() {
                             {detail.preview.imageUrls.map((url, idx) => (
                               <div
                                 key={idx}
-                                className="mod-content-image"
-                                onClick={() => setPreviewImage(url)}
+                                className="mod-content-image cursor-zoom-in"
+                                onClick={() =>
+                                  openGallery(
+                                    detail.preview!.imageUrls!.map((u, i) => ({
+                                      url: u,
+                                      title: `Chứng cứ vi phạm #${detail.id.slice(0, 8)}`,
+                                      subtitle: `Ảnh ${i + 1} / ${detail.preview!.imageUrls!.length}`,
+                                    })),
+                                    idx,
+                                    `Báo cáo vi phạm: ${detail.preview?.content?.slice(0, 30) || detail.targetType}`,
+                                  )
+                                }
                                 title="Bấm để xem ảnh lớn"
                               >
-                                <img src={url} alt={`Ảnh ${idx + 1}`} />
+                                <Image src={url} alt={`Ảnh ${idx + 1}`} aspectRatio="square" zoomable title={`Chứng cứ vi phạm #${detail.id.slice(0, 8)}`} subtitle={`Ảnh ${idx + 1}`} className="h-full w-full object-cover" />
                               </div>
                             ))}
                           </div>
@@ -818,15 +838,16 @@ export default function CommunityPage() {
 
                     <div className="mod-action-section">
                       {/* Internal Moderation Note Field */}
-                      <div className="mod-note-field">
-                        <label htmlFor="mod-note">
-                          Ghi chú kiểm duyệt nội bộ <span className="font-normal text-zinc-400">(Lưu vào nhật ký hệ thống & audit log)</span>:
+                      <div className="mod-note-field space-y-1.5">
+                        <label htmlFor="mod-note" className="text-xs font-semibold text-foreground">
+                          Ghi chú kiểm duyệt nội bộ <span className="font-normal text-muted-foreground">(Lưu vào nhật ký hệ thống & audit log)</span>:
                         </label>
-                        <textarea
+                        <Textarea
                           id="mod-note"
                           placeholder="Ví dụ: Đã kiểm tra hình ảnh và văn bản, xác định vi phạm quy tắc spam ẩm thực..."
                           value={note}
                           onChange={(e) => setNote(e.target.value)}
+                          className="text-xs min-h-[70px]"
                         />
                       </div>
 
@@ -923,19 +944,20 @@ export default function CommunityPage() {
         /* ── Main Tab 2: Community Posts Management ── */
         <Card className="mod-posts-card">
           <div className="mod-posts-toolbar">
-            <div className="mod-posts-search">
-              <Search size={15} />
-              <input
+            <div className="mod-posts-search relative flex items-center flex-1 max-w-sm">
+              <Search size={15} className="absolute left-3 text-muted-foreground pointer-events-none" />
+              <Input
                 placeholder="Tìm bài đăng theo nội dung, từ khóa..."
                 value={postQ}
                 onChange={(e) => setPostQ(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') void loadPosts()
                 }}
+                className="pl-9 h-9 text-xs"
               />
             </div>
 
-            <select
+            <Select
               className="mod-filter-select"
               value={postStatus}
               onChange={(e) => setPostStatus(e.target.value)}
@@ -945,7 +967,7 @@ export default function CommunityPage() {
               <option value="HIDDEN">HIDDEN - Đã ẩn</option>
               <option value="DELETED">DELETED - Đã xóa</option>
               <option value="DRAFT">DRAFT - Bản nháp</option>
-            </select>
+            </Select>
 
             <Button onClick={() => void loadPosts()} disabled={postsLoading} className="h-9 gap-1.5">
               <Search size={14} />
@@ -986,27 +1008,27 @@ export default function CommunityPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="mod-posts-table">
-                <thead>
-                  <tr>
-                    <th>Tác giả</th>
-                    <th>Nội dung bài viết</th>
-                    <th>Trạng thái</th>
-                    <th>Tương tác</th>
-                    <th>Báo cáo</th>
-                    <th>Thời gian</th>
-                    <th className="text-right">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table className="mod-posts-table">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tác giả</TableHead>
+                    <TableHead>Nội dung bài viết</TableHead>
+                    <TableHead>Trạng thái</TableHead>
+                    <TableHead>Tương tác</TableHead>
+                    <TableHead>Báo cáo</TableHead>
+                    <TableHead>Thời gian</TableHead>
+                    <TableHead className="text-right">Hành động</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {posts.map((p) => (
-                    <tr key={p.id}>
-                      <td>
+                    <TableRow key={p.id}>
+                      <TableCell>
                         <div className="mod-post-author">
-                          <img
-                            src={p.author?.avatarUrl || '/assets/avatar.jpg'}
-                            alt=""
-                          />
+                          <Avatar className="h-8 w-8 cursor-zoom-in" onClick={() => openImage(p.author?.avatarUrl || '/assets/avatar.jpg', p.author?.displayName || 'Người dùng', 'Tác giả bài viết')}>
+                            <AvatarImage src={p.author?.avatarUrl || '/assets/avatar.jpg'} alt={p.author?.displayName || 'Người dùng'} />
+                            <AvatarFallback>{(p.author?.displayName || 'U').slice(0, 1)}</AvatarFallback>
+                          </Avatar>
                           <div>
                             <div className="mod-post-author-name">
                               {p.author?.displayName || 'Người dùng'}
@@ -1016,20 +1038,61 @@ export default function CommunityPage() {
                             </div>
                           </div>
                         </div>
-                      </td>
-                      <td>
+                      </TableCell>
+                      <TableCell>
                         <div className="mod-post-content" title={p.content}>
                           {p.content || <span className="italic text-zinc-400">(Không có văn bản)</span>}
                         </div>
                         {p.imageUrls && p.imageUrls.length > 0 ? (
-                          <div className="flex items-center gap-1.5 mt-1 text-xs text-zinc-500">
-                            <ImageIcon size={12} className="text-amber-600" />
-                            <span>{p.imageUrls.length} ảnh đính kèm</span>
+                          <div className="mt-2 flex items-center gap-1.5 flex-wrap">
+                            {p.imageUrls.slice(0, 4).map((imgUrl, imgIdx) => (
+                              <button
+                                key={imgIdx}
+                                type="button"
+                                onClick={() =>
+                                  openGallery(
+                                    p.imageUrls.map((u, i) => ({
+                                      url: u,
+                                      title: `Bài viết của ${p.author?.displayName || 'Người dùng'}`,
+                                      subtitle: `Ảnh ${i + 1} / ${p.imageUrls.length}`,
+                                    })),
+                                    imgIdx,
+                                    `Bài viết #${p.id.slice(0, 8)}`,
+                                  )
+                                }
+                                className="group/thumb relative h-9 w-9 overflow-hidden rounded-md border border-border shrink-0 cursor-zoom-in"
+                                title="Xem ảnh lớn"
+                              >
+                                <Image src={imgUrl} alt={`Ảnh bài viết ${imgIdx + 1}`} aspectRatio="square" zoomable title={`Bài viết của ${p.author?.displayName || 'Người dùng'}`} className="h-full w-full object-cover transition group-hover/thumb:scale-105" />
+                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/thumb:opacity-100 transition flex items-center justify-center">
+                                  <ZoomIn className="h-3 w-3 text-white" />
+                                </div>
+                              </button>
+                            ))}
+                            {p.imageUrls.length > 4 && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  openGallery(
+                                    p.imageUrls.map((u, i) => ({
+                                      url: u,
+                                      title: `Bài viết của ${p.author?.displayName || 'Người dùng'}`,
+                                      subtitle: `Ảnh ${i + 1} / ${p.imageUrls.length}`,
+                                    })),
+                                    4,
+                                    `Bài viết #${p.id.slice(0, 8)}`,
+                                  )
+                                }
+                                className="h-9 px-1.5 rounded-md bg-muted text-[11px] font-semibold text-muted-foreground hover:bg-muted/80"
+                              >
+                                +{p.imageUrls.length - 4}
+                              </button>
+                            )}
                           </div>
                         ) : null}
-                      </td>
-                      <td>{renderPostStatusBadge(p.status)}</td>
-                      <td>
+                      </TableCell>
+                      <TableCell>{renderPostStatusBadge(p.status)}</TableCell>
+                      <TableCell>
                         <div className="mod-post-metrics">
                           <span title="Lượt thích">
                             <Heart size={13} className="text-rose-500" />
@@ -1040,8 +1103,8 @@ export default function CommunityPage() {
                             {p.commentCount ?? 0}
                           </span>
                         </div>
-                      </td>
-                      <td>
+                      </TableCell>
+                      <TableCell>
                         {p.reportCount > 0 ? (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
                             <Flag size={11} />
@@ -1050,11 +1113,11 @@ export default function CommunityPage() {
                         ) : (
                           <span className="text-xs text-zinc-400">0</span>
                         )}
-                      </td>
-                      <td className="text-xs text-zinc-500 whitespace-nowrap">
+                      </TableCell>
+                      <TableCell className="text-xs text-zinc-500 whitespace-nowrap">
                         {p.createdAt ? relativeTime(p.createdAt) : '—'}
-                      </td>
-                      <td>
+                      </TableCell>
+                      <TableCell>
                         <div className="mod-post-actions justify-end">
                           {p.status !== 'HIDDEN' ? (
                             <Button
@@ -1095,11 +1158,11 @@ export default function CommunityPage() {
                             </Button>
                           ) : null}
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </Card>
@@ -1108,55 +1171,40 @@ export default function CommunityPage() {
       {/* ── Main Tab 3: Comments Moderation ── */}
       {tab === 'comments' && (
         <Card className="mod-posts-card">
-          <div className="mod-posts-filter-bar flex-wrap">
-            <div className="flex items-center gap-1.5 bg-zinc-100 p-1 rounded-lg border border-zinc-200">
-              <button
-                type="button"
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
-                  commentType === 'all'
-                    ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200'
-                    : 'text-zinc-600 hover:text-zinc-900'
-                }`}
-                onClick={() => setCommentType('all')}
-              >
-                Tất cả
-              </button>
-              <button
-                type="button"
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
-                  commentType === 'article'
-                    ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200'
-                    : 'text-zinc-600 hover:text-zinc-900'
-                }`}
-                onClick={() => setCommentType('article')}
-              >
-                Bài viết
-              </button>
-              <button
-                type="button"
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
-                  commentType === 'post'
-                    ? 'bg-white text-zinc-900 shadow-sm border border-zinc-200'
-                    : 'text-zinc-600 hover:text-zinc-900'
-                }`}
-                onClick={() => setCommentType('post')}
-              >
-                Bài đăng cộng đồng
-              </button>
-            </div>
+          <div className="mod-posts-filter-bar flex-wrap items-center gap-3">
+            <Tabs value={commentType} onValueChange={(val) => setCommentType(val as typeof commentType)}>
+              <TabsList className="bg-zinc-100 p-1 h-9">
+                <TabsTrigger value="all" className="text-xs px-3 py-1 font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  Tất cả
+                </TabsTrigger>
+                <TabsTrigger value="article" className="text-xs px-3 py-1 font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  Bài viết
+                </TabsTrigger>
+                <TabsTrigger value="post" className="text-xs px-3 py-1 font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  Bài đăng cộng đồng
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
 
-            <div className="mod-search-box max-w-xs">
-              <Search size={15} />
-              <input
+            <div className="mod-search-box max-w-xs relative flex items-center">
+              <Search size={15} className="absolute left-3 text-muted-foreground pointer-events-none" />
+              <Input
                 type="text"
                 placeholder="Tìm nội dung bình luận..."
                 value={commentSearch}
                 onChange={(e) => setCommentSearch(e.target.value)}
+                className="pl-9 pr-8 h-9 text-xs"
               />
               {commentSearch && (
-                <button type="button" onClick={() => setCommentSearch('')}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-1 h-7 w-7 text-muted-foreground hover:text-foreground"
+                  onClick={() => setCommentSearch('')}
+                >
                   <X size={13} />
-                </button>
+                </Button>
               )}
             </div>
 
@@ -1183,30 +1231,26 @@ export default function CommunityPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="mod-posts-table">
-                <thead>
-                  <tr>
-                    <th>Tác giả</th>
-                    <th>Nội dung bình luận</th>
-                    <th>Thuộc về</th>
-                    <th>Lượt thích</th>
-                    <th>Thời gian</th>
-                    <th className="text-right">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody>
+              <Table className="mod-posts-table">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Tác giả</TableHead>
+                    <TableHead>Nội dung bình luận</TableHead>
+                    <TableHead>Thuộc về</TableHead>
+                    <TableHead>Lượt thích</TableHead>
+                    <TableHead>Thời gian</TableHead>
+                    <TableHead className="text-right">Hành động</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
                   {comments.map((c) => (
-                    <tr key={c.id}>
-                      <td>
+                    <TableRow key={c.id}>
+                      <TableCell>
                         <div className="mod-post-author">
-                          <img
-                            src={c.author?.avatarUrl || '/assets/avatar.jpg'}
-                            alt=""
-                            className="w-8 h-8 rounded-full object-cover border border-zinc-200"
-                            onError={(e) => {
-                              ;(e.currentTarget as HTMLImageElement).src = '/assets/avatar.jpg'
-                            }}
-                          />
+                          <Avatar className="h-8 w-8">
+                            <AvatarImage src={c.author?.avatarUrl || '/assets/avatar.jpg'} alt={c.author?.displayName || 'Ẩn danh'} />
+                            <AvatarFallback>{(c.author?.displayName || 'U').slice(0, 1)}</AvatarFallback>
+                          </Avatar>
                           <div>
                             <div className="font-semibold text-xs text-zinc-900">
                               {c.author?.displayName || 'Ẩn danh'}
@@ -1216,8 +1260,8 @@ export default function CommunityPage() {
                             </div>
                           </div>
                         </div>
-                      </td>
-                      <td className="max-w-md">
+                      </TableCell>
+                      <TableCell className="max-w-md">
                         <div className="space-y-1">
                           <p className={`text-xs ${c.isHidden ? 'text-zinc-400 italic line-through' : 'text-zinc-800 font-normal'}`}>
                             {c.content}
@@ -1228,24 +1272,24 @@ export default function CommunityPage() {
                             </Badge>
                           ) : null}
                         </div>
-                      </td>
-                      <td>
+                      </TableCell>
+                      <TableCell>
                         <div className="text-xs font-medium text-zinc-700 max-w-[220px] truncate" title={c.targetTitle}>
                           <span className="text-[10px] font-bold uppercase text-zinc-400 mr-1.5 inline-block">
                             [{c.type === 'article' ? 'Bài viết' : 'Bài đăng'}]
                           </span>
                           {c.targetTitle}
                         </div>
-                      </td>
-                      <td>
+                      </TableCell>
+                      <TableCell>
                         <span className="text-xs text-zinc-600 font-semibold">{c.likesCount}</span>
-                      </td>
-                      <td>
+                      </TableCell>
+                      <TableCell>
                         <span className="text-xs text-zinc-500">
                           {new Date(c.createdAt).toLocaleDateString('vi-VN')}
                         </span>
-                      </td>
-                      <td className="text-right">
+                      </TableCell>
+                      <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <Button
                             size="sm"
@@ -1268,11 +1312,11 @@ export default function CommunityPage() {
                             Xóa
                           </Button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   ))}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
           )}
         </Card>
@@ -1374,19 +1418,7 @@ export default function CommunityPage() {
       </Dialog>
 
       {/* ── Image Lightbox Modal ── */}
-      <Dialog open={!!previewImage} onOpenChange={(open) => !open && setPreviewImage(null)}>
-        <DialogContent className="max-w-3xl p-2 bg-black/90 border-zinc-800">
-          <div className="relative flex items-center justify-center p-2">
-            {previewImage && (
-              <img
-                src={previewImage}
-                alt="Preview"
-                className="max-h-[80vh] max-w-full rounded-md object-contain"
-              />
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
+      <MediaLightbox {...lightboxProps} />
     </div>
   )
 }

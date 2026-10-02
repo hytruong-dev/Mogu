@@ -1,5 +1,6 @@
 import { memo, useEffect, useState } from 'react';
-import { Image, Pressable, type ImageSourcePropType, StyleSheet, View } from 'react-native';
+import { Pressable, type ImageSourcePropType, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
 import Animated, {
@@ -74,7 +75,10 @@ export function FoodReelMachine({
   selectedDish?: ImageSourcePropType;
   onPull: () => void;
 }) {
-  const [width, setWidth] = useState(0);
+  const { width: windowWidth } = useWindowDimensions();
+  // Compute initial width synchronously so frame 1 renders immediately without waiting for onLayout
+  const initialZoneWidth = Math.round(Math.min(390, windowWidth - 32) + 12);
+  const [width, setWidth] = useState(initialZoneWidth);
   const [jackpot, setJackpot] = useState(false);
   const reducedMotion = useReducedMotion();
   const handle = useSharedValue(0);
@@ -215,10 +219,24 @@ export function FoodReelMachine({
   const lightMode: LightMode = jackpot ? 'win' : running ? 'spin' : 'idle';
 
   return (
-    <View style={styles.zone} onLayout={(event) => setWidth(event.nativeEvent.layout.width)}>
+    <View
+      style={styles.zone}
+      onLayout={(event) => {
+        const nextWidth = Math.round(event.nativeEvent.layout.width);
+        if (nextWidth > 0 && Math.abs(nextWidth - width) > 1) {
+          setWidth(nextWidth);
+        }
+      }}
+    >
       {width > 0 ? (
         <>
-          <Image source={SHADOW} resizeMode="stretch" style={styles.shadow} />
+          <ExpoImage
+            source={SHADOW}
+            contentFit="fill"
+            priority="high"
+            cachePolicy="memory-disk"
+            style={styles.shadow}
+          />
           <Animated.View style={[styles.bodyGroup, bodyStyle]}>
             <Bulbs mode={lightMode} reducedMotion={reducedMotion} />
             {WINDOWS.map((left, index) => (
@@ -237,10 +255,22 @@ export function FoodReelMachine({
                   reducedMotion={reducedMotion}
                   reelIndex={index}
                 />
-                <Image source={GLASS} resizeMode="stretch" style={styles.glass} />
+                <ExpoImage
+                  source={GLASS}
+                  contentFit="fill"
+                  priority="high"
+                  cachePolicy="memory-disk"
+                  style={styles.glass}
+                />
               </View>
             ))}
-            <Image source={BODY} resizeMode="stretch" style={styles.body} />
+            <ExpoImage
+              source={BODY}
+              contentFit="fill"
+              priority="high"
+              cachePolicy="memory-disk"
+              style={styles.body}
+            />
             <BulbHalos mode={lightMode} reducedMotion={reducedMotion} />
 
             {jackpot ? (
@@ -270,7 +300,7 @@ export function FoodReelMachine({
               </>
             ) : null}
             <GestureDetector gesture={pullGesture}>
-              <Animated.View style={styles.handleTouch}>
+              <View style={styles.handleTouch}>
                 <Pressable
                   style={styles.handlePressable}
                   onPress={tapLever}
@@ -279,13 +309,17 @@ export function FoodReelMachine({
                   accessibilityLabel="Kéo cần gạt xuống để chọn món"
                   accessibilityHint="Bạn cũng có thể chạm để bắt đầu quay"
                 >
-                  <Animated.Image
-                    source={HANDLE}
-                    resizeMode="contain"
-                    style={[styles.handle, handleStyle]}
-                  />
+                  <Animated.View style={[styles.handleWrapper, handleStyle]}>
+                    <ExpoImage
+                      source={HANDLE}
+                      contentFit="contain"
+                      priority="high"
+                      cachePolicy="memory-disk"
+                      style={styles.handleImage}
+                    />
+                  </Animated.View>
                 </Pressable>
-              </Animated.View>
+              </View>
             </GestureDetector>
           </Animated.View>
           {jackpot && !reducedMotion ? (
@@ -520,7 +554,8 @@ function ReelTrack({
     transform: [{ translateY: position.value }],
   }));
   const blurStyle = useAnimatedStyle(() => ({ opacity: speed.value }));
-  const loopItems = Array.from({ length: LOOP_COPIES }, () => items).flat();
+  const copies = running || finishing ? LOOP_COPIES : 1;
+  const loopItems = Array.from({ length: copies }, () => items).flat();
 
   return (
     <>
@@ -578,9 +613,11 @@ function ReelItem({
     const leftOffset = offsets[reelIndex] ?? 0;
     return (
       <View style={{ width: '100%', height: itemHeight, overflow: 'hidden', position: 'relative' }}>
-        <Image
+        <ExpoImage
           source={source}
-          resizeMode="cover"
+          contentFit="cover"
+          priority="high"
+          cachePolicy="memory-disk"
           style={{
             position: 'absolute',
             left: leftOffset,
@@ -594,9 +631,11 @@ function ReelItem({
   }
 
   return (
-    <Image
+    <ExpoImage
       source={source}
-      resizeMode="cover"
+      contentFit="cover"
+      priority="high"
+      cachePolicy="memory-disk"
       style={{ width: '100%', height: itemHeight }}
     />
   );
@@ -669,10 +708,14 @@ const styles = StyleSheet.create({
     height: '48%',
   },
   handlePressable: { width: '100%', height: '100%' },
-  handle: {
+  handleWrapper: {
     width: '100%',
     height: '100%',
     transformOrigin: ['50%', '78%', 0],
+  },
+  handleImage: {
+    width: '100%',
+    height: '100%',
   },
   motionLeft: { position: 'absolute', left: '-1%', top: '30%', width: '7%', height: '32%' },
   motionRight: { position: 'absolute', right: '0%', top: '30%', width: '7%', height: '32%' },

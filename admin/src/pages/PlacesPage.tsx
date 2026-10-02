@@ -13,6 +13,7 @@ import {
   Trash2,
   X,
 } from 'lucide-react'
+import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import {
   adminPlacesApi,
   type AdminPlaceItem,
@@ -20,6 +21,7 @@ import {
 } from '../api/places'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
+import { Checkbox } from '../components/ui/checkbox'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import {
   Dialog,
@@ -33,6 +35,8 @@ import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
 import { TableSkeleton } from '../components/ui/page-skeleton'
 import { Spinner } from '../components/ui/spinner'
+import { Image } from '../components/ui/image'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../components/ui/alert-dialog'
 import { Switch } from '../components/ui/switch'
 import {
   Table,
@@ -44,6 +48,7 @@ import {
 } from '../components/ui/table'
 
 export default function PlacesPage() {
+  const { lightboxProps } = useMediaLightbox()
   const [places, setPlaces] = useState<AdminPlaceItem[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -256,13 +261,14 @@ export default function PlacesPage() {
                     <TableCell>
                       <div className="flex items-center gap-2.5">
                         {place.thumbnailUrl ? (
-                          <img
+                          <Image
                             src={place.thumbnailUrl}
-                            alt=""
+                            alt={place.name}
+                            aspectRatio="square"
+                            zoomable
+                            title={place.name}
+                            subtitle={place.addressShort || 'Địa điểm'}
                             className="w-9 h-9 rounded-md object-cover border border-border shrink-0"
-                            onError={(e) => {
-                              ;(e.currentTarget as HTMLImageElement).style.display = 'none'
-                            }}
                           />
                         ) : (
                           <div className="w-9 h-9 rounded-md bg-muted flex items-center justify-center text-muted-foreground shrink-0 border border-border/60">
@@ -472,6 +478,18 @@ export default function PlacesPage() {
                 className="h-9 text-xs"
                 placeholder="https://..."
               />
+              {editForm.thumbnailUrl && (
+                <div className="pt-2">
+                  <Image
+                    src={editForm.thumbnailUrl}
+                    alt="Preview"
+                    aspectRatio="video"
+                    zoomable
+                    title={editForm.name || 'Ảnh địa điểm'}
+                    className="h-24 w-full object-cover rounded-lg border border-border"
+                  />
+                </div>
+              )}
             </div>
 
             <div className="flex items-center justify-between pt-1">
@@ -497,52 +515,38 @@ export default function PlacesPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Modal */}
-      <Dialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-rose-600">
-              <AlertTriangle size={18} />
-              Xóa địa điểm quán ăn
-            </DialogTitle>
-            <DialogDescription className="text-xs">
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle size={18} /> Xóa địa điểm quán ăn
+            </AlertDialogTitle>
+            <AlertDialogDescription>
               Bạn có chắc chắn muốn xóa địa điểm <strong>{deleteTarget?.name}</strong>?
-            </DialogDescription>
-          </DialogHeader>
-
+            </AlertDialogDescription>
+          </AlertDialogHeader>
           {deleteTarget && deleteTarget.postCount > 0 && (
             <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs space-y-2 text-amber-900">
-              <p className="font-semibold">
-                ⚠️ Địa điểm này hiện đang được gắn kèm với {deleteTarget.postCount} bài đăng cộng đồng.
-              </p>
+              <p className="font-semibold">Địa điểm này đang được gắn với {deleteTarget.postCount} bài đăng cộng đồng.</p>
               <label className="flex items-center gap-2 font-medium cursor-pointer text-amber-800">
-                <input
-                  type="checkbox"
-                  checked={forceDelete}
-                  onChange={(e) => setForceDelete(e.target.checked)}
-                  className="rounded text-primary focus:ring-primary h-4 w-4"
-                />
-                Buộc xóa và tự động gỡ địa điểm khỏi tất cả bài đăng
+                <Checkbox checked={forceDelete} onCheckedChange={(checked) => setForceDelete(!!checked)} />
+                <span>Buộc xóa và tự động gỡ địa điểm khỏi tất cả bài đăng</span>
               </label>
             </div>
           )}
-
-          <DialogFooter className="gap-2 sm:gap-0 pt-2">
-            <Button variant="outline" onClick={() => setDeleteTarget(null)} disabled={deleting}>
-              Hủy
-            </Button>
-            <Button
-              variant="destructive"
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Hủy</AlertDialogCancel>
+            <AlertDialogAction
               onClick={handleDelete}
               disabled={deleting || (deleteTarget != null && deleteTarget.postCount > 0 && !forceDelete)}
-              className="text-xs font-semibold"
             >
-              {deleting ? <Spinner size="sm" className="mr-1.5" /> : null}
-              Xác nhận xóa
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              {deleting ? 'Đang xóa…' : 'Xác nhận xóa'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <MediaLightbox {...lightboxProps} />
     </div>
   )
 }

@@ -9,6 +9,7 @@ import {
   Search,
   Trash2,
 } from 'lucide-react'
+import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import { topicsAdminApi, type Topic, type CreateTopicDto, type UpdateTopicDto } from '../api/explore'
 import { TableSkeleton } from '../components/ui/page-skeleton'
 import { Button } from '../components/ui/button'
@@ -34,8 +35,11 @@ import {
 } from '../components/ui/dialog'
 import { Switch } from '../components/ui/switch'
 import { Label } from '../components/ui/label'
+import { Image } from '../components/ui/image'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../components/ui/alert-dialog'
 
 export default function TopicsPage() {
+  const { lightboxProps } = useMediaLightbox()
   const [topics, setTopics] = useState<Topic[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -233,9 +237,13 @@ export default function TopicsPage() {
                     <TableRow key={topic.id} className="hover:bg-muted/30 transition-colors">
                       <TableCell>
                         {topic.coverImageUrl ? (
-                          <img
+                          <Image
                             src={topic.coverImageUrl}
                             alt={topic.title}
+                            aspectRatio="video"
+                            zoomable
+                            title={topic.title}
+                            subtitle="Ảnh bìa chủ đề"
                             className="w-14 h-9 object-cover rounded-md border border-border"
                           />
                         ) : (
@@ -377,11 +385,13 @@ export default function TopicsPage() {
               />
               {form.coverImageUrl && (
                 <div className="pt-2">
-                  <img
+                  <Image
                     src={form.coverImageUrl}
                     alt="Xem trước ảnh bìa"
+                    aspectRatio="video"
+                    zoomable
+                    title={form.title || 'Ảnh bìa chủ đề'}
                     className="h-24 w-full object-cover rounded-lg border border-border"
-                    onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
                   />
                 </div>
               )}
@@ -429,25 +439,22 @@ export default function TopicsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog Xác Nhận Xóa */}
-      <Dialog open={Boolean(deleteConfirm)} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-rose-600">Xóa chủ đề này?</DialogTitle>
-            <DialogDescription>
+      <AlertDialog open={Boolean(deleteConfirm)} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa chủ đề này?</AlertDialogTitle>
+            <AlertDialogDescription>
               Bạn có chắc chắn muốn xóa chủ đề <strong>{deleteConfirm?.title}</strong>? Hành động này không thể hoàn tác.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0 pt-2">
-            <Button variant="outline" onClick={() => setDeleteConfirm(null)}>
-              Hủy
-            </Button>
-            <Button variant="destructive" onClick={handleDelete}>
-              Xác nhận xóa
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Xác nhận xóa</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <MediaLightbox {...lightboxProps} />
     </div>
   )
 }

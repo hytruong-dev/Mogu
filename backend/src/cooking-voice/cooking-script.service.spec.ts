@@ -75,6 +75,7 @@ describe('authoritative cooking script', () => {
       }),
     );
     expect(result.steps.map((s) => s.stepOrder)).toEqual([2, 3]);
+    expect(result.greeting.text).toContain('NOAN đây!');
     expect(result.steps[0].text).toContain('Thời gian gợi ý là 10 phút');
     expect(result.steps[0].text).not.toContain('đã hẹn giờ');
     expect(result.steps[0].audioUrl).toBeNull();

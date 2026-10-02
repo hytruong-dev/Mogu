@@ -33,6 +33,9 @@ export function ReviewDishPanel({
   const sodium = Number(nutrition.sodiumMg) || 0
   const sodiumWarn = sodium >= 800
   const totalMin = (Number(recipe.prepMin) || 0) + (Number(recipe.cookMin) || 0)
+  const ingredientIssueCount =
+    validation?.ingredientIssues?.length ??
+    (validation?.blockingErrors ?? []).filter((e) => e.code === 'INGREDIENTS_NOT_APPROVED').length
 
   const rows = [
     {
@@ -44,21 +47,41 @@ export function ReviewDishPanel({
       summary: [
         ...catNames,
         classification.dishType === 'monNuoc' ? 'Món nước' : classification.dishType === 'monKho' ? 'Món khô' : 'Bất kỳ',
-        classification.priceFrom && classification.priceTo ? `${classification.priceFrom}–${classification.priceTo}` : '',
+        classification.priceFrom && classification.priceTo
+          ? `Nấu nhà ${classification.priceFrom}–${classification.priceTo}đ`
+          : '',
+        classification.dineOutPriceFrom && classification.dineOutPriceTo
+          ? `Ăn ngoài ${classification.dineOutPriceFrom}–${classification.dineOutPriceTo}đ/phần`
+          : '',
       ].filter(Boolean).join(' • '),
     },
     {
-      n: 3, id: 'ingredients' as const, title: 'Thành phần & dị ứng', ok: !gluten,
+      n: 3, id: 'ingredients' as const, title: 'Thành phần & dị ứng', ok: !gluten && ingredientIssueCount === 0,
       summary: `${ingredients.length} nguyên liệu • Gluten: ${gluten ? 'Có thể chứa' : 'Không'}`,
+      badge: ingredientIssueCount > 0 ? `${ingredientIssueCount} NL tự động tìm - cần duyệt` : undefined,
     },
     {
       n: 4, id: 'nutrition' as const, title: 'Dinh dưỡng', ok: !sodiumWarn,
-      summary: `${nutrition.calories || 0} kcal • Carb ${nutrition.carbG || 0}g • Protein ${nutrition.proteinG || 0}g • Fat ${nutrition.fatG || 0}g`,
+      summary: [
+        `${nutrition.calories || 0} kcal • Carb ${nutrition.carbG || 0}g • Protein ${nutrition.proteinG || 0}g • Fat ${nutrition.fatG || 0}g`,
+        nutrition.method === 'from-ingredients'
+          ? 'Tính từ nguyên liệu'
+          : nutrition.method === 'from-source'
+            ? 'Theo nguồn'
+            : 'Nhập thủ công',
+        nutrition.confidence ? `tin cậy ${nutrition.confidence}%` : '',
+      ].filter(Boolean).join(' • '),
       badge: sodiumWarn ? `Natri ${sodium} mg cao` : undefined,
     },
     {
       n: 5, id: 'recipe' as const, title: 'Công thức', ok: recipe.steps.length > 0,
-      summary: `${recipe.steps.length} bước • ${totalMin} phút`,
+      summary: [
+        `${recipe.steps.length} bước • ${totalMin} phút`,
+        recipe.steps.filter((s) => s.imageUrl).length
+          ? `${recipe.steps.filter((s) => s.imageUrl).length} bước có ảnh`
+          : '',
+        recipe.videoUrl ? 'Có video' : '',
+      ].filter(Boolean).join(' • '),
     },
     {
       n: 6, id: 'media' as const, title: 'Hình ảnh & nguồn', ok: !!media.coverUrl || media.gallery.length > 0,

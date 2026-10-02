@@ -6,6 +6,7 @@ import {
   useEffect,
   useRef,
 } from 'react'
+import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -72,9 +73,9 @@ export function DialogContent({
     return () => document.removeEventListener('keydown', handleKey)
   }, [onOpenChange])
 
-  if (!open) return null
+  if (!open || typeof document === 'undefined') return null
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Overlay */}
       <div
@@ -101,7 +102,8 @@ export function DialogContent({
           <X size={18} />
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
 
@@ -129,6 +131,27 @@ export function DialogTitle({ className, ...props }: HTMLAttributes<HTMLHeadingE
 
 export function DialogDescription({ className, ...props }: HTMLAttributes<HTMLParagraphElement>) {
   return <p className={cn('text-sm text-muted-foreground', className)} {...props} />
+}
+
+export function DialogPortal({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
+}
+
+export function DialogOverlay({
+  className,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
+  const { onOpenChange } = useContext(DialogContext)
+  return (
+    <div
+      className={cn(
+        'fixed inset-0 bg-black/50 backdrop-blur-xs transition-opacity animate-in fade-in-0 duration-200',
+        className
+      )}
+      onClick={() => onOpenChange(false)}
+      {...props}
+    />
+  )
 }
 
 // ── Close button ─────────────────────────────────────────────────────────────

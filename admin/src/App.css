@@ -4623,6 +4623,109 @@ div:hover>.img-overlay {
   display: none;
 }
 
+.fd-subtabs-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #ece8df;
+  padding-bottom: 0;
+  flex-wrap: wrap;
+}
+
+.fd-subtabs-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.fd-subtab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  border-radius: 6px 6px 0 0;
+  transition: all 0.15s ease;
+}
+
+.fd-subtab-btn:hover {
+  color: #1f2937;
+  background: #fafaf8;
+}
+
+.fd-subtab-btn.is-active {
+  color: #111827;
+  font-weight: 700;
+  border-bottom-color: #f59e0b;
+}
+
+.fd-subtab-btn.is-unactivated.is-active {
+  color: #b45309;
+  border-bottom-color: #f59e0b;
+}
+
+.fd-subtab-btn.is-unactivated.is-active svg {
+  color: #f59e0b;
+}
+
+.fd-subtab-btn.is-activated.is-active {
+  color: #047857;
+  border-bottom-color: #10b981;
+}
+
+.fd-subtab-btn.is-activated.is-active svg {
+  color: #10b981;
+}
+
+.fd-subtab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  background: #f3f4f6;
+  color: #6b7280;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.fd-subtab-btn.is-active .fd-subtab-badge {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.fd-subtab-badge.is-warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.fd-subtab-btn.is-unactivated.is-active .fd-subtab-badge.is-warning {
+  background: #fde68a;
+  color: #78350f;
+}
+
+.fd-subtab-badge.is-success {
+  background: #d1fae5;
+  color: #047857;
+}
+
+.fd-subtab-btn.is-activated.is-active .fd-subtab-badge.is-success {
+  background: #a7f3d0;
+  color: #065f46;
+}
+
 .fd-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -4813,6 +4916,26 @@ div:hover>.img-overlay {
 
 .fd-row-actions button.is-danger:hover {
   background: #fef2f2;
+}
+
+.fd-row-actions button.is-success {
+  color: #15803d;
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.fd-row-actions button.is-success:hover:not(:disabled) {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.fd-row-actions button.is-success:disabled {
+  color: #9ca3af;
+  border-color: #e5e7eb;
+  background: #f9fafb;
+  cursor: default;
+  opacity: 0.75;
 }
 
 .fd-icon-btn {

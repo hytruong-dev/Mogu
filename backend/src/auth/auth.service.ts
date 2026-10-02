@@ -414,8 +414,8 @@ export class AuthService {
 
       if (isEmail) {
         const { data } = await this.supabase.auth.admin.listUsers({ perPage: 1000 });
-        const found = data.users.find(
-          (u) => u.email?.toLowerCase() === dto.identifier.toLowerCase(),
+        const found = (data as any)?.users?.find(
+          (u: any) => u.email?.toLowerCase() === dto.identifier.toLowerCase(),
         );
         userId = found?.id ?? null;
       } else {

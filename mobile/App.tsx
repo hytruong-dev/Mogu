@@ -120,7 +120,7 @@ function AuthNavigator({ navigation }: { navigation: any }) {
   );
 
   return (
-    <AuthNav.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+    <AuthNav.Navigator screenOptions={{ headerShown: false, animation: 'ios_from_right' }}>
       <AuthNav.Screen name="Login">
         {({ navigation: authNav }) => (
           <LoginScreen
@@ -151,6 +151,7 @@ function MainNavigator({ navigation }: { navigation: any }) {
       screenOptions={{
         headerShown: false,
         tabBarStyle: { display: 'none' },
+        animation: 'shift',
       }}
     >
       <MainTab.Screen
@@ -266,7 +267,16 @@ function RootNavigator() {
     (async () => {
       try {
         void getSavedDefaultAvatarKey();
-        const session = await getSession();
+        let session = await getSession();
+        if (!session && __DEV__) {
+          try {
+            console.log('[RootNavigator] Bootstrapping dev session for mogutester...');
+            const loginRes = await authApi.login('mogutester', 'password123');
+            session = loginRes.session;
+          } catch (e) {
+            console.warn('[RootNavigator] Auto-login failed:', e);
+          }
+        }
         if (!session) {
           if (__DEV__) console.log('[RootNavigator] No session, initialRoute = Auth');
           setInitialRoute('Auth');
@@ -302,12 +312,12 @@ function RootNavigator() {
       <Root.Screen name="Main" component={MainNavigator} />
       <Root.Screen
         name="FoodDetail"
-        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        options={{ presentation: 'modal', animation: 'fade_from_bottom' }}
         component={DishDetailLoaderScreen}
       />
       <Root.Screen
         name="Notification"
-        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        options={{ presentation: 'modal', animation: 'fade_from_bottom' }}
       >
         {({ navigation }) => (
           <NotificationScreen
@@ -319,7 +329,7 @@ function RootNavigator() {
 
       <Root.Screen
         name="PostDetail"
-        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        options={{ presentation: 'modal', animation: 'fade_from_bottom' }}
       >
         {({ navigation, route }: any) => (
           <CommunityPostDetailScreen
@@ -331,7 +341,7 @@ function RootNavigator() {
 
       <Root.Screen
         name="ArticleDetail"
-        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        options={{ presentation: 'modal', animation: 'fade_from_bottom' }}
       >
         {({ navigation, route }: any) => (
           <ExploreDetailScreen
@@ -344,7 +354,7 @@ function RootNavigator() {
 
       <Root.Screen
         name="PublicProfile"
-        options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+        options={{ presentation: 'modal', animation: 'fade_from_bottom' }}
       >
         {({ navigation, route }: any) => (
           <PublicProfileScreen
@@ -357,7 +367,7 @@ function RootNavigator() {
 
       <Root.Screen
         name="WeeklyPlan"
-        options={{ animation: 'slide_from_right' }}
+        options={{ animation: 'ios_from_right' }}
       >
         {({ navigation, route }) => (
           <WeeklyPlanScreen
@@ -379,7 +389,7 @@ function RootNavigator() {
 
       <Root.Screen
         name="DayIngredients"
-        options={{ animation: 'slide_from_right' }}
+        options={{ animation: 'ios_from_right' }}
       >
         {({ navigation, route }) => (
           <DayIngredientsScreen
@@ -393,7 +403,7 @@ function RootNavigator() {
 
       <Root.Screen
         name="WeeklyGrocery"
-        options={{ animation: 'slide_from_right' }}
+        options={{ animation: 'ios_from_right' }}
       >
         {({ navigation, route }) => (
           <WeeklyGroceryScreen
@@ -405,7 +415,7 @@ function RootNavigator() {
 
       <Root.Screen
         name="EditPlan"
-        options={{ animation: 'slide_from_right' }}
+        options={{ animation: 'ios_from_right' }}
       >
         {({ navigation }) => (
           <EditPlanScreen

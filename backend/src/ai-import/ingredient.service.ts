@@ -103,6 +103,10 @@ export class IngredientParserService {
       remaining = remaining.slice(0, alternative.index).trim();
     }
 
+    // Định lượng mặc định = 1 khi không bắt được số (yêu cầu nghiệp vụ: không để trống/0).
+    const quantityDefaulted = quantity === null;
+    if (quantityDefaulted) quantity = 1;
+
     return {
       rawText: normalizedRaw,
       name: titleCase(remaining.replace(/^[,;:\s]+|[,;:\s]+$/g, '')),
@@ -111,17 +115,20 @@ export class IngredientParserService {
       quantityTo,
       quantityText,
       unitCode,
+      parseMetadata: quantityDefaulted ? { quantityDefaulted: true } : undefined,
       specification: specification.length ? specification.join('; ') : null,
       preparation: preparation.length ? preparation.join('; ') : null,
       group: null,
       optional,
-      normalizedWeightGram: unitCode === 'G'
-        ? quantity
-        : unitCode === 'KG' && quantity !== null
-          ? quantity * 1000
-          : unitCode === 'MG' && quantity !== null
-            ? quantity / 1000
-            : null,
+      normalizedWeightGram: quantityDefaulted
+        ? null
+        : unitCode === 'G'
+          ? quantity
+          : unitCode === 'KG' && quantity !== null
+            ? quantity * 1000
+            : unitCode === 'MG' && quantity !== null
+              ? quantity / 1000
+              : null,
     };
   }
 }

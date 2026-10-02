@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { DishStatus, Prisma } from '@prisma/client';
+import { DishStatus, IngredientCreatedVia, Prisma } from '@prisma/client';
 import slugify from 'slugify';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateDishDto } from '../dto/create-dish.dto';
@@ -28,6 +28,10 @@ export interface DishDraftAggregate {
   servings?: number | null;
   priceMin?: number | null;
   priceMax?: number | null;
+  dineOutPriceMin?: number | null;
+  dineOutPriceMax?: number | null;
+  dishType?: 'WET' | 'DRY' | null;
+  videoUrl?: string | null;
   recipeTitle?: string | null;
   flavorTags?: string[];
   categoryIds?: string[];
@@ -89,6 +93,14 @@ export interface DishDraftAggregate {
     sourceUrl?: string | null;
     isPrimary?: boolean;
     sortOrder?: number;
+  }>;
+  sources?: Array<{
+    url: string;
+    title?: string | null;
+    domain?: string | null;
+    author?: string | null;
+    sourceType?: 'JSON_LD' | 'VIDEO' | 'NUTRITION' | 'UNSTRUCTURED';
+    reliability?: number;
   }>;
 }
 
@@ -156,7 +168,14 @@ export class DishCommandService {
             rawName: r.rawName,
             unit: r.ing.unit,
           })),
-          { createMissing, enqueueImageEnrichment: true },
+          {
+            createMissing,
+            // Admin đã chủ động nhập tên tự do → vẫn tạo, nhưng giữ candidates
+            // để bước duyệt có thể gộp nhanh nếu trùng.
+            createAmbiguous: true,
+            enqueueImageEnrichment: true,
+            createdVia: IngredientCreatedVia.ADMIN_PICKER,
+          },
         )
       : null;
 
@@ -172,18 +191,25 @@ export class DishCommandService {
         isOptional: ing.isOptional ?? false,
         groupLabel: ing.groupLabel,
         sortOrder: ing.sortOrder ?? idx,
-        needsReview: !ingredientId || hit?.outcome === 'CREATED_PENDING',
+        needsReview:
+          !ingredientId ||
+          hit?.outcome === 'CREATED_PENDING' ||
+          hit?.outcome === 'AMBIGUOUS',
         resolutionMethod:
           hit?.outcome === 'EXISTING_EXACT'
             ? ('EXACT' as const)
             : hit?.outcome === 'EXISTING_SYNONYM'
               ? ('ALIAS' as const)
-              : hit?.outcome === 'CREATED_PENDING'
+              : hit?.outcome === 'EXISTING_NORMALIZED'
                 ? ('NORMALIZED' as const)
-                : ingredientId
-                  ? ('EXACT' as const)
-                  : ('NONE' as const),
-        resolutionConfidence: ingredientId ? (hit?.isNew ? 80 : 100) : 0,
+                : hit?.outcome === 'CREATED_PENDING'
+                  ? ('NORMALIZED' as const)
+                  : ingredientId
+                    ? ('EXACT' as const)
+                    : ('NONE' as const),
+        resolutionConfidence: ingredientId
+          ? (hit?.confidence ?? (hit?.isNew ? 80 : 100))
+          : (hit?.confidence ?? 0),
         resolutionCandidates: hit?.candidates?.length ? hit.candidates : undefined,
       };
     });
@@ -217,6 +243,10 @@ export class DishCommandService {
         servings: aggregate.servings?.toString(),
         priceMin: aggregate.priceMin,
         priceMax: aggregate.priceMax,
+        dineOutPriceMin: aggregate.dineOutPriceMin,
+        dineOutPriceMax: aggregate.dineOutPriceMax,
+        dishType: aggregate.dishType ?? undefined,
+        videoUrl: aggregate.videoUrl?.substring(0, 500),
         recipeTitle: aggregate.recipeTitle,
         flavorTags: aggregate.flavorTags ?? [],
         status: 'DRAFT',
@@ -282,6 +312,21 @@ export class DishCommandService {
             })),
           }
           : undefined,
+        sources: aggregate.sources?.length
+          ? {
+            create: aggregate.sources
+              .filter((source) => source.url?.trim())
+              .map((source) => ({
+                url: source.url.trim().substring(0, 2000),
+                title: source.title?.substring(0, 300) ?? null,
+                domain: source.domain?.substring(0, 200) ?? this.extractDomain(source.url),
+                author: source.author?.substring(0, 200) ?? null,
+                sourceType: source.sourceType ?? 'UNSTRUCTURED',
+                reliability: source.reliability ?? 50,
+                accessedAt: new Date(),
+              })),
+          }
+          : undefined,
       },
       select: { id: true, status: true },
     });
@@ -324,6 +369,10 @@ export class DishCommandService {
         servings: dto.servings?.toString(),
         priceMin: dto.priceMin,
         priceMax: dto.priceMax,
+        dineOutPriceMin: dto.dineOutPriceMin,
+        dineOutPriceMax: dto.dineOutPriceMax,
+        dishType: dto.dishType ?? undefined,
+        videoUrl: dto.videoUrl?.trim() || undefined,
         primaryMealSlot: dto.primaryMealSlot,
         parentDishId: dto.parentDishId,
         status: 'DRAFT',
@@ -378,6 +427,10 @@ export class DishCommandService {
               sodiumMg: dto.nutrition.sodiumMg,
               servingName: dto.nutrition.servingName,
               servingG: dto.nutrition.servingG,
+              method: dto.nutrition.method,
+              confidence: dto.nutrition.confidence,
+              sourceUrl: dto.nutrition.sourceUrl,
+              provenance: dto.nutrition.provenance as Prisma.InputJsonValue | undefined,
             },
           }
           : undefined,
@@ -487,6 +540,10 @@ export class DishCommandService {
         if (dto.servings !== undefined) updateData.servings = dto.servings?.toString();
         if (dto.priceMin !== undefined) updateData.priceMin = dto.priceMin;
         if (dto.priceMax !== undefined) updateData.priceMax = dto.priceMax;
+        if (dto.dineOutPriceMin !== undefined) updateData.dineOutPriceMin = dto.dineOutPriceMin;
+        if (dto.dineOutPriceMax !== undefined) updateData.dineOutPriceMax = dto.dineOutPriceMax;
+        if (dto.dishType !== undefined) updateData.dishType = dto.dishType;
+        if (dto.videoUrl !== undefined) updateData.videoUrl = dto.videoUrl?.trim() || null;
         if (dto.primaryMealSlot !== undefined) updateData.primaryMealSlot = dto.primaryMealSlot;
         if (dto.parentDishId !== undefined) updateData.parentDishId = dto.parentDishId;
 
@@ -561,6 +618,13 @@ export class DishCommandService {
             sodiumMg: dto.nutrition.sodiumMg,
             servingName: dto.nutrition.servingName,
             servingG: dto.nutrition.servingG,
+            // Chỉ ghi đè provenance khi client gửi; nếu không giữ nguyên dữ liệu AI import
+            ...(dto.nutrition.method !== undefined ? { method: dto.nutrition.method } : {}),
+            ...(dto.nutrition.confidence !== undefined ? { confidence: dto.nutrition.confidence } : {}),
+            ...(dto.nutrition.sourceUrl !== undefined ? { sourceUrl: dto.nutrition.sourceUrl } : {}),
+            ...(dto.nutrition.provenance !== undefined
+              ? { provenance: dto.nutrition.provenance as Prisma.InputJsonValue }
+              : {}),
           };
           updateData.nutrition = {
             upsert: {
@@ -655,6 +719,7 @@ export class DishCommandService {
           code: 'PUBLISH_REQUIREMENT_FAILED',
           message: 'Chưa đủ điều kiện gửi duyệt.',
           details: validation.blockingErrors,
+          ingredientIssues: (validation as any).ingredientIssues,
         },
       });
     }

@@ -566,7 +566,7 @@ export function FoodScanSheet({
             <View style={{ flex: 1, backgroundColor: 'rgba(15, 10, 8, 0.42)' }} />
             <View style={{ width: boxSize }} />
             <View style={{ flex: 1, backgroundColor: 'rgba(15, 10, 8, 0.42)' }} />
-          </View>
+            </View>
           {/* Bottom dark area */}
           <View style={{ flex: 1, backgroundColor: 'rgba(15, 10, 8, 0.42)' }} />
         </View>
@@ -581,7 +581,7 @@ export function FoodScanSheet({
             accessibilityLabel="Quay lại"
           >
             <ChevronLeft size={28} color="#FFFFFF" strokeWidth={2.6} />
-          </Pressable>
+            </Pressable>
 
           <View style={styles.headerTitleWrap} pointerEvents="none">
             <Text style={styles.headerTitle}>Quét món ăn</Text>
@@ -1226,9 +1226,9 @@ export function FoodScanSheet({
                     ) : (
                       <View style={styles.pickOtherChooseBadge}>
                         <Text style={styles.pickOtherChooseTxt}>Báo</Text>
-                      </View>
-                    )}
-                  </Pressable>
+            </View>
+          )}
+          </Pressable>
                 ) : null}
 
                 {/* Search Results */}
@@ -1255,10 +1255,10 @@ export function FoodScanSheet({
                           <View style={styles.pickOtherChooseBadge}>
                             <Text style={styles.pickOtherChooseTxt}>Chọn</Text>
                           </View>
-                        </Pressable>
+          </Pressable>
                       ))
                     )}
-                  </View>
+        </View>
                 ) : (
                   /* Gợi ý món khác từ ảnh */
                   <View>

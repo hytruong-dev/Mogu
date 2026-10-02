@@ -55,9 +55,16 @@ export interface Ingredient {
   id: string
   code: string
   name: string
+  nameEn?: string
+  description?: string
+  groupLabel?: string
   synonyms: string[]
   unit?: string
   allergenCode?: string
+  imageUrl?: string
+  status?: string
+  imageStatus?: string
+  enrichment?: Record<string, any>
 }
 
 // ─── Dish ─────────────────────────────────────────────────────────────────────
@@ -175,6 +182,8 @@ export interface ImportJob {
   currentStepMessage?: string
   resultDishId?: string
   suggestedImageUrl?: string
+  /** Số nguyên liệu mới tự động tìm (PENDING_REVIEW) cần duyệt trước khi gửi duyệt món. */
+  pendingIngredientCount?: number
   errorMessage?: string
   sourceTypes: string[]
   createdAt: string

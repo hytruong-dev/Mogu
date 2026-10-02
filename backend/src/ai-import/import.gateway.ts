@@ -126,6 +126,8 @@ export class ImportGateway
 
   /** Gửi progress update đến tất cả client đang lắng nghe job này */
   emitProgress(payload: WsJobProgress) {
+    // server chưa sẵn sàng khi chạy trong application context (script/worker) — bỏ qua, không làm fail pipeline.
+    if (!this.server) return;
     this.server.to(roomFor(payload.jobId)).emit('job:progress', payload);
     this.server.to(roomFor(payload.jobId)).emit(`job:${payload.jobId}`, payload);
   }

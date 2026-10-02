@@ -1,5 +1,15 @@
 import { useEffect, useState } from 'react'
 import { Select } from '../components/ui/select'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../components/ui/alert-dialog'
 import { Textarea } from '../components/ui/textarea'
 import {
   AlertTriangle,
@@ -37,6 +47,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../components/ui/dialog'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
+import { Image } from '../components/ui/image'
 import { Label } from '../components/ui/label'
 import { useReviewActions, useReviewQueue } from '../hooks/useReviewQueue'
 import type { ReviewQueueItem, ReviewReasonCode } from '../types'
@@ -131,12 +143,13 @@ function ReviewDetail({
   const actions = useReviewActions()
   const [showRequestChanges, setShowRequestChanges] = useState(false)
   const [showReject, setShowReject] = useState(false)
+  const [showApprove, setShowApprove] = useState(false)
 
   const nutrition = dish.nutritionProfiles?.[0]
 
   const handleApprove = async () => {
-    if (!confirm(`Duyệt và xuất bản "${dish.name}"?`)) return
     await actions.approve.mutateAsync(dish.id)
+    setShowApprove(false)
     onBack()
   }
 
@@ -144,9 +157,9 @@ function ReviewDetail({
     <>
       {/* Header */}
       <div className="review-title">
-        <button onClick={onBack} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
-          <ArrowLeft />
-        </button>
+        <Button variant="ghost" size="icon" onClick={onBack} className="h-9 w-9">
+          <ArrowLeft className="h-4 w-4" />
+        </Button>
         <h1>Kiểm duyệt: {dish.name}</h1>
         <Badge className="warning">CẦN DUYỆT</Badge>
         <Badge>#{dish.id.slice(0, 8).toUpperCase()}</Badge>
@@ -182,36 +195,67 @@ function ReviewDetail({
 
       {/* Body */}
       <div className="review-body">
+        {/* Media gallery */}
+        {dish.media && dish.media.length > 0 && (
+          <Card>
+            <h3>Hình ảnh & Phương tiện ({dish.media.length})</h3>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
+              {dish.media.map((m, idx) => (
+                <div
+                  key={m.id || idx}
+                  style={{ position: 'relative', width: 110, height: 110, borderRadius: 10, overflow: 'hidden', border: m.isPrimary ? '2px solid #f0a500' : '1px solid var(--border)' }}
+                  className="group relative"
+                >
+                  <Image
+                    src={m.publicUrl}
+                    alt={`${dish.name} - Ảnh ${idx + 1}`}
+                    aspectRatio="square"
+                    zoomable
+                    title={`${dish.name} - Ảnh ${idx + 1}`}
+                    subtitle={m.isPrimary ? 'Ảnh chính' : undefined}
+                    className="w-full h-full object-cover"
+                  />
+                  {m.isPrimary && (
+                    <span style={{ position: 'absolute', top: 4, left: 4, background: '#f0a500', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4, zIndex: 10 }}>
+                      Chính
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
         {/* Evidence / Conflicts */}
         {dish.fieldEvidences && dish.fieldEvidences.length > 0 && (
           <Card>
             <h3>Bằng chứng & Xung đột</h3>
-            <table className="simple-table">
-              <thead>
-                <tr>
-                  <th>Trường</th>
-                  <th>Giá trị</th>
-                  <th>Nguồn</th>
-                  <th>Tin cậy</th>
-                  <th>Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table className="simple-table">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Trường</TableHead>
+                  <TableHead>Giá trị</TableHead>
+                  <TableHead>Nguồn</TableHead>
+                  <TableHead>Tin cậy</TableHead>
+                  <TableHead>Hành động</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {dish.fieldEvidences.map((ev) => (
-                  <tr key={ev.id}>
-                    <td>{ev.field}</td>
-                    <td><b>{ev.value}</b></td>
-                    <td>
+                  <TableRow key={ev.id}>
+                    <TableCell>{ev.field}</TableCell>
+                    <TableCell><b>{ev.value}</b></TableCell>
+                    <TableCell>
                       {ev.sourceUrl ? (
                         <a href={ev.sourceUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12 }}>
                           Xem nguồn
                         </a>
                       ) : '—'}
-                    </td>
-                    <td className={ev.confidence >= 80 ? 'green-text' : 'orange-text'}>
+                    </TableCell>
+                    <TableCell className={ev.confidence >= 80 ? 'green-text' : 'orange-text'}>
                       {ev.confidence}%
-                    </td>
-                    <td>
+                    </TableCell>
+                    <TableCell>
                       {!ev.isResolved && (
                         <div style={{ display: 'flex', gap: 6 }}>
                           <Button
@@ -232,11 +276,11 @@ function ReviewDetail({
                         </div>
                       )}
                       {ev.isResolved && <Badge className="published">Đã giải quyết</Badge>}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </Card>
         )}
 
@@ -267,11 +311,28 @@ function ReviewDetail({
       <div className="sticky-actions">
         <Button variant="danger" onClick={() => setShowReject(true)}>Từ chối</Button>
         <Button variant="outline" onClick={() => setShowRequestChanges(true)}>Yêu cầu sửa</Button>
-        <Button onClick={handleApprove} disabled={actions.approve.isPending}>
+        <Button onClick={() => setShowApprove(true)} disabled={actions.approve.isPending}>
           <CheckCircle2 />
           {actions.approve.isPending ? 'Đang duyệt...' : 'Duyệt & xuất bản'}
         </Button>
       </div>
+
+      <AlertDialog open={showApprove} onOpenChange={setShowApprove}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Duyệt và xuất bản món ăn?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Món “{dish.name}” sẽ được duyệt và xuất bản. Bạn có thể tiếp tục không?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actions.approve.isPending}>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={handleApprove} disabled={actions.approve.isPending}>
+              {actions.approve.isPending ? 'Đang duyệt…' : 'Duyệt & xuất bản'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {showRequestChanges && (
         <ActionDialog
@@ -313,6 +374,7 @@ function CommunityReviewsTab() {
   const [page, setPage]         = useState(1)
   const [filter, setFilter]     = useState<'all' | 'visible' | 'hidden'>('all')
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<CommunityReview | null>(null)
   const limit = 20
 
   const loadReviews = async (pg = 1) => {
@@ -344,17 +406,20 @@ function CommunityReviewsTab() {
     }
   }
 
-  const handleDelete = async (review: CommunityReview) => {
-    if (!window.confirm(`Xóa đánh giá này?\n"${review.comment?.slice(0, 80)}"`)) return
+  const handleDelete = async () => {
+    if (!deleteTarget) return
+    const review = deleteTarget
     setActionLoading(review.id)
     try {
       await reviewsAdminApi.delete(review.id)
       setReviews(prev => prev.filter(r => r.id !== review.id))
       setTotal(t => t - 1)
+      setDeleteTarget(null)
     } catch {
       alert('Không thể xóa review')
     } finally {
-      setActionLoading(null) }
+      setActionLoading(null)
+    }
   }
 
   const totalPages = Math.ceil(total / limit)
@@ -363,21 +428,19 @@ function CommunityReviewsTab() {
     <div className="space-y-4">
       {/* Filter bar */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-1.5 p-1 rounded-lg bg-muted/60 border border-border/60">
-          {(['all', 'visible', 'hidden'] as const).map(f => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
-                filter === f
-                  ? 'bg-card text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {f === 'all' ? 'Tất cả đánh giá' : f === 'visible' ? 'Hiển thị' : 'Đã ẩn'}
-            </button>
-          ))}
-        </div>
+        <Tabs value={filter} onValueChange={(val) => setFilter(val as typeof filter)}>
+          <TabsList className="bg-muted/60 p-1 h-9">
+            {(['all', 'visible', 'hidden'] as const).map((f) => (
+              <TabsTrigger
+                key={f}
+                value={f}
+                className="px-3 py-1 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-sm"
+              >
+                {f === 'all' ? 'Tất cả đánh giá' : f === 'visible' ? 'Hiển thị' : 'Đã ẩn'}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
         <span className="text-xs text-muted-foreground">
           {loading ? 'Đang tải...' : `Tổng cộng ${total} đánh giá`}
         </span>
@@ -486,7 +549,7 @@ function CommunityReviewsTab() {
                         size="icon"
                         variant="outline"
                         className="h-7 w-7 text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
-                        onClick={() => handleDelete(review)}
+                        onClick={() => setDeleteTarget(review)}
                         disabled={actionLoading === review.id}
                         title="Xóa đánh giá"
                       >
@@ -515,6 +578,22 @@ function CommunityReviewsTab() {
           </Button>
         </div>
       )}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa đánh giá này?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteTarget?.comment?.slice(0, 160) || 'Đánh giá sẽ bị xóa vĩnh viễn.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={!!actionLoading}>Hủy</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={!!actionLoading}>
+              {actionLoading ? 'Đang xóa…' : 'Xóa đánh giá'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
@@ -547,34 +626,21 @@ export default function ReviewPage() {
       </div>
 
       {/* Segmented Tab Switcher */}
-      <div className="flex items-center gap-2 border-b border-border/80 pb-3">
-        {[
-          { id: 'content', label: 'Kiểm duyệt nội dung món', count: total },
-          { id: 'community', label: 'Đánh giá & Phản hồi cộng đồng' },
-        ].map((tab) => {
-          const isActive = activeTab === tab.id
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all ${
-                isActive
-                  ? 'bg-amber-400 text-zinc-950 shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
-              }`}
-            >
-              <span>{tab.label}</span>
-              {tab.count != null && tab.count > 0 && (
-                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                  isActive ? 'bg-zinc-950 text-white' : 'bg-muted text-muted-foreground'
-                }`}>
-                  {tab.count}
-                </span>
-              )}
-            </button>
-          )
-        })}
-      </div>
+      <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)} className="w-full">
+        <TabsList className="bg-muted/60 p-1">
+          <TabsTrigger value="content" className="flex items-center gap-2">
+            <span>Kiểm duyệt nội dung món</span>
+            {total > 0 && (
+              <span className="ml-1.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-800 dark:text-amber-300">
+                {total}
+              </span>
+            )}
+          </TabsTrigger>
+          <TabsTrigger value="community">
+            Đánh giá & Phản hồi cộng đồng
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {/* Tab Content */}
       {activeTab === 'content' && (
@@ -610,11 +676,16 @@ export default function ReviewPage() {
                   <CardContent className="p-4 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4 min-w-0">
                       {primaryMedia?.publicUrl ? (
-                        <img
-                          src={primaryMedia.publicUrl}
-                          alt={item.name}
-                          className="h-14 w-14 rounded-xl object-cover border border-border shrink-0"
-                        />
+                        <div className="relative group shrink-0" onClick={(e) => e.stopPropagation()}>
+                          <Image
+                            src={primaryMedia.publicUrl}
+                            alt={item.name}
+                            aspectRatio="square"
+                            zoomable
+                            title={item.name}
+                            className="h-14 w-14 rounded-xl object-cover border border-border"
+                          />
+                        </div>
                       ) : (
                         <div className="h-14 w-14 rounded-xl bg-muted border border-border flex items-center justify-center shrink-0">
                           <Utensils size={20} className="text-muted-foreground" />

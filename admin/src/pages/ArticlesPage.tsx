@@ -14,6 +14,7 @@ import {
   Sparkles,
   Trash2,
 } from 'lucide-react'
+import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import { articlesAdminApi, topicsAdminApi, type Article, type Topic } from '../api/explore'
 import { TableSkeleton } from '../components/ui/page-skeleton'
 import { Button } from '../components/ui/button'
@@ -38,6 +39,9 @@ import {
   DialogTitle,
 } from '../components/ui/dialog'
 import { Label } from '../components/ui/label'
+import { Select } from '../components/ui/select'
+import { Image } from '../components/ui/image'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 
 const STATUS_CONFIG: Record<string, { label: string; variant: 'success' | 'secondary' | 'warning' }> = {
   DRAFT: { label: 'Bản nháp', variant: 'secondary' },
@@ -139,6 +143,7 @@ function markdownToHtml(raw: string): string {
 }
 
 export default function ArticlesPage() {
+  const { lightboxProps } = useMediaLightbox()
   const [articles, setArticles] = useState<Article[]>([])
   const [topics, setTopics] = useState<Topic[]>([])
   const [loading, setLoading] = useState(true)
@@ -412,10 +417,10 @@ export default function ArticlesPage() {
               />
             </div>
 
-            <select
+            <Select
               value={filterTopicId}
               onChange={(e) => setFilterTopicId(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary min-w-[170px]"
+              className="h-9 min-w-[170px] text-xs"
             >
               <option value="">Tất cả chủ đề</option>
               {topics.map((t) => (
@@ -423,30 +428,28 @@ export default function ArticlesPage() {
                   {t.title}
                 </option>
               ))}
-            </select>
+            </Select>
           </div>
 
           {/* Status Filter Tabs */}
-          <div className="flex items-center gap-1.5 p-1 rounded-lg bg-muted/60 border border-border/60">
-            {[
-              { id: 'ALL', label: 'Tất cả' },
-              { id: 'PUBLISHED', label: 'Đã đăng' },
-              { id: 'DRAFT', label: 'Nháp' },
-              { id: 'ARCHIVED', label: 'Lưu trữ' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setStatusFilter(tab.id)}
-                className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors ${
-                  statusFilter === tab.id
-                    ? 'bg-card text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <Tabs value={statusFilter} onValueChange={setStatusFilter}>
+            <TabsList className="bg-muted/60 p-1 h-9">
+              {[
+                { id: 'ALL', label: 'Tất cả' },
+                { id: 'PUBLISHED', label: 'Đã đăng' },
+                { id: 'DRAFT', label: 'Nháp' },
+                { id: 'ARCHIVED', label: 'Lưu trữ' },
+              ].map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="px-3 py-1 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-sm"
+                >
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </CardContent>
       </Card>
 
@@ -507,10 +510,14 @@ export default function ArticlesPage() {
                         <TableCell>
                           <div className="flex items-center gap-3">
                             {article.coverImageUrl ? (
-                              <img
+                              <Image
                                 src={article.coverImageUrl}
-                                alt=""
-                                className="w-14 h-10 rounded-lg object-cover flex-shrink-0 border border-border"
+                                alt={article.title}
+                                aspectRatio="video"
+                                zoomable
+                                title={article.title}
+                                subtitle="Ảnh bìa bài viết"
+                                className="w-14 h-10 rounded-lg object-cover border border-border flex-shrink-0"
                               />
                             ) : (
                               <div className="w-14 h-10 rounded-lg bg-muted flex-shrink-0 flex items-center justify-center border border-border">
@@ -760,11 +767,11 @@ export default function ArticlesPage() {
                 <Label htmlFor="art-topic" className="text-xs font-semibold">
                   Chủ đề trực thuộc
                 </Label>
-                <select
+                <Select
                   id="art-topic"
                   value={form.topicId}
                   onChange={(e) => setForm({ ...form, topicId: e.target.value })}
-                  className="w-full h-9 rounded-md border border-input bg-background px-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full h-9 text-xs"
                 >
                   <option value="">— Chưa gắn chủ đề —</option>
                   {topics.map((t) => (
@@ -772,7 +779,7 @@ export default function ArticlesPage() {
                       {t.title}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
 
               <div className="space-y-1.5">
@@ -816,12 +823,7 @@ export default function ArticlesPage() {
               />
               {form.coverImageUrl && (
                 <div className="pt-2">
-                  <img
-                    src={form.coverImageUrl}
-                    alt="Preview cover"
-                    className="h-28 w-full object-cover rounded-lg border border-border"
-                    onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
-                  />
+                  <Image src={form.coverImageUrl} alt="Preview cover" aspectRatio="video" zoomable title={form.title || 'Ảnh bìa xem trước'} className="h-28 w-full object-cover rounded-lg border border-border" />
                 </div>
               )}
             </div>
@@ -1012,11 +1014,11 @@ export default function ArticlesPage() {
                   <Label htmlFor="edit-topic" className="text-xs font-semibold">
                     Chủ đề trực thuộc
                   </Label>
-                  <select
+                  <Select
                     id="edit-topic"
                     value={editForm.topicId}
                     onChange={(e) => setEditForm({ ...editForm, topicId: e.target.value })}
-                    className="w-full h-9 rounded-md border border-input bg-background px-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full h-9 text-xs"
                   >
                     <option value="">— Chưa gắn chủ đề —</option>
                     {topics.map((t) => (
@@ -1024,7 +1026,7 @@ export default function ArticlesPage() {
                         {t.title}
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </div>
 
                 <div className="space-y-1.5">
@@ -1067,12 +1069,7 @@ export default function ArticlesPage() {
                 />
                 {editForm.coverImageUrl && (
                   <div className="pt-2">
-                    <img
-                      src={editForm.coverImageUrl}
-                      alt="Preview cover"
-                      className="h-28 w-full object-cover rounded-lg border border-border"
-                      onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
-                    />
+                    <Image src={editForm.coverImageUrl} alt="Preview cover" aspectRatio="video" zoomable title={editForm.title || 'Ảnh bìa xem trước'} className="h-28 w-full object-cover rounded-lg border border-border" />
                   </div>
                 )}
               </div>
@@ -1093,6 +1090,8 @@ export default function ArticlesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <MediaLightbox {...lightboxProps} />
     </div>
   )
 }

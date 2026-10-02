@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { INGREDIENT_HTTP_USER_AGENT } from './http-user-agent';
 import type {
   IngredientImageProvider,
   IngredientImageSearchHit,
@@ -10,7 +11,10 @@ export class WikimediaCommonsProvider implements IngredientImageProvider {
   private readonly logger = new Logger(WikimediaCommonsProvider.name);
 
   async search(query: string, limit = 8): Promise<IngredientImageSearchHit[]> {
-    const q = `${query} food ingredient`.trim();
+    const clean = query.trim();
+    if (!clean) return [];
+    // Ưu tiên tệp có tên chứa từ khóa, giới hạn ảnh bitmap; loại các từ khóa hay gây nhiễu
+    const q = `intitle:"${clean}" filemime:image/jpeg -intitle:restaurant -intitle:menu -intitle:shop -intitle:market`;
     const searchUrl = new URL('https://commons.wikimedia.org/w/api.php');
     searchUrl.searchParams.set('action', 'query');
     searchUrl.searchParams.set('format', 'json');
@@ -27,7 +31,7 @@ export class WikimediaCommonsProvider implements IngredientImageProvider {
 
     try {
       const res = await fetch(searchUrl.toString(), {
-        headers: { 'user-agent': 'Mogu-IngredientEnrichment/1.0' },
+        headers: { 'user-agent': INGREDIENT_HTTP_USER_AGENT },
         signal: AbortSignal.timeout(8_000),
       });
       if (!res.ok) return [];
@@ -72,6 +76,10 @@ export class WikimediaCommonsProvider implements IngredientImageProvider {
           ? artistHtml.replace(/<[^>]+>/g, '').trim()
           : undefined;
 
+        const description = meta.ImageDescription?.value
+          ? meta.ImageDescription.value.replace(/<[^>]+>/g, '').trim().slice(0, 300)
+          : undefined;
+
         hits.push({
           provider: this.name,
           providerAssetId: String(page.pageid),
@@ -84,7 +92,9 @@ export class WikimediaCommonsProvider implements IngredientImageProvider {
           width: info.width,
           height: info.height,
           mimeType: info.mime,
-          title: page.title,
+          title: page.title.replace(/^File:/i, ''),
+          description,
+          tier: 'D',
         });
       }
       return hits;

@@ -1,4 +1,8 @@
-import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import { useState } from 'react'
+import { AlertCircle, CheckCircle2, ImageIcon } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
+import { Image } from '../ui/image'
+import { Textarea } from '../ui/textarea'
 import type { RecipeState } from './RecipeForm'
 
 export function RecipePreviewPanel({
@@ -8,6 +12,12 @@ export function RecipePreviewPanel({
   state: RecipeState
   onChange: (next: RecipeState) => void
 }) {
+  const [previewImage, setPreviewImage] = useState<{
+    url: string
+    title: string
+    stepNumber: number
+  } | null>(null)
+
   const totalMin =
     (Number(state.prepMin) || 0) +
     (Number(state.cookMin) || 0) ||
@@ -47,8 +57,41 @@ export function RecipePreviewPanel({
         <div className="mt-4 space-y-3">
           {state.steps.map((s, i) => (
             <div key={s.id} className="flex items-center gap-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-mogu-yellow text-xs font-bold">{i + 1}</span>
-              <div className="h-10 w-10 rounded-lg bg-gray-100" />
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-mogu-yellow text-xs font-bold">
+                {i + 1}
+              </span>
+
+              {s.imageUrl ? (
+                <div className="h-10 w-10 shrink-0">
+                  <Image
+                    src={s.imageUrl}
+                    alt={s.title || `Bước ${i + 1}`}
+                    aspectRatio="square"
+                    zoomable
+                    title={s.title || `Bước ${i + 1}`}
+                    subtitle={`Bước ${i + 1}`}
+                    className="h-10 w-10 rounded-lg object-cover"
+                  />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = window.prompt(`Nhập URL ảnh cho Bước ${i + 1}:`)
+                    if (url && url.trim()) {
+                      const updated = state.steps.map((st) =>
+                        st.id === s.id ? { ...st, imageUrl: url.trim() } : st,
+                      )
+                      onChange({ ...state, steps: updated })
+                    }
+                  }}
+                  title="Chưa có ảnh. Nhấn để gán URL ảnh cho bước này"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 text-gray-400 transition hover:border-mogu-yellow hover:bg-mogu-yellow-light/30 hover:text-mogu-yellow-dark"
+                >
+                  <ImageIcon className="h-4 w-4" />
+                </button>
+              )}
+
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-semibold">{s.title || `Bước ${i + 1}`}</div>
                 <div className="text-xs text-gray-400">{s.durationMin || 0} phút</div>
@@ -61,14 +104,51 @@ export function RecipePreviewPanel({
 
       <div className="rounded-2xl border border-black/10 bg-white p-6">
         <h3 className="text-lg font-bold">Ghi chú nội bộ</h3>
-        <textarea
+        <Textarea
           value={state.notes}
           onChange={(e) => onChange({ ...state, notes: e.target.value.slice(0, 500) })}
           placeholder="Ghi chú cho đội kiểm duyệt..."
-          className="mt-3 min-h-[110px] w-full rounded-xl border border-black/10 p-3 text-sm outline-none focus:border-mogu-yellow"
+          className="mt-3 min-h-[110px] rounded-xl"
         />
         <div className="mt-1 text-right text-xs text-gray-400">{state.notes.length}/500</div>
       </div>
+
+      <Dialog open={previewImage !== null} onOpenChange={(open) => { if (!open) setPreviewImage(null) }}>
+        <DialogContent className="max-w-lg p-5">
+          <DialogHeader className="border-b border-black/10 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-mogu-yellow text-xs font-bold">
+                {previewImage?.stepNumber}
+              </span>
+              <DialogTitle className="truncate text-sm font-bold text-gray-900">
+                {previewImage?.title}
+              </DialogTitle>
+            </div>
+          </DialogHeader>
+
+          {previewImage && (
+            <div className="mt-4 flex max-h-[60vh] items-center justify-center overflow-hidden rounded-xl bg-gray-100">
+              <Image
+                src={previewImage.url}
+                alt={previewImage.title}
+                className="max-h-[60vh] w-auto max-w-full object-contain"
+              />
+            </div>
+          )}
+          <div className="mt-3 text-right">
+            {previewImage && (
+              <a
+                href={previewImage.url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-xs text-blue-600 underline hover:text-blue-800"
+              >
+                Mở ảnh gốc trong tab mới
+              </a>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

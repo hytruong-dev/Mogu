@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CloudUpload, EyeOff, Pencil, Search, X } from 'lucide-react'
+import { Check, CheckCircle2, Clock, CloudUpload, GitMerge, Loader2, Pencil, Search, Trash2, X } from 'lucide-react'
+import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import {
   ingredientsApi,
+  type ApproveIngredientDto,
   type CreateIngredientDto,
   type Ingredient,
   type UpdateIngredientDto,
@@ -10,7 +12,6 @@ import {
 import { taxonomyAdminApi } from '../api/taxonomy'
 import { useFoodDataActions } from '../components/food-data/food-data-context'
 import { FoodDataPagination } from '../components/food-data/FoodDataPagination'
-import { HideConfirmDialog } from '../components/food-data/HideConfirmDialog'
 import { Button } from '../components/ui/button'
 import { TableSkeleton } from '../components/ui/page-skeleton'
 import {
@@ -23,6 +24,11 @@ import {
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { Switch } from '../components/ui/switch'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
+import { Image } from '../components/ui/image'
+import { Textarea } from '../components/ui/textarea'
+import { Badge } from '../components/ui/badge'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? ''
 
@@ -35,6 +41,82 @@ const LEGACY_ALLERGEN_LABELS: Record<string, string> = {
   soy: 'Đậu nành',
   fish: 'Cá',
   sesame: 'Vừng',
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  PENDING_REVIEW: 'Tự động tìm - cần duyệt',
+  ACTIVE: 'Hoạt động',
+  REJECTED: 'Đã từ chối',
+  MERGED: 'Đã gộp',
+  INACTIVE: 'Đã ẩn',
+}
+
+const CREATED_VIA_LABELS: Record<string, string> = {
+  MANUAL: 'Nhập tay',
+  AI_IMPORT: 'AI nhập món (tự động)',
+  ADMIN_PICKER: 'Tạo từ màn món ăn',
+  FILE_IMPORT: 'Nhập từ file',
+}
+
+const IMAGE_STATUS_LABELS: Record<string, string> = {
+  NOT_REQUESTED: 'Chưa tìm',
+  QUEUED: 'Đang chờ tìm',
+  SEARCHING: 'Đang tìm',
+  PENDING_REVIEW: 'Ảnh tự động - cần xác nhận',
+  APPROVED: 'Đã duyệt',
+  NOT_FOUND: 'Không tìm thấy',
+  FAILED: 'Lỗi tìm ảnh',
+}
+
+/** Danh sách nguyên liệu ACTIVE để chọn làm đích khi gộp. */
+function MergeTargetResults({
+  query,
+  excludeId,
+  selectedId,
+  onSelect,
+}: {
+  query: string
+  excludeId: string
+  selectedId?: string
+  onSelect: (t: { id: string; name: string }) => void
+}) {
+  const q = query.trim()
+  const { data, isFetching } = useQuery({
+    queryKey: ['ingredient-merge-targets', q],
+    queryFn: () => ingredientsApi.adminList({ q, status: 'ACTIVE', limit: 8, page: 1 }),
+    enabled: q.length >= 1 && !selectedId,
+  })
+  if (!q || selectedId) return null
+  const items = (data?.data ?? []).filter((x) => x.id !== excludeId)
+  return (
+    <div style={{ border: '1px solid #eee', borderRadius: 8, marginTop: 6, maxHeight: 220, overflowY: 'auto' }}>
+      {isFetching && <div style={{ padding: 8, fontSize: 12, color: '#888' }}>Đang tìm...</div>}
+      {!isFetching && items.length === 0 && (
+        <div style={{ padding: 8, fontSize: 12, color: '#888' }}>Không có nguyên liệu ACTIVE phù hợp.</div>
+      )}
+      {items.map((x) => (
+        <button
+          key={x.id}
+          type="button"
+          onClick={() => onSelect({ id: x.id, name: x.name })}
+          style={{
+            display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '6px 8px',
+            border: 0, borderBottom: '1px solid #f3f3f3', background: '#fff', cursor: 'pointer', textAlign: 'left',
+          }}
+        >
+          {x.imageUrl ? (
+            <Image src={x.imageUrl} alt={x.name} aspectRatio="square" className="w-7 h-7 rounded-md object-cover" />
+          ) : (
+            <span style={{ width: 28, height: 28, borderRadius: 6, background: '#f5f5f5' }} />
+          )}
+          <span style={{ fontSize: 13 }}>
+            {x.name}
+            {x.synonyms?.length ? <span style={{ color: '#999', fontSize: 11 }}> · {x.synonyms.slice(0, 2).join(', ')}</span> : null}
+          </span>
+        </button>
+      ))}
+    </div>
+  )
 }
 
 function formatDateTime(value?: string) {
@@ -175,7 +257,13 @@ function IngredientFormDialog({
               >
                 {imagePreview ? (
                   <>
-                    <img src={imagePreview} alt="" />
+                    <Image
+                      src={imagePreview}
+                      alt=""
+                      fallbackIcon="image"
+                      containerClassName="absolute inset-0 h-full w-full rounded-none"
+                      className="h-full w-full object-cover"
+                    />
                     <div className="fd-upload-overlay">
                       <CloudUpload size={22} />
                       <span>Đổi ảnh</span>
@@ -338,9 +426,10 @@ function IngredientDetailDrawer({
   allergenLabel,
   onClose,
   onEdit,
-  onHide,
+  onDelete,
   onApprove,
   onReject,
+  onMerge,
   imageCandidates,
   imageBusy,
   onSearchImages,
@@ -350,9 +439,10 @@ function IngredientDetailDrawer({
   allergenLabel?: string
   onClose: () => void
   onEdit: () => void
-  onHide: () => void
-  onApprove: () => void
+  onDelete: () => void
+  onApprove: (patch: ApproveIngredientDto) => Promise<void> | void
   onReject: () => void
+  onMerge: (targetId: string) => Promise<void> | void
   imageCandidates: Array<{
     id: string
     provider: string
@@ -371,6 +461,52 @@ function IngredientDetailDrawer({
   const synonyms = item.synonyms ?? []
   const visibleSynonyms = synonyms.slice(0, 4)
   const extra = Math.max(0, synonyms.length - visibleSynonyms.length)
+  const isPending = item.status === 'PENDING_REVIEW'
+  const isProvisionalImage = !!item.imageUrl && item.imageStatus === 'PENDING_REVIEW'
+  const suggestedSynonyms = (item.enrichment as any)?.suggestedSynonyms as string[] | undefined
+
+  // Form duyệt (patch) — reset khi đổi nguyên liệu
+  const [nameEn, setNameEn] = useState(item.nameEn ?? '')
+  const [description, setDescription] = useState(item.description ?? '')
+  const [groupLabel, setGroupLabel] = useState(item.groupLabel ?? '')
+  const [synonymsText, setSynonymsText] = useState(synonyms.join(', '))
+  const [mergeOpen, setMergeOpen] = useState(false)
+  const [mergeTarget, setMergeTarget] = useState<{ id: string; name: string } | null>(null)
+  const [mergeQuery, setMergeQuery] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  useEffect(() => {
+    setNameEn(item.nameEn ?? '')
+    setDescription(item.description ?? '')
+    setGroupLabel(item.groupLabel ?? '')
+    setSynonymsText((item.synonyms ?? []).join(', '))
+    setMergeOpen(false)
+    setMergeTarget(null)
+    setMergeQuery('')
+    setErr(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.id])
+
+  const run = async (fn: () => Promise<void> | void) => {
+    setBusy(true)
+    setErr(null)
+    try {
+      await fn()
+    } catch (e: any) {
+      setErr(e?.response?.data?.error?.message ?? e?.response?.data?.message ?? e?.message ?? 'Thao tác thất bại')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const buildPatch = (): ApproveIngredientDto => ({
+    nameEn: nameEn.trim() || undefined,
+    description: description.trim() || undefined,
+    groupLabel: groupLabel.trim() || undefined,
+    synonyms: synonymsText.split(',').map((s) => s.trim()).filter(Boolean),
+    allergenCode: item.allergenCode ?? undefined,
+  })
 
   return (
     <aside className="fd-drawer">
@@ -381,22 +517,92 @@ function IngredientDetailDrawer({
         </button>
       </div>
 
-      {item.imageUrl ? (
-        <img className="fd-drawer-image" src={item.imageUrl} alt={item.name} />
-      ) : (
-        <div className="fd-drawer-image" style={{ display: 'grid', placeItems: 'center', fontSize: 48 }}>
-          —
-        </div>
-      )}
+      <div style={{ position: 'relative' }} className="group">
+        {item.imageUrl ? (
+          <Image
+            src={item.imageUrl}
+            alt={item.name}
+            aspectRatio="video"
+            fallbackIcon="utensils"
+            zoomable
+            title={item.name}
+            subtitle={item.groupLabel}
+            className="fd-drawer-image object-cover rounded-xl"
+          />
+        ) : (
+          <div className="fd-drawer-image" style={{ display: 'grid', placeItems: 'center', fontSize: 48 }}>
+            —
+          </div>
+        )}
+        {isProvisionalImage && (
+          <span
+            style={{
+              position: 'absolute', left: 10, bottom: 10, background: 'rgba(217,119,6,.92)', color: '#fff',
+              fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 999,
+            }}
+          >
+            Ảnh tự động - cần xác nhận
+          </span>
+        )}
+      </div>
 
       <div className="fd-drawer-title-row">
         <h2>{item.name}</h2>
-        <span className={`fd-status ${item.status === 'PENDING_REVIEW' ? 'is-off' : item.isActive ? 'is-on' : 'is-off'}`}>
-          {item.status === 'PENDING_REVIEW' ? 'Cần duyệt' : item.isActive ? 'Hoạt động' : 'Đã ẩn'}
+        <span className={`fd-status ${item.status === 'PENDING_REVIEW' || item.status === 'REJECTED' || item.status === 'MERGED' ? 'is-off' : item.isActive ? 'is-on' : 'is-off'}`}>
+          {STATUS_LABELS[item.status ?? ''] ?? (item.isActive ? 'Hoạt động' : 'Đã ẩn')}
         </span>
       </div>
+      {item.nameEn && !isPending && (
+        <p style={{ margin: '-4px 0 8px', color: '#666', fontSize: 13 }}>
+          EN: <i>{item.nameEn}</i>
+          {item.groupLabel ? ` · ${item.groupLabel}` : ''}
+        </p>
+      )}
+      {item.description && !isPending && (
+        <p style={{ margin: '0 0 10px', color: '#444', fontSize: 13, lineHeight: 1.5 }}>{item.description}</p>
+      )}
+
+      {item.enrichment?.entity && (
+        <div style={{ margin: '0 0 12px', fontSize: 12, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <span style={{ color: '#666' }}>Thực thể:</span>
+          {item.enrichment.entity.viTitle && (
+            <a
+              href={`https://vi.wikipedia.org/wiki/${encodeURIComponent(item.enrichment.entity.viTitle)}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: '#2563eb', textDecoration: 'underline' }}
+            >
+              Wikipedia ↗
+            </a>
+          )}
+          {item.enrichment.entity.wikidataId && (
+            <a
+              href={`https://www.wikidata.org/wiki/${item.enrichment.entity.wikidataId}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: '#2563eb', textDecoration: 'underline' }}
+            >
+              Wikidata ({item.enrichment.entity.wikidataId}) ↗
+            </a>
+          )}
+          {item.enrichment.entity.offTag && (
+            <a
+              href={`https://world.openfoodfacts.org/ingredient/${item.enrichment.entity.offTag.replace(/^en:/, '')}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{ color: '#2563eb', textDecoration: 'underline' }}
+            >
+              Open Food Facts ↗
+            </a>
+          )}
+        </div>
+      )}
 
       <div className="fd-drawer-meta">
+        <div className="fd-drawer-meta-row">
+          <span>Nguồn tạo</span>
+          <strong>{CREATED_VIA_LABELS[item.createdVia ?? 'MANUAL'] ?? item.createdVia}</strong>
+        </div>
         <div className="fd-drawer-meta-row">
           <span>Mã nguyên liệu</span>
           <strong>{item.code}</strong>
@@ -413,11 +619,66 @@ function IngredientDetailDrawer({
         </div>
         <div className="fd-drawer-meta-row">
           <span>Ảnh</span>
-          <strong>{item.imageStatus || '—'}</strong>
+          <strong>{IMAGE_STATUS_LABELS[item.imageStatus ?? ''] ?? item.imageStatus ?? '—'}</strong>
         </div>
       </div>
 
-      {synonyms.length > 0 && (
+      {isPending && (
+        <div className="fd-drawer-section">
+          <h4>
+            Thông tin tự động tìm{' '}
+            <span style={{ fontSize: 11, fontWeight: 500, color: '#b45309' }}>(AI gợi ý - kiểm tra trước khi duyệt)</span>
+          </h4>
+          <div style={{ display: 'grid', gap: 8 }}>
+            <label style={{ display: 'grid', gap: 4, fontSize: 12 }}>
+              <span>Tên tiếng Anh</span>
+              <Input value={nameEn} onChange={(e) => setNameEn(e.target.value)} placeholder="vd: beef" />
+            </label>
+            <label style={{ display: 'grid', gap: 4, fontSize: 12 }}>
+              <span>Nhóm</span>
+              <Input value={groupLabel} onChange={(e) => setGroupLabel(e.target.value)} placeholder="vd: Thịt, Rau củ, Gia vị" />
+            </label>
+            <label style={{ display: 'grid', gap: 4, fontSize: 12 }}>
+              <span>Mô tả ngắn</span>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                maxLength={300}
+                className="text-xs"
+              />
+            </label>
+            <label style={{ display: 'grid', gap: 4, fontSize: 12 }}>
+              <span>Tên gọi khác (phân tách bằng dấu phẩy)</span>
+              <Input value={synonymsText} onChange={(e) => setSynonymsText(e.target.value)} />
+            </label>
+            {suggestedSynonyms && suggestedSynonyms.length > 0 && (
+              <div style={{ fontSize: 12, color: '#666' }}>
+                Gợi ý:{' '}
+                {suggestedSynonyms.map((s) => {
+                  const current = synonymsText.split(',').map((x) => x.trim()).filter(Boolean)
+                  const has = current.includes(s)
+                  return (
+                    <Button
+                      key={s}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      disabled={has}
+                      onClick={() => setSynonymsText([...current, s].join(', '))}
+                      className="h-6 rounded-full px-2 text-[11px] mr-1 my-0.5 border-amber-300 font-normal"
+                    >
+                      {has ? '✓ ' : '+ '}{s}
+                    </Button>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {!isPending && synonyms.length > 0 && (
         <div className="fd-drawer-section">
           <h4>Tên gọi khác</h4>
           <div className="fd-synonym-list">
@@ -438,33 +699,61 @@ function IngredientDetailDrawer({
           {imageCandidates.length === 0 && (
             <p style={{ fontSize: 13, color: '#888', margin: 0 }}>Chưa có candidate.</p>
           )}
-          {imageCandidates.map((c) => (
-            <div
-              key={c.id}
-              style={{
-                border: '1px solid #eee',
-                borderRadius: 10,
-                padding: 10,
-                display: 'flex',
-                gap: 10,
-                alignItems: 'center',
-              }}
-            >
-              <img
-                src={c.publicUrl || c.previewUrl || c.originalUrl}
-                alt=""
-                style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8 }}
-              />
-              <div style={{ flex: 1, minWidth: 0, fontSize: 12 }}>
-                <div><strong>{c.provider}</strong> · score {c.score}</div>
-                <div style={{ color: '#666' }}>{c.licenseCode}{c.author ? ` · ${c.author}` : ''}</div>
-                <a href={c.sourcePageUrl} target="_blank" rel="noreferrer">Nguồn</a>
+          {imageCandidates.map((c) => {
+            const providerName =
+              c.provider === 'wikipedia_lead'
+                ? 'Wikipedia Lead'
+                : c.provider === 'wikidata_p18'
+                  ? 'Wikidata P18'
+                  : c.provider === 'pixabay'
+                    ? 'Pixabay'
+                    : c.provider === 'commons_category'
+                      ? 'Commons Cat'
+                      : c.provider === 'wikimedia_commons'
+                        ? 'Commons'
+                        : c.provider
+            const isAiVerified = (c as any).scoreBreakdown?.vision?.matchesName === true
+            return (
+              <div
+                key={c.id}
+                style={{
+                  border: '1px solid #eee',
+                  borderRadius: 10,
+                  padding: 10,
+                  display: 'flex',
+                  gap: 10,
+                  alignItems: 'center',
+                }}
+              >
+                <div className="relative group shrink-0" style={{ width: 56, height: 56 }}>
+                  <Image
+                    src={c.publicUrl || c.previewUrl || c.originalUrl}
+                    alt={item.name}
+                    aspectRatio="square"
+                    zoomable
+                    title={`Ảnh ứng viên: ${item.name}`}
+                    subtitle={`${providerName} · Điểm: ${c.score}`}
+                    className="w-14 h-14 object-cover rounded-lg"
+                  />
+                </div>
+                <div style={{ flex: 1, minWidth: 0, fontSize: 12 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                    <strong>{providerName}</strong> · score {c.score}
+                    {isAiVerified && (
+                      <span style={{ fontSize: 10, color: '#059669', background: '#ecfdf5', padding: '1px 6px', borderRadius: 4 }}>
+                        ✓ AI xác minh
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ color: '#666' }}>{c.licenseCode}{c.author ? ` · ${c.author}` : ''}</div>
+                  <a href={c.sourcePageUrl} target="_blank" rel="noreferrer">Nguồn</a>
+                </div>
+                <Button type="button" onClick={() => onApproveCandidate(c.id)} disabled={imageBusy}>
+                  Chọn
+                </Button>
               </div>
-              <Button type="button" onClick={() => onApproveCandidate(c.id)} disabled={imageBusy}>
-                Chọn
-              </Button>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
 
@@ -486,17 +775,49 @@ function IngredientDetailDrawer({
         </div>
       </div>
 
+      {mergeOpen && (
+        <div className="fd-drawer-section">
+          <h4>Gộp vào nguyên liệu có sẵn</h4>
+          <p style={{ fontSize: 12, color: '#666', margin: '0 0 8px' }}>
+            Các món đang dùng “{item.name}” sẽ chuyển sang nguyên liệu đích; “{item.name}” được thêm vào tên gọi khác của nguyên liệu đích.
+          </p>
+          <Input value={mergeQuery} onChange={(e) => { setMergeQuery(e.target.value); setMergeTarget(null) }} placeholder="Tìm nguyên liệu đích..." />
+          <MergeTargetResults
+            query={mergeQuery}
+            excludeId={item.id}
+            selectedId={mergeTarget?.id}
+            onSelect={(t) => { setMergeTarget(t); setMergeQuery(t.name) }}
+          />
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <Button
+              type="button"
+              disabled={!mergeTarget || busy}
+              onClick={() => mergeTarget && run(async () => { await onMerge(mergeTarget.id); setMergeOpen(false) })}
+            >
+              Xác nhận gộp
+            </Button>
+            <Button type="button" variant="outline" onClick={() => setMergeOpen(false)}>Hủy</Button>
+          </div>
+        </div>
+      )}
+
+      {err && <p style={{ color: '#cf1322', fontSize: 12, margin: '0 16px 8px' }}>{err}</p>}
+
       <div className="fd-drawer-footer">
-        {item.status === 'PENDING_REVIEW' && (
+        {isPending && (
           <>
-            <Button type="button" onClick={onApprove}>
+            <Button type="button" disabled={busy} onClick={() => run(() => onApprove(buildPatch()))}>
               Duyệt ACTIVE
+            </Button>
+            <Button type="button" variant="outline" disabled={busy} onClick={() => setMergeOpen((v) => !v)}>
+              <GitMerge size={14} /> Gộp vào...
             </Button>
             <Button
               type="button"
               variant="outline"
               className="text-red-600 border-red-200 hover:bg-red-50"
-              onClick={onReject}
+              disabled={busy}
+              onClick={() => run(onReject)}
             >
               Từ chối
             </Button>
@@ -505,8 +826,8 @@ function IngredientDetailDrawer({
         <Button type="button" variant="outline" onClick={onEdit}>
           <Pencil size={14} /> Sửa nguyên liệu
         </Button>
-        <Button type="button" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={onHide}>
-          <EyeOff size={14} /> Ẩn nguyên liệu
+        <Button type="button" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={onDelete}>
+          <Trash2 size={14} /> Xóa nguyên liệu
         </Button>
       </div>
     </aside>
@@ -522,16 +843,29 @@ export default function IngredientsPage({
 }) {
   const qc = useQueryClient()
   const { registerCreateHandler } = useFoodDataActions()
+  const { lightboxProps } = useMediaLightbox()
   const [q, setQ] = useState('')
   const [filterAllergen, setFilterAllergen] = useState('')
   const [filterActive, setFilterActive] = useState<'all' | 'true' | 'false'>('all')
-  const [filterStatus, setFilterStatus] = useState<'all' | 'PENDING_REVIEW' | 'ACTIVE'>('all')
+  const [filterStatus, setFilterStatus] = useState<'all' | 'PENDING_REVIEW' | 'ACTIVE'>(() => {
+    // Deep link: /food-data?tab=ingredients&status=PENDING_REVIEW (từ popup chặn gửi duyệt)
+    const s = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('status') : null
+    return s === 'PENDING_REVIEW' || s === 'ACTIVE' ? s : 'all'
+  })
+  const [activationTab, setActivationTab] = useState<'all' | 'unactivated' | 'activated'>(() => {
+    const s = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('status') : null
+    if (s === 'PENDING_REVIEW') return 'unactivated'
+    if (s === 'ACTIVE') return 'activated'
+    const act = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('activation') : null
+    if (act === 'unactivated' || act === 'activated') return act
+    return 'all'
+  })
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(10)
   const [modalOpen, setModalOpen] = useState(false)
   const [editTarget, setEditTarget] = useState<Ingredient | null>(null)
   const [detailItem, setDetailItem] = useState<Ingredient | null>(null)
-  const [hideTarget, setHideTarget] = useState<Ingredient | null>(null)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [imageCandidates, setImageCandidates] = useState<
     Array<{
       id: string
@@ -576,13 +910,14 @@ export default function IngredientsPage({
   }
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-ingredients', q, filterAllergen, filterActive, filterStatus, page, limit],
+    queryKey: ['admin-ingredients', q, filterAllergen, filterActive, filterStatus, activationTab, page, limit],
     queryFn: () =>
       ingredientsApi.adminList({
         q: q || undefined,
         allergenCode: filterAllergen || undefined,
-        isActive: filterActive === 'all' ? undefined : filterActive === 'true',
-        status: filterStatus === 'all' ? undefined : filterStatus,
+        isActive: activationTab === 'all' && filterActive !== 'all' ? filterActive === 'true' : undefined,
+        status: activationTab === 'all' && filterStatus !== 'all' ? filterStatus : undefined,
+        activationStatus: activationTab,
         page,
         limit,
       }),
@@ -626,13 +961,22 @@ export default function IngredientsPage({
 
   const deleteMut = useMutation({
     mutationFn: ingredientsApi.delete,
+    onMutate: (id: string) => {
+      setDeletingId(id)
+    },
+    onSettled: () => {
+      setDeletingId(null)
+    },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
       qc.invalidateQueries({ queryKey: ['food-data-tab-count', 'ingredients'] })
-      setHideTarget(null)
       setDetailItem(null)
     },
   })
+
+  const handleDelete = (item: Ingredient) => {
+    deleteMut.mutate(item.id)
+  }
 
   useEffect(() => {
     if (!embedded || !isActive) return
@@ -648,7 +992,6 @@ export default function IngredientsPage({
     setModalOpen(false)
     setEditTarget(null)
     setDetailItem(null)
-    setHideTarget(null)
   }, [isActive])
 
   const handleSave = async (dto: CreateIngredientDto, imageFile: File | null) => {
@@ -674,6 +1017,62 @@ export default function IngredientsPage({
   const items = data?.data ?? []
   const pagination = data?.pagination
 
+  const tabCounts = useMemo(() => {
+    return {
+      all: data?.counts?.all ?? pagination?.total ?? 0,
+      unactivated: data?.counts?.unactivated ?? 0,
+      activated: data?.counts?.activated ?? 0,
+    }
+  }, [data?.counts, pagination?.total])
+
+  const [activatingId, setActivatingId] = useState<string | null>(null)
+  const [batchActivating, setBatchActivating] = useState(false)
+
+  const pendingCountOnPage = useMemo(
+    () => items.filter((i) => i.status === 'PENDING_REVIEW' || !i.isActive).length,
+    [items],
+  )
+
+  const handleActivate = async (item: Ingredient) => {
+    setActivatingId(item.id)
+    try {
+      let updated: Ingredient
+      if (item.status === 'PENDING_REVIEW') {
+        updated = await ingredientsApi.approve(item.id)
+      } else {
+        updated = await ingredientsApi.update(item.id, { isActive: true })
+      }
+      qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
+      qc.invalidateQueries({ queryKey: ['food-data-tab-count', 'ingredients'] })
+      setDetailItem((prev) => (prev?.id === updated.id ? { ...prev, ...updated } : prev))
+    } catch (err) {
+      console.error('Failed to activate ingredient:', err)
+    } finally {
+      setActivatingId(null)
+    }
+  }
+
+  const handleActivateAllOnPage = async () => {
+    const pendingItems = items.filter((i) => i.status === 'PENDING_REVIEW' || !i.isActive)
+    if (!pendingItems.length) return
+    setBatchActivating(true)
+    try {
+      for (const item of pendingItems) {
+        if (item.status === 'PENDING_REVIEW') {
+          await ingredientsApi.approve(item.id)
+        } else {
+          await ingredientsApi.update(item.id, { isActive: true })
+        }
+      }
+      qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
+      qc.invalidateQueries({ queryKey: ['food-data-tab-count', 'ingredients'] })
+    } catch (err) {
+      console.error('Batch activate failed:', err)
+    } finally {
+      setBatchActivating(false)
+    }
+  }
+
   return (
     <div className={embedded ? 'food-data-embedded ingredients-panel' : undefined} style={{ padding: embedded ? 0 : '28px 32px' }}>
       {!embedded && (
@@ -696,7 +1095,56 @@ export default function IngredientsPage({
 
       <div className={`fd-split${detailItem ? ' is-open' : ''}`}>
         <div>
-          <h2 className="fd-section-title">Danh sách nguyên liệu</h2>
+          <div className="fd-subtabs-bar">
+            <Tabs
+              value={activationTab}
+              onValueChange={(val) => {
+                setActivationTab(val as typeof activationTab)
+                setPage(1)
+              }}
+            >
+              <TabsList className="h-9 p-1 bg-muted/60">
+                <TabsTrigger value="all" className="gap-2 text-xs font-semibold px-3 py-1 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <span>Tất cả</span>
+                  <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">
+                    {tabCounts.all}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger value="unactivated" className="gap-2 text-xs font-semibold px-3 py-1 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <Clock size={13} className="text-amber-600" />
+                  <span>Chưa kích hoạt</span>
+                  <Badge variant="warning" className="text-[10px] px-1 py-0 h-4">
+                    {tabCounts.unactivated}
+                  </Badge>
+                </TabsTrigger>
+                <TabsTrigger value="activated" className="gap-2 text-xs font-semibold px-3 py-1 data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  <CheckCircle2 size={13} className="text-emerald-600" />
+                  <span>Đã kích hoạt</span>
+                  <Badge variant="success" className="text-[10px] px-1 py-0 h-4">
+                    {tabCounts.activated}
+                  </Badge>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {pendingCountOnPage > 0 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="border-emerald-300 text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+                onClick={handleActivateAllOnPage}
+                disabled={batchActivating}
+              >
+                {batchActivating ? (
+                  <Loader2 size={13} className="animate-spin mr-1.5" />
+                ) : (
+                  <Check size={13} className="mr-1.5" />
+                )}
+                {batchActivating ? 'Đang kích hoạt...' : `Kích hoạt tất cả trang này (${pendingCountOnPage})`}
+              </Button>
+            )}
+          </div>
 
           <div className="fd-toolbar">
             <div className="fd-search" style={{ position: 'relative' }}>
@@ -727,103 +1175,148 @@ export default function IngredientsPage({
                   </option>
                 ))}
               </Select>
-              <Select
-                className="fd-filter-select"
-                value={filterActive}
-                onChange={(e) => {
-                  setFilterActive(e.target.value as 'all' | 'true' | 'false')
-                  setPage(1)
-                }}
-              >
-                <option value="all">Tất cả (active)</option>
-                <option value="true">Hoạt động</option>
-                <option value="false">Đã ẩn</option>
-              </Select>
-              <Select
-                className="fd-filter-select"
-                value={filterStatus}
-                onChange={(e) => {
-                  setFilterStatus(e.target.value as 'all' | 'PENDING_REVIEW' | 'ACTIVE')
-                  setPage(1)
-                }}
-              >
-                <option value="all">Mọi status</option>
-                <option value="PENDING_REVIEW">Nguyên liệu cần duyệt</option>
-                <option value="ACTIVE">ACTIVE</option>
-              </Select>
+              {activationTab === 'all' && (
+                <>
+                  <Select
+                    className="fd-filter-select"
+                    value={filterActive}
+                    onChange={(e) => {
+                      setFilterActive(e.target.value as 'all' | 'true' | 'false')
+                      setPage(1)
+                    }}
+                  >
+                    <option value="all">Tất cả (active)</option>
+                    <option value="true">Hoạt động</option>
+                    <option value="false">Đã ẩn</option>
+                  </Select>
+                  <Select
+                    className="fd-filter-select"
+                    value={filterStatus}
+                    onChange={(e) => {
+                      setFilterStatus(e.target.value as 'all' | 'PENDING_REVIEW' | 'ACTIVE')
+                      setPage(1)
+                    }}
+                  >
+                    <option value="all">Mọi status</option>
+                    <option value="PENDING_REVIEW">Nguyên liệu cần duyệt</option>
+                    <option value="ACTIVE">ACTIVE</option>
+                  </Select>
+                </>
+              )}
             </div>
           </div>
 
           <div className="fd-table-wrap">
-            <table className="fd-table">
-              <thead>
-                <tr>
-                  <th style={{ width: 64 }}>Ảnh</th>
-                  <th>Tên</th>
-                  <th>Mã</th>
-                  <th>Đơn vị</th>
-                  <th>Dị ứng</th>
-                  <th>Trạng thái</th>
-                  <th style={{ width: 150 }}>Hành động</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table className="fd-table">
+              <TableHeader>
+                <TableRow>
+                  <TableHead style={{ width: 64 }}>Ảnh</TableHead>
+                  <TableHead>Tên</TableHead>
+                  <TableHead>Mã</TableHead>
+                  <TableHead>Đơn vị</TableHead>
+                  <TableHead>Dị ứng</TableHead>
+                  <TableHead>Trạng thái</TableHead>
+                  <TableHead style={{ width: 250, minWidth: 240 }}>Hành động</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {isLoading && (
-                  <tr>
-                    <td colSpan={7} className="fd-empty p-0">
+                  <TableRow>
+                    <TableCell colSpan={7} className="fd-empty p-0">
                       <TableSkeleton rows={5} cols={5} />
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
                 {!isLoading && items.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="fd-empty">
-                      Chưa có nguyên liệu nào
-                    </td>
-                  </tr>
+                  <TableRow>
+                    <TableCell colSpan={7} className="fd-empty" style={{ padding: '36px 16px', textAlign: 'center' }}>
+                      {activationTab === 'unactivated'
+                        ? 'Không có nguyên liệu nào đang chờ kích hoạt 🎉'
+                        : activationTab === 'activated'
+                          ? 'Chưa có nguyên liệu nào được kích hoạt'
+                          : 'Chưa có nguyên liệu nào'}
+                    </TableCell>
+                  </TableRow>
                 )}
                 {items.map((item) => {
                   const allergenLabel = resolveAllergenLabel(item.allergenCode)
+                  const isPendingOrInactive = item.status === 'PENDING_REVIEW' || !item.isActive
+                  const isActivating = activatingId === item.id
                   return (
-                    <tr
+                    <TableRow
                       key={item.id}
-                      className={detailItem?.id === item.id ? 'is-selected' : ''}
+                      className={detailItem?.id === item.id ? 'is-selected cursor-pointer' : 'cursor-pointer'}
                       onClick={(e) => {
                         if ((e.target as HTMLElement).closest('button, [data-no-detail]')) return
                         setDetailItem(item)
                       }}
                     >
-                      <td>
+                      <TableCell>
                         {item.imageUrl ? (
-                          <img className="fd-thumb" src={item.imageUrl} alt="" />
+                          <div className="relative group inline-block" data-no-detail="true" onClick={(e) => e.stopPropagation()}>
+                            <Image
+                              src={item.imageUrl}
+                              alt={item.name}
+                              aspectRatio="square"
+                              zoomable
+                              title={item.name}
+                              subtitle={item.groupLabel}
+                              className="fd-thumb"
+                            />
+                          </div>
                         ) : (
                           <div className="fd-thumb-fallback">🥦</div>
                         )}
-                      </td>
-                      <td>
+                      </TableCell>
+                      <TableCell>
                         <div className="fd-name-cell">
                           <strong>{item.name}</strong>
                           {item.synonyms?.[0] && <span>{item.synonyms[0]}</span>}
                         </div>
-                      </td>
-                      <td>
+                      </TableCell>
+                      <TableCell>
                         <code className="fd-code">{item.code}</code>
-                      </td>
-                      <td>{item.unit || '—'}</td>
-                      <td>
+                      </TableCell>
+                      <TableCell>{item.unit || '—'}</TableCell>
+                      <TableCell>
                         {allergenLabel ? <span className="fd-allergen-tag">{allergenLabel}</span> : '—'}
-                      </td>
-                      <td>
+                      </TableCell>
+                      <TableCell>
                         <span className={`fd-status ${item.status === 'PENDING_REVIEW' ? 'is-off' : item.isActive ? 'is-on' : 'is-off'}`}>
-                          {item.status === 'PENDING_REVIEW'
-                            ? 'Cần duyệt'
+                          {item.status && item.status !== 'ACTIVE'
+                            ? STATUS_LABELS[item.status] ?? item.status
                             : item.isActive
                               ? 'Hoạt động'
-                              : item.status || 'Đã ẩn'}
+                              : 'Đã ẩn'}
                         </span>
-                      </td>
-                      <td data-no-detail onClick={(e) => e.stopPropagation()}>
+                      </TableCell>
+                      <TableCell data-no-detail onClick={(e) => e.stopPropagation()} style={{ minWidth: 240 }}>
                         <div className="fd-row-actions">
+                          {isPendingOrInactive ? (
+                            <button
+                              type="button"
+                              className="is-success"
+                              disabled={isActivating || batchActivating}
+                              onClick={() => handleActivate(item)}
+                              title="Duyệt và kích hoạt nguyên liệu vào hệ thống"
+                            >
+                              {isActivating ? (
+                                <Loader2 size={13} className="animate-spin" />
+                              ) : (
+                                <Check size={13} />
+                              )}
+                              {isActivating ? 'Đang duyệt...' : 'Kích hoạt'}
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="is-success"
+                              disabled
+                              title="Nguyên liệu đang hoạt động"
+                            >
+                              <Check size={13} /> Đã kích hoạt
+                            </button>
+                          )}
                           <button
                             type="button"
                             onClick={() => {
@@ -836,18 +1329,24 @@ export default function IngredientsPage({
                           <button
                             type="button"
                             className="is-danger"
-                            onClick={() => setHideTarget(item)}
-                            disabled={!item.isActive}
+                            disabled={deletingId === item.id}
+                            onClick={() => handleDelete(item)}
+                            title="Xóa vĩnh viễn nguyên liệu này"
                           >
-                            <EyeOff size={13} /> Ẩn
+                            {deletingId === item.id ? (
+                              <Loader2 size={13} className="animate-spin" />
+                            ) : (
+                              <Trash2 size={13} />
+                            )}
+                            {deletingId === item.id ? 'Đang xóa...' : 'Xóa'}
                           </button>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )
                 })}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           {pagination && (
@@ -875,15 +1374,17 @@ export default function IngredientsPage({
               setEditTarget(detailItem)
               setModalOpen(true)
             }}
-            onHide={() => setHideTarget(detailItem)}
+            onDelete={() => handleDelete(detailItem)}
             imageCandidates={imageCandidates}
             imageBusy={imageBusy}
-            onApprove={async () => {
-              const updated = await ingredientsApi.approve(detailItem.id, {
-                allergenCode: detailItem.allergenCode,
-                synonyms: detailItem.synonyms,
-              })
+            onApprove={async (patch) => {
+              const updated = await ingredientsApi.approve(detailItem.id, patch)
               setDetailItem({ ...detailItem, ...updated })
+              qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
+            }}
+            onMerge={async (targetId) => {
+              const res = await ingredientsApi.merge(detailItem.id, targetId)
+              setDetailItem({ ...detailItem, ...res.source })
               qc.invalidateQueries({ queryKey: ['admin-ingredients'] })
             }}
             onReject={async () => {
@@ -928,22 +1429,7 @@ export default function IngredientsPage({
         saving={createMut.isPending || updateMut.isPending}
       />
 
-      <HideConfirmDialog
-        open={!!hideTarget}
-        onOpenChange={(open) => {
-          if (!open) setHideTarget(null)
-        }}
-        title="Ẩn nguyên liệu này?"
-        description="Dữ liệu sẽ không bị xóa vĩnh viễn. Các món đã liên kết vẫn giữ lịch sử, nhưng nguyên liệu không còn xuất hiện trong picker công khai."
-        itemName={hideTarget?.name ?? ''}
-        itemImageUrl={hideTarget?.imageUrl}
-        usageCount={hideTarget?.dishCount}
-        confirmLabel="Ẩn nguyên liệu"
-        loading={deleteMut.isPending}
-        onConfirm={() => {
-          if (hideTarget) deleteMut.mutate(hideTarget.id)
-        }}
-      />
+      <MediaLightbox {...lightboxProps} />
     </div>
   )
 }

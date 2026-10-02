@@ -17,10 +17,16 @@ import {
 import { IngredientEnrichmentProcessor } from './ingredient-enrichment.processor';
 import { WikimediaCommonsProvider } from './ingredient-image/wikimedia-commons.provider';
 import { OpenverseProvider } from './ingredient-image/openverse.provider';
+import { WikiLeadImageProvider } from './ingredient-image/wiki-lead-image.provider';
+import { PixabayProvider } from './ingredient-image/pixabay.provider';
+import { CommonsCategoryProvider } from './ingredient-image/commons-category.provider';
+import { ImageVisionVerifierService } from './ingredient-image/image-vision-verifier.service';
 import { ImageLicensePolicyService } from './ingredient-image/image-license-policy.service';
 import { ImageRankerService } from './ingredient-image/image-ranker.service';
 import { SafeImageDownloaderService } from './ingredient-image/safe-image-downloader.service';
 import { IngredientImageEnrichmentService } from './ingredient-image/ingredient-image-enrichment.service';
+import { IngredientMetadataEnrichmentService } from './ingredient-metadata-enrichment.service';
+import { IngredientEntityResolverService } from './ingredient-entity/ingredient-entity-resolver.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { getRedisUrl } from '../common/redis/redis-env';
 
@@ -45,11 +51,17 @@ const nullQueueProvider = {
     CatalogIngredientResolverService,
     IngredientCatalogService,
     IngredientEnrichmentQueue,
+    IngredientEntityResolverService,
+    WikiLeadImageProvider,
+    PixabayProvider,
+    CommonsCategoryProvider,
     WikimediaCommonsProvider,
     OpenverseProvider,
     ImageLicensePolicyService,
     ImageRankerService,
+    ImageVisionVerifierService,
     SafeImageDownloaderService,
+    IngredientMetadataEnrichmentService,
     IngredientImageEnrichmentService,
     ...(REDIS_URL ? [IngredientEnrichmentProcessor] : [nullQueueProvider]),
   ],
@@ -59,6 +71,12 @@ const nullQueueProvider = {
     CatalogIngredientResolverService,
     IngredientCatalogService,
     IngredientEnrichmentQueue,
+    IngredientEntityResolverService,
+    WikiLeadImageProvider,
+    PixabayProvider,
+    CommonsCategoryProvider,
+    ImageVisionVerifierService,
+    IngredientMetadataEnrichmentService,
     IngredientImageEnrichmentService,
   ],
 })

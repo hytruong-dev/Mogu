@@ -16,6 +16,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native';
+import { Image as ExpoImage } from 'expo-image';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   Easing,
@@ -106,6 +107,19 @@ const PHO_RESULT = require('../assets/images/random/pho-result.jpg');
 const BUN_RIEU = require('../assets/images/random/bun-rieu.jpg');
 const BANH_CUON = require('../assets/images/random/banh-cuon.jpg');
 const CHAO_GA = require('../assets/images/random/chao-ga.jpg');
+
+const PRELOAD_SLOT_ASSETS = [
+  LOADING_MASCOT,
+  require('../assets/images/noan/food-reel/machine-body.png'),
+  require('../assets/images/noan/food-reel/machine-handle.png'),
+  require('../assets/images/noan/food-reel/reel-glass-overlay.png'),
+  require('../assets/images/noan/food-reel/machine-shadow.png'),
+  require('../assets/images/noan/food-reel/dish-pho-v1.png'),
+  require('../assets/images/noan/food-reel/dish-com-tam-v1.png'),
+  require('../assets/images/noan/food-reel/dish-bun-rieu.png'),
+  require('../assets/images/noan/food-reel/dish-banh-cuon-v1.png'),
+  CHAO_GA,
+];
 
 // NativeWind's Babel plugin also rewrites createElement to createInteropElement.
 // Explicitly opt out and resolve pressed styles here so native receives only
@@ -244,6 +258,20 @@ export function RandomFlowScreen({ onClose }: Props) {
 
   const isRevealing = phase === 'result' && !!ba006Result?.dish && !showDetail;
   useRewardRevealSound(isRevealing, ba006Result?.dish?.id);
+
+  // Warm-up slot machine graphics into device image cache in background
+  useEffect(() => {
+    PRELOAD_SLOT_ASSETS.forEach((asset) => {
+      try {
+        const resolved = Image.resolveAssetSource(asset);
+        if (resolved?.uri) {
+          ExpoImage.prefetch(resolved.uri, 'memory-disk');
+        }
+      } catch {
+        // ignore
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (phase !== 'result' || !ba006Result?.dish) {
@@ -1012,6 +1040,19 @@ export function RandomFlowScreen({ onClose }: Props) {
         initialSnapshot={profileSnap}
         onApplied={setProfileSnap}
       />
+
+      {/* Off-screen pre-warmer: decodes slot textures into GPU cache while user is picking meal/budget */}
+      <View pointerEvents="none" style={styles.offscreenPrewarmer} aria-hidden>
+        {PRELOAD_SLOT_ASSETS.map((asset, idx) => (
+          <ExpoImage
+            key={idx}
+            source={asset}
+            priority="high"
+            cachePolicy="memory-disk"
+            style={styles.prewarmItem}
+          />
+        ))}
+      </View>
     </SafeAreaView>
   );
 }
@@ -1112,12 +1153,15 @@ function LoadingOverlay({
   return (
     <Animated.View style={[styles.overlay, overlayBackdropStyle]} accessibilityViewIsModal>
       <Animated.View style={[styles.overlayCard, overlayCardStyle]}>
-        <Animated.Image
-          source={LOADING_MASCOT}
-          style={[styles.overlayMascot, mascotStyle]}
-          resizeMode="contain"
-          importantForAccessibility="no"
-        />
+        <Animated.View style={[styles.overlayMascot, mascotStyle]} importantForAccessibility="no">
+          <ExpoImage
+            source={LOADING_MASCOT}
+            contentFit="contain"
+            priority="high"
+            cachePolicy="memory-disk"
+            style={styles.fullSize}
+          />
+        </Animated.View>
 
         <View style={styles.overlayCopy}>
           <View style={styles.livePillRow}>
@@ -1856,4 +1900,15 @@ const styles = StyleSheet.create({
   detailLinkTitle: { fontSize: 14, fontWeight: '700', color: INK },
   detailLinkSub: { fontSize: 12, color: MUTED, marginTop: 2 },
   priceNote: { fontSize: 11.5, color: '#8A8A8A', marginTop: 10 },
+  offscreenPrewarmer: {
+    position: 'absolute',
+    opacity: 0,
+    width: 1,
+    height: 1,
+    overflow: 'hidden',
+  },
+  prewarmItem: {
+    width: 1,
+    height: 1,
+  },
 });

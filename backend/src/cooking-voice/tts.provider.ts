@@ -5,8 +5,12 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import {
+  NOAN_TTS_INSTRUCTIONS,
+  NOAN_VOICE_PROFILE_VERSION,
+} from './noan-voice-profile';
 
-export const SCRIPT_VERSION = 'noan-cooking-v1';
+export const SCRIPT_VERSION = NOAN_VOICE_PROFILE_VERSION;
 export const MAX_TEXT_LENGTH = 4000;
 export function escapeSsml(text: string): string {
   return text.replace(
@@ -91,7 +95,7 @@ export class AzureTtsProvider implements TtsProvider {
       /([.!?])\s+|\n+/g,
       '$1<break time="250ms"/>',
     );
-    const ssml = `<speak version="1.0" xml:lang="vi-VN"><voice name="${escapeSsml(this.identity.voice)}"><prosody rate="${Math.round((rate - 1) * 100)}%">${content}</prosody></voice></speak>`;
+    const ssml = `<speak version="1.0" xml:lang="vi-VN"><voice name="${escapeSsml(this.identity.voice)}"><prosody rate="${Math.round((rate - 1) * 100)}%" pitch="+4%">${content}</prosody></voice></speak>`;
     return boundedRequest(
       `https://${this.region}.tts.speech.microsoft.com/cognitiveservices/v1`,
       {
@@ -112,8 +116,13 @@ export class OpenAiTtsProvider implements TtsProvider {
     private key: string,
     model: string,
     voice: string,
+    private customVoiceId?: string,
   ) {
-    this.identity = { provider: 'openai', model, voice };
+    this.identity = {
+      provider: 'openai',
+      model,
+      voice: customVoiceId || voice,
+    };
   }
   synthesize(text: string, rate: number): Promise<Buffer> {
     validateSpeech(text, rate);
@@ -126,10 +135,15 @@ export class OpenAiTtsProvider implements TtsProvider {
       },
       body: JSON.stringify({
         model: this.identity.model,
-        voice: this.identity.voice,
+        voice: this.customVoiceId
+          ? { id: this.customVoiceId }
+          : this.identity.voice,
         input: text,
         speed: rate,
         response_format: 'mp3',
+        ...(this.identity.model.startsWith('gpt-4o-mini-tts')
+          ? { instructions: NOAN_TTS_INSTRUCTIONS }
+          : {}),
       }),
     });
   }
@@ -139,6 +153,17 @@ export class CookingTtsService {
   private active = 0;
   constructor(private readonly config: ConfigService) {}
   provider(): TtsProvider {
+    const openAiKey = this.config.get<string>('COOKING_OPENAI_API_KEY');
+    const customVoiceId = this.config.get<string>('COOKING_OPENAI_VOICE_ID');
+    const openAiProvider = (apiKey: string) =>
+      new OpenAiTtsProvider(
+        apiKey,
+        this.config.get<string>('COOKING_TTS_MODEL') || 'gpt-4o-mini-tts',
+        this.config.get<string>('COOKING_OPENAI_VOICE') || 'coral',
+        customVoiceId,
+      );
+    // An explicitly configured, consented custom voice wins over a generic Azure voice.
+    if (openAiKey && customVoiceId) return openAiProvider(openAiKey);
     const key = this.config.get<string>('AZURE_SPEECH_KEY');
     const region = this.config.get<string>('AZURE_SPEECH_REGION');
     if (key && region && /^[a-z0-9-]+$/.test(region))
@@ -147,13 +172,7 @@ export class CookingTtsService {
         region,
         this.config.get<string>('COOKING_VOICE_NAME') || 'vi-VN-HoaiMyNeural',
       );
-    const openAiKey = this.config.get<string>('COOKING_OPENAI_API_KEY');
-    if (openAiKey)
-      return new OpenAiTtsProvider(
-        openAiKey,
-        this.config.get<string>('COOKING_TTS_MODEL') || 'gpt-4o-mini-tts',
-        this.config.get<string>('COOKING_OPENAI_VOICE') || 'coral',
-      );
+    if (openAiKey) return openAiProvider(openAiKey);
     throw new ServiceUnavailableException('COOKING_VOICE_NOT_CONFIGURED');
   }
   async synthesize(

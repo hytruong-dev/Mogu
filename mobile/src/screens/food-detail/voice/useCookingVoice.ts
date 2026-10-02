@@ -11,7 +11,12 @@ import {
   type CookingVoiceScript,
   type CookingVoiceServerAction,
 } from '../../../services/api/cooking-voice';
-import { parseCookingIntent, type CookingAction, type CookingIntent } from './cooking-intents';
+import {
+  parseCookingIntent,
+  validateCookingAction,
+  type CookingAction,
+  type CookingIntent,
+} from './cooking-intents';
 
 export type CookingVoiceState =
   'idle' | 'greeting' | 'waiting' | 'speaking' | 'listening' | 'thinking' | 'paused' | 'ended';
@@ -50,23 +55,7 @@ function nativeRecognizer(): RecognitionModule | null {
     return null;
   }
 }
-function validatedAction(action: CookingVoiceServerAction, count: number): CookingAction | null {
-  if (action.type === 'GOTO')
-    return Number.isInteger(action.stepIndex) && action.stepIndex! >= 0 && action.stepIndex! < count
-      ? { type: 'GOTO', stepIndex: action.stepIndex! }
-      : null;
-  if (action.type === 'SET_TIMER')
-    return Number.isInteger(action.seconds) && action.seconds! > 0 && action.seconds! <= 86400
-      ? { type: 'SET_TIMER', seconds: action.seconds! }
-      : null;
-  if (
-    ['NEXT', 'PREV', 'START_TIMER', 'PAUSE_TIMER', 'READ_INGREDIENTS', 'REPEAT'].includes(
-      action.type,
-    )
-  )
-    return { type: action.type } as CookingAction;
-  return null;
-}
+const validatedAction = validateCookingAction;
 
 /** Explicit opt-in and on-device STT. Cloud/cached NOAN audio is primary;
  * Vietnamese device speech is a clearly labelled fallback only when TTS/audio fails.
@@ -98,6 +87,7 @@ export function useCookingVoice(options: CookingVoiceOptions) {
     blocked: false,
     retries: 0,
     replyUntil: 0,
+    requestingPermission: false,
   });
   const recognizer = useRef<RecognitionModule | null>(null);
   const script = useRef<CookingVoiceScript | null>(null);
@@ -229,11 +219,12 @@ export function useCookingVoice(options: CookingVoiceOptions) {
       return;
     try {
       s.listening = true;
+      const onDevice = recognizer.current.supportsOnDeviceRecognition?.() ?? false;
       recognizer.current.start({
         lang: 'vi-VN',
         continuous: s.mode === 'continuous',
         interimResults: true,
-        requiresOnDeviceRecognition: true,
+        requiresOnDeviceRecognition: onDevice,
         volumeChangeEventOptions: { enabled: true, intervalMillis: 150 },
       });
       move('listening');
@@ -282,6 +273,7 @@ export function useCookingVoice(options: CookingVoiceOptions) {
         language: 'vi-VN',
         voice: voice.identifier,
         rate: session.current.rate,
+        pitch: 1.04,
         onDone: () => {
           if (valid(generation)) done();
         },
@@ -561,7 +553,13 @@ export function useCookingVoice(options: CookingVoiceOptions) {
       return;
     }
     const generation = session.current.generation;
-    const permissions = await native.requestPermissionsAsync();
+    session.current.requestingPermission = true;
+    let permissions;
+    try {
+      permissions = await native.requestPermissionsAsync();
+    } finally {
+      session.current.requestingPermission = false;
+    }
     if (!valid(generation)) return;
     if (!permissions.granted) {
       session.current.blocked = true;
@@ -569,28 +567,33 @@ export function useCookingVoice(options: CookingVoiceOptions) {
       setError('Chưa được phép dùng micro. Hãy bật quyền trong cài đặt.');
       return;
     }
-    if (!native.isRecognitionAvailable() || !native.supportsOnDeviceRecognition()) {
+    if (!native.isRecognitionAvailable()) {
       changeMode('unavailable');
-      setError('Thiết bị chưa hỗ trợ nhận giọng nói ngoại tuyến tiếng Việt.');
+      setError('Thiết bị chưa hỗ trợ nhận giọng nói.');
       return;
     }
     if (Platform.OS === 'android' && Number(Platform.Version) <= 32) {
       changeMode('manual');
-      setError('Android 12 trở xuống: chạm micro mỗi lần nói; chỉ dùng nhận dạng trên thiết bị.');
+      setError('Android 12 trở xuống: chạm micro mỗi lần nói.');
       return;
     }
-    const locales = await native.getSupportedLocales({});
-    if (!valid(generation)) return;
-    const available = Platform.OS === 'android' ? locales.installedLocales : locales.locales;
-    if (!available.some((locale) => locale.toLowerCase().replace('_', '-') === 'vi-vn')) {
-      changeMode(Platform.OS === 'android' ? 'model-required' : 'unavailable');
-      session.current.blocked = true;
-      setError(
-        Platform.OS === 'android'
-          ? 'Cần tải mô hình tiếng Việt để dùng micro ngoại tuyến.'
-          : 'Thiết bị chưa có nhận dạng tiếng Việt ngoại tuyến. Kiểm tra ngôn ngữ trong cài đặt iOS.',
-      );
-      return;
+    try {
+      const locales = await native.getSupportedLocales({});
+      if (!valid(generation)) return;
+      const available = Platform.OS === 'android'
+        ? (locales.installedLocales?.length ? locales.installedLocales : locales.locales)
+        : locales.locales;
+      if (available && available.length > 0) {
+        const hasVi = available.some((locale) => locale.toLowerCase().replace('_', '-') === 'vi-vn');
+        if (!hasVi) {
+          changeMode('model-required');
+          session.current.blocked = true;
+          setError('Cần tải mô hình tiếng Việt trong cài đặt để dùng micro.');
+          return;
+        }
+      }
+    } catch {
+      // If getSupportedLocales fails, proceed with default recognition
     }
     session.current.blocked = false;
     changeMode('continuous');
@@ -641,7 +644,7 @@ export function useCookingVoice(options: CookingVoiceOptions) {
     const greeting = script.current?.greeting;
     await speak(
       greeting?.text ??
-        `Chào bạn, mình là NOAN. Cùng nấu món ${ctx.current.dishName} nhé. Khi sẵn sàng, bạn nói bắt đầu nhé.`,
+        `NOAN đây! Hôm nay mình cùng nấu món ${ctx.current.dishName} nhé. Mình sẽ đọc từng bước thật rõ. Sẵn sàng thì nói bắt đầu nha.`,
       greeting?.audioUrl,
       true,
     );
@@ -791,6 +794,7 @@ export function useCookingVoice(options: CookingVoiceOptions) {
       : [];
     const app = AppState.addEventListener('change', (next) => {
       session.current.active = next === 'active';
+      if (session.current.requestingPermission) return;
       if (next !== 'active') {
         cancel();
         move('paused');

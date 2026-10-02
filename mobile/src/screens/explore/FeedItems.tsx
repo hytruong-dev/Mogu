@@ -304,14 +304,36 @@ export function StoriesRow({
   onCreate,
   myAvatarUrl,
   myName,
+  loading,
 }: {
   topics: ExploreTopic[];
   onPress?: (topic: ExploreTopic) => void;
   onCreate?: () => void;
   myAvatarUrl?: string | null;
   myName?: string;
+  loading?: boolean;
 }) {
   const list = (topics ?? []).slice(0, 12);
+  const showSkeleton = loading || list.length === 0;
+
+  if (showSkeleton) {
+    return (
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.storyRow}
+      >
+        {Array.from({ length: 5 }).map((_, i) => (
+          <View key={i} style={styles.storyItem}>
+            <StoryRing active={true}>
+              <View style={[styles.storyImg, { backgroundColor: '#EDE4D0' }]} />
+            </StoryRing>
+            <View style={{ width: 56, height: 11, borderRadius: 5, backgroundColor: '#EDE4D0', marginTop: 3 }} />
+          </View>
+        ))}
+      </ScrollView>
+    );
+  }
 
   return (
     <ScrollView

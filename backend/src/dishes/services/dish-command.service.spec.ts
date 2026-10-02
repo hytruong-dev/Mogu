@@ -4,6 +4,7 @@ import { DishStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { DishCommandService } from './dish-command.service';
 import { DishQueryService } from './dish-query.service';
+import { IngredientCatalogService } from '../../ingredients/ingredient-catalog.service';
 
 const mockDishQueryService = {
   getValidation: jest.fn().mockResolvedValue({ canSubmitReview: true, blockingErrors: [] }),
@@ -55,6 +56,7 @@ describe('DishCommandService', () => {
         DishCommandService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: DishQueryService, useValue: mockDishQueryService },
+        { provide: IngredientCatalogService, useValue: { resolveOrProvisionBatch: jest.fn() } },
       ],
     }).compile();
 
@@ -89,6 +91,30 @@ describe('DishCommandService', () => {
       mockPrismaService.db.dish.findUnique.mockResolvedValue(null);
       await expect(service.submitForReview('nonexistent', 'actor1')).rejects.toThrow(NotFoundException);
     });
+
+    it('chặn gửi duyệt khi còn nguyên liệu chưa duyệt và trả ingredientIssues', async () => {
+      mockPrismaService.db.dish.findUnique.mockResolvedValue({ id: 'd1', status: DishStatus.DRAFT, deletedAt: null });
+      const issues = [{ dishIngredientId: 'di1', rawText: 'Lá lốt', ingredientId: 'i1', reason: 'PENDING_REVIEW' }];
+      const blocking = [{ code: 'INGREDIENTS_NOT_APPROVED', section: 'INGREDIENTS', message: '1 nguyên liệu chưa được phê duyệt' }];
+      mockDishQueryService.getValidation.mockResolvedValueOnce({
+        canSubmitReview: false,
+        blockingErrors: blocking,
+        ingredientIssues: issues,
+      });
+
+      let caught: any;
+      try {
+        await service.submitForReview('d1', 'actor1');
+      } catch (e) {
+        caught = e;
+      }
+      expect(caught).toBeInstanceOf(BadRequestException);
+      const body = caught.getResponse().error;
+      expect(body.code).toBe('PUBLISH_REQUIREMENT_FAILED');
+      expect(body.details).toEqual(blocking);
+      expect(body.ingredientIssues).toEqual(issues);
+      expect(mockPrismaService.db.dish.update).not.toHaveBeenCalled();
+    });
   });
 
   describe('update â€” optimistic locking', () => {
@@ -122,10 +148,10 @@ describe('DishCommandService', () => {
       expect(result.name).toBe('Updated');
     });
 
-    it('PUBLISHED khÃ´ng thá»ƒ sá»­a', async () => {
+    it('ARCHIVED không thể sửa (PUBLISHED được phép sửa trong CMS)', async () => {
       mockPrismaService.db.dish.findUnique.mockResolvedValue({
         id: 'd1',
-        status: DishStatus.PUBLISHED,
+        status: DishStatus.ARCHIVED,
         deletedAt: null,
         version: 1,
         name: 'Test',

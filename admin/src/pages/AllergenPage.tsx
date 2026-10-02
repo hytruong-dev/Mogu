@@ -22,6 +22,7 @@ import {
 import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { Switch } from '../components/ui/switch'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 
 function AllergenFormDialog({
   open,
@@ -284,64 +285,24 @@ export default function AllergenPage({
       </div>
 
       <div className="fd-table-wrap">
-        <table className="fd-table">
-          <thead>
-            <tr>
-              <th>Mã</th>
-              <th>Tên nhóm</th>
-              <th>Hiển thị</th>
-              <th style={{ width: 120 }}>Thao tác</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading && <tr><td colSpan={4} className="fd-empty p-0"><TableSkeleton rows={5} cols={4} /></td></tr>}
-            {!isLoading && pageItems.length === 0 && <tr><td colSpan={4} className="fd-empty">Không có dị ứng nào</td></tr>}
+        <Table className="fd-table">
+          <TableHeader><TableRow><TableHead>Mã</TableHead><TableHead>Tên nhóm</TableHead><TableHead>Hiển thị</TableHead><TableHead style={{ width: 120 }}>Thao tác</TableHead></TableRow></TableHeader>
+          <TableBody>
+            {isLoading && <TableRow><TableCell colSpan={4} className="fd-empty p-0"><TableSkeleton rows={5} cols={4} /></TableCell></TableRow>}
+            {!isLoading && pageItems.length === 0 && <TableRow><TableCell colSpan={4} className="fd-empty">Không có dị ứng nào</TableCell></TableRow>}
             {pageItems.map((item) => (
-              <tr key={item.id} style={{ cursor: 'default' }}>
-                <td>
-                  <code className="fd-code">{item.code}</code>
-                </td>
-                <td>
-                  <div className="fd-name-cell">
-                    <strong>{item.name}</strong>
-                    {item.description && <span>{item.description}</span>}
-                  </div>
-                </td>
-                <td onClick={(e) => e.stopPropagation()}>
-                  <Switch
-                    checked={item.active}
-                    onCheckedChange={() => toggleMut.mutate(item.id)}
-                    aria-label={`Hiển thị ${item.name}`}
-                  />
-                </td>
-                <td>
-                  <div className="fd-row-actions">
-                    <button
-                      type="button"
-                      className="fd-icon-btn"
-                      title="Sửa"
-                      onClick={() => {
-                        setEditItem(item)
-                        setModalOpen(true)
-                      }}
-                    >
-                      <Pencil size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      className="fd-icon-btn is-danger"
-                      title="Ẩn"
-                      disabled={!item.active}
-                      onClick={() => setHideItem(item)}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              <TableRow key={item.id}>
+                <TableCell><code className="fd-code">{item.code}</code></TableCell>
+                <TableCell><div className="fd-name-cell"><strong>{item.name}</strong>{item.description && <span>{item.description}</span>}</div></TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}><Switch checked={item.active} onCheckedChange={() => toggleMut.mutate(item.id)} aria-label={`Hiển thị ${item.name}`} /></TableCell>
+                <TableCell><div className="fd-row-actions">
+                  <Button variant="outline" size="icon" title="Sửa" onClick={() => { setEditItem(item); setModalOpen(true) }}><Pencil size={14} /></Button>
+                  <Button variant="destructive" size="icon" title="Ẩn" disabled={!item.active} onClick={() => setHideItem(item)}><Trash2 size={14} /></Button>
+                </div></TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       <FoodDataPagination

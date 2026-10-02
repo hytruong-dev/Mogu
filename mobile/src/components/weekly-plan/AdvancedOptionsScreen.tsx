@@ -70,7 +70,7 @@ export function DishCreateOptionsSheet({
     <Drawer
       open={visible}
       onOpenChange={(open) => !open && onDismiss()}
-      snapHeight={520}
+      snapHeight={600}
       sheetBackgroundColor="#FFFFFF"
     >
       <DrawerHeader className="px-5 pt-1 pb-2">
@@ -156,7 +156,7 @@ export function DishCreateOptionsSheet({
             onSave(local);
             onDismiss();
           }}
-          className="h-[52px] w-full rounded-2xl bg-primary active:opacity-90"
+          className="h-[54px] w-full rounded-full bg-primary active:opacity-90"
         >
           <Text className="text-[15px] font-extrabold text-primary-foreground">
             Lưu tùy chọn
@@ -229,8 +229,8 @@ const s = StyleSheet.create({
   },
   tolChip: {
     flex: 1,
-    height: 40,
-    borderRadius: 12,
+    height: 44,
+    borderRadius: 999,
     borderWidth: 1.5,
     borderColor: '#EAE6DF',
     backgroundColor: '#FFFFFF',
@@ -274,11 +274,12 @@ const s = StyleSheet.create({
   },
   resetLink: {
     alignItems: 'center',
-    paddingVertical: 4,
+    justifyContent: 'center',
+    minHeight: 44,
   },
   resetText: {
     fontSize: 14,
     fontWeight: '700',
-    color: YELLOW,
+    color: '#9A6A00',
   },
 });

@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import {
   CheckCircle2,
@@ -22,19 +21,44 @@ import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
 import { Input } from '../components/ui/input'
+import { Checkbox } from '../components/ui/checkbox'
+import { Image } from '../components/ui/image'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../components/ui/dropdown-menu'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../components/ui/alert-dialog'
+import { Dialog, DialogContent } from '../components/ui/dialog'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { useAdminDish, useAdminDishes, useCreateDish, useDeleteDish, useDishLifecycle, useUpdateDish } from '../hooks/useDishes'
 import { useCategories, useGoals, useMealTypes, useRegions } from '../hooks/useTaxonomy'
 import { useAuth } from '../providers/AuthProvider'
 import { TagSelect } from '../components/ui/tag-select'
 import { PageSkeleton, TableSkeleton } from '../components/ui/page-skeleton'
 import IngredientPicker from '../components/ui/ingredient-picker'
-import type { AdminDishQuery, RecipeStepPayload } from '../api/dishes'
+import type { AdminDishQuery, DishValidationResult, RecipeStepPayload } from '../api/dishes'
+import { SubmitReviewBlockedDialog } from '../components/molecules/SubmitReviewBlockedDialog'
+import { PendingIngredientsPanel } from '../components/molecules/PendingIngredientsPanel'
 import { Textarea } from '../components/ui/textarea'
 import { Select } from '../components/ui/select'
 import { dishesApi } from '../api/dishes'
 import type { Dish, DishStatus } from '../types'
 import { mediaApi } from '../api/media'
 import { ImportFromFileModal } from '../components/molecules/import-from-file'
+import { MediaLightbox } from '../components/ui/media-lightbox'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -52,68 +76,24 @@ function getMediaUrl(media: { publicUrl?: string; storageKey?: string; bucket?: 
 // ─── Image Preview Modal ───────────────────────────────────────────────────────
 
 function ImagePreviewModal({ url, name, onClose }: { url: string; name: string; onClose: () => void }) {
-  // Đóng khi nhấn Escape
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [onClose])
-
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 200,
-        background: 'rgba(0,0,0,0.82)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 24,
-        backdropFilter: 'blur(6px)',
-        animation: 'fadeIn 0.15s ease',
-      }}
-    >
-      {/* Close button */}
-      <button
-        onClick={onClose}
-        style={{
-          position: 'absolute', top: 20, right: 20,
-          background: 'rgba(255,255,255,0.12)',
-          border: 'none', borderRadius: '50%',
-          width: 40, height: 40,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', color: '#fff',
-          transition: 'background 0.15s',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.22)')}
-        onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.12)')}
-      >
-        <X size={20} />
-      </button>
-
-      {/* Image */}
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, maxWidth: '90vw', maxHeight: '90vh' }}
-      >
-        <img
-          src={url}
-          alt={name}
-          style={{
-            maxWidth: '85vw', maxHeight: '80vh',
-            borderRadius: 12,
-            objectFit: 'contain',
-            boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
-            display: 'block',
-          }}
-        />
-        <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, margin: 0, textAlign: 'center' }}>{name}</p>
-      </div>
-    </div>
+    <MediaLightbox
+      open={!!url}
+      onClose={onClose}
+      media={{ type: 'image', url, title: name }}
+    />
   )
 }
 
 // ─── Variants Section ─────────────────────────────────────────────────────────
 
-function VariantsSection({ dishId }: { dishId: string }) {
+function VariantsSection({
+  dishId,
+  onPreview,
+}: {
+  dishId: string
+  onPreview?: (v: { url: string; name: string }) => void
+}) {
   const [variants, setVariants] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -139,7 +119,18 @@ function VariantsSection({ dishId }: { dishId: string }) {
           return (
             <div key={v.id} style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', borderRadius: 10, padding: '6px 12px 6px 6px', border: '1px solid #c7dff7', maxWidth: 200 }}>
               {img ? (
-                <img src={img} alt={v.name} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} />
+                <div
+                  onClick={() => onPreview?.({ url: img, name: v.name })}
+                  className="h-9 w-9 shrink-0 cursor-zoom-in overflow-hidden rounded-lg"
+                  title="Bấm để xem ảnh lớn"
+                >
+                  <Image
+                    src={img}
+                    alt={v.name}
+                    aspectRatio="square"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
               ) : (
                 <div style={{ width: 36, height: 36, borderRadius: 8, background: '#e8f4fd', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   🍽️
@@ -165,6 +156,7 @@ function DishDetailDialog({ dish, onClose, onEdit }: { dish: Dish; onClose: () =
   const { data: detail, isLoading } = useAdminDish(dish.id)
   // Dùng detail nếu đã load, fallback về dish prop
   const d = (detail ?? dish) as any
+  const [lightboxMedia, setLightboxMedia] = useState<{ url: string; name: string } | null>(null)
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -192,34 +184,37 @@ function DishDetailDialog({ dish, onClose, onEdit }: { dish: Dish; onClose: () =
   const totalMin = (d.prepMinutes ?? 0) + (d.cookMinutes ?? 0)
 
   return (
-    <div
-      onClick={onClose}
-      style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px', backdropFilter: 'blur(4px)', animation: 'fadeIn 0.15s ease' }}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 800, maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 24px 80px rgba(0,0,0,0.25)', display: 'flex', flexDirection: 'column' }}
-      >
+    <Dialog open onOpenChange={(v) => { if (!v) onClose() }}>
+      <DialogContent className="max-w-[800px] p-0 overflow-y-auto max-h-[92vh] border-none rounded-2xl bg-white shadow-2xl">
         {/* Hero image */}
         <div style={{ position: 'relative', height: imgUrl ? 240 : 80, flexShrink: 0, background: '#f5f0e8', borderRadius: '16px 16px 0 0', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {imgUrl ? (
-            <>
-              <img src={imgUrl} alt={d.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+            <div
+              onClick={() => setLightboxMedia({ url: imgUrl, name: d.name })}
+              style={{ width: '100%', height: '100%', position: 'relative', cursor: 'zoom-in' }}
+              title="Bấm để xem ảnh lớn"
+            >
+              <Image src={imgUrl} alt={d.name} className="h-full w-full object-cover" />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%)' }} />
               <div style={{ position: 'absolute', bottom: 14, left: 18 }}>
                 <Badge className={d.status === 'PUBLISHED' ? 'published' : d.status === 'PENDING_REVIEW' ? 'pending' : 'draft'}>
                   &nbsp;{STATUS_LABEL[d.status as DishStatus]}
                 </Badge>
               </div>
-            </>
+            </div>
           ) : (
             <Badge className={d.status === 'PUBLISHED' ? 'published' : d.status === 'PENDING_REVIEW' ? 'pending' : 'draft'} style={{ fontSize: 13 }}>
               &nbsp;{STATUS_LABEL[d.status as DishStatus]}
             </Badge>
           )}
-          <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(0,0,0,0.4)', border: 'none', borderRadius: '50%', width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', backdropFilter: 'blur(4px)' }}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="absolute top-3 right-3 rounded-full bg-black/45 text-white hover:bg-black/60 hover:text-white h-9 w-9 backdrop-blur-xs"
+          >
             <X size={18} />
-          </button>
+          </Button>
         </div>
 
         {/* Body */}
@@ -238,12 +233,12 @@ function DishDetailDialog({ dish, onClose, onEdit }: { dish: Dish; onClose: () =
               <h2 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: '#161616', lineHeight: 1.3 }}>{d.name}</h2>
               {d.region && <p style={{ margin: '4px 0 0', fontSize: 13, color: '#888' }}>📍 {d.region.name}</p>}
             </div>
-            <button
+            <Button
               onClick={() => { onClose(); onEdit(detail ?? dish) }}
-              style={{ flexShrink: 0, background: '#f0a500', color: '#fff', border: 'none', borderRadius: 8, padding: '8px 18px', cursor: 'pointer', fontWeight: 600, fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}
+              className="bg-mogu-yellow hover:bg-mogu-yellow-dark text-slate-900 font-semibold text-xs h-9 px-4 gap-1.5"
             >
               ✏️ Chỉnh sửa
-            </button>
+            </Button>
           </div>
 
           {/* Short description */}
@@ -327,7 +322,9 @@ function DishDetailDialog({ dish, onClose, onEdit }: { dish: Dish; onClose: () =
                   return (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#faf7f0', borderRadius: 10, padding: '8px 12px', border: '1px solid #f0e8d0' }}>
                       {imgSrc ? (
-                        <img src={imgSrc} alt={name} style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover', flexShrink: 0 }} onError={e => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                        <div className="h-9 w-9 shrink-0 overflow-hidden rounded-lg">
+                          <Image src={imgSrc} alt={name} aspectRatio="square" className="h-full w-full object-cover" />
+                        </div>
                       ) : (
                         <div style={{ width: 36, height: 36, borderRadius: 8, background: '#e8e0d0', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🥄</div>
                       )}
@@ -390,7 +387,7 @@ function DishDetailDialog({ dish, onClose, onEdit }: { dish: Dish; onClose: () =
           )}
 
           {/* Variants section */}
-          <VariantsSection dishId={d.id} />
+          <VariantsSection dishId={d.id} onPreview={setLightboxMedia} />
 
           {/* Rating summary */}
           {(d.ratingAvg > 0 || d.ratingCount > 0) && (
@@ -426,8 +423,15 @@ function DishDetailDialog({ dish, onClose, onEdit }: { dish: Dish; onClose: () =
             <span style={{ fontSize: 11, color: '#bbb' }}>Cập nhật: {new Date(d.updatedAt).toLocaleString('vi-VN')}</span>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+      {lightboxMedia && (
+        <ImagePreviewModal
+          url={lightboxMedia.url}
+          name={lightboxMedia.name}
+          onClose={() => setLightboxMedia(null)}
+        />
+      )}
+    </Dialog>
   )
 }
 
@@ -617,39 +621,28 @@ function RecipeSection({ steps, onChange }: RecipeSectionProps) {
             </div>
 
             {/* Xóa bước */}
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={() => removeStep(idx)}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                color: 'var(--text-muted)', padding: 4, flexShrink: 0,
-                borderRadius: 4, marginTop: 2,
-              }}
+              className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0 mt-0.5"
               title="Xóa bước"
-              onMouseEnter={e => (e.currentTarget.style.color = '#cf1322')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}
             >
               <X size={15} />
-            </button>
+            </Button>
           </div>
         ))}
       </div>
 
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={addStep}
-        style={{
-          marginTop: 8, display: 'flex', alignItems: 'center', gap: 6,
-          background: 'none', border: '1px dashed #f0a500', borderRadius: 8,
-          color: '#f0a500', padding: '7px 14px', cursor: 'pointer',
-          fontSize: 13, fontWeight: 500, width: '100%', justifyContent: 'center',
-          transition: 'background 0.15s',
-        }}
-        onMouseEnter={e => (e.currentTarget.style.background = '#fffbea')}
-        onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+        className="mt-2 w-full border-dashed border-amber-400 text-amber-600 hover:bg-amber-50 h-9 font-medium text-xs gap-1.5"
       >
         <Plus size={14} /> Thêm bước
-      </button>
+      </Button>
     </div>
   )
 }
@@ -778,6 +771,33 @@ function EditDishModal({
     setIngredientsInit(true)
   }, [dishDetail, ingredientsInit])
 
+  // Sau khi duyệt/gộp nguyên liệu trong panel, dishDetail được refetch → đồng bộ
+  // lại ingredientId/status/ảnh cho các dòng khớp rawText (gộp đổi ingredientId).
+  const hasUnapprovedSaved = ((dishDetail as any)?.dishIngredients ?? []).some(
+    (di: any) => !di.ingredient || di.ingredient.status !== 'ACTIVE',
+  )
+  const syncIngredientsFromDetail = useCallback((detail: any) => {
+    const raw: any[] = detail?.dishIngredients ?? []
+    if (!raw.length) return
+    setIngredients((rows) =>
+      rows.map((row) => {
+        const match = raw.find(
+          (di) => (di.rawText ?? di.ingredient?.name ?? '').trim().toLowerCase() === row.name.trim().toLowerCase(),
+        )
+        if (!match?.ingredient) return row
+        return {
+          ...row,
+          ingredientId: match.ingredient.id,
+          ingredientImageUrl: match.ingredient.imageUrl ?? undefined,
+          ingredientStatus: match.ingredient.status,
+        }
+      }),
+    )
+  }, [])
+  useEffect(() => {
+    if (dishDetail && ingredientsInit) syncIngredientsFromDetail(dishDetail)
+  }, [dishDetail, ingredientsInit, syncIngredientsFromDetail])
+
   // ── Recipe state — populate từ dishDetail khi fetch xong ─────────────────
   const [recipeSteps, setRecipeSteps] = useState<Array<RecipeStepPayload & { _id: number }>>([])
   const [stepsInit, setStepsInit] = useState(false)
@@ -805,6 +825,7 @@ function EditDishModal({
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [uploadingMedia, setUploadingMedia] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [mediaToDelete, setMediaToDelete] = useState<string | null>(null)
 
   const [saveError, setSaveError] = useState('')
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -860,8 +881,14 @@ function EditDishModal({
     } finally { setUploadingMedia(false); e.target.value = '' }
   }
 
-  const handleDeleteMedia = async (mediaId: string) => {
-    if (!confirm('Xóa ảnh này?')) return
+  const handleDeleteMedia = (mediaId: string) => {
+    setMediaToDelete(mediaId)
+  }
+
+  const confirmDeleteMedia = async () => {
+    if (!mediaToDelete) return
+    const mediaId = mediaToDelete
+    setMediaToDelete(null)
     setDeletingId(mediaId)
     try {
       await mediaApi.remove(dish.id, mediaId)
@@ -962,15 +989,20 @@ function EditDishModal({
   return (
     <>
       {previewUrl && (
-        <div onClick={() => setPreviewUrl(null)} style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <img src={previewUrl} alt="" style={{ maxWidth: '90vw', maxHeight: '90vh', borderRadius: 10, objectFit: 'contain' }} onClick={e => e.stopPropagation()} />
-          <button onClick={() => setPreviewUrl(null)} style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(255,255,255,0.15)', border: 'none', color: '#fff', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', fontSize: 14 }}>✕ Đóng</button>
-        </div>
+        <MediaLightbox
+          open={!!previewUrl}
+          onClose={() => setPreviewUrl(null)}
+          media={{
+            type: 'gallery',
+            title: dish.name,
+            items: mediaList.map((m) => ({ url: m.url, title: dish.name })),
+            initialIndex: Math.max(0, mediaList.findIndex((m) => m.url === previewUrl)),
+          }}
+        />
       )}
 
-      <div className="modal-overlay" onClick={onClose}>
-        <Card className="modal-card" onClick={(e) => e.stopPropagation()}
-          style={{ maxWidth: 720, width: '100%', minHeight: 580, maxHeight: '92vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <Dialog open onOpenChange={(v) => { if (!v) onClose() }}>
+        <DialogContent className="max-w-[720px] p-0 overflow-hidden flex flex-col min-h-[580px] max-h-[92vh]">
 
           {/* Header */}
           <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', padding: '20px 24px 0', flexShrink: 0 }}>
@@ -978,34 +1010,22 @@ function EditDishModal({
               <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>✏️ Chỉnh sửa món ăn</h3>
               <p style={{ margin: '4px 0 0', fontSize: 13, color: 'var(--text-muted)' }}>{dish.name}</p>
             </div>
-            <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, marginTop: -2 }}><X size={22} /></button>
           </header>
 
           {/* Tab bar */}
-          <div style={{ display: 'flex', borderBottom: '2px solid var(--border)', marginTop: 16, paddingLeft: 24, flexShrink: 0, overflowX: 'auto' }}>
-            {CREATE_TABS.map(tab => (
-              <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)}
-                style={{
-                  background: 'none', border: 'none', cursor: 'pointer', padding: '10px 16px',
-                  fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap',
-                  color: activeTab === tab.id ? '#f0a500' : 'var(--text-muted)',
-                  borderBottom: activeTab === tab.id ? '2px solid #f0a500' : '2px solid transparent',
-                  marginBottom: -2,
-                }}>
-                {tab.label}
-              </button>
-            ))}
-            {/* Tab ảnh riêng */}
-            <button type="button" onClick={() => setActiveTab('media' as CreateTab)}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer', padding: '10px 16px',
-                fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap',
-                color: activeTab === ('media' as CreateTab) ? '#f0a500' : 'var(--text-muted)',
-                borderBottom: activeTab === ('media' as CreateTab) ? '2px solid #f0a500' : '2px solid transparent',
-                marginBottom: -2,
-              }}>
-              🖼️ Hình ảnh {mediaList.length > 0 ? `(${mediaList.length})` : ''}
-            </button>
+          <div className="px-6 pt-3 pb-1 border-b border-border flex-shrink-0">
+            <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as CreateTab)}>
+              <TabsList className="bg-muted/70 p-1 flex-wrap h-auto gap-1">
+                {CREATE_TABS.map(tab => (
+                  <TabsTrigger key={tab.id} value={tab.id} className="text-xs font-semibold px-3 py-1.5">
+                    {tab.label}
+                  </TabsTrigger>
+                ))}
+                <TabsTrigger value="media" className="text-xs font-semibold px-3 py-1.5">
+                  🖼️ Hình ảnh {mediaList.length > 0 ? `(${mediaList.length})` : ''}
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
 
           {/* Scrollable form */}
@@ -1161,11 +1181,20 @@ function EditDishModal({
                     🥬 Danh sách nguyên liệu
                     <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 6 }}>({ingredients.length})</span>
                   </span>
-                  <button type="button" onClick={addIngredient}
-                    style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#f0a500', border: 'none', color: '#fff', borderRadius: 8, padding: '6px 14px', cursor: 'pointer', fontSize: 13, fontWeight: 600 }}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={addIngredient}
+                    className="bg-mogu-yellow hover:bg-mogu-yellow-dark text-slate-900 font-semibold h-7 text-xs px-2.5 gap-1"
+                  >
                     <Plus size={14} /> Thêm
-                  </button>
+                  </Button>
                 </div>
+                {hasUnapprovedSaved && (
+                  <div style={{ marginBottom: 14 }}>
+                    <PendingIngredientsPanel dishId={dish.id} compact />
+                  </div>
+                )}
                 {ingredients.length === 0 && (
                   <div style={{ textAlign: 'center', padding: '32px 0', border: '1.5px dashed var(--border)', borderRadius: 12, color: 'var(--text-muted)', fontSize: 13 }}>
                     Chưa có nguyên liệu — nhấn <b>+ Thêm</b> để bắt đầu
@@ -1203,12 +1232,15 @@ function EditDishModal({
                       <Select value={ing.unit} onChange={(e) => updateIngredient(ing._id, { unit: e.target.value })} style={{ flex: 1, padding: '0 8px', height: 38 }}>
                         {['g', 'kg', 'ml', 'lít', 'thìa', 'muỗng', 'chén', 'cái', 'bó', 'lá', 'quả', 'miếng'].map(u => <option key={u} value={u}>{u}</option>)}
                       </Select>
-                      <button type="button" onClick={() => removeIngredient(ing._id)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: 4, borderRadius: 4, flexShrink: 0 }}
-                        onMouseEnter={e => (e.currentTarget.style.color = '#cf1322')}
-                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-muted)')}>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeIngredient(ing._id)}
+                        className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                      >
                         <X size={16} />
-                      </button>
+                      </Button>
                     </div>
                   ))}
                 </div>
@@ -1259,7 +1291,7 @@ function EditDishModal({
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 10 }}>
                   {mediaList.map((m) => (
                     <div key={m.id} style={{ position: 'relative', aspectRatio: '1', borderRadius: 10, overflow: 'hidden', border: m.isPrimary ? '2.5px solid #f0a500' : '1px solid var(--border)' }} className="dish-thumb-wrap">
-                      <img src={m.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', cursor: 'zoom-in', display: 'block' }} onClick={() => setPreviewUrl(m.url)} />
+                      <Image src={m.url} alt="" aspectRatio="square" className="h-full w-full object-cover cursor-zoom-in block" onClick={() => setPreviewUrl(m.url)} />
                       {m.isPrimary && (
                         <div style={{ position: 'absolute', top: 5, left: 5, background: '#f0a500', color: '#fff', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4 }}>CHÍNH</div>
                       )}
@@ -1268,13 +1300,27 @@ function EditDishModal({
                       )}
                       <div className="dish-thumb-overlay" style={{ borderRadius: 0 }}>
                         <div style={{ display: 'flex', gap: 6 }}>
-                          <button onClick={() => setPreviewUrl(m.url)} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 6, padding: 5, cursor: 'pointer', display: 'flex' }} title="Xem ảnh lớn">
-                            <ZoomIn size={14} color="#fff" />
-                          </button>
-                          <button onClick={() => handleDeleteMedia(m.id)} disabled={deletingId === m.id}
-                            style={{ background: 'rgba(220,50,50,0.8)', border: 'none', borderRadius: 6, padding: 5, cursor: 'pointer', display: 'flex' }} title="Xóa ảnh">
-                            {deletingId === m.id ? <span style={{ color: '#fff', fontSize: 10 }}>...</span> : <Trash2 size={14} color="#fff" />}
-                          </button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setPreviewUrl(m.url)}
+                            className="h-7 w-7 bg-white/20 hover:bg-white/40 text-white"
+                            title="Xem ảnh lớn"
+                          >
+                            <ZoomIn size={14} />
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleDeleteMedia(m.id)}
+                            disabled={deletingId === m.id}
+                            className="h-7 w-7 bg-red-600/80 hover:bg-red-700 text-white"
+                            title="Xóa ảnh"
+                          >
+                            {deletingId === m.id ? <span className="text-[10px]">...</span> : <Trash2 size={14} />}
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -1305,8 +1351,29 @@ function EditDishModal({
               )}
             </div>
           </form>
-        </Card>
-      </div>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={mediaToDelete !== null} onOpenChange={(open) => !open && setMediaToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa ảnh này?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ảnh sẽ bị xóa vĩnh viễn khỏi món ăn này. Thao tác không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingId !== null}>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteMedia}
+              disabled={deletingId !== null}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingId !== null ? 'Đang xóa...' : 'Xóa ảnh'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }
@@ -1322,11 +1389,9 @@ function DishActionMenu({
   mealTypes?: any[]
   regions?: any[]
 }) {
-  const [open, setOpen] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 })
-  const btnRef = useRef<HTMLButtonElement>(null)
+  const [showDuplicateConfirm, setShowDuplicateConfirm] = useState(false)
   const navigate = useNavigate()
   const lifecycle = useDishLifecycle()
   const deleteDish = useDeleteDish()
@@ -1334,11 +1399,12 @@ function DishActionMenu({
   const { isContentAdmin, isSuperAdmin } = useAuth()
   const canEdit = isContentAdmin || isSuperAdmin
 
-  const close = () => setOpen(false)
+  const handleDuplicate = () => {
+    setShowDuplicateConfirm(true)
+  }
 
-  const handleDuplicate = async () => {
-    close()
-    if (!confirm(`Nhân bản món "${dish.name}"?`)) return
+  const confirmDuplicate = async () => {
+    setShowDuplicateConfirm(false)
     try {
       await createDish.mutateAsync({
         name: dish.name + ' (bản sao)',
@@ -1354,7 +1420,6 @@ function DishActionMenu({
   }
 
   const handleDelete = () => {
-    close()
     setShowDeleteConfirm(true)
   }
 
@@ -1369,30 +1434,30 @@ function DishActionMenu({
 
   const actions: { label: string; fn: () => void; danger?: boolean; highlight?: boolean; divider?: boolean }[] = []
 
-  actions.push({ label: '👁 Xem', fn: () => { close(); window.dispatchEvent(new CustomEvent('mogu:view-dish', { detail: dish })) } })
+  actions.push({ label: '👁 Xem', fn: () => { window.dispatchEvent(new CustomEvent('mogu:view-dish', { detail: dish })) } })
   if (canEdit) {
-    actions.push({ label: '✏️ Chỉnh sửa', fn: () => { close(); navigate(`/foods/${dish.id}`) } })
+    actions.push({ label: '✏️ Chỉnh sửa', fn: () => { navigate(`/foods/${dish.id}`) } })
     actions.push({ label: '📋 Nhân bản', fn: handleDuplicate })
   }
   actions.push({ label: '─────────', fn: () => { }, divider: true })
 
   if (canEdit && (dish.status === 'DRAFT' || dish.status === 'CHANGES_REQUESTED')) {
-    actions.push({ label: '📤 Gửi duyệt', fn: () => { lifecycle.submitForReview.mutate({ id: dish.id }); close() } })
+    actions.push({ label: '📤 Gửi duyệt', fn: () => { window.dispatchEvent(new CustomEvent('mogu:submit-review', { detail: { id: dish.id, name: dish.name } })) } })
   }
   if (isSuperAdmin && dish.status === 'PENDING_REVIEW') {
-    actions.push({ label: '⚡ Xuất bản ngay', fn: () => { lifecycle.publishDirect.mutate(dish.id); close() }, highlight: true })
+    actions.push({ label: '⚡ Xuất bản ngay', fn: () => { lifecycle.publishDirect.mutate(dish.id) }, highlight: true })
   }
   if (dish.status === 'PUBLISHED') {
-    actions.push({ label: '⏸ Hủy xuất bản', fn: () => { lifecycle.unpublish.mutate(dish.id); close() } })
+    actions.push({ label: '⏸ Hủy xuất bản', fn: () => { lifecycle.unpublish.mutate(dish.id) } })
   }
   if (dish.status === 'UNPUBLISHED') {
-    actions.push({ label: '▶️ Xuất bản lại', fn: () => { lifecycle.republish.mutate(dish.id); close() } })
+    actions.push({ label: '▶️ Xuất bản lại', fn: () => { lifecycle.republish.mutate(dish.id) } })
   }
   if (canEdit && !['ARCHIVED'].includes(dish.status)) {
-    actions.push({ label: '🗃 Lưu trữ', fn: () => { lifecycle.archive.mutate(dish.id); close() } })
+    actions.push({ label: '🗃 Lưu trữ', fn: () => { lifecycle.archive.mutate(dish.id) } })
   }
   if (isSuperAdmin && dish.status === 'ARCHIVED') {
-    actions.push({ label: '🔄 Khôi phục', fn: () => { lifecycle.restore.mutate(dish.id); close() } })
+    actions.push({ label: '🔄 Khôi phục', fn: () => { lifecycle.restore.mutate(dish.id) } })
   }
 
   if (isSuperAdmin) {
@@ -1401,89 +1466,95 @@ function DishActionMenu({
   }
 
   return (
-    <div style={{ position: 'relative' }}>
-      <button
-        ref={btnRef}
-        onClick={() => {
-          if (!open && btnRef.current) {
-            const rect = btnRef.current.getBoundingClientRect()
-            setMenuPos({
-              top: rect.bottom + window.scrollY + 4,
-              right: window.innerWidth - rect.right,
-            })
-          }
-          setOpen(o => !o)
-        }}
-        style={{ background: 'none', border: 'none', cursor: 'pointer' }}
-      >
-        <MoreVertical size={20} />
-      </button>
-      {open && createPortal(
-        <>
-          {/* Backdrop vô hình để đóng menu khi click ngoài */}
-          <div style={{ position: 'fixed', inset: 0, zIndex: 9998 }} onClick={close} />
-          <div
-            className="action-menu"
-            style={{
-              position: 'absolute',
-              top: menuPos.top,
-              right: menuPos.right,
-              zIndex: 9999,
-            }}
-          >
-            {actions.map((a, i) =>
-              a.divider ? (
-                <div key={i} style={{ height: 1, background: 'var(--border)', margin: '4px 0' }} />
-              ) : (
-                <button
-                  key={a.label}
-                  className={
-                    a.danger ? 'action-menu-item danger'
-                      : a.highlight ? 'action-menu-item highlight'
-                        : 'action-menu-item'
-                  }
-                  onClick={a.fn}
-                >
-                  {a.label}
-                </button>
-              )
-            )}
-          </div>
-        </>,
-        document.body,
-      )}
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48 shadow-xl">
+          {actions.map((a, i) =>
+            a.divider ? (
+              <DropdownMenuSeparator key={`sep-${i}`} />
+            ) : (
+              <DropdownMenuItem
+                key={`${a.label}-${i}`}
+                onClick={a.fn}
+                className={
+                  a.danger
+                    ? 'text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive'
+                    : a.highlight
+                      ? 'font-semibold text-amber-600'
+                      : ''
+                }
+              >
+                {a.label}
+              </DropdownMenuItem>
+            )
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
 
       {/* Edit Modal render tại đây để có đúng context dish */}
-      {showEdit && <EditDishModal dish={dish} onClose={() => setShowEdit(false)} categories={categories ?? []} mealTypes={mealTypes ?? []} regions={regions ?? []} />}
+      {showEdit && (
+        <EditDishModal
+          dish={dish}
+          onClose={() => setShowEdit(false)}
+          categories={categories ?? []}
+          mealTypes={mealTypes ?? []}
+          regions={regions ?? []}
+        />
+      )}
 
       {/* Inline Delete Confirm Dialog */}
-      {showDeleteConfirm && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: '28px 32px', maxWidth: 400, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.25)' }}>
-            <div style={{ fontSize: 36, textAlign: 'center', marginBottom: 12 }}>🗑</div>
-            <h3 style={{ margin: '0 0 8px', fontSize: 17, fontWeight: 700, color: '#1a1a1a', textAlign: 'center' }}>Xóa vĩnh viễn?</h3>
-            <p style={{ margin: '0 0 20px', fontSize: 14, color: '#666', textAlign: 'center', lineHeight: 1.5 }}>
-              Món <b>"{dish.name}"</b> sẽ bị xóa vĩnh viễn.<br />Hành động này không thể hoàn tác.
-            </p>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                style={{ flex: 1, padding: '10px 0', borderRadius: 10, border: '1px solid var(--border)', background: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 600, color: '#444' }}
-              >
-                Hủy
-              </button>
-              <button
-                onClick={confirmDelete}
-                disabled={deleteDish.isPending}
-                style={{ flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', background: '#ef4444', cursor: 'pointer', fontSize: 14, fontWeight: 700, color: '#fff', opacity: deleteDish.isPending ? 0.7 : 1 }}
-              >
-                {deleteDish.isPending ? 'Đang xóa...' : 'Xóa vĩnh viễn'}
-              </button>
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive mb-2">
+              <Trash2 className="h-6 w-6" />
             </div>
-          </div>
-        </div>
-      )}
-    </div>
+            <AlertDialogTitle className="text-center">Xóa vĩnh viễn?</AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              Món <b>"{dish.name}"</b> sẽ bị xóa vĩnh viễn.<br />Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteDish.isPending ? 'Đang xóa...' : 'Xóa vĩnh viễn'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Inline Duplicate Confirm Dialog */}
+      <AlertDialog open={showDuplicateConfirm} onOpenChange={setShowDuplicateConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10 text-amber-600 mb-2">
+              <Utensils className="h-6 w-6" />
+            </div>
+            <AlertDialogTitle className="text-center">Nhân bản món ăn?</AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              Tạo bản sao mới cho món <b>"{dish.name}"</b> ở trạng thái bản nháp.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDuplicate}
+              className="bg-amber-600 hover:bg-amber-700 text-white"
+            >
+              {createDish.isPending ? 'Đang nhân bản...' : 'Xác nhận nhân bản'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 }
 
@@ -1606,6 +1677,77 @@ export default function FoodsPage() {
     return () => window.removeEventListener('mogu:view-dish', handler)
   }, [])
 
+  // ── Gửi duyệt có kiểm tra điều kiện (chặn nếu còn nguyên liệu chưa duyệt) ──
+  const [blocked, setBlocked] = useState<{ dishId: string; dishName?: string; validation: DishValidationResult } | null>(null)
+  const [bulkNotice, setBulkNotice] = useState<string | null>(null)
+
+  const trySubmitReview = useCallback(
+    async (dishId: string, dishName?: string, opts?: { silent?: boolean }): Promise<boolean> => {
+      try {
+        const validation = await dishesApi.validate(dishId)
+        if (validation && !validation.canSubmitReview) {
+          if (!opts?.silent) setBlocked({ dishId, dishName, validation })
+          return false
+        }
+        await lifecycle.submitForReview.mutateAsync({ id: dishId })
+        return true
+      } catch (err: any) {
+        const body = err?.response?.data?.error ?? err?.response?.data
+        if (body?.code === 'PUBLISH_REQUIREMENT_FAILED') {
+          if (!opts?.silent) {
+            setBlocked({
+              dishId,
+              dishName,
+              validation: {
+                completionPercent: 0,
+                sections: [],
+                blockingErrors: body.details ?? [],
+                warnings: [],
+                ingredientIssues: body.ingredientIssues ?? [],
+                canSubmitReview: false,
+              },
+            })
+          }
+          return false
+        }
+        if (!opts?.silent) alert(body?.message ?? err?.message ?? 'Gửi duyệt thất bại')
+        return false
+      }
+    },
+    [lifecycle.submitForReview],
+  )
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const d = (e as CustomEvent).detail as { id: string; name?: string }
+      void trySubmitReview(d.id, d.name)
+    }
+    window.addEventListener('mogu:submit-review', handler)
+    return () => window.removeEventListener('mogu:submit-review', handler)
+  }, [trySubmitReview])
+
+  const bulkSubmitReview = async (ids: string[]) => {
+    if (ids.length === 1) {
+      const d = dishes.find((x) => x.id === ids[0])
+      await trySubmitReview(ids[0], d?.name)
+      return
+    }
+    const results = await Promise.all(ids.map((id) => trySubmitReview(id, undefined, { silent: true })))
+    const failedIds = ids.filter((_, i) => !results[i])
+    const okCount = results.filter(Boolean).length
+    if (failedIds.length) {
+      const names = failedIds
+        .map((id) => dishes.find((x) => x.id === id)?.name ?? id)
+        .slice(0, 5)
+        .join(', ')
+      setBulkNotice(
+        `Đã gửi duyệt ${okCount}/${ids.length} món. ${failedIds.length} món chưa đủ điều kiện (thường do còn nguyên liệu tự động tìm chưa được duyệt): ${names}. Mở từng món → "Gửi duyệt" để xem chi tiết.`,
+      )
+    } else {
+      setBulkNotice(`Đã gửi duyệt ${okCount} món.`)
+    }
+  }
+
   const { data, isLoading, isError } = useAdminDishes({ ...query, cursor })
   const { data: categories } = useCategories()
   const { data: regions } = useRegions()
@@ -1660,7 +1802,7 @@ export default function FoodsPage() {
       {selected.length > 0 && canEdit && (
         <Card style={{ marginBottom: 12, padding: '10px 16px', display: 'flex', gap: 10, alignItems: 'center' }}>
           <b>{selected.length} món đã chọn</b>
-          <Button size="sm" onClick={() => { selected.forEach((id) => lifecycle.submitForReview.mutate({ id })); setSelected([]) }}>Gửi duyệt</Button>
+          <Button size="sm" onClick={() => { const ids = [...selected]; setSelected([]); void bulkSubmitReview(ids) }}>Gửi duyệt</Button>
           <Button size="sm" variant="outline" onClick={() => { selected.forEach((id) => lifecycle.archive.mutate(id)); setSelected([]) }}>Lưu trữ</Button>
           <Button size="sm" variant="ghost" onClick={() => setSelected([])}>Bỏ chọn</Button>
         </Card>
@@ -1730,33 +1872,32 @@ export default function FoodsPage() {
         {isLoading ? (
           <TableSkeleton rows={8} cols={6} />
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th className="checkbox-col">
-                  <input
-                    type="checkbox"
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="checkbox-col w-10">
+                  <Checkbox
                     checked={dishes.length > 0 && dishes.every((d) => selected.includes(d.id))}
-                    onChange={(e) => setSelected(e.target.checked ? dishes.map((d) => d.id) : [])}
+                    onCheckedChange={(checked) => setSelected(checked ? dishes.map((d) => d.id) : [])}
                   />
-                </th>
-                <th style={{ width: 72 }}>Ảnh</th>
-                <th>Món ăn</th>
-                <th>Danh mục</th>
-                <th>Dinh dưỡng</th>
-                <th>Rating</th>
-                <th>Trạng thái</th>
-                <th>Cập nhật ↓</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
+                </TableHead>
+                <TableHead style={{ width: 72 }}>Ảnh</TableHead>
+                <TableHead>Món ăn</TableHead>
+                <TableHead>Danh mục</TableHead>
+                <TableHead>Dinh dưỡng</TableHead>
+                <TableHead>Rating</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead>Cập nhật ↓</TableHead>
+                <TableHead className="text-right pr-6" style={{ width: 80 }}>Hành động</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {dishes.length === 0 && (
-                <tr>
-                  <td colSpan={9} style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
+                <TableRow>
+                  <TableCell colSpan={9} style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
                     Chưa có món ăn nào
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               )}
               {dishes.map((dish) => {
                 const primaryMedia = dish.media?.find((m: any) => m.isPrimary) ?? dish.media?.[0]
@@ -1764,60 +1905,57 @@ export default function FoodsPage() {
                 const nutrition = (dish as any).nutrition
                 const category = dish.categories?.[0]
                 return (
-                  <tr
+                  <TableRow
                     key={dish.id}
                     style={{ cursor: 'pointer' }}
                     onClick={(e) => {
-                      // Không mở detail nếu click vào checkbox, button, input, action menu
-                      if ((e.target as HTMLElement).closest('button, input, [data-no-detail]')) return
+                      if ((e.target as HTMLElement).closest('button, input, [role="checkbox"], [data-no-detail]')) return
                       setDetailDish(dish)
                     }}
                   >
-                    <td className="checkbox-col" data-no-detail onClick={e => e.stopPropagation()}>
-                      <input type="checkbox" checked={selected.includes(dish.id)} onChange={() => toggleSelect(dish.id)} />
-                    </td>
+                    <TableCell className="checkbox-col" data-no-detail onClick={e => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selected.includes(dish.id)}
+                        onCheckedChange={() => toggleSelect(dish.id)}
+                      />
+                    </TableCell>
 
                     {/* ── Cột ảnh thumbnail ── */}
-                    <td style={{ padding: '8px 10px' }} data-no-detail onClick={e => e.stopPropagation()}>
+                    <TableCell style={{ padding: '8px 10px' }} data-no-detail onClick={e => e.stopPropagation()}>
                       <div style={{ position: 'relative', width: 56, height: 56 }} className="dish-thumb-wrap">
                         {imgUrl ? (
-                          <img
+                          <Image
                             src={imgUrl}
                             alt={dish.name}
-                            style={{ width: 56, height: 56, objectFit: 'cover', borderRadius: 8, display: 'block', border: '1px solid var(--border)', cursor: 'zoom-in' }}
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                            aspectRatio="square"
+                            zoomable
+                            title={dish.name}
+                            subtitle={`#${dish.id.slice(0, 8)}`}
+                            className="h-14 w-14 rounded-lg object-cover"
                           />
                         ) : (
                           <div style={{ width: 56, height: 56, background: 'var(--bg-muted)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed var(--border)' }}>
                             <Utensils size={18} color="var(--text-muted)" />
                           </div>
                         )}
-                        {/* Overlay: click ảnh → preview, không có ảnh → upload */}
-                        <div className="dish-thumb-overlay">
-                          {imgUrl ? (
-                            <button
-                              onClick={() => setPreviewImg({ url: imgUrl, name: dish.name })}
-                              style={{ background: 'none', border: 'none', cursor: 'zoom-in', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}
-                            >
-                              <ZoomIn size={18} color="#fff" />
-                            </button>
-                          ) : (
+                        {!imgUrl && (
+                          <div className="dish-thumb-overlay">
                             <UploadMediaButton dishId={dish.id} iconOnly />
-                          )}
-                        </div>
+                          </div>
+                        )}
                       </div>
-                    </td>
+                    </TableCell>
 
-                    <td className="food-cell">
+                    <TableCell className="food-cell">
                       <span>
                         <b>{dish.name}</b>
                         <small>#{dish.id.slice(0, 8)}</small>
                       </span>
-                    </td>
-                    <td>
+                    </TableCell>
+                    <TableCell>
                       {category ? <Badge>{category.name}</Badge> : <span style={{ color: 'var(--text-muted)' }}>—</span>}
-                    </td>
-                    <td>
+                    </TableCell>
+                    <TableCell>
                       {nutrition ? (
                         <>
                           <b>{nutrition.calories ?? '?'} kcal</b>
@@ -1828,8 +1966,8 @@ export default function FoodsPage() {
                       ) : (
                         <span style={{ color: 'var(--text-muted)' }}>Chưa có</span>
                       )}
-                    </td>
-                    <td style={{ textAlign: 'center' }}>
+                    </TableCell>
+                    <TableCell style={{ textAlign: 'center' }}>
                       {(dish as any).ratingAvg > 0 ? (
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -1841,40 +1979,39 @@ export default function FoodsPage() {
                       ) : (
                         <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>—</span>
                       )}
-                    </td>
-                    <td>
+                    </TableCell>
+                    <TableCell>
                       <Badge className={STATUS_CLASS[dish.status]}>• &nbsp;{STATUS_LABEL[dish.status]}</Badge>
-                    </td>
-                    <td>
+                    </TableCell>
+                    <TableCell>
                       {new Date(dish.updatedAt).toLocaleDateString('vi-VN')}
-                    </td>
-                    <td data-no-detail onClick={e => e.stopPropagation()}>
+                    </TableCell>
+                    <TableCell className="text-right pr-4" data-no-detail onClick={e => e.stopPropagation()}>
                       <DishActionMenu dish={dish} categories={categories ?? []} mealTypes={mealTypes ?? []} regions={regions ?? []} />
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         )}
 
         {/* Pagination */}
         <div className="pagination">
-          <span>
-            Hiển thị{' '}
-            <select
-              value={query.limit ?? 20}
-              onChange={(e) => {
-                setQuery(q => ({ ...q, limit: Number(e.target.value) }))
-                setCursor(undefined)
-              }}
-              style={{
-                padding: '4px 8px', borderRadius: 6, border: '1px solid var(--border)',
-                fontSize: 13, background: '#fff', cursor: 'pointer',
-              }}
-            >
-              {[10, 20, 50, 100].map(n => <option key={n} value={n}>{n}</option>)}
-            </select>{' '}
+          <span className="flex items-center gap-2">
+            Hiển thị
+            <div className="w-20 inline-block">
+              <Select
+                value={String(query.limit ?? 20)}
+                onChange={(e) => {
+                  setQuery(q => ({ ...q, limit: Number(e.target.value) }))
+                  setCursor(undefined)
+                }}
+                className="h-8 text-xs"
+              >
+                {[10, 20, 50, 100].map(n => <option key={n} value={String(n)}>{n}</option>)}
+              </Select>
+            </div>
             trên mỗi trang
             {total > 0 && (
               <span style={{ marginLeft: 8, color: 'var(--text-muted)', fontSize: 13 }}>
@@ -1954,6 +2091,58 @@ export default function FoodsPage() {
           }))
         }}
       />
+
+      <SubmitReviewBlockedDialog
+        open={!!blocked}
+        onOpenChange={(o) => { if (!o) setBlocked(null) }}
+        dishId={blocked?.dishId}
+        dishName={blocked?.dishName}
+        validation={blocked?.validation ?? null}
+        onIngredientsChanged={() => {
+          if (!blocked) return
+          const { dishId, dishName } = blocked
+          void dishesApi.validate(dishId)
+            .then((v) => { if (v) setBlocked((cur) => (cur && cur.dishId === dishId ? { dishId, dishName, validation: v } : cur)) })
+            .catch(() => undefined)
+        }}
+        onResolved={() => {
+          if (!blocked) return
+          const { dishId, dishName } = blocked
+          void dishesApi.validate(dishId).then((v) => {
+            if (!v || v.canSubmitReview) {
+              setBlocked(null)
+              void trySubmitReview(dishId, dishName)
+            } else {
+              setBlocked({ dishId, dishName, validation: v })
+            }
+          }).catch(() => undefined)
+        }}
+      />
+
+      {bulkNotice && (
+        <div
+          role="status"
+          style={{
+            position: 'fixed', right: 24, bottom: 24, zIndex: 60, maxWidth: 440,
+            background: '#fff', border: '1px solid #f3d38b', borderRadius: 12,
+            boxShadow: '0 12px 32px rgba(0,0,0,.15)', padding: '12px 14px', fontSize: 13,
+          }}
+        >
+          <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+            <span style={{ flex: 1 }}>{bulkNotice}</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => setBulkNotice(null)}
+              aria-label="Đóng"
+              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground shrink-0"
+            >
+              <X size={16} />
+            </Button>
+          </div>
+        </div>
+      )}
     </>
   )
 }

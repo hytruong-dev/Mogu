@@ -10,6 +10,7 @@ import { createHash } from 'crypto';
 import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
 import sharp from 'sharp';
+import { INGREDIENT_HTTP_USER_AGENT } from './http-user-agent';
 
 const ALLOWED_HOST_SUFFIXES = [
   'upload.wikimedia.org',
@@ -19,6 +20,39 @@ const ALLOWED_HOST_SUFFIXES = [
   'wordpress.com',
   'staticflickr.com',
   'flickr.com',
+  'pixabay.com',
+  'cdn.pixabay.com',
+  // Các nguồn ảnh CC0 / CC BY được Openverse index
+  'rawpixel.com',
+  'stocksnap.io',
+  'freestocks.org',
+  'nappy.co',
+  'stockvault.net',
+  'skitterphoto.com',
+  'unsplash.com',
+  'images.unsplash.com',
+  'pexels.com',
+  'images.pexels.com',
+  'wp.com',
+  'deviantart.net',
+  'europeana.eu',
+  'smithsonianmag.com',
+  'si.edu',
+  'nypl.org',
+  'loc.gov',
+  'sciencemuseum.org.uk',
+  'clevelandart.org',
+  'metmuseum.org',
+  'thingiverse.com',
+  'behance.net',
+  'geograph.org.uk',
+  'phylopic.org',
+  'wellcomecollection.org',
+  'digitaltmuseum.org',
+  'finna.fi',
+  'inaturalist.org',
+  'static.inaturalist.org',
+  'imgur.com',
 ];
 
 export interface SafeImageDownloadResult {
@@ -41,7 +75,9 @@ export class SafeImageDownloaderService {
   async download(url: string): Promise<SafeImageDownloadResult> {
     let current = await this.validateUrl(url);
     let redirects = 0;
+    let rateLimitRetries = 0;
     const maxRedirects = 3;
+    const maxRateLimitRetries = 2;
 
     while (redirects <= maxRedirects) {
       await this.assertPublicHostname(current.hostname);
@@ -53,7 +89,7 @@ export class SafeImageDownloaderService {
           method: 'GET',
           redirect: 'manual',
           signal: controller.signal,
-          headers: { 'user-agent': 'Mogu-IngredientEnrichment/1.0' },
+          headers: { 'user-agent': INGREDIENT_HTTP_USER_AGENT },
         });
       } catch (error) {
         if ((error as Error).name === 'AbortError') {
@@ -72,6 +108,21 @@ export class SafeImageDownloaderService {
         }
         current = await this.validateUrl(new URL(location, current).toString());
         redirects += 1;
+        continue;
+      }
+
+      if (response.status === 429) {
+        await response.body?.cancel();
+        const retryAfter = Number(response.headers.get('retry-after')) || 0;
+        // Retry-After quá dài (Wikimedia trả 600s khi UA bị chặn) -> bỏ qua ngay để caller fallback URL khác
+        if (retryAfter > 30 || rateLimitRetries >= maxRateLimitRetries) {
+          throw new BadRequestException(
+            `Image HTTP 429 (retry-after=${retryAfter || '?'}s)`,
+          );
+        }
+        const waitMs = Math.max(retryAfter * 1000, 2_000 * (rateLimitRetries + 1));
+        rateLimitRetries += 1;
+        await new Promise((r) => setTimeout(r, waitMs));
         continue;
       }
 

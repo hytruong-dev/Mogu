@@ -12,6 +12,7 @@ import { NearbyPage } from './food-detail/NearbyPage';
 import type { FoodDetailFlowProps, FoodDetailPage } from './food-detail/types';
 import { CREAM, INK, MUTED, WHITE, YELLOW, BORDER } from './food-detail/tokens';
 import { formatKcalLabel, formatPriceLabel, formatTimeLabel } from './food-detail/utils';
+import { PageTransition } from '../components/ui/screen-transition';
 
 export type { FoodDetailPage, FoodDetailFlowProps };
 export type { FoodDetailFlowProps as Props };
@@ -42,22 +43,34 @@ export function FoodDetailFlowScreen({
   onFinish,
 }: FoodDetailFlowProps) {
   const [page, setPage] = useState<FoodDetailPage>(initialPage);
+  const [dir, setDir] = useState<1 | -1>(1);
   const history = useRef<FoodDetailPage[]>([]);
   const image: ImageSourcePropType | undefined = dishImage;
 
   const go = (next: FoodDetailPage) => {
     history.current.push(page);
+    setDir(1);
     setPage(next);
   };
   const back = () => {
     const prev = history.current.pop();
-    if (prev) setPage(prev);
-    else onClose();
+    if (prev) {
+      setDir(-1);
+      setPage(prev);
+    } else onClose();
   };
 
   const priceLabel = formatPriceLabel(priceMin, priceMax);
   const timeLabel = formatTimeLabel(prepMinutes, cookMinutes);
   const kcal = formatKcalLabel(nutrition?.calories ?? null);
+
+  return (
+    <PageTransition pageKey={page} direction={dir}>
+      {renderPage()}
+    </PageTransition>
+  );
+
+  function renderPage() {
 
   if (page === 'nutrition' || page === 'recipe') {
     return (
@@ -144,6 +157,7 @@ export function FoodDetailFlowScreen({
       onNearby={() => go('location')}
     />
   );
+  }
 }
 
 function ResultSimple({

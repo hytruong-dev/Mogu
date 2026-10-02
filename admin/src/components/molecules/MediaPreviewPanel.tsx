@@ -1,4 +1,7 @@
 import { AlertTriangle, CheckCircle2, Clock, Flame, Wallet } from 'lucide-react'
+import { Image } from '../ui/image'
+import { Progress } from '../ui/progress'
+import { MediaLightbox, useMediaLightbox } from '../ui/media-lightbox'
 import type { MediaState } from './MediaForm'
 import type { BasicInfoState } from './BasicInfoForm'
 import type { NutritionState } from './NutritionForm'
@@ -13,6 +16,7 @@ interface MediaPreviewPanelProps {
 }
 
 export function MediaPreviewPanel({ media, basic, nutrition, recipe, totalMin }: MediaPreviewPanelProps) {
+  const { lightboxProps } = useMediaLightbox()
   const checks = [
     { ok: !!media.coverUrl, label: 'Ảnh đại diện: hợp lệ' },
     { ok: media.gallery.length >= 1, label: `Thư viện ảnh: ${media.gallery.length} ảnh` },
@@ -42,7 +46,15 @@ export function MediaPreviewPanel({ media, basic, nutrition, recipe, totalMin }:
         <div className="p-4">
           <div className="overflow-hidden rounded-xl border border-black/10">
             <div className="h-36 bg-gray-100">
-              {media.coverUrl && <img src={media.coverUrl} alt="" className="h-full w-full object-cover" />}
+              {media.coverUrl && (
+                <Image
+                  src={media.coverUrl}
+                  alt={basic.name || 'Ảnh món ăn'}
+                  zoomable
+                  title={basic.name || 'Ảnh món ăn'}
+                  className="h-full w-full object-cover"
+                />
+              )}
             </div>
             <div className="p-4">
               <div className="flex items-center gap-2">
@@ -68,9 +80,11 @@ export function MediaPreviewPanel({ media, basic, nutrition, recipe, totalMin }:
       <div className="rounded-2xl border border-black/10 bg-white p-6">
         <h3 className="text-lg font-bold">Hoàn thiện hồ sơ</h3>
         <div className="mt-2 text-3xl font-extrabold text-ok-green">{pct}%</div>
-        <div className="mt-3 h-2.5 overflow-hidden rounded-full bg-gray-100">
-          <div className="h-full rounded-full bg-gradient-to-r from-ok-green to-green-400" style={{ width: `${pct}%` }} />
-        </div>
+        <Progress
+          value={pct}
+          indicatorClassName="bg-gradient-to-r from-ok-green to-green-400"
+          className="mt-3 h-2.5 bg-gray-100"
+        />
         {sodium >= 800 && (
           <div className="mt-4 flex items-start gap-2 rounded-xl border border-warn-orange-border bg-warn-orange-bg p-3 text-sm">
             <AlertTriangle className="h-4 w-4 text-warn-orange" />
@@ -81,6 +95,8 @@ export function MediaPreviewPanel({ media, basic, nutrition, recipe, totalMin }:
           </div>
         )}
       </div>
+
+      <MediaLightbox {...lightboxProps} />
     </div>
   )
 }

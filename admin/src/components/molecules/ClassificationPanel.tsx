@@ -26,9 +26,19 @@ export interface ClassificationState {
   dietTypeIds: string[]
   flavors: string[]
   dishType: 'monNuoc' | 'monKho' | 'batKy'
+  /** Giá nấu tại nhà (tổng nguyên liệu cho cả công thức) */
   priceFrom: string
   priceTo: string
+  /** Giá ăn ngoài (1 phần) */
+  dineOutPriceFrom: string
+  dineOutPriceTo: string
 }
+
+/** Map dishType UI <-> DB enum */
+export const dishTypeToApi = (t: ClassificationState['dishType']): 'WET' | 'DRY' | null =>
+  t === 'monNuoc' ? 'WET' : t === 'monKho' ? 'DRY' : null
+export const dishTypeFromApi = (t?: string | null): ClassificationState['dishType'] =>
+  t === 'WET' ? 'monNuoc' : t === 'DRY' ? 'monKho' : 'batKy'
 
 interface ClassificationPanelProps {
   state: ClassificationState
@@ -145,12 +155,12 @@ export function ClassificationPanel({
           {openCategory && (
             <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-black/10 bg-white shadow-lg">
               <div className="border-b border-black/5 p-2">
-                <input
+                <Input
                   autoFocus
                   value={categoryQuery}
                   onChange={(e) => setCategoryQuery(e.target.value)}
                   placeholder="Tìm danh mục..."
-                  className="h-10 w-full rounded-lg border border-black/10 px-3 text-sm outline-none focus:border-mogu-yellow"
+                  className="h-10 w-full rounded-lg border border-black/10 px-3 text-sm focus-visible:ring-mogu-yellow"
                 />
               </div>
               <div className="max-h-64 overflow-y-auto py-1">
@@ -322,9 +332,12 @@ export function ClassificationPanel({
         </div>
       </div>
 
-      {/* Khoảng giá */}
+      {/* Khoảng giá nấu tại nhà */}
       <div>
-        <SectionLabel>Khoảng giá tham khảo</SectionLabel>
+        <SectionLabel>Giá nấu tại nhà (tổng nguyên liệu)</SectionLabel>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Chi phí mua nguyên liệu để nấu toàn bộ công thức theo khẩu phần đã khai báo.
+        </p>
         <div className="mt-2 flex items-center gap-3">
           <span className="text-sm text-muted-foreground">Từ</span>
           <div className="flex w-36 items-center rounded-full border border-border px-4 py-2">
@@ -332,15 +345,55 @@ export function ClassificationPanel({
               value={state.priceFrom}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange({ ...state, priceFrom: e.target.value })}
               className="w-full border-0 p-0 shadow-none focus-visible:ring-0"
-              placeholder="35.000"
+              placeholder="120.000"
             />
-            <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+            <Trash2
+              className="h-3.5 w-3.5 cursor-pointer text-muted-foreground"
+              onClick={() => onChange({ ...state, priceFrom: '', priceTo: '' })}
+            />
           </div>
           <span className="text-sm text-muted-foreground">Đến</span>
           <div className="flex w-36 items-center rounded-full border border-border px-4 py-2">
             <Input
               value={state.priceTo}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange({ ...state, priceTo: e.target.value })}
+              className="w-full border-0 p-0 shadow-none focus-visible:ring-0"
+              placeholder="180.000"
+            />
+            <span className="text-sm text-muted-foreground">đ</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Giá ăn ngoài */}
+      <div>
+        <SectionLabel>Giá ăn ngoài (1 phần)</SectionLabel>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Giá tham khảo khi ăn tại quán / nhà hàng, tính cho một phần.
+        </p>
+        <div className="mt-2 flex items-center gap-3">
+          <span className="text-sm text-muted-foreground">Từ</span>
+          <div className="flex w-36 items-center rounded-full border border-border px-4 py-2">
+            <Input
+              value={state.dineOutPriceFrom}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChange({ ...state, dineOutPriceFrom: e.target.value })
+              }
+              className="w-full border-0 p-0 shadow-none focus-visible:ring-0"
+              placeholder="35.000"
+            />
+            <Trash2
+              className="h-3.5 w-3.5 cursor-pointer text-muted-foreground"
+              onClick={() => onChange({ ...state, dineOutPriceFrom: '', dineOutPriceTo: '' })}
+            />
+          </div>
+          <span className="text-sm text-muted-foreground">Đến</span>
+          <div className="flex w-36 items-center rounded-full border border-border px-4 py-2">
+            <Input
+              value={state.dineOutPriceTo}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChange({ ...state, dineOutPriceTo: e.target.value })
+              }
               className="w-full border-0 p-0 shadow-none focus-visible:ring-0"
               placeholder="65.000"
             />

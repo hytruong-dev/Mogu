@@ -4,6 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DishStatus } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { DishReviewService } from './dish-review.service';
+import { IngredientCatalogService } from '../ingredients/ingredient-catalog.service';
 
 const mockPrisma = {
   db: {
@@ -14,6 +15,9 @@ const mockPrisma = {
     },
     dishIngredient: {
       findMany: jest.fn(),
+    },
+    dishMedia: {
+      updateMany: jest.fn().mockResolvedValue({ count: 0 }),
     },
     dishAuditLog: {
       create: jest.fn(),
@@ -39,6 +43,13 @@ describe('DishReviewService', () => {
         DishReviewService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: ConfigService, useValue: { get: () => '' } },
+        {
+          // Dùng helper thật (findUnapprovedForDish) trên mock prisma để gate publish
+          // và gate gửi duyệt chung một logic.
+          provide: IngredientCatalogService,
+          useFactory: () =>
+            new IngredientCatalogService(mockPrisma as any, {} as any, {} as any, {} as any),
+        },
       ],
     }).compile();
 

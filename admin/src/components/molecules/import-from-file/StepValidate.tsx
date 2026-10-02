@@ -7,6 +7,10 @@ import {
   RefreshCw,
   XCircle,
 } from 'lucide-react'
+import { Input } from '../../ui/input'
+import { Select } from '../../ui/select'
+import { Button } from '../../ui/button'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/table'
 import type { DuplicatePolicy, IssueRow, ValidateTab } from './types'
 import { YellowCheck, YellowRadio } from './widgets'
 import { cn } from '@/lib/utils'
@@ -105,77 +109,81 @@ export function StepValidate({
           </div>
 
           <div className="mt-3 overflow-hidden rounded-xl border border-black/10">
-            <table className="w-full text-[13px]">
-              <thead>
-                <tr className="bg-[#FAFAF9] text-left text-xs font-semibold text-[#6B7280]">
-                  <th className="px-3 py-2">Dòng</th>
-                  <th className="px-3 py-2">Tên món</th>
-                  <th className="px-3 py-2">Trường lỗi</th>
-                  <th className="px-3 py-2">Giá trị hiện tại</th>
-                  <th className="px-3 py-2">Vấn đề</th>
-                  <th className="px-3 py-2">Cách xử lý</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table className="w-full text-[13px]">
+              <TableHeader>
+                <TableRow className="bg-[#FAFAF9] text-left text-xs font-semibold text-[#6B7280]">
+                  <TableHead className="px-3 py-2">Dòng</TableHead>
+                  <TableHead className="px-3 py-2">Tên món</TableHead>
+                  <TableHead className="px-3 py-2">Trường lỗi</TableHead>
+                  <TableHead className="px-3 py-2">Giá trị hiện tại</TableHead>
+                  <TableHead className="px-3 py-2">Vấn đề</TableHead>
+                  <TableHead className="px-3 py-2">Cách xử lý</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="px-3 py-8 text-center text-sm text-[#9CA3AF]">
+                  <TableRow>
+                    <TableCell colSpan={6} className="px-3 py-8 text-center text-sm text-[#9CA3AF]">
                       Không có dòng trong bộ lọc này.
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
                 {filtered.map((row) => (
-                  <tr key={row.id} className="border-t border-black/5">
-                    <td className="px-3 py-2 font-medium">{row.row}</td>
-                    <td className="px-3 py-2 font-medium">{row.dishName}</td>
-                    <td className="px-3 py-2 font-mono text-xs">{row.field}</td>
-                    <td className="px-3 py-2">
+                  <TableRow key={row.id} className="border-t border-black/5">
+                    <TableCell className="px-3 py-2 font-medium">{row.row}</TableCell>
+                    <TableCell className="px-3 py-2 font-medium">{row.dishName}</TableCell>
+                    <TableCell className="px-3 py-2 font-mono text-xs">{row.field}</TableCell>
+                    <TableCell className="px-3 py-2">
                       <span className={cn('inline-block max-w-[160px] truncate rounded px-1.5 py-0.5 text-xs', valueTone(row.kind))}>
                         {row.currentValue || '—'}
                       </span>
-                    </td>
-                    <td className="px-3 py-2 text-[#4B5563]">{row.problem}</td>
-                    <td className="px-3 py-2">
+                    </TableCell>
+                    <TableCell className="px-3 py-2 text-[#4B5563]">{row.problem}</TableCell>
+                    <TableCell className="px-3 py-2">
                       {row.fixType === 'input' ? (
-                        <input
+                        <Input
                           value={row.fixValue}
                           onChange={(e) => onFix(row.id, e.target.value)}
                           placeholder="Nhập giá trị"
-                          className="h-8 w-[120px] rounded-md border border-black/15 px-2 text-xs"
+                          className="h-8 w-[120px] text-xs"
                         />
                       ) : (
-                        <select
+                        <Select
                           value={row.fixValue}
                           onChange={(e) => onFix(row.id, e.target.value)}
-                          className="h-8 w-[150px] rounded-md border border-black/15 bg-white px-2 text-xs"
+                          className="h-8 w-[150px] text-xs"
                         >
                           {row.fixOptions?.map((o) => (
                             <option key={o.value} value={o.value}>{o.label}</option>
                           ))}
-                        </select>
+                        </Select>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
 
           <div className="mt-3 flex items-center gap-2">
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={onApplySimilar}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-black/10 bg-white px-3 text-xs font-semibold hover:bg-black/[0.03]"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg text-xs font-semibold"
             >
               <RefreshCw className="h-3.5 w-3.5" /> Áp dụng cách xử lý cho lỗi cùng loại
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={downloadErrors}
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-black/10 bg-white px-3 text-xs font-semibold hover:bg-black/[0.03]"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg text-xs font-semibold"
             >
               <Download className="h-3.5 w-3.5" /> Tải file lỗi .xlsx
-            </button>
+            </Button>
           </div>
         </div>
 

@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Heart, Leaf, Plus, ShieldAlert, Tag } from 'lucide-react'
 import { Button } from '../components/ui/button'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
+import { Badge } from '../components/ui/badge'
 import { FoodDataActionsProvider, useFoodDataActions } from '../components/food-data/food-data-context'
 import { ingredientsApi } from '../api/ingredients'
 import { taxonomyAdminApi } from '../api/taxonomy'
@@ -85,25 +87,26 @@ function FoodDataShell() {
         </Button>
       </header>
 
-      <nav className="food-data-tabs" aria-label="Nhóm dữ liệu món ăn">
-        {TABS.map((tab) => {
-          const Icon = tab.icon
-          const selected = activeTab === tab.id
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              className={selected ? 'is-active' : ''}
-              onClick={() => selectTab(tab.id)}
-              aria-current={selected ? 'page' : undefined}
-            >
-              <Icon size={16} strokeWidth={selected ? 2.25 : 1.8} />
-              <span>{tab.label}</span>
-              <small>{counts[tab.id].toLocaleString('vi-VN')}</small>
-            </button>
-          )
-        })}
-      </nav>
+      <Tabs value={activeTab} onValueChange={(val) => selectTab(val as FoodDataTab)} className="w-full">
+        <TabsList className="h-auto p-1 bg-muted/60 rounded-xl gap-1.5 flex flex-wrap justify-start">
+          {TABS.map((tab) => {
+            const Icon = tab.icon
+            return (
+              <TabsTrigger
+                key={tab.id}
+                value={tab.id}
+                className="gap-2 px-4 py-2 text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:text-foreground data-[state=active]:shadow-sm"
+              >
+                <Icon size={16} />
+                <span>{tab.label}</span>
+                <Badge variant="secondary" className="ml-1 text-[11px] px-1.5 py-0 h-5 font-mono">
+                  {counts[tab.id].toLocaleString('vi-VN')}
+                </Badge>
+              </TabsTrigger>
+            )
+          })}
+        </TabsList>
+      </Tabs>
 
       <section className="food-data-panel">
         {/* Keep tabs mounted to avoid remount flicker when switching */}

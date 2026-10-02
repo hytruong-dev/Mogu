@@ -15,15 +15,24 @@ export interface SafeSourceFetchResult {
   redirects: number;
 }
 
+/**
+ * Một số trang công thức VN (Điện máy XANH) trả HTTP 500 cho UA không phải trình duyệt.
+ * Dùng UA tương thích trình duyệt nhưng vẫn kèm định danh bot để minh bạch.
+ */
+export const SOURCE_FETCH_USER_AGENT =
+  process.env.AI_IMPORT_SOURCE_USER_AGENT?.trim() ||
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36 Mogu-AI-Import/1.1 (+https://mogu.app)';
+
 @Injectable()
 export class SafeSourceFetcherService {
   constructor(private readonly config: ConfigService) {}
 
   async fetch(url: string): Promise<SafeSourceFetchResult> {
     const timeoutMs = this.numberConfig('AI_IMPORT_SOURCE_TIMEOUT_MS', 5_000);
+    // Trang công thức VN (Điện máy XANH, Cooky) nặng ~900KB HTML nên mặc định 2.5MB.
     const maxBytes = this.numberConfig(
       'AI_IMPORT_SOURCE_MAX_RESPONSE_BYTES',
-      1_000_000,
+      2_500_000,
     );
     const maxRedirects = this.numberConfig(
       'AI_IMPORT_SOURCE_MAX_REDIRECTS',
@@ -45,7 +54,8 @@ export class SafeSourceFetcherService {
           signal: controller.signal,
           headers: {
             accept: 'text/html,application/xhtml+xml',
-            'user-agent': 'Mogu-AI-Import-Source/1.1',
+            'accept-language': 'vi-VN,vi;q=0.9,en;q=0.8',
+            'user-agent': SOURCE_FETCH_USER_AGENT,
           },
         });
       } catch (error) {

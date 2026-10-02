@@ -24,6 +24,8 @@ import { Input } from '../components/ui/input'
 import { Select } from '../components/ui/select'
 import { Switch } from '../components/ui/switch'
 import { Textarea } from '../components/ui/textarea'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 
 type ListKind = 'category' | 'meal-type'
 
@@ -90,13 +92,17 @@ function TaxonomyFormDialog({
         </DialogHeader>
 
         {!isEdit && (
-          <div className="fd-segment" style={{ margin: '0 24px 8px' }}>
-            <button type="button" className={kind === 'category' ? 'is-active' : ''} onClick={() => onKindChange('category')}>
-              <Tag size={14} /> Danh mục món ăn
-            </button>
-            <button type="button" className={kind === 'meal-type' ? 'is-active' : ''} onClick={() => onKindChange('meal-type')}>
-              <Utensils size={14} /> Loại bữa ăn
-            </button>
+          <div style={{ margin: '0 24px 8px' }}>
+            <Tabs value={kind} onValueChange={(val) => onKindChange(val as ListKind)}>
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="category" className="gap-2 text-xs">
+                  <Tag size={14} /> Danh mục món ăn
+                </TabsTrigger>
+                <TabsTrigger value="meal-type" className="gap-2 text-xs">
+                  <Utensils size={14} /> Loại bữa ăn
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
         )}
 
@@ -324,13 +330,17 @@ export default function CategoriesPage({
         </div>
       )}
 
-      <div className="fd-segment">
-        <button type="button" className={listKind === 'category' ? 'is-active' : ''} onClick={() => { setListKind('category'); setPage(1) }}>
-          <Tag size={14} /> Danh mục món ăn
-        </button>
-        <button type="button" className={listKind === 'meal-type' ? 'is-active' : ''} onClick={() => { setListKind('meal-type'); setPage(1) }}>
-          <Utensils size={14} /> Loại bữa ăn
-        </button>
+      <div className="mb-4">
+        <Tabs value={listKind} onValueChange={(val) => { setListKind(val as ListKind); setPage(1) }}>
+          <TabsList className="bg-muted p-1">
+            <TabsTrigger value="category" className="gap-2 text-xs">
+              <Tag size={14} /> Danh mục món ăn
+            </TabsTrigger>
+            <TabsTrigger value="meal-type" className="gap-2 text-xs">
+              <Utensils size={14} /> Loại bữa ăn
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
 
       <h2 className="fd-section-title">
@@ -357,69 +367,51 @@ export default function CategoriesPage({
       </div>
 
       <div className="fd-table-wrap">
-        <table className="fd-table">
-          <thead>
-            <tr>
-              <th>Tên {listKind === 'category' ? 'danh mục' : 'loại bữa'}</th>
-              <th>Thứ tự hiển thị</th>
-              <th>Kích hoạt</th>
-              <th style={{ width: 150 }}>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && (
-              <tr><td colSpan={4} className="fd-empty p-0"><TableSkeleton rows={5} cols={4} /></td></tr>
-            )}
-            {!loading && pageItems.length === 0 && (
-              <tr><td colSpan={4} className="fd-empty">Chưa có dữ liệu</td></tr>
-            )}
+        <Table className="fd-table">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Tên {listKind === 'category' ? 'danh mục' : 'loại bữa'}</TableHead>
+              <TableHead>Thứ tự hiển thị</TableHead>
+              <TableHead>Kích hoạt</TableHead>
+              <TableHead style={{ width: 150 }}>Hành động</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading && <TableRow><TableCell colSpan={4} className="fd-empty p-0"><TableSkeleton rows={5} cols={4} /></TableCell></TableRow>}
+            {!loading && pageItems.length === 0 && <TableRow><TableCell colSpan={4} className="fd-empty">Chưa có dữ liệu</TableCell></TableRow>}
             {pageItems.map((item) => (
-              <tr key={item.id} style={{ cursor: 'default' }}>
-                <td>
+              <TableRow key={item.id}>
+                <TableCell>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                     <div className="fd-cat-icon">
                       {listKind === 'category' ? <Tag size={14} /> : <Utensils size={14} />}
                     </div>
                     <div className="fd-name-cell">
                       <strong>{item.name}</strong>
-                      <span>
-                        {(item as Category).description || item.code}
-                      </span>
+                      <span>{(item as Category).description || item.code}</span>
                     </div>
                   </div>
-                </td>
-                <td>{item.displayOrder}</td>
-                <td>
+                </TableCell>
+                <TableCell>{item.displayOrder}</TableCell>
+                <TableCell>
                   <span className={`fd-status ${item.isActive ? 'is-on' : 'is-off'}`}>
                     {item.isActive ? 'Bật' : 'Ẩn'}
                   </span>
-                </td>
-                <td>
+                </TableCell>
+                <TableCell>
                   <div className="fd-row-actions">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditItem(item)
-                        setModalKind(listKind)
-                        setModalOpen(true)
-                      }}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => { setEditItem(item); setModalKind(listKind); setModalOpen(true) }}>
                       <Pencil size={13} /> Sửa
-                    </button>
-                    <button
-                      type="button"
-                      className="is-danger"
-                      onClick={() => setHideItem(item)}
-                      disabled={!item.isActive}
-                    >
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => setHideItem(item)} disabled={!item.isActive}>
                       <Trash2 size={13} /> Xóa
-                    </button>
+                    </Button>
                   </div>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       <FoodDataPagination

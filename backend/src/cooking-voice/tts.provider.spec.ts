@@ -6,6 +6,7 @@ import {
   OpenAiTtsProvider,
   validateSpeech,
 } from './tts.provider';
+import { NOAN_TTS_INSTRUCTIONS } from './noan-voice-profile';
 
 describe('cooking speech providers', () => {
   afterEach(() => jest.restoreAllMocks());
@@ -29,6 +30,7 @@ describe('cooking speech providers', () => {
     const init = fetchMock.mock.calls[0][1]!;
     expect(init.body).toContain('&lt;break/&gt; &amp; &quot;x&quot;');
     expect(init.body).toContain('rate="-5%"');
+    expect(init.body).toContain('pitch="+4%"');
   });
   it('adds sentence pauses without allowing recipe SSML injection', async () => {
     const mock = jest
@@ -65,6 +67,38 @@ describe('cooking speech providers', () => {
         }),
       ).provider(),
     ).toBeInstanceOf(AzureTtsProvider);
+    expect(
+      new CookingTtsService(
+        new ConfigService({
+          AZURE_SPEECH_KEY: 'key',
+          AZURE_SPEECH_REGION: 'eastus',
+          COOKING_OPENAI_API_KEY: 'other',
+          COOKING_OPENAI_VOICE_ID: 'voice_noan',
+        }),
+      ).provider(),
+    ).toBeInstanceOf(OpenAiTtsProvider);
+  });
+  it('sends the NOAN delivery guide to supported TTS models and can use a consented custom voice', async () => {
+    const fetchMock = jest
+      .spyOn(global, 'fetch')
+      .mockImplementation(async () => new Response(new Uint8Array([1])));
+    const provider = new OpenAiTtsProvider(
+      'key',
+      'gpt-4o-mini-tts',
+      'coral',
+      'voice_noan',
+    );
+    await provider.synthesize('Đun nước 5 phút.', 0.95);
+    const request = JSON.parse(fetchMock.mock.calls[0][1]?.body as string);
+    expect(provider.identity.voice).toBe('voice_noan');
+    expect(request.voice).toEqual({ id: 'voice_noan' });
+    expect(request.instructions).toBe(NOAN_TTS_INSTRUCTIONS);
+    expect(request.speed).toBe(0.95);
+    await new OpenAiTtsProvider('key', 'tts-1', 'coral').synthesize('Nấu', 1);
+    const legacyRequest = JSON.parse(
+      fetchMock.mock.calls[1][1]?.body as string,
+    );
+    expect(legacyRequest.instructions).toBeUndefined();
   });
   it('fails provider requests clearly and releases concurrency slots', async () => {
     const service = new CookingTtsService(new ConfigService());

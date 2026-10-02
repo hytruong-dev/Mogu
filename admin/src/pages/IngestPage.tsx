@@ -1,4 +1,4 @@
-﻿import { useState, type CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowDownToLine,
@@ -15,6 +15,10 @@ import { Button } from '../components/ui/button'
 import { Card } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Badge } from '../components/ui/badge'
+import { Checkbox } from '../components/ui/checkbox'
+import { Select } from '../components/ui/select'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
+import { Image } from '../components/ui/image'
 import { ImportJobPreviewModal } from '../components/ui/import-job-preview-modal'
 import {
   useCreateImportJob,
@@ -277,7 +281,7 @@ function ImportProgressView({
           <div className="ai-progress-meta"><span>◷ Đã chạy {Math.max(1, Math.round(progress / 3))} giây</span><i /> <span>⌘ Mã job {job.id.slice(0, 12).toUpperCase()}</span></div>
           <div className="ai-progress-actions">
             <Button variant="outline" onClick={() => window.history.back()}>↻ Chạy nền</Button>
-            <button onClick={onCancel}>Hủy</button>
+            <Button variant="ghost" onClick={onCancel}>Hủy</Button>
           </div>
           <details className="ai-technical-details">
             <summary>☷ Chi tiết kỹ thuật</summary>
@@ -303,6 +307,11 @@ function ImportSuccessView({ job, onNew }: { job: ImportJob; onNew: () => void }
   const ingredients = (dish as any)?.dishIngredients ?? []
   const steps = (dish as any)?.recipeSteps ?? []
   const dishName = dish?.name ?? job.query
+  const reconLog = (job.logs ?? []).find((l) => l.step === 'RECONCILING')
+  const logPending = Number(`${reconLog?.message ?? ''} ${(reconLog as any)?.detail ?? ''}`.match(/Mới:\s*(\d+)/)?.[1] ?? 0)
+  const pendingIngredients = dish
+    ? ingredients.filter((di: any) => !di.ingredient || di.ingredient.status !== 'ACTIVE').length
+    : (job.pendingIngredientCount ?? logPending)
 
   return (
     <div className="ai-success-page">
@@ -318,8 +327,37 @@ function ImportSuccessView({ job, onNew }: { job: ImportJob; onNew: () => void }
           <div><b>{image ? 1 : 0}</b><small>ảnh minh họa</small></div>
         </div>
         <div className="ai-success-warning">△ Dữ liệu do AI tạo có thể chưa chính xác. Cần kiểm tra nguyên liệu, định lượng, khẩu phần và dinh dưỡng.</div>
+        {pendingIngredients > 0 && (
+          <div
+            className="ai-success-warning"
+            style={{ background: '#fff7e6', borderColor: '#f3d38b', color: '#92400e', display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}
+          >
+            <span>
+              🥬 <b>{pendingIngredients}</b> nguyên liệu mới tự động tìm (thông tin + ảnh tạm), cần duyệt trước khi gửi duyệt món.
+            </span>
+            {job.resultDishId && (
+              <Button size="sm" variant="outline" onClick={() => navigate(`/foods/${job.resultDishId}?step=ingredients`)}>
+                Duyệt nguyên liệu
+              </Button>
+            )}
+          </div>
+        )}
         <div className="ai-success-summary">
-          <div className="ai-success-image">{image ? <img src={image} alt={dishName} /> : '🍜'}</div>
+          <div className="ai-success-image relative group overflow-hidden">
+            {image ? (
+              <Image
+                src={image}
+                alt={dishName}
+                aspectRatio="square"
+                zoomable
+                title={dishName}
+                subtitle="Ảnh minh họa AI"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              '🍜'
+            )}
+          </div>
           <div><small>◷ Thời gian chế biến</small><b>{dish?.cookMinutes ?? '—'} phút</b></div>
           <div><small>⚑ Khẩu phần</small><b>{dish?.servings ?? '—'} người</b></div>
           <div><small>♨ Năng lượng</small><b>{nutrition?.calories ?? summary.calories ?? '—'} kcal</b></div>
@@ -336,7 +374,6 @@ function LegacyJobCard({ job, onPreview, onRetry }: { job: ImportJob; onPreview:
   const actions = useImportJobActions()
   const ws = useJobProgress(job.id)
   const currentStatus = ws?.status ?? job.status
-  const [imgError, setImgError] = useState(false)
 
   const isDone = currentStatus === 'DONE'
   const isFailed = currentStatus === 'FAILED'
@@ -344,7 +381,7 @@ function LegacyJobCard({ job, onPreview, onRetry }: { job: ImportJob; onPreview:
   const isActive = ACTIVE_STATUSES.includes(currentStatus)
   const resultDishId = ws?.resultDishId ?? job.resultDishId
   const suggestedImg = (ws as any)?.suggestedImageUrl ?? (job as any).suggestedImageUrl
-  const showImg = suggestedImg && !imgError
+  const showImg = !!suggestedImg
 
   const summary = isDone ? parseJobSummary(job) : null
 
@@ -392,12 +429,19 @@ function LegacyJobCard({ job, onPreview, onRetry }: { job: ImportJob; onPreview:
         transition: 'height 0.3s',
       }}>
         {showImg ? (
-          <img
-            src={suggestedImg}
-            alt={job.query}
-            onError={() => setImgError(true)}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
+          <div
+            style={{ width: '100%', height: '100%', position: 'relative' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Image
+              src={suggestedImg}
+              alt={job.query}
+              aspectRatio="video"
+              zoomable
+              title={job.query}
+              className="w-full h-full object-cover"
+            />
+          </div>
         ) : !isActive && (
           <span style={{ fontSize: 32 }}>🍽️</span>
         )}
@@ -448,13 +492,15 @@ function LegacyJobCard({ job, onPreview, onRetry }: { job: ImportJob; onPreview:
 
           {/* Cancel button — chỉ khi active */}
           {isActive && (
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={e => { e.stopPropagation(); actions.cancel.mutate(job.id) }}
               disabled={actions.cancel.isPending}
-              style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'transparent', borderRadius: 8, padding: '4px 10px', cursor: 'pointer', fontSize: 12, color: 'rgba(245,240,232,0.6)', display: 'flex', alignItems: 'center', gap: 4 }}
+              className="border-white/15 bg-transparent text-white/70 hover:bg-white/10"
             >
-              <X size={12} /> Hủy
-            </button>
+              <X size={12} className="mr-1" /> Hủy
+            </Button>
           )}
         </div>
 
@@ -618,7 +664,7 @@ export default function IngestPage() {
             <Search size={16} />
             <Input className='border-none focus:border-none' value={historyQuery} onChange={(event) => setHistoryQuery(event.target.value)} placeholder="Tìm theo tên món..." />
           </div>
-          <select
+          <Select
             value={historyStatus}
             onChange={(event) => setHistoryStatus(event.target.value as typeof historyStatus)}
           >
@@ -627,32 +673,50 @@ export default function IngestPage() {
             <option value="ACTIVE">Đang xử lý</option>
             <option value="FAILED">Thất bại</option>
             <option value="CANCELLED">Đã hủy</option>
-          </select>
+          </Select>
         </Card>
 
         <Card className="ai-history-table-wrap">
-          <table className="ai-history-table">
-            <thead><tr><th>Món ăn</th><th>Trạng thái</th><th>Tiến trình</th><th>Thời gian</th><th>Thao tác</th></tr></thead>
-            <tbody>
-              {isLoading && <tr><td colSpan={5} className="ai-history-empty"><Loader2 size={18} /> Đang tải lịch sử...</td></tr>}
-              {!isLoading && filteredHistoryJobs.length === 0 && <tr><td colSpan={5} className="ai-history-empty">Chưa tìm thấy lần nhập món phù hợp.</td></tr>}
+          <Table className="ai-history-table">
+            <TableHeader>
+              <TableRow>
+                <TableHead>Món ăn</TableHead>
+                <TableHead>Trạng thái</TableHead>
+                <TableHead>Tiến trình</TableHead>
+                <TableHead>Thời gian</TableHead>
+                <TableHead>Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading && (
+                <TableRow>
+                  <TableCell colSpan={5} className="ai-history-empty"><Loader2 size={18} /> Đang tải lịch sử...</TableCell>
+                </TableRow>
+              )}
+              {!isLoading && filteredHistoryJobs.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={5} className="ai-history-empty">Chưa tìm thấy lần nhập món phù hợp.</TableCell>
+                </TableRow>
+              )}
               {filteredHistoryJobs.map((job) => {
                 const active = ACTIVE_STATUSES.includes(job.status)
                 const successful = job.status === 'DONE'
-                return <tr key={job.id}>
-                  <td><div className="ai-history-dish"><span>🍜</span><b>{job.query}</b></div></td>
-                  <td><span className={`ai-history-status ${job.status.toLowerCase()}`}>● {statusLabel(job.status)}</span></td>
-                  <td>{(successful || active) ? <div className="ai-history-progress"><b>{successful ? 100 : job.progress}%</b><i><em style={{ width: `${successful ? 100 : job.progress}%` }} /></i></div> : '—'}</td>
-                  <td>{relativeTime(job.completedAt ?? job.createdAt)}</td>
-                  <td>
-                    {successful && job.resultDishId ? <Button variant="outline" size="sm" onClick={() => setPreviewJobId(job.id)}>▣ Mở bản nháp</Button>
-                      : active ? <Button variant="outline" size="sm" onClick={() => { setShowHistory(false); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>◷ Xem tiến trình</Button>
-                        : <Button variant="outline" size="sm" onClick={() => { handleRetry(job); setShowHistory(false) }}>⟳ Tạo lại job</Button>}
-                  </td>
-                </tr>
+                return (
+                  <TableRow key={job.id}>
+                    <TableCell><div className="ai-history-dish"><span>🍜</span><b>{job.query}</b></div></TableCell>
+                    <TableCell><span className={`ai-history-status ${job.status.toLowerCase()}`}>● {statusLabel(job.status)}</span></TableCell>
+                    <TableCell>{(successful || active) ? <div className="ai-history-progress"><b>{successful ? 100 : job.progress}%</b><i><em style={{ width: `${successful ? 100 : job.progress}%` }} /></i></div> : '—'}</TableCell>
+                    <TableCell>{relativeTime(job.completedAt ?? job.createdAt)}</TableCell>
+                    <TableCell>
+                      {successful && job.resultDishId ? <Button variant="outline" size="sm" onClick={() => setPreviewJobId(job.id)}>▣ Mở bản nháp</Button>
+                        : active ? <Button variant="outline" size="sm" onClick={() => { setShowHistory(false); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>◷ Xem tiến trình</Button>
+                          : <Button variant="outline" size="sm" onClick={() => { handleRetry(job); setShowHistory(false) }}>⟳ Tạo lại job</Button>}
+                    </TableCell>
+                  </TableRow>
+                )
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </Card>
         {previewJobId && <ImportJobPreviewModal jobId={previewJobId} onClose={() => setPreviewJobId(null)} />}
       </div>
@@ -744,22 +808,27 @@ export default function IngestPage() {
           {submitError && <div className="ingest-error" role="alert">⚠ {submitError}</div>}
           <details className="ingest-source-details">
             <summary>Nguồn dữ liệu</summary>
-            <div className="ingest-source-list">{SOURCE_OPTIONS.map((src) => (
-              <button
-                key={src.value}
-                onClick={() => toggleSource(src.value)}
-                className="source-option"
-              >
-                <span className={selectedSources.includes(src.value) ? 'checked-box' : 'check-box'}>
-                  {selectedSources.includes(src.value) && <Check size={15} />}
-                </span>
-                <Database size={20} />
-                <span>
-                  <b>{src.label}</b>
-                  <small>{src.description}</small>
-                </span>
-              </button>
-            ))}</div>
+            <div className="ingest-source-list">{SOURCE_OPTIONS.map((src) => {
+              const isChecked = selectedSources.includes(src.value)
+              return (
+                <div
+                  key={src.value}
+                  onClick={() => toggleSource(src.value)}
+                  className="source-option flex items-center gap-3 p-2.5 rounded-lg border border-border hover:bg-muted/40 cursor-pointer transition-colors"
+                >
+                  <Checkbox
+                    checked={isChecked}
+                    onCheckedChange={() => toggleSource(src.value)}
+                    aria-label={src.label}
+                  />
+                  <Database size={18} className="text-muted-foreground flex-shrink-0" />
+                  <span className="flex flex-col text-left">
+                    <b className="text-xs font-semibold text-foreground">{src.label}</b>
+                    <small className="text-[11px] text-muted-foreground">{src.description}</small>
+                  </span>
+                </div>
+              )
+            })}</div>
           </details>
 
           <Button

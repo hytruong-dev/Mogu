@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Platform,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -15,9 +16,37 @@ import {
   Text,
   TouchableOpacity,
   View,
+  type StyleProp,
+  type ViewStyle,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, ChevronRight, RefreshCw, ShoppingCart, Sparkles } from '@/components/icons';
+import {
+  ArrowLeft,
+  CalendarDays,
+  Check,
+  ChevronRight,
+  Coffee,
+  Flame,
+  Leaf,
+  Lock,
+  LockOpen,
+  Moon,
+  Pencil,
+  RefreshCw,
+  ShoppingCart,
+  Sun,
+  Sunrise,
+  Wallet,
+} from '@/components/icons';
+import Animated, {
+  Easing,
+  FadeIn,
+  FadeInDown,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
@@ -47,22 +76,28 @@ import {
   getTodayISO,
   isTodayISO,
 } from '../lib/dates';
-import { WeeklyPlanSkeleton } from '../components/skeletons/ScreenSkeletons';
 import { cancelMealReminders, syncMealReminders } from '../lib/meal-reminders';
 
 const CREAM = '#F7F2E8';
 const WHITE = '#FFFFFF';
 const INK = '#111111';
 const YELLOW = '#FFC51A';
-const MUTED = '#999';
-const BORDER = '#EDE5D2';
+const YELLOW_D = '#D99A00';
+const MUTED = '#8C857A';
 
 const shadow = {
-  shadowColor: '#B19B66',
-  shadowOpacity: 0.1,
-  shadowRadius: 10,
-  shadowOffset: { width: 0, height: 3 },
-  elevation: 3,
+  shadowColor: '#8A6D2B',
+  shadowOpacity: 0.08,
+  shadowRadius: 14,
+  shadowOffset: { width: 0, height: 4 },
+  elevation: 2,
+};
+const softShadow = {
+  shadowColor: '#8A6D2B',
+  shadowOpacity: 0.06,
+  shadowRadius: 8,
+  shadowOffset: { width: 0, height: 2 },
+  elevation: 1,
 };
 
 type Meal = {
@@ -451,18 +486,7 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
 
   // ── Loading screen ───────────────────────────────────────────────────────────
   if (loading) {
-    return (
-      <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
-        <View style={s.header}>
-          <Pressable onPress={onBack} style={s.iconBtn} hitSlop={8}>
-            <ArrowLeft size={22} color={INK} strokeWidth={2} />
-          </Pressable>
-          <Text style={s.headerTitle}>Thực đơn tuần</Text>
-          <View style={s.iconBtn} />
-        </View>
-        <WeeklyPlanSkeleton />
-      </SafeAreaView>
-    );
+    return <WeeklyPlanLoadingSkeleton onBack={onBack} />;
   }
 
   // ── Status badge ─────────────────────────────────────────────────────────────
@@ -487,226 +511,293 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
   const showActiveBtn = !isPlanExpired && planStatus === 'ACTIVE';
   const regenLabel = (plan && !isPlanExpired) ? 'Tạo lại thực đơn' : 'Cấu hình thực đơn mới';
 
+  const statusTone = (() => {
+    if (isPlanExpired) return { bg: '#F1EEE8', fg: '#6B6459', dot: '#A39B8E' };
+    switch (planStatus) {
+      case 'READY': return { bg: '#E3F8EA', fg: '#15803D', dot: '#22C55E' };
+      case 'ACTIVE': return { bg: '#FFF1D6', fg: '#B45309', dot: '#F59E0B' };
+      case 'GENERATING': return { bg: '#EEF0FF', fg: '#4F46E5', dot: '#6366F1' };
+      case 'FAILED': return { bg: '#FDECEC', fg: '#B91C1C', dot: '#EF4444' };
+      default: return { bg: '#F1EEE8', fg: '#6B6459', dot: '#A39B8E' };
+    }
+  })();
+  const statusText = isPlanExpired
+    ? 'Đã kết thúc'
+    : planStatus
+      ? (STATUS_LABEL[planStatus] ?? 'Kế hoạch')
+      : 'Chưa có kế hoạch';
+  const doneToday = selectedDay?.meals.filter((m) => m.status === 'COMPLETED').length ?? 0;
+  const overKcal = calTotal > 0 && calProjected > calTotal;
+
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
       {/* Header */}
       <View style={s.header}>
-        <Pressable onPress={onBack} style={s.iconBtn} hitSlop={8}>
-          <ArrowLeft size={22} color={INK} strokeWidth={2} />
+        <Pressable onPress={onBack} style={s.headerBtn} hitSlop={8} accessibilityLabel="Quay lại">
+          <ArrowLeft size={20} color={INK} strokeWidth={2.2} />
         </Pressable>
-        <Text style={s.headerTitle}>Thực đơn tuần</Text>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <Text style={s.headerTitle}>Thực đơn tuần</Text>
+          {hasRealDays && planDateLabel ? (
+            <Text style={s.headerSub}>{planDateLabel}</Text>
+          ) : null}
+        </View>
         {plan?.id && !isPlanExpired ? (
           <Pressable
             onPress={() => onOpenWeeklyGrocery?.(plan.id)}
-            style={s.iconBtn}
+            style={s.headerBtn}
             hitSlop={8}
             accessibilityLabel="Đi chợ tuần"
           >
-            <ShoppingCart size={20} color={INK} strokeWidth={2.2} />
+            <ShoppingCart size={19} color={INK} strokeWidth={2.2} />
           </Pressable>
         ) : (
-          <Pressable onPress={onMore} style={s.iconBtn} hitSlop={8}>
-            <Text style={{ fontSize: 22, color: INK }}>⋯</Text>
+          <Pressable onPress={onMore} style={s.headerBtn} hitSlop={8}>
+            <Text style={{ fontSize: 20, color: INK, marginTop: -4 }}>⋯</Text>
           </Pressable>
         )}
       </View>
 
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 8 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 12 }}
         showsVerticalScrollIndicator={false}
-        bounces={false}
-        overScrollMode="never"
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={YELLOW} colors={[YELLOW]} />
         }
       >
-        {/* ── Summary card ─────────────────────────────────────────────────── */}
-        <View style={s.summaryCard}>
-          <View style={s.summaryTopRow}>
-            <View style={{ flex: 1 }}>
-              <View style={s.readyBadge}>
-                <Text style={s.readyBadgeText}>
-                  ✔ {isPlanExpired
-                    ? 'Đã kết thúc'
-                    : planStatus
-                      ? (STATUS_LABEL[planStatus] ?? 'Kế hoạch')
-                      : 'Chưa có kế hoạch'}
-                </Text>
+        {/* ── Overview card ─────────────────────────────────────────────── */}
+        <Animated.View entering={FadeInDown.duration(320)} style={s.overview}>
+          <View style={s.overviewTop}>
+            <View style={{ flex: 1, gap: 6 }}>
+              <View style={[s.statusPill, { backgroundColor: statusTone.bg }]}>
+                <View style={[s.statusDot, { backgroundColor: statusTone.dot }]} />
+                <Text style={[s.statusText, { color: statusTone.fg }]}>{statusText}</Text>
               </View>
-              <Text style={s.summaryDateLine} numberOfLines={1}>
-                {hasRealDays
-                  ? `${planDateLabel} • ${totalSlots} bữa`
-                  : 'Nhấn chỉnh kế hoạch để bắt đầu'}
+              <Text style={s.overviewTitle} numberOfLines={1}>
+                {hasRealDays ? `${totalSlots} bữa · ${displayDays.length} ngày` : 'Chưa có thực đơn'}
               </Text>
             </View>
-            <View style={s.summaryStatsCol}>
-              <View style={s.summaryStatLine}>
-                <Text style={{ fontSize: 13 }}>👛</Text>
-                <Text style={s.summaryStatText} numberOfLines={1}>
-                  Dự kiến {Math.round(endForecast / 1000)}K / {Math.round(budget / 1000)}K
-                </Text>
+            <Pressable
+              onPress={onEditPlan}
+              style={s.editBtn}
+              accessibilityLabel={hasRealDays ? 'Chỉnh kế hoạch' : 'Lên kế hoạch'}
+            >
+              <Pencil size={14} color={INK} strokeWidth={2.2} />
+              <Text style={s.editBtnText}>{hasRealDays ? 'Chỉnh sửa' : 'Lên kế hoạch'}</Text>
+            </Pressable>
+          </View>
+
+          <View style={s.statGrid}>
+            <View style={s.statTile}>
+              <View style={s.statHead}>
+                <View style={[s.statIcon, { backgroundColor: '#FFF1D6' }]}>
+                  <Wallet size={14} color="#B45309" strokeWidth={2.3} />
+                </View>
+                <Text style={s.statLabel}>Ngân sách</Text>
               </View>
-              <View style={s.summaryStatLine}>
-                <Text style={{ fontSize: 13 }}>🔥</Text>
-                <Text style={s.summaryStatText} numberOfLines={1}>
-                  {calProjected.toLocaleString('vi-VN')} / {calTotal.toLocaleString('vi-VN')} kcal
-                </Text>
+              <Text style={s.statValue}>
+                {Math.round(endForecast / 1000)}K
+                <Text style={s.statTotal}> / {Math.round(budget / 1000)}K</Text>
+              </Text>
+              <View style={s.bar}>
+                <View style={[s.barFill, { width: `${budgetPct}%`, backgroundColor: YELLOW }]} />
+              </View>
+            </View>
+            <View style={s.statTile}>
+              <View style={s.statHead}>
+                <View style={[s.statIcon, { backgroundColor: '#FFE8E0' }]}>
+                  <Flame size={14} color="#EA580C" strokeWidth={2.3} />
+                </View>
+                <Text style={s.statLabel}>Năng lượng</Text>
+              </View>
+              <Text style={s.statValue} numberOfLines={1} adjustsFontSizeToFit>
+                {calProjected.toLocaleString('vi-VN')}
+                <Text style={s.statTotal}> / {calTotal.toLocaleString('vi-VN')}</Text>
+              </Text>
+              <View style={s.bar}>
+                <View
+                  style={[
+                    s.barFill,
+                    { width: `${calPct}%`, backgroundColor: overKcal ? '#EF4444' : '#FB923C' },
+                  ]}
+                />
               </View>
             </View>
           </View>
+        </Animated.View>
 
-          <TouchableOpacity onPress={onEditPlan} activeOpacity={0.8} style={s.editPlanBtn}>
-            <Text style={{ fontSize: 13 }}>✏️</Text>
-            <Text style={s.editPlanText}>{hasRealDays ? 'Chỉnh kế hoạch' : 'Lên kế hoạch'}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* ── GENERATING state notice ───────────────────────────────────────── */}
+        {/* ── GENERATING state notice ─────────────────────────────────────── */}
         {(planStatus === 'GENERATING' || pollingPlanId) && (
           <View style={s.generatingBanner}>
-            <ActivityIndicator size="small" color={YELLOW} />
+            <ActivityIndicator size="small" color="#B45309" />
             <Text style={s.generatingText}>NOAN đang chọn món cho bạn...</Text>
           </View>
         )}
 
-        {/* ── Calendar row — chỉ hiện khi có plan ─────────────────────────── */}
+        {/* ── Calendar strip ──────────────────────────────────────────────── */}
         {hasRealDays && (
           <View style={s.calendarRow}>
             {displayDays.map((day, idx) => {
               const isSelected = idx === safeIdx;
               const isTodayDay = isTodayISO(day.isoDate);
+              const allDone =
+                day.meals.length > 0 && day.meals.every((m) => m.status === 'COMPLETED');
               return (
                 <Pressable
                   key={idx}
                   onPress={() => setSelectedIdx(idx)}
                   style={[s.calDay, isSelected && s.calDaySelected]}
+                  accessibilityLabel={`${day.weekdayFull} ${day.date}`}
+                  accessibilityState={{ selected: isSelected }}
                 >
-                  <Text className={
-                    isTodayDay && !isSelected
-                      ? 'text-primary'
-                      : isSelected
-                        ? 'text-foreground'
-                        : ''
-                  } style={[s.calDayLabel, isSelected && s.calDayLabelSelected]}>{day.weekdayShort}</Text>
-                  <Text className={
-                    isTodayDay && !isSelected
-                      ? 'text-primary'
-                      : isSelected
-                        ? 'text-foreground'
-                        : ''
-                  } style={[s.calDayDate, isSelected && s.calDayDateSelected]}>{day.date}</Text>
+                  <Text style={[s.calDayLabel, isSelected && s.calDayLabelSelected, isTodayDay && !isSelected && s.calToday]}>
+                    {day.weekdayShort}
+                  </Text>
+                  <Text style={[s.calDayDate, isSelected && s.calDayDateSelected, isTodayDay && !isSelected && s.calToday]}>
+                    {day.date}
+                  </Text>
+                  <View
+                    style={[
+                      s.calDot,
+                      allDone
+                        ? { backgroundColor: '#22C55E' }
+                        : isTodayDay
+                          ? { backgroundColor: isSelected ? INK : YELLOW_D }
+                          : { backgroundColor: 'transparent' },
+                    ]}
+                  />
                 </Pressable>
               );
             })}
           </View>
         )}
 
-        {/* ── Day header — chỉ hiện khi có plan ───────────────────────────── */}
+        {/* ── Day header ──────────────────────────────────────────────────── */}
         {hasRealDays && (
           <View style={s.dayHeader}>
-            <Text style={s.dayHeaderTitle}>{dayHeaderLeft} · {dayHeaderRight}</Text>
-            <Text style={s.dayHeaderSub}>
-              Dự kiến {selectedDay.estimatedCost}K · {selectedDay.estimatedKcal.toLocaleString('vi-VN')} kcal
-            </Text>
+            <View style={{ flex: 1 }}>
+              <Text style={s.dayHeaderTitle}>{dayHeaderLeft}</Text>
+              <Text style={s.dayHeaderSub}>{dayHeaderRight}</Text>
+            </View>
+            <View style={s.dayChips}>
+              <View style={s.dayChip}>
+                <Text style={s.dayChipText}>{selectedDay.estimatedCost}K</Text>
+              </View>
+              <View style={s.dayChip}>
+                <Text style={s.dayChipText}>
+                  {selectedDay.estimatedKcal.toLocaleString('vi-VN')} kcal
+                </Text>
+              </View>
+              {selectedDay.meals.length > 0 ? (
+                <View style={[s.dayChip, doneToday > 0 && { backgroundColor: '#E3F8EA' }]}>
+                  <Text style={[s.dayChipText, doneToday > 0 && { color: '#15803D' }]}>
+                    {doneToday}/{selectedDay.meals.length}
+                  </Text>
+                </View>
+              ) : null}
+            </View>
           </View>
         )}
 
-        {/* ── Meal cards hoặc Empty state ───────────────────────────────────── */}
+        {/* ── Meal cards hoặc Empty state ─────────────────────────────────── */}
         <View style={s.mealsSection}>
           {hasRealDays ? (
             <>
-              {selectedDay.meals.map((meal) => (
-                <MealCard
-                  key={meal.slotId}
-                  meal={meal}
-                  isReal={true}
-                  busy={!!actionLoading && actionLoading.includes(meal.slotId)}
-                  swapping={actionLoading === meal.slotId}
-                  onSwap={() => handleSwap(meal)}
-                  onComplete={() => handleComplete(meal)}
-                  onSkip={() => handleSkip(meal)}
-                  onToggleLock={() => handleLockToggle(meal)}
-                  onOpenDish={
-                    meal.dishId
-                      ? () => onOpenDish?.(meal.dishId, meal.dishName, meal.slot)
-                      : undefined
-                  }
-                />
+              {selectedDay.meals.map((meal, i) => (
+                <Animated.View
+                  key={`${selectedDay.isoDate}-${meal.slotId}`}
+                  entering={FadeInDown.delay(i * 45).duration(260).withInitialValues({
+                    opacity: 0,
+                    transform: [{ translateY: 10 }],
+                  })}
+                  style={s.mealSlot}
+                >
+                  <MealCard
+                    meal={meal}
+                    isReal={true}
+                    busy={!!actionLoading && actionLoading.includes(meal.slotId)}
+                    swapping={actionLoading === meal.slotId}
+                    onSwap={() => handleSwap(meal)}
+                    onComplete={() => handleComplete(meal)}
+                    onSkip={() => handleSkip(meal)}
+                    onToggleLock={() => handleLockToggle(meal)}
+                    onOpenDish={
+                      meal.dishId
+                        ? () => onOpenDish?.(meal.dishId, meal.dishName, meal.slot)
+                        : undefined
+                    }
+                  />
+                </Animated.View>
               ))}
 
-              {/* Nguyên liệu — chỉ hiện khi có plan */}
-              <Pressable
-                style={s.ingredientsRow}
-                onPress={() => {
-                  if (!plan?.id || !selectedDay.isoDate) return;
-                  onOpenIngredients?.(
-                    plan.id,
-                    selectedDay.isoDate,
-                    `Nguyên liệu · ${selectedDay.weekdayFull}`,
-                  );
-                }}
-              >
-                <View style={s.ingredientIcon}>
-                  <Text style={{ fontSize: 22 }}>🥬</Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.ingredientTitle}>Nguyên liệu hôm nay</Text>
-                  <View style={{ flexDirection: 'row', gap: 4, marginTop: 2, alignItems: 'center' }}>
-                    <Text style={s.ingredientCount}>
-                      Xem danh sách nguyên liệu
-                    </Text>
-                    <Text style={{ fontSize: 12, color: MUTED }}>·</Text>
-                    <Text style={s.ingredientLink}>Xem danh sách</Text>
+              <View style={s.toolGrid}>
+                <Pressable
+                  style={s.toolTile}
+                  onPress={() => {
+                    if (!plan?.id || !selectedDay.isoDate) return;
+                    onOpenIngredients?.(
+                      plan.id,
+                      selectedDay.isoDate,
+                      `Nguyên liệu · ${selectedDay.weekdayFull}`,
+                    );
+                  }}
+                  accessibilityLabel="Nguyên liệu trong ngày"
+                >
+                  <View style={[s.toolIcon, { backgroundColor: '#E6F7EC' }]}>
+                    <Leaf size={20} color="#16A34A" strokeWidth={2.2} />
                   </View>
-                </View>
-                <ChevronRight size={18} color={MUTED} />
-              </Pressable>
-
-              <Pressable
-                style={s.ingredientsRow}
-                onPress={() => {
-                  if (!plan?.id) return;
-                  onOpenWeeklyGrocery?.(plan.id);
-                }}
-              >
-                <View style={[s.ingredientIcon, { backgroundColor: '#FFF4C7' }]}>
-                  <ShoppingCart size={20} color="#B45309" strokeWidth={2.2} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.ingredientTitle}>Đi chợ tuần</Text>
-                  <Text style={[s.ingredientCount, { marginTop: 2 }]}>
-                    Gộp nguyên liệu cả tuần · tick đã mua
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <Text style={s.toolTitle}>Nguyên liệu</Text>
+                  <Text style={s.toolSub} numberOfLines={1}>
+                    {isToday ? 'Cho hôm nay' : `Cho ${selectedDay.weekdayFull.toLowerCase()}`}
                   </Text>
-                </View>
-                <ChevronRight size={18} color={MUTED} />
-              </Pressable>
+                  </View>
+                  <View style={s.toolArrow}>
+                    <ChevronRight size={16} color={INK} />
+                  </View>
+                </Pressable>
+
+                <Pressable
+                  style={s.toolTile}
+                  onPress={() => {
+                    if (!plan?.id) return;
+                    onOpenWeeklyGrocery?.(plan.id);
+                  }}
+                  accessibilityLabel="Đi chợ tuần"
+                >
+                  <View style={[s.toolIcon, { backgroundColor: '#FFF1D6' }]}>
+                    <ShoppingCart size={19} color="#B45309" strokeWidth={2.2} />
+                  </View>
+                  <View style={{ flex: 1, minWidth: 0 }}>
+                    <Text style={s.toolTitle}>Đi chợ tuần</Text>
+                  <Text style={s.toolSub} numberOfLines={1}>Gộp cả tuần</Text>
+                  </View>
+                  <View style={s.toolArrow}>
+                    <ChevronRight size={16} color={INK} />
+                  </View>
+                </Pressable>
+              </View>
             </>
           ) : (
-            /* Empty state — chưa có plan */
-            <View style={s.emptyState}>
-              <Text style={{ fontSize: 48 }}>{isPlanExpired ? '🗓️' : '📋'}</Text>
+            <Animated.View entering={FadeIn.duration(300)} style={s.emptyState}>
+              <View style={s.emptyIcon}>
+                <CalendarDays size={34} color="#B45309" strokeWidth={2} />
+              </View>
               <Text style={s.emptyTitle}>
                 {isPlanExpired ? 'Kế hoạch tuần trước đã kết thúc' : 'Chưa có thực đơn tuần này'}
               </Text>
               <Text style={s.emptySubtitle}>
                 {isPlanExpired
                   ? 'Tuần mới đã bắt đầu. Hãy cấu hình kế hoạch\nđể NOAN gợi ý thực đơn cho tuần này.'
-                  : 'Nhấn "Lên kế hoạch" bên dưới để NOAN\ngợi ý thực đơn tuần phù hợp với bạn.'}
+                  : 'Nhấn "Lên kế hoạch" để NOAN gợi ý\nthực đơn tuần phù hợp với bạn.'}
               </Text>
-              <TouchableOpacity
-                onPress={onEditPlan}
-                activeOpacity={0.85}
-                style={[s.startBtn, { marginTop: 16, width: 'auto', paddingHorizontal: 32 }]}
-              >
-                <Text style={s.startBtnText}>Lên kế hoạch tuần này</Text>
-              </TouchableOpacity>
-            </View>
+            </Animated.View>
           )}
         </View>
       </ScrollView>
 
-      {/* ── Footer ────────────────────────────────────────────────────────── */}
+      {/* ── Footer ──────────────────────────────────────────────────────── */}
       <View style={s.footer}>
         {showStartBtn && (
           <TouchableOpacity
@@ -722,8 +813,9 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
           </TouchableOpacity>
         )}
         {showActiveBtn && (
-          <View style={[s.startBtn, { backgroundColor: '#DCFCE7' }]}>
-            <Text style={[s.startBtnText, { color: '#15803D' }]}>🔥 Đang thực hiện</Text>
+          <View style={[s.startBtn, s.activeBtn]}>
+            <Flame size={18} color="#15803D" strokeWidth={2.3} />
+            <Text style={[s.startBtnText, { color: '#15803D' }]}>Đang thực hiện</Text>
           </View>
         )}
         {!showStartBtn && !showActiveBtn && (
@@ -744,11 +836,15 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
           style={s.recreateBtn}
           onPress={requestRegenerate}
           disabled={!!actionLoading}
-          className='group'
         >
           {actionLoading === 'regen'
             ? <ActivityIndicator size="small" color={MUTED} />
-            : <Text style={s.recreateBtnText} className='group-hover:text-foreground duration-200'>{regenLabel}</Text>
+            : (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <RefreshCw size={13} color={MUTED} strokeWidth={2.2} />
+                <Text style={s.recreateBtnText}>{regenLabel}</Text>
+              </View>
+            )
           }
         </TouchableOpacity>
       </View>
@@ -770,9 +866,250 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
   );
 }
 
+// ── Skeleton components ───────────────────────────────────────────────────────
+function usePulse() {
+  const v = useSharedValue(0.55);
+  useEffect(() => {
+    v.value = withRepeat(
+      withTiming(1, { duration: 750, easing: Easing.inOut(Easing.quad) }),
+      -1,
+      true,
+    );
+  }, [v]);
+  return useAnimatedStyle(() => ({ opacity: v.value }));
+}
+
+function PlanBone({
+  w,
+  h,
+  r = 8,
+  style,
+}: {
+  w: number | `${number}%`;
+  h: number | `${number}%`;
+  r?: number;
+  style?: StyleProp<ViewStyle>;
+}) {
+  const pulse = usePulse();
+  return (
+    <Animated.View
+      style={[
+        {
+          width: w,
+          height: h,
+          borderRadius: r,
+          backgroundColor: '#EDE4D0',
+        },
+        pulse,
+        style,
+      ]}
+    />
+  );
+}
+
+function WeeklyPlanLoadingSkeleton({ onBack }: { onBack: () => void }) {
+  return (
+    <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
+      {/* Header */}
+      <View style={s.header}>
+        <Pressable onPress={onBack} style={s.headerBtn} hitSlop={8} accessibilityLabel="Quay lại">
+          <ArrowLeft size={20} color={INK} strokeWidth={2.2} />
+        </Pressable>
+        <View style={{ flex: 1, alignItems: 'center' }}>
+          <Text style={s.headerTitle}>Thực đơn tuần</Text>
+          <PlanBone w={78} h={11} r={5} style={{ marginTop: 4 }} />
+        </View>
+        <View style={s.headerBtn}>
+          <ShoppingCart size={19} color="#B8AE9C" strokeWidth={2.2} />
+        </View>
+      </View>
+
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 12 }}
+        showsVerticalScrollIndicator={false}
+        scrollEnabled={false}
+      >
+        {/* Overview card */}
+        <View style={s.overview}>
+          <View style={s.overviewTop}>
+            <View style={{ flex: 1, gap: 6 }}>
+              <View style={[s.statusPill, { backgroundColor: '#E3F8EA' }]}>
+                <View style={[s.statusDot, { backgroundColor: '#22C55E' }]} />
+                <Text style={[s.statusText, { color: '#15803D' }]}>Sẵn sàng</Text>
+              </View>
+              <PlanBone w={140} h={20} r={6} style={{ marginTop: 2 }} />
+            </View>
+            <View style={s.editBtn}>
+              <Pencil size={14} color={INK} strokeWidth={2.2} />
+              <Text style={s.editBtnText}>Chỉnh sửa</Text>
+            </View>
+          </View>
+
+          <View style={s.statGrid}>
+            <View style={s.statTile}>
+              <View style={s.statHead}>
+                <View style={[s.statIcon, { backgroundColor: '#FFF1D6' }]}>
+                  <Wallet size={14} color="#B45309" strokeWidth={2.3} />
+                </View>
+                <Text style={s.statLabel}>Ngân sách</Text>
+              </View>
+              <PlanBone w={92} h={17} r={5} style={{ marginVertical: 3 }} />
+              <View style={s.bar}>
+                <View style={[s.barFill, { width: '50%', backgroundColor: YELLOW }]} />
+              </View>
+            </View>
+
+            <View style={s.statTile}>
+              <View style={s.statHead}>
+                <View style={[s.statIcon, { backgroundColor: '#FFE8E0' }]}>
+                  <Flame size={14} color="#EA580C" strokeWidth={2.3} />
+                </View>
+                <Text style={s.statLabel}>Năng lượng</Text>
+              </View>
+              <PlanBone w={110} h={17} r={5} style={{ marginVertical: 3 }} />
+              <View style={s.bar}>
+                <View style={[s.barFill, { width: '65%', backgroundColor: '#FB923C' }]} />
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* Calendar strip */}
+        <View style={s.calendarRow}>
+          {['T5', 'T6', 'T7', 'CN', 'T2', 'T3', 'T4'].map((dayName, idx) => {
+            const isSelected = idx === 6;
+            return (
+              <View key={idx} style={[s.calDay, isSelected && s.calDaySelected]}>
+                <Text style={[s.calDayLabel, isSelected && s.calDayLabelSelected]}>
+                  {dayName}
+                </Text>
+                <PlanBone
+                  w={18}
+                  h={16}
+                  r={4}
+                  style={[{ marginTop: 3 }, isSelected && { backgroundColor: 'rgba(0,0,0,0.18)' }]}
+                />
+                <View
+                  style={[
+                    s.calDot,
+                    isSelected ? { backgroundColor: INK } : { backgroundColor: 'transparent' },
+                  ]}
+                />
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Day header */}
+        <View style={s.dayHeader}>
+          <View style={{ flex: 1, gap: 5 }}>
+            <PlanBone w={88} h={20} r={6} />
+            <PlanBone w={125} h={13} r={5} />
+          </View>
+          <View style={s.dayChips}>
+            <View style={s.dayChip}><PlanBone w={30} h={12} r={4} /></View>
+            <View style={s.dayChip}><PlanBone w={54} h={12} r={4} /></View>
+            <View style={s.dayChip}><PlanBone w={24} h={12} r={4} /></View>
+          </View>
+        </View>
+
+        {/* Meals section */}
+        <View style={s.mealsSection}>
+          {[
+            { label: 'Bữa sáng', bg: '#FFF1D6', fg: '#C2410C', Icon: Sunrise },
+            { label: 'Bữa trưa', bg: '#FFF6C7', fg: '#A16207', Icon: Sun },
+            { label: 'Bữa tối', bg: '#ECEBFF', fg: '#4F46E5', Icon: Moon },
+          ].map((slot, i) => {
+            const Icon = slot.Icon;
+            return (
+              <View key={i} style={s.mealSlot}>
+                <View style={s.mealCard}>
+                  <View style={s.mealPressable}>
+                    <View style={s.mealImage}>
+                      <PlanBone w="100%" h="100%" r={16} />
+                    </View>
+                    <View style={s.mealInfo}>
+                      <View style={s.mealSlotRow}>
+                        <View style={[s.slotPill, { backgroundColor: slot.bg }]}>
+                          <Icon size={12} color={slot.fg} strokeWidth={2.4} />
+                          <Text style={[s.slotPillText, { color: slot.fg }]}>{slot.label}</Text>
+                        </View>
+                      </View>
+                      <PlanBone w={i === 0 ? '82%' : i === 1 ? '70%' : '76%'} h={18} r={6} />
+                      <PlanBone w={108} h={13} r={5} />
+                    </View>
+                  </View>
+                  <View style={s.mealActions}>
+                    <View style={s.roundBtn}>
+                      <RefreshCw size={14} color="#C4BBA8" strokeWidth={2.2} />
+                    </View>
+                    <View style={[s.roundBtn, s.checkBtn]}>
+                      <Check size={14} color="#C4BBA8" strokeWidth={2.4} />
+                    </View>
+                  </View>
+                </View>
+              </View>
+            );
+          })}
+
+          {/* Tool grid */}
+          <View style={s.toolGrid}>
+            <View style={s.toolTile}>
+              <View style={[s.toolIcon, { backgroundColor: '#E6F7EC' }]}>
+                <Leaf size={20} color="#16A34A" strokeWidth={2.2} />
+              </View>
+              <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                <Text style={s.toolTitle}>Nguyên liệu</Text>
+                <PlanBone w={74} h={12} r={5} />
+              </View>
+              <View style={s.toolArrow}>
+                <ChevronRight size={16} color={INK} />
+              </View>
+            </View>
+
+            <View style={s.toolTile}>
+              <View style={[s.toolIcon, { backgroundColor: '#FFF1D6' }]}>
+                <ShoppingCart size={19} color="#B45309" strokeWidth={2.2} />
+              </View>
+              <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+                <Text style={s.toolTitle}>Đi chợ tuần</Text>
+                <PlanBone w={68} h={12} r={5} />
+              </View>
+              <View style={s.toolArrow}>
+                <ChevronRight size={16} color={INK} />
+              </View>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+
+      {/* Footer */}
+      <View style={s.footer}>
+        <View style={s.startBtn}>
+          <Text style={s.startBtnText}>Bắt đầu kế hoạch</Text>
+        </View>
+        <View style={s.recreateBtn}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <RefreshCw size={13} color={MUTED} strokeWidth={2.2} />
+            <Text style={s.recreateBtnText}>Tạo lại thực đơn</Text>
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+
 // ── MealCard ──────────────────────────────────────────────────────────────────
+const SLOT_TONE: Record<string, { bg: string; fg: string; Icon: typeof Sun }> = {
+  'Bữa sáng': { bg: '#FFF1D6', fg: '#C2410C', Icon: Sunrise },
+  'Bữa trưa': { bg: '#FFF6C7', fg: '#A16207', Icon: Sun },
+  'Bữa tối': { bg: '#ECEBFF', fg: '#4F46E5', Icon: Moon },
+  'Bữa phụ': { bg: '#E6F7EC', fg: '#15803D', Icon: Coffee },
+};
+
 function MealCard({
-  meal, isReal, busy, swapping, onSwap, onComplete, onSkip, onToggleLock, onOpenDish,
+  meal, isReal, busy, swapping, onSwap, onComplete, onSkip: _onSkip, onToggleLock, onOpenDish,
 }: {
   meal: Meal;
   isReal: boolean;
@@ -786,9 +1123,12 @@ function MealCard({
 }) {
   const isDone = meal.status === 'COMPLETED';
   const isSkipped = meal.status === 'SKIPPED';
+  const tone = SLOT_TONE[meal.slot] ?? SLOT_TONE['Bữa trưa'];
+  const SlotIcon = tone.Icon;
+  const swapDisabled = !isReal || meal.isLocked || swapping || isDone || isSkipped;
 
   return (
-    <View style={s.mealCard}>
+    <View style={[s.mealCard, (isDone || isSkipped) && s.mealCardDone]}>
       <Pressable
         style={s.mealPressable}
         onPress={onOpenDish}
@@ -803,61 +1143,86 @@ function MealCard({
               cachePolicy="memory-disk"
               transition={200}
               showLoader
-              fallbackIcon={<Text style={{ fontSize: 32 }}>{meal.slotIcon}</Text>}
+              fallbackIcon={<Text style={{ fontSize: 30 }}>{meal.slotIcon}</Text>}
             />
           ) : (
-            <Text style={{ fontSize: 32 }}>{meal.slotIcon}</Text>
+            <Text style={{ fontSize: 30 }}>{meal.slotIcon}</Text>
           )}
+          {isDone ? (
+            <View style={s.doneOverlay}>
+              <Check size={22} color={WHITE} strokeWidth={3} />
+            </View>
+          ) : null}
         </View>
 
         <View style={s.mealInfo}>
           <View style={s.mealSlotRow}>
-            <Text style={s.mealSlotText}>{meal.slot}</Text>
+            <View style={[s.slotPill, { backgroundColor: tone.bg }]}>
+              <SlotIcon size={12} color={tone.fg} strokeWidth={2.4} />
+              <Text style={[s.slotPillText, { color: tone.fg }]}>{meal.slot}</Text>
+            </View>
             <TouchableOpacity
               onPress={onToggleLock}
               disabled={!isReal || busy || isDone || isSkipped}
-              hitSlop={8}
-              style={s.lockBtn}
+              hitSlop={10}
+              style={[s.lockBtn, meal.isLocked && s.lockBtnOn]}
+              accessibilityLabel={meal.isLocked ? 'Bỏ khoá món' : 'Khoá món'}
             >
-              <Text style={{ fontSize: 12, color: meal.isLocked ? '#D97706' : '#C4BFB5' }}>
-                {meal.isLocked ? '🔒' : '🔓'}
-              </Text>
+              {meal.isLocked ? (
+                <Lock size={11} color="#B45309" strokeWidth={2.6} />
+              ) : (
+                <LockOpen size={11} color="#B5AEA2" strokeWidth={2.4} />
+              )}
             </TouchableOpacity>
           </View>
-          <Text style={s.mealName} numberOfLines={1}>{meal.dishName}</Text>
-          <Text style={s.mealMeta}>
-            {meal.price > 0 ? `${meal.price}K` : '—'} · {meal.kcal > 0 ? `${meal.kcal.toLocaleString('vi-VN')} kcal` : '—'}
+          <Text style={[s.mealName, isSkipped && s.mealNameSkipped]} numberOfLines={2}>
+            {meal.dishName}
           </Text>
-          {isDone && <Text style={s.slotStatusDone}>Đã ăn</Text>}
-          {isSkipped && <Text style={s.slotStatusSkip}>Đã bỏ</Text>}
+          <View style={s.metaRow}>
+            <Text style={s.mealMeta}>{meal.price > 0 ? `${meal.price}K` : '—'}</Text>
+            <View style={s.metaDot} />
+            <Text style={s.mealMeta}>
+              {meal.kcal > 0 ? `${meal.kcal.toLocaleString('vi-VN')} kcal` : '—'}
+            </Text>
+            {isDone ? <Text style={s.slotStatusDone}>· Đã ăn</Text> : null}
+            {isSkipped ? <Text style={s.slotStatusSkip}>· Đã bỏ</Text> : null}
+          </View>
         </View>
       </Pressable>
 
       <View style={s.mealActions}>
         <TouchableOpacity
-          style={[s.changeBtn, (!isReal || meal.isLocked || isDone || isSkipped) && { opacity: 0.4 }]}
-          activeOpacity={0.8}
+          style={[s.roundBtn, swapDisabled && { opacity: 0.35 }]}
+          activeOpacity={0.7}
           onPress={onSwap}
-          disabled={!isReal || meal.isLocked || swapping || isDone || isSkipped}
+          disabled={swapDisabled}
+          accessibilityLabel="Đổi món"
         >
           {swapping
-            ? <ActivityIndicator size="small" color="#555" />
-            : <RefreshCw size={15} color="#555" strokeWidth={2} />
+            ? <ActivityIndicator size="small" color={INK} />
+            : <RefreshCw size={15} color={INK} strokeWidth={2.2} />
           }
         </TouchableOpacity>
         {!isDone && !isSkipped ? (
           <TouchableOpacity
-            style={[s.completeBtn, busy && { opacity: 0.5 }]}
+            style={[s.roundBtn, s.checkBtn, busy && { opacity: 0.5 }]}
+            activeOpacity={0.7}
             onPress={onComplete}
             disabled={busy}
+            accessibilityLabel="Đánh dấu đã ăn"
           >
-            <View style={s.checkEmpty} />
+            <Check size={16} color="#C9C1B2" strokeWidth={2.6} />
           </TouchableOpacity>
         ) : (
-          <View style={[s.completeBtn, { backgroundColor: isDone ? '#DCFCE7' : '#F3F4F6', borderColor: isDone ? '#86EFAC' : BORDER }]}>
-            <Text style={[s.completeBtnText, { color: isDone ? '#15803D' : MUTED }]}>
-              {isDone ? '✓' : '—'}
-            </Text>
+          <View
+            style={[
+              s.roundBtn,
+              isDone ? s.checkBtnDone : { backgroundColor: '#F3F1EC', borderColor: '#F3F1EC' },
+            ]}
+          >
+            {isDone
+              ? <Check size={16} color={WHITE} strokeWidth={3} />
+              : <Text style={{ fontSize: 14, fontWeight: '700', color: MUTED }}>—</Text>}
           </View>
         )}
       </View>
@@ -867,203 +1232,167 @@ function MealCard({
 
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: CREAM },
+  pressed: { opacity: 0.8, transform: [{ scale: 0.98 }] },
 
   header: {
-    height: 50, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: BORDER, backgroundColor: CREAM,
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 16, paddingTop: 2, paddingBottom: 6, gap: 12,
   },
-  headerTitle: { fontSize: 16, fontWeight: '700', color: INK, letterSpacing: -0.3 },
-  iconBtn: { width: 36, height: 36, alignItems: 'center', justifyContent: 'center' },
+  headerBtn: {
+    width: 38, height: 38, borderRadius: 19, backgroundColor: WHITE,
+    alignItems: 'center', justifyContent: 'center', ...softShadow,
+  },
+  headerTitle: { fontSize: 17, fontWeight: '800', color: INK, letterSpacing: -0.3 },
+  headerSub: { fontSize: 12, color: MUTED, marginTop: 1, fontWeight: '500' },
+  iconBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
 
-  summaryCard: {
-    marginHorizontal: 16, marginTop: 8, marginBottom: 10, borderRadius: 18, backgroundColor: WHITE,
-    padding: 14, gap: 12, ...shadow,
+  overview: {
+    marginHorizontal: 16, marginTop: 4, borderRadius: 24, backgroundColor: WHITE,
+    padding: 14, gap: 10, ...shadow,
   },
-  summaryTopRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
-  readyBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#DCFCE7',
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    marginBottom: 8,
+  overviewTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  statusPill: {
+    alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6,
+    borderRadius: 999, paddingHorizontal: 10, paddingVertical: 4,
   },
-  readyBadgeText: { fontSize: 12, fontWeight: '700', color: '#15803D' },
-  summaryDateLine: { fontSize: 13, color: MUTED, fontWeight: '500' },
-  summaryStatsCol: { gap: 6, alignItems: 'flex-end', maxWidth: '48%' },
-  summaryStatLine: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  summaryStatText: { fontSize: 12.5, fontWeight: '600', color: INK },
-  summaryTop: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  summaryMascot: { width: 52, height: 60, flexShrink: 0 },
-  summaryInfo: { flex: 1, minWidth: 0, gap: 2 },
-  summaryTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 0 },
-  summaryTitle: { fontSize: 14, fontWeight: '800', color: INK, letterSpacing: -0.2, flexShrink: 1 },
-  summarySubtitle: { fontSize: 11.5, color: MUTED, marginBottom: 3 },
+  statusDot: { width: 7, height: 7, borderRadius: 4 },
+  statusText: { fontSize: 12, fontWeight: '700' },
+  overviewTitle: { fontSize: 18, fontWeight: '800', color: INK, letterSpacing: -0.4 },
+  editBtn: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    height: 38, paddingHorizontal: 14, borderRadius: 999, backgroundColor: '#FFF6D6',
+    borderWidth: 1, borderColor: '#F7E3A1',
+  },
+  editBtnText: { fontSize: 13, fontWeight: '700', color: INK },
 
-  statRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  statIcon: { fontSize: 12, lineHeight: 14 },
-  statLabel: { fontSize: 11, fontWeight: '600', color: '#444' },
-  statValue: { flex: 1, fontSize: 11.5, color: '#555', fontWeight: '500', minWidth: 0 },
-  badge: { paddingHorizontal: 6, paddingVertical: 2, borderRadius: 20, flexShrink: 0 },
-  badgeText: { fontSize: 10, fontWeight: '700' },
-  progressBar: { height: 4, borderRadius: 2, backgroundColor: '#F0E9D0', overflow: 'hidden', marginTop: 2 },
-  progressFill: { height: '100%', borderRadius: 2 },
-
-  editPlanBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    height: 42, borderRadius: 12, borderWidth: 1.2, borderColor: '#E5E0D4',
-    backgroundColor: WHITE,
-  },
-  editPlanText: { fontSize: 14, fontWeight: '600', color: INK },
+  statGrid: { flexDirection: 'row', gap: 10 },
+  statTile: { flex: 1, backgroundColor: '#FBF8F2', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 10, gap: 6 },
+  statHead: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  statIcon: { width: 24, height: 24, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
+  statLabel: { fontSize: 12, fontWeight: '600', color: MUTED },
+  statValue: { fontSize: 16, fontWeight: '800', color: INK, letterSpacing: -0.3 },
+  statTotal: { fontSize: 12.5, fontWeight: '600', color: MUTED },
+  bar: { height: 6, borderRadius: 3, backgroundColor: '#EFE8D8', overflow: 'hidden' },
+  barFill: { height: '100%', borderRadius: 3 },
 
   generatingBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    marginHorizontal: 16, marginTop: 8, padding: 10,
-    backgroundColor: '#FFFBE6', borderRadius: 12,
-    borderWidth: 1, borderColor: '#FDE68A',
+    marginHorizontal: 16, marginTop: 12, padding: 12,
+    backgroundColor: '#FFF7DB', borderRadius: 14,
   },
-  generatingText: { flex: 1, fontSize: 13, color: '#92400E' },
+  generatingText: { flex: 1, fontSize: 13, fontWeight: '600', color: '#92400E' },
 
   calendarRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingTop: 4,
-    paddingBottom: 8,
+    flexDirection: 'row', marginHorizontal: 16, marginTop: 10, padding: 4,
+    backgroundColor: WHITE, borderRadius: 20, ...softShadow,
   },
-  calDay: { flex: 1, borderRadius: 9, alignItems: 'center', paddingVertical: 4, marginHorizontal: 2 },
-  calDaySelected: { backgroundColor: YELLOW },
-  calDayLabel: { fontSize: 10, fontWeight: '600', color: MUTED },
+  calDay: { flex: 1, borderRadius: 14, alignItems: 'center', paddingTop: 5, paddingBottom: 3 },
+  calDaySelected: {
+    backgroundColor: YELLOW,
+    shadowColor: '#D99A00', shadowOpacity: 0.35, shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 }, elevation: 4,
+  },
+  calDayLabel: { fontSize: 11, fontWeight: '600', color: MUTED },
   calDayLabelSelected: { color: INK },
-  calDayDate: { fontSize: 14, fontWeight: '800', color: '#333', marginTop: 0 },
+  calDayDate: { fontSize: 15, fontWeight: '800', color: '#3A3A3A', marginTop: 2 },
   calDayDateSelected: { color: INK },
-  todayDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: YELLOW, marginTop: 1 },
+  calToday: { color: YELLOW_D },
+  calDot: { width: 5, height: 5, borderRadius: 3, marginTop: 3 },
 
-  dayHeader: { paddingHorizontal: 16, paddingBottom: 6, paddingTop: 4 },
-  dayHeaderTitle: { fontSize: 14, fontWeight: '800', color: INK, letterSpacing: -0.3 },
-  dayHeaderSub: { fontSize: 11.5, color: MUTED, marginTop: 2 },
-
-  mealsSection: {
-    flexGrow: 1,
-    paddingHorizontal: 16,
-    paddingBottom: 4,
-    gap: 6,
-    justifyContent: 'flex-start',
+  dayHeader: {
+    flexDirection: 'row', alignItems: 'flex-end', gap: 8,
+    paddingHorizontal: 18, paddingTop: 12, paddingBottom: 8,
   },
+  dayHeaderTitle: { fontSize: 18, fontWeight: '800', color: INK, letterSpacing: -0.4 },
+  dayHeaderSub: { fontSize: 12.5, color: MUTED, marginTop: 1, fontWeight: '500' },
+  dayChips: { flexDirection: 'row', gap: 6 },
+  dayChip: { backgroundColor: '#EFE9DC', borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4 },
+  dayChipText: { fontSize: 11.5, fontWeight: '700', color: '#5C554A' },
+
+  mealsSection: { flex: 1, paddingHorizontal: 16, gap: 10 },
+  mealSlot: { flex: 1, minHeight: 78, maxHeight: 150 },
 
   mealCard: {
-    backgroundColor: WHITE,
-    borderRadius: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 10,
-    gap: 10,
-    ...shadow,
-    borderWidth: 1,
-    borderColor: BORDER,
+    flex: 1, backgroundColor: WHITE, borderRadius: 20, flexDirection: 'row', alignItems: 'center',
+    padding: 10, paddingRight: 12, gap: 10,
+    borderWidth: 1, borderColor: '#F0E7D4',
+    // Android: elevation + animated opacity renders a dark halo → use border only.
+    ...(Platform.OS === 'ios'
+      ? { shadowColor: '#8A6D2B', shadowOpacity: 0.07, shadowRadius: 12, shadowOffset: { width: 0, height: 4 } }
+      : { elevation: 0 }),
   },
-  mealPressable: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    minWidth: 0,
-    gap: 10,
-  },
+  mealCardDone: { backgroundColor: '#FCFBF8' },
+  mealPressable: { flex: 1, alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', minWidth: 0, gap: 14 },
   mealImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    flexShrink: 0,
+    alignSelf: 'stretch', aspectRatio: 1, minWidth: 58, maxWidth: 118, borderRadius: 16, alignItems: 'center', justifyContent: 'center',
+    overflow: 'hidden', flexShrink: 0, backgroundColor: '#F6F0E2',
   },
-  mealImageSource: {
-    width: 64,
-    height: 64,
-    borderRadius: 10,
-  },
-  mealInfo: { flex: 1, minWidth: 0, justifyContent: 'center' },
-  mealSlotRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginBottom: 2 },
-  mealSlotText: { fontSize: 12, fontWeight: '700', color: '#D97706' },
-  lockBtn: {
-    marginLeft: 2,
-    width: 18,
-    height: 18,
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  mealName: { fontSize: 15.5, fontWeight: '700', color: INK, letterSpacing: -0.2 },
-  mealMeta: { fontSize: 12.5, color: MUTED, marginTop: 2 },
-  skipLink: { marginTop: 2, alignSelf: 'flex-start' },
-  skipLinkText: { fontSize: 11, fontWeight: '600', color: MUTED, textDecorationLine: 'underline' },
-
-  mealActions: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    flexShrink: 0,
-  },
-  changeBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: WHITE,
-    borderWidth: 1.2,
-    borderColor: BORDER,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  completeBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: WHITE,
-    borderWidth: 1.5,
-    borderColor: BORDER,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkEmpty: {
-    width: 20,
-    height: 20,
-    borderRadius: 6,
-    borderWidth: 1.5,
-    borderColor: '#D4CEBF',
-  },
-  completeBtnText: { fontSize: 14, fontWeight: '700', color: INK },
-  slotStatusDone: { fontSize: 12, color: '#15803D', fontWeight: '700', marginTop: 2 },
-  slotStatusSkip: { fontSize: 12, color: MUTED, fontWeight: '600', marginTop: 2 },
-
-  ingredientsRow: {
-    backgroundColor: WHITE, borderRadius: 12,
-    flexDirection: 'row', alignItems: 'center',
-    padding: 12, gap: 10, ...shadow,
-    borderWidth: 1, borderColor: BORDER,
-    marginTop: 2,
-  },
-  ingredientIcon: { width: 40, height: 40, borderRadius: 10, backgroundColor: '#F0FFF4', alignItems: 'center', justifyContent: 'center' },
-  ingredientTitle: { fontSize: 14, fontWeight: '600', color: INK },
-  ingredientCount: { fontSize: 12, color: MUTED },
-  ingredientLink: { fontSize: 12, color: '#F0A500', fontWeight: '600' },
-
-  emptyState: {
-    flex: 1,
+  mealImageSource: { width: '100%', height: '100%', borderRadius: 16 },
+  doneOverlay: {
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(22,163,74,0.55)',
     alignItems: 'center', justifyContent: 'center',
-    paddingVertical: 28, gap: 6,
   },
-  emptyTitle: { fontSize: 15, fontWeight: '700', color: INK, textAlign: 'center' },
-  emptySubtitle: { fontSize: 12.5, color: MUTED, textAlign: 'center', lineHeight: 18 },
+  mealInfo: { flex: 1, minWidth: 0, justifyContent: 'center', gap: 6 },
+  mealSlotRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  slotPill: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3,
+  },
+  slotPillText: { fontSize: 11.5, fontWeight: '700' },
+  lockBtn: {
+    width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: '#F5F2EC',
+  },
+  lockBtnOn: { backgroundColor: '#FFF1D6' },
+  mealName: { fontSize: 16.5, fontWeight: '700', color: INK, letterSpacing: -0.2, lineHeight: 21 },
+  mealNameSkipped: { color: MUTED, textDecorationLine: 'line-through' },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
+  metaDot: { width: 3, height: 3, borderRadius: 2, backgroundColor: '#C9C1B2' },
+  mealMeta: { fontSize: 13.5, color: MUTED, fontWeight: '500' },
+  slotStatusDone: { fontSize: 12.5, color: '#15803D', fontWeight: '700' },
+  slotStatusSkip: { fontSize: 12.5, color: MUTED, fontWeight: '600' },
+
+  mealActions: { alignItems: 'center', justifyContent: 'center', gap: 10, flexShrink: 0 },
+  roundBtn: {
+    width: 36, height: 36, borderRadius: 18, backgroundColor: '#F7F4EE',
+    borderWidth: 1, borderColor: '#EFE9DC', alignItems: 'center', justifyContent: 'center',
+  },
+  checkBtn: { backgroundColor: WHITE, borderWidth: 1.5, borderColor: '#E4DDCD' },
+  checkBtnDone: { backgroundColor: '#22C55E', borderColor: '#22C55E' },
+
+  sectionLabel: {
+    fontSize: 13, fontWeight: '700', color: MUTED, textTransform: 'uppercase',
+    letterSpacing: 0.6, marginTop: 12, marginLeft: 4,
+  },
+  toolGrid: { flexDirection: 'row', gap: 10, marginTop: 2 },
+  toolTile: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: WHITE, borderRadius: 18, paddingVertical: 14, paddingHorizontal: 12, ...shadow,
+  },
+  toolIcon: { width: 40, height: 40, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+  toolTitle: { fontSize: 15, fontWeight: '700', color: INK },
+  toolSub: { fontSize: 12.5, color: MUTED, marginTop: 1 },
+  toolArrow: { marginLeft: 'auto' },
+
+  emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 40, gap: 8 },
+  emptyIcon: {
+    width: 76, height: 76, borderRadius: 38, backgroundColor: '#FFF1D6',
+    alignItems: 'center', justifyContent: 'center', marginBottom: 6,
+  },
+  emptyTitle: { fontSize: 17, fontWeight: '800', color: INK, textAlign: 'center' },
+  emptySubtitle: { fontSize: 13.5, color: MUTED, textAlign: 'center', lineHeight: 20 },
 
   footer: {
-    backgroundColor: CREAM,
-    paddingHorizontal: 16, paddingTop: 8, paddingBottom: 12,
-    borderTopWidth: 1, borderTopColor: BORDER, gap: 2,
+    backgroundColor: CREAM, paddingHorizontal: 16, paddingTop: 8, paddingBottom: 6, gap: 0,
   },
-  startBtn: { height: 48, borderRadius: 14, backgroundColor: YELLOW, alignItems: 'center', justifyContent: 'center' },
-  startBtnText: { fontSize: 15, fontWeight: '800', color: INK, letterSpacing: -0.3 },
-  recreateBtn: { alignItems: 'center', paddingVertical: 2 },
-  recreateBtnText: { fontSize: 12.5, color: MUTED },
+  startBtn: {
+    height: 50, borderRadius: 999, backgroundColor: YELLOW, flexDirection: 'row', gap: 8,
+    alignItems: 'center', justifyContent: 'center',
+    shadowColor: '#D99A00', shadowOpacity: 0.3, shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 }, elevation: 5,
+  },
+  activeBtn: { backgroundColor: '#DCFCE7', shadowOpacity: 0, elevation: 0 },
+  startBtnText: { fontSize: 16, fontWeight: '800', color: INK, letterSpacing: -0.3 },
+  recreateBtn: { alignItems: 'center', justifyContent: 'center', minHeight: 32 },
+  recreateBtnText: { fontSize: 13, fontWeight: '600', color: MUTED },
 });

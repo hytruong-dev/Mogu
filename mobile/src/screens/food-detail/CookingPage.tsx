@@ -17,8 +17,12 @@ import {
   Clock3,
   List,
   MoreVertical,
+  Salad,
+  Timer,
+  Volume2,
   X,
 } from '@/components/icons';
+import Animated, { FadeInRight } from 'react-native-reanimated';
 import { AppImage } from '../../components/ui/app-image';
 import { BORDER, CREAM, INK, MUTED, WHITE, YELLOW, cardShadow } from './tokens';
 import type { DishIngredient, DishRecipeStep } from './types';
@@ -788,6 +792,7 @@ export function CookingPage({
             </View>
           </Card>
         )}
+        <Animated.View key={`step-body-${stepIdx}`} entering={FadeInRight.duration(280)}>
         <View style={styles.media}>
           {showMedia ? (
             <AppImage source={stepMedia} style={styles.mediaImg} contentFit="cover" />
@@ -829,7 +834,9 @@ export function CookingPage({
                   {ing.imageUrl ? (
                     <AppImage uri={ing.imageUrl} style={styles.ingChipImg} contentFit="cover" />
                   ) : (
-                    <View style={[styles.ingChipImg, { backgroundColor: '#F0EBE0' }]} />
+                    <View style={[styles.ingChipImg, styles.ingChipPh]}>
+                      <Salad size={18} color="#C9A64A" />
+                    </View>
                   )}
                   <Text style={styles.ingChipName} numberOfLines={2}>
                     {ingredientDisplayName(ing)}
@@ -840,37 +847,49 @@ export function CookingPage({
           </View>
         ) : null}
 
-        {remaining != null ? (
-          <View style={styles.timerCard}>
-            <Clock3 size={18} color={INK} />
-            <Text style={styles.timerVal}>{formatMmSs(remaining)}</Text>
-            <Pressable onPress={toggleTimer} style={styles.timerBtn}>
-              <Text style={styles.timerBtnText}>{timerRunning ? 'Tạm dừng' : 'Bắt đầu'}</Text>
-            </Pressable>
+        <View style={styles.timerCard}>
+          <View style={styles.timerTop}>
+            <View style={styles.timerIcon}>
+              <Timer size={20} color={INK} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.timerLabel}>Hẹn giờ</Text>
+              <Text style={styles.timerVal}>{remaining != null ? formatMmSs(remaining) : '--:--'}</Text>
+            </View>
+            {remaining != null ? (
+              <Pressable onPress={toggleTimer} style={[styles.timerBtn, timerRunning && styles.timerBtnOn]}>
+                <Text style={styles.timerBtnText}>{timerRunning ? 'Tạm dừng' : 'Bắt đầu'}</Text>
+              </Pressable>
+            ) : null}
           </View>
-        ) : null}
-        <View className="mt-3 flex-row flex-wrap gap-2">
-          {[60, 300, 600].map((seconds) => (
-            <Button
-              key={seconds}
-              variant="secondary"
-              onPress={() => startTimer(stepIdx, seconds)}
-              className="min-h-12 rounded-2xl active:opacity-80"
-              accessibilityLabel={`Đặt hẹn giờ ${seconds / 60} phút cho bước hiện tại`}
-            >
-              <UIText>{seconds / 60} phút</UIText>
-            </Button>
-          ))}
-          {voice.enabled && (
-            <Button
-              variant="ghost"
-              onPress={() => void voice.repeat()}
-              className="min-h-12 active:opacity-80"
-            >
-              <UIText>Đọc lại bước</UIText>
-            </Button>
-          )}
+          <View style={styles.quickRow}>
+            {[60, 300, 600].map((seconds) => (
+              <Pressable
+                key={seconds}
+                onPress={() => startTimer(stepIdx, seconds)}
+                style={styles.quickChip}
+                className="active:opacity-70"
+                accessibilityRole="button"
+                accessibilityLabel={`Đặt hẹn giờ ${seconds / 60} phút cho bước hiện tại`}
+              >
+                <Text style={styles.quickText}>+{seconds / 60} phút</Text>
+              </Pressable>
+            ))}
+            {voice.enabled && (
+              <Pressable
+                onPress={() => void voice.repeat()}
+                style={[styles.quickChip, styles.quickGhost]}
+                className="active:opacity-70"
+                accessibilityRole="button"
+                accessibilityLabel="Đọc lại bước"
+              >
+                <Volume2 size={14} color={INK} />
+                <Text style={styles.quickText}>Đọc lại</Text>
+              </Pressable>
+            )}
+          </View>
         </View>
+        </Animated.View>
       </ScrollView>
 
       <View style={[styles.footer, { paddingBottom: Math.max(12, insets.bottom) }]}>
@@ -1033,44 +1052,68 @@ const styles = StyleSheet.create({
   ingChip: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: WHITE,
-    borderRadius: 12,
-    padding: 8,
-    marginRight: 8,
-    maxWidth: 160,
-    borderWidth: 1,
-    borderColor: BORDER,
-  },
-  ingChipImg: { width: 36, height: 36, borderRadius: 8 },
-  ingChipName: { flexShrink: 1, fontSize: 13, fontWeight: '600', color: INK },
-  timerCard: {
-    marginTop: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: 10,
     backgroundColor: WHITE,
     borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    ...cardShadow,
+    paddingVertical: 8,
+    paddingLeft: 8,
+    paddingRight: 14,
+    marginRight: 10,
+    maxWidth: 180,
+    borderWidth: 1,
+    borderColor: '#F1E8D6',
   },
+  ingChipImg: { width: 40, height: 40, borderRadius: 12 },
+  ingChipPh: { backgroundColor: '#FFF6DC', alignItems: 'center', justifyContent: 'center' },
+  ingChipName: { flexShrink: 1, fontSize: 13, fontWeight: '600', color: INK, lineHeight: 17 },
+  timerCard: {
+    marginTop: 20,
+    backgroundColor: WHITE,
+    borderRadius: 20,
+    padding: 14,
+    gap: 12,
+    ...cardShadow,
+    shadowOpacity: 0.07,
+  },
+  timerTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  timerIcon: {
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: '#FFF2B8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timerLabel: { fontSize: 12, fontWeight: '600', color: MUTED },
   timerVal: {
-    flex: 1,
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: '800',
     color: INK,
     fontVariant: ['tabular-nums'],
   },
   timerBtn: {
     backgroundColor: YELLOW,
-    borderRadius: 12,
+    borderRadius: 999,
     paddingHorizontal: 18,
-    paddingVertical: 10,
-    minHeight: 44,
+    minHeight: 42,
     justifyContent: 'center',
   },
+  timerBtnOn: { backgroundColor: '#FFE9A3' },
   timerBtnText: { fontSize: 14, fontWeight: '800', color: INK },
+  quickRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  quickChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    minHeight: 38,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    backgroundColor: '#FFF8E0',
+    borderWidth: 1,
+    borderColor: '#F5E3A6',
+  },
+  quickGhost: { backgroundColor: WHITE, borderColor: BORDER },
+  quickText: { fontSize: 13, fontWeight: '700', color: INK },
   footer: {
     position: 'absolute',
     left: 0,
@@ -1088,9 +1131,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 14,
-    minHeight: 52,
-    borderRadius: 14,
+    paddingHorizontal: 16,
+    minHeight: 54,
+    borderRadius: 999,
     backgroundColor: WHITE,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: BORDER,
@@ -1102,9 +1145,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    minHeight: 52,
-    borderRadius: 14,
+    minHeight: 54,
+    borderRadius: 999,
     backgroundColor: YELLOW,
+    shadowColor: '#C79200',
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 4,
   },
   primaryText: { fontSize: 15, fontWeight: '800', color: INK },
 });
