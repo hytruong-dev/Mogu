@@ -51,11 +51,7 @@ export function resolveDishImageUrl(dish: Dish): string | null {
   const withUrl = primary as { publicUrl?: string; storageKey: string; bucket?: string };
   if (withUrl.publicUrl) return normalizeImageUrl(withUrl.publicUrl);
   const base = (
-    (
-      globalThis as typeof globalThis & {
-        process?: { env?: Record<string, string | undefined> };
-      }
-    ).process?.env?.EXPO_PUBLIC_SUPABASE_URL ?? ''
+    process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://lkqvyvllmrbxgaoqrkhd.supabase.co'
   ).replace(/\/$/, '');
   if (!base || !primary.storageKey) return null;
   return `${base}/storage/v1/object/public/${primary.bucket || 'dish-images'}/${primary.storageKey}`;

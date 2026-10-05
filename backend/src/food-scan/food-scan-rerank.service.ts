@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
+import { extractJsonPayload } from './food-scan-vision.service';
 
 export interface RerankCandidateInput {
   index: number;
@@ -60,9 +61,12 @@ export class FoodScanRerankService {
 
     this.enabled = config.get<string>('FOOD_SCAN_ENABLE_RERANK') !== 'false';
 
+    // 15s: the rerank runs after vision (up to ~2x20s worst case) and the whole
+    // scan must finish inside the mobile app's 45s budget; on timeout we simply
+    // fall back to RRF order instead of failing the scan.
     this.client =
       apiKey && baseURL
-        ? new OpenAI({ apiKey, baseURL, timeout: 10_000, maxRetries: 0 })
+        ? new OpenAI({ apiKey, baseURL, timeout: 15_000, maxRetries: 0 })
         : null;
   }
 
@@ -93,7 +97,7 @@ export class FoodScanRerankService {
     try {
       const response = await this.client.chat.completions.create({
         model: this.model,
-        max_tokens: 300,
+        max_tokens: 2048,
         response_format: {
           type: 'json_schema',
           json_schema: {
@@ -125,7 +129,7 @@ export class FoodScanRerankService {
                 type: 'image_url',
                 image_url: {
                   url: `data:image/jpeg;base64,${image.toString('base64')}`,
-                  detail: 'high',
+                  detail: 'auto',
                 },
               },
             ],
@@ -138,7 +142,7 @@ export class FoodScanRerankService {
         return { bestIndex: null, confidence: 0, reason: 'EMPTY_RERANK_RESPONSE', ran: false };
       }
 
-      const parsed = JSON.parse(content) as {
+      const parsed = JSON.parse(extractJsonPayload(content)) as {
         bestIndex?: unknown;
         confidence?: unknown;
         reason?: unknown;

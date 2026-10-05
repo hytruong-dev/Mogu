@@ -210,8 +210,8 @@ function dishImageSource(url?: string | null, media?: Array<{ storageKey?: strin
   }
   if (primary?.storageKey) {
     const base = (
-      globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }
-    ).process?.env?.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, '');
+      process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://lkqvyvllmrbxgaoqrkhd.supabase.co'
+    ).replace(/\/$/, '');
     if (base) {
       const bucket = primary.bucket ?? 'dish-images';
       return { uri: `${base}/storage/v1/object/public/${bucket}/${primary.storageKey}` };

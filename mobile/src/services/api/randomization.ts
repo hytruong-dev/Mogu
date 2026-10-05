@@ -203,8 +203,7 @@ export function normalizeImageUrl(url: string | null | undefined): string | null
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
 
   const storageBase = (
-    (globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }).process?.env
-      ?.EXPO_PUBLIC_SUPABASE_URL ?? 'https://lkqvyvllmrbxgaoqrkhd.supabase.co'
+    process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://lkqvyvllmrbxgaoqrkhd.supabase.co'
   ).replace(/\/$/, '');
 
   if (trimmed.startsWith('/storage/')) {

@@ -14,6 +14,7 @@
     "assetBundlePatterns": ["**/*"],
     "android": {
       "package": "com.mogu.app",
+      "usesCleartextTraffic": true,
       "permissions": ["android.permission.RECORD_AUDIO"],
       "adaptiveIcon": {
         "foregroundImage": "./src/assets/images/noan/noan-adaptive-foreground-v1.png",
@@ -55,6 +56,10 @@
           "enableBackgroundPlayback": false
         }
       ]
-    ]
+    ],
+    "extra": {
+      "apiUrl": "http://172.28.0.166:3001/v1",
+      "supabaseUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co"
+    }
   }
 }

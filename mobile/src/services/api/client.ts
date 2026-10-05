@@ -4,19 +4,32 @@ import { getDeviceTimeZone, getTodayISO } from '../../lib/dates';
 import { clearSession, getSession, saveSession } from './storage';
 import { ApiError, type Session } from './types';
 
-const expoEnvironment = (
-  globalThis as typeof globalThis & {
-    process?: { env?: Record<string, string | undefined> };
-  }
-).process?.env;
+// Default LAN IP for physical mobile devices to communicate with the host PC
+export const DEFAULT_LAN_API_URL = 'http://172.28.0.166:3001/v1';
 
 function resolveApiUrl(): string {
-  const envUrl = expoEnvironment?.EXPO_PUBLIC_API_URL?.replace(/\/$/, '');
+  // Statically access process.env so Babel / Metro can inline it during bundling
+  const rawEnv =
+    process.env.EXPO_PUBLIC_API_URL ||
+    (Constants.expoConfig?.extra as any)?.apiUrl ||
+    '';
+  const envUrl = String(rawEnv).trim().replace(/\/$/, '');
+
+  const isAndroidEmulator =
+    Platform.OS === 'android' &&
+    ((Platform.constants as any)?.Brand === 'google' ||
+      (Platform.constants as any)?.Model?.toLowerCase().includes('emulator') ||
+      (Platform.constants as any)?.Model?.toLowerCase().includes('sdk_gphone') ||
+      (Platform.constants as any)?.Fingerprint?.includes('generic') ||
+      (Platform.constants as any)?.Hardware?.includes('goldfish') ||
+      (Platform.constants as any)?.Hardware?.includes('ranchu'));
 
   // If no env var, use fallback based on platform
   if (!envUrl) {
-    const fallbackHost = Platform.OS === 'android' ? '10.0.2.2' : 'localhost';
-    return `http://${fallbackHost}:3001/v1`;
+    if (Platform.OS === 'android') {
+      return isAndroidEmulator ? 'http://10.0.2.2:3001/v1' : DEFAULT_LAN_API_URL;
+    }
+    return 'http://localhost:3001/v1';
   }
 
   // 10.0.2.2 is the Android Emulator loopback alias to host machine.
@@ -31,16 +44,9 @@ function resolveApiUrl(): string {
     }
   }
 
-  const isAndroidEmulator =
-    Platform.OS === 'android' &&
-    ((Platform.constants as any)?.Brand === 'google' ||
-      (Platform.constants as any)?.Model?.toLowerCase().includes('emulator') ||
-      (Platform.constants as any)?.Model?.toLowerCase().includes('sdk_gphone'));
-
   // On physical Android devices, 10.0.2.2 does not route to host machine.
-  // Use localhost which routes through ADB reverse (adb reverse tcp:3001 tcp:3001).
   if (Platform.OS === 'android' && !isAndroidEmulator && envUrl.includes('10.0.2.2')) {
-    return envUrl.replace('10.0.2.2', 'localhost');
+    return envUrl.replace('10.0.2.2', '172.28.0.166');
   }
 
   return envUrl;
@@ -49,7 +55,7 @@ function resolveApiUrl(): string {
 export const API_URL = resolveApiUrl();
 console.log('[API_URL resolved]', API_URL, 'Brand:', (Platform.constants as any)?.Brand, 'Model:', (Platform.constants as any)?.Model);
 
-type Options = RequestInit & { auth?: boolean; retry?: boolean };
+type Options = RequestInit & { auth?: boolean; retry?: boolean; timeout?: number };
 
 async function parseResponse<T>(response: Response): Promise<T> {
   const body = await response.json().catch(() => null);
@@ -76,18 +82,24 @@ async function parseResponse<T>(response: Response): Promise<T> {
 
 async function refreshSession(refreshToken: string): Promise<Session> {
   let response: Response;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
   try {
     response = await fetch(`${API_URL}/auth/refresh`, {
       method: 'POST',
+      signal: controller.signal,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
     });
   } catch {
+    clearTimeout(timeoutId);
     throw new ApiError(
       'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại kết nối mạng hoặc thử lại sau.',
       0,
       'NETWORK_ERROR',
     );
+  } finally {
+    clearTimeout(timeoutId);
   }
   const result = await parseResponse<{ session: Session }>(response);
   const session: Session = {
@@ -145,10 +157,18 @@ export async function apiRequest<T>(path: string, options: Options = {}): Promis
     requestOptions.body !== undefined && requestOptions.body !== null && requestOptions.body !== '';
   const body = !hasBody && ['POST', 'PUT', 'PATCH'].includes(method) ? '{}' : requestOptions.body;
 
+  const controller = new AbortController();
+  const timeoutMs = options.timeout ?? 30000;
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  if (options.signal) {
+    options.signal.addEventListener('abort', () => controller.abort());
+  }
+
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
       ...requestOptions,
+      signal: controller.signal,
       body,
       headers: {
         Accept: 'application/json',
@@ -165,8 +185,11 @@ export async function apiRequest<T>(path: string, options: Options = {}): Promis
       },
     });
   } catch (err: any) {
+    clearTimeout(timeoutId);
     const rawMsg = String(err?.message ?? '');
     if (
+      err?.name === 'AbortError' ||
+      rawMsg.includes('Aborted') ||
       rawMsg.includes('ConnectException') ||
       rawMsg.includes('Failed to connect') ||
       rawMsg.includes('ECONNREFUSED') ||
@@ -180,6 +203,8 @@ export async function apiRequest<T>(path: string, options: Options = {}): Promis
       );
     }
     throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
 
   if (response.status === 401 && auth && retry && session?.refreshToken) {

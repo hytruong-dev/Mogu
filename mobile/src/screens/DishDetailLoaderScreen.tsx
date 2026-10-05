@@ -33,8 +33,8 @@ function buildDishImageUrl(dish: any): string | null {
   if (primary.publicUrl) return normalizeImageUrl(primary.publicUrl);
   if (primary.storageKey) {
     const base = (
-      globalThis as typeof globalThis & { process?: { env?: Record<string, string | undefined> } }
-    ).process?.env?.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, '');
+      process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://lkqvyvllmrbxgaoqrkhd.supabase.co'
+    ).replace(/\/$/, '');
     const bucket = primary.bucket ?? 'dish-images';
     if (base) return `${base}/storage/v1/object/public/${bucket}/${primary.storageKey}`;
   }

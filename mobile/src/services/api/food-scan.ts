@@ -50,11 +50,11 @@ export async function sendFoodScanFeedback(
   }
 }
 
-/** Resize to max 1024px, re-encode as JPEG and wrap into a multipart form (`file`). */
+/** Resize to max 800px, re-encode as JPEG and wrap into a multipart form (`file`). */
 async function buildFoodScanForm(
   uri: string,
   signal: AbortSignal | undefined,
-  checkCancelled: () => void = () => {},
+  checkCancelled: () => void = () => { },
 ): Promise<FormData> {
   checkCancelled();
   // Callback form works on native and react-native-web (web has no promise overload).
@@ -64,10 +64,10 @@ async function buildFoodScanForm(
   checkCancelled();
   const longest = Math.max(size.width, size.height);
   const actions =
-    longest > 1024
-      ? [{ resize: size.width >= size.height ? { width: 1024 } : { height: 1024 } }]
+    longest > 800
+      ? [{ resize: size.width >= size.height ? { width: 800 } : { height: 800 } }]
       : [];
-  const image = await manipulateAsync(uri, actions, { compress: 0.75, format: SaveFormat.JPEG });
+  const image = await manipulateAsync(uri, actions, { compress: 0.8, format: SaveFormat.JPEG });
   checkCancelled();
   const form = new FormData();
   if (Platform.OS === 'web') {
@@ -147,6 +147,7 @@ export async function scanFoodImage(uri: string, signal?: AbortSignal): Promise<
       method: 'POST',
       body: form,
       signal: controller.signal,
+      timeout: 45000,
     });
   };
   let onAbort: (() => void) | undefined;

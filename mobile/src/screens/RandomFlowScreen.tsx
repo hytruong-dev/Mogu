@@ -443,10 +443,8 @@ export function RandomFlowScreen({ onClose }: Props) {
         }
         if (primary?.storageKey) {
           const base = (
-            globalThis as typeof globalThis & {
-              process?: { env?: Record<string, string | undefined> };
-            }
-          ).process?.env?.EXPO_PUBLIC_SUPABASE_URL?.replace(/\/$/, '');
+            process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://lkqvyvllmrbxgaoqrkhd.supabase.co'
+          ).replace(/\/$/, '');
           if (base) {
             const bucket = primary.bucket ?? 'dish-images';
             const uri = `${base}/storage/v1/object/public/${bucket}/${primary.storageKey}`;
@@ -941,7 +939,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                   {selected ? (
                     <View style={styles.selectedBadge}>
                       <Check size={9} color={INK} strokeWidth={3} />
-                    </View>
+              </View>
                   ) : null}
                   <Icon size={22} color={selected ? INK : MUTED} strokeWidth={selected ? 2 : 1.8} />
                   <Text style={[styles.mealChipTxt, selected && styles.mealChipTxtOn]}>
@@ -960,7 +958,7 @@ export function RandomFlowScreen({ onClose }: Props) {
             {BUDGETS.map((b) => {
               const selected = budget === b;
               return (
-                  <Pressable
+              <Pressable
                   key={b}
                   style={[styles.budgetChip, selected && styles.budgetChipOn]}
                   onPress={() => setBudget(b)}
@@ -975,17 +973,17 @@ export function RandomFlowScreen({ onClose }: Props) {
                     numberOfLines={1}
                   >
                     {b}
-                  </Text>
+              </Text>
                   <Text style={styles.budgetChipHint} numberOfLines={1}>
                     {BUDGET_HINTS[b]}
-                  </Text>
+              </Text>
                   </Pressable>
               );
             })}
               </View>
               </View>
 
-        <Pressable
+                  <Pressable
           style={styles.profileRow}
           onPress={() => setSheetOpen(true)}
           accessibilityRole="button"
@@ -994,7 +992,7 @@ export function RandomFlowScreen({ onClose }: Props) {
           <View style={styles.profileTop}>
             <View style={[styles.profileIcon, !profileDeclared && styles.profileIconWarn]}>
               <ShieldCheck size={18} color={profileDeclared ? '#15803D' : '#B45309'} />
-            </View>
+              </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.profileTxt}>
                 {profileDeclared ? 'Đã áp dụng hồ sơ ăn uống' : 'Hoàn thiện hồ sơ ăn uống'}
@@ -1004,9 +1002,9 @@ export function RandomFlowScreen({ onClose }: Props) {
                   ? 'NOAN lọc món theo các tiêu chí bên dưới'
                   : 'Giúp NOAN gợi ý món hợp với bạn hơn'}
               </Text>
-            </View>
+              </View>
             <ChevronRight size={18} color={MUTED} />
-          </View>
+                </View>
           {profileChips.length > 0 ? (
             <View style={styles.profileChips}>
               {profileChips.map((c) => (
@@ -1014,7 +1012,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                   <Text style={styles.profileChipTxt} numberOfLines={1}>
                     {c}
                   </Text>
-                </View>
+              </View>
               ))}
             </View>
           ) : null}
@@ -1034,7 +1032,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                 >
                 <Text style={styles.errorBtnTxt}>Thử lại</Text>
                 </Pressable>
-              <Pressable
+    <Pressable
                 style={styles.errorBtnGhost}
                 onPress={() => {
                   setFetchError(null);
@@ -1042,14 +1040,14 @@ export function RandomFlowScreen({ onClose }: Props) {
                 }}
               >
                 <Text style={styles.errorBtnGhostTxt}>Sửa lựa chọn</Text>
-              </Pressable>
-                </View>
-              </View>
+    </Pressable>
+    </View>
+    </View>
         ) : null}
       </ScrollView>
 
       <View style={styles.setupFooter}>
-        <Pressable
+    <Pressable
           style={[styles.cta, (!meal || !mealReady || loading) && { opacity: 0.55 }]}
           disabled={!meal || !mealReady || loading}
           onPress={() => openMachine('fresh')}
@@ -1059,7 +1057,7 @@ export function RandomFlowScreen({ onClose }: Props) {
           ) : (
             <Text style={styles.ctaTxt}>Chọn món cho tôi</Text>
           )}
-        </Pressable>
+    </Pressable>
         <Text style={styles.ctaHint}>Không ưng? Bạn có thể đổi món.</Text>
       </View>
 
@@ -1217,7 +1215,7 @@ function LoadingOverlay({
               <Text style={styles.livePillText} numberOfLines={1}>
                 {finishing ? 'ĐÃ CHỌN XONG' : spinning ? 'ĐANG CHỌN MÓN' : 'SẴN SÀNG CHỌN MÓN'}
               </Text>
-        </View>
+      </View>
             <Svg width={18} height={14} viewBox="0 0 18 14" style={styles.sparkleRay}>
               <Path d="M2 12L7 4" stroke="#FFB800" strokeWidth="2.5" strokeLinecap="round" />
               <Path d="M10 13L15 2" stroke="#FFB800" strokeWidth="2.5" strokeLinecap="round" />

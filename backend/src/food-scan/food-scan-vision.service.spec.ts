@@ -4,7 +4,9 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
+  extractJsonPayload,
   FoodScanVisionService,
+  sanitizeFoodScanRaw,
   validateFoodScanExtraction,
 } from './food-scan-vision.service';
 
@@ -88,5 +90,76 @@ describe('FoodScan vision validation', () => {
         new ConfigService({ FOOD_SCAN_MODEL: 'vision-custom' }),
       ).model,
     ).toBe('vision-custom');
+  });
+
+  describe('sanitizeFoodScanRaw', () => {
+    it('normalizes LLM output with title-case quality and unlisted category', () => {
+      const llmOutput = {
+        primaryName: 'Cơm tấm',
+        alternateNames: ['Com tam'],
+        guesses: [
+          { nameVi: 'Cơm tấm sườn', nameEn: 'Broken rice with pork', confidence: 0.95 },
+        ],
+        category: 'Main course',
+        cuisine: 'Vietnamese',
+        visibleIngredients: ['rice', 'pork'],
+        isFood: true,
+        quality: 'Good',
+      };
+      const sanitized = sanitizeFoodScanRaw(llmOutput);
+      expect(sanitized.quality).toBe('GOOD');
+      expect(sanitized.category).toBe('rice'); // 'Cơm tấm' maps to 'rice'
+      expect(() => validateFoodScanExtraction(sanitized)).not.toThrow();
+    });
+
+    it('salvages Gemini object-detection output (box_2d/label) as guesses', () => {
+      const llmOutput = [
+        { box_2d: [538, 107, 729, 563], label: 'pho' },
+        { box_2d: [100, 100, 200, 200], label: 'herbs' },
+      ];
+      const sanitized = sanitizeFoodScanRaw(llmOutput);
+      expect(sanitized.isFood).toBe(true);
+      expect(sanitized.primaryName).toBe('pho');
+      expect(sanitized.quality).toBe('POOR');
+      expect(sanitized.guesses).toHaveLength(2);
+      expect(() => validateFoodScanExtraction(sanitized)).not.toThrow();
+    });
+
+    it('normalizes non-food response that omits quality', () => {
+      const llmOutput = {
+        isFood: false,
+        primaryName: null,
+        guesses: [],
+        category: null,
+        cuisine: null,
+        alternateNames: [],
+        visibleIngredients: [],
+      };
+      const sanitized = sanitizeFoodScanRaw(llmOutput);
+      expect(sanitized.quality).toBe('POOR');
+      expect(sanitized.isFood).toBe(false);
+      expect(() => validateFoodScanExtraction(sanitized)).not.toThrow();
+    });
+  });
+
+  describe('extractJsonPayload', () => {
+    it('strips markdown fences', () => {
+      expect(extractJsonPayload('```json\n{"isFood": true}\n```')).toBe(
+        '{"isFood": true}',
+      );
+    });
+    it('extracts object embedded in prose', () => {
+      expect(
+        extractJsonPayload('Here is the result: {"isFood": true} Done.'),
+      ).toBe('{"isFood": true}');
+    });
+    it('extracts array embedded in prose', () => {
+      expect(extractJsonPayload('Detected: [{"label": "pho"}]')).toBe(
+        '[{"label": "pho"}]',
+      );
+    });
+    it('passes through clean JSON', () => {
+      expect(extractJsonPayload('{"a":1}')).toBe('{"a":1}');
+    });
   });
 });
