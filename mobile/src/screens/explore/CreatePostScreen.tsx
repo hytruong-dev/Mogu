@@ -416,7 +416,7 @@ export function CreatePostScreen({ onClose, onPublished, editPostId }: Props) {
     <SafeAreaView className="flex-1 bg-background" edges={['top', 'left', 'right']}>
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
       >
         <View className="h-14 flex-row items-center justify-between px-3">
           <Pressable

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -8,7 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ArrowLeft,
   Bookmark,
@@ -64,6 +65,18 @@ export function CommunityPostDetailScreen({
     isFollowingAuthor?: boolean;
   }) => void;
 }) {
+  const insets = useSafeAreaInsets();
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  useEffect(() => {
+    const showEvt = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvt = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const a = Keyboard.addListener(showEvt, () => setKeyboardOpen(true));
+    const b = Keyboard.addListener(hideEvt, () => setKeyboardOpen(false));
+    return () => {
+      a.remove();
+      b.remove();
+    };
+  }, []);
   const [loading, setLoading] = useState(Boolean(postId));
   const [error, setError] = useState<string | null>(null);
   const [post, setPost] = useState<ExplorePost | null>(null);
@@ -265,7 +278,7 @@ export function CommunityPostDetailScreen({
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
-      <KeyboardAvoidingView style={s.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={s.flex} behavior="padding">
         <View style={s.header}>
           <Pressable onPress={onBack} style={s.iconButton} accessibilityLabel="Quay lại">
             <ArrowLeft size={24} color={INK} />
@@ -453,7 +466,12 @@ export function CommunityPostDetailScreen({
           </View>
         </ScrollView>
 
-        <View style={s.composer}>
+        <View
+          style={[
+            s.composer,
+            { paddingBottom: keyboardOpen ? 10 : Math.max(insets.bottom + 8, 12) },
+          ]}
+        >
           {post.commentsEnabled === false ? (
             <Text style={[s.emptyComments, { paddingVertical: 12 }]}>
               Bình luận đã bị tắt cho bài viết này

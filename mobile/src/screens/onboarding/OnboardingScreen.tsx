@@ -144,7 +144,7 @@ export function OnboardingScreen({ onFinish }: Props) {
           onSkip={SKIPPABLE[step] && !returnToSummary ? onSkip : undefined}
         />
 
-        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
           <Animated.View style={[{ flex: 1 }, anim]}>
             <ScrollView
               ref={scrollRef}

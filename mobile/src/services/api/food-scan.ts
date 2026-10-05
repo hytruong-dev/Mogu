@@ -54,19 +54,37 @@ export async function sendFoodScanFeedback(
 async function buildFoodScanForm(
   uri: string,
   signal: AbortSignal | undefined,
-  checkCancelled: () => void = () => { },
+  checkCancelled: () => void = () => {},
 ): Promise<FormData> {
   checkCancelled();
-  // Callback form works on native and react-native-web (web has no promise overload).
-  const size = await new Promise<{ width: number; height: number }>((resolve, reject) =>
-    Image.getSize(uri, (width, height) => resolve({ width, height }), reject),
-  );
+  // Safe measurement with fallback: Image.getSize on Android file:// can reject or hang.
+  let size: { width: number; height: number } | null = null;
+  try {
+    size = await new Promise<{ width: number; height: number }>((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error('Image.getSize timeout')), 2500);
+      Image.getSize(
+        uri,
+        (width, height) => {
+          clearTimeout(timer);
+          resolve({ width, height });
+        },
+        (err) => {
+          clearTimeout(timer);
+          reject(err);
+        },
+      );
+    });
+  } catch {
+    size = null;
+  }
   checkCancelled();
-  const longest = Math.max(size.width, size.height);
+
   const actions =
-    longest > 800
+    size && Math.max(size.width, size.height) > 800
       ? [{ resize: size.width >= size.height ? { width: 800 } : { height: 800 } }]
-      : [];
+      : !size
+        ? [{ resize: { width: 800 } }]
+        : [];
   const image = await manipulateAsync(uri, actions, { compress: 0.8, format: SaveFormat.JPEG });
   checkCancelled();
   const form = new FormData();

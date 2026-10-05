@@ -1,11 +1,13 @@
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/navigation/types';
-import { Pressable, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Camera, Compass, HeartPulse, Home, UserRound } from '@/components/icons';
 import { FoodScanSheet } from './FoodScanSheet';
-import { cn } from '../../lib/utils';
 
 export type MainTab = 'home' | 'explore' | 'random' | 'health' | 'profile';
 
@@ -26,8 +28,17 @@ const tabs = [
   { key: 'profile', label: 'Cá nhân', icon: UserRound },
 ] as const;
 
+const INK = '#1F1A14';
+const MUTED = '#8A8378';
+const ACCENT = '#FFC928';
+
+function tapFeedback() {
+  Haptics.selectionAsync().catch(() => undefined);
+}
+
 export function LiquidGlassBottomNav({ active, ...actions }: Props) {
   const [scanOpen, setScanOpen] = useState(false);
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const callbacks: Record<MainTab, (() => void) | undefined> = {
     home: actions.onHome,
@@ -38,41 +49,57 @@ export function LiquidGlassBottomNav({ active, ...actions }: Props) {
   };
 
   return (
-    <View className="absolute left-4 right-4 bottom-3" pointerEvents="box-none">
-      {/* Shadow shell */}
-      <View
-        className="h-[92px] rounded-[32px]"
-        style={{
-          shadowColor: '#5B4312',
-          shadowOpacity: 0.12,
-          shadowRadius: 32,
-          shadowOffset: { width: 0, height: 10 },
-          elevation: 12,
-          backgroundColor: 'rgba(255,255,255,0.48)',
-        }}
-      >
-        {/* Glass */}
+    <View
+      style={[styles.root, { bottom: Math.max(insets.bottom, 10) }]}
+      pointerEvents="box-none"
+    >
+      <View style={styles.shadowShell}>
         <BlurView
-          intensity={32}
+          intensity={Platform.OS === 'ios' ? 40 : 24}
           tint="light"
-          className="flex-1 rounded-[32px] overflow-visible"
-          style={{
-            borderWidth: 1,
-            borderColor: 'rgba(255,255,255,0.72)',
-            backgroundColor: 'rgba(255,255,255,0.42)',
-          }}
+          style={styles.glass}
         >
-          {/* Top reflection */}
-          <View
-            className="absolute left-[18px] right-[18px] top-px h-px"
-            style={{ backgroundColor: 'rgba(255,255,255,0.95)' }}
-          />
+          {/* Hairline top reflection for the glass edge */}
+          <View pointerEvents="none" style={styles.reflection} />
 
-          {/* Tab row */}
-          <View className="flex-1 flex-row items-center px-[7px]">
+          <View style={styles.row}>
             {tabs.map(({ key, label, icon: Icon }) => {
               const selected = active === key;
-              const isRandom = key === 'random';
+
+              if (key === 'random') {
+                return (
+                  <Pressable
+                    key={key}
+                    accessibilityRole="button"
+                    accessibilityLabel="Quét món ăn bằng camera"
+                    onPress={() => {
+                      tapFeedback();
+                      callbacks.random?.();
+                    }}
+                    style={styles.tab}
+                    hitSlop={6}
+                  >
+                    {({ pressed }) => (
+                      <>
+                        <View style={[styles.orbRing, pressed && styles.orbPressed]}>
+                          <LinearGradient
+                            colors={['#FFE07A', ACCENT, '#FFB300']}
+                            start={{ x: 0.15, y: 0 }}
+                            end={{ x: 0.85, y: 1 }}
+                            style={styles.orb}
+                          >
+                            <View pointerEvents="none" style={styles.orbHighlight} />
+                            <Icon size={25} color={INK} strokeWidth={2.2} />
+                          </LinearGradient>
+                        </View>
+                        <Text style={[styles.label, styles.labelScan]} numberOfLines={1}>
+                          {label}
+                        </Text>
+                      </>
+                    )}
+                  </Pressable>
+                );
+              }
 
               return (
                 <Pressable
@@ -80,84 +107,23 @@ export function LiquidGlassBottomNav({ active, ...actions }: Props) {
                   accessibilityRole="tab"
                   accessibilityState={{ selected }}
                   accessibilityLabel={label}
-                  onPress={callbacks[key]}
-                  className={cn(
-                    'flex-1 min-w-14 min-h-14 items-center justify-center',
-                    isRandom && 'pt-0.5',
-                  )}
-                  style={({ pressed }) => [
-                    pressed && { transform: [{ scale: 0.96 }], opacity: 0.9 },
-                  ]}
+                  onPress={() => {
+                    if (!selected) tapFeedback();
+                    callbacks[key]?.();
+                  }}
+                  style={({ pressed }) => [styles.tab, pressed && styles.tabPressed]}
                 >
-                  {isRandom ? (
-                    /* Floating orb for Random tab */
-                    <View
-                      className="w-[68px] h-[68px] rounded-full p-1 items-center justify-center"
-                      style={{
-                        marginTop: -31,
-                        backgroundColor: 'rgba(255,255,255,0.55)',
-                        borderWidth: 1,
-                        borderColor: 'rgba(255,255,255,0.8)',
-                        shadowColor: '#F5BD18',
-                        shadowOpacity: 0.28,
-                        shadowRadius: 18,
-                        shadowOffset: { width: 0, height: 7 },
-                        elevation: 9,
-                      }}
-                    >
-                      <View style={{ width: 58, height: 58, borderRadius: 29, overflow: 'hidden' }}>
-                        <View
-                          className="flex-1 rounded-[30px] items-center justify-center"
-                          style={{ backgroundColor: 'rgba(255,213,79,0.9)' }}
-                        >
-                          {/* Highlight */}
-                          <View
-                            className="absolute w-[22px] h-[9px] rounded-lg left-3 top-[7px]"
-                            style={{
-                              backgroundColor: 'rgba(255,255,255,0.58)',
-                              transform: [{ rotate: '-18deg' }],
-                            }}
-                          />
-                          <Icon size={27} color="#161616" strokeWidth={2} />
-                        </View>
-                      </View>
-                    </View>
-                  ) : (
-                    /* Standard tab */
-                    <View
-                      className="w-12 h-[38px] rounded-[19px] items-center justify-center"
-                      style={
-                        selected
-                          ? {
-                              backgroundColor: 'rgba(255,220,104,0.24)',
-                              borderWidth: 1,
-                              borderColor: 'rgba(255,255,255,0.78)',
-                              shadowColor: '#F5BD18',
-                              shadowOpacity: 0.2,
-                              shadowRadius: 11,
-                              shadowOffset: { width: 0, height: 3 },
-                              elevation: 2,
-                            }
-                          : undefined
-                      }
-                    >
-                      <Icon
-                        size={24}
-                        color={selected ? '#161616' : '#777A82'}
-                        strokeWidth={selected ? 2 : 1.8}
-                        fill={selected ? '#FFD54F' : 'transparent'}
-                      />
-                    </View>
-                  )}
-
+                  <View style={[styles.iconPill, selected && styles.iconPillActive]}>
+                    <Icon
+                      size={22}
+                      color={selected ? INK : MUTED}
+                      strokeWidth={selected ? 2.3 : 1.9}
+                      fill={selected ? ACCENT : 'transparent'}
+                    />
+                  </View>
                   <Text
-                    className={cn(
-                      'mt-0.5',
-                      selected
-                        ? 'text-[13px] font-semibold text-foreground'
-                        : 'text-xs font-medium text-muted-foreground',
-                    )}
-                    style={{ lineHeight: 16 }}
+                    style={[styles.label, selected ? styles.labelActive : styles.labelIdle]}
+                    numberOfLines={1}
                   >
                     {label}
                   </Text>
@@ -167,6 +133,7 @@ export function LiquidGlassBottomNav({ active, ...actions }: Props) {
           </View>
         </BlurView>
       </View>
+
       <FoodScanSheet
         visible={scanOpen}
         onClose={() => setScanOpen(false)}
@@ -178,3 +145,114 @@ export function LiquidGlassBottomNav({ active, ...actions }: Props) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    position: 'absolute',
+    left: 14,
+    right: 14,
+  },
+  shadowShell: {
+    height: 72,
+    borderRadius: 28,
+    backgroundColor: Platform.OS === 'ios' ? 'rgba(255,255,255,0.55)' : 'rgba(255,255,255,0.94)',
+    shadowColor: '#3D2C0A',
+    shadowOpacity: 0.14,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 14,
+  },
+  glass: {
+    flex: 1,
+    borderRadius: 28,
+    overflow: 'visible',
+    borderWidth: StyleSheet.hairlineWidth * 2,
+    borderColor: 'rgba(255,255,255,0.85)',
+    backgroundColor: 'rgba(255,255,255,0.5)',
+  },
+  reflection: {
+    position: 'absolute',
+    top: 1,
+    left: 24,
+    right: 24,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.95)',
+  },
+  row: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+  },
+  tab: {
+    flex: 1,
+    minHeight: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabPressed: {
+    opacity: 0.75,
+    transform: [{ scale: 0.95 }],
+  },
+  iconPill: {
+    width: 52,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconPillActive: {
+    backgroundColor: 'rgba(255,201,40,0.22)',
+  },
+  label: {
+    marginTop: 3,
+    fontSize: 11.5,
+    lineHeight: 14,
+    letterSpacing: 0.1,
+  },
+  labelActive: {
+    color: INK,
+    fontWeight: '700',
+  },
+  labelIdle: {
+    color: MUTED,
+    fontWeight: '500',
+  },
+  labelScan: {
+    color: INK,
+    fontWeight: '700',
+  },
+  orbRing: {
+    marginTop: -30,
+    width: 62,
+    height: 62,
+    borderRadius: 31,
+    padding: 4,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#E0A100',
+    shadowOpacity: 0.35,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 10,
+  },
+  orbPressed: {
+    transform: [{ scale: 0.93 }],
+  },
+  orb: {
+    flex: 1,
+    borderRadius: 27,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  orbHighlight: {
+    position: 'absolute',
+    top: 6,
+    left: 10,
+    width: 20,
+    height: 8,
+    borderRadius: 6,
+    backgroundColor: 'rgba(255,255,255,0.55)',
+    transform: [{ rotate: '-20deg' }],
+  },
+});

@@ -19,7 +19,6 @@ import Animated, {
   withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
-import { ParticleBurst } from './RewardEffects';
 
 const BODY = require('../../assets/images/noan/food-reel/machine-body.png');
 const HANDLE = require('../../assets/images/noan/food-reel/machine-handle.png');
@@ -43,12 +42,12 @@ const WINDOWS = ['12.3%', '38.1%', '63.7%'] as const;
 const BULBS = [30.7, 40.2, 49.9, 59.6, 69.3];
 
 /**
- * Coin Master-style timing (ms after `finishing` turns true). Each reel lands at its time;
- * the last one crawls in slowly for suspense. Sounds/haptics use the same schedule.
+ * Crisper timing (ms after `finishing` turns true). Each reel lands decisively;
+ * reel 3 snaps on the winning dish with no awkward motionless lag.
  */
-export const REEL_STOP_TIMES = [450, 820, 1380] as const;
+export const REEL_STOP_TIMES = [300, 540, 820] as const;
 /** How long the jackpot celebration plays inside the machine before the dish is revealed. */
-export const JACKPOT_HOLD_MS = 450;
+export const JACKPOT_HOLD_MS = 150;
 export const FOOD_REEL_REVEAL_DELAY = REEL_STOP_TIMES[2] + JACKPOT_HOLD_MS;
 
 const LOOP_COPIES = 4;
@@ -322,11 +321,6 @@ export function FoodReelMachine({
               </View>
             </GestureDetector>
           </Animated.View>
-          {jackpot && !reducedMotion ? (
-            <View pointerEvents="none" style={styles.burstAnchor}>
-              <ParticleBurst count={22} radius={width * 0.62} />
-            </View>
-          ) : null}
         </>
       ) : null}
     </View>
@@ -518,14 +512,14 @@ function ReelTrack({
         // out-cubic starts at 3x average speed; out-quint (last reel, suspense) at 5x,
         // so the hand-off from the constant-speed loop feels seamless.
         const velocity = cycle / SPIN_CYCLE_MS;
-        const travel = (velocity * duration) / (isLast ? 5 : 3);
+        const travel = (velocity * duration) / (isLast ? 4 : 3);
         const destination = -Math.ceil((-current + travel) / snap) * snap;
         position.value = withSequence(
           withTiming(destination - itemHeight * OVERSHOOT, {
             duration,
-            easing: isLast ? Easing.out(Easing.poly(5)) : Easing.out(Easing.cubic),
+            easing: isLast ? Easing.out(Easing.cubic) : Easing.out(Easing.quad),
           }),
-          withSpring(destination, { damping: 7, stiffness: 260, mass: 0.6 }),
+          withSpring(destination, { damping: 9, stiffness: 280, mass: 0.5 }),
         );
       })();
       speed.value = withTiming(0, { duration: duration * 0.85, easing: Easing.in(Easing.quad) });

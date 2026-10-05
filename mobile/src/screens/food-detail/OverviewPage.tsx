@@ -8,6 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   AlertTriangle,
@@ -17,10 +18,12 @@ import {
   ChevronRight,
   Clock3,
   Flame,
-  List,
+  Info,
   MapPin,
+  Mic,
   Salad,
   Share2,
+  ShieldCheck,
   Tag,
 } from '@/components/icons';
 import { AppImage } from '../../components/ui/app-image';
@@ -30,7 +33,7 @@ import { assessAllergens, formatKcalLabel, ingredientDisplayName } from './utils
 import { shareDish, useDishSave } from './useDishActions';
 
 const { width: SW, height: SH } = Dimensions.get('window');
-const HERO_H = Math.round(Math.min(SW * 1.0, SH * 0.42));
+const HERO_H = Math.round(Math.min(SW * 0.92, SH * 0.4));
 const PREVIEW_MAX = 8;
 
 type Props = {
@@ -50,6 +53,21 @@ type Props = {
   onCook: () => void;
   onNearby: () => void;
 };
+
+type Stat = {
+  key: string;
+  icon: typeof Clock3;
+  value: string;
+  label: string;
+  tint: string;
+  iconColor: string;
+};
+
+function fmtGram(v: number | null | undefined): string | null {
+  if (v == null || Number.isNaN(Number(v))) return null;
+  const n = Number(v);
+  return `${n >= 10 ? Math.round(n) : Math.round(n * 10) / 10}g`;
+}
 
 export function OverviewPage({
   dishId,
@@ -80,52 +98,98 @@ export function OverviewPage({
   const moreCount = Math.max(0, ingredientCount - preview.length);
 
   const stats = [
-    timeLabel ? { key: 'time', icon: Clock3, value: timeLabel, label: 'Thời gian' } : null,
-    kcal ? { key: 'kcal', icon: Flame, value: kcal, label: 'Năng lượng' } : null,
-    priceLabel ? { key: 'price', icon: Tag, value: priceLabel, label: 'Giá tham khảo' } : null,
-  ].filter(Boolean) as Array<{ key: string; icon: typeof Clock3; value: string; label: string }>;
+    timeLabel
+      ? { key: 'time', icon: Clock3, value: timeLabel, label: 'Thời gian', tint: '#FFF1E6', iconColor: '#E07A2E' }
+      : null,
+    kcal
+      ? { key: 'kcal', icon: Flame, value: kcal, label: 'Năng lượng', tint: '#FFF4D6', iconColor: '#E0A100' }
+      : null,
+    priceLabel
+      ? { key: 'price', icon: Tag, value: priceLabel, label: 'Giá tham khảo', tint: '#EAF6EC', iconColor: '#2F9E44' }
+      : null,
+  ].filter(Boolean) as Stat[];
+
+  const macros = [
+    { key: 'p', label: 'Đạm', value: fmtGram(nutrition?.proteinG), color: '#4C8DF6' },
+    { key: 'c', label: 'Tinh bột', value: fmtGram(nutrition?.carbsG), color: '#F5A623' },
+    { key: 'f', label: 'Chất béo', value: fmtGram(nutrition?.fatG), color: '#E5603B' },
+    { key: 'fi', label: 'Chất xơ', value: fmtGram(nutrition?.fiberG), color: '#2F9E44' },
+  ].filter((m) => m.value != null) as Array<{ key: string; label: string; value: string; color: string }>;
+
+  const allergenTone =
+    assessment.status === 'CONTAINS'
+      ? { bg: '#FFF4E5', border: '#FCD9A8', fg: '#92400E', Icon: AlertTriangle, iconColor: '#D97706' }
+      : assessment.status === 'NOT_DETECTED'
+        ? { bg: '#EEF8F0', border: '#CDEBD3', fg: '#1F6B33', Icon: ShieldCheck, iconColor: '#2F9E44' }
+        : { bg: '#F5F3EE', border: '#E9E4D9', fg: MUTED, Icon: Info, iconColor: TERTIARY };
+  const allergenText =
+    assessment.status === 'CONTAINS'
+      ? assessment.detail
+        ? `Có chứa: ${assessment.detail}`
+        : 'Có chứa chất gây dị ứng'
+      : assessment.status === 'NOT_DETECTED'
+        ? 'Không phát hiện chất gây dị ứng'
+        : 'Thông tin dị ứng đang cập nhật — kiểm tra nguyên liệu nếu bạn dị ứng';
+  const AllergenIcon = allergenTone.Icon;
 
   return (
     <View style={styles.root}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         bounces={false}
-        contentContainerStyle={{ paddingBottom: 104 + insets.bottom }}
+        contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
       >
         <View style={styles.hero}>
           {image ? (
             <AppImage source={image} style={styles.heroImg} contentFit="cover" />
           ) : (
-            <View style={[styles.heroImg, styles.heroPlaceholder]} />
+            <View style={[styles.heroImg, styles.heroPlaceholder]}>
+              <ChefHat size={44} color="#C9B68A" />
+            </View>
           )}
+          {/* Soft top scrim keeps the floating buttons legible on bright photos */}
+          <LinearGradient
+            pointerEvents="none"
+            colors={['rgba(0,0,0,0.28)', 'rgba(0,0,0,0)']}
+            style={styles.heroScrim}
+          />
           <SafeAreaView edges={['top']} style={styles.heroOverlay} pointerEvents="box-none">
             <View style={styles.heroBar}>
-              <Pressable onPress={onBack} style={styles.heroBtn} hitSlop={8} accessibilityLabel="Quay lại">
-                <ArrowLeft size={22} color={INK} strokeWidth={2.2} />
+              <Pressable
+                onPress={onBack}
+                style={({ pressed }) => [styles.heroBtn, pressed && styles.pressed]}
+                hitSlop={8}
+                accessibilityLabel="Quay lại"
+              >
+                <ArrowLeft size={21} color={INK} strokeWidth={2.3} />
               </Pressable>
               <View style={styles.heroRight}>
                 <Pressable
                   onPress={() => void toggleSave()}
-                  style={[styles.heroBtn, isSaved && styles.heroBtnActive]}
+                  style={({ pressed }) => [
+                    styles.heroBtn,
+                    isSaved && styles.heroBtnActive,
+                    pressed && styles.pressed,
+                  ]}
                   accessibilityLabel={isSaved ? 'Bỏ lưu' : 'Lưu món'}
                 >
-                  <Bookmark size={20} color={INK} fill={isSaved ? INK : 'transparent'} />
+                  <Bookmark size={19} color={INK} fill={isSaved ? INK : 'transparent'} />
                 </Pressable>
                 <Pressable
                   onPress={() => void shareDish(dishName, dishId)}
-                  style={styles.heroBtn}
+                  style={({ pressed }) => [styles.heroBtn, pressed && styles.pressed]}
                   accessibilityLabel="Chia sẻ"
                 >
-                  <Share2 size={20} color={INK} />
+                  <Share2 size={19} color={INK} />
                 </Pressable>
               </View>
             </View>
           </SafeAreaView>
         </View>
 
-        {/* Sheet overlaps hero for a softer, modern look */}
         <View style={styles.sheet}>
           <View style={styles.grabber} />
+
           <Text style={styles.title}>{dishName}</Text>
 
           {desc ? (
@@ -143,39 +207,52 @@ export function OverviewPage({
           ) : null}
 
           {stats.length > 0 ? (
-            <View style={styles.stats}>
-              {stats.map((s) => {
+            <View style={styles.statsCard}>
+              {stats.map((s, i) => {
                 const Icon = s.icon;
                 return (
-                  <View key={s.key} style={styles.stat}>
-                    <View style={styles.statIcon}>
-                      <Icon size={16} color={INK} strokeWidth={2.2} />
+                  <View key={s.key} style={styles.statWrap}>
+                    {i > 0 ? <View style={styles.statDivider} /> : null}
+                    <View style={styles.stat}>
+                      <View style={[styles.statIcon, { backgroundColor: s.tint }]}>
+                        <Icon size={16} color={s.iconColor} strokeWidth={2.3} />
+                      </View>
+                      <Text style={styles.statValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>
+                        {s.value}
+                      </Text>
+                      <Text style={styles.statLabel} numberOfLines={1}>
+                        {s.label}
+                      </Text>
                     </View>
-                    <Text style={styles.statValue} numberOfLines={1}>
-                      {s.value}
-                    </Text>
-                    <Text style={styles.statLabel}>{s.label}</Text>
                   </View>
                 );
               })}
             </View>
           ) : null}
 
-          {/* Allergen: only draw attention when the dish actually contains something */}
-          {assessment.status === 'CONTAINS' ? (
-            <View style={styles.allergenWarn}>
-              <AlertTriangle size={16} color="#B45309" />
-              <Text style={styles.allergenWarnText} numberOfLines={2}>
-                {assessment.detail ? `Có chứa: ${assessment.detail}` : 'Có chứa chất gây dị ứng'}
-              </Text>
+          {macros.length > 0 ? (
+            <View style={styles.macroRow}>
+              {macros.map((m) => (
+                <View key={m.key} style={styles.macroChip}>
+                  <View style={[styles.macroDot, { backgroundColor: m.color }]} />
+                  <Text style={styles.macroValue}>{m.value}</Text>
+                  <Text style={styles.macroLabel}>{m.label}</Text>
+                </View>
+              ))}
             </View>
-          ) : (
-            <Text style={styles.allergenNote}>
-              {assessment.status === 'NOT_DETECTED'
-                ? 'Không phát hiện chất gây dị ứng trong dữ liệu đã kiểm tra.'
-                : 'Thông tin dị ứng đang được cập nhật — hãy kiểm tra nguyên liệu nếu bạn bị dị ứng.'}
+          ) : null}
+
+          <View
+            style={[
+              styles.allergenCard,
+              { backgroundColor: allergenTone.bg, borderColor: allergenTone.border },
+            ]}
+          >
+            <AllergenIcon size={17} color={allergenTone.iconColor} />
+            <Text style={[styles.allergenText, { color: allergenTone.fg }]} numberOfLines={2}>
+              {allergenText}
             </Text>
-          )}
+          </View>
 
           {ingredientCount > 0 ? (
             <View style={styles.section}>
@@ -186,11 +263,13 @@ export function OverviewPage({
                 accessibilityLabel="Xem công thức"
               >
                 <Text style={styles.sectionTitle}>Nguyên liệu</Text>
-                <Text style={styles.sectionCount}>{ingredientCount}</Text>
+                <View style={styles.sectionCountPill}>
+                  <Text style={styles.sectionCount}>{ingredientCount}</Text>
+                </View>
                 <View style={{ flex: 1 }} />
                 {canCook ? (
                   <>
-                    <Text style={styles.sectionLink}>Xem công thức</Text>
+                    <Text style={styles.sectionLink}>Xem tất cả</Text>
                     <ChevronRight size={16} color={MUTED} />
                   </>
                 ) : null}
@@ -206,7 +285,7 @@ export function OverviewPage({
                       {ing.imageUrl ? (
                         <AppImage uri={ing.imageUrl} style={styles.ingImg} contentFit="cover" />
                       ) : (
-                        <Salad size={20} color="#C9A64A" />
+                        <Salad size={22} color="#C9A64A" />
                       )}
                     </View>
                     <Text style={styles.ingName} numberOfLines={2}>
@@ -227,21 +306,30 @@ export function OverviewPage({
           ) : null}
 
           {canCook ? (
-            <View style={styles.recipeHint}>
-              <List size={16} color={MUTED} />
-              <Text style={styles.recipeHintText}>
-                {stepCount} bước hướng dẫn · có giọng nói NOAN đọc từng bước
-              </Text>
-            </View>
+            <Pressable
+              onPress={onCook}
+              style={({ pressed }) => [styles.recipeCard, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Mở hướng dẫn nấu"
+            >
+              <View style={styles.recipeIcon}>
+                <Mic size={18} color={INK} strokeWidth={2.2} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.recipeTitle}>{stepCount} bước hướng dẫn</Text>
+                <Text style={styles.recipeSub}>NOAN đọc từng bước bằng giọng nói</Text>
+              </View>
+              <ChevronRight size={18} color={MUTED} />
+            </Pressable>
           ) : null}
         </View>
       </ScrollView>
 
       {/* Sticky actions: one primary, one secondary — always reachable */}
-      <View style={[styles.footer, { paddingBottom: Math.max(12, insets.bottom + 4) }]}>
+      <View style={[styles.footer, { paddingBottom: Math.max(12, insets.bottom + 6) }]}>
         <Pressable
           onPress={onNearby}
-          style={styles.secondaryBtn}
+          style={({ pressed }) => [styles.secondaryBtn, pressed && styles.pressed]}
           accessibilityRole="button"
           accessibilityLabel="Tìm nơi bán"
         >
@@ -251,7 +339,11 @@ export function OverviewPage({
         <Pressable
           onPress={canCook ? onCook : undefined}
           disabled={!canCook}
-          style={[styles.primaryBtn, !canCook && { opacity: 0.45 }]}
+          style={({ pressed }) => [
+            styles.primaryBtn,
+            !canCook && { opacity: 0.45 },
+            pressed && styles.pressed,
+          ]}
           accessibilityRole="button"
           accessibilityLabel="Nấu món này"
         >
@@ -265,9 +357,11 @@ export function OverviewPage({
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: WHITE },
+  pressed: { opacity: 0.85, transform: [{ scale: 0.97 }] },
   hero: { width: SW, height: HERO_H, backgroundColor: BORDER },
   heroImg: { ...StyleSheet.absoluteFill, width: SW, height: HERO_H },
-  heroPlaceholder: { backgroundColor: '#EDE6D8' },
+  heroPlaceholder: { backgroundColor: '#EDE6D8', alignItems: 'center', justifyContent: 'center' },
+  heroScrim: { position: 'absolute', top: 0, left: 0, right: 0, height: 120 },
   heroOverlay: { ...StyleSheet.absoluteFill },
   heroBar: {
     flexDirection: 'row',
@@ -281,13 +375,18 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+    backgroundColor: 'rgba(255,255,255,0.94)',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   heroBtnActive: { backgroundColor: YELLOW },
   sheet: {
-    marginTop: -28,
+    marginTop: -26,
     backgroundColor: WHITE,
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
@@ -302,81 +401,105 @@ const styles = StyleSheet.create({
     backgroundColor: '#ECE6DA',
     marginBottom: 14,
   },
-  title: { fontSize: 26, fontWeight: '800', color: INK, letterSpacing: -0.5, lineHeight: 32 },
-  desc: { fontSize: 15, lineHeight: 22, color: MUTED },
-  more: { marginTop: 4, fontSize: 14, fontWeight: '700', color: INK },
-  stats: {
+  title: { fontSize: 25, fontWeight: '800', color: INK, letterSpacing: -0.5, lineHeight: 31 },
+  desc: { fontSize: 14.5, lineHeight: 21, color: MUTED },
+  more: { marginTop: 4, fontSize: 13.5, fontWeight: '700', color: INK },
+  statsCard: {
     flexDirection: 'row',
-    gap: 10,
     marginTop: 18,
-  },
-  stat: {
-    flex: 1,
-    alignItems: 'flex-start',
     backgroundColor: CREAM,
-    borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    borderRadius: 20,
+    paddingVertical: 14,
+    paddingHorizontal: 6,
   },
+  statWrap: { flex: 1, flexDirection: 'row', alignItems: 'stretch' },
+  statDivider: { width: StyleSheet.hairlineWidth * 2, backgroundColor: '#EFE5CC', marginVertical: 4 },
+  stat: { flex: 1, alignItems: 'center', paddingHorizontal: 4 },
   statIcon: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: WHITE,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
   },
-  statValue: { fontSize: 14, fontWeight: '800', color: INK },
-  statLabel: { fontSize: 11.5, color: TERTIARY, marginTop: 2 },
-  allergenWarn: {
+  statValue: { fontSize: 14.5, fontWeight: '800', color: INK, textAlign: 'center' },
+  statLabel: { fontSize: 11.5, color: TERTIARY, marginTop: 2, textAlign: 'center' },
+  macroRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  macroChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: BORDER,
+    backgroundColor: WHITE,
+  },
+  macroDot: { width: 7, height: 7, borderRadius: 4 },
+  macroValue: { fontSize: 13, fontWeight: '800', color: INK },
+  macroLabel: { fontSize: 12, color: MUTED },
+  allergenCard: {
     marginTop: 14,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    backgroundColor: '#FFF4E5',
-    borderRadius: 12,
+    gap: 10,
+    borderRadius: 14,
+    borderWidth: 1,
     paddingHorizontal: 12,
-    paddingVertical: 10,
+    paddingVertical: 11,
   },
-  allergenWarnText: { flex: 1, fontSize: 13, fontWeight: '600', color: '#92400E' },
-  allergenNote: { marginTop: 12, fontSize: 12.5, lineHeight: 18, color: TERTIARY },
+  allergenText: { flex: 1, fontSize: 13, lineHeight: 18, fontWeight: '600' },
   section: { marginTop: 24 },
-  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 12 },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
   sectionTitle: { fontSize: 17, fontWeight: '800', color: INK },
-  sectionCount: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: MUTED,
+  sectionCountPill: {
     backgroundColor: '#F3EFE6',
     borderRadius: 999,
     paddingHorizontal: 8,
     paddingVertical: 2,
-    overflow: 'hidden',
   },
+  sectionCount: { fontSize: 12, fontWeight: '700', color: MUTED },
   sectionLink: { fontSize: 13, fontWeight: '700', color: MUTED },
   ingRow: { gap: 12, paddingRight: 8 },
-  ingItem: { width: 64, alignItems: 'center' },
+  ingItem: { width: 66, alignItems: 'center' },
   ingThumb: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
+    width: 60,
+    height: 60,
+    borderRadius: 20,
     backgroundColor: YELLOW_SOFT,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#F4EBD3',
   },
   ingImg: { width: '100%', height: '100%' },
-  ingMore: { backgroundColor: '#F3EFE6' },
+  ingMore: { backgroundColor: '#F3EFE6', borderColor: '#ECE6DA' },
   ingMoreText: { fontSize: 15, fontWeight: '800', color: INK },
   ingName: { marginTop: 6, fontSize: 11.5, lineHeight: 15, color: INK, textAlign: 'center' },
-  recipeHint: {
-    marginTop: 20,
+  recipeCard: {
+    marginTop: 22,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 12,
+    padding: 14,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: BORDER,
+    backgroundColor: WHITE,
   },
-  recipeHintText: { flex: 1, fontSize: 13, color: MUTED },
+  recipeIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: YELLOW_SOFT,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recipeTitle: { fontSize: 15, fontWeight: '800', color: INK },
+  recipeSub: { marginTop: 2, fontSize: 12.5, color: MUTED },
   footer: {
     position: 'absolute',
     left: 0,

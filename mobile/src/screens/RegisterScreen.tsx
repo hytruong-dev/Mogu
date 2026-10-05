@@ -27,7 +27,7 @@ export function RegisterScreen({ onLogin, onRegister }: Props) {
       <SparkleField width={width} height={height} />
       <KeyboardAvoidingView
         className="flex-1"
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
       >
         <ScrollView
           className="w-full"

@@ -195,7 +195,11 @@ export const Sunburst = memo(function Sunburst({
   }, [rays]);
 
   return (
-    <Animated.View pointerEvents="none" style={[{ width: size, height: size }, style]}>
+    <Animated.View
+      pointerEvents="none"
+      renderToHardwareTextureAndroid
+      style={[{ width: size, height: size }, style]}
+    >
       <Svg width={size} height={size} viewBox="0 0 100 100">
         <Defs>
           <RadialGradient id="sunburstFade" cx="50" cy="50" r="50" gradientUnits="userSpaceOnUse">
@@ -223,9 +227,9 @@ export const MascotAura = memo(function MascotAura({ size }: { size: number }) {
 
   useEffect(() => {
     if (reducedMotion) return;
-    appear.value = withTiming(1, { duration: 600, easing: Easing.out(Easing.back(1.8)) });
-    spin.value = withRepeat(withTiming(1, { duration: 12000, easing: Easing.linear }), -1, false);
-    breathe.value = withRepeat(withTiming(1, { duration: 1300, easing: Easing.inOut(Easing.quad) }), -1, true);
+    appear.value = withTiming(1, { duration: 400, easing: Easing.out(Easing.quad) });
+    spin.value = withRepeat(withTiming(1, { duration: 16000, easing: Easing.linear }), -1, false);
+    breathe.value = withRepeat(withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.quad) }), -1, true);
     return () => {
       cancelAnimation(spin);
       cancelAnimation(breathe);
@@ -235,20 +239,18 @@ export const MascotAura = memo(function MascotAura({ size }: { size: number }) {
 
   const rootStyle = useAnimatedStyle(() => ({
     opacity: appear.value,
-    transform: [{ scale: 0.3 + appear.value * 0.7 }],
+    transform: [{ scale: 0.6 + appear.value * 0.4 }],
   }));
   const haloStyle = useAnimatedStyle(() => ({
-    opacity: 0.75 + breathe.value * 0.25,
-    transform: [{ scale: 0.92 + breathe.value * 0.12 }],
+    opacity: 0.8 + breathe.value * 0.2,
+    transform: [{ scale: 0.94 + breathe.value * 0.08 }],
   }));
   const raysAStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${spin.value * 360}deg` }] }));
-  const raysBStyle = useAnimatedStyle(() => ({
-    opacity: 0.55 + breathe.value * 0.35,
-    transform: [{ rotate: `${-spin.value * 540}deg` }, { scale: 0.82 }],
-  }));
-  const orbitStyle = useAnimatedStyle(() => ({ transform: [{ rotate: `${spin.value * 720}deg` }] }));
 
-  const rays = (count: number, spread: number, inner: number) => {
+  const raysA = useMemo(() => {
+    const count = 12;
+    const spread = 0.42;
+    const inner = 12;
     let d = '';
     for (let i = 0; i < count; i += 1) {
       const a = (i / count) * Math.PI * 2;
@@ -258,13 +260,14 @@ export const MascotAura = memo(function MascotAura({ size }: { size: number }) {
       d += `M${p(a - h * 0.25, inner)} L${p(a - h, 50)} L${p(a + h, 50)} L${p(a + h * 0.25, inner)} Z `;
     }
     return d;
-  };
-  const raysA = useMemo(() => rays(12, 0.42, 12), []);
-  const raysB = useMemo(() => rays(18, 0.22, 16), []);
-  const orbitDots = [0, 60, 120, 180, 240, 300];
+  }, []);
 
   return (
-    <Animated.View style={[{ width: size, height: size }, rootStyle]}>
+    <Animated.View
+      pointerEvents="none"
+      renderToHardwareTextureAndroid
+      style={[{ width: size, height: size }, rootStyle]}
+    >
       {/* Warm halo */}
       <Animated.View style={[StyleSheet.absoluteFill, haloStyle]}>
         <Svg width={size} height={size} viewBox="0 0 100 100">
@@ -280,86 +283,21 @@ export const MascotAura = memo(function MascotAura({ size }: { size: number }) {
         </Svg>
       </Animated.View>
 
-      {/* Big slow rays */}
+      {/* Radiant golden rays */}
       <Animated.View style={[StyleSheet.absoluteFill, raysAStyle]}>
         <Svg width={size} height={size} viewBox="0 0 100 100">
           <Defs>
             <RadialGradient id="auraRayA" cx="50" cy="50" r="50" gradientUnits="userSpaceOnUse">
-              <Stop offset="0.2" stopColor="#FFE15A" stopOpacity="0.9" />
+              <Stop offset="0.2" stopColor="#FFE15A" stopOpacity="0.85" />
               <Stop offset="1" stopColor="#FFB800" stopOpacity="0" />
             </RadialGradient>
           </Defs>
           <Path d={raysA} fill="url(#auraRayA)" />
         </Svg>
       </Animated.View>
-
-      {/* Thin fast counter rays */}
-      <Animated.View style={[StyleSheet.absoluteFill, raysBStyle]}>
-        <Svg width={size} height={size} viewBox="0 0 100 100">
-          <Defs>
-            <RadialGradient id="auraRayB" cx="50" cy="50" r="50" gradientUnits="userSpaceOnUse">
-              <Stop offset="0.25" stopColor="#FFFFFF" stopOpacity="0.9" />
-              <Stop offset="1" stopColor="#FFF3C0" stopOpacity="0" />
-            </RadialGradient>
-          </Defs>
-          <Path d={raysB} fill="url(#auraRayB)" />
-        </Svg>
-      </Animated.View>
-
-      {/* Shockwave rings */}
-      <ShockRing size={size} delay={0} />
-      <ShockRing size={size} delay={900} />
-
-      {/* Orbiting sparkles */}
-      <Animated.View style={[StyleSheet.absoluteFill, orbitStyle]}>
-        {orbitDots.map((deg, i) => {
-          const r = size * 0.4;
-          const a = (deg * Math.PI) / 180;
-          const s = i % 2 ? 10 : 16;
-          return (
-            <View
-              key={deg}
-              style={{
-                position: 'absolute',
-                left: size / 2 + Math.cos(a) * r - s / 2,
-                top: size / 2 + Math.sin(a) * r - s / 2,
-              }}
-            >
-              <Sparkle size={s} color={i % 3 === 0 ? '#FFFFFF' : '#FFD23F'} />
-            </View>
-          );
-        })}
-      </Animated.View>
     </Animated.View>
   );
 });
-
-function ShockRing({ size, delay }: { size: number; delay: number }) {
-  const reducedMotion = useReducedMotion();
-  const t = useSharedValue(0);
-  useEffect(() => {
-    if (reducedMotion) return;
-    t.value = withDelay(
-      delay,
-      withRepeat(withTiming(1, { duration: 1800, easing: Easing.out(Easing.quad) }), -1, false),
-    );
-    return () => cancelAnimation(t);
-  }, [t, delay, reducedMotion]);
-  const style = useAnimatedStyle(() => ({
-    opacity: interpolate(t.value, [0, 0.15, 1], [0, 0.8, 0]),
-    transform: [{ scale: 0.35 + t.value * 0.7 }],
-  }));
-  if (reducedMotion) return null;
-  return (
-    <Animated.View
-      style={[
-        StyleSheet.absoluteFill,
-        { borderRadius: size / 2, borderWidth: 3, borderColor: '#FFE27A' },
-        style,
-      ]}
-    />
-  );
-}
 
 /** A sparkle that pops in, twinkles (scale + rotate) forever. */
 export function TwinkleSparkle({

@@ -225,6 +225,10 @@ function formatPrice(min: number | null | undefined, max: number | null | undefi
 export function RandomFlowScreen({ onClose }: Props) {
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const insets = useSafeAreaInsets();
+  // Fit the whole result (title, card, chips, CTAs) into one viewport: the photo
+  // takes whatever vertical space is left after the fixed-height content.
+  const usableHeight = windowHeight - insets.top - insets.bottom;
+  const resultPhotoHeight = Math.round(Math.max(140, Math.min(300, usableHeight - 470)));
   const [phase, setPhase] = useState<Phase>('setup');
   const [meal, setMeal] = useState<MealKey | null>(null);
   const [budget, setBudget] = useState<BudgetKey>('Không giới hạn');
@@ -529,6 +533,7 @@ export function RandomFlowScreen({ onClose }: Props) {
           if (directUri) {
             setResolvedImage({ uri: directUri });
             // Pre-cache image into device cache while reel is spinning so it appears instantly!
+            ExpoImage.prefetch(directUri, 'memory-disk').catch(() => undefined);
             Image.prefetch(directUri).catch(() => undefined);
           }
           if (result.randomizationId) {
@@ -536,7 +541,7 @@ export function RandomFlowScreen({ onClose }: Props) {
           }
           recordRandomRunStore(result);
           // Snappy spin duration: give the reel momentum, then smoothly finish without dragging
-          const remainingSpin = Math.max(0, 950 - (Date.now() - spinStartedAt));
+          const remainingSpin = Math.max(0, 680 - (Date.now() - spinStartedAt));
           if (remainingSpin) await new Promise((resolve) => setTimeout(resolve, remainingSpin));
           if (cancelledRef.current || requestSeq.current !== seq) return;
           setFinishing(true);
@@ -663,7 +668,7 @@ export function RandomFlowScreen({ onClose }: Props) {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[
               styles.resultScroll,
-              { paddingBottom: Math.max(insets.bottom + 16, 28) },
+              { flexGrow: 1, justifyContent: 'space-between', paddingBottom: Math.max(insets.bottom + 10, 18) },
             ]}
             bounces={false}
           >
@@ -687,9 +692,11 @@ export function RandomFlowScreen({ onClose }: Props) {
 
             <Animated.View style={[styles.resultDishCardContainer, cardPopStyle]}>
               {/* Rotating jackpot rays behind the card */}
-              <View style={styles.rewardSunburst} pointerEvents="none">
-                <Sunburst size={Math.min(620, windowHeight * 0.7)} color="#FFC928" rays={16} />
-              </View>
+              {showEffects ? (
+                <View style={styles.rewardSunburst} pointerEvents="none">
+                  <Sunburst size={Math.min(620, windowHeight * 0.7)} color="#FFC928" rays={14} />
+                </View>
+              ) : null}
 
               {/* Top-left scattered gold confetti ribbons */}
               <View style={styles.confettiTopLeft1} pointerEvents="none" />
@@ -699,17 +706,19 @@ export function RandomFlowScreen({ onClose }: Props) {
 
               {/* Celebration confetti ring / burst behind mascot */}
               <View style={styles.confettiRingWrap} pointerEvents="none">
-        <Image
+                <Image
                   source={CONFETTI_RING}
                   resizeMode="contain"
                   style={styles.fullSize}
-        />
-      </View>
+                />
+              </View>
 
               {/* Magical aura behind mascot: spinning rays, glow, orbiting sparkles */}
-              <View style={styles.mascotAuraWrap} pointerEvents="none">
-                <MascotAura size={230} />
-              </View>
+              {showEffects ? (
+                <View style={styles.mascotAuraWrap} pointerEvents="none">
+                  <MascotAura size={230} />
+                </View>
+              ) : null}
 
               {/* Pulsing golden glow behind the card */}
               <Animated.View style={[styles.cardGlow, cardGlowStyle]} pointerEvents="none" />
@@ -722,7 +731,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                 style={styles.cardFrame}
               >
               <View style={styles.resultDishCard}>
-                <View style={[styles.resultPhotoStage, { height: Math.max(230, Math.min(330, windowHeight * 0.33)) }]}>
+                <View style={[styles.resultPhotoStage, { height: resultPhotoHeight }]}>
                   <ResultDishPhoto uri={dishImageUri || null} dishName={dish.name} />
                   <ShineSweep every={2400} delay={700} opacity={0.5} bandWidth={80} radius={24} />
                   <View style={styles.photoBadge}>
@@ -812,9 +821,8 @@ export function RandomFlowScreen({ onClose }: Props) {
               {/* One-shot coin / star / confetti explosion when the dish opens */}
               {showEffects ? (
                 <View style={styles.rewardBurstAnchor} pointerEvents="none">
-                  <ParticleBurst key={`a-${dish.id}`} count={20} radius={210} seed={11} delay={40} />
-                  <ParticleBurst key={`b-${dish.id}`} count={12} radius={150} seed={29} delay={360} />
-    </View>
+                  <ParticleBurst key={`burst-${dish.id}`} count={16} radius={180} seed={11} delay={30} />
+                </View>
               ) : null}
             </Animated.View>
 
@@ -849,11 +857,13 @@ export function RandomFlowScreen({ onClose }: Props) {
               <Text style={styles.againTxt}>Chọn món khác</Text>
             </StyledPressable>
 
-            <View style={styles.tagline}>
-              <LeafIcon size={14} color="#A8988B" />
-              <Text style={styles.taglineTxt}>Ngon miệng cùng NOAN</Text>
-              <LeafIcon size={14} color="#A8988B" flip />
-            </View>
+            {windowHeight - insets.top - insets.bottom > 760 ? (
+              <View style={styles.tagline}>
+                <LeafIcon size={14} color="#A8988B" />
+                <Text style={styles.taglineTxt}>Ngon miệng cùng NOAN</Text>
+                <LeafIcon size={14} color="#A8988B" flip />
+              </View>
+            ) : null}
           </ScrollView>
         </Animated.View>
 
@@ -1172,8 +1182,8 @@ function LoadingOverlay({
       return;
     }
     const timer = setTimeout(() => {
-      exit.value = withTiming(1, { duration: 220, easing: Easing.in(Easing.quad) });
-    }, Math.max(0, FOOD_REEL_REVEAL_DELAY - 220));
+      exit.value = withTiming(1, { duration: 150, easing: Easing.in(Easing.quad) });
+    }, Math.max(0, FOOD_REEL_REVEAL_DELAY - 150));
     return () => clearTimeout(timer);
   }, [finishing, exit]);
 
@@ -1628,11 +1638,11 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   resultTitle: {
-    fontSize: 26,
-    lineHeight: 34,
+    fontSize: 25,
+    lineHeight: 32,
     fontWeight: '900',
     color: '#2A1A10',
-    marginTop: 10,
+    marginTop: 8,
     textAlign: 'center',
     letterSpacing: -0.4,
   },
@@ -1640,8 +1650,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#6B4A32',
     fontWeight: '500',
-    marginTop: 6,
-    marginBottom: 20,
+    marginTop: 4,
+    marginBottom: 14,
     textAlign: 'center',
   },
   resultDishCardContainer: {
@@ -1878,14 +1888,14 @@ const styles = StyleSheet.create({
   },
   chooseBtn: {
     width: '100%',
-    height: 54,
-    borderRadius: 27,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: '#FFC928',
     flexDirection: 'row',
     gap: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 22,
+    marginTop: 16,
     shadowColor: '#E6AC00',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.28,
@@ -1900,8 +1910,8 @@ const styles = StyleSheet.create({
   },
   againBtn: {
     width: '100%',
-    height: 54,
-    borderRadius: 27,
+    height: 50,
+    borderRadius: 25,
     borderWidth: 1.5,
     borderColor: '#2A1A10',
     backgroundColor: 'transparent',
@@ -1920,8 +1930,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
-    marginTop: 24,
-    marginBottom: 12,
+    marginTop: 14,
+    marginBottom: 4,
   },
   taglineTxt: {
     fontSize: 13.5,

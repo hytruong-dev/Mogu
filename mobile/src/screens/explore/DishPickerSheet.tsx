@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, Pressable, ScrollView, View } from 'react-native';
+import {
+  ActivityIndicator,
+  FlatList,
+  Pressable,
+  ScrollView,
+  View,
+  useWindowDimensions,
+} from 'react-native';
 import { Check, Search } from '@/components/icons';
 import {
   Drawer,
@@ -27,6 +34,7 @@ type Props = {
 };
 
 export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: Props) {
+  const { height: windowHeight } = useWindowDimensions();
   const [q, setQ] = useState('');
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<Dish[]>([]);
@@ -62,14 +70,18 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
   const selectedDish = items.find((d) => d.id === picked) ?? recent.find((d) => d.id === picked);
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange} snapHeight={640}>
+    <Drawer
+      open={open}
+      onOpenChange={onOpenChange}
+      snapHeight={Math.min(680, Math.round(windowHeight * 0.86))}
+    >
       <DrawerHeader className="flex-row items-center justify-between px-4">
         <DrawerClose onPress={() => onOpenChange(false)} />
         <DrawerTitle className="text-base font-extrabold text-foreground">Gắn món ăn</DrawerTitle>
         <View className="w-10" />
       </DrawerHeader>
 
-      <DrawerContent className="px-4">
+      <DrawerContent className="px-4 pb-2" style={{ flex: 1, minHeight: 0 }}>
         <View className="mb-3 h-11 flex-row items-center gap-2 rounded-full border border-border bg-card px-3">
           <Search size={18} color="#8A8A8A" />
           <Input
@@ -122,7 +134,9 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
           <FlatList
             data={items}
             keyExtractor={(d) => d.id}
-            style={{ maxHeight: 320 }}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingBottom: 8 }}
+            showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             ListEmptyComponent={
               <Text className="py-8 text-center text-muted-foreground">
@@ -177,7 +191,10 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
         )}
       </DrawerContent>
 
-      <DrawerFooter className="flex-row gap-3 px-4 pb-6">
+      <DrawerFooter
+        className="flex-row gap-3 px-4 pb-3 pt-3"
+        style={{ borderTopWidth: 1, borderTopColor: '#F0EBE0', backgroundColor: '#FFFDF7' }}
+      >
         <Button
           variant="secondary"
           className="h-12 flex-1 rounded-full bg-muted"

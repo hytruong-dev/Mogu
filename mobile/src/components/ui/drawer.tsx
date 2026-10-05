@@ -144,6 +144,7 @@ export function Drawer({
       transparent
       animationType="none"
       statusBarTranslucent
+      navigationBarTranslucent
       onRequestClose={close}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>

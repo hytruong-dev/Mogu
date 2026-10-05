@@ -248,6 +248,7 @@ export function FoodScanSheet({
         });
         if (id !== generation.current) return;
         if (photo?.uri) {
+          captureLock.current = false;
           void startAnalysis(photo.uri);
           return;
         }
@@ -257,7 +258,7 @@ export function FoodScanSheet({
       if (id === generation.current)
         Alert.alert('Không thể chụp ảnh', 'Vui lòng thử lại hoặc chọn ảnh từ thư viện.');
     } finally {
-      if (id === generation.current) captureLock.current = false;
+      captureLock.current = false;
     }
   };
 
@@ -317,6 +318,15 @@ export function FoodScanSheet({
         friendlyMsg = 'Dịch vụ AI đang bảo trì. Vui lòng thử lại sau.';
       } else if (rawMsg.includes('Ảnh vượt quá')) {
         friendlyMsg = rawMsg;
+      } else if (
+        rawMsg.includes('kết nối') ||
+        rawMsg.includes('NETWORK_ERROR') ||
+        rawMsg.includes('Failed to connect') ||
+        rawMsg.includes('Network request failed')
+      ) {
+        friendlyMsg = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra lại mạng Wi-Fi.';
+      } else if (rawMsg.includes('quá lâu') || rawMsg.includes('timeout') || rawMsg.includes('Timeout')) {
+        friendlyMsg = 'Thời gian xử lý quá lâu. Vui lòng thử lại.';
       }
       setMessage(friendlyMsg);
       setScanState('review');

@@ -127,7 +127,7 @@ export function LogMealScreen({ date, initialSlot = 'LUNCH', onClose, onSaved }:
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right', 'bottom']}>
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
         <View style={{ paddingHorizontal: 20 }}>
           <SubHeader title="Ghi bữa ăn" onBack={requestClose} />
         </View>

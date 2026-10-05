@@ -193,7 +193,7 @@ export function ArticleCommentsModal({
 
         {/* Comments Scroll Thread */}
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          behavior="padding"
           style={{ flex: 1 }}
         >
           <ScrollView
