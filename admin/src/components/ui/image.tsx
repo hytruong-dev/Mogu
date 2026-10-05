@@ -7,6 +7,7 @@ import { MediaLightbox, useMediaLightbox } from './media-lightbox'
 export interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   fallbackIcon?: 'utensils' | 'image' | 'user' | React.ReactNode
   fallbackText?: string
+  fallbackSrc?: string
   aspectRatio?: 'square' | 'video' | 'portrait' | 'auto'
   zoomable?: boolean
   title?: string
@@ -16,6 +17,7 @@ export interface ImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 
 export function Image({
   src,
+  fallbackSrc,
   alt = '',
   className,
   fallbackIcon = 'utensils',
@@ -26,16 +28,62 @@ export function Image({
   subtitle,
   containerClassName,
   onClick,
+  loading: loadingProp = 'lazy',
+  decoding: decodingProp = 'async',
+  referrerPolicy: referrerPolicyProp = 'no-referrer',
   ...props
 }: ImageProps) {
+  const [currentSrc, setCurrentSrc] = React.useState<string | undefined>(src)
+  const [hasTriedFallback, setHasTriedFallback] = React.useState(false)
   const [loading, setLoading] = React.useState(Boolean(src))
-  const [error, setError] = React.useState(false)
+  const [error, setError] = React.useState(!src)
+  const imgRef = React.useRef<HTMLImageElement>(null)
   const { openImage, lightboxProps } = useMediaLightbox()
 
+  // Reset state when incoming `src` prop changes
   React.useEffect(() => {
-    setLoading(Boolean(src))
+    setCurrentSrc(src)
+    setHasTriedFallback(false)
+
+    if (!src) {
+      setLoading(false)
+      setError(true)
+      return
+    }
+
+    // Check if image is already cached and completed in browser
+    if (imgRef.current?.complete && imgRef.current.currentSrc === src) {
+      if (imgRef.current.naturalWidth > 0) {
+        setLoading(false)
+        setError(false)
+        return
+      }
+    }
+
+    setLoading(true)
     setError(false)
   }, [src])
+
+  // Immediate check after DOM attachment (handles cached images where onLoad does not fire)
+  React.useLayoutEffect(() => {
+    if (!currentSrc) return
+    const el = imgRef.current
+    if (el && el.complete) {
+      if (el.naturalWidth > 0) {
+        setLoading(false)
+        setError(false)
+      } else if (el.naturalWidth === 0 && !loading) {
+        if (fallbackSrc && !hasTriedFallback && fallbackSrc !== currentSrc) {
+          setHasTriedFallback(true)
+          setCurrentSrc(fallbackSrc)
+          setLoading(true)
+        } else {
+          setError(true)
+          setLoading(false)
+        }
+      }
+    }
+  }, [currentSrc, fallbackSrc, hasTriedFallback, loading])
 
   const aspectClass =
     aspectRatio === 'square'
@@ -53,10 +101,28 @@ export function Image({
   }
 
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (zoomable && src && !error) {
+    if (zoomable && currentSrc && !error) {
       e.stopPropagation()
-      openImage(src, title || alt, subtitle)
+      openImage(currentSrc, title || alt, subtitle)
     }
+  }
+
+  const handleLoad = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    setLoading(false)
+    setError(false)
+    props.onLoad?.(e)
+  }
+
+  const handleError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    if (fallbackSrc && !hasTriedFallback && fallbackSrc !== currentSrc) {
+      setHasTriedFallback(true)
+      setCurrentSrc(fallbackSrc)
+      setLoading(true)
+      return
+    }
+    setLoading(false)
+    setError(true)
+    props.onError?.(e)
   }
 
   return (
@@ -65,7 +131,7 @@ export function Image({
         className={cn(
           'group relative inline-flex items-center justify-center overflow-hidden rounded-md bg-muted/40 transition-colors',
           aspectClass,
-          zoomable && src && !error && 'cursor-zoom-in',
+          zoomable && currentSrc && !error && 'cursor-zoom-in',
           containerClassName
         )}
         onClick={handleContainerClick}
@@ -76,17 +142,18 @@ export function Image({
         )}
 
         {/* Actual Image */}
-        {src && !error ? (
+        {currentSrc && !error ? (
           <img
-            src={src}
+            ref={imgRef}
+            src={currentSrc}
             alt={alt}
-            onLoad={() => setLoading(false)}
-            onError={() => {
-              setLoading(false)
-              setError(true)
-            }}
+            loading={loadingProp}
+            decoding={decodingProp}
+            referrerPolicy={referrerPolicyProp}
+            onLoad={handleLoad}
+            onError={handleError}
             className={cn(
-              'h-full w-full object-cover transition-opacity duration-200',
+              'h-full w-full object-cover transition-opacity duration-150',
               loading ? 'opacity-0' : 'opacity-100',
               className
             )}
@@ -106,14 +173,15 @@ export function Image({
         )}
 
         {/* Zoom Icon Overlay */}
-        {zoomable && src && !error && !loading && (
+        {zoomable && currentSrc && !error && !loading && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/35 opacity-0 transition-opacity duration-150 group-hover:opacity-100">
             <ZoomIn className="h-5 w-5 text-white drop-shadow-sm" />
           </div>
         )}
       </div>
 
-      {zoomable && <MediaLightbox {...lightboxProps} />}
+      {/* Only mount Lightbox portal when it is actually open */}
+      {zoomable && lightboxProps.open && <MediaLightbox {...lightboxProps} />}
     </>
   )
 }

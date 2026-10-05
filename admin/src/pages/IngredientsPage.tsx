@@ -30,7 +30,7 @@ import { Textarea } from '../components/ui/textarea'
 import { Badge } from '../components/ui/badge'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? ''
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://lkqvyvllmrbxgaoqrkhd.supabase.co'
 
 const LEGACY_ALLERGEN_LABELS: Record<string, string> = {
   nut: 'Hạt',
@@ -728,6 +728,7 @@ function IngredientDetailDrawer({
                 <div className="relative group shrink-0" style={{ width: 56, height: 56 }}>
                   <Image
                     src={c.publicUrl || c.previewUrl || c.originalUrl}
+                    fallbackSrc={c.originalUrl && c.previewUrl ? c.originalUrl : undefined}
                     alt={item.name}
                     aspectRatio="square"
                     zoomable

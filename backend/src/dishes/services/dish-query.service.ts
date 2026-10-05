@@ -551,6 +551,9 @@ export class DishQueryService {
       dishGoals: {
         include: { goal: { select: { id: true, code: true, name: true } } },
       },
+      dishAllergens: {
+        include: { allergen: true },
+      },
       dishIngredients: {
         orderBy: { sortOrder: 'asc' as const },
         include: {

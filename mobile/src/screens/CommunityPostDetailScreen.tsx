@@ -14,9 +14,11 @@ import {
   Bookmark,
   Heart,
   MessageCircle,
+  MapPin,
   MoreHorizontal,
   Send,
   Share2,
+  UtensilsCrossed,
   X,
 } from '@/components/icons';
 import { communityApi, type ExplorePost, type PostComment } from '../services/api/explore';
@@ -320,39 +322,57 @@ export function CommunityPostDetailScreen({
               media={post.media}
               imageUrls={post.imageUrls}
               aspectRatio={1}
-              borderRadius={0}
-              style={{ marginTop: 14 }}
+              borderRadius={18}
+              style={s.mediaWrap}
             />
           ) : null}
 
           {post.dish || post.place ? (
-            <View style={{ paddingHorizontal: 16, marginTop: 10, gap: 4 }}>
+            <View style={s.tagRow}>
               {post.dish ? (
-                <Text style={{ color: MUTED, fontSize: 13 }}>Món: {post.dish.name}</Text>
+                <View style={s.tagChip}>
+                  <UtensilsCrossed size={13} color="#92400E" />
+                  <Text style={s.tagChipText} numberOfLines={1}>
+                    {post.dish.name}
+                  </Text>
+                </View>
               ) : null}
               {post.place ? (
-                <Text style={{ color: MUTED, fontSize: 13 }}>
-                  {post.place.name}
-                  {post.place.addressShort ? ` · ${post.place.addressShort}` : ''}
-                </Text>
+                <View style={s.tagChip}>
+                  <MapPin size={13} color="#92400E" />
+                  <Text style={s.tagChipText} numberOfLines={1}>
+                    {post.place.name}
+                    {post.place.addressShort ? ` · ${post.place.addressShort}` : ''}
+                  </Text>
+                </View>
               ) : null}
             </View>
           ) : null}
 
           <View style={s.actions}>
             <View style={s.actionsLeft}>
-              <Pressable onPress={() => void toggleLike()} style={s.action}>
+              <Pressable
+                onPress={() => void toggleLike()}
+                style={[s.action, postLiked && s.actionLiked]}
+                accessibilityLabel={postLiked ? 'Bỏ thích' : 'Thích'}
+              >
                 <Heart
-                  size={24}
+                  size={20}
                   color={postLiked ? RED_LIKE : INK}
                   fill={postLiked ? RED_LIKE : 'transparent'}
                 />
-                <Text style={s.actionCount}>{formatCount(likeCount)}</Text>
+                <Text style={[s.actionCount, postLiked && { color: RED_LIKE }]}>
+                  {formatCount(likeCount)}
+                </Text>
               </Pressable>
-              <View style={s.action}>
-                <MessageCircle size={24} color={INK} />
+              <Pressable
+                style={s.action}
+                onPress={() => inputRef.current?.focus()}
+                accessibilityLabel="Bình luận"
+              >
+                <MessageCircle size={20} color={INK} />
                 <Text style={s.actionCount}>{formatCount(comments.length)}</Text>
-              </View>
+              </Pressable>
               <Pressable
                 onPress={() => {
                   if (!post) return;
@@ -376,56 +396,61 @@ export function CommunityPostDetailScreen({
                 style={s.action}
                 accessibilityLabel="Chia sẻ"
               >
-                <Share2 size={22} color={INK} />
-                <Text style={s.actionCount}> </Text>
+                <Share2 size={19} color={INK} />
               </Pressable>
             </View>
             {!isOwner ? (
-              <Pressable onPress={() => void toggleSave()} accessibilityLabel="Lưu">
-                <Bookmark size={24} color={INK} fill={saved ? INK : 'transparent'} />
+              <Pressable
+                onPress={() => void toggleSave()}
+                style={[s.action, saved && s.actionSaved]}
+                accessibilityLabel={saved ? 'Bỏ lưu' : 'Lưu'}
+              >
+                <Bookmark size={20} color={INK} fill={saved ? INK : 'transparent'} />
               </Pressable>
             ) : null}
           </View>
 
-          <View style={s.divider} />
-
-          <Text style={s.commentsTitle}>Bình luận · {comments.length}</Text>
-          {comments.length === 0 ? (
-            <Text style={s.emptyComments}>
-              Chưa có bình luận · Hãy bắt đầu cuộc trò chuyện
-            </Text>
-          ) : (
-            comments.map((c) => {
-              const cName = c.author?.displayName?.trim() || 'Thành viên';
-              return (
-                <View key={c.id} style={s.commentRow}>
-                  <AvatarImage
-                    uri={c.author?.avatarUrl}
-                    size={36}
-                    seed={c.author?.userId ?? cName}
-                  />
-                  <View style={{ flex: 1 }}>
-                    <Text style={s.commentBody}>
-                      <Text style={s.commentAuthor}>{cName} </Text>
-                      {c.content}
-                    </Text>
-                    <View style={s.commentMeta}>
-                      <Text style={s.commentTime}>{formatRelativeTime(c.createdAt)}</Text>
-                      <Pressable style={s.commentLike}>
-                        <Heart size={12} color={TERTIARY} />
-                      </Pressable>
-                      <Pressable onPress={() => beginReply(c)}>
-                        <Text style={s.replyTxt}>Trả lời</Text>
-                      </Pressable>
+          <View style={s.commentsSection}>
+            <View style={s.commentsHeader}>
+              <Text style={s.commentsTitle}>Bình luận</Text>
+              <View style={s.countBadge}>
+                <Text style={s.countBadgeText}>{comments.length}</Text>
+              </View>
+            </View>
+            {comments.length === 0 ? (
+              <View style={s.emptyBox}>
+                <MessageCircle size={28} color={TERTIARY} />
+                <Text style={s.emptyTitle}>Chưa có bình luận</Text>
+                <Text style={s.emptyComments}>Hãy là người đầu tiên bắt đầu cuộc trò chuyện</Text>
+              </View>
+            ) : (
+              comments.map((c) => {
+                const cName = c.author?.displayName?.trim() || 'Thành viên';
+                const isReply = Boolean(c.parentCommentId);
+                return (
+                  <View key={c.id} style={[s.commentRow, isReply && s.commentRowReply]}>
+                    <AvatarImage
+                      uri={c.author?.avatarUrl}
+                      size={isReply ? 28 : 34}
+                      seed={c.author?.userId ?? cName}
+                    />
+                    <View style={{ flex: 1 }}>
+                      <View style={s.bubble}>
+                        <Text style={s.commentAuthor}>{cName}</Text>
+                        <Text style={s.commentBody}>{c.content}</Text>
+                      </View>
+                      <View style={s.commentMeta}>
+                        <Text style={s.commentTime}>{formatRelativeTime(c.createdAt)}</Text>
+                        <Pressable onPress={() => beginReply(c)} hitSlop={6}>
+                          <Text style={s.replyTxt}>Trả lời</Text>
+                        </Pressable>
+                      </View>
                     </View>
                   </View>
-                  <Pressable hitSlop={8}>
-                    <MoreHorizontal size={16} color={TERTIARY} />
-                  </Pressable>
-                </View>
-              );
-            })
-          )}
+                );
+              })
+            )}
+          </View>
         </ScrollView>
 
         <View style={s.composer}>
@@ -457,7 +482,12 @@ export function CommunityPostDetailScreen({
                   placeholder="Thêm bình luận..."
                   className="min-h-10 flex-1 rounded-full px-3.5 border border-border bg-card"
                 />
-                <Pressable onPress={() => void sendComment()} style={s.sendBtn} accessibilityLabel="Gửi">
+                <Pressable
+                  onPress={() => void sendComment()}
+                  disabled={!value.trim()}
+                  style={[s.sendBtn, !value.trim() && s.sendBtnDisabled]}
+                  accessibilityLabel="Gửi"
+                >
                   <Send size={18} color={INK} />
                 </Pressable>
               </View>
@@ -541,7 +571,19 @@ const s = StyleSheet.create({
   captionWrap: { paddingHorizontal: 16, marginTop: 14 },
   caption: { fontSize: 16, lineHeight: 24, color: INK },
   seeMore: { marginTop: 4, color: TERTIARY, fontSize: 14 },
-  media: { width: '100%', aspectRatio: 1, marginTop: 14, backgroundColor: '#F0EBE0' },
+  mediaWrap: { marginTop: 14, marginHorizontal: 16 },
+  tagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingHorizontal: 16, marginTop: 12 },
+  tagChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    maxWidth: '100%',
+    backgroundColor: '#FFF1C7',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  tagChipText: { fontSize: 12.5, fontWeight: '600', color: '#78350F', flexShrink: 1 },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -549,40 +591,85 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     marginTop: 14,
   },
-  actionsLeft: { flexDirection: 'row', alignItems: 'center', gap: 18 },
-  action: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  actionCount: { fontWeight: '600', color: INK, fontSize: 14 },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: BORDER, marginTop: 16 },
-  commentsTitle: {
-    marginHorizontal: 16,
-    marginTop: 16,
-    fontWeight: '800',
-    fontSize: 16,
-    color: INK,
+  actionsLeft: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  action: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    height: 38,
+    minWidth: 38,
+    justifyContent: 'center',
+    paddingHorizontal: 12,
+    borderRadius: 999,
+    backgroundColor: WHITE,
+    borderWidth: 1,
+    borderColor: BORDER,
   },
+  actionLiked: { backgroundColor: '#FFF0EF', borderColor: '#FFD0CC' },
+  actionSaved: { backgroundColor: '#FFF1C7', borderColor: '#F5D77A' },
+  actionCount: { fontWeight: '700', color: INK, fontSize: 13.5 },
+  commentsSection: {
+    marginTop: 18,
+    marginHorizontal: 12,
+    backgroundColor: WHITE,
+    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: BORDER,
+    paddingBottom: 14,
+  },
+  commentsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 14,
+    paddingTop: 14,
+  },
+  commentsTitle: { fontWeight: '800', fontSize: 16, color: INK },
+  countBadge: {
+    minWidth: 24,
+    height: 22,
+    paddingHorizontal: 7,
+    borderRadius: 11,
+    backgroundColor: YELLOW,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  countBadgeText: { fontSize: 12, fontWeight: '800', color: INK },
+  emptyBox: { alignItems: 'center', paddingVertical: 24, paddingHorizontal: 16, gap: 6 },
+  emptyTitle: { fontSize: 15, fontWeight: '700', color: INK },
   emptyComments: {
     marginHorizontal: 16,
-    marginTop: 12,
     color: MUTED,
-    fontSize: 14,
+    fontSize: 13.5,
+    textAlign: 'center',
   },
   commentRow: {
     flexDirection: 'row',
     gap: 10,
-    marginHorizontal: 16,
-    marginTop: 16,
+    marginHorizontal: 14,
+    marginTop: 14,
   },
-  commentBody: { fontSize: 14, lineHeight: 20, color: INK },
-  commentAuthor: { fontWeight: '700' },
+  commentRowReply: { marginLeft: 58 },
+  bubble: {
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+    backgroundColor: '#F7F3EA',
+    borderRadius: 16,
+    borderTopLeftRadius: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  commentBody: { fontSize: 14, lineHeight: 20, color: INK, marginTop: 1 },
+  commentAuthor: { fontWeight: '700', fontSize: 13, color: INK },
   commentMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginTop: 6,
+    gap: 14,
+    marginTop: 5,
+    marginLeft: 12,
   },
   commentTime: { fontSize: 12, color: TERTIARY },
-  commentLike: { padding: 2 },
-  replyTxt: { fontSize: 12, fontWeight: '600', color: MUTED },
+  replyTxt: { fontSize: 12, fontWeight: '700', color: MUTED },
   composer: {
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: BORDER,
@@ -607,4 +694,5 @@ const s = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  sendBtnDisabled: { backgroundColor: '#F1EBDD' },
 });

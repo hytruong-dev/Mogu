@@ -482,16 +482,18 @@ function ArticleDetailLoaded({
             {article.coverImageUrl ? (
               <View style={styles.articleHeroWrap}>
                 <AppImage uri={article.coverImageUrl} style={styles.articleHero} contentFit="cover" />
+                {article.topic?.title ? (
+                  <View style={styles.heroTopicBadge}>
+                    <Text style={styles.topicBadgeText} numberOfLines={1}>
+                      {article.topic.title}
+                    </Text>
+                  </View>
+                ) : null}
               </View>
-            ) : null}
-
-            {/* Topic Badge */}
-            {article.topic?.title ? (
-              <View style={{ marginTop: 14, marginBottom: 8, paddingHorizontal: 16 }}>
+            ) : article.topic?.title ? (
+              <View style={{ marginTop: 14, paddingHorizontal: 16 }}>
                 <View style={styles.topicBadgePill}>
-                  <Text style={styles.topicBadgeText}>
-                    {article.topic.title}
-                  </Text>
+                  <Text style={styles.topicBadgeText}>{article.topic.title}</Text>
                 </View>
               </View>
             ) : null}
@@ -503,30 +505,49 @@ function ArticleDetailLoaded({
             <View style={styles.articleAuthorRow}>
               <AvatarImage
                 uri={article.author?.avatarUrl}
-                size={26}
+                size={36}
                 seed={article.author?.displayName || 'NOAN review'}
               />
-              <Text style={styles.articleMeta}>
-                {article.author?.displayName || 'NOAN review'}
-                {article.readMinutes != null ? ` · ${article.readMinutes} phút đọc` : ''}
-              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.articleAuthorName} numberOfLines={1}>
+                  {article.author?.displayName || 'NOAN review'}
+                </Text>
+                <Text style={styles.articleMeta} numberOfLines={1}>
+                  {[
+                    article.createdAt
+                      ? new Date(article.createdAt).toLocaleDateString('vi-VN')
+                      : null,
+                    article.readMinutes != null ? `${article.readMinutes} phút đọc` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </Text>
+              </View>
             </View>
 
             {/* Article Body */}
             {blocks.length === 0 ? (
-              <Text style={styles.lead}>Bài viết chưa có nội dung.</Text>
+              <Text style={styles.mdP}>Bài viết chưa có nội dung.</Text>
             ) : (
               blocks.map((b, i) => {
                 if (b.type === 'hr') return <Separator key={`hr-${i}`} className="my-4 mx-4" />;
                 if (b.type === 'h2' || b.type === 'h3') {
                   return (
-                    <Text key={`h-${i}`} style={styles.mdH2}>
-                      {b.text}
-                    </Text>
+                    <View key={`h-${i}`} style={styles.mdHeadingRow}>
+                      <View style={styles.mdHeadingBar} />
+                      <Text style={styles.mdH2}>{b.text}</Text>
+                    </View>
+                  );
+                }
+                if (i === 0) {
+                  return (
+                    <View key={`p-${i}`} style={styles.leadBox}>
+                      <Text style={styles.leadText}>{b.text}</Text>
+                    </View>
                   );
                 }
                 return (
-                  <Text key={`p-${i}`} style={i === 0 ? styles.lead : styles.mdP}>
+                  <Text key={`p-${i}`} style={styles.mdP}>
                     {b.text}
                   </Text>
                 );
@@ -1352,8 +1373,44 @@ const styles = StyleSheet.create({
   },
   articleHero: {
     width: '100%',
-    height: 230,
+    height: 240,
   },
+  heroTopicBadge: {
+    position: 'absolute',
+    left: 12,
+    bottom: 12,
+    maxWidth: '80%',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,241,179,0.96)',
+  },
+  articleAuthorName: { fontSize: 14, fontWeight: '700', color: '#161616' },
+  leadBox: {
+    marginHorizontal: 16,
+    marginBottom: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    backgroundColor: '#FFF6D9',
+    borderLeftWidth: 3,
+    borderLeftColor: '#FFC20E',
+  },
+  leadText: {
+    fontSize: 15.5,
+    lineHeight: 24,
+    color: '#3A2F1A',
+    fontWeight: '500',
+  },
+  mdHeadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginHorizontal: 16,
+    marginTop: 14,
+    marginBottom: 8,
+  },
+  mdHeadingBar: { width: 4, height: 20, borderRadius: 2, backgroundColor: '#FFC20E' },
   topicBadgePill: {
     alignSelf: 'flex-start',
     paddingHorizontal: 12,
@@ -1377,14 +1434,14 @@ const styles = StyleSheet.create({
     color: '#161616',
   },
   articleHeading: {
-    fontSize: 24,
-    lineHeight: 32,
-    fontWeight: '800',
+    fontSize: 25,
+    lineHeight: 33,
+    fontWeight: '900',
     color: '#161616',
-    letterSpacing: -0.4,
+    letterSpacing: -0.5,
     marginHorizontal: 16,
-    marginTop: 6,
-    marginBottom: 10,
+    marginTop: 16,
+    marginBottom: 14,
   },
   articleSubtitle: {
     fontSize: 15,
@@ -1395,10 +1452,13 @@ const styles = StyleSheet.create({
   },
   articleAuthorRow: {
     marginHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 18,
+    paddingBottom: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#E8E0D2',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   authorAvatarCircle: {
     width: 24,
@@ -1433,20 +1493,18 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   mdP: {
-    fontSize: 15,
-    lineHeight: 24,
-    color: '#262626',
+    fontSize: 15.5,
+    lineHeight: 25,
+    color: '#2B2B2B',
     marginHorizontal: 16,
     marginBottom: 16,
   },
   mdH2: {
+    flex: 1,
     fontSize: 18,
     lineHeight: 26,
     fontWeight: '800',
     color: '#161616',
-    marginHorizontal: 16,
-    marginTop: 20,
-    marginBottom: 8,
   },
   mdH3: {
     fontSize: 16,

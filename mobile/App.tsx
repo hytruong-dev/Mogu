@@ -21,7 +21,7 @@ import { PortalHost } from '@rn-primitives/portal';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './src/lib/query-client';
 
-import { SplashScreen } from './src/screens/SplashScreen';
+import { OnboardingScreen } from './src/screens/onboarding/OnboardingScreen';
 import { OpenAppScreen } from './src/screens/OpenAppScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { RegisterScreen } from './src/screens/RegisterScreen';
@@ -306,7 +306,7 @@ function RootNavigator() {
       <Root.Screen name="Auth" component={AuthNavigator} />
       <Root.Screen name="Onboarding">
         {({ navigation }) => (
-          <SplashScreen onFinish={() => navigation.replace('Main')} />
+          <OnboardingScreen onFinish={() => navigation.replace('Main')} />
         )}
       </Root.Screen>
       <Root.Screen name="Main" component={MainNavigator} />

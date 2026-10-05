@@ -150,6 +150,7 @@ export function FoodDetailFlowScreen({
       timeLabel={timeLabel}
       nutrition={nutrition}
       allergens={allergens}
+      ingredients={ingredients}
       ingredientCount={ingredients.length}
       stepCount={recipeSteps.length}
       onBack={back}

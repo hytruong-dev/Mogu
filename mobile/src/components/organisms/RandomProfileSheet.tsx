@@ -78,6 +78,25 @@ function labelOrUndeclared(text: string | null | undefined): string {
   return t ? t : 'Chưa khai báo';
 }
 
+function ValueLabel({ text }: { text: string }) {
+  const undeclared = text === 'Chưa khai báo';
+  if (undeclared) {
+    return (
+      <View className="rounded-full bg-secondary px-2.5 py-1">
+        <Text className="text-[12px] font-bold text-warning">+ Thêm</Text>
+      </View>
+    );
+  }
+  return (
+    <Text
+      className="max-w-[130px] text-right text-[13px] font-semibold text-foreground"
+      numberOfLines={1}
+    >
+      {text}
+    </Text>
+  );
+}
+
 function chunkArray<T>(array: T[], size: number): T[][] {
   const chunks: T[][] = [];
   for (let i = 0; i < array.length; i += size) {
@@ -335,6 +354,10 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
           .join(', ') || 'Chưa khai báo';
 
   const showAllergyWarn = !noAllergies && allergenIds.length === 0;
+  const declaredCount =
+    (goalId || initialSnapshot?.primaryGoal ? 1 : 0) +
+    (dietIds.length > 0 ? 1 : 0) +
+    (noAllergies || allergenIds.length > 0 ? 1 : 0);
 
   const isRemoveAllergen = pendingConfirmation?.kind === 'remove-allergen';
 
@@ -359,13 +382,54 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
           <DrawerClose onPress={requestClose} />
         </DrawerHeader>
 
-        <DrawerContent className="max-h-[66%] px-4 pb-2">
+        <DrawerContent className="flex-1 px-4 pb-2">
           {loading ? (
             <View className="items-center py-10">
               <ActivityIndicator color="#FFC31A" />
             </View>
           ) : (
             <ScrollView showsVerticalScrollIndicator={false}>
+              <View
+                className={cn(
+                  'mb-3 flex-row items-center gap-3 rounded-2xl border p-3',
+                  declaredCount === 3
+                    ? 'border-success/30 bg-success/10'
+                    : 'border-warning/30 bg-secondary',
+                )}
+              >
+                <View className="size-9 items-center justify-center rounded-full bg-card">
+                  {declaredCount === 3 ? (
+                    <Check size={18} color="#2E7D32" strokeWidth={3} />
+                  ) : (
+                    <AlertTriangle size={17} color="#C08000" />
+                  )}
+                </View>
+                <View className="flex-1">
+                  <Text className="text-[14px] font-extrabold text-foreground">
+                    {declaredCount === 3
+                      ? 'Hồ sơ đã đầy đủ'
+                      : declaredCount === 0
+                        ? 'Bạn chưa khai báo hồ sơ'
+                        : `Đã khai báo ${declaredCount}/3 mục`}
+                  </Text>
+                  <Text className="mt-0.5 text-[12px] leading-4 text-muted-foreground">
+                    {declaredCount === 3
+                      ? 'Món gợi ý sẽ phù hợp với mục tiêu và dị ứng của bạn.'
+                      : 'Chạm vào từng mục bên dưới để chọn — gợi ý sẽ chuẩn hơn.'}
+                  </Text>
+                </View>
+                <View className="flex-row gap-1">
+                  {[0, 1, 2].map((i) => (
+                    <View
+                      key={i}
+                      className={cn(
+                        'h-1.5 w-4 rounded-full',
+                        i < declaredCount ? 'bg-primary' : 'bg-border',
+                      )}
+                    />
+                  ))}
+                </View>
+              </View>
               <View className="overflow-hidden rounded-[22px] border border-border bg-card shadow-sm">
                 <Accordion
                   type="single"
@@ -388,12 +452,7 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                             Mục tiêu chính
                           </Text>
                         </View>
-                        <Text
-                          className="max-w-[130px] text-right text-[13.5px] font-medium text-muted-foreground"
-                          numberOfLines={1}
-                        >
-                          {goalLabel}
-                        </Text>
+                        <ValueLabel text={goalLabel} />
                       </View>
                     </AccordionTrigger>
                     <AccordionContent className="pb-3 pt-0">
@@ -420,12 +479,7 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                             Chế độ ăn
                           </Text>
                         </View>
-                        <Text
-                          className="max-w-[130px] text-right text-[13.5px] font-medium text-muted-foreground"
-                          numberOfLines={1}
-                        >
-                          {dietLabel}
-                        </Text>
+                        <ValueLabel text={dietLabel} />
                       </View>
                     </AccordionTrigger>
                     <AccordionContent className="pb-3 pt-0">
@@ -457,12 +511,7 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
                             Dị ứng cần tránh
                           </Text>
                         </View>
-                        <Text
-                          className="max-w-[130px] text-right text-[13.5px] font-medium text-muted-foreground"
-                          numberOfLines={1}
-                        >
-                          {allergyLabel}
-                        </Text>
+                        <ValueLabel text={allergyLabel} />
                       </View>
                     </AccordionTrigger>
                     <AccordionContent className="pb-3 pt-0">

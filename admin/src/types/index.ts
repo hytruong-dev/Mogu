@@ -97,22 +97,121 @@ export interface DishMedia {
 }
 
 export interface NutritionProfile {
-  id: string
+  id?: string
   calories?: number
   protein?: number
+  proteinG?: number
   carbs?: number
+  carbsG?: number
   fat?: number
+  fatG?: number
   fiber?: number
-  method: string
+  fiberG?: number
+  sodiumMg?: number
+  servingName?: string
+  servingG?: number
+  basis?: string
+  servings?: number
+  method?: string
+  confidence?: number
+  sourceUrl?: string
 }
 
 export interface DishIngredient {
   id: string
   ingredientId?: string
-  ingredientName: string
+  ingredientName?: string
+  amount?: number | string
   quantity?: number
   unit?: string
-  isOptional: boolean
+  notes?: string
+  isOptional?: boolean
+  ingredient?: {
+    id: string
+    code?: string
+    name: string
+    nameEn?: string
+    description?: string
+    groupLabel?: string
+    unit?: string
+    allergenCode?: string
+    imageUrl?: string
+    imageStatus?: string
+    status?: string
+    synonyms?: string[]
+  }
+}
+
+export interface RecipeStep {
+  id: string
+  stepOrder: number
+  instruction?: string
+  durationMin?: number
+  imageUrl?: string
+  title?: string
+  description?: string
+  durationMinutes?: number
+  tip?: string
+  mediaUrl?: string
+}
+
+export interface DishSource {
+  id?: string
+  url: string
+  title?: string
+  domain?: string
+  reliability?: number
+  sourceType?: string
+  author?: string
+}
+
+export interface DishAllergenLinked {
+  dishId?: string
+  allergenId: string
+  level?: string
+  confidence?: number
+  resolved?: boolean
+  resolutionNote?: string
+  allergen: {
+    id: string
+    code: string
+    name: string
+    iconUrl?: string
+  }
+}
+
+export interface DishGoalLinked {
+  goal: {
+    id: string
+    code: string
+    name: string
+  }
+}
+
+export interface DishDietTypeLinked {
+  dietType: {
+    id: string
+    code: string
+    name: string
+  }
+}
+
+export interface DishCategoryLinked {
+  category: {
+    id: string
+    code: string
+    name: string
+    description?: string
+    iconUrl?: string
+  }
+}
+
+export interface DishMealTypeLinked {
+  mealTypeTag: {
+    id: string
+    code: string
+    name: string
+  }
 }
 
 export interface Dish {
@@ -126,19 +225,39 @@ export interface Dish {
   servings?: number
   priceMin?: number
   priceMax?: number
+  dineOutPriceMin?: number
+  dineOutPriceMax?: number
+  shortDescription?: string
+  fullDescription?: string
   description?: string
+  originText?: string
+  primaryMealSlot?: string
+  dishType?: string
+  videoUrl?: string
+  recipeTitle?: string
+  alternateNames?: string[]
+  flavorTags?: string[]
+  isFeatured?: boolean
+  ratingAvg?: number
+  ratingCount?: number
   version: number
   confidenceScore?: number
   viewCount: number
   createdAt: string
   updatedAt: string
   media?: DishMedia[]
+  nutrition?: NutritionProfile
   nutritionProfiles?: NutritionProfile[]
   dishIngredients?: DishIngredient[]
+  dishAllergens?: DishAllergenLinked[]
+  recipeSteps?: RecipeStep[]
+  sources?: DishSource[]
   region?: Region
   province?: Province
-  categories?: DishCategory[]
-  mealTypes?: MealTypeTag[]
+  categories?: Array<DishCategory | DishCategoryLinked>
+  mealTypes?: Array<MealTypeTag | DishMealTypeLinked>
+  dietTypes?: DishDietTypeLinked[]
+  dishGoals?: DishGoalLinked[]
 }
 
 export interface DishListResponse {
@@ -213,10 +332,17 @@ export interface ReviewQueueItem {
   status: DishStatus
   confidenceScore?: number
   submittedAt?: string
+  updatedAt?: string
   region?: Region
+  categories?: Array<{ category: { code: string; name: string } }>
   media?: DishMedia[]
   nutritionProfiles?: NutritionProfile[]
   fieldEvidences?: FieldEvidence[]
+  _count?: {
+    ingredients?: number
+    steps?: number
+    media?: number
+  }
 }
 
 export interface FieldEvidence {

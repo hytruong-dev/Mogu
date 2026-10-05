@@ -708,9 +708,10 @@ export function CookingPage({
   const showMedia = !!stepMedia;
 
   const hasIngredientMapping = !!current.ingredientIds?.length;
+  // Only show ingredients mapped to this step; the full list lives on the recipe page.
   const stepIngs = hasIngredientMapping
     ? ingredients.filter((ing) => ing.id && current.ingredientIds?.includes(ing.id))
-    : ingredients;
+    : [];
   const remaining =
     durationSec != null || timers.current[stepIdx] ? displayRemaining(stepIdx) : null;
   const timerRunning = getTimer(stepIdx).running;
@@ -820,9 +821,7 @@ export function CookingPage({
 
         {stepIngs.length > 0 ? (
           <View style={{ marginTop: 20 }}>
-            <Text style={styles.sectionLabel}>
-              {hasIngredientMapping ? 'Dùng trong bước này' : 'Nguyên liệu của món'}
-            </Text>
+            <Text style={styles.sectionLabel}>Dùng trong bước này</Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -848,20 +847,25 @@ export function CookingPage({
         ) : null}
 
         <View style={styles.timerCard}>
-          <View style={styles.timerTop}>
-            <View style={styles.timerIcon}>
-              <Timer size={20} color={INK} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.timerLabel}>Hẹn giờ</Text>
-              <Text style={styles.timerVal}>{remaining != null ? formatMmSs(remaining) : '--:--'}</Text>
-            </View>
-            {remaining != null ? (
+          {remaining != null ? (
+            <View style={styles.timerTop}>
+              <View style={styles.timerIcon}>
+                <Timer size={20} color={INK} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.timerLabel}>Hẹn giờ</Text>
+                <Text style={styles.timerVal}>{formatMmSs(remaining)}</Text>
+              </View>
               <Pressable onPress={toggleTimer} style={[styles.timerBtn, timerRunning && styles.timerBtnOn]}>
                 <Text style={styles.timerBtnText}>{timerRunning ? 'Tạm dừng' : 'Bắt đầu'}</Text>
               </Pressable>
-            ) : null}
-          </View>
+            </View>
+          ) : (
+            <View style={styles.timerMini}>
+              <Timer size={16} color={MUTED} />
+              <Text style={styles.timerLabel}>Cần hẹn giờ? Chọn nhanh:</Text>
+            </View>
+          )}
           <View style={styles.quickRow}>
             {[60, 300, 600].map((seconds) => (
               <Pressable
@@ -1028,7 +1032,7 @@ const styles = StyleSheet.create({
   progressSegOn: { backgroundColor: YELLOW },
   media: {
     marginTop: 14,
-    height: 200,
+    height: 190,
     borderRadius: 18,
     overflow: 'hidden',
     backgroundColor: BORDER,
@@ -1076,6 +1080,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.07,
   },
   timerTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  timerMini: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   timerIcon: {
     width: 42,
     height: 42,

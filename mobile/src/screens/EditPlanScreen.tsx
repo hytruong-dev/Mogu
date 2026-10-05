@@ -594,32 +594,46 @@ export function EditPlanScreen({
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
           >
-            {/* Summary */}
-            <View style={s.summaryBar}>
-              <View style={s.summaryItem}>
-                <Calendar size={14} color={MUTED} strokeWidth={2} />
-                <Text style={s.summaryText}>{days} ngày</Text>
-              </View>
-              <View style={s.summaryDivider} />
-              <View style={s.summaryItem}>
-                <UtensilsCrossed size={14} color={MUTED} strokeWidth={2} />
-                <Text style={s.summaryText}>{totalMeals} bữa</Text>
-              </View>
-              <View style={s.summaryDivider} />
-              <View style={s.summaryItem}>
-                <Wallet size={14} color={MUTED} strokeWidth={2} />
-                <Text style={s.summaryText}>{formatBudgetK(budget)}</Text>
-              </View>
-              <View style={s.summaryDivider} />
-              <View style={s.summaryItem}>
-                <Flame size={14} color={MUTED} strokeWidth={2} />
-                <Text style={s.summaryText}>{formatVi(currentKcal)} kcal/ngày</Text>
+            {/* Hero summary */}
+            <View style={s.hero}>
+              <Text style={s.heroEyebrow}>KẾ HOẠCH CỦA BẠN</Text>
+              <Text style={s.heroTitle}>
+                {totalMeals} bữa <Text style={s.heroTitleMuted}>trong {days} ngày</Text>
+              </Text>
+              <Text style={s.heroSub}>
+                {formatShort(schedule.startDate)} – {formatShort(addDaysISO(schedule.startDate, days - 1))}
+              </Text>
+              <View style={s.heroChips}>
+                <View style={s.heroChip}>
+                  <Wallet size={14} color="#92400E" strokeWidth={2.2} />
+                  <Text style={s.heroChipText}>{formatBudgetK(budget)}</Text>
+                </View>
+                <View style={s.heroChip}>
+                  <Flame size={14} color="#C2410C" strokeWidth={2.2} />
+                  <Text style={s.heroChipText}>{formatVi(currentKcal)} kcal/ngày</Text>
+                </View>
+                <View style={s.heroChip}>
+                  <UtensilsCrossed size={14} color="#3F3B35" strokeWidth={2.2} />
+                  <Text style={s.heroChipText}>{mealsPerDay} bữa/ngày</Text>
+                </View>
               </View>
             </View>
 
             {/* Ngân sách */}
             <View style={s.card}>
-              <Text style={s.cardTitle}>Ngân sách</Text>
+              <SectionHeader
+                icon={<Wallet size={18} color="#B45309" strokeWidth={2.2} />}
+                tint="#FFF4D6"
+                title="Ngân sách"
+                subtitle={`Tổng cho ${days} ngày`}
+                right={
+                  totalMeals > 0 ? (
+                    <View style={s.pill}>
+                      <Text style={s.pillText}>≈ {formatBudgetK(perMealBudget)}/bữa</Text>
+                    </View>
+                  ) : null
+                }
+              />
               <BudgetSlider
                 value={budget}
                 min={BUDGET_MIN}
@@ -630,13 +644,21 @@ export function EditPlanScreen({
                   trackChange('budget', budget, val);
                   setBudget(val);
                 }}
-                helperText={`≈ ${formatVi(perMealBudget)}đ / bữa`}
               />
             </View>
 
             {/* Năng lượng mỗi ngày */}
             <View style={s.card}>
-              <Text style={s.cardTitle}>Năng lượng mỗi ngày</Text>
+              <SectionHeader
+                icon={<Flame size={18} color="#C2410C" strokeWidth={2.2} />}
+                tint="#FFEDE3"
+                title="Năng lượng mỗi ngày"
+                subtitle={
+                  kcalMode === 'profile'
+                    ? 'Theo mục tiêu sức khỏe hiện tại'
+                    : 'Bạn đang tự đặt mức năng lượng'
+                }
+              />
               <View style={s.kcalStepper}>
                 <Pressable
                   onPress={() => !fieldsLocked && adjustKcal(-KCAL_STEP)}
@@ -689,43 +711,46 @@ export function EditPlanScreen({
                 </Pressable>
               </View>
 
-              <View style={s.tabsRow}>
-                <Pressable
-                  onPress={() => {
-                    if (fieldsLocked) return;
-                    setKcalMode('profile');
-                    trackChange('kcalMode', kcalMode, 'profile');
-                  }}
-                  style={[s.tab, kcalMode === 'profile' && s.tabActive]}
-                >
-                  <Text style={[s.tabText, kcalMode === 'profile' && s.tabTextActive]}>
-                    Theo hồ sơ
-                  </Text>
-                </Pressable>
-                <Pressable
-                  onPress={() => {
-                    if (fieldsLocked) return;
-                    setKcalMode('custom');
-                    trackChange('kcalMode', kcalMode, 'custom');
-                  }}
-                  style={[s.tab, kcalMode === 'custom' && s.tabActive]}
-                >
-                  <Text style={[s.tabText, kcalMode === 'custom' && s.tabTextActive]}>
-                    Tự đặt
-                  </Text>
-                </Pressable>
+              <View style={s.segment}>
+                {(
+                  [
+                    { key: 'profile' as const, label: 'Theo hồ sơ' },
+                    { key: 'custom' as const, label: 'Tự đặt' },
+                  ] as const
+                ).map((opt) => {
+                  const active = kcalMode === opt.key;
+                  return (
+                    <Pressable
+                      key={opt.key}
+                      onPress={() => {
+                        if (fieldsLocked || active) return;
+                        setKcalMode(opt.key);
+                        trackChange('kcalMode', kcalMode, opt.key);
+                      }}
+                      style={[s.segmentItem, active && s.segmentItemActive]}
+                    >
+                      <Text style={[s.segmentText, active && s.segmentTextActive]}>
+                        {opt.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
               </View>
-
-              <Text style={s.helperCenter}>
-                {kcalMode === 'profile'
-                  ? 'Theo mục tiêu sức khỏe hiện tại.'
-                  : 'Bạn đang tự đặt mức năng lượng mỗi ngày.'}
-              </Text>
             </View>
 
             {/* Lịch ăn */}
             <View style={s.card}>
-              <Text style={s.cardTitle}>Lịch ăn</Text>
+              <SectionHeader
+                icon={<Calendar size={18} color="#1D4ED8" strokeWidth={2.2} />}
+                tint="#E8F0FF"
+                title="Lịch ăn"
+                subtitle="Chọn các bữa NOAN sẽ lên món"
+                right={
+                  <View style={s.pill}>
+                    <Text style={s.pillText}>{totalMeals} bữa</Text>
+                  </View>
+                }
+              />
 
               <Pressable
                 onPress={() => !fieldsLocked && setScheduleSheetOpen(true)}
@@ -768,14 +793,6 @@ export function EditPlanScreen({
                   );
                 })}
               </View>
-
-              <Pressable
-                onPress={() => !fieldsLocked && setScheduleSheetOpen(true)}
-                style={s.mealCountRow}
-              >
-                <Text style={s.mealCountText}>{totalMeals} bữa sẽ được tạo</Text>
-                <ChevronRight size={16} color={MUTED} strokeWidth={2.2} />
-              </Pressable>
             </View>
 
             {/* Tùy chọn tạo món */}
@@ -807,12 +824,13 @@ export function EditPlanScreen({
         <Pressable
           onPress={handleSaveDefault}
           disabled={savingConfig || generating}
-          style={s.saveLinkHit}
+          style={s.saveBtn}
+          accessibilityLabel="Lưu làm mặc định"
         >
           {savingConfig ? (
-            <ActivityIndicator size="small" color={MUTED} />
+            <ActivityIndicator size="small" color={INK} />
           ) : (
-            <Text style={s.saveLink}>Lưu làm mặc định</Text>
+            <Text style={s.saveBtnText}>Lưu mặc định</Text>
           )}
         </Pressable>
 
@@ -827,7 +845,7 @@ export function EditPlanScreen({
             runGenerate();
           }}
           disabled={ctaDisabled && !timedOut}
-          className="h-[52px] w-full rounded-2xl bg-primary active:opacity-90"
+          className="h-[52px] flex-1 rounded-2xl bg-primary active:opacity-90"
         >
           {generating ? (
             <View style={s.ctaLoading}>
@@ -890,6 +908,35 @@ export function EditPlanScreen({
   );
 }
 
+function SectionHeader({
+  icon,
+  tint,
+  title,
+  subtitle,
+  right,
+}: {
+  icon: React.ReactNode;
+  tint: string;
+  title: string;
+  subtitle?: string;
+  right?: React.ReactNode;
+}) {
+  return (
+    <View style={s.sectionHeader}>
+      <View style={[s.sectionIcon, { backgroundColor: tint }]}>{icon}</View>
+      <View style={{ flex: 1 }}>
+        <Text style={s.cardTitle}>{title}</Text>
+        {subtitle ? (
+          <Text style={s.sectionSub} numberOfLines={1}>
+            {subtitle}
+          </Text>
+        ) : null}
+      </View>
+      {right}
+    </View>
+  );
+}
+
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: CREAM },
   header: {
@@ -924,7 +971,79 @@ const s = StyleSheet.create({
     borderRadius: 20,
   },
   toastText: { fontSize: 12.5, fontWeight: '600', color: '#166534' },
-  scroll: { paddingHorizontal: 16, paddingTop: 4, gap: 12 },
+  scroll: { paddingHorizontal: 16, paddingTop: 4, gap: 14 },
+  hero: {
+    backgroundColor: '#FFF4D0',
+    borderRadius: 22,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: '#FBE3A0',
+  },
+  heroEyebrow: { fontSize: 11, fontWeight: '800', color: '#A16207', letterSpacing: 1 },
+  heroTitle: { fontSize: 26, fontWeight: '900', color: INK, marginTop: 6, letterSpacing: -0.5 },
+  heroTitleMuted: { fontSize: 18, fontWeight: '700', color: '#6B5E45' },
+  heroSub: { fontSize: 13, color: '#8A7653', marginTop: 2, fontWeight: '600' },
+  heroChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 },
+  heroChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 999,
+  },
+  heroChipText: { fontSize: 12.5, fontWeight: '700', color: '#3F3B35' },
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  sectionIcon: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sectionSub: { fontSize: 12.5, color: MUTED, marginTop: 1 },
+  pill: {
+    backgroundColor: '#F5F2EB',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+  },
+  pillText: { fontSize: 12, fontWeight: '700', color: '#3F3B35' },
+  segment: {
+    flexDirection: 'row',
+    backgroundColor: '#F3EFE6',
+    borderRadius: 14,
+    padding: 4,
+  },
+  segmentItem: {
+    flex: 1,
+    height: 38,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  segmentItemActive: {
+    backgroundColor: CARD,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  segmentText: { fontSize: 13.5, fontWeight: '600', color: MUTED },
+  segmentTextActive: { color: INK, fontWeight: '800' },
+  saveBtn: {
+    height: 52,
+    paddingHorizontal: 16,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: BORDER,
+    backgroundColor: CARD,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  saveBtnText: { fontSize: 14, fontWeight: '700', color: INK },
   summaryBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1122,8 +1241,10 @@ const s = StyleSheet.create({
     bottom: 0,
     backgroundColor: CREAM,
     paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingTop: 12,
     gap: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#EDE8DE',
   },

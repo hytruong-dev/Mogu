@@ -8,7 +8,7 @@ import { authApi } from "../services/api/auth";
 import { getSession } from "../services/api/storage";
 import { LoginScreen } from "../screens/LoginScreen";
 import { RegisterScreen } from "../screens/RegisterScreen";
-import { SplashScreen } from "../screens/SplashScreen";
+import { OnboardingScreen } from "../screens/onboarding/OnboardingScreen";
 import { HomeScreen } from "../screens/HomeScreen";
 import { ExploreScreenV2 as ExploreScreen } from "../screens/ExploreScreenV2";
 import { RandomFlowScreen } from "../screens/RandomFlowScreen";
@@ -138,7 +138,7 @@ export function RootNavigator() {
       <RootStack.Navigator initialRouteName={initialRoute} screenOptions={{ headerShown: false, animation: "fade" }}>
         <RootStack.Screen name="Auth" component={AuthNavigator} />
         <RootStack.Screen name="Onboarding" options={{ gestureEnabled: false }}>
-          {({ navigation }: any) => <SplashScreen onFinish={() => navigation.replace("Main")} />}
+          {({ navigation }: any) => <OnboardingScreen onFinish={() => navigation.replace("Main")} />}
         </RootStack.Screen>
         <RootStack.Screen name="Main" component={MainNavigator} />
         <RootStack.Screen name="FoodDetail" options={{ presentation: "modal", animation: "slide_from_bottom" }}>

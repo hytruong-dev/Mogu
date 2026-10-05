@@ -199,6 +199,11 @@ const MEALS: Array<{ key: MealKey; label: string; Icon: typeof Sun }> = [
 ];
 
 const BUDGETS: BudgetKey[] = ['Dưới 40K', '40K–80K', 'Không giới hạn'];
+const BUDGET_HINTS: Record<BudgetKey, string> = {
+  'Dưới 40K': 'Tiết kiệm',
+  '40K–80K': 'Vừa phải',
+  'Không giới hạn': 'Thoải mái',
+};
 
 function slotToMealKey(slot: string): MealKey {
   const map: Record<string, MealKey> = {
@@ -877,6 +882,19 @@ export function RandomFlowScreen({ onClose }: Props) {
   }
 
   const errorBanner = fetchError ?? noCandidateMessage;
+  const profileChips: string[] = [
+    profileSnap?.primaryGoal?.name,
+    ...(profileSnap?.dietTypes ?? []).slice(0, 2).map((d) => d.name),
+    profileSnap?.noAllergies
+      ? 'Không dị ứng'
+      : profileSnap?.allergens?.length
+        ? `Tránh: ${profileSnap.allergens
+            .slice(0, 2)
+            .map((a) => a.name)
+            .join(', ')}${profileSnap.allergens.length > 2 ? '…' : ''}`
+        : undefined,
+  ].filter((x): x is string => Boolean(x && x.trim()));
+  const profileDeclared = profileChips.length > 0;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
@@ -954,9 +972,12 @@ export function RandomFlowScreen({ onClose }: Props) {
                   ) : null}
                   <Text
                     style={[styles.budgetChipTxt, selected && styles.budgetChipTxtOn]}
-                    numberOfLines={2}
+                    numberOfLines={1}
                   >
                     {b}
+                  </Text>
+                  <Text style={styles.budgetChipHint} numberOfLines={1}>
+                    {BUDGET_HINTS[b]}
                   </Text>
                   </Pressable>
               );
@@ -964,12 +985,39 @@ export function RandomFlowScreen({ onClose }: Props) {
               </View>
               </View>
 
-        <Pressable style={styles.profileRow} onPress={() => setSheetOpen(true)}>
-          <View style={styles.profileIcon}>
-            <ShieldCheck size={18} color="#15803D" />
+        <Pressable
+          style={styles.profileRow}
+          onPress={() => setSheetOpen(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Xem hồ sơ ăn uống"
+        >
+          <View style={styles.profileTop}>
+            <View style={[styles.profileIcon, !profileDeclared && styles.profileIconWarn]}>
+              <ShieldCheck size={18} color={profileDeclared ? '#15803D' : '#B45309'} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.profileTxt}>
+                {profileDeclared ? 'Đã áp dụng hồ sơ ăn uống' : 'Hoàn thiện hồ sơ ăn uống'}
+              </Text>
+              <Text style={styles.profileSub} numberOfLines={1}>
+                {profileDeclared
+                  ? 'NOAN lọc món theo các tiêu chí bên dưới'
+                  : 'Giúp NOAN gợi ý món hợp với bạn hơn'}
+              </Text>
+            </View>
+            <ChevronRight size={18} color={MUTED} />
+          </View>
+          {profileChips.length > 0 ? (
+            <View style={styles.profileChips}>
+              {profileChips.map((c) => (
+                <View key={c} style={styles.profileChip}>
+                  <Text style={styles.profileChipTxt} numberOfLines={1}>
+                    {c}
+                  </Text>
                 </View>
-          <Text style={styles.profileTxt}>Đã áp dụng hồ sơ ăn uống</Text>
-          <Text style={styles.profileLink}>Xem ›</Text>
+              ))}
+            </View>
+          ) : null}
         </Pressable>
 
         {errorBanner ? (
@@ -1340,7 +1388,8 @@ const styles = StyleSheet.create({
   budgetRow: { flexDirection: 'row', gap: 8 },
   budgetChip: {
     flex: 1,
-    height: 52,
+    height: 60,
+    gap: 2,
     borderRadius: 14,
     borderWidth: 1.5,
     borderColor: BORDER,
@@ -1353,10 +1402,9 @@ const styles = StyleSheet.create({
   budgetChipOn: { backgroundColor: '#FFFDF0', borderColor: YELLOW, borderWidth: 2 },
   budgetChipTxt: { fontSize: 13, fontWeight: '600', color: MUTED, textAlign: 'center' },
   budgetChipTxtOn: { color: INK, fontWeight: '800' },
+  budgetChipHint: { fontSize: 11, color: '#A8A29E', fontWeight: '500' },
 
   profileRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: 12,
     backgroundColor: WHITE,
     borderRadius: 20,
@@ -1378,8 +1426,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  profileTxt: { flex: 1, fontSize: 14.5, fontWeight: '700', color: INK },
-  profileLink: { fontSize: 13.5, fontWeight: '700', color: '#8C7A5B' },
+  profileTop: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  profileIconWarn: { backgroundColor: '#FFF4D6' },
+  profileTxt: { fontSize: 14.5, fontWeight: '800', color: INK },
+  profileSub: { fontSize: 12.5, color: MUTED, marginTop: 2 },
+  profileChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  profileChip: {
+    maxWidth: '100%',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 999,
+    backgroundColor: '#F1F8EE',
+    borderWidth: 1,
+    borderColor: '#D5EBCD',
+  },
+  profileChipTxt: { fontSize: 12, fontWeight: '700', color: '#2F6B22' },
 
   errorBox: {
     backgroundColor: '#FFF1F0',

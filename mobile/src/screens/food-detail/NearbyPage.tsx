@@ -15,7 +15,7 @@ import {
   Crosshair,
   MapPin,
   Navigation,
-  Settings2,
+  Search,
   Star,
 } from '@/components/icons';
 import { AppImage } from '../../components/ui/app-image';
@@ -103,19 +103,69 @@ export function NearbyPage({ dishName, places = [], onBack }: Props) {
     }
   };
 
+  const searchOnMaps = async () => {
+    const q = encodeURIComponent(`${dishName} gần đây`);
+    const url = coords
+      ? `https://www.google.com/maps/search/${q}/@${coords.lat},${coords.lng},15z`
+      : `https://www.google.com/maps/search/?api=1&query=${q}`;
+    await Linking.openURL(url);
+  };
+
+  const header = (
+    <View style={styles.header}>
+      <Pressable onPress={onBack} style={styles.iconBtn} accessibilityLabel="Quay lại">
+        <ArrowLeft size={22} color={INK} />
+      </Pressable>
+      <View style={{ flex: 1, alignItems: 'center' }}>
+        <Text style={styles.headerEyebrow}>Nơi bán</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          {dishName}
+        </Text>
+      </View>
+      <View style={styles.iconBtn} />
+    </View>
+  );
+
+  if (places.length === 0) {
+    return (
+      <SafeAreaView style={styles.root} edges={['top', 'left', 'right', 'bottom']}>
+        {header}
+        <View style={styles.emptyWrap}>
+          <View style={styles.emptyIllus}>
+            <View style={styles.emptyRing}>
+              <MapPin size={34} color={INK} strokeWidth={2} />
+            </View>
+          </View>
+          <Text style={styles.emptyTitle}>Chưa có quán nào trong dữ liệu NOAN</Text>
+          <Text style={styles.emptySub}>
+            Bạn có thể tìm nhanh “{dishName}” trên Google Maps, hoặc tự nấu tại nhà với công thức có sẵn.
+          </Text>
+          <Pressable
+            onPress={() => void searchOnMaps()}
+            style={styles.emptyPrimary}
+            accessibilityRole="button"
+            accessibilityLabel="Tìm trên Google Maps"
+          >
+            <Search size={18} color={INK} />
+            <Text style={styles.dirText}>Tìm trên Google Maps</Text>
+          </Pressable>
+          <Pressable onPress={onBack} style={styles.emptyGhost} accessibilityRole="button">
+            <Text style={styles.emptyGhostText}>Quay lại món ăn</Text>
+          </Pressable>
+          {locStatus === 'denied' ? (
+            <Pressable onPress={() => void requestLocation()} style={styles.locHint}>
+              <Crosshair size={14} color={MUTED} />
+              <Text style={styles.bannerText}>Bật vị trí để có kết quả gần bạn hơn</Text>
+            </Pressable>
+          ) : null}
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.root} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <Pressable onPress={onBack} style={styles.iconBtn} accessibilityLabel="Quay lại">
-          <ArrowLeft size={22} color={INK} />
-        </Pressable>
-        <Text style={styles.headerTitle} numberOfLines={1}>
-          Nơi bán {dishName}
-        </Text>
-        <Pressable style={styles.iconBtn} accessibilityLabel="Bộ lọc">
-          <Settings2 size={20} color={INK} />
-        </Pressable>
-      </View>
+      {header}
 
       {locStatus === 'denied' ? (
         <Pressable onPress={() => void requestLocation()} style={styles.banner}>
@@ -302,14 +352,59 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 8,
   },
+  headerEyebrow: { fontSize: 11.5, fontWeight: '600', color: TERTIARY },
   headerTitle: {
-    flex: 1,
     textAlign: 'center',
     fontSize: 15,
-    fontWeight: '700',
+    fontWeight: '800',
     color: INK,
     paddingHorizontal: 4,
   },
+  emptyWrap: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 28,
+    paddingBottom: 40,
+  },
+  emptyIllus: {
+    width: 128,
+    height: 128,
+    borderRadius: 64,
+    backgroundColor: '#FFF2B8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 22,
+  },
+  emptyRing: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: YELLOW,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyPrimary: {
+    marginTop: 24,
+    alignSelf: 'stretch',
+    minHeight: 54,
+    borderRadius: 999,
+    backgroundColor: YELLOW,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  emptyGhost: {
+    marginTop: 10,
+    alignSelf: 'stretch',
+    minHeight: 50,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyGhostText: { fontSize: 14, fontWeight: '700', color: MUTED },
+  locHint: { marginTop: 12, flexDirection: 'row', alignItems: 'center', gap: 6 },
   iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   banner: {
     marginHorizontal: 16,
@@ -417,7 +512,7 @@ const styles = StyleSheet.create({
   segText: { fontSize: 14, fontWeight: '600', color: MUTED },
   segTextActive: { color: INK, fontWeight: '800' },
   empty: { paddingVertical: 32, alignItems: 'center' },
-  emptyTitle: { fontSize: 16, fontWeight: '700', color: INK, textAlign: 'center' },
+  emptyTitle: { fontSize: 19, fontWeight: '800', color: INK, textAlign: 'center' },
   emptySub: {
     marginTop: 8,
     fontSize: 14,

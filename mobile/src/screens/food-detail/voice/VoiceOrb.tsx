@@ -88,6 +88,66 @@ export function VoiceOrb({ voice, started, onStartCooking, onMute, onInterrupt }
   const listening = voice.state === 'listening';
   const busy = voice.state === 'greeting' || voice.state === 'thinking' || voice.state === 'speaking';
 
+  const helpDrawer = (
+    <Drawer open={help} onOpenChange={setHelp} snapHeight={520}>
+      <DrawerHeader>
+        <DrawerTitle>Nhờ NOAN giúp nấu</DrawerTitle>
+      </DrawerHeader>
+      <DrawerContent className="gap-3 px-5 pb-6">
+        <Text style={s.helpText}>
+          Nói “NOAN” trước lệnh khi micro đang nghe. Khi NOAN hỏi, bạn có thể trả lời ngay.
+        </Text>
+        <View style={s.cmdWrap}>
+          {['Bắt đầu', 'Bước tiếp', 'Quay lại', 'Đọc lại', 'Nguyên liệu', 'Hẹn giờ 5 phút', 'Tạm dừng hẹn giờ', 'Còn bao lâu'].map(
+            (c) => (
+              <View key={c} style={s.cmd}>
+                <Text style={s.cmdText}>{c}</Text>
+              </View>
+            ),
+          )}
+        </View>
+        <Text style={s.helpText}>
+          Chuyển bước chưa xong cần xác nhận “có” hoặc “không”. Micro không nghe lúc NOAN đang nói.
+        </Text>
+        <Text style={s.helpText}>Mất mạng: lệnh điều khiển và giọng đã lưu vẫn dùng được.</Text>
+        <Pressable onPress={() => setHelp(false)} style={[s.primary, { marginTop: 6 }]}>
+          <Text style={s.primaryText}>Đã hiểu</Text>
+        </Pressable>
+      </DrawerContent>
+    </Drawer>
+  );
+
+  // Compact entry point while voice is off — keeps the step content above the fold.
+  if (!voice.enabled) {
+    return (
+      <Animated.View layout={LinearTransition.duration(220)} style={s.compact}>
+        <View style={s.compactAvatar}>
+          <Image source={mascot} style={s.compactMascot} resizeMode="contain" />
+        </View>
+        <Pressable
+          onPress={() => setHelp(true)}
+          style={{ flex: 1 }}
+          accessibilityRole="button"
+          accessibilityLabel="Mở hướng dẫn lệnh giọng nói"
+        >
+          <Text style={s.compactTitle}>Nấu rảnh tay cùng NOAN</Text>
+          <Text style={s.compactSub}>NOAN đọc bước, bạn nói “bước tiếp”</Text>
+        </Pressable>
+        <Pressable
+          onPress={() => void voice.start()}
+          style={s.compactBtn}
+          className="active:opacity-80"
+          accessibilityRole="button"
+          accessibilityLabel="Nấu cùng NOAN, bật phiên giọng nói"
+        >
+          <Mic size={16} color={INK} />
+          <Text style={s.compactBtnText}>Bật</Text>
+        </Pressable>
+        {helpDrawer}
+      </Animated.View>
+    );
+  }
+
   return (
     <Animated.View layout={LinearTransition.duration(220)} style={s.card}>
       <View style={s.head}>
@@ -228,39 +288,47 @@ export function VoiceOrb({ voice, started, onStartCooking, onMute, onInterrupt }
         </Text>
       )}
 
-      <Drawer open={help} onOpenChange={setHelp} snapHeight={520}>
-        <DrawerHeader>
-          <DrawerTitle>Nhờ NOAN giúp nấu</DrawerTitle>
-        </DrawerHeader>
-        <DrawerContent className="gap-3 px-5 pb-6">
-          <Text style={s.helpText}>
-            Nói “NOAN” trước lệnh khi micro đang nghe. Khi NOAN hỏi, bạn có thể trả lời ngay.
-          </Text>
-          <View style={s.cmdWrap}>
-            {['Bắt đầu', 'Bước tiếp', 'Quay lại', 'Đọc lại', 'Nguyên liệu', 'Hẹn giờ 5 phút', 'Tạm dừng hẹn giờ', 'Còn bao lâu'].map(
-              (c) => (
-                <View key={c} style={s.cmd}>
-                  <Text style={s.cmdText}>{c}</Text>
-                </View>
-              ),
-            )}
-          </View>
-          <Text style={s.helpText}>
-            Chuyển bước chưa xong cần xác nhận “có” hoặc “không”. Micro không nghe lúc NOAN đang nói.
-          </Text>
-          <Text style={s.helpText}>
-            Mất mạng: lệnh điều khiển và giọng đã lưu vẫn dùng được.
-          </Text>
-          <Pressable onPress={() => setHelp(false)} style={[s.primary, { marginTop: 6 }]}>
-            <Text style={s.primaryText}>Đã hiểu</Text>
-          </Pressable>
-        </DrawerContent>
-      </Drawer>
+      {helpDrawer}
     </Animated.View>
   );
 }
 
 const s = StyleSheet.create({
+  compact: {
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: WHITE,
+    borderRadius: 18,
+    paddingVertical: 8,
+    paddingLeft: 8,
+    paddingRight: 8,
+    borderWidth: 1,
+    borderColor: '#F3E7C9',
+  },
+  compactAvatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: YELLOW_SOFT,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  compactMascot: { width: 34, height: 34 },
+  compactTitle: { fontSize: 14, fontWeight: '800', color: INK },
+  compactSub: { fontSize: 12, color: MUTED, marginTop: 1 },
+  compactBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    minHeight: 38,
+    paddingHorizontal: 14,
+    borderRadius: 999,
+    backgroundColor: YELLOW,
+  },
+  compactBtnText: { fontSize: 13, fontWeight: '800', color: INK },
   card: {
     marginTop: 14,
     backgroundColor: WHITE,

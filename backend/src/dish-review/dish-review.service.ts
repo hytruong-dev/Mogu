@@ -53,6 +53,9 @@ export class DishReviewService {
             take: 1,
           },
           nutrition: true,
+          _count: {
+            select: { dishIngredients: true, recipeSteps: true, media: true },
+          },
         },
         orderBy: { updatedAt: 'asc' },
         take: take + 1,
@@ -64,14 +67,28 @@ export class DishReviewService {
     const slice = hasNextPage ? dishes.slice(0, take) : dishes;
     const nextCursor = hasNextPage ? slice[slice.length - 1]?.id : null;
 
-    const data = slice.map((dish) => ({
-      ...dish,
-      nutritionProfiles: dish.nutrition ? [dish.nutrition] : [],
-      media: (dish.media ?? []).map((m) => ({
-        ...m,
-        publicUrl: this.buildPublicUrl(m.storageKey, m.bucket),
-      })),
-    }));
+    const data = slice.map((dish) => {
+      let score = 0;
+      if (dish.media?.length) score += 30;
+      if (dish.nutrition) score += 25;
+      if (dish._count?.dishIngredients > 0) score += 25;
+      if (dish._count?.recipeSteps > 0) score += 20;
+
+      return {
+        ...dish,
+        confidenceScore: score,
+        _count: {
+          ingredients: dish._count?.dishIngredients ?? 0,
+          steps: dish._count?.recipeSteps ?? 0,
+          media: dish._count?.media ?? 0,
+        },
+        nutritionProfiles: dish.nutrition ? [dish.nutrition] : [],
+        media: (dish.media ?? []).map((m) => ({
+          ...m,
+          publicUrl: this.buildPublicUrl(m.storageKey, m.bucket),
+        })),
+      };
+    });
 
     return { data, total, pageInfo: { nextCursor, hasNextPage } };
   }

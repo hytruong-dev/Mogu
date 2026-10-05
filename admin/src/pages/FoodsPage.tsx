@@ -63,7 +63,7 @@ import { MediaLightbox } from '../components/ui/media-lightbox'
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 // ─── Supabase Storage URL helper ──────────────────────────────────────────────
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? ''
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://lkqvyvllmrbxgaoqrkhd.supabase.co'
 function getMediaUrl(media: { publicUrl?: string; storageKey?: string; bucket?: string } | undefined): string | null {
   if (!media) return null
   if (media.publicUrl) return media.publicUrl
@@ -170,7 +170,7 @@ function DishDetailDialog({ dish, onClose, onEdit }: { dish: Dish; onClose: () =
 
   const primaryMedia = d.media?.find((m: any) => m.isPrimary) ?? d.media?.[0]
   const imgUrl = primaryMedia
-    ? (primaryMedia.publicUrl ?? `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/${primaryMedia.bucket}/${primaryMedia.storageKey}`)
+    ? (primaryMedia.publicUrl ?? `${SUPABASE_URL}/storage/v1/object/public/${primaryMedia.bucket}/${primaryMedia.storageKey}`)
     : null
   const nutrition = d.nutrition
   const ingredients: Array<{ rawText?: string; ingredientName?: string; quantity?: number; unit?: string; ingredient?: { name: string; imageUrl?: string } }> =
@@ -1953,7 +1953,11 @@ export default function FoodsPage() {
                       </span>
                     </TableCell>
                     <TableCell>
-                      {category ? <Badge>{category.name}</Badge> : <span style={{ color: 'var(--text-muted)' }}>—</span>}
+                      {category ? (
+                        <Badge>{(category as any).name ?? (category as any).category?.name}</Badge>
+                      ) : (
+                        <span style={{ color: 'var(--text-muted)' }}>—</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       {nutrition ? (

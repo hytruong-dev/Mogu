@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import {
-  Dimensions,
   ImageSourcePropType,
   Pressable,
   ScrollView,
@@ -13,9 +12,12 @@ import {
   ArrowLeft,
   BarChart3,
   Bookmark,
+  Check,
   ChefHat,
   ChevronRight,
   Clock3,
+  Minus,
+  Plus,
   Salad,
   Users,
 } from '@/components/icons';
@@ -47,11 +49,7 @@ import {
 import { useDishSave } from './useDishActions';
 import { NutritionSheet } from './NutritionSheet';
 
-const { width: SW } = Dimensions.get('window');
 const H_PAD = 16;
-const GRID_GAP = 8;
-const COLS = 3;
-const COL_W = Math.floor((SW - H_PAD * 2 - GRID_GAP * (COLS - 1)) / COLS);
 
 type Props = {
   dishId?: string;
@@ -90,6 +88,8 @@ export function RecipePage({
   const [servings, setServings] = useState(baseServings);
   const [tab, setTab] = useState('ingredients');
   const [nutritionOpen, setNutritionOpen] = useState(false);
+  const [expandedStep, setExpandedStep] = useState<number | null>(null);
+  void videoUrl;
 
   const steps = useMemo(() => normalizeSteps(recipeSteps), [recipeSteps]);
   const totalDur = totalStepsDurationMin(recipeSteps);
@@ -102,37 +102,51 @@ export function RecipePage({
   const diff = difficultyLabel(difficulty);
   const kcal = nutrition?.calories != null ? Math.round(Number(nutrition.calories)) : null;
 
-  const renderIngredientCard = (ing: DishIngredient, index: number) => {
+  const [checked, setChecked] = useState<Set<number>>(() => new Set());
+  const toggleChecked = (index: number) =>
+    setChecked((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+
+  const renderIngredientCard = (ing: DishIngredient, index: number, isLastRow: boolean) => {
     const qty = formatQuantityUnit(ing.quantity, ing.unit, baseServings, servings);
     const name = ingredientDisplayName(ing);
+    const isChecked = checked.has(index);
     return (
       <Animated.View
         key={`ing-${index}`}
-        entering={FadeInDown.delay(Math.min(index, 12) * 35).duration(260)}
-        style={styles.ingCard}
+        entering={FadeInDown.delay(Math.min(index, 12) * 25).duration(220)}
       >
-        <View style={styles.ingImgWrap}>
-          {ing.imageUrl ? (
-            <AppImage uri={ing.imageUrl} style={styles.ingImg} contentFit="cover" />
-          ) : (
-            <View style={[styles.ingImg, styles.ingImgPh]}>
-              <Salad size={24} color="#C9A64A" />
-            </View>
-          )}
-        </View>
-        <Text style={styles.ingName} numberOfLines={1} ellipsizeMode="tail">
-          {name}
-          {ing.isOptional ? ' (tuỳ chọn)' : ''}
-        </Text>
-        {qty ? (
-          <Text style={styles.ingQty} numberOfLines={1}>
-            {qty}
-          </Text>
-        ) : (
-          <Text style={[styles.ingQty, { opacity: 0 }]} numberOfLines={1}>
-            -
-          </Text>
-        )}
+        <Pressable
+          onPress={() => toggleChecked(index)}
+          style={[styles.ingRow, !isLastRow && styles.ingRowDivider]}
+          accessibilityRole="checkbox"
+          accessibilityState={{ checked: isChecked }}
+          accessibilityLabel={`${name}${qty ? `, ${qty}` : ''}`}
+        >
+          <View style={styles.ingImgWrap}>
+            {ing.imageUrl ? (
+              <AppImage uri={ing.imageUrl} style={styles.ingImg} contentFit="cover" />
+            ) : (
+              <View style={[styles.ingImg, styles.ingImgPh]}>
+                <Salad size={18} color="#C9A64A" />
+              </View>
+            )}
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.ingName, isChecked && styles.ingNameChecked]} numberOfLines={2}>
+              {name}
+            </Text>
+            {ing.isOptional ? <Text style={styles.ingOptional}>Tuỳ chọn</Text> : null}
+          </View>
+          {qty ? <Text style={[styles.ingQty, isChecked && styles.ingNameChecked]}>{qty}</Text> : null}
+          <View style={[styles.check, isChecked && styles.checkOn]}>
+            {isChecked ? <Check size={14} color={INK} strokeWidth={3} /> : null}
+          </View>
+        </Pressable>
       </Animated.View>
     );
   };
@@ -166,10 +180,6 @@ export function RecipePage({
             {dishName}
           </Text>
           <View style={styles.pills}>
-            <View style={styles.pill}>
-              <Users size={13} color={MUTED} />
-              <Text style={styles.pillText}>{baseServings} người</Text>
-            </View>
             {timeLabel ? (
               <View style={styles.pill}>
                 <Clock3 size={13} color={MUTED} />
@@ -203,7 +213,7 @@ export function RecipePage({
                 className="text-[14px]"
                 style={StyleSheet.flatten([styles.triggerText, tab === 'ingredients' && styles.triggerTextActive])}
               >
-                Nguyên liệu
+                Nguyên liệu ({ingredients.length})
               </UiText>
             </TabsTrigger>
             <TabsTrigger
@@ -215,7 +225,7 @@ export function RecipePage({
                 className="text-[14px]"
                 style={StyleSheet.flatten([styles.triggerText, tab === 'steps' && styles.triggerTextActive])}
               >
-                {steps.length} bước
+                Cách làm ({steps.length})
               </UiText>
             </TabsTrigger>
           </TabsList>
@@ -228,20 +238,58 @@ export function RecipePage({
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 110 + insets.bottom, paddingHorizontal: H_PAD, paddingTop: 4 }}
           >
+            {ingredients.length > 0 ? (
+              <View style={styles.servingsBar}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.servingsTitle}>Khẩu phần</Text>
+                  <Text style={styles.servingsSub}>
+                    Đã chuẩn bị {checked.size}/{ingredients.length}
+                  </Text>
+                </View>
+                <View style={styles.stepper}>
+                  <Pressable
+                    onPress={() => setServings((v) => Math.max(1, v - 1))}
+                    disabled={servings <= 1}
+                    style={[styles.stepperBtn, servings <= 1 && { opacity: 0.4 }]}
+                    accessibilityLabel="Giảm khẩu phần"
+                    hitSlop={6}
+                  >
+                    <Minus size={16} color={INK} strokeWidth={2.6} />
+                  </Pressable>
+                  <View style={styles.stepperVal}>
+                    <Users size={14} color={MUTED} />
+                    <Text style={styles.stepperText}>{servings}</Text>
+                  </View>
+                  <Pressable
+                    onPress={() => setServings((v) => Math.min(20, v + 1))}
+                    style={styles.stepperBtn}
+                    accessibilityLabel="Tăng khẩu phần"
+                    hitSlop={6}
+                  >
+                    <Plus size={16} color={INK} strokeWidth={2.6} />
+                  </Pressable>
+                </View>
+              </View>
+            ) : null}
+
             {ingredients.length === 0 ? (
               <Text style={styles.emptyNote}>Chưa có danh sách nguyên liệu.</Text>
             ) : hasGroups ? (
               groups.map((g, gi) => (
-                <View key={`g-${gi}`} style={{ marginTop: gi === 0 ? 4 : 14 }}>
+                <View key={`g-${gi}`} style={{ marginTop: 14 }}>
                   {g.label ? <Text style={styles.groupLabel}>{g.label}</Text> : null}
-                  <View style={styles.grid}>
-                    {g.items.map(({ ing, index }) => renderIngredientCard(ing, index))}
+                  <View style={styles.listCard}>
+                    {g.items.map(({ ing, index }, i) =>
+                      renderIngredientCard(ing, index, i === g.items.length - 1),
+                    )}
                   </View>
                 </View>
               ))
             ) : (
-              <View style={styles.grid}>
-                {flatIngredients.map(({ ing, index }) => renderIngredientCard(ing, index))}
+              <View style={[styles.listCard, { marginTop: 14 }]}>
+                {flatIngredients.map(({ ing, index }, i) =>
+                  renderIngredientCard(ing, index, i === flatIngredients.length - 1),
+                )}
               </View>
             )}
 
@@ -270,48 +318,58 @@ export function RecipePage({
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 110 + insets.bottom, paddingHorizontal: H_PAD, paddingTop: 4 }}
           >
-            <Text style={styles.sectionTitle}>Cách chế biến</Text>
             <Text style={styles.stepsSummary}>
               {steps.length} bước
-              {totalDur != null ? ` · khoảng ${totalDur} phút` : ''}
+              {totalDur != null ? ` · khoảng ${totalDur} phút` : ''} · chạm để xem chi tiết
             </Text>
 
             <View style={styles.stepList}>
-              {steps.map((st, i) => (
-                <Animated.View
-                  key={`step-${st.stepOrder}`}
-                  entering={FadeInDown.delay(Math.min(i, 10) * 45).duration(280)}
-                  style={styles.stepRow}
-                >
-                  <View style={styles.stepRail}>
-                    <View style={styles.stepNum}>
-                      <Text style={styles.stepNumText}>{st.stepOrder}</Text>
-                    </View>
-                    {i < steps.length - 1 ? <View style={styles.stepLine} /> : null}
-                  </View>
-                  <View style={styles.stepBody}>
-                    <Text style={styles.stepTitle} numberOfLines={2}>
-                      {st.title}
-                    </Text>
-                    {st.durationMin != null ? (
-                      <View style={styles.stepDurPill}>
-                        <Clock3 size={12} color={MUTED} />
-                        <Text style={styles.stepDur}>{st.durationMin} phút</Text>
+              {steps.map((st, i) => {
+                const open = expandedStep === i;
+                const preview = (st.body ?? '').trim();
+                const hasDur = st.durationMin != null && st.durationMin > 0;
+                return (
+                  <Animated.View
+                    key={`step-${st.stepOrder}`}
+                    entering={FadeInDown.delay(Math.min(i, 10) * 35).duration(240)}
+                    style={styles.stepRow}
+                  >
+                    <View style={styles.stepRail}>
+                      <View style={styles.stepNum}>
+                        <Text style={styles.stepNumText}>{st.stepOrder}</Text>
                       </View>
-                    ) : null}
-                  </View>
-                </Animated.View>
-              ))}
+                      {i < steps.length - 1 ? <View style={styles.stepLine} /> : null}
+                    </View>
+                    <Pressable
+                      onPress={() => setExpandedStep(open ? null : i)}
+                      style={styles.stepBody}
+                      accessibilityRole="button"
+                      accessibilityState={{ expanded: open }}
+                    >
+                      <View style={styles.stepHead}>
+                        <Text style={styles.stepTitle} numberOfLines={open ? undefined : 2}>
+                          {st.title}
+                        </Text>
+                        {hasDur ? (
+                          <View style={styles.stepDurPill}>
+                            <Clock3 size={12} color={MUTED} />
+                            <Text style={styles.stepDur}>{st.durationMin}′</Text>
+                          </View>
+                        ) : null}
+                      </View>
+                      {preview && preview !== st.title ? (
+                        <Text style={styles.stepPreview} numberOfLines={open ? undefined : 2}>
+                          {preview}
+                        </Text>
+                      ) : null}
+                    </Pressable>
+                  </Animated.View>
+                );
+              })}
             </View>
 
             {steps.length === 0 ? (
               <Text style={styles.emptyNote}>Chưa có các bước chế biến.</Text>
-            ) : null}
-
-            {videoUrl ? (
-              <View style={styles.videoNote}>
-                <Text style={styles.emptyNote}>Video: có sẵn (phát trong phiên bản sau).</Text>
-              </View>
             ) : null}
           </Animated.ScrollView>
         </TabsContent>
@@ -325,7 +383,9 @@ export function RecipePage({
           accessibilityLabel="Bắt đầu nấu"
         >
           <ChefHat size={20} color={INK} />
-          <Text style={styles.ctaText}>Bắt đầu nấu</Text>
+          <Text style={styles.ctaText}>
+            Bắt đầu nấu{steps.length > 0 ? ` · ${steps.length} bước` : ''}
+          </Text>
         </Pressable>
       </View>
 
@@ -404,53 +464,80 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
     marginBottom: 8,
   },
-  grid: {
+  servingsBar: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: GRID_GAP,
-    alignItems: 'flex-start',
-    alignContent: 'flex-start',
-  },
-  ingCard: {
-    width: COL_W,
-    backgroundColor: WHITE,
-    borderRadius: 16,
-    paddingHorizontal: 8,
-    paddingTop: 12,
-    paddingBottom: 12,
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    ...cardShadow,
-    shadowOpacity: 0.06,
-    elevation: 2,
+    backgroundColor: WHITE,
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: BORDER,
   },
+  servingsTitle: { fontSize: 15, fontWeight: '800', color: INK },
+  servingsSub: { fontSize: 12.5, color: MUTED, marginTop: 2 },
+  stepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: CREAM,
+    borderRadius: 999,
+    padding: 4,
+  },
+  stepperBtn: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: WHITE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperVal: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    minWidth: 52,
+    justifyContent: 'center',
+  },
+  stepperText: { fontSize: 15, fontWeight: '800', color: INK },
+  listCard: {
+    backgroundColor: WHITE,
+    borderRadius: 18,
+    paddingHorizontal: 14,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: BORDER,
+  },
+  ingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 10,
+    minHeight: 60,
+  },
+  ingRowDivider: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: '#F0EADF' },
   ingImgWrap: {
-    width: 60,
-    height: 60,
-    borderRadius: 14,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
     overflow: 'hidden',
     backgroundColor: '#FFF6DC',
   },
   ingImg: { width: '100%', height: '100%' },
   ingImgPh: { backgroundColor: '#FFF6DC', alignItems: 'center', justifyContent: 'center' },
-  ingName: {
-    width: '100%',
-    marginTop: 8,
-    fontSize: 13,
-    fontWeight: '600',
-    color: INK,
-    textAlign: 'center',
-    lineHeight: 17,
+  ingName: { fontSize: 15, fontWeight: '600', color: INK, lineHeight: 20 },
+  ingNameChecked: { color: TERTIARY, textDecorationLine: 'line-through' },
+  ingOptional: { fontSize: 12, color: TERTIARY, marginTop: 1 },
+  ingQty: { fontSize: 14, fontWeight: '700', color: ORANGE_QTY },
+  check: {
+    width: 24,
+    height: 24,
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: BORDER,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 4,
   },
-  ingQty: {
-    width: '100%',
-    marginTop: 3,
-    fontSize: 12.5,
-    fontWeight: '700',
-    color: ORANGE_QTY,
-    textAlign: 'center',
-    lineHeight: 14,
-  },
+  checkOn: { backgroundColor: YELLOW, borderColor: YELLOW },
   nutritionRow: {
     marginTop: 16,
     flexDirection: 'row',
@@ -471,7 +558,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepsSummary: { fontSize: 13, color: MUTED, marginTop: 4, marginBottom: 8 },
+  stepsSummary: { fontSize: 13, color: MUTED, marginTop: 2, marginBottom: 6 },
+  stepHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
+  stepPreview: { fontSize: 13.5, lineHeight: 20, color: MUTED },
   stepList: { marginTop: 6 },
   stepRow: { flexDirection: 'row', gap: 12 },
   stepRail: { width: 32, alignItems: 'center' },
@@ -493,14 +582,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginBottom: 10,
     gap: 6,
-    ...cardShadow,
-    shadowOpacity: 0.06,
-    elevation: 2,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: BORDER,
   },
   stepNumText: { fontSize: 14, fontWeight: '800', color: INK },
-  stepTitle: { fontSize: 15, fontWeight: '700', color: INK, lineHeight: 21 },
+  stepTitle: { flex: 1, fontSize: 15, fontWeight: '700', color: INK, lineHeight: 21 },
   stepDurPill: {
-    alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
