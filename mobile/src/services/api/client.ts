@@ -44,9 +44,16 @@ function resolveApiUrl(): string {
     }
   }
 
+  // On Android Emulator, route to 10.0.2.2 loopback so it works seamlessly and reliably
+  if (Platform.OS === 'android' && isAndroidEmulator) {
+    if (envUrl.includes('172.28.0.166') || envUrl.includes('localhost') || envUrl.includes('127.0.0.1')) {
+      return envUrl.replace(/172\.28\.0\.166|localhost|127\.0\.0\.1/, '10.0.2.2');
+    }
+  }
+
   // On physical Android devices, 10.0.2.2 does not route to host machine.
-  if (Platform.OS === 'android' && !isAndroidEmulator && envUrl.includes('10.0.2.2')) {
-    return envUrl.replace('10.0.2.2', '172.28.0.166');
+  if (Platform.OS === 'android' && !isAndroidEmulator && (envUrl.includes('10.0.2.2') || envUrl.includes('localhost') || envUrl.includes('127.0.0.1'))) {
+    return envUrl.replace(/10\.0\.2\.2|localhost|127\.0\.0\.1/, '172.28.0.166');
   }
 
   return envUrl;
@@ -186,6 +193,7 @@ export async function apiRequest<T>(path: string, options: Options = {}): Promis
     });
   } catch (err: any) {
     clearTimeout(timeoutId);
+    console.error('[API fetch error]', `${API_URL}${path}`, err?.message ?? err);
     const rawMsg = String(err?.message ?? '');
     if (
       err?.name === 'AbortError' ||

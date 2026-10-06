@@ -5,11 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "icon": "./src/assets/images/noan/noan-app-icon-v1.png",
+    "icon": "./src/assets/images/noan/noan-app-icon-v2.png",
     "splash": {
-      "image": "./src/assets/images/noan/noan-splash-v1.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#FFFFFF"
+      "image": "./src/assets/images/noan/splash-layers-v2/background.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#FDE17C"
     },
     "assetBundlePatterns": ["**/*"],
     "android": {
@@ -17,8 +17,9 @@
       "usesCleartextTraffic": true,
       "permissions": ["android.permission.RECORD_AUDIO"],
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/images/noan/noan-adaptive-foreground-v1.png",
-        "backgroundColor": "#FFC928"
+        "foregroundImage": "./src/assets/images/noan/noan-adaptive-foreground-v2.png",
+        "backgroundImage": "./src/assets/images/noan/noan-adaptive-background-v2.png",
+        "backgroundColor": "#FDC845"
       }
     },
     "ios": {

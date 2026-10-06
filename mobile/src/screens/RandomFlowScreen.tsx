@@ -706,12 +706,12 @@ export function RandomFlowScreen({ onClose }: Props) {
 
               {/* Celebration confetti ring / burst behind mascot */}
               <View style={styles.confettiRingWrap} pointerEvents="none">
-                <Image
+        <Image
                   source={CONFETTI_RING}
                   resizeMode="contain"
                   style={styles.fullSize}
-                />
-              </View>
+        />
+      </View>
 
               {/* Magical aura behind mascot: spinning rays, glow, orbiting sparkles */}
               {showEffects ? (
@@ -822,7 +822,7 @@ export function RandomFlowScreen({ onClose }: Props) {
               {showEffects ? (
                 <View style={styles.rewardBurstAnchor} pointerEvents="none">
                   <ParticleBurst key={`burst-${dish.id}`} count={16} radius={180} seed={11} delay={30} />
-                </View>
+    </View>
               ) : null}
             </Animated.View>
 

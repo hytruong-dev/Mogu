@@ -125,10 +125,10 @@ export function DishPickerSheet({ open, onOpenChange, selectedId, onConfirm }: P
         </Text>
 
         {loading && items.length === 0 ? (
-          <View className="gap-2">
-            <Skeleton className="h-16 w-full rounded-xl" />
-            <Skeleton className="h-16 w-full rounded-xl" />
-            <Skeleton className="h-16 w-full rounded-xl" />
+          <View style={{ gap: 10 }}>
+            {[0, 1, 2].map((i) => (
+              <Skeleton key={i} style={{ height: 64, width: '100%', borderRadius: 14 }} />
+            ))}
           </View>
         ) : (
           <FlatList

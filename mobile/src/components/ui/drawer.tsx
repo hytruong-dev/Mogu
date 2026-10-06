@@ -9,7 +9,8 @@
  *  - Snap points (optional)
  */
 import * as React from 'react';
-import { Modal, Pressable, Text, View, type ViewProps } from 'react-native';
+import { Modal, Text, View, type ViewProps } from 'react-native';
+import { StyledPressable as Pressable } from './styled-pressable';
 import Animated, {
   Easing,
   runOnJS,

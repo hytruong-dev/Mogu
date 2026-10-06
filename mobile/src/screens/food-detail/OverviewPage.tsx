@@ -2,7 +2,6 @@ import { useState } from 'react';
 import {
   Dimensions,
   ImageSourcePropType,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -26,6 +25,7 @@ import {
   ShieldCheck,
   Tag,
 } from '@/components/icons';
+import { StyledPressable as Pressable } from '../../components/ui/styled-pressable';
 import { AppImage } from '../../components/ui/app-image';
 import { BORDER, CREAM, INK, MUTED, TERTIARY, WHITE, YELLOW, YELLOW_SOFT } from './tokens';
 import type { AllergenAssessment, DishAllergen, DishIngredient, DishNutrition } from './types';

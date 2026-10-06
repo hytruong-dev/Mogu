@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
-  Pressable,
   ScrollView,
   Share,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { StyledPressable as Pressable } from '../../components/ui/styled-pressable';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   AlertOctagon,

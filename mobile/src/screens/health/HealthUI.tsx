@@ -698,7 +698,7 @@ export function Bone({
   r?: number;
   style?: StyleProp<ViewStyle>;
 }) {
-  return <Skeleton className="bg-[#EFE9DE]" style={[{ width: w, height: h, borderRadius: r }, style]} />;
+  return <Skeleton style={[{ width: w, height: h, borderRadius: r, backgroundColor: '#EFE9DE' }, style]} />;
 }
 
 // ─── Row helpers ─────────────────────────────────────────────────────────────

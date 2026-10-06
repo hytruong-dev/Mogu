@@ -3,7 +3,6 @@ import {
   Image,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Pressable,
   ScrollView,
   Share,
   StyleSheet,
@@ -11,6 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
+import { StyledPressable as Pressable } from '../components/ui/styled-pressable';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DishDetailLoaderScreen from './DishDetailLoaderScreen';
 import { CommunityPostDetailScreen } from './CommunityPostDetailScreen';

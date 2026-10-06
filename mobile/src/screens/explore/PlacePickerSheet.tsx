@@ -118,9 +118,10 @@ export function PlacePickerSheet({ open, onOpenChange, selectedId, onConfirm }: 
         {locError ? <Text className="mb-2 text-[12px] text-destructive">{locError}</Text> : null}
 
         {loading && items.length === 0 ? (
-          <View className="gap-2">
-            <Skeleton className="h-14 w-full rounded-xl" />
-            <Skeleton className="h-14 w-full rounded-xl" />
+          <View style={{ gap: 10 }}>
+            {[0, 1].map((i) => (
+              <Skeleton key={i} style={{ height: 56, width: '100%', borderRadius: 14 }} />
+            ))}
           </View>
         ) : (
           <FlatList

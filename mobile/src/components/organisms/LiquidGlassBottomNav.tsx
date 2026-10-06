@@ -4,10 +4,11 @@ import * as Haptics from 'expo-haptics';
 import { useState } from 'react';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
 import type { RootStackParamList } from '@/navigation/types';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Camera, Compass, HeartPulse, Home, UserRound } from '@/components/icons';
 import { FoodScanSheet } from './FoodScanSheet';
+import { StyledPressable as Pressable } from '../ui/styled-pressable';
 
 export type MainTab = 'home' | 'explore' | 'random' | 'health' | 'profile';
 

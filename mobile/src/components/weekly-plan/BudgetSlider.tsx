@@ -5,12 +5,12 @@
 import React, { useRef, useState } from 'react';
 import {
   PanResponder,
-  Pressable,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
+import { StyledPressable as Pressable } from '../ui/styled-pressable';
 import * as Haptics from 'expo-haptics';
 import { Minus, Plus } from '@/components/icons';
 
