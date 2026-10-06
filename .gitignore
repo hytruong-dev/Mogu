@@ -1,0 +1,4 @@
+# Package & Binary builds
+*.apk
+*.aab
+*.bak
