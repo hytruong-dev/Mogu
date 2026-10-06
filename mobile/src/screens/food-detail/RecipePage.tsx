@@ -48,6 +48,8 @@ import {
 } from './utils';
 import { useDishSave } from './useDishActions';
 import { NutritionSheet } from './NutritionSheet';
+import { parseCookingVideo } from './video';
+import { VideoGuideRow, VideoPlayerModal } from './VideoGuide';
 
 const H_PAD = 16;
 
@@ -89,7 +91,12 @@ export function RecipePage({
   const [tab, setTab] = useState('ingredients');
   const [nutritionOpen, setNutritionOpen] = useState(false);
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
-  void videoUrl;
+  const video = useMemo(() => parseCookingVideo(videoUrl), [videoUrl]);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const thumbUri =
+    image && typeof image === 'object' && !Array.isArray(image) && 'uri' in image
+      ? (image.uri ?? null)
+      : null;
 
   const steps = useMemo(() => normalizeSteps(recipeSteps), [recipeSteps]);
   const totalDur = totalStepsDurationMin(recipeSteps);
@@ -318,6 +325,16 @@ export function RecipePage({
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 110 + insets.bottom, paddingHorizontal: H_PAD, paddingTop: 4 }}
           >
+            {video ? (
+              <View style={styles.videoRowWrap}>
+                <VideoGuideRow
+                  video={video}
+                  fallbackImage={thumbUri}
+                  onPress={() => setVideoOpen(true)}
+                />
+              </View>
+            ) : null}
+
             <Text style={styles.stepsSummary}>
               {steps.length} bước
               {totalDur != null ? ` · khoảng ${totalDur} phút` : ''} · chạm để xem chi tiết
@@ -394,6 +411,13 @@ export function RecipePage({
         onOpenChange={setNutritionOpen}
         nutrition={nutrition}
         servings={servings}
+      />
+
+      <VideoPlayerModal
+        video={video}
+        visible={videoOpen}
+        title={dishName}
+        onClose={() => setVideoOpen(false)}
       />
     </SafeAreaView>
   );
@@ -558,6 +582,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  videoRowWrap: { marginTop: 4, marginBottom: 12 },
   stepsSummary: { fontSize: 13, color: MUTED, marginTop: 2, marginBottom: 6 },
   stepHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   stepPreview: { fontSize: 13.5, lineHeight: 20, color: MUTED },

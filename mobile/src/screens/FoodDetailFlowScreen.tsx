@@ -101,6 +101,7 @@ export function FoodDetailFlowScreen({
         image={image}
         ingredients={ingredients}
         recipeSteps={recipeSteps}
+        videoUrl={videoUrl}
         onBack={back}
         onFinish={onFinish ?? onClose}
       />
@@ -153,6 +154,7 @@ export function FoodDetailFlowScreen({
       ingredients={ingredients}
       ingredientCount={ingredients.length}
       stepCount={recipeSteps.length}
+      videoUrl={videoUrl}
       onBack={back}
       onCook={() => go('nutrition')}
       onNearby={() => go('location')}

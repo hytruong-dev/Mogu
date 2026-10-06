@@ -12,6 +12,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Check,
+  CirclePlay,
   ChevronDown,
   ChevronRight,
   Clock3,
@@ -28,6 +29,8 @@ import { BORDER, CREAM, INK, MUTED, WHITE, YELLOW, cardShadow } from './tokens';
 import type { DishIngredient, DishRecipeStep } from './types';
 import { formatMmSs, ingredientDisplayName, normalizeSteps, totalStepsDurationMin } from './utils';
 import { StepsSheet } from './StepsSheet';
+import { parseCookingVideo } from './video';
+import { VideoPlayerModal } from './VideoGuide';
 import { useKeepAwake } from 'expo-keep-awake';
 import { createAudioPlayer } from 'expo-audio';
 import { isRunningInExpoGo } from 'expo';
@@ -62,6 +65,7 @@ type Props = {
   image?: ImageSourcePropType;
   ingredients?: DishIngredient[];
   recipeSteps?: DishRecipeStep[];
+  videoUrl?: string | null;
   onBack: () => void;
   onFinish: () => void;
 };
@@ -75,10 +79,13 @@ export function CookingPage({
   image,
   ingredients = [],
   recipeSteps = [],
+  videoUrl,
   onBack,
   onFinish,
 }: Props) {
   useKeepAwake('noan-cooking');
+  const video = useMemo(() => parseCookingVideo(videoUrl), [videoUrl]);
+  const [videoOpen, setVideoOpen] = useState(false);
   const queryClient = useQueryClient();
   const insets = useSafeAreaInsets();
   const [showOptions, setShowOptions] = useState(false);
@@ -736,6 +743,20 @@ export function CookingPage({
         <Text style={styles.headerTitle}>
           Bước {stepIdx + 1}/{total}
         </Text>
+        {video ? (
+          <Pressable
+            onPress={() => {
+              // Tránh NOAN đọc chồng lên tiếng video.
+              voice.stopSpeaking();
+              setVideoOpen(true);
+            }}
+            style={styles.videoBtn}
+            accessibilityLabel="Xem video hướng dẫn"
+          >
+            <CirclePlay size={16} color={INK} />
+            <Text style={styles.videoBtnText}>Video</Text>
+          </Pressable>
+        ) : null}
         <Pressable
           onPress={() => setShowOptions(true)}
           style={styles.iconBtn}
@@ -1004,6 +1025,13 @@ export function CookingPage({
         remainingMin={remainingMin}
         onSelectStep={(idx) => goToStep(idx)}
       />
+
+      <VideoPlayerModal
+        video={video}
+        visible={videoOpen}
+        title={dishName}
+        onClose={() => setVideoOpen(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -1018,6 +1046,16 @@ const styles = StyleSheet.create({
   },
   headerTitle: { flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '700', color: INK },
   iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
+  videoBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    height: 32,
+    paddingHorizontal: 10,
+    borderRadius: 16,
+    backgroundColor: YELLOW,
+  },
+  videoBtnText: { fontSize: 12.5, fontWeight: '800', color: INK },
   progressRow: {
     flexDirection: 'row',
     marginHorizontal: 16,

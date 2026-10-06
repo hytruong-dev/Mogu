@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Dimensions,
   ImageSourcePropType,
@@ -20,6 +20,7 @@ import {
   Info,
   MapPin,
   Mic,
+  Play,
   Salad,
   Share2,
   ShieldCheck,
@@ -31,6 +32,8 @@ import { BORDER, CREAM, INK, MUTED, TERTIARY, WHITE, YELLOW, YELLOW_SOFT } from 
 import type { AllergenAssessment, DishAllergen, DishIngredient, DishNutrition } from './types';
 import { assessAllergens, formatKcalLabel, ingredientDisplayName } from './utils';
 import { shareDish, useDishSave } from './useDishActions';
+import { parseCookingVideo } from './video';
+import { VideoGuideCard, VideoPlayerModal } from './VideoGuide';
 
 const { width: SW, height: SH } = Dimensions.get('window');
 const HERO_H = Math.round(Math.min(SW * 0.92, SH * 0.4));
@@ -49,6 +52,7 @@ type Props = {
   ingredients?: DishIngredient[];
   ingredientCount: number;
   stepCount: number;
+  videoUrl?: string | null;
   onBack: () => void;
   onCook: () => void;
   onNearby: () => void;
@@ -82,6 +86,7 @@ export function OverviewPage({
   ingredients = [],
   ingredientCount,
   stepCount,
+  videoUrl,
   onBack,
   onCook,
   onNearby,
@@ -89,6 +94,12 @@ export function OverviewPage({
   const insets = useSafeAreaInsets();
   const { isSaved, toggleSave } = useDishSave(dishId, isSavedInitial);
   const [descExpanded, setDescExpanded] = useState(false);
+  const video = useMemo(() => parseCookingVideo(videoUrl), [videoUrl]);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const heroUri =
+    image && typeof image === 'object' && !Array.isArray(image) && 'uri' in image
+      ? (image.uri ?? null)
+      : null;
   const assessment: AllergenAssessment = assessAllergens(allergens);
   const kcal = formatKcalLabel(nutrition?.calories ?? null);
   const desc = (shortDescription ?? '').trim();
@@ -185,6 +196,19 @@ export function OverviewPage({
               </View>
             </View>
           </SafeAreaView>
+          {video ? (
+            <Pressable
+              onPress={() => setVideoOpen(true)}
+              style={({ pressed }) => [styles.heroVideoPill, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Xem video hướng dẫn"
+            >
+              <View style={styles.heroVideoDot}>
+                <Play size={10} color={INK} fill={INK} strokeWidth={0} style={{ marginLeft: 1 }} />
+              </View>
+              <Text style={styles.heroVideoText}>Xem video</Text>
+            </Pressable>
+          ) : null}
         </View>
 
         <View style={styles.sheet}>
@@ -253,6 +277,19 @@ export function OverviewPage({
               {allergenText}
             </Text>
           </View>
+
+          {video ? (
+            <View style={styles.section}>
+              <View style={styles.sectionHead}>
+                <Text style={styles.sectionTitle}>Video hướng dẫn</Text>
+              </View>
+              <VideoGuideCard
+                video={video}
+                fallbackImage={heroUri}
+                onPress={() => setVideoOpen(true)}
+              />
+            </View>
+          ) : null}
 
           {ingredientCount > 0 ? (
             <View style={styles.section}>
@@ -351,6 +388,13 @@ export function OverviewPage({
           <Text style={styles.primaryText}>{canCook ? 'Nấu món này' : 'Chưa có công thức'}</Text>
         </Pressable>
       </View>
+
+      <VideoPlayerModal
+        video={video}
+        visible={videoOpen}
+        title={dishName}
+        onClose={() => setVideoOpen(false)}
+      />
     </View>
   );
 }
@@ -385,6 +429,29 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   heroBtnActive: { backgroundColor: YELLOW },
+  // Nằm trên phần sheet bo góc (-26) nên đặt bottom 40 để không bị che.
+  heroVideoPill: {
+    position: 'absolute',
+    right: 14,
+    bottom: 40,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    paddingLeft: 5,
+    paddingRight: 12,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(22,22,22,0.72)',
+  },
+  heroVideoDot: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: YELLOW,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  heroVideoText: { color: WHITE, fontSize: 13, fontWeight: '800' },
   sheet: {
     marginTop: -26,
     backgroundColor: WHITE,
