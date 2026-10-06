@@ -9,10 +9,19 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { WeeklyPlanCalculatorService } from './weekly-plan-calculator.service';
 import { DishEligibilityService } from '../../dishes/eligibility/dish-eligibility.service';
 import { NotificationsService } from '../../notifications/notifications.service';
+import { mapNutritionToPlanServing } from '../../dishes/eligibility/dish-nutrition.mapper';
 import {
-  mapNutritionToPlanServing,
-  planPriceVnd,
-} from '../../dishes/eligibility/dish-nutrition.mapper';
+  PlanMealMode,
+  PlanPriceSource,
+  inferMealModeFromLegacy,
+  normalizeMealMode,
+  resolvePlanPrice,
+} from '../../dishes/eligibility/dish-pricing';
+import {
+  ALL_MEAL_MODES,
+  BudgetEstimate,
+  WeeklyPlanBudgetEstimatorService,
+} from './weekly-plan-budget-estimator.service';
 import {
   SLOT_MEAL_TAG,
   ALGORITHM_VERSION,
@@ -31,7 +40,10 @@ function buildStorageUrl(media: { bucket?: string; storageKey?: string } | null)
 interface DishCandidate {
   id: string;
   name: string;
+  /** Giá 1 phần theo hình thức ăn (nấu / khẩu phần hoặc ăn ngoài) */
   priceMin: number;
+  priceSource: PlanPriceSource;
+  servings: number;
   kcal: number;
   proteinG: number | null;
   carbsG: number | null;
@@ -49,6 +61,8 @@ interface ProfileSnapshot {
   goalKcal: number | null;
   effectiveKcalPerDay: number;
   kcalSource: 'PROFILE' | 'CUSTOM' | 'DEFAULT';
+  mealMode?: PlanMealMode;
+  preferHomeCook?: boolean;
 }
 
 @Injectable()
@@ -59,6 +73,7 @@ export class WeeklyPlanGeneratorService {
     private readonly prisma: PrismaService,
     private readonly calculator: WeeklyPlanCalculatorService,
     private readonly eligibility: DishEligibilityService,
+    private readonly estimator: WeeklyPlanBudgetEstimatorService,
     @Optional() private readonly notificationsService?: NotificationsService,
   ) { }
 
@@ -115,7 +130,17 @@ export class WeeklyPlanGeneratorService {
       calorieTolerancePercent: Number(
         snap?.calorieTolerancePercent ?? plan.config.calorieTolerancePercent ?? 10,
       ),
+      mealMode: (snap?.mealMode != null
+        ? normalizeMealMode(snap.mealMode)
+        : snap?.preferHomeCook !== undefined || snap?.allowOutsideMeals !== undefined
+          ? inferMealModeFromLegacy(
+              snap?.preferHomeCook as boolean | undefined,
+              snap?.allowOutsideMeals as boolean | undefined,
+            )
+          : normalizeMealMode(plan.config.mealMode)) as PlanMealMode,
+      preferHomeCook: Boolean(snap?.preferHomeCook ?? plan.config.preferHomeCook),
     };
+    const mealMode = config.mealMode;
 
     const enabledSlots = Array.from(new Set(config.enabledSlots));
     if (enabledSlots.length === 0) {
@@ -199,25 +224,75 @@ export class WeeklyPlanGeneratorService {
           avoidedIngredients: profileSnapshot.avoidedIngredients,
         },
         'weekly',
-        { requirePrice: true },
+        { requirePrice: true, priceMode: mealMode },
       ),
     });
-    if (hardPoolCount === 0) {
+
+    profileSnapshot.mealMode = mealMode;
+    profileSnapshot.preferHomeCook = config.preferHomeCook;
+
+    const estimate = await this.estimator.estimateWithProfile(
+      {
+        allergenCodes: profileSnapshot.allergenCodes,
+        hardDietTypeCodes: profileSnapshot.hardDietTypeCodes,
+        avoidedIngredients: profileSnapshot.avoidedIngredients,
+      },
+      enabledSlots,
+      config.durationDays,
+    );
+    const modeEstimate = estimate.byMode[mealMode];
+    const minBudgetByMode = this.minBudgetByMode(estimate);
+
+    if (hardPoolCount === 0 || !modeEstimate.feasible) {
       await this.failPlan(planId, 'INSUFFICIENT_CANDIDATES', {
         status: 'INSUFFICIENT_CANDIDATES',
         reason: 'EMPTY_CATALOG',
         message: 'Kho món hiện chưa đủ lựa chọn phù hợp với cấu hình này.',
         approvedDishCount: 0,
-        suggestions: [
-          { type: 'MIN_BUDGET', value: 350000 },
-          { type: 'ENABLE_MEAL_SLOT', value: 'SNACK' },
-          { type: 'REVIEW_AVOIDED_INGREDIENTS' },
-        ],
+        mealMode,
+        minBudgetByMode,
+        suggestions: this.buildSuggestions({
+          estimate,
+          mealMode,
+          budgetVnd: config.budgetVnd,
+          enabledSlots: config.enabledSlots,
+          profile: profileSnapshot,
+          budgetIsCause: false,
+        }),
         hardPoolCount: 0,
         slotsNeeded: slotTasks.length,
       });
       return;
     }
+
+    // Preflight theo kho món thật: dưới mức rẻ nhất (cho phép lặp món) thì chắc chắn không tạo được
+    if (config.budgetVnd < modeEstimate.hardMinBudgetVnd) {
+      await this.failPlan(planId, 'BUDGET_TOO_LOW', {
+        status: 'BUDGET_TOO_LOW',
+        reason: 'BUDGET_TOO_LOW',
+        message: 'Ngân sách hiện tại thấp hơn mức tối thiểu của kho món cho cấu hình này.',
+        approvedDishCount: hardPoolCount,
+        mealMode,
+        budgetVnd: config.budgetVnd,
+        minBudgetVnd: modeEstimate.minBudgetVnd,
+        minBudgetByMode,
+        suggestions: this.buildSuggestions({
+          estimate,
+          mealMode,
+          budgetVnd: config.budgetVnd,
+          enabledSlots: config.enabledSlots,
+          profile: profileSnapshot,
+          budgetIsCause: true,
+        }),
+        hardPoolCount,
+        slotsNeeded: slotTasks.length,
+      });
+      return;
+    }
+
+    const cheapestPerSlot = Math.min(
+      ...Object.values(modeEstimate.perSlotMin).filter((v): v is number => typeof v === 'number'),
+    );
 
     for (const task of slotTasks) {
       const slotBudgetCap = Math.min(
@@ -321,33 +396,47 @@ export class WeeklyPlanGeneratorService {
         );
       }
 
+      // Soft: cho phép 1 bữa vượt phần chia (tối đa 1.5x) miễn vẫn đủ tiền cho các bữa còn lại
       if (candidates.length === 0) {
-        const minSuggestedBudget = Math.max(
-          350000,
-          Math.ceil((slotTasks.length * 50000) / 50000) * 50000,
+        const reserveForRest = Math.max(remainingSlots - 1, 0) * cheapestPerSlot;
+        const softCap = Math.min(
+          Math.floor(Math.max(slotBudgetCap, task.budgetVnd) * 1.5),
+          remainingBudget - reserveForRest,
         );
-        const suggestions: Array<{ type: string; value?: any }> = [];
-        if (config.budgetVnd < minSuggestedBudget) {
-          suggestions.push({ type: 'MIN_BUDGET', value: minSuggestedBudget });
-        } else {
-          suggestions.push({ type: 'MIN_BUDGET', value: config.budgetVnd + 50000 });
+        if (softCap > slotBudgetCap) {
+          relaxations.push('slot_budget_soft');
+          candidates = await this.queryCandidates(
+            task.slot,
+            softCap,
+            task.kcal,
+            tolerancePercent,
+            profileSnapshot,
+            sameDayDishIds,
+            true,
+            true,
+            true,
+          );
         }
-        if (!config.enabledSlots.includes('SNACK')) {
-          suggestions.push({ type: 'ENABLE_MEAL_SLOT', value: 'SNACK' });
-        }
-        if (
-          (profileSnapshot.avoidedIngredients && profileSnapshot.avoidedIngredients.length > 0) ||
-          (profileSnapshot.allergenCodes && profileSnapshot.allergenCodes.length > 0)
-        ) {
-          suggestions.push({ type: 'REVIEW_AVOIDED_INGREDIENTS' });
-        } else if (suggestions.length < 3) {
-          suggestions.push({ type: 'REVIEW_AVOIDED_INGREDIENTS' });
-        }
+      }
+
+      if (candidates.length === 0) {
+        const budgetIsCause = config.budgetVnd < modeEstimate.minBudgetVnd;
+        const suggestions = this.buildSuggestions({
+          estimate,
+          mealMode,
+          budgetVnd: config.budgetVnd,
+          enabledSlots: config.enabledSlots,
+          profile: profileSnapshot,
+          budgetIsCause,
+        });
 
         await this.failPlan(planId, 'INSUFFICIENT_CANDIDATES', {
           status: 'INSUFFICIENT_CANDIDATES',
-          reason: 'NO_DISH_FOR_SLOT',
+          reason: budgetIsCause ? 'BUDGET_TOO_LOW' : 'NO_DISH_FOR_SLOT',
           message: 'Kho món hiện chưa đủ lựa chọn phù hợp với cấu hình này.',
+          mealMode,
+          minBudgetVnd: modeEstimate.minBudgetVnd,
+          minBudgetByMode,
           suggestions,
           approvedDishCount: hardPoolCount,
           slot: task.slot,
@@ -434,6 +523,8 @@ export class WeeklyPlanGeneratorService {
               dishNameSnapshot: cs.dish.name,
               imageUrlSnapshot: cs.dish.imageUrl,
               priceSnapshotVnd: cs.dish.priceMin,
+              priceSource: cs.dish.priceSource,
+              servingsSnapshot: cs.dish.servings,
               kcalSnapshot: cs.dish.kcal,
               proteinGSnapshot: cs.dish.proteinG ?? undefined,
               carbsGSnapshot: cs.dish.carbsG ?? undefined,
@@ -479,6 +570,75 @@ export class WeeklyPlanGeneratorService {
         await this.failPlan(planId, 'GENERATION_FAILED', { error: err.message });
       }
     }
+  }
+
+  private minBudgetByMode(estimate: BudgetEstimate): Record<PlanMealMode, number | null> {
+    const out = {} as Record<PlanMealMode, number | null>;
+    for (const m of ALL_MEAL_MODES) {
+      out[m] = estimate.byMode[m].feasible ? estimate.byMode[m].minBudgetVnd : null;
+    }
+    return out;
+  }
+
+  /**
+   * Gợi ý dựa trên kho món thật (không còn hằng số 350k / 50k x slots).
+   * - budgetIsCause: ngân sách thấp hơn mức tối thiểu -> MIN_BUDGET thật + đổi hình thức ăn rẻ hơn.
+   * - ngược lại (thiếu món theo bữa / dị ứng...) -> gợi ý bật bữa, nới nguyên liệu tránh.
+   */
+  private buildSuggestions(args: {
+    estimate: BudgetEstimate;
+    mealMode: PlanMealMode;
+    budgetVnd: number;
+    enabledSlots: WeeklyMealSlot[];
+    profile: ProfileSnapshot;
+    budgetIsCause: boolean;
+  }): Array<{ type: string; value?: unknown }> {
+    const { estimate, mealMode, budgetVnd, enabledSlots, profile, budgetIsCause } = args;
+    const suggestions: Array<{ type: string; value?: unknown }> = [];
+    const current = estimate.byMode[mealMode];
+
+    if (budgetIsCause) {
+      // Gợi ý đổi hình thức ăn nếu hình thức rẻ hơn đã đủ với ngân sách hiện tại
+      const alternatives = ALL_MEAL_MODES.filter(
+        (m) => m !== mealMode && estimate.byMode[m].feasible,
+      )
+        .filter((m) => estimate.byMode[m].minBudgetVnd < current.minBudgetVnd)
+        .sort((a, b) => estimate.byMode[a].minBudgetVnd - estimate.byMode[b].minBudgetVnd);
+      const fits = alternatives.find((m) => estimate.byMode[m].minBudgetVnd <= budgetVnd);
+      const switchTo = fits ?? alternatives[0];
+      if (switchTo) {
+        suggestions.push({
+          type: 'SWITCH_MEAL_MODE',
+          value: { mealMode: switchTo, minBudgetVnd: estimate.byMode[switchTo].minBudgetVnd },
+        });
+      }
+      if (current.feasible) {
+        suggestions.push({ type: 'MIN_BUDGET', value: current.minBudgetVnd });
+      }
+    } else {
+      if (current.feasible && budgetVnd < current.comfortableBudgetVnd) {
+        suggestions.push({ type: 'MIN_BUDGET', value: current.comfortableBudgetVnd });
+      }
+      if (!enabledSlots.includes('SNACK')) {
+        suggestions.push({ type: 'ENABLE_MEAL_SLOT', value: 'SNACK' });
+      }
+      const flex = estimate.byMode.FLEXIBLE;
+      if (mealMode !== 'FLEXIBLE' && flex.feasible) {
+        suggestions.push({
+          type: 'SWITCH_MEAL_MODE',
+          value: { mealMode: 'FLEXIBLE', minBudgetVnd: flex.minBudgetVnd },
+        });
+      }
+    }
+
+    if (
+      profile.avoidedIngredients.length > 0 ||
+      profile.allergenCodes.length > 0 ||
+      suggestions.length === 0
+    ) {
+      suggestions.push({ type: 'REVIEW_AVOIDED_INGREDIENTS' });
+    }
+    return suggestions;
   }
 
   private buildProfileSnapshot(
@@ -529,6 +689,7 @@ export class WeeklyPlanGeneratorService {
     ignoreKcalBand = false,
   ): Promise<DishCandidate[]> {
     const mealTag = SLOT_MEAL_TAG[slot];
+    const mealMode: PlanMealMode = profile.mealMode ?? 'FLEXIBLE';
     const kcalLo = targetKcal * (1 - tolerancePercent / 100);
     const kcalHi = targetKcal * (1 + tolerancePercent / 100);
 
@@ -541,6 +702,8 @@ export class WeeklyPlanGeneratorService {
       'weekly',
       {
         requirePrice: true,
+        priceMode: mealMode,
+        // Chỉ prefilter DB chính xác với EAT_OUT; HOME_COOK/FLEXIBLE lọc trong bộ nhớ bên dưới
         maxPriceMin: budgetVnd > 0 ? budgetVnd : undefined,
         mealTypeCodes: ignoreMealType ? undefined : [mealTag, 'ANY'],
         excludeDishIds: applyExclusions && excludeIds.size > 0 ? Array.from(excludeIds) : undefined,
@@ -568,15 +731,17 @@ export class WeeklyPlanGeneratorService {
         media: { where: { isPrimary: true }, take: 1 },
         dishGoals: { include: { goal: true } },
       },
-      take: 80,
+      take: 200,
       orderBy: { ratingAvg: 'desc' },
     });
 
     return dishes
       .map((d) => {
         const mapped = mapNutritionToPlanServing(d.nutrition as any);
-        const price = planPriceVnd(d.priceMin != null ? Number(d.priceMin) : null);
-        if (price === null) return null;
+        const resolved = resolvePlanPrice(d, mealMode);
+        if (resolved === null) return null;
+        const price = resolved.priceVnd;
+        if (budgetVnd > 0 && price > budgetVnd) return null;
 
         const goalMatchScore =
           profile.goalCodes.length > 0
@@ -589,12 +754,20 @@ export class WeeklyPlanGeneratorService {
           : 0.3;
         const budgetFit = this.calculator.budgetFitScore(price, Math.max(budgetVnd, 1));
         const ratingNorm = Number(d.ratingAvg) / 5;
-        const score = goalMatchScore * 0.3 + kcalFit * 0.25 + budgetFit * 0.2 + ratingNorm * 0.25;
+        // FLEXIBLE + "ưu tiên tự nấu": thưởng nhẹ cho bữa tự nấu
+        const cookBonus =
+          mealMode === 'FLEXIBLE' && profile.preferHomeCook && resolved.source === 'COOK'
+            ? 0.05
+            : 0;
+        const score =
+          goalMatchScore * 0.3 + kcalFit * 0.25 + budgetFit * 0.2 + ratingNorm * 0.25 + cookBonus;
 
         return {
           id: d.id,
           name: d.name,
           priceMin: price,
+          priceSource: resolved.source,
+          servings: resolved.servings,
           kcal: mapped.kcal != null ? Math.round(mapped.kcal) : 0,
           proteinG: mapped.proteinG,
           carbsG: mapped.carbsG,

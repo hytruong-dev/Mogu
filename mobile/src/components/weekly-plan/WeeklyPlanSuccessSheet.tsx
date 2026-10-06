@@ -85,7 +85,7 @@ export function WeeklyPlanSuccessSheet({
       onOpenChange={(open) => {
         if (!open) onDismiss();
       }}
-      snapHeight={550}
+      snapHeight={660}
       sheetBackgroundColor="#FFFFFF"
     >
       <DrawerHeader className="items-center px-5 pt-1 pb-0">
@@ -131,8 +131,8 @@ export function WeeklyPlanSuccessSheet({
             <View style={s.colIconBox}>
               <Coins size={18} color="#D97706" strokeWidth={2.2} />
             </View>
-            <Text style={s.gridValue}>{budgetK}</Text>
-            <Text style={s.gridLabel}>Ngân sách ước tính</Text>
+            <Text style={s.gridValue} numberOfLines={1}>{budgetK}</Text>
+            <Text style={s.gridLabel} numberOfLines={1}>Ngân sách</Text>
           </View>
         </View>
 
@@ -221,7 +221,7 @@ const s = StyleSheet.create({
   },
   summaryGrid: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'space-between',
     backgroundColor: '#FAF8F5',
     borderWidth: 1,
@@ -232,8 +232,9 @@ const s = StyleSheet.create({
   },
   gridCol: {
     flex: 1,
+    minWidth: 0,
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   colIconBox: {
     width: 36,

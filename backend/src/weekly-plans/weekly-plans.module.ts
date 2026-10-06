@@ -12,6 +12,7 @@ import {
 import { WeeklyPlanGeneratorService } from './services/weekly-plan-generator.service';
 import { WeeklyPlanSwapService } from './services/weekly-plan-swap.service';
 import { WeeklyPlanCalculatorService } from './services/weekly-plan-calculator.service';
+import { WeeklyPlanBudgetEstimatorService } from './services/weekly-plan-budget-estimator.service';
 import { WeeklyPlanProcessor } from './processors/weekly-plan.processor';
 import { PrismaModule } from '../prisma/prisma.module';
 import { DishesModule } from '../dishes/dishes.module';
@@ -50,9 +51,10 @@ const nullQueueProvider = {
     WeeklyPlanGeneratorService,
     WeeklyPlanSwapService,
     WeeklyPlanCalculatorService,
+    WeeklyPlanBudgetEstimatorService,
     // Chỉ đăng ký processor + null placeholder theo điều kiện Redis
     ...(REDIS_URL ? [WeeklyPlanProcessor] : [nullQueueProvider]),
   ],
-  exports: [WeeklyPlanConfigService, WeeklyPlansService],
+  exports: [WeeklyPlanConfigService, WeeklyPlansService, WeeklyPlanBudgetEstimatorService],
 })
 export class WeeklyPlansModule {}

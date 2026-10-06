@@ -37,11 +37,14 @@ import {
   generateWeeklyPlan,
   getWeeklyPlanConfig,
   pollWeeklyPlan,
+  getBudgetEstimate,
 } from '../services/api/weekly-plan';
 import { profileApi } from '../services/api/profile';
 import { syncCurrentMealReminders } from '../lib/meal-reminders';
 import type {
+  WeeklyMealMode,
   WeeklyMealSlot,
+  WeeklyPlanBudgetEstimate,
   WeeklyPlanGenerationErrorData,
 } from '../services/api/types';
 import { getTodayISO } from '../lib/dates';
@@ -88,8 +91,32 @@ export type PlanConfig = {
 };
 
 const BUDGET_MIN = 0;
-const BUDGET_MAX = 1000000;
+const BUDGET_MAX = 2000000;
 const BUDGET_STEP = 50000;
+
+const MEAL_MODE_OPTIONS: Array<{ value: WeeklyMealMode; label: string; desc: string }> = [
+  {
+    value: 'HOME_COOK',
+    label: 'Tự nấu',
+    desc: 'Tính giá nguyên liệu cho 1 khẩu phần khi bạn tự nấu tại nhà.',
+  },
+  {
+    value: 'EAT_OUT',
+    label: 'Ăn ngoài',
+    desc: 'Tính theo giá ăn ngoài của từng món.',
+  },
+  {
+    value: 'FLEXIBLE',
+    label: 'Linh hoạt',
+    desc: 'Mỗi bữa lấy mức giá rẻ hơn giữa tự nấu và ăn ngoài — dễ đạt ngân sách nhất.',
+  },
+];
+
+const MEAL_MODE_LABEL: Record<WeeklyMealMode, string> = {
+  HOME_COOK: 'Tự nấu',
+  EAT_OUT: 'Ăn ngoài',
+  FLEXIBLE: 'Linh hoạt',
+};
 const KCAL_STEP = 50;
 const KCAL_MIN = 1000;
 const KCAL_MAX = 5000;
@@ -140,6 +167,9 @@ export function EditPlanScreen({
   const requestIdRef = useRef<string | null>(null);
 
   const [budget, setBudget] = useState(300000);
+  const [mealMode, setMealMode] = useState<WeeklyMealMode>('FLEXIBLE');
+  const [estimate, setEstimate] = useState<WeeklyPlanBudgetEstimate | null>(null);
+  const [estimating, setEstimating] = useState(false);
   const [kcalMode, setKcalMode] = useState<'profile' | 'custom'>('profile');
   const [customKcal, setCustomKcal] = useState(2000);
   const [profileKcal, setProfileKcal] = useState(2000);
@@ -186,6 +216,7 @@ export function EditPlanScreen({
         if (configRes.status === 'fulfilled' && configRes.value) {
           const c = configRes.value;
           if (c.budgetVnd != null) setBudget(c.budgetVnd);
+          if (c.mealMode) setMealMode(c.mealMode);
           if (c.kcalMode === 'CUSTOM') {
             setKcalMode('custom');
             if (c.kcalPerDay) setCustomKcal(c.kcalPerDay);
@@ -261,6 +292,55 @@ export function EditPlanScreen({
   const perMealBudget = totalMeals > 0 ? Math.round(budget / totalMeals) : 0;
   const advancedSummary = advancedOptionsSummary(advancedOptions);
 
+  // Ước tính ngân sách tối thiểu / thoải mái theo kho món thật (debounce 300ms)
+  const slotsKey = enabledSlotsList().join(',');
+  useEffect(() => {
+    if (!slotsKey) {
+      setEstimate(null);
+      return;
+    }
+    let cancelled = false;
+    setEstimating(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await getBudgetEstimate({
+          slots: slotsKey.split(',') as WeeklyMealSlot[],
+          days,
+        });
+        if (!cancelled) setEstimate(res);
+      } catch {
+        if (!cancelled) setEstimate(null);
+      } finally {
+        if (!cancelled) setEstimating(false);
+      }
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [slotsKey, days]);
+
+  const modeEstimate = estimate?.byMode[mealMode] ?? null;
+  const minBudget = modeEstimate?.feasible ? modeEstimate.minBudgetVnd : null;
+  const comfortableBudget = modeEstimate?.feasible ? modeEstimate.comfortableBudgetVnd : null;
+  const belowMinBudget = minBudget != null && budget < minBudget;
+  // Dưới mức rẻ nhất (cho phép lặp món) thì chắc chắn không tạo được
+  const belowHardMin = modeEstimate?.feasible ? budget < modeEstimate.hardMinBudgetVnd : false;
+  const cheaperMode = (() => {
+    if (!estimate || !belowMinBudget) return null;
+    const alt = (['FLEXIBLE', 'EAT_OUT', 'HOME_COOK'] as WeeklyMealMode[])
+      .filter((m) => m !== mealMode && estimate.byMode[m].feasible)
+      .filter((m) => estimate.byMode[m].minBudgetVnd < (minBudget ?? Infinity))
+      .sort((a, b) => estimate.byMode[a].minBudgetVnd - estimate.byMode[b].minBudgetVnd)[0];
+    return alt ?? null;
+  })();
+
+  const selectMealMode = (m: WeeklyMealMode) => {
+    if (generating || m === mealMode) return;
+    trackChange('mealMode', mealMode, m);
+    setMealMode(m);
+  };
+
   const trackChange = (field: string, oldValue: unknown, newValue: unknown) => {
     trackWeeklyPlanEvent({
       name: 'weekly_plan_value_changed',
@@ -270,6 +350,7 @@ export function EditPlanScreen({
 
   const handleReset = () => {
     setBudget(300000);
+    setMealMode('FLEXIBLE');
     setKcalMode('profile');
     setCustomKcal(2000);
     setSchedule(defaultScheduleDraft(getTodayISO()));
@@ -367,12 +448,14 @@ export function EditPlanScreen({
       budgetVnd: budget,
       kcalPerDay: currentKcal,
       kcalMode: kcalMode === 'custom' ? ('CUSTOM' as const) : ('PROFILE' as const),
+      mealMode,
       durationDays: days,
       enabledSlots: slots,
       mealSlotSchedule: schedule.mealSlots,
       avoidRepeat: advancedOptions.limitRepeats,
-      preferHomeCook: advancedOptions.preferSelfCook,
-      allowOutsideMeals: advancedOptions.allowOutsideMeals,
+      // Tương thích ngược: suy từ hình thức ăn
+      preferHomeCook: mealMode === 'HOME_COOK' ? true : advancedOptions.preferSelfCook,
+      allowOutsideMeals: mealMode !== 'HOME_COOK',
       repeatWindowDays: advancedOptions.repeatWindowDays,
       preferNewDishes: advancedOptions.preferNewDishes,
       likedDishPreference: advancedOptions.likedDishPreference,
@@ -380,8 +463,9 @@ export function EditPlanScreen({
       preserveLoggedDays: advancedOptions.preserveLoggedDays,
       calorieTolerancePercent: advancedOptions.calorieTolerancePercent,
       advanced: {
-        preferSelfCook: advancedOptions.preferSelfCook,
-        allowOutsideMeals: advancedOptions.allowOutsideMeals,
+        mealMode,
+        preferSelfCook: mealMode === 'HOME_COOK' ? true : advancedOptions.preferSelfCook,
+        allowOutsideMeals: mealMode !== 'HOME_COOK',
         limitRepeats: advancedOptions.limitRepeats,
         repeatWindowDays: advancedOptions.repeatWindowDays,
         preferNewDishes: advancedOptions.preferNewDishes,
@@ -451,6 +535,7 @@ export function EditPlanScreen({
         budget,
         dailyCalories: currentKcal,
         calorieSource: kcalMode === 'custom' ? 'CUSTOM' : 'PROFILE',
+        mealMode,
         mealSlots: enabledSlotsList(),
         advanced: dto.advanced,
       });
@@ -464,11 +549,10 @@ export function EditPlanScreen({
           status: 'INSUFFICIENT_CANDIDATES',
           message: 'Kho món hiện chưa đủ lựa chọn phù hợp với cấu hình này.',
           suggestions: [
-            { type: 'MIN_BUDGET', value: 350000 },
-            { type: 'ENABLE_MEAL_SLOT', value: 'SNACK' },
+            ...(minBudget != null ? [{ type: 'MIN_BUDGET', value: minBudget }] : []),
             { type: 'REVIEW_AVOIDED_INGREDIENTS' },
           ],
-          approvedDishCount: 12,
+          approvedDishCount: 0,
         };
         trackWeeklyPlanEvent({
           name: 'weekly_plan_create_failed',
@@ -522,11 +606,8 @@ export function EditPlanScreen({
       setFailureErrorData({
         status: 'ERROR',
         message: err?.message || 'Có lỗi xảy ra khi tạo kế hoạch.',
-        suggestions: [
-          { type: 'MIN_BUDGET', value: Math.min(BUDGET_MAX, budget + 50000) },
-          { type: 'ENABLE_MEAL_SLOT', value: 'SNACK' },
-        ],
-        approvedDishCount: 12,
+        suggestions: [],
+        approvedDishCount: 0,
       });
       setFailureSheetOpen(true);
     } finally {
@@ -534,11 +615,18 @@ export function EditPlanScreen({
     }
   };
 
-  const handleAdjustFromFailure = (focus?: 'budget' | 'mealSlot' | 'avoided') => {
+  const handleAdjustFromFailure = (
+    focus?: 'budget' | 'mealSlot' | 'avoided' | 'mealMode',
+  ) => {
     setFailureSheetOpen(false);
     const budgetSug = failureErrorData?.suggestions?.find((s) => s.type === 'MIN_BUDGET');
     if (focus === 'budget' && budgetSug && typeof budgetSug.value === 'number') {
       setBudget(Math.min(BUDGET_MAX, budgetSug.value));
+    }
+    if (focus === 'mealMode') {
+      const sug = failureErrorData?.suggestions?.find((s) => s.type === 'SWITCH_MEAL_MODE');
+      const target = sug?.value?.mealMode as WeeklyMealMode | undefined;
+      if (target) setMealMode(target);
     }
     if (focus === 'mealSlot') {
       setSchedule((prev) => ({
@@ -554,7 +642,7 @@ export function EditPlanScreen({
   };
 
   const fieldsLocked = generating;
-  const ctaDisabled = generating || mealsPerDay === 0;
+  const ctaDisabled = generating || mealsPerDay === 0 || belowHardMin;
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
@@ -619,6 +707,38 @@ export function EditPlanScreen({
               </View>
             </View>
 
+            {/* Hình thức ăn */}
+            <View style={s.card}>
+              <SectionHeader
+                icon={<UtensilsCrossed size={18} color="#3F3B35" strokeWidth={2.2} />}
+                tint="#F3EFE6"
+                title="Hình thức ăn"
+                subtitle="Chọn cách tính giá cho từng bữa"
+              />
+              <View style={s.segment}>
+                {MEAL_MODE_OPTIONS.map((opt) => {
+                  const active = opt.value === mealMode;
+                  return (
+                    <Pressable
+                      key={opt.value}
+                      onPress={() => selectMealMode(opt.value)}
+                      disabled={fieldsLocked}
+                      style={[s.segmentItem, active && s.segmentItemActive]}
+                      accessibilityRole="button"
+                      accessibilityState={{ selected: active }}
+                    >
+                      <Text style={[s.segmentText, active && s.segmentTextActive]}>
+                        {opt.label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+              <Text style={s.modeDesc}>
+                {MEAL_MODE_OPTIONS.find((o) => o.value === mealMode)?.desc}
+              </Text>
+            </View>
+
             {/* Ngân sách */}
             <View style={s.card}>
               <SectionHeader
@@ -645,6 +765,49 @@ export function EditPlanScreen({
                   setBudget(val);
                 }}
               />
+              {minBudget != null && comfortableBudget != null ? (
+                <Text style={s.estimateText}>
+                  Tối thiểu ≈ {formatVi(minBudget)}đ · Thoải mái ≈ {formatVi(comfortableBudget)}đ
+                </Text>
+              ) : estimating ? (
+                <Text style={s.estimateText}>Đang ước tính ngân sách...</Text>
+              ) : modeEstimate && !modeEstimate.feasible ? (
+                <Text style={s.estimateText}>
+                  Kho món chưa có món phù hợp cho hình thức "{MEAL_MODE_LABEL[mealMode]}".
+                </Text>
+              ) : null}
+              {belowMinBudget && minBudget != null ? (
+                <View style={s.warnBox}>
+                  <Info size={16} color="#92400E" strokeWidth={2.2} />
+                  <View style={{ flex: 1, gap: 8 }}>
+                    <Text style={s.warnText}>
+                      {belowHardMin
+                        ? `Ngân sách này chưa đủ cho ${totalMeals} bữa ở hình thức "${MEAL_MODE_LABEL[mealMode]}".`
+                        : 'Ngân sách hơi sát, kế hoạch có thể ít lựa chọn món.'}{' '}
+                      Mức tối thiểu đề xuất là {formatVi(minBudget)}đ.
+                    </Text>
+                    <View style={s.warnActions}>
+                      <Pressable
+                        onPress={() => {
+                          if (fieldsLocked) return;
+                          trackChange('budget', budget, minBudget);
+                          setBudget(Math.min(BUDGET_MAX, minBudget));
+                        }}
+                        style={s.warnBtn}
+                      >
+                        <Text style={s.warnBtnText}>Đặt về mức tối thiểu</Text>
+                      </Pressable>
+                      {cheaperMode ? (
+                        <Pressable onPress={() => selectMealMode(cheaperMode)} style={s.warnBtn}>
+                          <Text style={s.warnBtnText}>
+                            Chuyển sang {MEAL_MODE_LABEL[cheaperMode]}
+                          </Text>
+                        </Pressable>
+                      ) : null}
+                    </View>
+                  </View>
+                </View>
+              ) : null}
             </View>
 
             {/* Năng lượng mỗi ngày */}
@@ -1033,6 +1196,28 @@ const s = StyleSheet.create({
   },
   segmentText: { fontSize: 13.5, fontWeight: '600', color: MUTED },
   segmentTextActive: { color: INK, fontWeight: '800' },
+  modeDesc: { fontSize: 12.5, color: MUTED, lineHeight: 18 },
+  estimateText: { fontSize: 12.5, color: '#3F3B35', fontWeight: '600' },
+  warnBox: {
+    flexDirection: 'row',
+    gap: 8,
+    backgroundColor: '#FFF7E0',
+    borderColor: '#F5DC95',
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 10,
+  },
+  warnText: { fontSize: 12.5, color: '#92400E', lineHeight: 18 },
+  warnActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  warnBtn: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#F5DC95',
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+  warnBtnText: { fontSize: 12.5, fontWeight: '700', color: '#92400E' },
   saveBtn: {
     height: 52,
     paddingHorizontal: 16,

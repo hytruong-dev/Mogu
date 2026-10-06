@@ -7,6 +7,7 @@ import {
   EligibilitySurface,
   SoftFilterOptions,
 } from './dish-eligibility.types';
+import { resolvePlanPrice } from './dish-pricing';
 
 /**
  * Shared hard/soft eligibility for Random, Weekly Plan, Swap, Home.
@@ -126,12 +127,30 @@ export class DishEligibilityService {
       });
     }
 
-    if (soft?.requirePrice) {
-      and.push({ priceMin: { not: null } });
-    }
+    if (soft?.priceMode) {
+      if (soft.requirePrice) {
+        if (soft.priceMode === 'HOME_COOK') {
+          and.push({ priceMin: { not: null } });
+        } else if (soft.priceMode === 'EAT_OUT') {
+          and.push({ dineOutPriceMin: { not: null } });
+        } else {
+          and.push({
+            OR: [{ priceMin: { not: null } }, { dineOutPriceMin: { not: null } }],
+          });
+        }
+      }
+      // Chỉ có thể prefilter chính xác cho EAT_OUT (giá ăn ngoài là giá 1 phần).
+      if (soft.maxPriceMin != null && soft.priceMode === 'EAT_OUT') {
+        and.push({ dineOutPriceMin: { lte: soft.maxPriceMin } });
+      }
+    } else {
+      if (soft?.requirePrice) {
+        and.push({ priceMin: { not: null } });
+      }
 
-    if (soft?.maxPriceMin != null) {
-      and.push({ priceMin: { lte: soft.maxPriceMin } });
+      if (soft?.maxPriceMin != null) {
+        and.push({ priceMin: { lte: soft.maxPriceMin } });
+      }
     }
 
     if (soft?.mealTypeCodes?.length) {
@@ -162,7 +181,7 @@ export class DishEligibilityService {
 
     const dish = await this.prisma.db.dish.findFirst({
       where,
-      select: { id: true, priceMin: true },
+      select: { id: true, priceMin: true, dineOutPriceMin: true, servings: true },
     });
 
     if (!dish) {
@@ -174,7 +193,10 @@ export class DishEligibilityService {
       });
     }
 
-    if (soft?.requirePrice && dish.priceMin == null) {
+    const priceUnknown = soft?.priceMode
+      ? resolvePlanPrice(dish, soft.priceMode) === null
+      : dish.priceMin == null;
+    if (soft?.requirePrice && priceUnknown) {
       throw new BadRequestException({
         error: {
           code: 'DISH_PRICE_UNKNOWN',

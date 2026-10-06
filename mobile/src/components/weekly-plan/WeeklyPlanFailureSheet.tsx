@@ -28,7 +28,7 @@ import { trackWeeklyPlanEvent } from '../../lib/weekly-plan-analytics';
 type Props = {
   visible: boolean;
   errorData?: WeeklyPlanGenerationErrorData | null;
-  onAdjustConfig: (focus?: 'budget' | 'mealSlot' | 'avoided') => void;
+  onAdjustConfig: (focus?: 'budget' | 'mealSlot' | 'avoided' | 'mealMode') => void;
   onViewApprovedDishes?: () => void;
   onDismiss: () => void;
 };
@@ -37,25 +37,44 @@ type SuggestionRow = {
   type: string;
   label: React.ReactNode;
   Icon: typeof Coins;
-  focus?: 'budget' | 'mealSlot' | 'avoided';
+  focus?: 'budget' | 'mealSlot' | 'avoided' | 'mealMode';
+};
+
+const MODE_LABEL: Record<string, string> = {
+  HOME_COOK: 'Tự nấu',
+  EAT_OUT: 'Ăn ngoài',
+  FLEXIBLE: 'Linh hoạt',
 };
 
 function buildRows(suggestions?: WeeklyPlanSuggestion[]): SuggestionRow[] {
-  const source =
+  // Không còn hằng số mặc định: chỉ hiển thị gợi ý thật do backend tính từ kho món
+  const source: WeeklyPlanSuggestion[] =
     suggestions && suggestions.length > 0
       ? suggestions
-      : [
-          { type: 'MIN_BUDGET', value: 350000 },
-          { type: 'ENABLE_MEAL_SLOT', value: 'SNACK' },
-          { type: 'REVIEW_AVOIDED_INGREDIENTS' },
-        ];
+      : [{ type: 'REVIEW_AVOIDED_INGREDIENTS' }];
 
   return source.map((s) => {
+    if (s.type === 'SWITCH_MEAL_MODE') {
+      const modeName = MODE_LABEL[s.value?.mealMode as string] ?? 'hình thức khác';
+      const min =
+        typeof s.value?.minBudgetVnd === 'number'
+          ? ` - tối thiểu ~${s.value.minBudgetVnd.toLocaleString('vi-VN')}đ`
+          : '';
+      return {
+        type: s.type,
+        Icon: Sparkles,
+        focus: 'mealMode' as const,
+        label: (
+          <Text style={rowStyles.label}>
+            Chuyển sang <Text style={rowStyles.bold}>{modeName}</Text>
+            {min}
+          </Text>
+        ),
+      };
+    }
     if (s.type === 'MIN_BUDGET') {
       const val =
-        typeof s.value === 'number'
-          ? `${s.value.toLocaleString('vi-VN')}đ`
-          : '350.000đ';
+        typeof s.value === 'number' ? `${s.value.toLocaleString('vi-VN')}đ` : 'mức tối thiểu';
       return {
         type: s.type,
         Icon: Coins,
@@ -118,7 +137,7 @@ export function WeeklyPlanFailureSheet({
     <Drawer
       open={visible}
       onOpenChange={(open) => !open && onDismiss()}
-      snapHeight={550}
+      snapHeight={680}
       sheetBackgroundColor="#FFFFFF"
     >
       <DrawerHeader className="items-center px-5 pt-1 pb-0">

@@ -13,6 +13,8 @@ import type {
   DayIngredientsResponse,
   WeeklyIngredientsResponse,
   WeeklyPlanGenerationErrorData,
+  WeeklyPlanBudgetEstimate,
+  WeeklyMealSlot,
 } from './types';
 
 // ── Config ─────────────────────────────────────────────────────────────────────
@@ -35,6 +37,15 @@ export async function upsertWeeklyPlanConfig(
   });
 }
 
+/** Ước tính ngân sách tối thiểu / thoải mái theo kho món thật cho từng hình thức ăn. */
+export async function getBudgetEstimate(params: {
+  slots: WeeklyMealSlot[];
+  days: number;
+}): Promise<WeeklyPlanBudgetEstimate> {
+  const qs = `slots=${encodeURIComponent(params.slots.join(','))}&days=${params.days}`;
+  return apiRequest<WeeklyPlanBudgetEstimate>(`/weekly-plan-config/budget-estimate?${qs}`);
+}
+
 // ── Plans ─────────────────────────────────────────────────────────────────────
 
 export async function generateWeeklyPlan(
@@ -45,6 +56,7 @@ export async function generateWeeklyPlan(
     budget?: number;
     dailyCalories?: number;
     calorieSource?: 'PROFILE' | 'CUSTOM';
+    mealMode?: import('./types').WeeklyMealMode;
     mealSlots?: import('./types').WeeklyMealSlot[];
     advanced?: import('./types').UpsertWeeklyPlanConfigDto['advanced'];
   },
@@ -56,6 +68,7 @@ export async function generateWeeklyPlan(
   if (opts?.budget != null) body.budget = opts.budget;
   if (opts?.dailyCalories != null) body.dailyCalories = opts.dailyCalories;
   if (opts?.calorieSource) body.calorieSource = opts.calorieSource;
+  if (opts?.mealMode) body.mealMode = opts.mealMode;
   if (opts?.mealSlots?.length) body.mealSlots = opts.mealSlots;
   if (opts?.advanced) body.advanced = opts.advanced;
   if (opts?.idempotencyKey) body.idempotencyKey = opts.idempotencyKey;

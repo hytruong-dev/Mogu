@@ -15,7 +15,12 @@ import {
   IsObject,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { WeeklyMealSlot, WeeklyKcalMode, LikedDishPreference } from '@prisma/client';
+import {
+  WeeklyMealSlot,
+  WeeklyKcalMode,
+  WeeklyMealMode,
+  LikedDishPreference,
+} from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class MealSlotScheduleItemDto {
@@ -37,6 +42,14 @@ export class MealSlotScheduleItemDto {
 }
 
 export class WeeklyPlanAdvancedOptionsDto {
+  @ApiPropertyOptional({
+    enum: WeeklyMealMode,
+    description: 'Hình thức ăn: HOME_COOK (giá nấu/khẩu phần), EAT_OUT (giá ăn ngoài), FLEXIBLE (rẻ hơn)',
+  })
+  @IsEnum(WeeklyMealMode)
+  @IsOptional()
+  mealMode?: WeeklyMealMode;
+
   @ApiPropertyOptional({ description: 'Map to preferHomeCook' })
   @IsBoolean()
   @IsOptional()
@@ -96,6 +109,11 @@ export class UpsertWeeklyPlanConfigDto {
   @IsEnum(WeeklyKcalMode)
   @IsOptional()
   kcalMode?: WeeklyKcalMode;
+
+  @ApiPropertyOptional({ enum: WeeklyMealMode, default: WeeklyMealMode.FLEXIBLE })
+  @IsEnum(WeeklyMealMode)
+  @IsOptional()
+  mealMode?: WeeklyMealMode;
 
   @ApiProperty({ description: 'So ngay', enum: [3, 5, 7, 14], default: 7 })
   @IsInt()

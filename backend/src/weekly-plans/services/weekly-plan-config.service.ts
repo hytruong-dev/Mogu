@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { LikedDishPreference, Prisma, WeeklyMealSlot } from '@prisma/client';
+import { LikedDishPreference, Prisma, WeeklyMealMode, WeeklyMealSlot } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UpsertWeeklyPlanConfigDto } from '../dto/upsert-weekly-plan-config.dto';
 
@@ -31,6 +31,7 @@ export class WeeklyPlanConfigService {
         budgetVnd: 300000,
         kcalPerDay: 2000,
         kcalMode: 'PROFILE',
+        mealMode: WeeklyMealMode.FLEXIBLE,
         durationDays: 7,
         mealsPerDay: DEFAULT_ENABLED_SLOTS.length,
         enabledSlots: DEFAULT_ENABLED_SLOTS,
@@ -65,6 +66,7 @@ export class WeeklyPlanConfigService {
         : dto.preferHomeCook;
     const avoidRepeat =
       advanced?.limitRepeats !== undefined ? advanced.limitRepeats : dto.avoidRepeat;
+    const mealMode: WeeklyMealMode | undefined = advanced?.mealMode ?? dto.mealMode;
 
     let enabledSlots = dto.enabledSlots
       ? Array.from(new Set(dto.enabledSlots))
@@ -86,6 +88,7 @@ export class WeeklyPlanConfigService {
       budgetVnd: dto.budgetVnd,
       kcalPerDay: dto.kcalPerDay,
       ...(dto.kcalMode !== undefined && { kcalMode: dto.kcalMode }),
+      ...(mealMode !== undefined && { mealMode }),
       ...(dto.durationDays !== undefined && { durationDays: dto.durationDays }),
       ...(mealsPerDay !== undefined && { mealsPerDay }),
       ...(enabledSlots !== undefined && { enabledSlots }),
@@ -140,6 +143,7 @@ export class WeeklyPlanConfigService {
         budgetVnd: dto.budgetVnd,
         kcalPerDay: dto.kcalPerDay,
         kcalMode: dto.kcalMode,
+        mealMode: mealMode ?? WeeklyMealMode.FLEXIBLE,
         durationDays: dto.durationDays,
         enabledSlots: enabledSlots ?? DEFAULT_ENABLED_SLOTS,
         mealsPerDay: mealsPerDay ?? DEFAULT_ENABLED_SLOTS.length,

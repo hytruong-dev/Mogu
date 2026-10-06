@@ -90,6 +90,9 @@ export class WeeklyPlansService {
         ? dto.advanced.preferSelfCook
         : config.preferHomeCook;
 
+    const mealMode =
+      dto.mealMode ?? dto.advanced?.mealMode ?? config.mealMode ?? 'FLEXIBLE';
+
     const startDate = new Date(dto.startDate);
     const endDate = new Date(startDate);
     endDate.setDate(endDate.getDate() + durationDays);
@@ -102,6 +105,7 @@ export class WeeklyPlansService {
       budgetVnd,
       kcalPerDay,
       kcalMode,
+      mealMode,
       durationDays,
       enabledSlots,
       avoidRepeat,
@@ -1075,6 +1079,7 @@ export class WeeklyPlansService {
             s.dish?.media?.[0]?.bucket,
           ),
           priceVnd: s.priceSnapshotVnd,
+          priceSource: s.priceSource ?? null,
           kcal: s.kcalSnapshot,
           proteinG: s.proteinGSnapshot,
           carbsG: s.carbsGSnapshot,
@@ -1099,6 +1104,7 @@ export class WeeklyPlansService {
       projectedKcal: plan.projectedKcal,
       actualKcal: plan.actualKcal,
       algorithmVersion: plan.algorithmVersion,
+      mealMode: (plan.configSnapshot as Record<string, unknown> | null)?.mealMode ?? 'FLEXIBLE',
       generationErrorCode: plan.generationErrorCode,
       generationErrorData: plan.generationErrorData ?? null,
       version: plan.version,

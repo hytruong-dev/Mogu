@@ -259,7 +259,11 @@ function MainNavigator({ navigation }: { navigation: any }) {
 
 // ── Root Navigator ───────────────────────────────────────────────────────────
 
-function RootNavigator() {
+function RootNavigator({
+  readyToMount = true,
+}: {
+  readyToMount?: boolean;
+}) {
   const [initialRoute, setInitialRoute] = useState<keyof RootParamList>('Auth');
   const [ready, setReady] = useState(false);
 
@@ -282,10 +286,21 @@ function RootNavigator() {
           setInitialRoute('Auth');
           return;
         }
-        const user = await authApi.me();
-        const route = user.onboardingStatus === 'COMPLETED' ? 'Main' : 'Onboarding';
-        if (__DEV__) console.log('[RootNavigator] User loaded, initialRoute =', route);
-        setInitialRoute(route);
+        try {
+          // Safeguard: race authApi.me() with a 2.5s timeout so network delay never stalls navigation
+          const user = await Promise.race([
+            authApi.me(),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error('timeout')), 2500),
+            ),
+          ]);
+          const route = user.onboardingStatus === 'COMPLETED' ? 'Main' : 'Onboarding';
+          if (__DEV__) console.log('[RootNavigator] User loaded, initialRoute =', route);
+          setInitialRoute(route);
+        } catch {
+          // Offline or network slow, but session exists -> default to Main
+          setInitialRoute('Main');
+        }
       } catch (err: any) {
         if (__DEV__) console.log('[RootNavigator] Session/User check error, initialRoute = Auth:', err?.message);
         setInitialRoute('Auth');
@@ -295,7 +310,9 @@ function RootNavigator() {
     })();
   }, []);
 
-  if (!ready) return <LoadingScreen />;
+  if (!ready || !readyToMount) {
+    return <View style={{ flex: 1, backgroundColor: '#FDE17C' }} />;
+  }
 
   return (
     <Root.Navigator
@@ -442,6 +459,7 @@ function RootNavigator() {
 
 export default function App() {
   const [splashFinished, setSplashFinished] = useState(false);
+  const [splashSettled, setSplashSettled] = useState(false);
 
   useEffect(() => {
     void notificationRealtime.init();
@@ -533,14 +551,17 @@ export default function App() {
         <SafeAreaProvider>
           <StatusBar style="dark" />
           <NavigationContainer ref={navigationRef}>
-            <RootNavigator />
+            <RootNavigator readyToMount={splashSettled} />
           </NavigationContainer>
           <InAppNotificationBanner onPressNotification={handleOpenNotification} />
           <PortalHost />
 
           {!splashFinished && (
             <View style={[StyleSheet.absoluteFill, { zIndex: 999999 }]} pointerEvents={splashFinished ? 'none' : 'auto'}>
-              <OpenAppScreen onFinish={() => setSplashFinished(true)} />
+              <OpenAppScreen
+                onSettle={() => setSplashSettled(true)}
+                onFinish={() => setSplashFinished(true)}
+              />
             </View>
           )}
         </SafeAreaProvider>

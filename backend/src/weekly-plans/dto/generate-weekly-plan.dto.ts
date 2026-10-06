@@ -14,7 +14,7 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { WeeklyMealSlot, WeeklyKcalMode } from '@prisma/client';
+import { WeeklyMealSlot, WeeklyKcalMode, WeeklyMealMode } from '@prisma/client';
 import { WeeklyPlanAdvancedOptionsDto } from './upsert-weekly-plan-config.dto';
 
 /**
@@ -53,6 +53,11 @@ export class GenerateWeeklyPlanDto {
   @IsOptional()
   @IsEnum(WeeklyKcalMode)
   calorieSource?: WeeklyKcalMode;
+
+  @ApiPropertyOptional({ enum: WeeklyMealMode })
+  @IsOptional()
+  @IsEnum(WeeklyMealMode)
+  mealMode?: WeeklyMealMode;
 
   @ApiPropertyOptional({
     enum: WeeklyMealSlot,

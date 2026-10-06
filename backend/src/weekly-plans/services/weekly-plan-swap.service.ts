@@ -2,10 +2,13 @@ import { Injectable, BadRequestException, NotFoundException, ConflictException }
 import { Prisma, WeeklyPlanSlotStatus, WeeklyPlanSwapReason, DishStatus } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { DishEligibilityService } from '../../dishes/eligibility/dish-eligibility.service';
+import { mapNutritionToPlanServing } from '../../dishes/eligibility/dish-nutrition.mapper';
 import {
-  mapNutritionToPlanServing,
-  planPriceVnd,
-} from '../../dishes/eligibility/dish-nutrition.mapper';
+  PlanMealMode,
+  inferMealModeFromLegacy,
+  normalizeMealMode,
+  resolvePlanPrice,
+} from '../../dishes/eligibility/dish-pricing';
 import { SwapWeeklyPlanSlotDto } from '../dto/swap-weekly-plan-slot.dto';
 import { WEEKLY_PLAN_ERRORS } from '../constants/weekly-plan-errors';
 import { SLOT_MEAL_TAG } from '../constants/weekly-plan-weights';
@@ -55,10 +58,20 @@ export class WeeklyPlanSwapService {
     const spentWithoutSlot = currentSlots.reduce((s, sl) => s + sl.priceSnapshotVnd, 0);
     const remainingBudget = Math.max(0, slot.plan.budgetLimitVnd - spentWithoutSlot);
 
+    const snap = (slot.plan.configSnapshot ?? null) as Record<string, unknown> | null;
+    const mealMode: PlanMealMode = snap?.mealMode
+      ? normalizeMealMode(snap.mealMode)
+      : inferMealModeFromLegacy(
+          snap?.preferHomeCook as boolean | undefined,
+          snap?.allowOutsideMeals as boolean | undefined,
+        );
+
     let newDish: {
       id: string;
       name: string;
       priceMin: Prisma.Decimal | number | null;
+      dineOutPriceMin: Prisma.Decimal | number | null;
+      servings: Prisma.Decimal | number | null;
       nutrition: any;
       media: Array<{ bucket?: string | null; storageKey?: string | null }>;
     };
@@ -66,7 +79,7 @@ export class WeeklyPlanSwapService {
     if (dto.newDishId) {
       await this.eligibility.assertDishEligible(dto.newDishId, profile, 'swap', {
         requirePrice: true,
-        maxPriceMin: remainingBudget,
+        priceMode: mealMode,
       });
 
       const found = await this.prisma.db.dish.findFirst({
@@ -82,6 +95,7 @@ export class WeeklyPlanSwapService {
       const candidates = await this.prisma.db.dish.findMany({
         where: this.eligibility.buildHardWhere(profile, 'swap', {
           requirePrice: true,
+          priceMode: mealMode,
           maxPriceMin: remainingBudget,
           mealTypeCodes: [mealTag, 'ANY'],
           excludeDishIds: [slot.dishId],
@@ -90,22 +104,27 @@ export class WeeklyPlanSwapService {
           nutrition: true,
           media: { where: { isPrimary: true }, take: 1 },
         },
-        take: 20,
+        take: 100,
         orderBy: { ratingAvg: 'desc' },
       });
 
-      if (candidates.length === 0) {
+      // Giá/khẩu phần không lọc được bằng Prisma -> lọc trong bộ nhớ theo ngân sách còn lại
+      const affordable = candidates.filter((c) => {
+        const r = resolvePlanPrice(c, mealMode);
+        return r !== null && r.priceVnd <= remainingBudget;
+      });
+
+      if (affordable.length === 0) {
         throw new BadRequestException({
           error: { code: WEEKLY_PLAN_ERRORS.INSUFFICIENT_CANDIDATES },
         });
       }
-      newDish = candidates[0];
+      newDish = affordable[0];
     }
 
-    const newPrice = planPriceVnd(
-      newDish.priceMin != null ? Number(newDish.priceMin) : null,
-    );
-    if (newPrice === null) {
+    const resolvedPrice = resolvePlanPrice(newDish, mealMode);
+    const newPrice = resolvedPrice?.priceVnd ?? null;
+    if (newPrice === null || resolvedPrice === null) {
       throw new BadRequestException({
         error: { code: 'DISH_PRICE_UNKNOWN' },
       });
@@ -153,6 +172,8 @@ export class WeeklyPlanSwapService {
             return `${base}/storage/v1/object/public/${bucket}/${key}`;
           })(),
           priceSnapshotVnd: newPrice,
+          priceSource: resolvedPrice.source,
+          servingsSnapshot: resolvedPrice.servings,
           kcalSnapshot: newKcal,
           proteinGSnapshot: mapped.proteinG ?? undefined,
           carbsGSnapshot: mapped.carbsG ?? undefined,

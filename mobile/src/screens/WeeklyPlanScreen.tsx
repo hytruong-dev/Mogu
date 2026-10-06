@@ -24,7 +24,6 @@ import {
   ArrowLeft,
   CalendarDays,
   Check,
-  ChevronRight,
   Coffee,
   Flame,
   Leaf,
@@ -107,6 +106,7 @@ type Meal = {
   slotIcon: string;
   dishName: string;
   price: number;
+  priceSource?: 'COOK' | 'EAT_OUT' | null;
   kcal: number;
   imageUrl?: string | null;
   version: number;
@@ -141,6 +141,7 @@ const parseDayPlan = (day: WeeklyPlanDay): DayPlan => {
     dishName: sl.dish.name,
     imageUrl: normalizeImageUrl(sl.dish.imageUrl),
     price: Math.round(sl.dish.priceVnd / 1000),
+    priceSource: sl.dish.priceSource ?? null,
     kcal: sl.dish.kcal,
     version: sl.version,
     status: sl.status,
@@ -420,6 +421,9 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
                   name: result.dishNameSnapshot ?? sl.dish.name,
                   imageUrl: normalizeImageUrl(result.imageUrlSnapshot ?? sl.dish.imageUrl),
                   priceVnd: result.priceSnapshotVnd ?? sl.dish.priceVnd,
+                  priceSource:
+                    (result as { priceSource?: 'COOK' | 'EAT_OUT' | null }).priceSource ??
+                    sl.dish.priceSource,
                   kcal: result.kcalSnapshot ?? sl.dish.kcal,
                   proteinG: result.proteinGSnapshot ?? sl.dish.proteinG,
                   carbsG: result.carbsGSnapshot ?? sl.dish.carbsG,
@@ -498,8 +502,15 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
   const planDateLabel = (() => {
     if (!plan?.startDate || !plan?.endDate) return '';
     const s = plan.startDate.split('T')[0].split('-');
-    const e = plan.endDate.split('T')[0].split('-');
-    if (s[1] === e[1]) return `${Number(s[2])} – ${Number(e[2])} tháng ${Number(s[1])}`;
+    // endDate là ngày "exclusive" (1 ngày sau slot cuối) → lùi 1 ngày để hiển thị đúng khoảng ngày.
+    const endExclusive = plan.endDate.split('T')[0].split('-').map(Number);
+    const endInclusive = new Date(Date.UTC(endExclusive[0], endExclusive[1] - 1, endExclusive[2] - 1));
+    const e = [
+      String(endInclusive.getUTCFullYear()),
+      String(endInclusive.getUTCMonth() + 1),
+      String(endInclusive.getUTCDate()),
+    ];
+    if (s[1] === e[1] || Number(s[1]) === Number(e[1])) return `${Number(s[2])} – ${Number(e[2])} tháng ${Number(s[1])}`;
     return `${Number(s[2])}/${Number(s[1])} – ${Number(e[2])}/${Number(e[1])}`;
   })();
 
@@ -753,9 +764,6 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
                     {isToday ? 'Cho hôm nay' : `Cho ${selectedDay.weekdayFull.toLowerCase()}`}
                   </Text>
                   </View>
-                  <View style={s.toolArrow}>
-                    <ChevronRight size={16} color={INK} />
-                  </View>
                 </Pressable>
 
                 <Pressable
@@ -772,9 +780,6 @@ export function WeeklyPlanScreen({ initialPlanId, onBack, onEditPlan, onMore, on
                   <View style={{ flex: 1, minWidth: 0 }}>
                     <Text style={s.toolTitle}>Đi chợ tuần</Text>
                   <Text style={s.toolSub} numberOfLines={1}>Gộp cả tuần</Text>
-                  </View>
-                  <View style={s.toolArrow}>
-                    <ChevronRight size={16} color={INK} />
                   </View>
                 </Pressable>
               </View>
@@ -1063,9 +1068,6 @@ function WeeklyPlanLoadingSkeleton({ onBack }: { onBack: () => void }) {
                 <Text style={s.toolTitle}>Nguyên liệu</Text>
                 <PlanBone w={74} h={12} r={5} />
               </View>
-              <View style={s.toolArrow}>
-                <ChevronRight size={16} color={INK} />
-              </View>
             </View>
 
             <View style={s.toolTile}>
@@ -1075,9 +1077,6 @@ function WeeklyPlanLoadingSkeleton({ onBack }: { onBack: () => void }) {
               <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
                 <Text style={s.toolTitle}>Đi chợ tuần</Text>
                 <PlanBone w={68} h={12} r={5} />
-              </View>
-              <View style={s.toolArrow}>
-                <ChevronRight size={16} color={INK} />
               </View>
             </View>
           </View>
@@ -1180,6 +1179,23 @@ function MealCard({
           </Text>
           <View style={s.metaRow}>
             <Text style={s.mealMeta}>{meal.price > 0 ? `${meal.price}K` : '—'}</Text>
+            {meal.priceSource ? (
+              <View
+                style={[
+                  s.sourceBadge,
+                  meal.priceSource === 'COOK' ? s.sourceBadgeCook : s.sourceBadgeOut,
+                ]}
+              >
+                <Text
+                  style={[
+                    s.sourceBadgeText,
+                    meal.priceSource === 'COOK' ? s.sourceBadgeTextCook : s.sourceBadgeTextOut,
+                  ]}
+                >
+                  {meal.priceSource === 'COOK' ? 'Nấu' : 'Ăn ngoài'}
+                </Text>
+              </View>
+            ) : null}
             <View style={s.metaDot} />
             <Text style={s.mealMeta}>
               {meal.kcal > 0 ? `${meal.kcal.toLocaleString('vi-VN')} kcal` : '—'}
@@ -1310,7 +1326,8 @@ const s = StyleSheet.create({
   dayChipText: { fontSize: 11.5, fontWeight: '700', color: '#5C554A' },
 
   mealsSection: { flex: 1, paddingHorizontal: 16, gap: 10 },
-  mealSlot: { flex: 1, minHeight: 78, maxHeight: 150 },
+  // minHeight >= padding(20) + 2 nút 36px + gap 10 + viền 2 = 110, tránh nút bị tràn ra ngoài thẻ
+  mealSlot: { flex: 1, flexShrink: 0, minHeight: 112, maxHeight: 150 },
 
   mealCard: {
     flex: 1, backgroundColor: WHITE, borderRadius: 20, flexDirection: 'row', alignItems: 'center',
@@ -1348,6 +1365,12 @@ const s = StyleSheet.create({
   mealNameSkipped: { color: MUTED, textDecorationLine: 'line-through' },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   metaDot: { width: 3, height: 3, borderRadius: 2, backgroundColor: '#C9C1B2' },
+  sourceBadge: { paddingHorizontal: 6, paddingVertical: 1, borderRadius: 999 },
+  sourceBadgeCook: { backgroundColor: '#E8F5E9' },
+  sourceBadgeOut: { backgroundColor: '#FFF1E0' },
+  sourceBadgeText: { fontSize: 10.5, fontWeight: '700' },
+  sourceBadgeTextCook: { color: '#2E7D32' },
+  sourceBadgeTextOut: { color: '#B45309' },
   mealMeta: { fontSize: 13.5, color: MUTED, fontWeight: '500' },
   slotStatusDone: { fontSize: 12.5, color: '#15803D', fontWeight: '700' },
   slotStatusSkip: { fontSize: 12.5, color: MUTED, fontWeight: '600' },
@@ -1366,14 +1389,12 @@ const s = StyleSheet.create({
   },
   toolGrid: { flexDirection: 'row', gap: 10, marginTop: 2 },
   toolTile: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10,
+    flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 10,
     backgroundColor: WHITE, borderRadius: 18, paddingVertical: 14, paddingHorizontal: 12, ...shadow,
   },
-  toolIcon: { width: 40, height: 40, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
+  toolIcon: { width: 40, height: 40, borderRadius: 13, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
   toolTitle: { fontSize: 15, fontWeight: '700', color: INK },
   toolSub: { fontSize: 12.5, color: MUTED, marginTop: 1 },
-  toolArrow: { marginLeft: 'auto' },
-
   emptyState: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 40, gap: 8 },
   emptyIcon: {
     width: 76, height: 76, borderRadius: 38, backgroundColor: '#FFF1D6',

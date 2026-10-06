@@ -362,6 +362,26 @@ export type SavedDishesResponse = {
 
 export type WeeklyMealSlot = 'MORNING' | 'LUNCH' | 'DINNER' | 'SNACK';
 export type WeeklyKcalMode = 'PROFILE' | 'CUSTOM';
+
+/** Hình thức ăn: tự nấu (giá nguyên liệu / khẩu phần), ăn ngoài, hoặc linh hoạt (rẻ hơn). */
+export type WeeklyMealMode = 'HOME_COOK' | 'EAT_OUT' | 'FLEXIBLE';
+export type WeeklyPriceSource = 'COOK' | 'EAT_OUT';
+
+export type WeeklyPlanModeBudgetEstimate = {
+  mode: WeeklyMealMode;
+  feasible: boolean;
+  minBudgetVnd: number;
+  hardMinBudgetVnd: number;
+  comfortableBudgetVnd: number;
+  perSlotMin: Partial<Record<WeeklyMealSlot, number>>;
+  eligibleDishCount: number;
+};
+
+export type WeeklyPlanBudgetEstimate = {
+  durationDays: number;
+  enabledSlots: WeeklyMealSlot[];
+  byMode: Record<WeeklyMealMode, WeeklyPlanModeBudgetEstimate>;
+};
 export type WeeklyPlanStatus =
   | 'GENERATING'
   | 'READY'
@@ -385,6 +405,7 @@ export type WeeklyPlanConfig = {
   budgetVnd: number;
   kcalPerDay: number;
   kcalMode: WeeklyKcalMode;
+  mealMode?: WeeklyMealMode;
   durationDays: number;
   mealsPerDay: number;
   enabledSlots: WeeklyMealSlot[];
@@ -410,6 +431,7 @@ export type UpsertWeeklyPlanConfigDto = {
   budgetVnd: number;
   kcalPerDay: number;
   kcalMode?: WeeklyKcalMode;
+  mealMode?: WeeklyMealMode;
   durationDays?: number;
   mealsPerDay?: number;
   enabledSlots?: WeeklyMealSlot[];
@@ -428,6 +450,7 @@ export type UpsertWeeklyPlanConfigDto = {
   preserveLoggedDays?: boolean;
   calorieTolerancePercent?: number;
   advanced?: {
+    mealMode?: WeeklyMealMode;
     preferSelfCook?: boolean;
     allowOutsideMeals?: boolean;
     limitRepeats?: boolean;
@@ -445,6 +468,7 @@ export type GenerateWeeklyPlanDto = {
   budget?: number;
   dailyCalories?: number;
   calorieSource?: WeeklyKcalMode;
+  mealMode?: WeeklyMealMode;
   mealSlots?: WeeklyMealSlot[];
   advanced?: UpsertWeeklyPlanConfigDto['advanced'];
   idempotencyKey?: string;
@@ -465,6 +489,7 @@ export type WeeklyPlanSlotDish = {
   name: string;
   imageUrl: string | null;
   priceVnd: number;
+  priceSource?: WeeklyPriceSource | null;
   kcal: number;
   proteinG: number | null;
   carbsG: number | null;
@@ -491,7 +516,13 @@ export type WeeklyPlanDay = {
 };
 
 export type WeeklyPlanSuggestion = {
-  type: 'MIN_BUDGET' | 'ENABLE_MEAL_SLOT' | 'REVIEW_AVOIDED_INGREDIENTS' | string;
+  type:
+    | 'MIN_BUDGET'
+    | 'SWITCH_MEAL_MODE'
+    | 'ENABLE_MEAL_SLOT'
+    | 'REVIEW_AVOIDED_INGREDIENTS'
+    | string;
+  /** MIN_BUDGET: number | SWITCH_MEAL_MODE: { mealMode, minBudgetVnd } | ENABLE_MEAL_SLOT: slot */
   value?: any;
 };
 
@@ -503,6 +534,10 @@ export type WeeklyPlanGenerationErrorData = {
   approvedDishCount?: number;
   hardPoolCount?: number;
   slotsNeeded?: number;
+  mealMode?: WeeklyMealMode;
+  budgetVnd?: number;
+  minBudgetVnd?: number;
+  minBudgetByMode?: Partial<Record<WeeklyMealMode, number | null>>;
   [key: string]: any;
 };
 
@@ -518,6 +553,7 @@ export type WeeklyPlan = {
   projectedKcal: number;
   actualKcal: number;
   algorithmVersion: string;
+  mealMode?: WeeklyMealMode;
   generationErrorCode: string | null;
   generationErrorData?: WeeklyPlanGenerationErrorData | null;
   version: number;
