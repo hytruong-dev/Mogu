@@ -8,7 +8,14 @@ import {
   View,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
+} from 'react-native-reanimated';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -38,6 +45,10 @@ import { VideoGuideCard, VideoPlayerModal } from './VideoGuide';
 const { width: SW, height: SH } = Dimensions.get('window');
 const HERO_H = Math.round(Math.min(SW * 0.92, SH * 0.4));
 const PREVIEW_MAX = 8;
+/** Phần sheet chồm lên ảnh lúc chưa cuộn. */
+const SHEET_OVERLAP = 26;
+const SHEET_RADIUS = 28;
+const HEADER_BAR_H = 56;
 
 type Props = {
   dishId?: string;
@@ -143,59 +154,71 @@ export function OverviewPage({
         : 'Thông tin dị ứng đang cập nhật — kiểm tra nguyên liệu nếu bạn dị ứng';
   const AllergenIcon = allergenTone.Icon;
 
+  // ── Collapsing hero ────────────────────────────────────────────────────────
+  // Ảnh nằm cố định phía sau, sheet trắng cuộn lên che dần ảnh. Khi mép sheet
+  // chạm đáy header thì sheet mất bo góc (full nền) và header chuyển nền trắng.
+  const headerH = insets.top + HEADER_BAR_H;
+  const collapseEnd = Math.max(1, HERO_H - SHEET_OVERLAP - headerH);
+  const scrollY = useSharedValue(0);
+  const onScroll = useAnimatedScrollHandler((e) => {
+    scrollY.value = e.contentOffset.y;
+  });
+
+  const heroAnim = useAnimatedStyle(() => ({
+    transform: [
+      // Parallax: ảnh trôi lên chậm hơn sheet → cảm giác sheet "phủ" lên ảnh.
+      { translateY: interpolate(scrollY.value, [0, collapseEnd], [0, -collapseEnd * 0.45], Extrapolation.CLAMP) },
+      { scale: interpolate(scrollY.value, [0, collapseEnd], [1, 1.06], Extrapolation.CLAMP) },
+    ],
+  }));
+  const heroDimAnim = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [0, collapseEnd], [0, 0.35], Extrapolation.CLAMP),
+  }));
+  const sheetAnim = useAnimatedStyle(() => {
+    const r = interpolate(scrollY.value, [collapseEnd - 70, collapseEnd], [SHEET_RADIUS, 0], Extrapolation.CLAMP);
+    return { borderTopLeftRadius: r, borderTopRightRadius: r };
+  });
+  const grabberAnim = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [collapseEnd - 70, collapseEnd - 20], [1, 0], Extrapolation.CLAMP),
+  }));
+  const headerBgAnim = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [collapseEnd - 24, collapseEnd], [0, 1], Extrapolation.CLAMP),
+  }));
+  const scrimAnim = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [collapseEnd - 24, collapseEnd], [1, 0], Extrapolation.CLAMP),
+  }));
+  const headerTitleAnim = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [collapseEnd, collapseEnd + 40], [0, 1], Extrapolation.CLAMP),
+    transform: [
+      { translateY: interpolate(scrollY.value, [collapseEnd, collapseEnd + 40], [8, 0], Extrapolation.CLAMP) },
+    ],
+  }));
+
   return (
     <View style={styles.root}>
-      <ScrollView
+      {/* Ảnh hero cố định phía sau nội dung cuộn */}
+      <Animated.View style={[styles.hero, heroAnim]} pointerEvents="none">
+        {image ? (
+          <AppImage source={image} style={styles.heroImg} contentFit="cover" />
+        ) : (
+          <View style={[styles.heroImg, styles.heroPlaceholder]}>
+            <ChefHat size={44} color="#C9B68A" />
+          </View>
+        )}
+        <Animated.View style={[StyleSheet.absoluteFill, styles.heroDim, heroDimAnim]} />
+      </Animated.View>
+
+      <Animated.ScrollView
+        style={StyleSheet.absoluteFill}
         showsVerticalScrollIndicator={false}
         bounces={false}
+        overScrollMode="never"
+        onScroll={onScroll}
+        scrollEventThrottle={16}
         contentContainerStyle={{ paddingBottom: 100 + insets.bottom }}
       >
-        <View style={styles.hero}>
-          {image ? (
-            <AppImage source={image} style={styles.heroImg} contentFit="cover" />
-          ) : (
-            <View style={[styles.heroImg, styles.heroPlaceholder]}>
-              <ChefHat size={44} color="#C9B68A" />
-            </View>
-          )}
-          {/* Soft top scrim keeps the floating buttons legible on bright photos */}
-          <LinearGradient
-            pointerEvents="none"
-            colors={['rgba(0,0,0,0.28)', 'rgba(0,0,0,0)']}
-            style={styles.heroScrim}
-          />
-          <SafeAreaView edges={['top']} style={styles.heroOverlay} pointerEvents="box-none">
-            <View style={styles.heroBar}>
-              <Pressable
-                onPress={onBack}
-                style={({ pressed }) => [styles.heroBtn, pressed && styles.pressed]}
-                hitSlop={8}
-                accessibilityLabel="Quay lại"
-              >
-                <ArrowLeft size={21} color={INK} strokeWidth={2.3} />
-              </Pressable>
-              <View style={styles.heroRight}>
-                <Pressable
-                  onPress={() => void toggleSave()}
-                  style={({ pressed }) => [
-                    styles.heroBtn,
-                    isSaved && styles.heroBtnActive,
-                    pressed && styles.pressed,
-                  ]}
-                  accessibilityLabel={isSaved ? 'Bỏ lưu' : 'Lưu món'}
-                >
-                  <Bookmark size={19} color={INK} fill={isSaved ? INK : 'transparent'} />
-                </Pressable>
-                <Pressable
-                  onPress={() => void shareDish(dishName, dishId)}
-                  style={({ pressed }) => [styles.heroBtn, pressed && styles.pressed]}
-                  accessibilityLabel="Chia sẻ"
-                >
-                  <Share2 size={19} color={INK} />
-                </Pressable>
-              </View>
-            </View>
-          </SafeAreaView>
+        {/* Vùng trong suốt để nhìn thấy ảnh phía sau */}
+        <View style={{ height: HERO_H - SHEET_OVERLAP }} pointerEvents="box-none">
           {video ? (
             <Pressable
               onPress={() => setVideoOpen(true)}
@@ -211,8 +234,8 @@ export function OverviewPage({
           ) : null}
         </View>
 
-        <View style={styles.sheet}>
-          <View style={styles.grabber} />
+        <Animated.View style={[styles.sheet, { minHeight: SH - headerH }, sheetAnim]}>
+          <Animated.View style={[styles.grabber, grabberAnim]} />
 
           <Text style={styles.title}>{dishName}</Text>
 
@@ -359,8 +382,52 @@ export function OverviewPage({
               <ChevronRight size={18} color={MUTED} />
             </Pressable>
           ) : null}
+        </Animated.View>
+      </Animated.ScrollView>
+
+      {/* Header cố định: trong suốt trên ảnh → nền trắng khi sheet lên hết */}
+      <View style={[styles.header, { paddingTop: insets.top, height: headerH }]} pointerEvents="box-none">
+        <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, scrimAnim]}>
+          <LinearGradient
+            colors={['rgba(0,0,0,0.3)', 'rgba(0,0,0,0)']}
+            style={StyleSheet.absoluteFill}
+          />
+        </Animated.View>
+        <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, styles.headerBg, headerBgAnim]} />
+        <View style={styles.heroBar}>
+          <Pressable
+            onPress={onBack}
+            style={({ pressed }) => [styles.heroBtn, pressed && styles.pressed]}
+            hitSlop={8}
+            accessibilityLabel="Quay lại"
+          >
+            <ArrowLeft size={21} color={INK} strokeWidth={2.3} />
+          </Pressable>
+          <Animated.Text style={[styles.headerTitle, headerTitleAnim]} numberOfLines={1}>
+            {dishName}
+          </Animated.Text>
+          <View style={styles.heroRight}>
+            <Pressable
+              onPress={() => void toggleSave()}
+              style={({ pressed }) => [
+                styles.heroBtn,
+                isSaved && styles.heroBtnActive,
+                pressed && styles.pressed,
+              ]}
+              accessibilityLabel={isSaved ? 'Bỏ lưu' : 'Lưu món'}
+            >
+              <Bookmark size={19} color={INK} fill={isSaved ? INK : 'transparent'} />
+            </Pressable>
+            <Pressable
+              onPress={() => void shareDish(dishName, dishId)}
+              style={({ pressed }) => [styles.heroBtn, pressed && styles.pressed]}
+              accessibilityLabel="Chia sẻ"
+            >
+              <Share2 size={19} color={INK} />
+            </Pressable>
+          </View>
         </View>
-      </ScrollView>
+      </View>
 
       {/* Sticky actions: one primary, one secondary — always reachable */}
       <View style={[styles.footer, { paddingBottom: Math.max(12, insets.bottom + 6) }]}>
@@ -402,17 +469,30 @@ export function OverviewPage({
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: WHITE },
   pressed: { opacity: 0.85, transform: [{ scale: 0.97 }] },
-  hero: { width: SW, height: HERO_H, backgroundColor: BORDER },
+  hero: { position: 'absolute', top: 0, left: 0, width: SW, height: HERO_H, backgroundColor: BORDER },
   heroImg: { ...StyleSheet.absoluteFill, width: SW, height: HERO_H },
+  heroDim: { backgroundColor: '#000' },
   heroPlaceholder: { backgroundColor: '#EDE6D8', alignItems: 'center', justifyContent: 'center' },
-  heroScrim: { position: 'absolute', top: 0, left: 0, right: 0, height: 120 },
-  heroOverlay: { ...StyleSheet.absoluteFill },
+  header: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, elevation: 10 },
+  headerBg: {
+    backgroundColor: WHITE,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: BORDER,
+  },
+  headerTitle: {
+    flex: 1,
+    marginHorizontal: 12,
+    fontSize: 16,
+    fontWeight: '800',
+    color: INK,
+    textAlign: 'center',
+  },
   heroBar: {
+    height: HEADER_BAR_H,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 14,
-    paddingTop: 6,
   },
   heroRight: { flexDirection: 'row', gap: 10 },
   heroBtn: {
@@ -429,11 +509,10 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   heroBtnActive: { backgroundColor: YELLOW },
-  // Nằm trên phần sheet bo góc (-26) nên đặt bottom 40 để không bị che.
   heroVideoPill: {
     position: 'absolute',
     right: 14,
-    bottom: 40,
+    bottom: 14,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
@@ -453,10 +532,9 @@ const styles = StyleSheet.create({
   },
   heroVideoText: { color: WHITE, fontSize: 13, fontWeight: '800' },
   sheet: {
-    marginTop: -26,
     backgroundColor: WHITE,
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
+    borderTopLeftRadius: SHEET_RADIUS,
+    borderTopRightRadius: SHEET_RADIUS,
     paddingHorizontal: 20,
     paddingTop: 10,
   },
