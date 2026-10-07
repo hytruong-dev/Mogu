@@ -2,6 +2,8 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
 import { AiService } from '../ai-import/ai.service';
+import { DishEligibilityService } from '../dishes/eligibility/dish-eligibility.service';
+import { MealLogsService } from '../health/meal-logs.service';
 import { RandomizationService } from './randomization.service';
 
 const makeDish = (id: string, overrides?: any) => ({
@@ -37,6 +39,14 @@ const mockPrisma = {
   },
 };
 
+const flattenAnd = (where: any): any[] => {
+  if (!where) return [];
+  if (Array.isArray(where.AND)) {
+    return where.AND.flatMap(flattenAnd);
+  }
+  return [where];
+};
+
 describe('RandomizationService', () => {
   let service: RandomizationService;
 
@@ -46,11 +56,19 @@ describe('RandomizationService', () => {
         RandomizationService,
         { provide: PrismaService, useValue: mockPrisma },
         { provide: AiService, useValue: { generateCompletion: jest.fn() } },
+        DishEligibilityService,
+        {
+          provide: MealLogsService,
+          useValue: {
+            getRecentLoggedDishIds: jest.fn().mockResolvedValue([]),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<RandomizationService>(RandomizationService);
     jest.clearAllMocks();
+    mockPrisma.db.randomHistory.findMany.mockResolvedValue([]);
   });
 
   it('NotFoundException khi profile không tồn tại', async () => {
@@ -80,8 +98,10 @@ describe('RandomizationService', () => {
 
     // Kiểm tra query đúng — allergen WHERE phải có
     const findManyCall = mockPrisma.db.dish.findMany.mock.calls[0][0];
-    expect(findManyCall.where.dishAllergens?.none).toBeDefined();
-    expect(findManyCall.where.dishAllergens.none.level).toBe('CONTAINS');
+    const andClauses = flattenAnd(findManyCall.where);
+    const allergenClause = andClauses.find((c: any) => c.dishAllergens?.none);
+    expect(allergenClause).toBeDefined();
+    expect(allergenClause.dishAllergens.none.level).toEqual({ in: ['CONTAINS'] });
 
     expect(result.dish).toBeTruthy();
     expect((result.dish as any).id).toBe('safe-dish');
@@ -121,7 +141,9 @@ describe('RandomizationService', () => {
     await service.randomize('user1', { mealTypeCode: 'BREAKFAST' });
 
     const whereClause = mockPrisma.db.dish.findMany.mock.calls[0][0].where;
-    expect(whereClause.mealTypes?.some?.mealTypeTag?.code?.in).toContain('BREAKFAST');
+    const andClauses = flattenAnd(whereClause);
+    const mealClause = andClauses.find((c: any) => c.mealTypes?.some?.mealTypeTag?.code?.in);
+    expect(mealClause?.mealTypes?.some?.mealTypeTag?.code?.in).toContain('BREAKFAST');
   });
 
   it('Budget filter được áp dụng', async () => {
@@ -139,6 +161,8 @@ describe('RandomizationService', () => {
     await service.randomize('user1', { maxBudget: 50000 });
 
     const whereClause = mockPrisma.db.dish.findMany.mock.calls[0][0].where;
-    expect(whereClause.priceMin?.lte).toBe(50000);
+    const andClauses = flattenAnd(whereClause);
+    const priceClause = andClauses.find((c: any) => c.priceMin?.lte !== undefined);
+    expect(priceClause?.priceMin?.lte).toBe(50000);
   });
 });
