@@ -1,4 +1,41 @@
+# Dependencies
+node_modules/
+
 # Package & Binary builds
 *.apk
 *.aab
 *.bak
+
+# Build and distribution directories
+dist/
+build/
+generated/
+*.tsbuildinfo
+
+# Mobile & Android caches
+.expo/
+android/app/build/
+android/app/.cxx/
+android/.gradle/
+android/build/
+mobile/android/app/build/
+mobile/android/app/.cxx/
+mobile/android/.gradle/
+mobile/android/build/
+
+# Temporary, debug & scratch files
+*.log
+tmp_*
+*.orig
+*.orig.*
+.tmp*
+jest-*.txt
+dedupe-report.json
+
+# Environment files
+.env.local
+.env.*.local
+
+# OS and editor files
+.DS_Store
+Thumbs.db
