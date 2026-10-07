@@ -1,6 +1,8 @@
 import { apiRequest } from './client';
 import { clearSession, saveSession } from './storage';
 import type { AuthResult, AuthUser } from './types';
+import type { SessionItem } from './profile';
+import { getInstallationId } from '../../lib/installation-id';
 
 export const authApi = {
   register: async (
@@ -23,7 +25,7 @@ export const authApi = {
           { type: 'TERMS', version: '2026-09-01', accepted: true },
           { type: 'PRIVACY', version: '2026-09-01', accepted: true },
         ],
-        installationId: options?.installationId,
+        installationId: options?.installationId ?? (await getInstallationId()),
       }),
     });
     await saveSession({
@@ -44,7 +46,7 @@ export const authApi = {
           ? { identifier: trimmed }
           : { username: trimmed.toLowerCase(), identifier: trimmed.toLowerCase() }),
         password,
-        installationId,
+        installationId: installationId ?? (await getInstallationId()),
       }),
     });
     await saveSession({
@@ -99,7 +101,7 @@ export const authApi = {
       body: JSON.stringify({ currentPassword, newPassword }),
     }),
 
-  getSessions: () => apiRequest<{ items: Array<any> }>('/me/sessions'),
+  getSessions: () => apiRequest<{ items: SessionItem[] }>('/me/sessions'),
 
   deleteSession: (sessionId: string) =>
     apiRequest<{ success: boolean }>(`/me/sessions/${sessionId}`, { method: 'DELETE' }),

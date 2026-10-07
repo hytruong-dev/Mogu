@@ -214,7 +214,7 @@ export function RandomProfileSheet({ visible, onClose, onApplied, initialSnapsho
     setError(null);
     try {
       const [me, catalog] = await Promise.all([
-        profileApi.me<MeProfile>(),
+        profileApi.me(),
         onboardingApi.catalog(),
       ]);
       const ver = me.version ?? me.profileVersion ?? 1;

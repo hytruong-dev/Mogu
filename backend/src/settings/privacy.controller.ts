@@ -46,6 +46,15 @@ export class PrivacyController {
     return this.privacy.getExport(this.userId(user), jobId);
   }
 
+  @Get('data-exports/:jobId/content')
+  @ApiOperation({ summary: 'Nội dung JSON của bản xuất dữ liệu' })
+  getExportContent(
+    @CurrentUser() user: any,
+    @Param('jobId', ParseUUIDPipe) jobId: string,
+  ) {
+    return this.privacy.getExportContent(this.userId(user), jobId);
+  }
+
   @Post(['account-deletion', 'account-deletion-requests'])
   @HttpCode(HttpStatus.ACCEPTED)
   @ApiOperation({ summary: 'Yêu cầu xóa tài khoản (grace period)' })

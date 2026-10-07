@@ -223,4 +223,24 @@ export class MeCommunityController {
   ) {
     return this.communityService.listSavedPosts(uid(user), cursor, limit, q);
   }
+
+  @Get('followers')
+  listFollowers(
+    @CurrentUser() user: any,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: number,
+    @Query('q') q?: string,
+  ) {
+    return this.communityService.listFollows(uid(user), 'followers', { cursor, limit, q });
+  }
+
+  @Get('following')
+  listFollowing(
+    @CurrentUser() user: any,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: number,
+    @Query('q') q?: string,
+  ) {
+    return this.communityService.listFollows(uid(user), 'following', { cursor, limit, q });
+  }
 }

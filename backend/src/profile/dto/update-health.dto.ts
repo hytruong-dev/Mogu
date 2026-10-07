@@ -1,5 +1,14 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, Max, Min } from 'class-validator';
+import { IsIn, IsNumber, IsOptional, Max, Min } from 'class-validator';
+
+export const ACTIVITY_LEVELS = [
+  'SEDENTARY',
+  'LIGHT',
+  'MODERATE',
+  'ACTIVE',
+  'VERY_ACTIVE',
+] as const;
+export type ActivityLevel = (typeof ACTIVITY_LEVELS)[number];
 
 export class UpdateHealthDto {
   @ApiPropertyOptional({
@@ -25,4 +34,25 @@ export class UpdateHealthDto {
   @Min(20, { message: 'Cân nặng cần nằm trong khoảng 20–350 kg.' })
   @Max(350, { message: 'Cân nặng cần nằm trong khoảng 20–350 kg.' })
   weightKg?: number | null;
+
+  @ApiPropertyOptional({
+    description: 'Cân nặng mục tiêu (kg). Hợp lệ: 20–350.',
+    example: 60,
+    minimum: 20,
+    maximum: 350,
+  })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 1 }, { message: 'Cân nặng mục tiêu tối đa 1 chữ số thập phân.' })
+  @Min(20, { message: 'Cân nặng mục tiêu cần nằm trong khoảng 20–350 kg.' })
+  @Max(350, { message: 'Cân nặng mục tiêu cần nằm trong khoảng 20–350 kg.' })
+  targetWeightKg?: number | null;
+
+  @ApiPropertyOptional({
+    description: 'Mức vận động.',
+    enum: ACTIVITY_LEVELS,
+    example: 'MODERATE',
+  })
+  @IsOptional()
+  @IsIn(ACTIVITY_LEVELS as unknown as string[], { message: 'Mức vận động không hợp lệ.' })
+  activityLevel?: ActivityLevel | null;
 }

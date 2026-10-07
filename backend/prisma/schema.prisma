@@ -295,6 +295,7 @@ model Profile {
   weightKg Float? @map("weight_kg")
   heightCm Float? @map("height_cm")
   goalKcal Int?   @map("goal_kcal")
+  targetWeightKg Float? @map("target_weight_kg")
 
   // Versioning Ã¢â¬â tÃÆng mÃ¡Â»âi lÃ¡ÂºÂ§n hoÃÂ n tÃ¡ÂºÂ¥t hoÃ¡ÂºÂ·c update
   profileVersion Int       @default(1) @map("profile_version")

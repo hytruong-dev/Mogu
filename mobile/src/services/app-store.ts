@@ -79,6 +79,7 @@ export function recordRandomRunStore(result?: RandomizationResult | null) {
 
   // 3. Invalidate to background sync
   void queryClient.invalidateQueries({ queryKey: ['profile', 'randomHistory'] });
+  void queryClient.invalidateQueries({ queryKey: ['profile', 'historyList'] });
   void queryClient.invalidateQueries({ queryKey: PROFILE_DASHBOARD_QUERY_KEY });
 }
 
@@ -126,6 +127,7 @@ export function recordRandomSelectionStore(result?: RandomizationResult | null) 
 
   // 3. Invalidate related queries so Diary and Health screens get fresh data
   void queryClient.invalidateQueries({ queryKey: ['profile', 'randomHistory'] });
+  void queryClient.invalidateQueries({ queryKey: ['profile', 'historyList'] });
   void queryClient.invalidateQueries({ queryKey: ['profile', 'diary'] });
   void queryClient.invalidateQueries({ queryKey: ['profile', 'journey'] });
   void queryClient.invalidateQueries({ queryKey: ['health', 'day'] });
@@ -183,6 +185,7 @@ export function recordPostCreatedStore(post: ExplorePost) {
 
   // 3. Invalidate queries
   void queryClient.invalidateQueries({ queryKey: ['profile', 'myPosts'] });
+  void queryClient.invalidateQueries({ queryKey: ['profile', 'postsList'] });
   void queryClient.invalidateQueries({ queryKey: PROFILE_DASHBOARD_QUERY_KEY });
   void queryClient.invalidateQueries({ queryKey: ['explore', 'feed'] });
 }
@@ -217,6 +220,7 @@ export function recordPostDeletedStore(postId: string) {
 
   // 3. Invalidate queries
   void queryClient.invalidateQueries({ queryKey: ['profile', 'myPosts'] });
+  void queryClient.invalidateQueries({ queryKey: ['profile', 'postsList'] });
   void queryClient.invalidateQueries({ queryKey: PROFILE_DASHBOARD_QUERY_KEY });
   void queryClient.invalidateQueries({ queryKey: ['explore', 'feed'] });
 }
@@ -236,6 +240,7 @@ export function recordPostUpdatedStore(post: ExplorePost) {
   );
 
   void queryClient.invalidateQueries({ queryKey: ['profile', 'myPosts'] });
+  void queryClient.invalidateQueries({ queryKey: ['profile', 'postsList'] });
   void queryClient.invalidateQueries({ queryKey: PROFILE_DASHBOARD_QUERY_KEY });
   void queryClient.invalidateQueries({ queryKey: ['explore', 'feed'] });
 }

@@ -118,11 +118,14 @@ export function PageScaffold({
   footer,
   gap = 14,
   padded = true,
+  onEndReached,
 }: {
   children: ReactNode;
   footer?: ReactNode;
   gap?: number;
   padded?: boolean;
+  /** Called when the user scrolls near the bottom (infinite scroll). */
+  onEndReached?: () => void;
 }) {
   const insets = useSafeAreaInsets();
   return (
@@ -141,6 +144,15 @@ export function PageScaffold({
         }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
+        scrollEventThrottle={64}
+        onScroll={
+          onEndReached
+            ? (e) => {
+                const { layoutMeasurement, contentOffset, contentSize } = e.nativeEvent;
+                if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 320) onEndReached();
+              }
+            : undefined
+        }
       >
         {children}
       </ScrollView>

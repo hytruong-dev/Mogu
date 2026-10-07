@@ -246,6 +246,8 @@ function MainNavigator({ navigation }: { navigation: any }) {
               onDishDetail={(dishId, title) =>
                 tabNav.getParent()?.navigate('FoodDetail', { dishId, title })
               }
+              onOpenPost={(postId) => tabNav.getParent()?.navigate('PostDetail', { postId })}
+              onOpenProfile={(userId) => tabNav.getParent()?.navigate('PublicProfile', { userId })}
               onLoggedOut={() =>
                 tabNav.getParent()?.reset({ index: 0, routes: [{ name: 'Auth' }] })
               }

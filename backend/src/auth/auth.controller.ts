@@ -50,6 +50,8 @@ export class AuthController {
     return {
       correlationId: req.headers['x-correlation-id'] as string,
       platform: req.headers['x-platform'] as string,
+      installationId: req.headers['x-installation-id'] as string | undefined,
+      deviceModel: req.headers['x-device-model'] as string | undefined,
       ipHash: ip
         ? Buffer.from(ip).toString('base64url').slice(0, 16)
         : undefined,
@@ -209,6 +211,8 @@ export class SessionsController {
   private extractMeta(req: FastifyRequest) {
     return {
       platform: req.headers['x-platform'] as string,
+      installationId: req.headers['x-installation-id'] as string | undefined,
+      deviceModel: req.headers['x-device-model'] as string | undefined,
     };
   }
 
@@ -250,6 +254,8 @@ export class AdminAccountController {
     return {
       correlationId: req.headers['x-correlation-id'] as string,
       platform: req.headers['x-platform'] as string,
+      installationId: req.headers['x-installation-id'] as string | undefined,
+      deviceModel: req.headers['x-device-model'] as string | undefined,
       ipHash: ip
         ? Buffer.from(ip).toString('base64url').slice(0, 16)
         : undefined,

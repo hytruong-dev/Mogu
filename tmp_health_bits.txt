@@ -1,0 +1,60 @@
+function bmiCategory(bmi: number | null) {
+  if (bmi == null || !Number.isFinite(bmi)) {
+    return { label: 'Chưa có dữ liệu', hint: 'Nhập chiều cao và cân nặng để xem BMI.', color: P.faint };
+  }
+  if (bmi < 18.5) return { label: 'Thiếu cân', hint: 'Nên bổ sung thêm năng lượng và đạm trong bữa ăn.', color: '#3B82F6' };
+  if (bmi < 23) return { label: 'Bình thường', hint: 'Tuyệt vời! Hãy duy trì chế độ ăn cân bằng.', color: '#16A34A' };
+  if (bmi < 25) return { label: 'Thừa cân nhẹ', hint: 'Ưu tiên rau xanh, giảm đồ chiên và nước ngọt.', color: '#F59E0B' };
+  return { label: 'Béo phì', hint: 'Nên tham khảo chuyên gia dinh dưỡng để có kế hoạch phù hợp.', color: '#E5402A' };
+}
+
+function BmiScale({ value }: { value: number | null }) {
+  const segments = [
+    { color: '#93C5FD', flex: 3.5 },
+    { color: '#86EFAC', flex: 4.5 },
+    { color: '#FCD34D', flex: 2 },
+    { color: '#FCA5A5', flex: 5 },
+  ];
+  const min = 15;
+  const max = 30;
+  const pct = value != null ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)) : null;
+  return (
+    <View>
+      <View style={{ flexDirection: 'row', height: 8, borderRadius: 4, overflow: 'hidden', gap: 2 }}>
+        {segments.map((s, i) => (
+          <View key={i} style={{ flex: s.flex, backgroundColor: s.color }} />
+        ))}
+        </View>
+      {pct != null ? (
+        <View style={{ position: 'absolute', left: `${pct}%`, top: -3, marginLeft: -7 }}>
+          <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: P.ink, borderWidth: 2.5, borderColor: '#FFFFFF' }} />
+            </View>
+      ) : null}
+        </View>
+  );
+}
+
+const hs = StyleSheet.create({
+  inputLabel: { fontSize: 13, fontWeight: '700', color: P.muted },
+  inputRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 4, marginTop: 4 },
+  unit: { fontSize: 14, fontWeight: '700', color: P.muted, marginBottom: 8 },
+  bmiCircle: {
+    width: 86,
+    height: 86,
+    borderRadius: 43,
+    borderWidth: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFDF7',
+  },
+  bmiValue: { fontSize: 24, fontWeight: '900', letterSpacing: -0.5 },
+  bmiLabel: { fontSize: 10.5, fontWeight: '800', color: P.muted, letterSpacing: 1 },
+  targetEmoji: {
+    width: 40,
+    height: 40,
+    borderRadius: 13,
+    backgroundColor: '#FFF6DE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});

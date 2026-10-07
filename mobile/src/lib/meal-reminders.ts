@@ -202,7 +202,7 @@ export async function syncCurrentMealReminders(): Promise<number> {
 
     let mealRemindersEnabled = true;
     try {
-      const settings = await profileApi.getSettings<any>();
+      const settings = await profileApi.getSettings();
       if (settings?.notifications?.mealReminders === false) {
         mealRemindersEnabled = false;
       }

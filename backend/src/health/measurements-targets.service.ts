@@ -132,6 +132,7 @@ export class MeasurementsTargetsService {
         activityLevel: true,
         heightCm: true,
         weightKg: true,
+        targetWeightKg: true,
         gender: true,
       },
     });
@@ -156,8 +157,15 @@ export class MeasurementsTargetsService {
       ACTIVE: 1.725,
       VERY_ACTIVE: 1.9,
     };
-    const age =
-      new Date().getFullYear() - new Date(profile!.dateOfBirth!).getFullYear();
+    const dob = new Date(profile!.dateOfBirth!);
+    const now = new Date();
+    let age = now.getFullYear() - dob.getUTCFullYear();
+    if (
+      now.getMonth() < dob.getUTCMonth() ||
+      (now.getMonth() === dob.getUTCMonth() && now.getDate() < dob.getUTCDate())
+    ) {
+      age -= 1;
+    }
     const weight = profile!.weightKg!;
     const height = profile!.heightCm!;
     const isMale = profile!.gender === 'MALE';
@@ -166,7 +174,14 @@ export class MeasurementsTargetsService {
       : 10 * weight + 6.25 * height - 5 * age - 161;
     const multiplier =
       activityMultiplier[profile!.activityLevel ?? 'MODERATE'] ?? 1.55;
-    const energyKcal = Math.round(bmr * multiplier);
+    const tdee = Math.round(bmr * multiplier);
+    // Điều chỉnh theo mục tiêu cân nặng: giảm ~0.4kg/tuần hoặc tăng ~0.3kg/tuần.
+    const targetWeight = profile!.targetWeightKg ?? null;
+    let energyKcal = tdee;
+    if (targetWeight != null && Math.abs(targetWeight - weight) >= 0.5) {
+      energyKcal = targetWeight < weight ? tdee - 400 : tdee + 300;
+    }
+    energyKcal = Math.max(energyKcal, isMale ? 1500 : 1200);
     const proteinG = Math.round(weight * 1.6);
     const fatG = Math.round((energyKcal * 0.25) / 9);
     const carbsG = Math.round((energyKcal - proteinG * 4 - fatG * 9) / 4);

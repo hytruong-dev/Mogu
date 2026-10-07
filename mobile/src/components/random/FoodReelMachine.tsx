@@ -2,7 +2,7 @@ import { memo, useEffect, useState } from 'react';
 import { Pressable, type ImageSourcePropType, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Svg, { Defs, LinearGradient, Path, Rect, Stop } from 'react-native-svg';
+import Svg, { Circle, Defs, Ellipse, LinearGradient, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 import Animated, {
   Easing,
   cancelAnimation,
@@ -216,6 +216,7 @@ export function FoodReelMachine({
   }));
   const itemHeight = (width / 1.5) * 0.52;
   const lightMode: LightMode = jackpot ? 'win' : running ? 'spin' : 'idle';
+  const bulbStep = useBulbStep(lightMode, reducedMotion);
 
   return (
     <View
@@ -237,7 +238,7 @@ export function FoodReelMachine({
             style={styles.shadow}
           />
           <Animated.View style={[styles.bodyGroup, bodyStyle]}>
-            <Bulbs mode={lightMode} reducedMotion={reducedMotion} />
+            <Bulbs mode={lightMode} step={bulbStep} reducedMotion={reducedMotion} />
             {WINDOWS.map((left, index) => (
               <View key={index} style={[styles.window, { left }]}>
                 <ReelTrack
@@ -270,7 +271,7 @@ export function FoodReelMachine({
               cachePolicy="memory-disk"
               style={styles.body}
             />
-            <BulbHalos mode={lightMode} reducedMotion={reducedMotion} />
+            <BulbHalos mode={lightMode} step={bulbStep} reducedMotion={reducedMotion} />
 
             {jackpot ? (
               <Animated.View pointerEvents="none" style={[styles.winFrame, winFrameStyle]} />
@@ -327,33 +328,114 @@ export function FoodReelMachine({
   );
 }
 
-const Bulbs = memo(function Bulbs({ mode, reducedMotion }: { mode: LightMode; reducedMotion: boolean }) {
+/**
+ * One shared driver for all marquee bulbs (glass + halo read the same value so they stay in sync).
+ * - idle: slow warm "breathing", alternating bulbs, never fully dark (like a powered marquee)
+ * - spin: chaser light running left → right with a fading tail
+ * - win:  all bulbs flash together
+ */
+function useBulbStep(mode: LightMode, reducedMotion: boolean) {
   const step = useSharedValue(0);
-
   useEffect(() => {
-    if (reducedMotion) return;
+    cancelAnimation(step);
+    if (reducedMotion) {
+      step.value = 0;
+      return;
+    }
+    step.value = 0;
     if (mode === 'win') {
-      step.value = withRepeat(
-        withSequence(withTiming(1, { duration: 110 }), withTiming(0, { duration: 110 })),
-        -1,
-        true,
-      );
+      // Classic marquee: odd / even bulbs swap quickly.
+      step.value = withRepeat(withTiming(1, { duration: 170, easing: Easing.inOut(Easing.quad) }), -1, true);
     } else if (mode === 'spin') {
-      step.value = withRepeat(
-        withTiming(5, { duration: 420, easing: Easing.linear }),
-        -1,
-        false,
-      );
+      step.value = withRepeat(withTiming(BULBS.length, { duration: 460, easing: Easing.linear }), -1, false);
     } else {
-      step.value = withRepeat(
-        withSequence(withTiming(1, { duration: 520 }), withTiming(0, { duration: 520 })),
-        -1,
-        true,
-      );
+      // A soft wave of light travels across the bar, then pauses briefly off-screen.
+      step.value = withRepeat(withTiming(BULBS.length + 2.5, { duration: 2600, easing: Easing.linear }), -1, false);
     }
     return () => cancelAnimation(step);
   }, [mode, reducedMotion, step]);
+  return step;
+}
 
+/** Brightness 0..1 of a bulb. Smooth curves so the filament "warms up" and fades like a real lamp. */
+function bulbLevel(step: number, mode: LightMode, index: number, reducedMotion: boolean) {
+  'worklet';
+  if (reducedMotion) return mode === 'idle' ? 0.7 : 1;
+  if (mode === 'win') {
+    const phase = index % 2 === 0 ? step : 1 - step;
+    return 0.3 + 0.7 * phase * phase;
+  }
+  if (mode === 'spin') {
+    const n = BULBS.length;
+    // distance behind the chaser head (0 = head), wrapping around
+    const behind = (((step - index) % n) + n) % n;
+    const tail = Math.max(0, 1 - behind / 1.8);
+    return 0.3 + 0.7 * tail * tail;
+  }
+  const head = step - 1;
+  const dist = Math.abs(index - head);
+  const bump = Math.max(0, 1 - dist / 1.4);
+  // smoothstep for a gentle warm-up / cool-down
+  const s = bump * bump * (3 - 2 * bump);
+  return 0.5 + 0.5 * s;
+}
+
+function BulbGlass({ id, lit }: { id: string; lit: boolean }) {
+  return (
+    <Svg width="100%" height="100%" viewBox="0 0 40 40">
+      <Defs>
+        {lit ? (
+          <RadialGradient id={id} cx="50%" cy="48%" r="52%" fx="46%" fy="40%">
+            <Stop offset="0" stopColor="#FFFDF0" />
+            <Stop offset="0.18" stopColor="#FFF2B3" />
+            <Stop offset="0.45" stopColor="#FFD447" />
+            <Stop offset="0.78" stopColor="#FFA319" />
+            <Stop offset="1" stopColor="#E87400" />
+          </RadialGradient>
+        ) : (
+          <RadialGradient id={id} cx="50%" cy="46%" r="52%">
+            <Stop offset="0" stopColor="#B07A2C" />
+            <Stop offset="0.55" stopColor="#7C4D14" />
+            <Stop offset="1" stopColor="#4E2E08" />
+          </RadialGradient>
+        )}
+      </Defs>
+      <Circle cx="20" cy="20" r="20" fill={`url(#${id})`} />
+      {/* Filament: dark when cold, white-hot when lit. */}
+      <Path
+        d="M13 24 Q16.5 15 20 24 Q23.5 15 27 24"
+        stroke={lit ? '#FFFFFF' : '#3E2406'}
+        strokeOpacity={lit ? 0.9 : 0.7}
+        strokeWidth="1.8"
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* Specular reflection on the glass dome. */}
+      <Ellipse cx="13.5" cy="11.5" rx="5.5" ry="3" fill="#FFFFFF" opacity={lit ? 0.75 : 0.28} transform="rotate(-35 13.5 11.5)" />
+      <Circle cx="27.5" cy="28.5" r="1.6" fill="#FFFFFF" opacity={lit ? 0.45 : 0.15} />
+    </Svg>
+  );
+}
+
+/** Four-point star glint that pops on the brightest bulbs. */
+function Sparkle({ index }: { index: number }) {
+  return (
+    <Svg width="100%" height="100%" viewBox="0 0 40 40">
+      <Defs>
+        <RadialGradient id={`spark${index}`} cx="50%" cy="50%" r="50%">
+          <Stop offset="0" stopColor="#FFFFFF" stopOpacity="1" />
+          <Stop offset="1" stopColor="#FFF2B3" stopOpacity="0" />
+        </RadialGradient>
+      </Defs>
+      <Path
+        d="M20 2 Q21.4 18.6 38 20 Q21.4 21.4 20 38 Q18.6 21.4 2 20 Q18.6 18.6 20 2 Z"
+        fill={`url(#spark${index})`}
+      />
+    </Svg>
+  );
+}
+
+const Bulbs = memo(function Bulbs({ mode, step, reducedMotion }: { mode: LightMode; step: SharedValue<number>; reducedMotion: boolean }) {
   return (
     <>
       {BULBS.map((x, index) => (
@@ -376,49 +458,19 @@ function BulbView({
   step: SharedValue<number>;
   reducedMotion: boolean;
 }) {
-  const animStyle = useAnimatedStyle(() => {
-    if (reducedMotion) return { opacity: mode !== 'idle' ? 1 : 0.25 };
-    if (mode === 'win') {
-      return { opacity: step.value > 0.5 ? 1 : 0.2 };
-    }
-    if (mode === 'spin') {
-      const activeIdx = Math.floor(step.value) % 5;
-      return { opacity: activeIdx === index ? 1 : 0.25 };
-    }
-    return { opacity: (index % 2 === 0 ? step.value : 1 - step.value) > 0.5 ? 1 : 0.25 };
-  });
+  const litStyle = useAnimatedStyle(() => ({ opacity: bulbLevel(step.value, mode, index, reducedMotion) }));
 
   return (
-    <Animated.View
-      pointerEvents="none"
-      style={[styles.bulb, { left: `${x - 2.2}%` }, styles.bulbOn, animStyle]}
-    />
+    <View pointerEvents="none" style={[styles.bulb, { left: `${x - 2.2}%` }]}>
+      <BulbGlass id={`bulbOff${index}`} lit={false} />
+      <Animated.View style={[StyleSheet.absoluteFill, litStyle]}>
+        <BulbGlass id={`bulbOn${index}`} lit />
+      </Animated.View>
+    </View>
   );
 }
 
-const BulbHalos = memo(function BulbHalos({ mode, reducedMotion }: { mode: LightMode; reducedMotion: boolean }) {
-  const step = useSharedValue(0);
-
-  useEffect(() => {
-    if (reducedMotion || mode === 'idle') return;
-    if (mode === 'win') {
-      step.value = withRepeat(
-        withSequence(withTiming(1, { duration: 110 }), withTiming(0, { duration: 110 })),
-        -1,
-        true,
-      );
-    } else {
-      step.value = withRepeat(
-        withTiming(5, { duration: 420, easing: Easing.linear }),
-        -1,
-        false,
-      );
-    }
-    return () => cancelAnimation(step);
-  }, [mode, reducedMotion, step]);
-
-  if (mode === 'idle') return null;
-
+const BulbHalos = memo(function BulbHalos({ mode, step, reducedMotion }: { mode: LightMode; step: SharedValue<number>; reducedMotion: boolean }) {
   return (
     <>
       {BULBS.map((x, index) => (
@@ -441,20 +493,44 @@ function BulbHaloView({
   step: SharedValue<number>;
   reducedMotion: boolean;
 }) {
-  const animStyle = useAnimatedStyle(() => {
-    if (reducedMotion) return { opacity: 0.8 };
-    if (mode === 'win') {
-      return { opacity: step.value > 0.5 ? 0.9 : 0 };
-    }
-    const activeIdx = Math.floor(step.value) % 5;
-    return { opacity: activeIdx === index ? 0.85 : 0 };
+  const haloStyle = useAnimatedStyle(() => {
+    const level = bulbLevel(step.value, mode, index, reducedMotion);
+    // Glow only appears once the filament is hot; grows slightly with brightness.
+    const glow = Math.max(0, (level - 0.5) / 0.5);
+    return {
+      opacity: glow * (mode === 'idle' ? 0.75 : 1),
+      transform: [{ scale: 0.75 + 0.35 * glow }],
+    };
+  });
+  const sparkStyle = useAnimatedStyle(() => {
+    const level = bulbLevel(step.value, mode, index, reducedMotion);
+    const s = Math.max(0, (level - 0.82) / 0.18);
+    return {
+      opacity: reducedMotion ? 0 : s,
+      transform: [{ scale: 0.5 + 0.6 * s }, { rotate: `${15 * s}deg` }],
+    };
   });
 
   return (
-    <Animated.View
-      pointerEvents="none"
-      style={[styles.halo, { left: `${x - 3.6}%` }, animStyle]}
-    />
+    <>
+      <Animated.View pointerEvents="none" style={[styles.halo, { left: `${x - 6}%` }, haloStyle]}>
+        <Svg width="100%" height="100%" viewBox="0 0 100 100">
+          <Defs>
+            <RadialGradient id={`halo${index}`} cx="50%" cy="50%" r="50%">
+              <Stop offset="0" stopColor="#FFF6CC" stopOpacity="0.9" />
+              <Stop offset="0.22" stopColor="#FFD54A" stopOpacity="0.6" />
+              <Stop offset="0.45" stopColor="#FFB020" stopOpacity="0.28" />
+              <Stop offset="0.72" stopColor="#FF9500" stopOpacity="0.09" />
+              <Stop offset="1" stopColor="#FF8A00" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx="50" cy="50" r="50" fill={`url(#halo${index})`} />
+        </Svg>
+      </Animated.View>
+      <Animated.View pointerEvents="none" style={[styles.sparkle, { left: `${x - 3.5}%` }, sparkStyle]}>
+        <Sparkle index={index} />
+      </Animated.View>
+    </>
   );
 }
 
@@ -662,16 +738,19 @@ const styles = StyleSheet.create({
     width: '4.4%',
     height: '6.6%',
     borderRadius: 999,
+    overflow: 'hidden',
   },
-  bulbOn: { backgroundColor: '#FFF6C2' },
-  bulbOff: { backgroundColor: '#9C6A22' },
   halo: {
     position: 'absolute',
-    top: '9.6%',
-    width: '7.2%',
-    height: '10.8%',
-    borderRadius: 999,
-    backgroundColor: 'rgba(255, 236, 140, 0.45)',
+    top: '5.9%',
+    width: '12%',
+    height: '18%',
+  },
+  sparkle: {
+    position: 'absolute',
+    top: '9.8%',
+    width: '7%',
+    height: '10.5%',
   },
   winFrame: {
     position: 'absolute',

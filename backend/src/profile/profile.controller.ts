@@ -18,6 +18,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ProfileService } from './profile.service';
 import { UpdateBasicDto } from './dto/update-basic.dto';
 import { UpdateHealthDto } from './dto/update-health.dto';
+import { PutSelectionPrioritiesDto } from './dto/selection-priorities.dto';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
 import {
   CreateAvatarUploadIntentDto,
@@ -144,6 +145,15 @@ export class ProfileController {
     @Body() dto: PutAvoidancesDto,
   ) {
     return this.profileService.putAvoidances(this.userId(user), dto.items);
+  }
+
+  @Put('me/selection-priorities')
+  @ApiOperation({ summary: 'Thay thế ưu tiên chọn món (HEALTHY/ECONOMY/QUICK/NOVELTY)' })
+  putSelectionPriorities(
+    @CurrentUser() user: { sub: string; id?: string },
+    @Body() dto: PutSelectionPrioritiesDto,
+  ) {
+    return this.profileService.putSelectionPriorities(this.userId(user), dto.items);
   }
 
   @Post('me/avatar-upload-intents')

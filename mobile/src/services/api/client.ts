@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import Constants from 'expo-constants';
 import { getDeviceTimeZone, getTodayISO } from '../../lib/dates';
+import { getDeviceModel, getInstallationId } from '../../lib/installation-id';
 import { clearSession, getSession, saveSession } from './storage';
 import { ApiError, type Session } from './types';
 
@@ -91,12 +92,19 @@ async function refreshSession(refreshToken: string): Promise<Session> {
   let response: Response;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000);
+  const installationId = await getInstallationId();
+  const deviceModel = getDeviceModel();
   try {
     response = await fetch(`${API_URL}/auth/refresh`, {
       method: 'POST',
       signal: controller.signal,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Platform': Platform.OS,
+        'X-Installation-Id': installationId,
+        ...(deviceModel ? { 'X-Device-Model': deviceModel } : {}),
+      },
+      body: JSON.stringify({ refreshToken, installationId }),
     });
   } catch {
     clearTimeout(timeoutId);
@@ -136,7 +144,11 @@ async function getValidSession(): Promise<Session | null> {
     }
     try {
       return await refreshPromise;
-    } catch {
+    } catch (error) {
+      // Lỗi mạng/máy chủ tạm thời: giữ phiên để lần sau thử lại, không đăng xuất người dùng.
+      if (error instanceof ApiError && (error.status === 0 || error.status >= 500)) {
+        return session;
+      }
       await clearSession();
       return null;
     }
@@ -152,6 +164,8 @@ export async function apiRequest<T>(path: string, options: Options = {}): Promis
   if (options.signal?.aborted) throw new Error('Request aborted');
   const tz = getDeviceTimeZone();
   const todayDate = getTodayISO(tz);
+  const installationId = await getInstallationId();
+  const deviceModel = getDeviceModel();
   const requestId =
     typeof crypto !== 'undefined' && crypto.randomUUID
       ? crypto.randomUUID()
@@ -187,6 +201,8 @@ export async function apiRequest<T>(path: string, options: Options = {}): Promis
         'X-Request-Id': requestId,
         'X-Platform': Platform.OS,
         'X-App-Version': '1.4.0',
+        'X-Installation-Id': installationId,
+        ...(deviceModel ? { 'X-Device-Model': deviceModel } : {}),
         ...(session?.accessToken ? { Authorization: `Bearer ${session.accessToken}` } : {}),
         ...headers,
       },

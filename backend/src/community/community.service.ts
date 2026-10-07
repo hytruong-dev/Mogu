@@ -974,6 +974,62 @@ export class CommunityService {
     return { following: false };
   }
 
+  /** Danh sách người theo dõi tôi (direction=followers) hoặc tôi đang theo dõi (direction=following). */
+  async listFollows(
+    userId: string,
+    direction: 'followers' | 'following',
+    opts?: { cursor?: string; limit?: number; q?: string },
+  ) {
+    const take = Math.min(Math.max(Number(opts?.limit) || 20, 1), 50);
+    const q = opts?.q?.trim();
+    const isFollowers = direction === 'followers';
+    const otherSide = isFollowers ? 'follower' : 'following';
+    const rows = await this.prisma.db.userFollow.findMany({
+      where: {
+        ...(isFollowers ? { followingId: userId } : { followerId: userId }),
+        ...(q
+          ? { [otherSide]: { displayName: { contains: q, mode: 'insensitive' } } }
+          : {}),
+      },
+      include: {
+        follower: { select: { userId: true, displayName: true, avatarUrl: true, bio: true } },
+        following: { select: { userId: true, displayName: true, avatarUrl: true, bio: true } },
+      },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: take + 1,
+      ...(opts?.cursor ? { cursor: { id: opts.cursor }, skip: 1 } : {}),
+    });
+    const hasNextPage = rows.length > take;
+    const page = hasNextPage ? rows.slice(0, take) : rows;
+    const otherIds = page.map((r) => (isFollowers ? r.followerId : r.followingId));
+    const myFollows = otherIds.length
+      ? await this.prisma.db.userFollow.findMany({
+          where: { followerId: userId, followingId: { in: otherIds } },
+          select: { followingId: true },
+        })
+      : [];
+    const followingSet = new Set(myFollows.map((f) => f.followingId));
+
+    return {
+      items: page.map((r) => {
+        const other = isFollowers ? r.follower : r.following;
+        return {
+          userId: other.userId,
+          displayName: other.displayName,
+          avatarUrl: other.avatarUrl,
+          bio: other.bio,
+          isFollowing: followingSet.has(other.userId),
+          followedAt: r.createdAt,
+          cursorId: r.id,
+        };
+      }),
+      pageInfo: {
+        nextCursor: hasNextPage ? page[page.length - 1]?.id ?? null : null,
+        hasNextPage,
+      },
+    };
+  }
+
   async getPublicProfile(viewerId: string, userId: string) {
     const profile = await this.prisma.db.profile.findUnique({
       where: { userId },

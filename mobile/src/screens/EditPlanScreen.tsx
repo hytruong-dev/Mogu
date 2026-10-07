@@ -202,13 +202,12 @@ export function EditPlanScreen({
       try {
         const [configRes, profileRes] = await Promise.allSettled([
           getWeeklyPlanConfig(),
-          profileApi.getHealthProfile<any>().catch(() => null),
+          profileApi.getHealthProfile().catch(() => null),
         ]);
 
         if (profileRes.status === 'fulfilled' && profileRes.value) {
           const pk =
-            profileRes.value.dailyCaloriesTarget ??
-            profileRes.value.tdee ??
+            profileRes.value.dailyTargets?.energyKcal ??
             2000;
           setProfileKcal(pk);
         }

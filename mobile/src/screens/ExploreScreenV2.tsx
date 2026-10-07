@@ -258,12 +258,7 @@ export function ExploreScreenV2({ onBack, onHealth, onProfile, onRandom, onNotif
 
   useEffect(() => {
     void profileApi
-      .me<{
-        displayName?: string | null;
-        basic?: { displayName?: string | null };
-        avatarUrl?: string | null;
-        avatar?: { url?: string | null; thumbnailUrl?: string | null };
-      }>()
+      .me()
       .then((p) =>
         setMe({
           name: p.basic?.displayName ?? p.displayName ?? 'Bạn',

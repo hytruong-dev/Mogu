@@ -73,7 +73,7 @@ export class SettingsService {
         error: {
           code: 'SETTINGS_VERSION_CONFLICT',
           message: 'Cài đặt đã được cập nhật ở nơi khác.',
-          details: { expectedVersion: current.version },
+          details: { expectedVersion: current.version, currentVersion: current.version },
         },
       });
     }

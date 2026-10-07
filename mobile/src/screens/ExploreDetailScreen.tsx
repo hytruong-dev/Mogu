@@ -236,12 +236,7 @@ function ArticleDetailLoaded({
 
   useEffect(() => {
     profileApi
-      .me<{
-        displayName?: string | null;
-        basic?: { displayName?: string | null };
-        avatarUrl?: string | null;
-        avatar?: { url?: string | null; thumbnailUrl?: string | null };
-      }>()
+      .me()
       .then((me) => {
         setCurrentUser({
           displayName: me.basic?.displayName ?? me.displayName ?? 'Bạn',

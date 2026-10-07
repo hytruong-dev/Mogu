@@ -128,12 +128,7 @@ export function CreatePostScreen({ onClose, onPublished, editPostId }: Props) {
 
   useEffect(() => {
     void profileApi
-      .me<{
-        displayName?: string | null;
-        basic?: { displayName?: string | null };
-        avatarUrl?: string | null;
-        avatar?: { url?: string | null; thumbnailUrl?: string | null };
-      }>()
+      .me()
       .then((me) => {
         setDisplayName(me.basic?.displayName ?? me.displayName ?? 'Bạn');
         setAvatarUrl(me.avatar?.url ?? me.avatar?.thumbnailUrl ?? me.avatarUrl ?? null);

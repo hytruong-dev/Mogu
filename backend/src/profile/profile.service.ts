@@ -12,6 +12,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 import { NotificationsService } from '../notifications/notifications.service';
+import { MeasurementsTargetsService } from '../health/measurements-targets.service';
 import { UpdateBasicDto } from './dto/update-basic.dto';
 import { UpdateHealthDto } from './dto/update-health.dto';
 import { UpdatePreferencesDto } from './dto/update-preferences.dto';
@@ -26,6 +27,7 @@ export class ProfileService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     @Optional() private readonly notificationsService?: NotificationsService,
+    @Optional() private readonly measurementsTargets?: MeasurementsTargetsService,
   ) {
     const supabaseUrl = this.config.get<string>('SUPABASE_URL');
     const serviceRoleKey = this.config.get<string>('SUPABASE_SERVICE_ROLE_KEY');
@@ -49,6 +51,16 @@ export class ProfileService {
     return profile;
   }
 
+  private versionConflict(currentVersion: number) {
+    return new PreconditionFailedException({
+      error: {
+        code: 'PROFILE_VERSION_CONFLICT',
+        message: 'Hồ sơ đã được cập nhật trên thiết bị khác.',
+        details: { currentVersion },
+      },
+    });
+  }
+
   private validateVersion(profileVersionHeader: string | undefined, currentVersion: number) {
     if (!profileVersionHeader) {
       throw new PreconditionFailedException({
@@ -63,14 +75,7 @@ export class ProfileService {
     const parsedVer = parseInt(cleanVer, 10);
 
     if (isNaN(parsedVer) || parsedVer !== currentVersion) {
-      throw new PreconditionFailedException({
-        type: 'https://api.mogu.vn/problems/profile-version-conflict',
-        title: 'Profile version conflict',
-        status: 412,
-        code: 'PROFILE_VERSION_CONFLICT',
-        detail: 'Hồ sơ đã được cập nhật trên thiết bị khác.',
-        currentVersion,
-      });
+      throw this.versionConflict(currentVersion);
     }
   }
 
@@ -192,11 +197,11 @@ export class ProfileService {
         },
       });
       if (updated.count === 0) {
-        throw new PreconditionFailedException({
-          code: 'PROFILE_VERSION_CONFLICT',
-          detail: 'Hồ sơ đã được cập nhật trên thiết bị khác.',
-          currentVersion: expectedVersion,
+        const latest = await tx.profile.findUnique({
+          where: { userId },
+          select: { profileVersion: true },
         });
+        throw this.versionConflict(latest?.profileVersion ?? expectedVersion);
       }
 
       return tx.profile.findUnique({
@@ -228,22 +233,74 @@ export class ProfileService {
     const profile = await this.getProfileOrThrow(userId);
     this.validateVersion(profileVersionHeader, profile.profileVersion);
 
-    const updated = await this.prisma.db.profile.update({
-      where: { userId },
-      data: {
-        heightCm: dto.heightCm !== undefined ? dto.heightCm : profile.heightCm,
-        weightKg: dto.weightKg !== undefined ? dto.weightKg : profile.weightKg,
-        profileVersion: profile.profileVersion + 1,
-      },
-      select: {
-        heightCm: true,
-        weightKg: true,
-        profileVersion: true,
-        updatedAt: true,
-      },
+    const nextHeight = dto.heightCm !== undefined ? dto.heightCm : profile.heightCm;
+    const nextWeight = dto.weightKg !== undefined ? dto.weightKg : profile.weightKg;
+
+    const updated = await this.prisma.db.$transaction(async (tx) => {
+      const result = await tx.profile.updateMany({
+        where: { userId, profileVersion: profile.profileVersion },
+        data: {
+          heightCm: nextHeight,
+          weightKg: nextWeight,
+          ...(dto.targetWeightKg !== undefined ? { targetWeightKg: dto.targetWeightKg } : {}),
+          ...(dto.activityLevel !== undefined ? { activityLevel: dto.activityLevel } : {}),
+          profileVersion: { increment: 1 },
+        },
+      });
+      if (result.count === 0) {
+        const latest = await tx.profile.findUnique({
+          where: { userId },
+          select: { profileVersion: true },
+        });
+        throw this.versionConflict(latest?.profileVersion ?? profile.profileVersion);
+      }
+
+      const now = new Date();
+      if (dto.heightCm != null && dto.heightCm !== profile.heightCm) {
+        await tx.profileMeasurement.create({
+          data: { userId, type: 'HEIGHT_CM', valueDecimal: dto.heightCm, unit: 'cm', measuredAt: now },
+        });
+      }
+      if (dto.weightKg != null && dto.weightKg !== profile.weightKg) {
+        await tx.profileMeasurement.create({
+          data: { userId, type: 'WEIGHT_KG', valueDecimal: dto.weightKg, unit: 'kg', measuredAt: now },
+        });
+      }
+
+      return tx.profile.findUnique({
+        where: { userId },
+        select: {
+          heightCm: true,
+          weightKg: true,
+          targetWeightKg: true,
+          activityLevel: true,
+          profileVersion: true,
+          updatedAt: true,
+        },
+      });
     });
 
-    return { ...updated, message: 'Thông số sức khỏe đã được cập nhật.' };
+    let targetStatus: string = 'INSUFFICIENT_INPUT';
+    let missingInputs: string[] = [];
+    if (this.measurementsTargets) {
+      try {
+        const recalculated = await this.measurementsTargets.recalculateHealthTarget(userId);
+        targetStatus = recalculated.status;
+        missingInputs = (recalculated as { missingInputs?: string[] }).missingInputs ?? [];
+      } catch (err) {
+        this.logger.warn(`recalculateHealthTarget failed: ${(err as Error).message}`);
+      }
+    }
+
+    const healthProfile = await this.getHealthProfile(userId);
+    return {
+      ...updated,
+      profileVersion: updated?.profileVersion ?? profile.profileVersion + 1,
+      healthProfile,
+      targetStatus,
+      missingInputs,
+      message: 'Thông số sức khỏe đã được cập nhật.',
+    };
   }
 
   async updatePreferences(
@@ -431,6 +488,8 @@ export class ProfileService {
       publishedPostCount,
       savedDishCount,
       followerCount,
+      followingCount,
+      draftPostCount,
       randomRuns,
       mealsThisMonth,
       unreadNotifications,
@@ -447,6 +506,10 @@ export class ProfileService {
       }),
       this.prisma.db.savedDish.count({ where: { userId } }),
       this.prisma.db.userFollow.count({ where: { followingId: userId } }),
+      this.prisma.db.userFollow.count({ where: { followerId: userId } }),
+      this.prisma.db.communityPost.count({
+        where: { authorId: userId, status: 'DRAFT' },
+      }),
       this.prisma.db.randomHistory.count({ where: { userId } }),
       this.prisma.db.diaryMealLog.count({
         where: {
@@ -473,7 +536,6 @@ export class ProfileService {
         distinct: ['referenceId'],
       }),
     ]);
-    const draftPostCount = 0;
 
     const weekStartsOn = (query.weekStartsOn ?? 'MONDAY').toUpperCase();
     const dow = new Date(`${localDate}T00:00:00.000Z`).getUTCDay(); // 0=Sun
@@ -505,6 +567,8 @@ export class ProfileService {
         publishedPostCount,
         savedDishCount,
         followerCount,
+        followingCount,
+        draftPostCount,
       },
       journeyPreview: {
         currentStreakDays: streakInfo.currentStreakDays,
@@ -603,7 +667,7 @@ export class ProfileService {
       healthSummary: {
         latestHeightCm: profile.heightCm,
         latestWeightKg: profile.weightKg,
-        targetWeightKg: null as number | null,
+        targetWeightKg: profile.targetWeightKg ?? null,
         activityLevel: profile.activityLevel ?? null,
         updatedAt: profile.updatedAt,
       },
@@ -613,6 +677,7 @@ export class ProfileService {
         dietTypes: diets,
         selectionPriorities,
         allergens: userAllergens.map((a) => a.allergen),
+        noAllergies: profile.noAllergies,
         avoidedIngredients: userAvoidedIngredients.map((i) => ({
           id: i.id,
           name: i.ingredientName,
@@ -945,6 +1010,51 @@ export class ProfileService {
     };
   }
 
+  async putSelectionPriorities(
+    userId: string,
+    items: Array<{ code: string; weight: number }>,
+  ) {
+    await this.getProfileOrThrow(userId);
+
+    const catalog = await this.prisma.db.selectionPriorityCatalog.findMany({
+      where: { active: true },
+      select: { code: true },
+    });
+    const allowed = new Set(catalog.map((c) => c.code));
+    const deduped = new Map<string, number>();
+    for (const item of items) {
+      if (allowed.size > 0 && !allowed.has(item.code)) {
+        throw new BadRequestException({
+          error: {
+            code: 'INVALID_SELECTION_PRIORITY',
+            message: `Mã ưu tiên không tồn tại: ${item.code}.`,
+          },
+        });
+      }
+      deduped.set(item.code, item.weight);
+    }
+
+    const profileVersion = await this.prisma.db.$transaction(async (tx) => {
+      await tx.userSelectionPriority.deleteMany({ where: { userId } });
+      for (const [code, weight] of deduped) {
+        await tx.userSelectionPriority.create({ data: { userId, code, weight } });
+      }
+      const updated = await tx.profile.update({
+        where: { userId },
+        data: { profileVersion: { increment: 1 } },
+        select: { profileVersion: true },
+      });
+      return updated.profileVersion;
+    });
+
+    const selectionPriorities = await this.prisma.db.userSelectionPriority.findMany({
+      where: { userId },
+      select: { code: true, weight: true },
+      orderBy: { weight: 'desc' },
+    });
+    return { selectionPriorities, profileVersion };
+  }
+
   async getHealthProfile(userId: string) {
     const profile = await this.getProfileOrThrow(userId);
     const [height, weight, target] = await Promise.all([
@@ -1004,8 +1114,12 @@ export class ProfileService {
           : null,
       },
       bmi,
-      targetWeight: null,
+      targetWeight: profile.targetWeightKg
+        ? { value: profile.targetWeightKg, unit: 'kg' }
+        : null,
+      targetWeightKg: profile.targetWeightKg ?? null,
       activityLevel: profile.activityLevel ?? null,
+      profileVersion: profile.profileVersion,
       dailyTargets: target
         ? {
             energyKcal: target.energyKcal,
@@ -1015,8 +1129,8 @@ export class ProfileService {
             waterMl: target.waterMl,
             steps: target.steps,
             mode: target.mode,
-            method: null,
-            formulaVersion: null,
+            method: target.mode === 'SYSTEM_ESTIMATED' ? 'MIFFLIN_ST_JEOR_V1' : 'MANUAL',
+            formulaVersion: target.mode === 'SYSTEM_ESTIMATED' ? '1.0' : null,
             inputsUsed: [],
             requiresProfessionalReview: false,
             version: target.version,
@@ -1195,10 +1309,7 @@ export class ProfileService {
         },
       });
       if (updated.count === 0) {
-        throw new PreconditionFailedException({
-          code: 'PROFILE_VERSION_CONFLICT',
-          detail: 'Hồ sơ đã được cập nhật trên thiết bị khác.',
-        });
+        throw this.versionConflict(profile.profileVersion + 1);
       }
     });
 

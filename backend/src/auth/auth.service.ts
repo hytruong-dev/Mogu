@@ -44,7 +44,11 @@ export class AuthService {
   }
 
   // ── POST /v1/auth/register ────────────────────────────────────────────────
-  async register(dto: RegisterDto, meta: RequestMeta) {
+  async register(dto: RegisterDto, rawMeta: RequestMeta) {
+    const meta: RequestMeta = {
+      ...rawMeta,
+      installationId: dto.installationId ?? rawMeta.installationId,
+    };
     const existingAccount = await this.prisma.db.account
       .findUnique({
         where: { username: dto.username.toLowerCase() },
@@ -191,7 +195,11 @@ export class AuthService {
   }
 
   // ── POST /v1/auth/login ──────────────────────────────────────────────────
-  async login(dto: LoginDto, meta: RequestMeta) {
+  async login(dto: LoginDto, rawMeta: RequestMeta) {
+    const meta: RequestMeta = {
+      ...rawMeta,
+      installationId: dto.installationId ?? rawMeta.installationId,
+    };
     const rawIdentifier = dto.identifier ?? dto.username;
     if (!rawIdentifier) {
       throw new BadRequestException({
@@ -287,7 +295,11 @@ export class AuthService {
   }
 
   // ── POST /v1/auth/refresh ────────────────────────────────────────────────
-  async refreshToken(dto: RefreshTokenDto, meta: RequestMeta) {
+  async refreshToken(dto: RefreshTokenDto, rawMeta: RequestMeta) {
+    const meta: RequestMeta = {
+      ...rawMeta,
+      installationId: (dto as { installationId?: string }).installationId ?? rawMeta.installationId,
+    };
     const { data, error } = await this.supabase.auth.refreshSession({
       refresh_token: dto.refreshToken,
     });
@@ -369,6 +381,22 @@ export class AuthService {
     });
   }
 
+  private buildDeviceLabel(meta: RequestMeta): string {
+    const platformMap: Record<string, string> = {
+      android: 'Android',
+      ios: 'iOS',
+      web: 'Web',
+    };
+    const platform = meta.platform
+      ? (platformMap[meta.platform.toLowerCase()] ?? meta.platform)
+      : null;
+    const model = meta.deviceModel?.trim().slice(0, 60);
+    if (platform && model) return `${platform} · ${model}`;
+    if (model) return model;
+    if (platform) return `${platform} device`;
+    return 'Mobile Device';
+  }
+
   private async trackSession(
     userId: string,
     refreshToken: string | undefined,
@@ -379,7 +407,7 @@ export class AuthService {
       const account = await this.findAccountByUserId(userId);
       if (!account) return;
       const tokenHash = this.hashToken(refreshToken);
-      await (this.prisma.db as any).refreshSession.upsert({
+      const session = await (this.prisma.db as any).refreshSession.upsert({
         where: { tokenHash },
         create: {
           accountId: account.id,
@@ -387,16 +415,29 @@ export class AuthService {
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           installationId: meta.installationId ?? null,
           platform: meta.platform ?? null,
-          deviceLabel: meta.platform ? `${meta.platform} device` : 'Mobile Device',
+          deviceLabel: this.buildDeviceLabel(meta),
           lastUsedAt: new Date(),
         },
         update: {
           lastUsedAt: new Date(),
           installationId: meta.installationId ?? undefined,
           platform: meta.platform ?? undefined,
+          deviceLabel: meta.deviceModel || meta.platform ? this.buildDeviceLabel(meta) : undefined,
           revokedAt: null,
         },
       });
+      // Refresh token xoay vòng: thu hồi các dòng cũ cùng thiết bị để danh sách phiên không bị trùng.
+      if (meta.installationId) {
+        await this.prisma.db.refreshSession.updateMany({
+          where: {
+            accountId: account.id,
+            installationId: meta.installationId,
+            revokedAt: null,
+            id: { not: session.id },
+          },
+          data: { revokedAt: new Date() },
+        });
+      }
     } catch (err) {
       this.logger.warn(`trackSession failed: ${(err as Error).message}`);
     }
@@ -868,6 +909,7 @@ export class AuthService {
 }
 
 interface RequestMeta {
+  deviceModel?: string;
   ipHash?: string;
   deviceIdHash?: string;
   platform?: string;

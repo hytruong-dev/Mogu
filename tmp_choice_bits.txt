@@ -1,0 +1,107 @@
+function ChoiceGrid({
+  items,
+  selected,
+  onToggle,
+  emoji,
+}: {
+  items: CatalogItem[];
+  selected: string[];
+  onToggle: (id: string) => void;
+  emoji?: string;
+}) {
+  if (items.length === 0) {
+  return (
+      <PCard>
+        <Text style={{ color: P.muted, textAlign: 'center' }}>Chưa có lựa chọn.</Text>
+      </PCard>
+    );
+  }
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+      {items.map((x) => {
+        const active = selected.includes(x.id);
+        return (
+          <Pressable
+            key={x.id}
+            onPress={() => onToggle(x.id)}
+            accessibilityState={{ selected: active }}
+            style={({ pressed }) => [ps.gridItem, active && ps.gridItemActive, pressed && { transform: [{ scale: 0.97 }] }]}
+          >
+            {active ? (
+              <View style={ps.gridCheck}>
+                <Check size={12} color="#FFFFFF" strokeWidth={3} />
+              </View>
+            ) : null}
+            {emoji ? <Text style={{ fontSize: 20 }}>{emoji}</Text> : null}
+            <Text style={[ps.gridTxt, active && { color: P.accentDeep }]} numberOfLines={2}>
+              {x.name}
+            </Text>
+            {x.description ? (
+              <Text style={ps.gridDesc} numberOfLines={2}>
+                {x.description}
+              </Text>
+            ) : null}
+      </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+
+function ChoiceChips({
+  items,
+  selected,
+  onToggle,
+}: {
+  items: CatalogItem[];
+  selected: string[];
+  onToggle: (id: string) => void;
+}) {
+  if (items.length === 0) {
+  return (
+      <PCard>
+        <Text style={{ color: P.muted, textAlign: 'center' }}>Chưa có lựa chọn.</Text>
+      </PCard>
+    );
+  }
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+      {items.map((x) => (
+        <PChip key={x.id} text={x.name} active={selected.includes(x.id)} onPress={() => onToggle(x.id)} check />
+      ))}
+    </View>
+  );
+}
+
+const ps = StyleSheet.create({
+  gridItem: {
+    width: '48%',
+    flexGrow: 1,
+    minHeight: 84,
+    backgroundColor: P.card,
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1.5,
+    borderColor: 'transparent',
+    gap: 4,
+    shadowColor: '#5D490F',
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
+  },
+  gridItemActive: { backgroundColor: '#FFF8E1', borderColor: P.accent },
+  gridCheck: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: P.accentDeep,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  gridTxt: { fontSize: 14.5, fontWeight: '800', color: P.ink, marginTop: 2 },
+  gridDesc: { fontSize: 12, color: P.muted, lineHeight: 16 },
+});

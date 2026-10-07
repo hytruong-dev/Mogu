@@ -133,10 +133,10 @@ export class CatalogService {
       return {
         version: CatalogService.CATALOG_VERSION,
         items: [
-          { id: null, code: 'PRICE', name: 'Giá cả', description: null, displayOrder: 1 },
-          { id: null, code: 'TIME', name: 'Thời gian', description: null, displayOrder: 2 },
-          { id: null, code: 'HEALTH', name: 'Sức khỏe', description: null, displayOrder: 3 },
-          { id: null, code: 'TASTE', name: 'Khẩu vị', description: null, displayOrder: 4 },
+          { id: null, code: 'HEALTHY', name: 'Lành mạnh', description: null, displayOrder: 1 },
+          { id: null, code: 'ECONOMY', name: 'Tiết kiệm', description: null, displayOrder: 2 },
+          { id: null, code: 'QUICK', name: 'Nhanh gọn', description: null, displayOrder: 3 },
+          { id: null, code: 'NOVELTY', name: 'Thử món mới', description: null, displayOrder: 4 },
         ],
       };
     }

@@ -20,35 +20,106 @@ export class PrivacyService {
       }
     }
 
-    const storageKey = `exports/${userId}/${Date.now()}.json`;
-    const supabaseUrl =
-      process.env.SUPABASE_URL?.replace(/\/$/, '') ??
-      'https://placeholder.supabase.co';
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-    const resultUrl = `${supabaseUrl}/storage/v1/object/sign/${storageKey}?token=export-stub`;
+    const payload = await this.buildExportPayload(userId);
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     const job = await this.prisma.db.privacyJob.create({
       data: {
         userId,
         jobType: 'DATA_EXPORT',
         status: 'READY',
-        resultUrl,
-        resultStorageKey: storageKey,
         idempotencyKey: idempotencyKey ?? null,
         progress: 100,
         startedAt: new Date(),
         finishedAt: new Date(),
         expiresAt,
         metadata: {
-          note: 'Signed URL style export result.',
+          format: 'json',
           generatedAt: new Date().toISOString(),
-        },
+          payload,
+        } as any,
       },
     });
+    const withUrl = await this.prisma.db.privacyJob.update({
+      where: { id: job.id },
+      data: { resultUrl: `/v1/me/data-exports/${job.id}/content` },
+    });
 
-    return this.formatExportJob(job);
+    return this.formatExportJob(withUrl);
   }
 
+  private async buildExportPayload(userId: string) {
+    const db = this.prisma.db;
+    const safe = <T>(p: Promise<T>, fallback: T) => p.catch(() => fallback);
+    const [
+      profile,
+      settings,
+      goals,
+      dietaryPrefs,
+      allergens,
+      avoidances,
+      savedDishes,
+      mealLogs,
+      waterLogs,
+      randomHistory,
+      posts,
+      measurements,
+    ] = await Promise.all([
+      safe(db.profile.findUnique({ where: { userId } }), null),
+      safe(db.userSetting.findUnique({ where: { userId } }), null),
+      safe(db.userGoal.findMany({ where: { userId }, include: { goal: { select: { code: true, name: true } } } }), []),
+      safe(db.userDietaryPreference.findMany({ where: { userId }, include: { preference: { select: { code: true, name: true, type: true } } } }), []),
+      safe(db.userAllergen.findMany({ where: { userId }, include: { allergen: { select: { code: true, name: true } } } }), []),
+      safe(db.userAvoidedIngredient.findMany({ where: { userId }, select: { ingredientName: true, mode: true, reasonCode: true } }), []),
+      safe(db.savedDish.findMany({ where: { userId }, include: { dish: { select: { id: true, name: true } } }, orderBy: { savedAt: 'desc' }, take: 1000 }), []),
+      safe(db.diaryMealLog.findMany({ where: { userId, deletedAt: null }, include: { items: true }, orderBy: { occurredAt: 'desc' }, take: 2000 }), []),
+      safe(db.waterLog.findMany({ where: { userId }, orderBy: { occurredAt: 'desc' }, take: 2000 }), []),
+      safe(db.randomHistory.findMany({ where: { userId }, select: { id: true, dishId: true, mealSlot: true, status: true, createdAt: true, selectedAt: true }, orderBy: { createdAt: 'desc' }, take: 1000 }), []),
+      safe(db.communityPost.findMany({ where: { authorId: userId, status: { not: 'DELETED' } }, select: { id: true, content: true, imageUrls: true, status: true, visibility: true, createdAt: true }, orderBy: { createdAt: 'desc' }, take: 1000 }), []),
+      safe(db.profileMeasurement.findMany({ where: { userId }, orderBy: { measuredAt: 'desc' }, take: 1000 }), []),
+    ]);
+
+    return {
+      schemaVersion: 1,
+      exportedAt: new Date().toISOString(),
+      userId,
+      profile,
+      settings,
+      goals,
+      dietaryPreferences: dietaryPrefs,
+      allergens,
+      avoidedIngredients: avoidances,
+      measurements,
+      savedDishes,
+      mealLogs,
+      waterLogs,
+      randomHistory,
+      posts,
+    };
+  }
+
+  async getExportContent(userId: string, jobId: string) {
+    const job = await this.prisma.db.privacyJob.findFirst({
+      where: { id: jobId, userId, jobType: 'DATA_EXPORT' },
+    });
+    if (!job) {
+      throw new NotFoundException({
+        error: { code: 'EXPORT_NOT_FOUND', message: 'Không tìm thấy yêu cầu xuất dữ liệu.' },
+      });
+    }
+    if (job.expiresAt && job.expiresAt < new Date()) {
+      throw new ForbiddenException({
+        error: { code: 'EXPORT_EXPIRED', message: 'Link xuất dữ liệu đã hết hạn.' },
+      });
+    }
+    const payload = (job.metadata as any)?.payload;
+    if (!payload) {
+      throw new NotFoundException({
+        error: { code: 'EXPORT_EMPTY', message: 'Dữ liệu xuất không còn khả dụng.' },
+      });
+    }
+    return payload;
+  }
   private formatExportJob(job: any) {
     return {
       jobId: job.id,
@@ -62,7 +133,7 @@ export class PrivacyService {
           }
         : null,
       resultUrl: job.resultUrl,
-      downloadPath: `/v1/me/data-exports/${job.id}`,
+      downloadPath: `/v1/me/data-exports/${job.id}/content`,
       pollAfterMs: 3000,
     };
   }
@@ -210,6 +281,7 @@ export class PrivacyService {
           heightCm: null,
           weightKg: null,
           goalKcal: null,
+          targetWeightKg: null,
           activityLevel: null,
         },
       });

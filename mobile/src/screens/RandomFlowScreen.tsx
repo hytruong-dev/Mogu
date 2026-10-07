@@ -390,17 +390,7 @@ export function RandomFlowScreen({ onClose }: Props) {
     // Preload hồ sơ để runtimeOverrides sẵn sàng trước khi mở sheet
     void (async () => {
       try {
-        const me = await profileApi.me<{
-          version?: number;
-          profileVersion?: number;
-          noAllergies?: boolean;
-          preferences?: {
-            primaryGoal?: { id: string; code: string; name: string } | null;
-            tastePreferences?: CatalogItem[];
-            dietTypes?: CatalogItem[];
-            allergens?: CatalogItem[];
-          };
-        }>();
+        const me = await profileApi.me();
         setProfileSnap({
           profileVersion: me.version ?? me.profileVersion ?? 1,
           primaryGoal: me.preferences?.primaryGoal ?? null,
