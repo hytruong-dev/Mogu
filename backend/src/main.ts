@@ -100,10 +100,15 @@ async function bootstrap() {
   const corsOrigins: (string | RegExp)[] =
     process.env.CORS_ORIGINS?.split(',').map(o => o.trim()).filter(Boolean) ?? [];
   if (isDev) {
-    corsOrigins.push(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/);
+    corsOrigins.push(
+      /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
+      /^https:\/\/.*\.trycloudflare\.com$/,
+      /^https:\/\/.*\.ngrok-free\.app$/,
+      /^https:\/\/.*\.loca\.lt$/,
+    );
   }
   app.enableCors({
-    origin: corsOrigins.length > 0 ? corsOrigins : false,
+    origin: isDev ? true : corsOrigins.length > 0 ? corsOrigins : false,
     credentials: true,
     allowedHeaders: [
       'Content-Type',
@@ -119,6 +124,8 @@ async function bootstrap() {
       'x-request-id',
       'x-timezone',
       'x-local-date',
+      'bypass-tunnel-reminder',
+      'ngrok-skip-browser-warning',
     ],
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     exposedHeaders: ['x-profile-version', 'x-trace-id', 'X-Request-Id'],

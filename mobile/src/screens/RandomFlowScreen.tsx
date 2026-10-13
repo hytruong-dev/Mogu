@@ -1120,10 +1120,16 @@ export function RandomFlowScreen({ onClose }: Props) {
               style={styles.profileRow}
               onPress={() => {
                 if (!userLocation.coords) {
-                  if (userLocation.status === 'denied') {
-                    void Linking.openSettings();
+                  if (!userLocation.permissionGranted) {
+                    if (userLocation.canAskAgain) {
+                      void userLocation.request();
+                    } else {
+                      void Linking.openSettings();
+                    }
+                  } else if (!userLocation.servicesEnabled) {
+                    void userLocation.promptEnableServices();
                   } else {
-                    void userLocation.request();
+                    void userLocation.refresh();
                   }
                 }
               }}
@@ -1140,24 +1146,34 @@ export function RandomFlowScreen({ onClose }: Props) {
                       ? `Chỉ gợi ý món có quán trong ${NEARBY_RADIUS_KM}km`
                       : userLocation.loading
                         ? 'Đang xác định vị trí…'
-                        : userLocation.status === 'denied'
+                        : !userLocation.permissionGranted
                           ? 'Chưa cấp quyền vị trí'
-                          : 'Bật vị trí để tìm quán gần bạn'}
+                          : !userLocation.servicesEnabled
+                            ? 'Chưa bật định vị GPS'
+                            : 'Chưa có tín hiệu vị trí'}
                   </Text>
                   <Text style={styles.profileSub} numberOfLines={2}>
                     {userLocation.coords
                       ? 'NOAN chỉ đưa món bạn có thể ăn ngay quanh đây, không gợi ý món ở xa.'
                       : userLocation.loading
                         ? 'Đang dò GPS để tìm món quanh 3km…'
-                        : userLocation.status === 'denied'
-                          ? 'Nhấn để mở Cài đặt và bật quyền vị trí cho ứng dụng.'
-                          : 'Cần vị trí để đảm bảo món đưa ra có quán bán trong bán kính 3km.'}
+                        : !userLocation.permissionGranted
+                          ? (userLocation.canAskAgain
+                              ? 'Cần vị trí để đảm bảo món đưa ra có quán bán trong bán kính 3km.'
+                              : 'Nhấn để mở Cài đặt và bật quyền vị trí cho ứng dụng.')
+                          : !userLocation.servicesEnabled
+                            ? 'Vui lòng bật GPS trên thiết bị để NOAN tìm quán gần bạn.'
+                            : 'Nhấn để thử lấy lại tín hiệu GPS của bạn.'}
                   </Text>
                 </View>
                 {!userLocation.coords && !userLocation.loading ? (
                   <View style={styles.locationActionBadge}>
                     <Text style={styles.locationActionBadgeTxt}>
-                      {userLocation.status === 'denied' ? 'Cài đặt' : 'Bật'}
+                      {!userLocation.permissionGranted
+                        ? (userLocation.canAskAgain ? 'Bật' : 'Cài đặt')
+                        : !userLocation.servicesEnabled
+                          ? 'Bật GPS'
+                          : 'Thử lại'}
                     </Text>
                   </View>
                 ) : null}
@@ -1198,10 +1214,16 @@ export function RandomFlowScreen({ onClose }: Props) {
               disabled={!meal || !mealReady || loading}
               onPress={() => {
                 if (!userLocation.coords) {
-                  if (userLocation.status === 'denied') {
-                    void Linking.openSettings();
+                  if (!userLocation.permissionGranted) {
+                    if (userLocation.canAskAgain) {
+                      void userLocation.request();
+                    } else {
+                      void Linking.openSettings();
+                    }
+                  } else if (!userLocation.servicesEnabled) {
+                    void userLocation.promptEnableServices();
                   } else {
-                    void userLocation.request();
+                    void userLocation.refresh();
                   }
                   return;
                 }
@@ -1212,7 +1234,15 @@ export function RandomFlowScreen({ onClose }: Props) {
                 <ActivityIndicator color={INK} />
               ) : (
                 <Text style={styles.ctaTxt}>
-                  {!userLocation.coords ? 'Bật vị trí để chọn món' : 'Chọn món cho tôi'}
+                  {userLocation.coords
+                    ? 'Chọn món cho tôi'
+                    : userLocation.loading
+                      ? 'Đang tìm vị trí…'
+                      : !userLocation.permissionGranted
+                        ? 'Bật vị trí để chọn món'
+                        : !userLocation.servicesEnabled
+                          ? 'Bật GPS để chọn món'
+                          : 'Thử lại vị trí'}
                 </Text>
               )}
             </Pressable>
