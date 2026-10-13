@@ -139,7 +139,8 @@ Chỉ trả về DUY NHẤT một JSON object hợp lệ:
       const content = response.choices[0]?.message?.content;
       if (!content) return null;
 
-      const parsed = JSON.parse(content) as Record<string, any>;
+      const cleanJson = content.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim();
+      const parsed = JSON.parse(cleanJson) as Record<string, any>;
       return {
         isIngredient: Boolean(parsed.isIngredient),
         matchesName: Boolean(parsed.matchesName),

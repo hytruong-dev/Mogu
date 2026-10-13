@@ -9,6 +9,9 @@ import { dishesApi } from '../services/api/dishes';
 import { normalizeImageUrl } from '../services/api/randomization';
 import { formatApiErrorWithCode } from '../lib/api-error';
 import { DetailSkeleton } from '../components/skeletons/ScreenSkeletons';
+import { placesApi } from '../services/api/places';
+import { fetchUserLocation } from '../hooks/useUserLocation';
+import type { NearbyPlace } from './food-detail/types';
 import { FoodDetailFlowScreen } from './FoodDetailFlowScreen';
 
 /** Session-level debounce: 1 view log per dishId */
@@ -44,6 +47,7 @@ function buildDishImageUrl(dish: any): string | null {
 export default function DishDetailLoaderScreen({ route, navigation }: Props) {
   const { dishId, mealLabel } = route.params;
   const [dish, setDish] = useState<any | null>(null);
+  const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,6 +66,21 @@ export default function DishDetailLoaderScreen({ route, navigation }: Props) {
         if (!loggedRef.current) {
           loggedRef.current = true;
           dishesApi.logView(dishId, 'food_detail').catch(() => undefined);
+        }
+        // Tải các quán bán món này trong 3km quanh người dùng (không xin quyền ở đây)
+        if (d?.name) {
+          fetchUserLocation()
+            .then((coords) =>
+              coords
+                ? placesApi
+                    .nearby({ dishId, lat: coords.lat, lng: coords.lng, radiusKm: 3, limit: 20 })
+                    .then((r) => r.places)
+                : placesApi.search({ q: d.name }),
+            )
+            .then((places) => {
+              if (!cancelled) setNearbyPlaces(places);
+            })
+            .catch(() => undefined);
         }
       })
       .catch((e) => {
@@ -152,10 +171,10 @@ export default function DishDetailLoaderScreen({ route, navigation }: Props) {
       recipeSteps,
       difficulty: dish.difficulty ?? null,
       videoUrl: dish.videoUrl ?? dish.recipeVideoUrl ?? null,
-      nearbyPlaces: [],
+      nearbyPlaces,
       mealTypes,
     };
-  }, [dish, mealLabel]);
+  }, [dish, mealLabel, nearbyPlaces]);
 
   if (loading) {
     return (

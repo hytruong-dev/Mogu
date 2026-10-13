@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { Pressable, type ImageSourcePropType, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Image as ExpoImage } from 'expo-image';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -242,12 +242,8 @@ export function FoodReelMachine({
             {WINDOWS.map((left, index) => (
               <View key={index} style={[styles.window, { left }]}>
                 <ReelTrack
-                  items={
-                    selectedDish && (finishing || jackpot)
-                      ? [selectedDish, REELS[index][1], REELS[index][2], REELS[index][3]]
-                      : REELS[index]
-                  }
-                  selectedDish={selectedDish}
+                  items={REELS[index]}
+                  winningDish={selectedDish && (finishing || jackpot) ? selectedDish : undefined}
                   itemHeight={itemHeight}
                   machineWidth={width}
                   running={running}
@@ -536,7 +532,7 @@ function BulbHaloView({
 
 function ReelTrack({
   items,
-  selectedDish,
+  winningDish,
   itemHeight,
   machineWidth,
   running,
@@ -545,7 +541,7 @@ function ReelTrack({
   reelIndex,
 }: {
   items: ImageSourcePropType[];
-  selectedDish?: ImageSourcePropType;
+  winningDish?: ImageSourcePropType;
   itemHeight: number;
   machineWidth: number;
   running: boolean;
@@ -625,21 +621,27 @@ function ReelTrack({
   }));
   const blurStyle = useAnimatedStyle(() => ({ opacity: speed.value }));
   const copies = running || finishing ? LOOP_COPIES : 1;
-  const loopItems = Array.from({ length: copies }, () => items).flat();
+  const loopItems = useMemo(
+    () => Array.from({ length: copies }, () => items).flat(),
+    [copies, items],
+  );
 
   return (
     <>
       <Animated.View style={trackStyle} importantForAccessibility="no-hide-descendants">
-        {loopItems.map((source, index) => (
-          <ReelItem
-            key={index}
-            source={source}
-            itemHeight={itemHeight}
-            machineWidth={machineWidth}
-            reelIndex={reelIndex}
-            isWinningDish={Boolean(selectedDish && source === selectedDish)}
-          />
-        ))}
+        {loopItems.map((source, index) => {
+          const isWinnerLanding = index === 0 && Boolean(winningDish);
+          return (
+            <ReelItem
+              key={index}
+              source={isWinnerLanding ? winningDish! : source}
+              itemHeight={itemHeight}
+              machineWidth={machineWidth}
+              reelIndex={reelIndex}
+              isWinningDish={isWinnerLanding}
+            />
+          );
+        })}
       </Animated.View>
       {/* Motion-blur streaks + cylinder shading while the reel is at speed. */}
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, blurStyle]}>
@@ -663,7 +665,7 @@ function ReelTrack({
   );
 }
 
-function ReelItem({
+const ReelItem = memo(function ReelItem({
   source,
   itemHeight,
   machineWidth,
@@ -709,7 +711,7 @@ function ReelItem({
       style={{ width: '100%', height: itemHeight }}
     />
   );
-}
+});
 
 const styles = StyleSheet.create({
   zone: { aspectRatio: 1.5, marginHorizontal: -28, marginTop: -2 },

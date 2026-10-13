@@ -60,6 +60,13 @@ export interface RandomDishRecipeStep {
   imageUrl: string | null;
 }
 
+export interface EatOutPriceDto {
+  min: number;
+  max: number;
+  source: 'NEARBY' | 'DISH';
+  sampleCount?: number;
+}
+
 export interface RandomDish {
   id: string;
   name: string;
@@ -68,6 +75,9 @@ export interface RandomDish {
   imageUrl: string | null;
   priceMin: number | null;
   priceMax: number | null;
+  dineOutPriceMin?: number | null;
+  dineOutPriceMax?: number | null;
+  eatOutPrice?: EatOutPriceDto | null;
   prepMinutes: number | null;
   cookMinutes: number | null;
   originText: string | null;
@@ -82,6 +92,12 @@ export interface RandomDish {
   recipeSteps: RandomDishRecipeStep[];
 }
 
+export type RandomFailReasonCode =
+  | 'NO_NEARBY_DISH'
+  | 'NEARBY_LOOKUP_FAILED'
+  | 'INSUFFICIENT_CANDIDATES'
+  | 'LOCATION_REQUIRED';
+
 export interface RandomizationExplanation {
   summary: string;
   compatibilityPercent: number;
@@ -91,6 +107,58 @@ export interface RandomizationExplanation {
   tip?: string | null;
   fallbackApplied: string[];
   relaxableCriteria: string[];
+  /** Có khi dish = null */
+  failReasonCode?: RandomFailReasonCode | null;
+}
+
+/** Quán (từ backend PlacesService.map) */
+export interface ApiPlace {
+  id: string;
+  provider: string;
+  providerPlaceId?: string | null;
+  name: string;
+  addressShort?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  distanceMeters?: number | null;
+  thumbnailUrl?: string | null;
+  ratingAvg?: number | null;
+  ratingCount?: number | null;
+  priceMin?: number | null;
+  priceMax?: number | null;
+  priceRange?: string | null;
+  openStatus?: 'OPEN' | 'CLOSED' | 'UNKNOWN' | null;
+  sourceUrl?: string | null;
+  isVerified?: boolean;
+  categoryTags?: string[];
+  menuMatchStatus?: 'CONFIRMED' | 'LIKELY' | 'UNKNOWN' | null;
+  dishPriceVnd?: number | null;
+  sourceItemName?: string | null;
+}
+
+/**
+ * STRICT: chỉ trả món có quán trong bán kính (không mở rộng, không fallback) — mặc định khi gửi location.
+ * PREFER: ưu tiên món gần, cascade 3→5→10km rồi bỏ ràng buộc (dùng cho weekly plan).
+ * OFF: bỏ qua vị trí.
+ */
+export type LocationMode = 'STRICT' | 'PREFER' | 'OFF';
+
+export interface RandomizationNearby {
+  mode?: LocationMode;
+  requestedRadiusKm: number;
+  /** Bán kính thực sự tìm được món (null = không có món trong bán kính / đã random toàn bộ ở PREFER) */
+  radiusKm: number | null;
+  /** Số quán bán món đã chọn trong bán kính (hoặc tổng số quán quanh user khi dish = null) */
+  placeCount: number;
+  /** Số quán bán món đã chọn đang mở cửa */
+  openCount?: number;
+  nearestMeters: number | null;
+  /** Số món có quán bán trong bán kính yêu cầu (trước khi lọc hồ sơ) */
+  dishCountInRadius?: number;
+  fallback: boolean;
+  /** HIT | FETCHED | TIMEOUT | SKIPPED — trạng thái làm nóng dữ liệu quán quanh user */
+  warmup?: string | null;
+  places: ApiPlace[];
 }
 
 export interface RandomizationResult {
@@ -99,6 +167,7 @@ export interface RandomizationResult {
   reason: { summary: string; factors: string[] } | null;
   explanation: RandomizationExplanation;
   scoreBreakdown?: Record<string, number>;
+  nearby?: RandomizationNearby | null;
 }
 
 // ── Request DTOs ────────────────────────────────────────────────────────────────
@@ -119,6 +188,7 @@ export interface RuntimeOverridesDto {
   dietTypeCodes?: string[];
   weatherCode?: string;
   radiusKm?: number;
+  locationMode?: LocationMode;
 }
 
 export interface RandomizationRequestDto {
@@ -126,6 +196,7 @@ export interface RandomizationRequestDto {
   meal?: MealSlotDto;
   budget?: BudgetDto;
   runtimeOverrides?: RuntimeOverridesDto;
+  location?: { latitude: number; longitude: number };
   excludeDishIds?: string[];
   // Legacy (backward-compat)
   mealTypeCode?: string;

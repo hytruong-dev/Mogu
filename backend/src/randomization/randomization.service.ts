@@ -11,7 +11,19 @@ import { DishEligibilityService } from '../dishes/eligibility/dish-eligibility.s
 import { mapNutritionToPlanServing } from '../dishes/eligibility/dish-nutrition.mapper';
 import { MealLogsService } from '../health/meal-logs.service';
 import {
+  aggregateNearbyDishes,
+  DEFAULT_NEARBY_RADIUS_KM,
+  MAX_NEARBY_RADIUS_KM,
+  PlacesService,
+  type NearbyDishPlaceRow,
+  type NearbyDishStat,
+  type PlaceDto,
+} from '../places/places.service';
+import { resolveEatOutPrice } from './eat-out-price';
+import { isValidCoord } from '../places/places-geo.util';
+import {
   BudgetModeEnum,
+  LocationModeEnum,
   MealSlotEnum,
   RandomHistoryQueryDto,
   RandomizationRequestDto,
@@ -21,9 +33,53 @@ import {
   SelectRandomizationDto,
 } from './dto/randomization.dto';
 
-const ALGORITHM_VERSION = 'rule-v3.0.0';
+const ALGORITHM_VERSION = 'rule-v3.2.0';
 const RECENT_EXCLUSION_DAYS = 7;
 const HISTORY_LOOKBACK_DAYS = 90;
+/** Thang điểm tối đa (goal 30 + personal 20 + novelty 15 + data 10 + time 10 + weather 10 + pop 10 + budget 5 + proximity 10). */
+const MAX_TOTAL_SCORE = 120;
+/** Các mốc mở rộng bán kính (chỉ dùng cho locationMode=PREFER). */
+const NEARBY_RADIUS_STEPS_KM = [3, 5, 10];
+const NEARBY_TOP_PLACES = 5;
+/** Giới hạn chờ AI sinh giải thích; quá hạn thì dùng giải thích rule-based. */
+const AI_EXPLANATION_TIMEOUT_MS = 6_000;
+/** Model nhanh, không reasoning — ~1.5-3s cho một đoạn giải thích ngắn. */
+const DEFAULT_EXPLANATION_MODEL = 'ag/gemini-2.5-flash-lite';
+
+/** Danh sách bán kính cascade bắt đầu từ bán kính người dùng yêu cầu (chế độ PREFER). */
+export function buildRadiusCascade(requestedKm?: number | null): number[] {
+  const r = Number(requestedKm);
+  const start =
+    Number.isFinite(r) && r > 0 ? Math.min(MAX_NEARBY_RADIUS_KM, r) : DEFAULT_NEARBY_RADIUS_KM;
+  const steps = [start, ...NEARBY_RADIUS_STEPS_KM.filter((s) => s > start)];
+  return Array.from(new Set(steps));
+}
+
+/** Bán kính duy nhất cho chế độ STRICT (không mở rộng). */
+export function resolveStrictRadiusKm(requestedKm?: number | null): number {
+  const r = Number(requestedKm);
+  return Number.isFinite(r) && r > 0 ? Math.min(MAX_NEARBY_RADIUS_KM, r) : DEFAULT_NEARBY_RADIUS_KM;
+}
+
+/**
+ * Điểm gần 0-10 (quán bán món quanh người dùng):
+ * - Khoảng cách quán gần nhất: <1km 7, <3km 5, <5km 3, xa hơn 1
+ * - +1 nếu có >= 3 quán; +1 nếu có quán đang mở; +1 nếu rating tốt nhất >= 4.0 hoặc có link CONFIRMED
+ * Không có vị trí → 5 (trung tính); có vị trí nhưng không quán nào → 0.
+ */
+export function proximityScore(stat: NearbyDishStat | undefined, hasLocation: boolean): number {
+  if (!hasLocation) return 5;
+  if (!stat) return 0;
+  let s = stat.nearestMeters < 1000 ? 7 : stat.nearestMeters < 3000 ? 5 : stat.nearestMeters < 5000 ? 3 : 1;
+  if (stat.placeCount >= 3) s += 1;
+  if ((stat.openCount ?? 0) > 0) s += 1;
+  if ((stat.bestRating ?? 0) >= 4 || stat.hasConfirmed) s += 1;
+  return Math.max(0, Math.min(10, s));
+}
+
+function formatMeters(m: number): string {
+  return m < 1000 ? `${Math.max(50, Math.round(m / 50) * 50)}m` : `${(m / 1000).toFixed(1)}km`;
+}
 
 function buildImageUrl(media: { storageKey?: string | null; bucket?: string | null } | undefined | null): string | null {
   if (!media?.storageKey) return null;
@@ -89,6 +145,7 @@ export interface ScoreBreakdown {
   weatherFit: number;
   popularity: number;
   budgetFit: number;
+  proximity: number;
   total: number;
 }
 
@@ -112,16 +169,111 @@ export interface AiExplanationResult {
   tip?: string;               // Mẹo nhỏ: "Ăn kèm rau sống để tăng chất xơ"
 }
 
+export type SoftFilterOpts = {
+  withMealType: boolean;
+  withSoftDiet: boolean;
+  withBudget: boolean;
+  softExcludeMayContain: boolean;
+};
+
+/** Tải danh sách ứng viên "nhẹ" — chỉ đủ thông tin chấm điểm, lọc dị ứng/chế độ ăn/giá trong RAM. */
+export const candidateLightInclude = {
+  region: { select: { id: true, name: true } },
+  dishGoals: {
+    select: {
+      score: true,
+      goal: { select: { code: true } },
+    },
+  },
+  mealTypes: {
+    select: {
+      mealTypeTag: { select: { code: true, name: true } },
+    },
+  },
+  dietTypes: {
+    select: {
+      dietType: { select: { code: true } },
+    },
+  },
+  dishAllergens: {
+    select: {
+      level: true,
+      allergen: { select: { code: true } },
+    },
+  },
+  nutrition: true,
+  media: {
+    orderBy: [{ isPrimary: 'desc' as const }, { sortOrder: 'asc' as const }],
+    select: {
+      storageKey: true,
+      bucket: true,
+      isPrimary: true,
+      moderationStatus: true,
+    },
+    take: 1,
+  },
+};
+
+/** Tải chi tiết đầy đủ cho DUY NHẤT món được chọn trúng. */
+export const dishDetailInclude = {
+  region: { select: { id: true, name: true } },
+  dishGoals: { include: { goal: true } },
+  mealTypes: { include: { mealTypeTag: { select: { name: true, code: true } } } },
+  nutrition: true,
+  media: {
+    orderBy: [{ isPrimary: 'desc' as const }, { sortOrder: 'asc' as const }],
+    select: {
+      storageKey: true,
+      bucket: true,
+      isPrimary: true,
+      moderationStatus: true,
+    },
+    take: 5,
+  },
+  dishIngredients: {
+    select: {
+      rawText: true,
+      quantity: true,
+      unit: true,
+      groupLabel: true,
+      isOptional: true,
+      sortOrder: true,
+      ingredient: {
+        select: { id: true, name: true, imageUrl: true, imageKey: true },
+      },
+    },
+    orderBy: { sortOrder: 'asc' as const },
+    take: 20,
+  },
+  dishAllergens: {
+    include: { allergen: { select: { id: true, name: true, code: true } } },
+  },
+  recipeSteps: {
+    select: { stepOrder: true, instruction: true, durationMin: true, imageUrl: true },
+    orderBy: { stepOrder: 'asc' as const },
+  },
+};
+
 @Injectable()
 export class RandomizationService {
   private readonly logger = new Logger(RandomizationService.name);
+  /**
+   * Model dùng để sinh lời giải thích. Mặc định là model nhanh (không reasoning) vì
+   * flow random cần phản hồi < 3s; các model "thinking" (gemini-3.x-pro, deepseek-v3.1)
+   * tốn 10-13s chỉ để viết vài câu. Có thể ghi đè bằng RANDOM_EXPLANATION_MODEL.
+   */
+  private readonly explanationModel: string;
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly aiService: AiService,
     private readonly eligibility: DishEligibilityService,
     private readonly mealLogs: MealLogsService,
-  ) {}
+    private readonly places: PlacesService,
+  ) {
+    this.explanationModel =
+      (process.env.RANDOM_EXPLANATION_MODEL || '').trim() || DEFAULT_EXPLANATION_MODEL;
+  }
 
   // ══════════════════════════════════════════════════════════════════════════════
   // GET /randomization-context  (BA-006 §4.1)
@@ -193,6 +345,8 @@ export class RandomizationService {
   // POST /dish-randomizations  (BA-006 §4.2, backward-compat BA-004)
   // ══════════════════════════════════════════════════════════════════════════════
   async randomize(userId: string, dto: RandomizationRequestDto) {
+    const startMs = Date.now();
+
     // ── Normalize: v1.1 fields override legacy ──────────────────────────────────
     const mealSlot: MealSlotEnum =
       dto.meal?.slot ??
@@ -209,53 +363,123 @@ export class RandomizationService {
     const source: RecommendationSourceEnum = dto.source ?? RecommendationSourceEnum.RANDOM_FLOW;
     const excludeDishIds: string[] = dto.excludeDishIds ?? [];
 
-    // ── Idempotency check ───────────────────────────────────────────────────────
-    // (không chặn nếu key không có — chỉ guard nếu key tồn tại)
+    // ── Location parameters & guard ─────────────────────────────────────────────
+    const userLat = dto.location?.latitude;
+    const userLng = dto.location?.longitude;
+    const requestedMode = dto.runtimeOverrides?.locationMode ?? LocationModeEnum.STRICT;
+    const hasLocation = requestedMode !== LocationModeEnum.OFF && isValidCoord(userLat, userLng);
+    const strictLocation = hasLocation && requestedMode === LocationModeEnum.STRICT;
+    const radiusCascade = strictLocation
+      ? [resolveStrictRadiusKm(dto.runtimeOverrides?.radiusKm)]
+      : buildRadiusCascade(dto.runtimeOverrides?.radiusKm);
+    const requestedRadiusKm = radiusCascade[0];
+    const maxRadiusKm = radiusCascade[radiusCascade.length - 1];
 
-    // ── Load profile ────────────────────────────────────────────────────────────
-    const profile = await this.prisma.db.profile.findUnique({
-      where: { userId },
-      include: {
-        userAllergens: { include: { allergen: true } },
-        userAvoidedIngredients: true,
-        userDietTypes: { include: { dietType: true } },
-      },
-    });
-    if (!profile) throw new NotFoundException({ error: { code: 'PROFILE_NOT_FOUND' } });
-
-    const userAllergenCodes = profile.userAllergens.map((ua) => ua.allergen.code);
-    const userAvoidedIngredients = profile.userAvoidedIngredients.map((i) => i.ingredientName.toLowerCase());
-    const hardDietTypeCodes = profile.userDietTypes.filter((d) => d.isHard).map((d) => d.dietType.code);
-
-    // ── Get 90-day history for personal taste profile & novelty decay ──────────
     const historyCutoff = new Date(Date.now() - HISTORY_LOOKBACK_DAYS * 86400_000);
 
-    const userHistories = await this.prisma.db.randomHistory.findMany({
-      where: {
-        userId,
-        createdAt: { gte: historyCutoff },
-        dishId: { not: null },
-      },
-      select: {
-        dishId: true,
-        isSelected: true,
-        createdAt: true,
-        dish: {
-          select: {
-            id: true,
-            regionId: true,
-            priceMin: true,
-            mealTypes: {
-              select: {
-                mealTypeTag: { select: { code: true } },
+    // ── Song song hoá đọc ban đầu (Profile, Lịch sử 90d, Warmup & Nearby rows) ──
+    const [profile, userHistories, warm, initialNearbyRows] = await Promise.all([
+      this.prisma.db.profile.findUnique({
+        where: { userId },
+        include: {
+          userAllergens: { include: { allergen: true } },
+          userAvoidedIngredients: true,
+          userDietTypes: { include: { dietType: true } },
+          userGoals: { include: { goal: true } },
+        },
+      }),
+      this.prisma.db.randomHistory.findMany({
+        where: {
+          userId,
+          createdAt: { gte: historyCutoff },
+          dishId: { not: null },
+        },
+        select: {
+          dishId: true,
+          isSelected: true,
+          createdAt: true,
+          dish: {
+            select: {
+              id: true,
+              regionId: true,
+              priceMin: true,
+              dineOutPriceMin: true,
+              mealTypes: {
+                select: {
+                  mealTypeTag: { select: { code: true } },
+                },
               },
             },
           },
         },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 150,
-    });
+        orderBy: { createdAt: 'desc' },
+        take: 150,
+      }),
+      hasLocation && strictLocation
+        ? this.places.ensureAreaCoverage(userLat!, userLng!, requestedRadiusKm * 1000)
+        : Promise.resolve({ status: 'SKIPPED' as const, source: null, placeCount: 0, linkCount: 0 }),
+      hasLocation
+        ? this.places.findNearbyDishPlaceRows(userLat!, userLng!, maxRadiusKm * 1000).catch((err) => {
+            this.logger.warn(`[Randomization] nearby lookup failed: ${err}`);
+            return null;
+          })
+        : Promise.resolve([] as NearbyDishPlaceRow[]),
+    ]);
+
+    if (!profile) throw new NotFoundException({ error: { code: 'PROFILE_NOT_FOUND' } });
+
+    const isRandomFlowSource =
+      source === RecommendationSourceEnum.RANDOM_FLOW ||
+      source === RecommendationSourceEnum.RANDOM_AGAIN;
+    if (isRandomFlowSource && requestedMode === LocationModeEnum.STRICT && !hasLocation) {
+      return this.noNearbyDishResult(userId, dto, {
+        source,
+        mealSlot,
+        budgetMode,
+        budgetMin,
+        budgetMax,
+        requestedRadiusKm,
+        dishCountInRadius: 0,
+        placeCountInRadius: 0,
+        warmupStatus: null,
+        failReasonCode: 'LOCATION_REQUIRED',
+      });
+    }
+
+    // Handle lookup failure khi STRICT
+    if (hasLocation && strictLocation && initialNearbyRows === null) {
+      return this.noNearbyDishResult(userId, dto, {
+        source,
+        mealSlot,
+        budgetMode,
+        budgetMin,
+        budgetMax,
+        requestedRadiusKm,
+        dishCountInRadius: 0,
+        placeCountInRadius: 0,
+        warmupStatus: warm?.status ?? null,
+        failReasonCode: 'NEARBY_LOOKUP_FAILED',
+      });
+    }
+
+    let warmupStatus: string | null = warm?.status ?? null;
+    let rows: NearbyDishPlaceRow[] = initialNearbyRows ?? [];
+
+    if (warm && warm.status === 'FETCHED') {
+      this.logger.log(
+        `[Randomization] warm-up ${warm.source}: +${warm.placeCount} quán, ${warm.linkCount} liên kết món`,
+      );
+      this.places.invalidateNearbyCache(userLat!, userLng!, maxRadiusKm * 1000);
+      try {
+        rows = await this.places.findNearbyDishPlaceRows(userLat!, userLng!, maxRadiusKm * 1000);
+      } catch (err) {
+        this.logger.warn(`[Randomization] re-query nearby rows after warmup failed: ${err}`);
+      }
+    }
+
+    const userAllergenCodes = profile.userAllergens.map((ua) => ua.allergen.code);
+    const userAvoidedIngredients = profile.userAvoidedIngredients.map((i) => i.ingredientName.toLowerCase());
+    const hardDietTypeCodes = profile.userDietTypes.filter((d) => d.isHard).map((d) => d.dietType.code);
 
     // Map lần cuối cùng thấy mỗi dishId (cho novelty decay)
     const lastSeenMap = new Map<string, Date>();
@@ -287,7 +511,8 @@ export class RandomizationService {
 
       if (h.isSelected) {
         selectedCount++;
-        if (d?.priceMin) selectedPrices.push(d.priceMin);
+        const histPrice = d?.dineOutPriceMin ?? d?.priceMin;
+        if (histPrice) selectedPrices.push(histPrice);
         if (regionId) {
           selectedRegionScores.set(regionId, (selectedRegionScores.get(regionId) ?? 0) + 1);
         }
@@ -317,7 +542,8 @@ export class RandomizationService {
       skippedMealTypeScores,
     };
 
-    const startMs = Date.now();
+    const tPre = Date.now() - startMs;
+    const tCandidatesStart = Date.now();
 
     // ── Fetch candidates (cascade: soft only; hard never relaxed) ───────────────
     const eligibilityProfile = {
@@ -327,85 +553,13 @@ export class RandomizationService {
       avoidedIngredients: userAvoidedIngredients,
     };
 
-    type SoftOpts = {
-      withMealType: boolean;
-      withSoftDiet: boolean;
-      withBudget: boolean;
-      softExcludeMayContain: boolean;
-    };
+    let nearbyStats = new Map<string, NearbyDishStat>();
+    let usedRadiusStats = new Map<string, NearbyDishStat>();
+    let nearbyRadiusUsedKm: number | null = null;
+    let nearbyFallback = false;
+    let nearbyDishCountInRadius = 0;
 
-    const dishInclude = {
-      region: { select: { id: true, name: true } },
-      dishGoals: { include: { goal: true } },
-      mealTypes: { include: { mealTypeTag: { select: { name: true, code: true } } } },
-      nutrition: true,
-      media: {
-        orderBy: [{ isPrimary: 'desc' as const }, { sortOrder: 'asc' as const }],
-        select: {
-          storageKey: true,
-          bucket: true,
-          isPrimary: true,
-          moderationStatus: true,
-        },
-        take: 5,
-      },
-      dishIngredients: {
-        select: {
-          rawText: true,
-          quantity: true,
-          unit: true,
-          groupLabel: true,
-          isOptional: true,
-          sortOrder: true,
-          ingredient: {
-            select: { id: true, name: true, imageUrl: true, imageKey: true },
-          },
-        },
-        orderBy: { sortOrder: 'asc' as const },
-        take: 20,
-      },
-      dishAllergens: {
-        include: { allergen: { select: { id: true, name: true, code: true } } },
-      },
-      recipeSteps: {
-        select: { stepOrder: true, instruction: true, durationMin: true, imageUrl: true },
-        orderBy: { stepOrder: 'asc' as const },
-      },
-    };
-
-    const fetchCandidates = async (opts: SoftOpts) => {
-      const hardWhere = this.eligibility.buildHardWhere(eligibilityProfile, 'random', {
-        softExcludeMayContain: opts.softExcludeMayContain,
-        maxPriceMin: opts.withBudget && budgetMax ? budgetMax : undefined,
-        mealTypeCodes:
-          opts.withMealType && mealSlot && mealSlot !== MealSlotEnum.ANY
-            ? [mealSlot, 'ANY']
-            : undefined,
-        excludeDishIds: excludeDishIds.length ? excludeDishIds : undefined,
-      });
-
-      const and: Prisma.DishWhereInput[] = [hardWhere];
-      // Soft diet preference (runtime + soft profile) — may be relaxed
-      if (opts.withSoftDiet && dietTypeCodes.length > 0) {
-        and.push({
-          dietTypes: { some: { dietType: { code: { in: dietTypeCodes } } } },
-        });
-      }
-      if (opts.withBudget && budgetMin) {
-        and.push({
-          OR: [{ priceMax: { gte: budgetMin } }, { priceMin: { gte: budgetMin } }],
-        });
-      }
-
-      return this.prisma.db.dish.findMany({
-        where: { AND: and },
-        include: dishInclude,
-        take: 500,
-      });
-    };
-
-    // Soft cascade only — NEVER drop hard diet / allergen / avoided
-    const relaxLevels: SoftOpts[] = [
+    const relaxLevels: SoftFilterOpts[] = [
       { withMealType: true, withSoftDiet: true, withBudget: true, softExcludeMayContain: true },
       { withMealType: false, withSoftDiet: true, withBudget: true, softExcludeMayContain: true },
       { withMealType: false, withSoftDiet: false, withBudget: true, softExcludeMayContain: false },
@@ -414,21 +568,138 @@ export class RandomizationService {
 
     let candidates: any[] = [];
     let fallbackApplied: string[] = [];
-    for (const [i, opts] of relaxLevels.entries()) {
-      candidates = await fetchCandidates(opts);
-      if (candidates.length > 0) {
-        if (i > 0) {
-          if (!opts.withMealType) fallbackApplied.push('meal_type');
-          if (!opts.withSoftDiet) fallbackApplied.push('soft_diet');
-          if (!opts.withBudget) fallbackApplied.push('budget');
-          if (!opts.softExcludeMayContain) fallbackApplied.push('may_contain');
+    const markRelaxed = (i: number, opts: SoftFilterOpts) => {
+      if (i === 0) return;
+      if (!opts.withMealType) fallbackApplied.push('meal_type');
+      if (!opts.withSoftDiet) fallbackApplied.push('soft_diet');
+      if (!opts.withBudget) fallbackApplied.push('budget');
+      if (!opts.softExcludeMayContain) fallbackApplied.push('may_contain');
+    };
+
+    // Hàm fetch cho nhánh fallback / no-location (bảo đảm tương thích và test spec)
+    const fetchCandidates = async (opts: SoftFilterOpts, nearbyDishIds?: string[]) => {
+      const hardWhere = this.eligibility.buildHardWhere(eligibilityProfile, 'random', {
+        softExcludeMayContain: opts.softExcludeMayContain,
+        maxPriceMin: opts.withBudget && budgetMax && !nearbyDishIds ? budgetMax : undefined,
+        priceMode: 'EAT_OUT',
+        mealTypeCodes:
+          opts.withMealType && mealSlot && mealSlot !== MealSlotEnum.ANY
+            ? [mealSlot, 'ANY']
+            : undefined,
+        excludeDishIds: excludeDishIds.length ? excludeDishIds : undefined,
+      });
+
+      const and: Prisma.DishWhereInput[] = [hardWhere];
+      if (opts.withSoftDiet && dietTypeCodes.length > 0) {
+        and.push({
+          dietTypes: { some: { dietType: { code: { in: dietTypeCodes } } } },
+        });
+      }
+      if (nearbyDishIds) {
+        and.push({ id: { in: nearbyDishIds } });
+      }
+
+      const rawCandidates = await this.prisma.db.dish.findMany({
+        where: { AND: and },
+        include: candidateLightInclude,
+        take: 500,
+      });
+
+      if (!opts.withBudget || (!budgetMax && !budgetMin)) {
+        return rawCandidates;
+      }
+
+      return rawCandidates.filter((dish) => {
+        const eatOut = resolveEatOutPrice(dish as any, nearbyStats.get(dish.id));
+        if (!eatOut) return true;
+        if (budgetMax != null && eatOut.min > budgetMax) return false;
+        if (budgetMin != null && eatOut.max < budgetMin) return false;
+        return true;
+      });
+    };
+
+    if (hasLocation) {
+      nearbyStats = aggregateNearbyDishes(rows, maxRadiusKm * 1000);
+      nearbyDishCountInRadius = aggregateNearbyDishes(rows, requestedRadiusKm * 1000).size;
+
+      const allNearbyDishIds = [...nearbyStats.keys()];
+      if (allNearbyDishIds.length > 0) {
+        // Query toàn bộ ứng viên quán gần đúng 1 lần duy nhất với các điều kiện CỨNG
+        const hardWhere = this.eligibility.buildHardWhere(eligibilityProfile, 'random', {
+          excludeDishIds: excludeDishIds.length ? excludeDishIds : undefined,
+        });
+
+        const pool = await this.prisma.db.dish.findMany({
+          where: {
+            AND: [hardWhere, { id: { in: allNearbyDishIds } }],
+          },
+          include: candidateLightInclude,
+          take: 1000,
+        });
+
+        let prevSize = -1;
+        outer: for (const radiusKm of radiusCascade) {
+          const inRadius = aggregateNearbyDishes(rows, radiusKm * 1000);
+          if (inRadius.size === 0 || inRadius.size === prevSize) continue;
+          prevSize = inRadius.size;
+          const radiusDishes = pool.filter((d) => inRadius.has(d.id));
+
+          for (const [i, opts] of relaxLevels.entries()) {
+            const matched = this.filterCandidateListInMemory(
+              radiusDishes,
+              opts,
+              userAllergenCodes,
+              mealSlot,
+              dietTypeCodes,
+              budgetMax,
+              budgetMin,
+              nearbyStats,
+            );
+            if (matched.length > 0) {
+              candidates = matched;
+              markRelaxed(i, opts);
+              nearbyRadiusUsedKm = radiusKm;
+              usedRadiusStats = inRadius;
+              if (radiusKm > requestedRadiusKm) fallbackApplied.push('radius');
+              break outer;
+            }
+          }
         }
-        break;
+      }
+
+      if (candidates.length === 0 && strictLocation) {
+        let placeCountInRadius = 0;
+        try {
+          placeCountInRadius = await this.places.countPlacesWithin(userLat!, userLng!, requestedRadiusKm * 1000);
+        } catch (_) {}
+        return this.noNearbyDishResult(userId, dto, {
+          source,
+          mealSlot,
+          budgetMode,
+          budgetMin,
+          budgetMax,
+          requestedRadiusKm,
+          dishCountInRadius: nearbyDishCountInRadius,
+          placeCountInRadius,
+          warmupStatus,
+          failReasonCode: 'NO_NEARBY_DISH',
+        });
+      }
+      if (candidates.length === 0) nearbyFallback = true;
+    }
+
+    if (candidates.length === 0) {
+      for (const [i, opts] of relaxLevels.entries()) {
+        candidates = await fetchCandidates(opts);
+        if (candidates.length > 0) {
+          markRelaxed(i, opts);
+          if (nearbyFallback) fallbackApplied.push('nearby');
+          break;
+        }
       }
     }
 
     if (candidates.length === 0) {
-      // Ghi nhận thất bại
       await this.prisma.db.randomHistory.create({
         data: {
           userId,
@@ -457,6 +728,7 @@ export class RandomizationService {
           relaxableCriteria: ['mealType', 'budget', 'dietType', 'excludeList'],
           fallbackApplied: [],
         },
+        nearby: null,
       };
     }
 
@@ -471,6 +743,8 @@ export class RandomizationService {
         lastSeenMap,
         tasteProfile,
         budgetMax,
+        hasLocation,
+        nearbyStat: nearbyStats.get(dish.id),
       });
       return { dish, score: breakdown.total, breakdown, samplingWeight: 0 };
     });
@@ -478,43 +752,76 @@ export class RandomizationService {
     const selected = this.softmaxRandomSample(scored, 12);
     const top5 = [...scored].sort((a, b) => b.score - a.score).slice(0, 5);
 
-    // ── Build explanation (rule-based base + AI enhancement) ───────────────────
+    const tCandidates = Date.now() - tCandidatesStart;
+    const tDetailStart = Date.now();
+
+    // ── Tải chi tiết duy nhất món trúng + Quán gần bán món (song song) ─────────
+    const selectedNearbyStat = nearbyStats.get(selected.dish.id);
+    const nearbyQueryRadiusKm = nearbyRadiusUsedKm ?? maxRadiusKm;
+
+    const [fullDish, nearbyPlaces] = await Promise.all([
+      typeof this.prisma.db.dish?.findUnique === 'function'
+        ? this.prisma.db.dish.findUnique({
+            where: { id: selected.dish.id },
+            include: dishDetailInclude,
+          })
+        : Promise.resolve(null),
+      hasLocation && selectedNearbyStat
+        ? this.places
+            .findNearbyPlacesForDish(
+              selected.dish.id,
+              userLat!,
+              userLng!,
+              nearbyQueryRadiusKm * 1000,
+              NEARBY_TOP_PLACES,
+            )
+            .catch((err) => {
+              this.logger.warn(`[Randomization] nearby places for dish failed: ${err}`);
+              return [] as PlaceDto[];
+            })
+        : Promise.resolve([] as PlaceDto[]),
+    ]);
+
+    const targetDish = fullDish ?? selected.dish;
+    const selectedUsedStat = usedRadiusStats.get(selected.dish.id);
+    const nearbyInfo = hasLocation
+      ? {
+          mode: strictLocation ? 'STRICT' : 'PREFER',
+          requestedRadiusKm,
+          radiusKm: nearbyRadiusUsedKm,
+          placeCount: selectedUsedStat?.placeCount ?? 0,
+          openCount: selectedUsedStat?.openCount ?? 0,
+          nearestMeters: selectedNearbyStat?.nearestMeters ?? null,
+          dishCountInRadius: nearbyDishCountInRadius,
+          fallback: nearbyFallback,
+          warmup: warmupStatus,
+          places: nearbyPlaces,
+        }
+      : null;
+
+    // ── Build explanation ────────────────────────────────────────────────────────
     const isPersonalized = selected.breakdown.personalFit >= 13;
-    const reason = this.buildReason(selected.dish, { goalCodes, mealSlot, weatherCode, isPersonalized });
-    const compatibilityPercent = Math.min(100, Math.round((selected.score / 110) * 100));
+    const reason = this.buildReason(targetDish, {
+      goalCodes,
+      mealSlot,
+      weatherCode,
+      isPersonalized,
+      nearby:
+        nearbyInfo && nearbyInfo.radiusKm != null && selectedNearbyStat
+          ? {
+              radiusKm: nearbyInfo.radiusKm,
+              placeCount: nearbyInfo.placeCount,
+              openCount: nearbyInfo.openCount,
+              nearestMeters: selectedNearbyStat.nearestMeters,
+            }
+          : undefined,
+    });
+    const compatibilityPercent = Math.min(100, Math.round((selected.score / MAX_TOTAL_SCORE) * 100));
 
-    // ── Gọi AI để tạo lý do chi tiết (async, không block DB write) ────────────
-    let aiExplanation: AiExplanationResult | null = null;
-    try {
-      // Load profile chi tiết để AI có context đầy đủ
-      const profileFull = await this.prisma.db.profile.findUnique({
-        where: { userId },
-        include: {
-          userAllergens: { include: { allergen: true } },
-          userDietTypes: { include: { dietType: true } },
-          userGoals: { include: { goal: true } },
-        },
-      });
+    const tDetail = Date.now() - tDetailStart;
+    const tPersistStart = Date.now();
 
-      aiExplanation = await this.generateAiExplanation({
-        dish: selected.dish, // PRIVACY-001: no displayName in AI prompt
-        profile: {
-          age: profileFull?.dateOfBirth
-            ? Math.floor((Date.now() - new Date(profileFull.dateOfBirth as any).getTime()) / (365.25 * 86400_000))
-            : null,
-          goals: profileFull?.userGoals?.map((g: any) => g.goal.name) ?? goalCodes,
-          allergenNames: profileFull?.userAllergens?.map((a: any) => a.allergen.name) ?? [],
-          dietTypeNames: profileFull?.userDietTypes?.map((d: any) => d.dietType.name) ?? [],
-        },
-        mealSlot,
-        compatibilityPercent,
-        scoreBreakdown: selected.breakdown as any,
-      });
-    } catch (err) {
-      this.logger.warn(`AI explanation skipped: ${err}`);
-    }
-
-    // ── Save history ─────────────────────────────────────────────────────────────
+    // ── Save history & candidates trong 1 nested transaction ─────────────────────
     const durationMs = Date.now() - startMs;
     const rawMealSource = dto.meal?.selectionSource;
     const mealSelectionSource =
@@ -546,33 +853,159 @@ export class RandomizationService {
         totalScore: selected.score,
         compatibilityPercent,
         durationMs,
-        fallbackSnapshot: fallbackApplied.length ? ({ relaxed: fallbackApplied } as any) : null,
+        fallbackSnapshot:
+          fallbackApplied.length || nearbyInfo
+            ? ({
+                relaxed: fallbackApplied,
+                ...(nearbyInfo
+                  ? {
+                      nearby: {
+                        mode: nearbyInfo.mode,
+                        requestedRadiusKm: nearbyInfo.requestedRadiusKm,
+                        radiusUsedKm: nearbyInfo.radiusKm,
+                        placeCount: nearbyInfo.placeCount,
+                        dishCountInRadius: nearbyInfo.dishCountInRadius,
+                        warmup: nearbyInfo.warmup,
+                      },
+                    }
+                  : {}),
+              } as any)
+            : null,
+        candidates: {
+          create: top5.map((s, i) => ({
+            dishId: s.dish.id,
+            rank: i + 1,
+            totalScore: s.score,
+            samplingWeight: s.samplingWeight,
+            scoreBreakdown: s.breakdown as any,
+            isChosen: s.dish.id === selected.dish.id,
+          })),
+        },
         updatedAt: new Date(),
       },
     });
 
-    // Save top-5 candidates (best-effort)
-    try {
-      await this.prisma.db.randomCandidate.createMany({
-        data: top5.map((s, i) => ({
-          randomHistoryId: history.id,
-          dishId: s.dish.id,
-          rank: i + 1,
-          totalScore: s.score,
-          samplingWeight: s.samplingWeight,
-          scoreBreakdown: s.breakdown as any,
-          isChosen: s.dish.id === selected.dish.id,
-        })),
-        skipDuplicates: true,
-      });
-    } catch (_) {}
+    const tPersist = Date.now() - tPersistStart;
+    const totalMs = Date.now() - startMs;
 
-    // ── Format dish ───────────────────────────────────────────────────────────────
-    const imageUrl = buildImageUrl(pickDishMedia(selected.dish.media));
-    const d = selected.dish as any;
-    const nutrition = d.nutrition;
+    this.logger.log(
+      `[Randomization] done in ${totalMs}ms (pre: ${tPre}ms, candidates: ${tCandidates}ms, detail: ${tDetail}ms, persist: ${tPersist}ms) - dish: "${targetDish.name}"`,
+    );
 
-    const dishDto = {
+    const nearbyFactor = reason.factors.find((f) => f.startsWith('Có ') && f.includes('quán bán'));
+
+    // ── Kích hoạt AI sinh lời giải thích ở nền (KHÔNG block response) ───────────
+    void this.triggerBackgroundAiExplanation({
+      historyId: history.id,
+      dish: targetDish,
+      profile: {
+        age: profile.dateOfBirth
+          ? Math.floor((Date.now() - new Date(profile.dateOfBirth as any).getTime()) / (365.25 * 86400_000))
+          : null,
+        goals: profile.userGoals?.map((g: any) => g.goal?.name).filter(Boolean) ?? goalCodes,
+        allergenNames: profile.userAllergens?.map((a: any) => a.allergen?.name).filter(Boolean) ?? [],
+        dietTypeNames: profile.userDietTypes?.map((d: any) => d.dietType?.name).filter(Boolean) ?? [],
+      },
+      mealSlot,
+      compatibilityPercent,
+      scoreBreakdown: selected.breakdown as any,
+      nearbyFactor,
+      baseReason: reason,
+    });
+
+    const dishDto = this.mapDishDetail(targetDish, selectedNearbyStat);
+
+    const nutObj = Array.isArray(targetDish.nutrition) ? targetDish.nutrition[0] : targetDish.nutrition;
+    const initialExplanation = {
+      summary: reason.summary,
+      compatibilityPercent,
+      factors: reason.factors,
+      nutritionHighlight: nutObj?.calories
+        ? `Cung cấp ${nutObj.calories} kcal cho bữa ăn của bạn.`
+        : null,
+      matchTags: reason.factors.slice(0, 3),
+      tip: null,
+      fallbackApplied,
+      relaxableCriteria: fallbackApplied,
+    };
+
+    return {
+      randomizationId: history.id,
+      dish: dishDto,
+      reason,
+      explanation: initialExplanation,
+      scoreBreakdown: selected.breakdown,
+      nearby: nearbyInfo,
+      ...(process.env.NODE_ENV === 'development'
+        ? {
+            timings: {
+              totalMs,
+              preMs: tPre,
+              candidatesMs: tCandidates,
+              detailMs: tDetail,
+              persistMs: tPersist,
+            },
+          }
+        : {}),
+    };
+  }
+
+  /** Lọc mảng ứng viên theo các tiêu chí mềm trong RAM (0 database round-trip). */
+  private filterCandidateListInMemory(
+    dishes: any[],
+    opts: SoftFilterOpts,
+    userAllergenCodes: string[],
+    mealSlot: MealSlotEnum,
+    dietTypeCodes: string[],
+    budgetMax?: number,
+    budgetMin?: number,
+    nearbyStats?: Map<string, NearbyDishStat>,
+  ): any[] {
+    return dishes.filter((dish) => {
+      // 1. softExcludeMayContain
+      if (opts.softExcludeMayContain && userAllergenCodes.length > 0) {
+        const hasMayContain = dish.dishAllergens?.some(
+          (da: any) =>
+            da.level === 'MAY_CONTAIN' &&
+            userAllergenCodes.includes(da.allergen?.code),
+        );
+        if (hasMayContain) return false;
+      }
+
+      // 2. withMealType
+      if (opts.withMealType && mealSlot && mealSlot !== MealSlotEnum.ANY) {
+        const mealCodes = dish.mealTypes?.map((mt: any) => mt.mealTypeTag?.code) ?? [];
+        const matchesMeal = mealCodes.includes(mealSlot) || mealCodes.includes('ANY');
+        if (!matchesMeal) return false;
+      }
+
+      // 3. withSoftDiet
+      if (opts.withSoftDiet && dietTypeCodes.length > 0) {
+        const dishDietCodes = dish.dietTypes?.map((dt: any) => dt.dietType?.code) ?? [];
+        const matchesDiet = dietTypeCodes.some((code) => dishDietCodes.includes(code));
+        if (!matchesDiet) return false;
+      }
+
+      // 4. withBudget
+      if (opts.withBudget && (budgetMax != null || budgetMin != null)) {
+        const eatOut = resolveEatOutPrice(dish as any, nearbyStats?.get(dish.id));
+        if (eatOut) {
+          if (budgetMax != null && eatOut.min > budgetMax) return false;
+          if (budgetMin != null && eatOut.max < budgetMin) return false;
+        }
+      }
+
+      return true;
+    });
+  }
+
+  /** Format dữ liệu chi tiết của 1 món ăn trả về mobile. */
+  private mapDishDetail(d: any, selectedNearbyStat?: NearbyDishStat) {
+    const imageUrl = buildImageUrl(pickDishMedia(d.media));
+    const nutrition = Array.isArray(d.nutrition) ? d.nutrition[0] : d.nutrition;
+    const eatOutPrice = resolveEatOutPrice(d, selectedNearbyStat);
+
+    return {
       id: d.id,
       name: d.name,
       slug: d.slug,
@@ -580,6 +1013,16 @@ export class RandomizationService {
       imageUrl,
       priceMin: d.priceMin,
       priceMax: d.priceMax,
+      dineOutPriceMin: d.dineOutPriceMin ?? null,
+      dineOutPriceMax: d.dineOutPriceMax ?? null,
+      eatOutPrice: eatOutPrice
+        ? {
+            min: eatOutPrice.min,
+            max: eatOutPrice.max,
+            source: eatOutPrice.source,
+            sampleCount: eatOutPrice.sampleCount,
+          }
+        : null,
       prepMinutes: d.prepMinutes ?? null,
       cookMinutes: d.cookMinutes ?? null,
       originText: d.originText ?? null,
@@ -590,23 +1033,26 @@ export class RandomizationService {
         code: m.mealTypeTag?.code,
         name: m.mealTypeTag?.name,
       })),
-      nutrition: nutrition ? {
-        calories: nutrition.calories ? Number(nutrition.calories) : null,
-        proteinG: nutrition.proteinG ? Number(nutrition.proteinG) : null,
-        carbsG: nutrition.carbsG ? Number(nutrition.carbsG) : null,
-        fatG: nutrition.fatG ? Number(nutrition.fatG) : null,
-        fiberG: nutrition.fiberG ? Number(nutrition.fiberG) : null,
-        servingName: nutrition.servingName ?? null,
-      } : null,
+      nutrition: nutrition
+        ? {
+            calories: nutrition.calories ? Number(nutrition.calories) : null,
+            proteinG: nutrition.proteinG ? Number(nutrition.proteinG) : null,
+            carbsG: nutrition.carbsG ? Number(nutrition.carbsG) : null,
+            fatG: nutrition.fatG ? Number(nutrition.fatG) : null,
+            fiberG: nutrition.fiberG ? Number(nutrition.fiberG) : null,
+            servingName: nutrition.servingName ?? null,
+          }
+        : null,
       ingredients: (d.dishIngredients ?? []).map((ing: any) => {
         const supabaseUrl = process.env.SUPABASE_URL ?? '';
         let ingImageUrl: string | null = null;
         if (ing.ingredient?.imageUrl) {
-          // imageUrl may already be absolute or relative
           const raw = ing.ingredient.imageUrl as string;
-          ingImageUrl = raw.startsWith('http') ? raw
-            : raw.startsWith('/storage') ? `${supabaseUrl}${raw}`
-            : `${supabaseUrl}/storage/v1/object/public/ingredients/${raw}`;
+          ingImageUrl = raw.startsWith('http')
+            ? raw
+            : raw.startsWith('/storage')
+              ? `${supabaseUrl}${raw}`
+              : `${supabaseUrl}/storage/v1/object/public/ingredients/${raw}`;
         } else if (ing.ingredient?.imageKey) {
           ingImageUrl = `${supabaseUrl}/storage/v1/object/public/ingredients/${ing.ingredient.imageKey}`;
         }
@@ -634,28 +1080,99 @@ export class RandomizationService {
         imageUrl: rs.imageUrl ?? null,
       })),
     };
+  }
 
-    // Merge AI explanation với rule-based
-    const finalSummary = aiExplanation?.summary ?? reason.summary;
-    const finalFactors = aiExplanation?.factors?.length
-      ? aiExplanation.factors
-      : reason.factors;
+  /** Chạy AI explanation ở nền và ghi đè vào randomHistory.reasonSnapshot. */
+  private async triggerBackgroundAiExplanation(ctx: {
+    historyId: string;
+    dish: any;
+    profile: {
+      age?: number | null;
+      goals?: string[];
+      allergenNames?: string[];
+      dietTypeNames?: string[];
+    };
+    mealSlot?: string;
+    compatibilityPercent?: number;
+    scoreBreakdown?: Record<string, number>;
+    nearbyFactor?: string;
+    baseReason: any;
+  }): Promise<void> {
+    try {
+      const ai = await this.generateAiExplanation({
+        dish: ctx.dish,
+        profile: ctx.profile,
+        mealSlot: ctx.mealSlot,
+        compatibilityPercent: ctx.compatibilityPercent,
+        scoreBreakdown: ctx.scoreBreakdown,
+      });
+      if (!ai) return;
+
+      const finalSummary = ai.summary ?? ctx.baseReason.summary;
+      const finalFactors = ai.factors?.length
+        ? ctx.nearbyFactor
+          ? [ctx.nearbyFactor, ...ai.factors].slice(0, 6)
+          : ai.factors
+        : ctx.baseReason.factors;
+
+      const aiExplanationData = {
+        summary: finalSummary,
+        compatibilityPercent: ctx.compatibilityPercent,
+        factors: finalFactors,
+        nutritionHighlight: ai.nutritionHighlight ?? null,
+        matchTags: ai.matchTags?.length ? ai.matchTags.slice(0, 5) : ctx.baseReason.factors.slice(0, 3),
+        tip: ai.tip ?? null,
+      };
+
+      await this.prisma.db.randomHistory.update({
+        where: { id: ctx.historyId },
+        data: {
+          reasonSnapshot: {
+            ...ctx.baseReason,
+            aiExplanation: aiExplanationData,
+          },
+        },
+      });
+    } catch (err) {
+      this.logger.warn(`[Randomization] background AI explanation failed for history ${ctx.historyId}: ${err}`);
+    }
+  }
+
+  /** Lấy thông tin một lần random trước đó kèm explanation AI (nếu có). */
+  async getRandomizationById(userId: string, id: string) {
+    const history = await this.prisma.db.randomHistory.findFirst({
+      where: { id, userId },
+      include: {
+        dish: {
+          include: dishDetailInclude,
+        },
+      },
+    });
+    if (!history) throw new NotFoundException({ error: { code: 'RANDOMIZATION_NOT_FOUND' } });
+
+    const reasonSnap = history.reasonSnapshot as any;
+    const ai = reasonSnap?.aiExplanation;
+
+    const dishDto = history.dish ? this.mapDishDetail(history.dish) : null;
 
     return {
       randomizationId: history.id,
+      status: history.status,
       dish: dishDto,
-      reason,
+      reason: reasonSnap,
       explanation: {
-        summary: finalSummary,
-        compatibilityPercent,
-        factors: finalFactors,
-        nutritionHighlight: aiExplanation?.nutritionHighlight ?? null,
-        matchTags: aiExplanation?.matchTags ?? reason.factors.slice(0, 3),
-        tip: aiExplanation?.tip ?? null,
-        fallbackApplied,
-        relaxableCriteria: fallbackApplied,
+        summary: ai?.summary ?? reasonSnap?.summary ?? 'Phù hợp với nhu cầu của bạn.',
+        compatibilityPercent: history.compatibilityPercent ?? 0,
+        factors: ai?.factors ?? reasonSnap?.factors ?? [],
+        nutritionHighlight: ai?.nutritionHighlight ?? null,
+        matchTags: ai?.matchTags ?? reasonSnap?.factors?.slice(0, 3) ?? [],
+        tip: ai?.tip ?? null,
+        fallbackApplied: (history.fallbackSnapshot as any)?.relaxed ?? [],
+        relaxableCriteria: (history.fallbackSnapshot as any)?.relaxed ?? [],
       },
-      scoreBreakdown: selected.breakdown,
+      scoreBreakdown: history.scoreBreakdown,
+      fallbackSnapshot: history.fallbackSnapshot,
+      createdAt: history.createdAt,
     };
   }
 
@@ -895,6 +1412,105 @@ export class RandomizationService {
   // ══════════════════════════════════════════════════════════════════════════════
   // Private helpers
   // ══════════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Kết quả khi chế độ STRICT không tìm được món nào có quán bán trong bán kính.
+   * Ghi history NO_CANDIDATE + trả thông điệp rõ ràng; KHÔNG gợi ý mở rộng bán kính (yêu cầu nghiệp vụ).
+   */
+  private async noNearbyDishResult(
+    userId: string,
+    dto: RandomizationRequestDto,
+    ctx: {
+      source: RecommendationSourceEnum;
+      mealSlot: MealSlotEnum;
+      budgetMode: BudgetModeEnum;
+      budgetMin?: number;
+      budgetMax?: number;
+      requestedRadiusKm: number;
+      dishCountInRadius: number;
+      placeCountInRadius: number;
+      warmupStatus: string | null;
+      failReasonCode: 'NO_NEARBY_DISH' | 'NEARBY_LOOKUP_FAILED' | 'LOCATION_REQUIRED';
+    },
+  ) {
+    try {
+      await this.prisma.db.randomHistory.create({
+        data: {
+          userId,
+          dishId: null,
+          criteriaSnapshot: dto as any,
+          algorithmVersion: ALGORITHM_VERSION,
+          status: 'NO_CANDIDATE',
+          source: ctx.source as any,
+          mealSlot: ctx.mealSlot,
+          budgetMode: ctx.budgetMode as any,
+          budgetMinVnd: ctx.budgetMin ?? null,
+          budgetMaxVnd: ctx.budgetMax ?? null,
+          candidateCount: 0,
+          failReasonCode: ctx.failReasonCode,
+          fallbackSnapshot: {
+            relaxed: [],
+            nearby: {
+              mode: 'STRICT',
+              requestedRadiusKm: ctx.requestedRadiusKm,
+              radiusUsedKm: null,
+              placeCount: ctx.placeCountInRadius,
+              dishCountInRadius: ctx.dishCountInRadius,
+              warmup: ctx.warmupStatus,
+            },
+          } as any,
+          updatedAt: new Date(),
+        },
+      });
+    } catch (err) {
+      this.logger.warn(`[Randomization] ghi history NO_NEARBY_DISH lỗi: ${err}`);
+    }
+
+    const km = ctx.requestedRadiusKm;
+    const summary =
+      ctx.failReasonCode === 'LOCATION_REQUIRED'
+        ? `Cần vị trí của bạn để tìm món có quán bán trong bán kính ${km}km.`
+        : ctx.failReasonCode === 'NEARBY_LOOKUP_FAILED'
+          ? `Không kiểm tra được quán quanh bạn lúc này. Vui lòng thử lại sau.`
+        : ctx.dishCountInRadius > 0
+          ? `Trong ${km}km quanh bạn có ${ctx.dishCountInRadius} món đang bán nhưng không món nào hợp với hồ sơ/tiêu chí hiện tại.`
+          : ctx.placeCountInRadius > 0
+            ? `Trong ${km}km quanh bạn có ${ctx.placeCountInRadius} quán nhưng chưa xác định được món nào trùng với thực đơn Mogu.`
+            : `Chưa tìm thấy quán nào bán món trong ${km}km quanh vị trí của bạn.`;
+
+    // Chỉ cho nới các tiêu chí mềm; KHÔNG có 'radius' / 'location'
+    const relaxableCriteria =
+      ctx.failReasonCode === 'NO_NEARBY_DISH' && ctx.dishCountInRadius > 0
+        ? ['mealType', 'budget', 'dietType', 'excludeList']
+        : [];
+
+    return {
+      randomizationId: null,
+      dish: null,
+      reason: null,
+      explanation: {
+        summary,
+        compatibilityPercent: 0,
+        factors: [],
+        relaxableCriteria,
+        fallbackApplied: [],
+        failReasonCode: ctx.failReasonCode,
+      },
+      nearby: {
+        mode: 'STRICT',
+        requestedRadiusKm: km,
+        radiusKm: null,
+        placeCount: ctx.placeCountInRadius,
+        openCount: 0,
+        nearestMeters: null,
+        dishCountInRadius: ctx.dishCountInRadius,
+        fallback: false,
+        warmup: ctx.warmupStatus,
+        places: [] as PlaceDto[],
+      },
+    };
+  }
+
   private scoreCandidate(
     dish: any,
     ctx: {
@@ -905,6 +1521,8 @@ export class RandomizationService {
       lastSeenMap?: Map<string, Date>;
       tasteProfile?: UserTasteProfile;
       budgetMax?: number;
+      hasLocation?: boolean;
+      nearbyStat?: NearbyDishStat;
     },
   ): ScoreBreakdown {
     const { goalCodes, currentHour, weatherCode, recentDishIds = [], lastSeenMap, tasteProfile, budgetMax } = ctx;
@@ -937,8 +1555,10 @@ export class RandomizationService {
       }
 
       // Giá món gần với mức giá thường chọn (±35%)
-      if (tasteProfile.avgSelectedPrice && dish.priceMin && tasteProfile.avgSelectedPrice > 0) {
-        const diffRatio = Math.abs(dish.priceMin - tasteProfile.avgSelectedPrice) / tasteProfile.avgSelectedPrice;
+      const eatOutPrice = resolveEatOutPrice(dish, ctx.nearbyStat);
+      const effectivePrice = eatOutPrice?.min ?? dish.dineOutPriceMin ?? dish.priceMin;
+      if (tasteProfile.avgSelectedPrice && effectivePrice && tasteProfile.avgSelectedPrice > 0) {
+        const diffRatio = Math.abs(effectivePrice - tasteProfile.avgSelectedPrice) / tasteProfile.avgSelectedPrice;
         if (diffRatio <= 0.35) {
           pf += 2;
         }
@@ -1025,11 +1645,17 @@ export class RandomizationService {
 
     // 8. Budget fit 0-5
     let budgetFit = 4;
-    if (budgetMax && dish.priceMin) {
-      budgetFit = dish.priceMin <= budgetMax * 0.85 ? 5 : 2;
+    const eatOut = resolveEatOutPrice(dish, ctx.nearbyStat);
+    const candidatePrice = eatOut?.min ?? dish.dineOutPriceMin ?? dish.priceMin;
+    if (budgetMax && candidatePrice) {
+      budgetFit = candidatePrice <= budgetMax * 0.85 ? 5 : 2;
     }
 
-    const total = goalMatch + personalFit + novelty + dataQuality + timeSuitability + weatherFit + popularity + budgetFit;
+    // 9. Proximity 0-10 (quán bán món gần người dùng)
+    const proximity = proximityScore(ctx.nearbyStat, !!ctx.hasLocation);
+
+    const total =
+      goalMatch + personalFit + novelty + dataQuality + timeSuitability + weatherFit + popularity + budgetFit + proximity;
     return {
       goalMatch,
       personalFit,
@@ -1039,6 +1665,7 @@ export class RandomizationService {
       weatherFit,
       popularity,
       budgetFit,
+      proximity,
       total,
     };
   }
@@ -1071,8 +1698,24 @@ export class RandomizationService {
     return scored[scored.length - 1];
   }
 
-  private buildReason(dish: any, ctx: { goalCodes: string[]; mealSlot?: MealSlotEnum; weatherCode?: string; isPersonalized?: boolean }) {
+  private buildReason(
+    dish: any,
+    ctx: {
+      goalCodes: string[];
+      mealSlot?: MealSlotEnum;
+      weatherCode?: string;
+      isPersonalized?: boolean;
+      nearby?: { radiusKm: number; placeCount: number; openCount?: number; nearestMeters: number };
+    },
+  ) {
     const factors: string[] = [];
+    if (ctx.nearby && ctx.nearby.placeCount > 0) {
+      const open = ctx.nearby.openCount ?? 0;
+      factors.push(
+        `Có ${ctx.nearby.placeCount} quán bán trong bán kính ${ctx.nearby.radiusKm}km, gần nhất ~${formatMeters(ctx.nearby.nearestMeters)}` +
+          (open > 0 ? `, ${open} quán đang mở` : ''),
+      );
+    }
     if (ctx.goalCodes?.length > 0) factors.push('Phù hợp với mục tiêu của bạn');
     if (ctx.mealSlot && ctx.mealSlot !== MealSlotEnum.ANY) {
       const label: Record<string, string> = {
@@ -1124,9 +1767,12 @@ export class RandomizationService {
 
     // Build context string
     const nut = dish.nutrition?.[0];
-    const priceStr = dish.priceMin && dish.priceMax
-      ? `${Math.round(dish.priceMin / 1000)}K–${Math.round(dish.priceMax / 1000)}K`
-      : dish.priceMax ? `~${Math.round(dish.priceMax / 1000)}K` : 'không rõ';
+    const eatOut = (dish as any).eatOutPrice ?? resolveEatOutPrice(dish as any, null);
+    const priceStr = eatOut
+      ? `${Math.round(eatOut.min / 1000)}K–${Math.round(eatOut.max / 1000)}K`
+      : dish.priceMin && dish.priceMax
+        ? `${Math.round(dish.priceMin / 1000)}K–${Math.round(dish.priceMax / 1000)}K`
+        : dish.priceMax ? `~${Math.round(dish.priceMax / 1000)}K` : 'không rõ';
 
     const mealLabel: Record<string, string> = {
       BREAKFAST: 'bữa sáng', LUNCH: 'bữa trưa', DINNER: 'bữa tối', SNACK: 'bữa phụ', ANY: 'bất kỳ',
@@ -1189,14 +1835,24 @@ Trả về JSON thuần (KHÔNG có markdown, KHÔNG có text thừa):
 }`;
 
     try {
-      const response = await this.aiService['client'].chat.completions.create({
-        model: this.aiService['model'],
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: 600,
-        temperature: 0.3,
-      });
+      // Model reasoning (deepseek-v3.x) tiêu ~500-700 token cho "reasoning_tokens" trước khi
+      // sinh nội dung, nên max_tokens phải đủ lớn để JSON không bị cắt giữa chừng.
+      const response = await this.aiService['client'].chat.completions.create(
+        {
+          model: this.explanationModel,
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 2000,
+          temperature: 0.3,
+          response_format: { type: 'json_object' },
+        },
+        { timeout: AI_EXPLANATION_TIMEOUT_MS, maxRetries: 0 },
+      );
 
-      const content = response.choices[0]?.message?.content ?? '';
+      const choice = response.choices[0];
+      const content = choice?.message?.content ?? '';
+      if (choice?.finish_reason === 'length') {
+        throw new Error('AI explanation truncated (finish_reason=length)');
+      }
       // Strip markdown nếu có
       const clean = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const parsed = JSON.parse(clean);

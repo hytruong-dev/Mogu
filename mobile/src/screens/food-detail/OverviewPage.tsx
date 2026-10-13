@@ -57,6 +57,8 @@ type Props = {
   isSavedInitial?: boolean;
   shortDescription?: string | null;
   priceLabel?: string | null;
+  cookPriceLabel?: string | null;
+  eatOutPrice?: { min: number; max: number; source?: string } | null;
   timeLabel?: string | null;
   nutrition?: DishNutrition | null;
   allergens?: DishAllergen[];
@@ -91,6 +93,8 @@ export function OverviewPage({
   isSavedInitial,
   shortDescription,
   priceLabel,
+  cookPriceLabel,
+  eatOutPrice,
   timeLabel,
   nutrition,
   allergens = [],
@@ -119,6 +123,13 @@ export function OverviewPage({
   const preview = ingredients.slice(0, PREVIEW_MAX);
   const moreCount = Math.max(0, ingredientCount - preview.length);
 
+  const eatOutRange =
+    eatOutPrice && eatOutPrice.min > 0
+      ? eatOutPrice.min === eatOutPrice.max
+        ? `~${Math.round(eatOutPrice.min / 1000)}k`
+        : `${Math.round(eatOutPrice.min / 1000)}k–${Math.round(eatOutPrice.max / 1000)}k`
+      : null;
+
   const stats = [
     timeLabel
       ? { key: 'time', icon: Clock3, value: timeLabel, label: 'Thời gian', tint: '#FFF1E6', iconColor: '#E07A2E' }
@@ -126,9 +137,11 @@ export function OverviewPage({
     kcal
       ? { key: 'kcal', icon: Flame, value: kcal, label: 'Năng lượng', tint: '#FFF4D6', iconColor: '#E0A100' }
       : null,
-    priceLabel
-      ? { key: 'price', icon: Tag, value: priceLabel, label: 'Giá tham khảo', tint: '#EAF6EC', iconColor: '#2F9E44' }
-      : null,
+    eatOutRange
+      ? { key: 'price', icon: Tag, value: eatOutRange, label: 'Giá tại quán', tint: '#EAF6EC', iconColor: '#2F9E44' }
+      : priceLabel
+        ? { key: 'price', icon: Tag, value: priceLabel, label: 'Giá tham khảo', tint: '#EAF6EC', iconColor: '#2F9E44' }
+        : null,
   ].filter(Boolean) as Stat[];
 
   const macros = [
@@ -377,7 +390,9 @@ export function OverviewPage({
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.recipeTitle}>{stepCount} bước hướng dẫn</Text>
-                <Text style={styles.recipeSub}>NOAN đọc từng bước bằng giọng nói</Text>
+                <Text style={styles.recipeSub}>
+                  {cookPriceLabel ? `Nguyên liệu nấu: ${cookPriceLabel}` : 'NOAN đọc từng bước bằng giọng nói'}
+                </Text>
               </View>
               <ChevronRight size={18} color={MUTED} />
             </Pressable>

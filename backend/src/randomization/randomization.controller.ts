@@ -61,6 +61,18 @@ export class RandomizationController {
     return this.randomizationService.randomize(userId, dto);
   }
 
+  @Get('dish-randomizations/:id')
+  @ApiOperation({
+    summary: 'Lấy thông tin chi tiết của một lần random món (kèm explanation AI)',
+    description: 'Dùng khi mobile cần tải chi tiết lời giải thích hoặc xem lại kết quả.',
+  })
+  getById(
+    @CurrentUser('sub') userId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.randomizationService.getRandomizationById(userId, id);
+  }
+
   // ── BA-006 §4.3 ─────────────────────────────────────────────────────────────
   @Post('dish-randomizations/:id/retry')
   @ApiOperation({

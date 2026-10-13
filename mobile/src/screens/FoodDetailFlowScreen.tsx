@@ -26,6 +26,7 @@ export function FoodDetailFlowScreen({
   meal = 'Bữa ăn',
   priceMin,
   priceMax,
+  eatOutPrice,
   prepMinutes,
   cookMinutes,
   servings,
@@ -109,7 +110,15 @@ export function FoodDetailFlowScreen({
   }
 
   if (page === 'location') {
-    return <NearbyPage dishName={dishName} places={nearbyPlaces} onBack={back} />;
+    return (
+      <NearbyPage
+        dishId={dishId}
+        dishName={dishName}
+        dishImage={dishImage}
+        places={nearbyPlaces}
+        onBack={back}
+      />
+    );
   }
 
   if (page === 'confirmed') {
@@ -148,6 +157,8 @@ export function FoodDetailFlowScreen({
       isSavedInitial={isSaved}
       shortDescription={shortDescription}
       priceLabel={priceLabel}
+      cookPriceLabel={priceLabel}
+      eatOutPrice={eatOutPrice}
       timeLabel={timeLabel}
       nutrition={nutrition}
       allergens={allergens}

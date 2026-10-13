@@ -10,15 +10,36 @@ import {
   Pencil,
   RotateCcw,
   Search,
+  ShieldCheck,
+  Star,
   Trash2,
+  Utensils,
   X,
 } from 'lucide-react'
 import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import {
   adminPlacesApi,
   type AdminPlaceItem,
+  type AdminPlacesQuery,
   type AdminUpdatePlaceDto,
 } from '../api/places'
+import { PlaceDishesDialog } from '../components/places/PlaceDishesDialog'
+
+const PROVIDER_STYLE: Record<string, string> = {
+  SHOPEEFOOD: 'bg-orange-50 text-orange-700 border-orange-200',
+  OSM: 'bg-sky-50 text-sky-700 border-sky-200',
+  GOOGLE: 'bg-blue-50 text-blue-700 border-blue-200',
+  LOCAL: 'bg-muted text-muted-foreground border-border',
+}
+
+const OPEN_STATUS_LABEL: Record<string, { text: string; className: string }> = {
+  OPEN: { text: 'Đang mở', className: 'text-emerald-600' },
+  CLOSED: { text: 'Đóng cửa', className: 'text-rose-600' },
+  UNKNOWN: { text: 'Chưa rõ giờ', className: 'text-muted-foreground' },
+}
+
+const FILTER_SELECT_CLASS =
+  'h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Checkbox } from '../components/ui/checkbox'
@@ -56,6 +77,11 @@ export default function PlacesPage() {
   const [debouncedQ, setDebouncedQ] = useState('')
   const [page, setPage] = useState(1)
   const limit = 15
+  const [providerFilter, setProviderFilter] = useState('')
+  const [verifiedFilter, setVerifiedFilter] = useState<'' | 'true' | 'false'>('')
+  const [dishFilter, setDishFilter] = useState<'' | 'true' | 'false'>('')
+  const [dishesTarget, setDishesTarget] = useState<AdminPlaceItem | null>(null)
+  const [verifyingId, setVerifyingId] = useState<string | null>(null)
 
   // Edit modal state
   const [editTarget, setEditTarget] = useState<AdminPlaceItem | null>(null)
@@ -86,11 +112,15 @@ export default function PlacesPage() {
   const loadPlaces = useCallback(async (p = 1, q = debouncedQ) => {
     setLoading(true)
     try {
-      const res = await adminPlacesApi.list({
+      const params: AdminPlacesQuery = {
         q: q || undefined,
+        provider: providerFilter || undefined,
+        isVerified: verifiedFilter || undefined,
+        hasDishes: dishFilter || undefined,
         limit,
         offset: (p - 1) * limit,
-      })
+      }
+      const res = await adminPlacesApi.list(params)
       setPlaces(res.items ?? [])
       setTotal(res.total ?? 0)
       setPage(p)
@@ -99,11 +129,37 @@ export default function PlacesPage() {
     } finally {
       setLoading(false)
     }
-  }, [debouncedQ])
+  }, [debouncedQ, providerFilter, verifiedFilter, dishFilter])
 
   useEffect(() => {
     void loadPlaces(page, debouncedQ)
   }, [loadPlaces, page, debouncedQ])
+
+  const hasFilters = !!(searchQ || providerFilter || verifiedFilter || dishFilter)
+  const resetFilters = () => {
+    setSearchQ('')
+    setProviderFilter('')
+    setVerifiedFilter('')
+    setDishFilter('')
+    setPage(1)
+  }
+
+  const handleQuickVerify = async (place: AdminPlaceItem) => {
+    setVerifyingId(place.id)
+    setActionError(null)
+    try {
+      const updated = await adminPlacesApi.update(place.id, { isVerified: !place.isVerified })
+      setPlaces((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))
+    } catch (e: any) {
+      setActionError(e?.response?.data?.message ?? e.message ?? 'Lỗi khi cập nhật xác thực.')
+    } finally {
+      setVerifyingId(null)
+    }
+  }
+
+  const handleDishCountChange = useCallback((placeId: string, count: number) => {
+    setPlaces((prev) => prev.map((p) => (p.id === placeId ? { ...p, dishCount: count } : p)))
+  }, [])
 
   const openEdit = (place: AdminPlaceItem) => {
     setEditTarget(place)
@@ -115,6 +171,7 @@ export default function PlacesPage() {
       lng: place.lng ?? undefined,
       thumbnailUrl: place.thumbnailUrl ?? '',
       isVerified: place.isVerified,
+      isActive: place.isActive,
     })
   }
 
@@ -134,6 +191,7 @@ export default function PlacesPage() {
         lng: editForm.lng,
         thumbnailUrl: editForm.thumbnailUrl?.trim() || undefined,
         isVerified: editForm.isVerified,
+        isActive: editForm.isActive,
       })
       setPlaces((prev) => prev.map((p) => (p.id === updated.id ? updated : p)))
       setEditTarget(null)
@@ -173,7 +231,7 @@ export default function PlacesPage() {
             Quản lý địa điểm quán ăn (Places)
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Quản lý danh mục địa điểm, quán ăn được người dùng hoặc hệ thống gắn kèm bài đăng cộng đồng.
+            Quản lý quán ăn (cộng đồng, ShopeeFood, OpenStreetMap), duyệt dữ liệu crawl và liên kết món dùng cho random theo vị trí.
           </p>
         </div>
       </div>
@@ -198,8 +256,49 @@ export default function PlacesPage() {
               </CardDescription>
             </div>
 
-            {/* Search Input */}
-            <div className="flex items-center gap-2">
+            {/* Search + filters */}
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={providerFilter}
+                onChange={(e) => {
+                  setProviderFilter(e.target.value)
+                  setPage(1)
+                }}
+                className={FILTER_SELECT_CLASS}
+                aria-label="Lọc nguồn"
+              >
+                <option value="">Mọi nguồn</option>
+                <option value="SHOPEEFOOD">ShopeeFood</option>
+                <option value="OSM">OpenStreetMap</option>
+                <option value="GOOGLE">Google</option>
+                <option value="LOCAL">Cộng đồng / Local</option>
+              </select>
+              <select
+                value={verifiedFilter}
+                onChange={(e) => {
+                  setVerifiedFilter(e.target.value as '' | 'true' | 'false')
+                  setPage(1)
+                }}
+                className={FILTER_SELECT_CLASS}
+                aria-label="Lọc xác thực"
+              >
+                <option value="">Mọi trạng thái</option>
+                <option value="false">Chưa duyệt</option>
+                <option value="true">Đã xác minh</option>
+              </select>
+              <select
+                value={dishFilter}
+                onChange={(e) => {
+                  setDishFilter(e.target.value as '' | 'true' | 'false')
+                  setPage(1)
+                }}
+                className={FILTER_SELECT_CLASS}
+                aria-label="Lọc món liên kết"
+              >
+                <option value="">Món: tất cả</option>
+                <option value="true">Có món liên kết</option>
+                <option value="false">Chưa có món</option>
+              </select>
               <div className="relative w-64">
                 <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -218,11 +317,11 @@ export default function PlacesPage() {
                 )}
               </div>
 
-              {searchQ && (
+              {hasFilters && (
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setSearchQ('')}
+                  onClick={resetFilters}
                   className="h-8 text-xs gap-1"
                 >
                   <RotateCcw size={12} />
@@ -236,7 +335,7 @@ export default function PlacesPage() {
         <CardContent className="p-0">
           {loading ? (
             <div className="p-5">
-              <TableSkeleton rows={6} cols={6} />
+              <TableSkeleton rows={6} cols={8} />
             </div>
           ) : places.length === 0 ? (
             <div className="p-12 text-center text-xs text-muted-foreground">
@@ -248,11 +347,13 @@ export default function PlacesPage() {
                 <TableRow className="bg-muted/40 hover:bg-muted/40">
                   <TableHead className="min-w-[200px]">Tên địa điểm</TableHead>
                   <TableHead>Địa chỉ ngắn gọn</TableHead>
-                  <TableHead className="w-28 text-center">Nguồn tạo</TableHead>
+                  <TableHead className="w-28 text-center">Nguồn</TableHead>
+                  <TableHead className="w-32 text-center">Rating / Giá</TableHead>
                   <TableHead className="w-28 text-center">Tọa độ GPS</TableHead>
-                  <TableHead className="w-24 text-center">Bài đăng</TableHead>
+                  <TableHead className="w-20 text-center">Số món</TableHead>
+                  <TableHead className="w-20 text-center">Bài đăng</TableHead>
                   <TableHead className="w-24 text-center">Xác thực</TableHead>
-                  <TableHead className="w-24 text-right">Thao tác</TableHead>
+                  <TableHead className="w-32 text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -294,9 +395,45 @@ export default function PlacesPage() {
                       </span>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant="outline" className="text-[10px] uppercase font-mono">
-                        {place.provider}
-                      </Badge>
+                      <div className="flex flex-col items-center gap-1">
+                        <Badge
+                          variant="outline"
+                          className={`text-[10px] uppercase font-mono ${PROVIDER_STYLE[place.provider] ?? ''}`}
+                        >
+                          {place.provider}
+                        </Badge>
+                        {place.sourceUrl && (
+                          <a
+                            href={place.sourceUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[10px] text-primary hover:underline inline-flex items-center gap-0.5"
+                          >
+                            Nguồn <ExternalLink size={9} />
+                          </a>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <div className="text-xs font-semibold flex items-center justify-center gap-1">
+                        {place.ratingAvg != null ? (
+                          <>
+                            <Star size={11} className="text-amber-500 fill-amber-400" />
+                            {place.ratingAvg.toFixed(1)}
+                            <span className="text-[10px] font-normal text-muted-foreground">
+                              ({place.ratingCount ?? 0})
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-muted-foreground font-normal">—</span>
+                        )}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground">
+                        {place.priceRange ?? 'Chưa có giá'}
+                      </div>
+                      <div className={`text-[10px] ${OPEN_STATUS_LABEL[place.openStatus]?.className ?? ''}`}>
+                        {OPEN_STATUS_LABEL[place.openStatus]?.text}
+                      </div>
                     </TableCell>
                     <TableCell className="text-center">
                       {place.lat != null && place.lng != null ? (
@@ -313,6 +450,17 @@ export default function PlacesPage() {
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>
                       )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <button
+                        type="button"
+                        onClick={() => setDishesTarget(place)}
+                        className="text-xs font-semibold text-primary hover:underline inline-flex items-center gap-1"
+                        title="Xem / sửa món liên kết"
+                      >
+                        <Utensils size={12} />
+                        {place.dishCount}
+                      </button>
                     </TableCell>
                     <TableCell className="text-center">
                       <span className="text-xs font-semibold text-foreground flex items-center justify-center gap-1">
@@ -333,6 +481,25 @@ export default function PlacesPage() {
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className={`h-7 w-7 ${place.isVerified ? 'text-amber-600 hover:bg-amber-50' : 'text-emerald-600 hover:bg-emerald-50'}`}
+                          onClick={() => handleQuickVerify(place)}
+                          disabled={verifyingId === place.id}
+                          title={place.isVerified ? 'Bỏ xác minh' : 'Duyệt / xác minh quán'}
+                        >
+                          {verifyingId === place.id ? <Spinner size="sm" /> : <ShieldCheck size={12} />}
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          className="h-7 w-7 text-primary hover:bg-primary/10"
+                          onClick={() => setDishesTarget(place)}
+                          title="Món bán tại quán"
+                        >
+                          <Utensils size={12} />
+                        </Button>
                         <Button
                           size="icon"
                           variant="outline"
@@ -501,6 +668,15 @@ export default function PlacesPage() {
                 onCheckedChange={(checked) => setEditForm({ ...editForm, isVerified: checked })}
               />
             </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="place-active" className="text-xs font-semibold cursor-pointer">
+                Đang hoạt động (hiện trong gợi ý quán gần)
+              </Label>
+              <Switch
+                checked={editForm.isActive !== false}
+                onCheckedChange={(checked) => setEditForm({ ...editForm, isActive: checked })}
+              />
+            </div>
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0 pt-2">
@@ -545,6 +721,12 @@ export default function PlacesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <PlaceDishesDialog
+        place={dishesTarget}
+        onClose={() => setDishesTarget(null)}
+        onCountChange={handleDishCountChange}
+      />
 
       <MediaLightbox {...lightboxProps} />
     </div>

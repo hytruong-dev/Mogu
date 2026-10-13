@@ -75,6 +75,10 @@ export type AllergenAssessment = {
 export type NearbyPlace = {
   placeId: string;
   name: string;
+  address?: string | null;
+  /** LOCAL | GOOGLE | SHOPEEFOOD | OSM | GEOAPIFY */
+  provider?: string | null;
+  sourceUrl?: string | null;
   coordinates?: { lat: number; lng: number } | null;
   distanceMeters?: number | null;
   rating?: number | null;
@@ -97,6 +101,7 @@ export type FoodDetailFlowProps = {
   meal?: string;
   priceMin?: number | null;
   priceMax?: number | null;
+  eatOutPrice?: { min: number; max: number; source?: string } | null;
   prepMinutes?: number | null;
   cookMinutes?: number | null;
   servings?: number | null;

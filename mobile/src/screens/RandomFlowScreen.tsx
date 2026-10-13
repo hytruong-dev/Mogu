@@ -6,9 +6,12 @@ import { createElement, type ComponentProps, useCallback, useEffect, useRef, use
 import {
   ActivityIndicator,
   Alert,
+  BackHandler,
   type GestureResponderEvent,
   Image,
   ImageSourcePropType,
+  InteractionManager,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -21,6 +24,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import Animated, {
   Easing,
   cancelAnimation,
+  runOnJS,
   useAnimatedStyle,
   useReducedMotion,
   useSharedValue,
@@ -39,6 +43,7 @@ import {
   Coffee,
   Flame,
   Heart,
+  MapPin,
   Moon,
   RotateCcw,
   ShieldCheck,
@@ -60,6 +65,8 @@ import {
 } from '../services/api/randomization';
 import { dishesApi } from '../services/api/dishes';
 import { profileApi } from '../services/api/profile';
+import { toNearbyPlace } from '../services/api/places';
+import { fetchUserLocation, useUserLocation } from '../hooks/useUserLocation';
 import { formatApiErrorWithCode } from '../lib/api-error';
 import { AppImage } from '../components/ui/app-image';
 import { NoanWordmark } from '../components/brand/NoanWordmark';
@@ -81,13 +88,10 @@ import { FOOD_REEL_REVEAL_DELAY, FoodReelMachine } from '../components/random/Fo
 import { useFoodReelSounds, useRewardRevealSound } from '../components/random/useFoodReelSounds';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
-  ConfettiRain,
-  MascotAura,
-  ParticleBurst,
+  ResultCelebrationEffects,
+  ResultConfettiBackdrop,
   ShineSweep,
   Sparkle,
-  Sunburst,
-  TwinkleSparkle,
   usePulse,
 } from '../components/random/RewardEffects';
 
@@ -152,18 +156,80 @@ function getDishFallbackImage(name?: string) {
 }
 
 /** Hero ảnh món — luôn hiện fallback local, phủ ảnh remote khi tải xong */
-function ResultDishPhoto({ uri, dishName }: { uri?: string | null; dishName?: string }) {
+function ResultDishPhoto({
+  uri,
+  dishName,
+  isPrefetched = false,
+}: {
+  uri?: string | null;
+  dishName?: string;
+  isPrefetched?: boolean;
+}) {
   const fallback = getDishFallbackImage(dishName);
-    return (
+  return (
     <View style={styles.photoWrap}>
       <AppImage
         uri={uri}
         fallbackSource={fallback}
         style={styles.photo}
         contentFit="cover"
-        showLoader
+        showLoader={!isPrefetched}
+        transition={isPrefetched ? 0 : 200}
       />
     </View>
+  );
+}
+
+/** Bán kính ràng buộc cứng: món random phải có quán bán trong phạm vi này. */
+const NEARBY_RADIUS_KM = 3;
+
+function formatNearestMeters(m: number | null | undefined): string | null {
+  if (m == null || !Number.isFinite(m)) return null;
+  return m < 1000 ? `${Math.max(50, Math.round(m / 50) * 50)}m` : `${(m / 1000).toFixed(1)}km`;
+}
+
+function getNearbyBadge(nearby: RandomizationResult['nearby']): string | null {
+  if (!nearby) return null;
+  if (nearby.radiusKm == null || nearby.fallback) return 'Chưa có quán gần bạn';
+  const count = nearby.placeCount || nearby.places.length;
+  if (count <= 0) return null;
+  if (nearby.radiusKm > nearby.requestedRadiusKm) {
+    return `${count} quán · mở rộng ${nearby.radiusKm}km`;
+  }
+  const nearest = formatNearestMeters(nearby.nearestMeters);
+  const open = nearby.openCount ?? 0;
+  const parts = [`${count} quán trong ${nearby.radiusKm}km`];
+  if (nearest) parts.push(`gần nhất ${nearest}`);
+  if (open > 0) parts.push(`${open} đang mở`);
+  return parts.join(' · ');
+}
+
+/** Thông điệp khi backend không tìm được món nào có quán trong bán kính (ràng buộc cứng, không mở rộng). */
+function getNoCandidateMessage(result: RandomizationResult | null | undefined): string {
+  const code = result?.explanation?.failReasonCode;
+  const nearby = result?.nearby;
+  const km = nearby?.requestedRadiusKm ?? NEARBY_RADIUS_KM;
+  if (code === 'LOCATION_REQUIRED') {
+    return `Cần vị trí của bạn để chỉ gợi ý món có quán bán trong phạm vi ${km}km. Vui lòng bật định vị và thử lại.`;
+  }
+  if (code === 'NEARBY_LOOKUP_FAILED') {
+    return 'Không kiểm tra được quán quanh bạn lúc này. Vui lòng thử lại sau.';
+  }
+  if (code === 'NO_NEARBY_DISH') {
+    const dishCount = nearby?.dishCountInRadius ?? 0;
+    const placeCount = nearby?.placeCount ?? 0;
+    if (dishCount > 0) {
+      return `Trong ${km}km quanh bạn có ${dishCount} món đang bán nhưng không món nào hợp với bữa/ngân sách/hồ sơ hiện tại. Thử đổi bữa hoặc ngân sách nhé.`;
+    }
+    if (placeCount > 0) {
+      return `Trong ${km}km quanh bạn có ${placeCount} quán nhưng chưa xác định được món nào trùng với thực đơn Mogu.`;
+    }
+    return `Chưa tìm thấy quán nào bán món trong ${km}km quanh vị trí của bạn.`;
+  }
+  return (
+    result?.reason?.summary ??
+    result?.explanation?.summary ??
+    'Không tìm thấy món phù hợp với tiêu chí của bạn.'
   );
 }
 
@@ -222,6 +288,25 @@ function formatPrice(min: number | null | undefined, max: number | null | undefi
   return `~${Math.round((min as number) / 1000)}K`;
 }
 
+function formatEatOutPriceLabel(
+  eatOutPrice?: { min: number; max: number; source?: string } | null,
+  priceMin?: number | null,
+  priceMax?: number | null,
+): string {
+  if (eatOutPrice && eatOutPrice.min > 0) {
+    const range =
+      eatOutPrice.min === eatOutPrice.max
+        ? `~${Math.round(eatOutPrice.min / 1000)}K`
+        : `${Math.round(eatOutPrice.min / 1000)}K–${Math.round(eatOutPrice.max / 1000)}K`;
+    return `${range} · giá quán`;
+  }
+  if (priceMin != null || priceMax != null) {
+    const range = formatPrice(priceMin, priceMax);
+    return `${range} · nấu`;
+  }
+  return 'Chưa có giá';
+}
+
 export function RandomFlowScreen({ onClose }: Props) {
   const { height: windowHeight, width: windowWidth } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -237,6 +322,8 @@ export function RandomFlowScreen({ onClose }: Props) {
 
   const [profileSnap, setProfileSnap] = useState<ProfileSnapshot | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  // Vị trí hiện tại — ràng buộc cứng: món random phải có quán bán trong 3km
+  const userLocation = useUserLocation({ requestOnMount: true });
 
   const [loading, setLoading] = useState(false);
   const [showOverlay, setShowOverlay] = useState(false);
@@ -256,6 +343,8 @@ export function RandomFlowScreen({ onClose }: Props) {
   const cancelledRef = useRef(false);
   const overlayTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastDishIdRef = useRef<string | null>(null);
+  const prefetchedUriRef = useRef<string | null>(null);
+  const excludedDishIdsRef = useRef<string[]>([]);
   const reducedMotion = useReducedMotion();
   const celebrationLift = useSharedValue(0);
   const celebrationFloat = useSharedValue(0);
@@ -265,8 +354,7 @@ export function RandomFlowScreen({ onClose }: Props) {
   const screenFade = useSharedValue(0);
   const [showEffects, setShowEffects] = useState(false);
 
-  const isRevealing = phase === 'result' && !!ba006Result?.dish && !showDetail;
-  useRewardRevealSound(isRevealing, ba006Result?.dish?.id);
+  useRewardRevealSound(showEffects, ba006Result?.dish?.id);
 
   // Warm-up slot machine graphics into device image cache in background
   useEffect(() => {
@@ -282,11 +370,7 @@ export function RandomFlowScreen({ onClose }: Props) {
     });
   }, []);
 
-  useEffect(() => {
-    if (phase !== 'result' || !ba006Result?.dish) {
-      setShowEffects(false);
-      return;
-    }
+  const triggerResultEntrance = useCallback(() => {
     if (reducedMotion) {
       celebrationLift.value = 0;
       celebrationFloat.value = 0;
@@ -297,7 +381,7 @@ export function RandomFlowScreen({ onClose }: Props) {
       return;
     }
 
-    // Smooth bloom entrance for the result screen
+    // Cross-fade in matching overlay's fade-out
     screenFade.value = 0;
     screenFade.value = withTiming(1, { duration: 240, easing: Easing.out(Easing.quad) });
 
@@ -324,18 +408,31 @@ export function RandomFlowScreen({ onClose }: Props) {
       ),
     );
 
-    // Stagger heavy particle/sparkle effects by 180ms to guarantee locked 60 FPS transition
-    const effectTimer = setTimeout(() => setShowEffects(true), 180);
+    setShowEffects(true);
+  }, [reducedMotion, celebrationLift, celebrationFloat, cardPop, titlePop, screenFade]);
 
+  useEffect(() => {
+    if (phase !== 'result' || !ba006Result?.dish) {
+      setShowEffects(false);
+      screenFade.value = 0;
+      return;
+    }
+    // If result screen is displayed and no overlay is covering it (e.g. back from detail screen)
+    if (!showOverlay) {
+      screenFade.value = 1;
+      setShowEffects(true);
+    }
+  }, [phase, ba006Result?.dish?.id, showOverlay, screenFade]);
+
+  useEffect(() => {
     return () => {
-      clearTimeout(effectTimer);
       cancelAnimation(celebrationLift);
       cancelAnimation(celebrationFloat);
       cancelAnimation(cardPop);
       cancelAnimation(titlePop);
       cancelAnimation(screenFade);
     };
-  }, [phase, ba006Result?.dish?.id, reducedMotion, celebrationLift, celebrationFloat, cardPop, titlePop, screenFade]);
+  }, [celebrationLift, celebrationFloat, cardPop, titlePop, screenFade]);
 
   const screenFadeStyle = useAnimatedStyle(() => ({
     opacity: screenFade.value,
@@ -419,40 +516,45 @@ export function RandomFlowScreen({ onClose }: Props) {
       return;
     }
     let cancelled = false;
-    dishesApi
-      .getById(dish.id)
-      .then((full) => {
-        if (cancelled) return;
-        const media = (full as any)?.media as
-          | Array<{ publicUrl?: string; storageKey?: string; bucket?: string; isPrimary?: boolean }>
-          | undefined;
-        const primary = media?.find((m) => m.isPrimary) ?? media?.[0];
-        const url =
-          normalizeImageUrl((full as any)?.imageUrl) ??
-          normalizeImageUrl(primary?.publicUrl) ??
-          null;
-        if (url) {
-          setResolvedImage({ uri: url });
-          return;
-        }
-        if (primary?.storageKey) {
-          const base = (
-            process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://lkqvyvllmrbxgaoqrkhd.supabase.co'
-          ).replace(/\/$/, '');
-          if (base) {
-            const bucket = primary.bucket ?? 'dish-images';
-            const uri = `${base}/storage/v1/object/public/${bucket}/${primary.storageKey}`;
-            setResolvedImage({ uri });
+    const task = InteractionManager.runAfterInteractions(() => {
+      dishesApi
+        .getById(dish.id)
+        .then((full) => {
+          if (cancelled) return;
+          const media = (full as any)?.media as
+            | Array<{ publicUrl?: string; storageKey?: string; bucket?: string; isPrimary?: boolean }>
+            | undefined;
+          const primary = media?.find((m) => m.isPrimary) ?? media?.[0];
+          const url =
+            normalizeImageUrl((full as any)?.imageUrl) ??
+            normalizeImageUrl(primary?.publicUrl) ??
+            null;
+          if (url) {
+            setResolvedImage({ uri: url });
             return;
           }
-        }
-        setResolvedImage(undefined);
-      })
-      .catch(() => {
-        if (!cancelled) setResolvedImage(undefined);
-      });
+          if (primary?.storageKey) {
+            const base = (
+              process.env.EXPO_PUBLIC_SUPABASE_URL ?? 'https://lkqvyvllmrbxgaoqrkhd.supabase.co'
+            ).replace(/\/$/, '');
+            if (base) {
+              const bucket = primary.bucket ?? 'dish-images';
+              const uri = `${base}/storage/v1/object/public/${bucket}/${primary.storageKey}`;
+              setResolvedImage({ uri });
+              return;
+            }
+          }
+          setResolvedImage(undefined);
+        })
+        .catch(() => {
+          if (!cancelled) setResolvedImage(undefined);
+        });
+    });
     return () => {
       cancelled = true;
+      if (task && typeof (task as any).cancel === 'function') {
+        (task as any).cancel();
+      }
     };
   }, [ba006Result?.dish?.id, ba006Result?.dish?.imageUrl]);
 
@@ -478,6 +580,19 @@ export function RandomFlowScreen({ onClose }: Props) {
     stopLoading();
   };
 
+  const handleOverlayExited = useCallback(() => {
+    stopLoading();
+  }, []);
+
+  useEffect(() => {
+    if (!showDetail) return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      setShowDetail(false);
+      return true;
+    });
+    return () => sub.remove();
+  }, [showDetail]);
+
   const runRandom = useCallback(
     async (mode: 'fresh' | 'again') => {
       if (!meal) return;
@@ -493,62 +608,98 @@ export function RandomFlowScreen({ onClose }: Props) {
       const spinStartedAt = Date.now();
 
       try {
-        const result =
-          mode === 'again' && ba006Result?.randomizationId
-            ? await retryRandomization(ba006Result.randomizationId, true)
-            : await randomizeDish({
-                source: mode === 'again' ? 'RANDOM_AGAIN' : 'RANDOM_FLOW',
-                meal: {
-                  slot: mealKeyToSlot(meal),
-                  selectionSource: mealSource,
-                },
-                budget: budgetKeyToDto(budget),
-                runtimeOverrides: {
-                  goalCodes: profileSnap?.goalCodes?.length ? profileSnap.goalCodes : undefined,
-                  dietTypeCodes: profileSnap?.dietTypeCodes?.length
-                    ? profileSnap.dietTypeCodes
-                    : undefined,
-                },
-                excludeDishIds:
-                  mode === 'again' && lastDishIdRef.current ? [lastDishIdRef.current] : undefined,
-              });
+        // Vị trí hiện tại (cache 5 phút) — ràng buộc cứng: món phải có quán bán trong 3km.
+        // Ưu tiên tọa độ đã có từ hook; chỉ chờ GPS tối đa 4s nếu chưa có.
+        const coords =
+          userLocation.coords ??
+          (await Promise.race([
+            fetchUserLocation({ request: true }),
+            new Promise<null>((resolve) => setTimeout(() => resolve(null), 4000)),
+          ]));
+
+        if (!coords) {
+          setNoCandidateMessage(
+            'Cần vị trí của bạn để chỉ gợi ý món có quán bán trong phạm vi 3km. Vui lòng bật định vị và thử lại.',
+          );
+          setPhase('setup');
+          stopLoading();
+          return;
+        }
+
+        if (cancelledRef.current || requestSeq.current !== seq) return;
+
+        if (mode === 'fresh') {
+          excludedDishIdsRef.current = [];
+        }
+
+        const excludeList =
+          mode === 'again' && excludedDishIdsRef.current.length > 0
+            ? [...excludedDishIdsRef.current]
+            : undefined;
+
+        const result = await randomizeDish({
+          source: mode === 'again' ? 'RANDOM_AGAIN' : 'RANDOM_FLOW',
+          meal: {
+            slot: mealKeyToSlot(meal),
+            selectionSource: mealSource,
+          },
+          budget: budgetKeyToDto(budget),
+          runtimeOverrides: {
+            goalCodes: profileSnap?.goalCodes?.length ? profileSnap.goalCodes : undefined,
+            dietTypeCodes: profileSnap?.dietTypeCodes?.length
+              ? profileSnap.dietTypeCodes
+              : undefined,
+            // Ràng buộc cứng: chỉ nhận món có quán bán trong 3km, không mở rộng, không fallback
+            radiusKm: NEARBY_RADIUS_KM,
+            locationMode: 'STRICT',
+          },
+          location: { latitude: coords.lat, longitude: coords.lng },
+          excludeDishIds: excludeList,
+        });
 
         if (cancelledRef.current || requestSeq.current !== seq) return;
 
         setBa006Result(result);
         if (result?.dish) {
           lastDishIdRef.current = result.dish.id;
+          if (!excludedDishIdsRef.current.includes(result.dish.id)) {
+            excludedDishIdsRef.current.push(result.dish.id);
+          }
           setSaved(isDishSaved(result.dish.id));
           const directUri = normalizeImageUrl(result.dish.imageUrl);
           if (directUri) {
+            prefetchedUriRef.current = directUri;
             setResolvedImage({ uri: directUri });
             // Pre-cache image into device cache while reel is spinning so it appears instantly!
             ExpoImage.prefetch(directUri, 'memory-disk').catch(() => undefined);
             Image.prefetch(directUri).catch(() => undefined);
+          } else {
+            prefetchedUriRef.current = null;
           }
           if (result.randomizationId) {
             recordRecommendationEvent(result.randomizationId, 'IMPRESSION').catch(() => undefined);
           }
           recordRandomRunStore(result);
+
+          // Pre-mount result screen immediately behind the spinning overlay!
+          setPhase('result');
+          setShowDetail(false);
+          setShowEffects(false);
+
           // Snappy spin duration: give the reel momentum, then smoothly finish without dragging
           const remainingSpin = Math.max(0, 680 - (Date.now() - spinStartedAt));
           if (remainingSpin) await new Promise((resolve) => setTimeout(resolve, remainingSpin));
           if (cancelledRef.current || requestSeq.current !== seq) return;
           setFinishing(true);
+          // Safety fallback: if exit callback fails to fire for any reason, stop loading cleanly
           overlayTimer.current = setTimeout(() => {
             if (cancelledRef.current || requestSeq.current !== seq) return;
-            setPhase('result');
-            setShowDetail(false);
             stopLoading();
-          }, FOOD_REEL_REVEAL_DELAY);
+          }, FOOD_REEL_REVEAL_DELAY + 1200);
           return;
         }
 
-        const summary =
-          result?.reason?.summary ??
-          result?.explanation?.summary ??
-          'Không tìm thấy món phù hợp với tiêu chí của bạn.';
-        setNoCandidateMessage(summary);
+        setNoCandidateMessage(getNoCandidateMessage(result));
         setPhase('setup');
         stopLoading();
       } catch (err) {
@@ -558,11 +709,19 @@ export function RandomFlowScreen({ onClose }: Props) {
         stopLoading();
       }
     },
-    [meal, mealSource, budget, profileSnap, ba006Result?.randomizationId],
+    [meal, mealSource, budget, profileSnap, userLocation.coords],
   );
 
   const openMachine = (mode: 'fresh' | 'again') => {
     if (!meal || !mealReady || loading) return;
+    if (!userLocation.coords) {
+      if (userLocation.status === 'denied') {
+        void Linking.openSettings();
+      } else {
+        void userLocation.request();
+      }
+      return;
+    }
     spinStartedRef.current = false;
     setQueuedMode(mode);
     setSpinning(false);
@@ -586,298 +745,17 @@ export function RandomFlowScreen({ onClose }: Props) {
   const dish = ba006Result?.dish ?? null;
   const explanation = ba006Result?.explanation ?? null;
 
-  if (showDetail && dish) {
-  return (
-      <FoodDetailFlowScreen
-        initialPage="overview"
-        dishId={dish.id}
-        dishName={dish.name}
-        dishImage={resolvedImage}
-        meal={meal ?? 'Bữa ăn'}
-        priceMin={dish.priceMin}
-        priceMax={dish.priceMax}
-        prepMinutes={dish.prepMinutes}
-        cookMinutes={dish.cookMinutes}
-        shortDescription={dish.shortDescription}
-        originText={dish.originText}
-        nutrition={dish.nutrition}
-        ingredients={dish.ingredients ?? []}
-        allergens={dish.allergens ?? []}
-        recipeSteps={dish.recipeSteps ?? []}
-        difficulty={dish.difficulty}
-        explanation={explanation}
-        onClose={() => setShowDetail(false)}
-        onFinish={() => {
-          if (ba006Result?.randomizationId) {
-            selectRandomization(ba006Result.randomizationId).catch(() => undefined);
-          }
-          if (ba006Result) recordRandomSelectionStore(ba006Result);
-          onClose();
-        }}
-      />
-    );
-  }
-
-  if (phase === 'result' && dish) {
-    const totalMin = (dish.prepMinutes ?? 0) + (dish.cookMinutes ?? 0);
-    const priceLabel = formatPrice(dish.priceMin, dish.priceMax);
-    const timeLabel = totalMin > 0 ? `${totalMin} phút` : '—';
-    const budgetRelaxed = (explanation?.fallbackApplied ?? []).includes('budget');
-    const fromResolved =
-      resolvedImage && typeof resolvedImage === 'object' && 'uri' in resolvedImage
-        ? (resolvedImage as { uri?: string }).uri
-        : undefined;
-    const dishImageUri =
-      normalizeImageUrl(dish.imageUrl) ?? normalizeImageUrl(fromResolved) ?? null;
-
-  return (
-      <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-        {/* Festive backdrop: warm gold gradient + endless confetti rain */}
-        <LinearGradient
-          pointerEvents="none"
-          colors={['#FFE59A', '#FFF3CF', CREAM]}
-          locations={[0, 0.38, 0.75]}
-          style={StyleSheet.absoluteFill}
-        />
-        {showEffects ? (
-          <ConfettiRain width={windowWidth} height={windowHeight} count={14} key={`rain-${dish.id}`} />
-        ) : null}
-
-        <Animated.View style={[{ flex: 1 }, screenFadeStyle]}>
-          <View style={styles.resultHeader}>
-            <Pressable onPress={() => setPhase('setup')} style={styles.plainBackBtn} hitSlop={14}>
-              <ArrowLeft size={24} color="#2A1A10" strokeWidth={2.4} />
-      </Pressable>
-            <View style={styles.resultBrand} pointerEvents="none">
-              <NoanWordmark width={128} height={47} />
-            </View>
-            <View style={styles.headerSpacer} />
-          </View>
-
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={[
-              styles.resultScroll,
-              { flexGrow: 1, justifyContent: 'space-between', paddingBottom: Math.max(insets.bottom + 10, 18) },
-            ]}
-            bounces={false}
-          >
-            <Animated.View style={[styles.resultTitleBlock, titlePopStyle]}>
-              <View style={styles.rewardRibbon}>
-                <Sparkle size={12} color="#FFFFFF" />
-                <Text style={styles.rewardRibbonTxt}>MÓN NGON CỦA BẠN</Text>
-                <Sparkle size={12} color="#FFFFFF" />
-              </View>
-              <Text
-                style={styles.resultTitle}
-                accessibilityLiveRegion="polite"
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-              >
-                NOAN chọn được món rồi!
-              </Text>
-              <Text style={styles.resultSub}>Một món ngon dành riêng cho bạn hôm nay</Text>
-    </Animated.View>
-
-            <Animated.View style={[styles.resultDishCardContainer, cardPopStyle]}>
-              {/* Rotating jackpot rays behind the card */}
-              {showEffects ? (
-                <View style={styles.rewardSunburst} pointerEvents="none">
-                  <Sunburst size={Math.min(620, windowHeight * 0.7)} color="#FFC928" rays={14} />
-                </View>
-              ) : null}
-
-              {/* Top-left scattered gold confetti ribbons */}
-              <View style={styles.confettiTopLeft1} pointerEvents="none" />
-              <View style={styles.confettiTopLeft2} pointerEvents="none" />
-              <View style={styles.confettiTopLeft3} pointerEvents="none" />
-              <View style={styles.confettiTopLeft4} pointerEvents="none" />
-
-              {/* Celebration confetti ring / burst behind mascot */}
-              <View style={styles.confettiRingWrap} pointerEvents="none">
-        <Image
-                  source={CONFETTI_RING}
-                  resizeMode="contain"
-                  style={styles.fullSize}
-        />
-      </View>
-
-              {/* Magical aura behind mascot: spinning rays, glow, orbiting sparkles */}
-              {showEffects ? (
-                <View style={styles.mascotAuraWrap} pointerEvents="none">
-                  <MascotAura size={230} />
-                </View>
-              ) : null}
-
-              {/* Pulsing golden glow behind the card */}
-              <Animated.View style={[styles.cardGlow, cardGlowStyle]} pointerEvents="none" />
-
-              {/* Card with a golden gradient frame */}
-              <LinearGradient
-                colors={['#FFE36B', '#FFB800', '#FFD84D']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.cardFrame}
-              >
-              <View style={styles.resultDishCard}>
-                <View style={[styles.resultPhotoStage, { height: resultPhotoHeight }]}>
-                  <ResultDishPhoto uri={dishImageUri || null} dishName={dish.name} />
-                  <ShineSweep every={2400} delay={700} opacity={0.5} bandWidth={80} radius={24} />
-                  <View style={styles.photoBadge}>
-                    <Text style={styles.photoBadgeTxt}>🎉 Hợp khẩu vị</Text>
-                  </View>
-                </View>
-
-                <View style={styles.resultDishInfo}>
-                  <View style={styles.resultDishTitleRow}>
-                    <View style={styles.resultDishTextCol}>
-                      <Text style={styles.dishName} numberOfLines={2}>
-                        {dish.name}
-                      </Text>
-                      <Text style={styles.resultMetaLine}>
-                        {meal ? (meal === 'Bữa phụ' ? 'Bữa phụ' : `Bữa ${meal.toLowerCase()}`) : 'Bữa trưa'}
-                        {budgetRelaxed ? ' · đã nới ngân sách' : ''}
-                      </Text>
-                    </View>
-
-                    <StyledPressable
-                      onPress={async () => {
-                        if (!dish?.id) return;
-                        try {
-                          const nextSaved = await toggleDishSave(dish.id, saved, {
-                            name: dish.name,
-                            imageUrl: dishImageUri ?? undefined,
-                            priceMin: dish.priceMin ?? undefined,
-                            priceMax: dish.priceMax ?? undefined,
-                            kcal: dish.nutrition?.calories ?? undefined,
-                          });
-                          setSaved(nextSaved);
-                        } catch (e: any) {
-                          Alert.alert('Lỗi', e?.message || 'Không thể cập nhật món đã lưu.');
-                        }
-                      }}
-                      hitSlop={12}
-                      style={({ pressed }) => [styles.heartBtn, pressed && styles.pressed]}
-                      accessibilityRole="button"
-                      accessibilityLabel={saved ? 'Bỏ lưu món' : 'Lưu món'}
-                      accessibilityState={{ selected: saved }}
-                    >
-                      <Heart
-                        size={26}
-                        color={saved ? '#FFC928' : '#2A1A10'}
-                        fill={saved ? '#FFC928' : 'transparent'}
-                        strokeWidth={1.8}
-                      />
-                    </StyledPressable>
-          </View>
-
-                  <View style={styles.rewardChips}>
-                    <RewardChip Icon={Wallet} label={priceLabel} tint="#FFF4D1" />
-                    <RewardChip Icon={Clock3} label={timeLabel} tint="#FFE9DD" />
-                    {dish.nutrition?.calories != null ? (
-                      <RewardChip
-                        Icon={Flame}
-                        label={`${Math.round(dish.nutrition.calories)} kcal`}
-                        tint="#E8F6E4"
-                      />
-                    ) : null}
-        </View>
-      </View>
-        </View>
-              </LinearGradient>
-
-              {/* Nghé NOAN jumping celebrating at top-right overlapping card */}
-              <View style={styles.mascotWrap} pointerEvents="none">
-                <Animated.Image
-                  source={CELEBRATING_MASCOT}
-                  resizeMode="contain"
-                  style={[styles.fullSize, celebratingMascotStyle]}
-                  accessibilityLabel="Nghé NOAN đang nhảy ăn mừng món ăn được chọn"
-        />
-      </View>
-
-              {/* Twinkling sparkles around the reward card - staggered to mount after 180ms */}
-              {showEffects ? (
-                <>
-                  <TwinkleSparkle size={20} delay={80} style={{ top: 18, left: -6, zIndex: 25 }} />
-                  <TwinkleSparkle size={14} color="#FFFFFF" delay={260} style={{ top: 96, left: 22, zIndex: 25 }} />
-                  <TwinkleSparkle size={18} delay={180} style={{ top: '46%', right: -4, zIndex: 25 }} />
-                  <TwinkleSparkle size={12} color="#FF9F43" delay={380} style={{ bottom: 70, left: -2, zIndex: 25 }} />
-                  <TwinkleSparkle size={16} delay={480} style={{ bottom: 20, right: 30, zIndex: 25 }} />
-                </>
-              ) : null}
-
-              {/* One-shot coin / star / confetti explosion when the dish opens */}
-              {showEffects ? (
-                <View style={styles.rewardBurstAnchor} pointerEvents="none">
-                  <ParticleBurst key={`burst-${dish.id}`} count={16} radius={180} seed={11} delay={30} />
-    </View>
-              ) : null}
-            </Animated.View>
-
-            <Animated.View style={ctaPulseStyle}>
-              <StyledPressable
-                style={({ pressed }) => [styles.chooseBtn, pressed && styles.pressed]}
-                accessibilityRole="button"
-                accessibilityLabel="Xem chi tiết món ăn"
-                onPress={() => setShowDetail(true)}
-                disabled={loading}
-              >
-                <ShineSweep every={2200} delay={1200} opacity={0.65} bandWidth={56} radius={27} />
-                <Text style={styles.chooseTxt}>Xem món ăn</Text>
-                <ChevronRight size={20} color="#2A1A10" strokeWidth={3} />
-              </StyledPressable>
-    </Animated.View>
-
-            <StyledPressable
-              style={({ pressed }) => [styles.againBtn, pressed && styles.pressed]}
-              accessibilityRole="button"
-              accessibilityLabel="Chọn một món khác"
-              onPress={() => {
-                if (ba006Result?.randomizationId) {
-                  recordRecommendationEvent(ba006Result.randomizationId, 'RETRY').catch(
-                    () => undefined,
-                  );
-                }
-                openMachine('again');
-              }}
-              disabled={loading}
-            >
-              <Text style={styles.againTxt}>Chọn món khác</Text>
-            </StyledPressable>
-
-            {windowHeight - insets.top - insets.bottom > 760 ? (
-              <View style={styles.tagline}>
-                <LeafIcon size={14} color="#A8988B" />
-                <Text style={styles.taglineTxt}>Ngon miệng cùng NOAN</Text>
-                <LeafIcon size={14} color="#A8988B" flip />
-              </View>
-            ) : null}
-          </ScrollView>
-        </Animated.View>
-
-        {showOverlay && loading ? (
-          <LoadingOverlay
-            meal={meal}
-            budget={budget}
-            spinning={spinning}
-            finishing={finishing}
-            selectedDish={
-              ba006Result?.dish
-                ? (resolvedImage ??
-                    (ba006Result.dish.imageUrl
-                      ? { uri: normalizeImageUrl(ba006Result.dish.imageUrl)! }
-                      : getDishFallbackImage(ba006Result.dish.name)))
-                : undefined
-            }
-            onCancel={cancelRequest}
-            onPull={pullLever}
-          />
-        ) : null}
-      </SafeAreaView>
-    );
-  }
+  const totalMin = dish ? (dish.prepMinutes ?? 0) + (dish.cookMinutes ?? 0) : 0;
+  const priceLabel = dish ? formatEatOutPriceLabel(dish.eatOutPrice, dish.priceMin, dish.priceMax) : '';
+  const timeLabel = totalMin > 0 ? `${totalMin} phút` : '—';
+  const budgetRelaxed = (explanation?.fallbackApplied ?? []).includes('budget');
+  const nearbyBadge = getNearbyBadge(ba006Result?.nearby);
+  const fromResolved =
+    resolvedImage && typeof resolvedImage === 'object' && 'uri' in resolvedImage
+      ? (resolvedImage as { uri?: string }).uri
+      : undefined;
+  const dishImageUri =
+    (dish ? normalizeImageUrl(dish.imageUrl) : null) ?? normalizeImageUrl(fromResolved) ?? null;
 
   const errorBanner = fetchError ?? noCandidateMessage;
   const profileChips: string[] = [
@@ -895,174 +773,461 @@ export function RandomFlowScreen({ onClose }: Props) {
   const profileDeclared = profileChips.length > 0;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <View style={styles.header}>
-        <Pressable onPress={onClose} style={styles.iconBtn} hitSlop={8}>
-          <ArrowLeft size={20} color={INK} />
-          </Pressable>
-        <NoanWordmark width={92} height={32} />
-        <Pressable onPress={onClose} style={styles.iconBtn} hitSlop={8}>
-          <X size={20} color={INK} />
-        </Pressable>
-              </View>
+    <>
+      <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
+      {phase === 'result' && dish ? (
+        <>
+          {/* Festive backdrop: warm gold gradient + endless confetti rain */}
+          <LinearGradient
+            pointerEvents="none"
+            colors={['#FFE59A', '#FFF3CF', CREAM]}
+            locations={[0, 0.38, 0.75]}
+            style={StyleSheet.absoluteFill}
+          />
+          <ResultConfettiBackdrop
+            active={showEffects}
+            dishId={dish.id}
+            width={windowWidth}
+            height={windowHeight}
+          />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.setupScroll}
-        bounces={false}
-        pointerEvents={loading ? 'none' : 'auto'}
-      >
-        <View style={styles.heroRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.setupTitle}>Hôm nay ăn gì?</Text>
-            <Text style={styles.setupSub}>Chọn nhanh, NOAN lo phần còn lại.</Text>
-                </View>
-          <Image source={MASCOT} style={styles.setupMascot} resizeMode="contain" />
+          <Animated.View style={[{ flex: 1 }, screenFadeStyle]}>
+            <View style={styles.resultHeader}>
+              <Pressable onPress={() => setPhase('setup')} style={styles.plainBackBtn} hitSlop={14}>
+                <ArrowLeft size={24} color="#2A1A10" strokeWidth={2.4} />
+              </Pressable>
+              <View style={styles.resultBrand} pointerEvents="none">
+                <NoanWordmark width={128} height={47} />
               </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Bữa ăn</Text>
-          <Text style={styles.cardSub}>
-            {mealReady && mealSource === 'AUTO_TIME'
-              ? 'Gợi ý theo thời gian hiện tại.'
-              : 'Chọn bữa bạn muốn ăn.'}
-          </Text>
-          <View style={styles.mealGrid}>
-            {MEALS.map(({ key, label, Icon }) => {
-              const selected = meal === key;
-              return (
-              <Pressable
-                  key={key}
-                  style={[styles.mealChip, selected && styles.mealChipOn]}
-                  onPress={() => onSelectMeal(key)}
-                >
-                  {selected ? (
-                    <View style={styles.selectedBadge}>
-                      <Check size={9} color={INK} strokeWidth={3} />
-              </View>
-                  ) : null}
-                  <Icon size={22} color={selected ? INK : MUTED} strokeWidth={selected ? 2 : 1.8} />
-                  <Text style={[styles.mealChipTxt, selected && styles.mealChipTxtOn]}>
-                    {label}
-              </Text>
-                </Pressable>
-              );
-            })}
-              </View>
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Ngân sách</Text>
-          <Text style={styles.cardSub}>Bạn có thể đổi bất cứ lúc nào.</Text>
-          <View style={styles.budgetRow}>
-            {BUDGETS.map((b) => {
-              const selected = budget === b;
-              return (
-              <Pressable
-                  key={b}
-                  style={[styles.budgetChip, selected && styles.budgetChipOn]}
-                  onPress={() => setBudget(b)}
-                >
-                  {selected ? (
-                    <View style={styles.selectedBadge}>
-                      <Check size={9} color={INK} strokeWidth={3} />
-                    </View>
-                  ) : null}
-                  <Text
-                    style={[styles.budgetChipTxt, selected && styles.budgetChipTxtOn]}
-                    numberOfLines={1}
-                  >
-                    {b}
-              </Text>
-                  <Text style={styles.budgetChipHint} numberOfLines={1}>
-                    {BUDGET_HINTS[b]}
-              </Text>
-                  </Pressable>
-              );
-            })}
-              </View>
-              </View>
-
-                  <Pressable
-          style={styles.profileRow}
-          onPress={() => setSheetOpen(true)}
-          accessibilityRole="button"
-          accessibilityLabel="Xem hồ sơ ăn uống"
-        >
-          <View style={styles.profileTop}>
-            <View style={[styles.profileIcon, !profileDeclared && styles.profileIconWarn]}>
-              <ShieldCheck size={18} color={profileDeclared ? '#15803D' : '#B45309'} />
-              </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.profileTxt}>
-                {profileDeclared ? 'Đã áp dụng hồ sơ ăn uống' : 'Hoàn thiện hồ sơ ăn uống'}
-              </Text>
-              <Text style={styles.profileSub} numberOfLines={1}>
-                {profileDeclared
-                  ? 'NOAN lọc món theo các tiêu chí bên dưới'
-                  : 'Giúp NOAN gợi ý món hợp với bạn hơn'}
-              </Text>
-              </View>
-            <ChevronRight size={18} color={MUTED} />
-                </View>
-          {profileChips.length > 0 ? (
-            <View style={styles.profileChips}>
-              {profileChips.map((c) => (
-                <View key={c} style={styles.profileChip}>
-                  <Text style={styles.profileChipTxt} numberOfLines={1}>
-                    {c}
-                  </Text>
-              </View>
-              ))}
+              <View style={styles.headerSpacer} />
             </View>
-          ) : null}
-        </Pressable>
 
-        {errorBanner ? (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorTxt}>{errorBanner}</Text>
-            <View style={styles.errorActions}>
-                <Pressable
-                style={styles.errorBtn}
-                  onPress={() => {
-                  setFetchError(null);
-                  setNoCandidateMessage(null);
-                  openMachine('fresh');
-                  }}
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={[
+                styles.resultScroll,
+                { flexGrow: 1, justifyContent: 'space-between', paddingBottom: Math.max(insets.bottom + 10, 18) },
+              ]}
+              bounces={false}
+            >
+              <Animated.View style={[styles.resultTitleBlock, titlePopStyle]}>
+                <View style={styles.rewardRibbon}>
+                  <Sparkle size={12} color="#FFFFFF" />
+                  <Text style={styles.rewardRibbonTxt}>MÓN NGON CỦA BẠN</Text>
+                  <Sparkle size={12} color="#FFFFFF" />
+                </View>
+                <Text
+                  style={styles.resultTitle}
+                  accessibilityLiveRegion="polite"
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.8}
                 >
-                <Text style={styles.errorBtnTxt}>Thử lại</Text>
-                </Pressable>
-    <Pressable
-                style={styles.errorBtnGhost}
-                onPress={() => {
-                  setFetchError(null);
-                  setNoCandidateMessage(null);
-                }}
-              >
-                <Text style={styles.errorBtnGhostTxt}>Sửa lựa chọn</Text>
-    </Pressable>
-    </View>
-    </View>
-        ) : null}
-      </ScrollView>
+                  NOAN chọn được món rồi!
+                </Text>
+                <Text style={styles.resultSub}>Một món ngon dành riêng cho bạn hôm nay</Text>
+              </Animated.View>
 
-      <View style={styles.setupFooter}>
-    <Pressable
-          style={[styles.cta, (!meal || !mealReady || loading) && { opacity: 0.55 }]}
-          disabled={!meal || !mealReady || loading}
-          onPress={() => openMachine('fresh')}
-        >
-          {loading && !showOverlay ? (
-            <ActivityIndicator color={INK} />
-          ) : (
-            <Text style={styles.ctaTxt}>Chọn món cho tôi</Text>
-          )}
-    </Pressable>
-        <Text style={styles.ctaHint}>Không ưng? Bạn có thể đổi món.</Text>
-      </View>
+              <Animated.View style={[styles.resultDishCardContainer, cardPopStyle]}>
+                {/* Rotating jackpot rays behind the card */}
+                <ResultCelebrationEffects
+                  active={showEffects}
+                  dishId={dish.id}
+                  windowHeight={windowHeight}
+                />
+
+                {/* Top-left scattered gold confetti ribbons */}
+                <View style={styles.confettiTopLeft1} pointerEvents="none" />
+                <View style={styles.confettiTopLeft2} pointerEvents="none" />
+                <View style={styles.confettiTopLeft3} pointerEvents="none" />
+                <View style={styles.confettiTopLeft4} pointerEvents="none" />
+
+                {/* Celebration confetti ring / burst behind mascot */}
+                <View style={styles.confettiRingWrap} pointerEvents="none">
+                  <Image
+                    source={CONFETTI_RING}
+                    resizeMode="contain"
+                    style={styles.fullSize}
+                  />
+                </View>
+
+                {/* Pulsing golden glow behind the card */}
+                <Animated.View style={[styles.cardGlow, cardGlowStyle]} pointerEvents="none" />
+
+                {/* Card with a golden gradient frame */}
+                <LinearGradient
+                  colors={['#FFE36B', '#FFB800', '#FFD84D']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.cardFrame}
+                >
+                  <View style={styles.resultDishCard}>
+                    <Pressable
+                      onPress={() => setShowDetail(true)}
+                      style={[styles.resultPhotoStage, { height: resultPhotoHeight }]}
+                      accessibilityRole="button"
+                      accessibilityLabel="Xem chi tiết món ăn"
+                    >
+                      <ResultDishPhoto
+                        uri={dishImageUri || null}
+                        dishName={dish.name}
+                        isPrefetched={Boolean(dishImageUri && prefetchedUriRef.current === dishImageUri)}
+                      />
+                      <ShineSweep every={2400} delay={700} opacity={0.5} bandWidth={80} radius={24} />
+                      <View style={styles.photoBadge}>
+                        <Text style={styles.photoBadgeTxt}>🎉 Hợp khẩu vị</Text>
+                      </View>
+                    </Pressable>
+
+                    <View style={styles.resultDishInfo}>
+                      <View style={styles.resultDishTitleRow}>
+                        <View style={styles.resultDishTextCol}>
+                          <Text style={styles.dishName} numberOfLines={2}>
+                            {dish.name}
+                          </Text>
+                          <Text style={styles.resultMetaLine}>
+                            {meal ? (meal === 'Bữa phụ' ? 'Bữa phụ' : `Bữa ${meal.toLowerCase()}`) : 'Bữa trưa'}
+                            {budgetRelaxed ? ' · đã nới ngân sách' : ''}
+                          </Text>
+                        </View>
+
+                        <StyledPressable
+                          onPress={async () => {
+                            if (!dish?.id) return;
+                            try {
+                              const nextSaved = await toggleDishSave(dish.id, saved, {
+                                name: dish.name,
+                                imageUrl: dishImageUri ?? undefined,
+                                priceMin: dish.priceMin ?? undefined,
+                                priceMax: dish.priceMax ?? undefined,
+                                kcal: dish.nutrition?.calories ?? undefined,
+                              });
+                              setSaved(nextSaved);
+                            } catch (e: any) {
+                              Alert.alert('Lỗi', e?.message || 'Không thể cập nhật món đã lưu.');
+                            }
+                          }}
+                          hitSlop={12}
+                          style={({ pressed }) => [styles.heartBtn, pressed && styles.pressed]}
+                          accessibilityRole="button"
+                          accessibilityLabel={saved ? 'Bỏ lưu món' : 'Lưu món'}
+                          accessibilityState={{ selected: saved }}
+                        >
+                          <Heart
+                            size={26}
+                            color={saved ? '#FFC928' : '#2A1A10'}
+                            fill={saved ? '#FFC928' : 'transparent'}
+                            strokeWidth={1.8}
+                          />
+                        </StyledPressable>
+                      </View>
+
+                      <View style={styles.rewardChips}>
+                        <RewardChip Icon={Wallet} label={priceLabel} tint="#FFF4D1" />
+                        <RewardChip Icon={Clock3} label={timeLabel} tint="#FFE9DD" />
+                        {dish.nutrition?.calories != null ? (
+                          <RewardChip
+                            Icon={Flame}
+                            label={`${Math.round(dish.nutrition.calories)} kcal`}
+                            tint="#E8F6E4"
+                          />
+                        ) : null}
+                        {nearbyBadge ? (
+                          <RewardChip Icon={MapPin} label={nearbyBadge} tint="#E6F0FF" />
+                        ) : null}
+                      </View>
+                    </View>
+                  </View>
+                </LinearGradient>
+
+                {/* Nghé NOAN jumping celebrating at top-right overlapping card */}
+                <View style={styles.mascotWrap} pointerEvents="none">
+                  <Animated.Image
+                    source={CELEBRATING_MASCOT}
+                    resizeMode="contain"
+                    style={[styles.fullSize, celebratingMascotStyle]}
+                    accessibilityLabel="Nghé NOAN đang nhảy ăn mừng món ăn được chọn"
+                  />
+                </View>
+              </Animated.View>
+
+              <Animated.View style={ctaPulseStyle}>
+                <StyledPressable
+                  style={({ pressed }) => [styles.chooseBtn, pressed && styles.pressed]}
+                  accessibilityRole="button"
+                  accessibilityLabel="Xem chi tiết món ăn"
+                  onPress={() => setShowDetail(true)}
+                  disabled={loading}
+                >
+                  <ShineSweep every={2200} delay={1200} opacity={0.65} bandWidth={56} radius={27} />
+                  <Text style={styles.chooseTxt}>Xem món ăn</Text>
+                  <ChevronRight size={20} color="#2A1A10" strokeWidth={3} />
+                </StyledPressable>
+              </Animated.View>
+
+              <StyledPressable
+                style={({ pressed }) => [styles.againBtn, pressed && styles.pressed]}
+                accessibilityRole="button"
+                accessibilityLabel="Chọn một món khác"
+                onPress={() => {
+                  if (ba006Result?.randomizationId) {
+                    recordRecommendationEvent(ba006Result.randomizationId, 'RETRY').catch(
+                      () => undefined,
+                    );
+                  }
+                  openMachine('again');
+                }}
+                disabled={loading}
+              >
+                <Text style={styles.againTxt}>Chọn món khác</Text>
+              </StyledPressable>
+
+              {windowHeight - insets.top - insets.bottom > 760 ? (
+                <View style={styles.tagline}>
+                  <LeafIcon size={14} color="#A8988B" />
+                  <Text style={styles.taglineTxt}>Ngon miệng cùng NOAN</Text>
+                  <LeafIcon size={14} color="#A8988B" flip />
+                </View>
+              ) : null}
+            </ScrollView>
+          </Animated.View>
+        </>
+      ) : (
+        <>
+          <View style={styles.header}>
+            <Pressable onPress={onClose} style={styles.iconBtn} hitSlop={8}>
+              <ArrowLeft size={20} color={INK} />
+            </Pressable>
+            <NoanWordmark width={92} height={32} />
+            <Pressable onPress={onClose} style={styles.iconBtn} hitSlop={8}>
+              <X size={20} color={INK} />
+            </Pressable>
+          </View>
+
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.setupScroll}
+            bounces={false}
+            pointerEvents={loading ? 'none' : 'auto'}
+          >
+            <View style={styles.heroRow}>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.setupTitle}>Hôm nay ăn gì?</Text>
+                <Text style={styles.setupSub}>Chọn nhanh, NOAN lo phần còn lại.</Text>
+              </View>
+              <Image source={MASCOT} style={styles.setupMascot} resizeMode="contain" />
+            </View>
+
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Bữa ăn</Text>
+              <Text style={styles.cardSub}>
+                {mealReady && mealSource === 'AUTO_TIME'
+                  ? 'Gợi ý theo thời gian hiện tại.'
+                  : 'Chọn bữa bạn muốn ăn.'}
+              </Text>
+              <View style={styles.mealGrid}>
+                {MEALS.map(({ key, label, Icon }) => {
+                  const selected = meal === key;
+                  return (
+                    <Pressable
+                      key={key}
+                      style={[styles.mealChip, selected && styles.mealChipOn]}
+                      onPress={() => onSelectMeal(key)}
+                    >
+                      {selected ? (
+                        <View style={styles.selectedBadge}>
+                          <Check size={9} color={INK} strokeWidth={3} />
+                        </View>
+                      ) : null}
+                      <Icon size={22} color={selected ? INK : MUTED} strokeWidth={selected ? 2 : 1.8} />
+                      <Text style={[styles.mealChipTxt, selected && styles.mealChipTxtOn]}>
+                        {label}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Ngân sách</Text>
+              <Text style={styles.cardSub}>Bạn có thể đổi bất cứ lúc nào.</Text>
+              <View style={styles.budgetRow}>
+                {BUDGETS.map((b) => {
+                  const selected = budget === b;
+                  return (
+                    <Pressable
+                      key={b}
+                      style={[styles.budgetChip, selected && styles.budgetChipOn]}
+                      onPress={() => setBudget(b)}
+                    >
+                      {selected ? (
+                        <View style={styles.selectedBadge}>
+                          <Check size={9} color={INK} strokeWidth={3} />
+                        </View>
+                      ) : null}
+                      <Text
+                        style={[styles.budgetChipTxt, selected && styles.budgetChipTxtOn]}
+                        numberOfLines={1}
+                      >
+                        {b}
+                      </Text>
+                      <Text style={styles.budgetChipHint} numberOfLines={1}>
+                        {BUDGET_HINTS[b]}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+
+            <Pressable
+              style={styles.profileRow}
+              onPress={() => setSheetOpen(true)}
+              accessibilityRole="button"
+              accessibilityLabel="Xem hồ sơ ăn uống"
+            >
+              <View style={styles.profileTop}>
+                <View style={[styles.profileIcon, !profileDeclared && styles.profileIconWarn]}>
+                  <ShieldCheck size={18} color={profileDeclared ? '#15803D' : '#B45309'} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.profileTxt}>
+                    {profileDeclared ? 'Đã áp dụng hồ sơ ăn uống' : 'Hoàn thiện hồ sơ ăn uống'}
+                  </Text>
+                  <Text style={styles.profileSub} numberOfLines={1}>
+                    {profileDeclared
+                      ? 'NOAN lọc món theo các tiêu chí bên dưới'
+                      : 'Giúp NOAN gợi ý món hợp với bạn hơn'}
+                  </Text>
+                </View>
+                <ChevronRight size={18} color={MUTED} />
+              </View>
+              {profileChips.length > 0 ? (
+                <View style={styles.profileChips}>
+                  {profileChips.map((c) => (
+                    <View key={c} style={styles.profileChip}>
+                      <Text style={styles.profileChipTxt} numberOfLines={1}>
+                        {c}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
+            </Pressable>
+
+            <Pressable
+              style={styles.profileRow}
+              onPress={() => {
+                if (!userLocation.coords) {
+                  if (userLocation.status === 'denied') {
+                    void Linking.openSettings();
+                  } else {
+                    void userLocation.request();
+                  }
+                }
+              }}
+              accessibilityRole="button"
+              accessibilityLabel="Vị trí để tìm quán gần"
+            >
+              <View style={styles.profileTop}>
+                <View style={[styles.profileIcon, !userLocation.coords && styles.profileIconWarn]}>
+                  <MapPin size={18} color={userLocation.coords ? '#15803D' : '#B45309'} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.profileTxt}>
+                    {userLocation.coords
+                      ? `Chỉ gợi ý món có quán trong ${NEARBY_RADIUS_KM}km`
+                      : userLocation.loading
+                        ? 'Đang xác định vị trí…'
+                        : userLocation.status === 'denied'
+                          ? 'Chưa cấp quyền vị trí'
+                          : 'Bật vị trí để tìm quán gần bạn'}
+                  </Text>
+                  <Text style={styles.profileSub} numberOfLines={2}>
+                    {userLocation.coords
+                      ? 'NOAN chỉ đưa món bạn có thể ăn ngay quanh đây, không gợi ý món ở xa.'
+                      : userLocation.loading
+                        ? 'Đang dò GPS để tìm món quanh 3km…'
+                        : userLocation.status === 'denied'
+                          ? 'Nhấn để mở Cài đặt và bật quyền vị trí cho ứng dụng.'
+                          : 'Cần vị trí để đảm bảo món đưa ra có quán bán trong bán kính 3km.'}
+                  </Text>
+                </View>
+                {!userLocation.coords && !userLocation.loading ? (
+                  <View style={styles.locationActionBadge}>
+                    <Text style={styles.locationActionBadgeTxt}>
+                      {userLocation.status === 'denied' ? 'Cài đặt' : 'Bật'}
+                    </Text>
+                  </View>
+                ) : null}
+              </View>
+            </Pressable>
+
+            {errorBanner ? (
+              <View style={styles.errorBox}>
+                <Text style={styles.errorTxt}>{errorBanner}</Text>
+                <View style={styles.errorActions}>
+                  <Pressable
+                    style={styles.errorBtn}
+                    onPress={() => {
+                      setFetchError(null);
+                      setNoCandidateMessage(null);
+                      openMachine('fresh');
+                    }}
+                  >
+                    <Text style={styles.errorBtnTxt}>Thử lại</Text>
+                  </Pressable>
+                  <Pressable
+                    style={styles.errorBtnGhost}
+                    onPress={() => {
+                      setFetchError(null);
+                      setNoCandidateMessage(null);
+                    }}
+                  >
+                    <Text style={styles.errorBtnGhostTxt}>Sửa lựa chọn</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ) : null}
+          </ScrollView>
+
+          <View style={styles.setupFooter}>
+            <Pressable
+              style={[styles.cta, (!meal || !mealReady || loading) && { opacity: 0.55 }]}
+              disabled={!meal || !mealReady || loading}
+              onPress={() => {
+                if (!userLocation.coords) {
+                  if (userLocation.status === 'denied') {
+                    void Linking.openSettings();
+                  } else {
+                    void userLocation.request();
+                  }
+                  return;
+                }
+                openMachine('fresh');
+              }}
+            >
+              {loading && !showOverlay ? (
+                <ActivityIndicator color={INK} />
+              ) : (
+                <Text style={styles.ctaTxt}>
+                  {!userLocation.coords ? 'Bật vị trí để chọn món' : 'Chọn món cho tôi'}
+                </Text>
+              )}
+            </Pressable>
+            <Text style={styles.ctaHint}>
+              {!userLocation.coords
+                ? 'NOAN chỉ gợi ý món có quán bán trong bán kính 3km.'
+                : 'Không ưng? Bạn có thể đổi món.'}
+            </Text>
+          </View>
+        </>
+      )}
 
       {showOverlay && loading ? (
         <LoadingOverlay
+          key="global-loading-overlay"
           meal={meal}
           budget={budget}
           spinning={spinning}
@@ -1077,6 +1242,8 @@ export function RandomFlowScreen({ onClose }: Props) {
           }
           onCancel={cancelRequest}
           onPull={pullLever}
+          onRevealed={triggerResultEntrance}
+          onExited={handleOverlayExited}
         />
       ) : null}
 
@@ -1087,19 +1254,54 @@ export function RandomFlowScreen({ onClose }: Props) {
         onApplied={setProfileSnap}
       />
 
-      {/* Off-screen pre-warmer: decodes slot textures into GPU cache while user is picking meal/budget */}
-      <View pointerEvents="none" style={styles.offscreenPrewarmer} aria-hidden>
-        {PRELOAD_SLOT_ASSETS.map((asset, idx) => (
-          <ExpoImage
-            key={idx}
-            source={asset}
-            priority="high"
-            cachePolicy="memory-disk"
-            style={styles.prewarmItem}
+        {/* Off-screen pre-warmer: decodes slot textures into GPU cache while user is picking meal/budget */}
+        <View pointerEvents="none" style={styles.offscreenPrewarmer} aria-hidden>
+          {PRELOAD_SLOT_ASSETS.map((asset, idx) => (
+            <ExpoImage
+              key={idx}
+              source={asset}
+              priority="high"
+              cachePolicy="memory-disk"
+              style={styles.prewarmItem}
+            />
+          ))}
+        </View>
+      </SafeAreaView>
+
+      {showDetail && dish ? (
+        <View style={[StyleSheet.absoluteFill, { zIndex: 100, backgroundColor: CREAM }]}>
+          <FoodDetailFlowScreen
+            initialPage="overview"
+            dishId={dish.id}
+            dishName={dish.name}
+            dishImage={resolvedImage}
+            meal={meal ?? 'Bữa ăn'}
+            priceMin={dish.priceMin}
+            priceMax={dish.priceMax}
+            eatOutPrice={dish.eatOutPrice}
+            prepMinutes={dish.prepMinutes}
+            cookMinutes={dish.cookMinutes}
+            shortDescription={dish.shortDescription}
+            originText={dish.originText}
+            nutrition={dish.nutrition}
+            ingredients={dish.ingredients ?? []}
+            allergens={dish.allergens ?? []}
+            recipeSteps={dish.recipeSteps ?? []}
+            difficulty={dish.difficulty}
+            explanation={explanation}
+            nearbyPlaces={(ba006Result?.nearby?.places ?? []).map(toNearbyPlace)}
+            onClose={() => setShowDetail(false)}
+            onFinish={() => {
+              if (ba006Result?.randomizationId) {
+                selectRandomization(ba006Result.randomizationId).catch(() => undefined);
+              }
+              if (ba006Result) recordRandomSelectionStore(ba006Result);
+              onClose();
+            }}
           />
-        ))}
-      </View>
-    </SafeAreaView>
+        </View>
+      ) : null}
+    </>
   );
 }
 
@@ -1144,6 +1346,8 @@ function LoadingOverlay({
   selectedDish,
   onCancel,
   onPull,
+  onRevealed,
+  onExited,
 }: {
   meal: MealKey | null;
   budget: BudgetKey;
@@ -1152,6 +1356,8 @@ function LoadingOverlay({
   selectedDish?: ImageSourcePropType;
   onCancel: () => void;
   onPull: () => void;
+  onRevealed?: () => void;
+  onExited?: () => void;
 }) {
   useFoodReelSounds(spinning, finishing);
   const reducedMotion = useReducedMotion();
@@ -1172,10 +1378,19 @@ function LoadingOverlay({
       return;
     }
     const timer = setTimeout(() => {
-      exit.value = withTiming(1, { duration: 150, easing: Easing.in(Easing.quad) });
-    }, Math.max(0, FOOD_REEL_REVEAL_DELAY - 150));
+      onRevealed?.();
+      exit.value = withTiming(
+        1,
+        { duration: reducedMotion ? 0 : 240, easing: Easing.inOut(Easing.quad) },
+        (finished) => {
+          if (finished && onExited) {
+            runOnJS(onExited)();
+          }
+        },
+      );
+    }, FOOD_REEL_REVEAL_DELAY);
     return () => clearTimeout(timer);
-  }, [finishing, exit]);
+  }, [finishing, exit, reducedMotion, onRevealed, onExited]);
 
   useEffect(() => {
     if (reducedMotion) return;
@@ -1439,6 +1654,17 @@ const styles = StyleSheet.create({
     borderColor: '#D5EBCD',
   },
   profileChipTxt: { fontSize: 12, fontWeight: '700', color: '#2F6B22' },
+  locationActionBadge: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 14,
+    backgroundColor: '#FFE9A6',
+  },
+  locationActionBadgeTxt: {
+    fontSize: 12.5,
+    fontWeight: '800',
+    color: '#8A5200',
+  },
 
   errorBox: {
     backgroundColor: '#FFF1F0',

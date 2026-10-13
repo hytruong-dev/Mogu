@@ -149,6 +149,7 @@ export const ShoppingCart = icon(Lucide.ShoppingCart, 'ShoppingCart');
 export const SlidersHorizontal = icon(Lucide.SlidersHorizontal, 'SlidersHorizontal');
 export const Soup = icon(Lucide.Soup, 'Soup');
 export const SquarePen = icon(Lucide.SquarePen, 'SquarePen');
+export const Store = icon(Lucide.Store, 'Store');
 export const Star = icon(Lucide.Star, 'Star');
 export const Sun = icon(Lucide.Sun, 'Sun');
 export const Sunrise = icon(Lucide.Sunrise, 'Sunrise');

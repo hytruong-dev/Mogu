@@ -38,6 +38,18 @@ export enum RecommendationSourceEnum {
   WEEKLY_PLAN_SWAP = 'WEEKLY_PLAN_SWAP',
 }
 
+/**
+ * Cách dùng vị trí khi random:
+ * - STRICT  : chỉ trả món có quán bán trong bán kính yêu cầu; không mở rộng, không fallback (mặc định khi có location).
+ * - PREFER  : ưu tiên món gần (cascade 3→5→10km rồi bỏ ràng buộc) — hành vi cũ, dùng cho weekly plan.
+ * - OFF     : bỏ qua vị trí.
+ */
+export enum LocationModeEnum {
+  STRICT = 'STRICT',
+  PREFER = 'PREFER',
+  OFF = 'OFF',
+}
+
 export enum RecommendationEventTypeEnum {
   IMPRESSION = 'IMPRESSION',
   OPEN_DETAIL = 'OPEN_DETAIL',
@@ -120,6 +132,11 @@ export class RuntimeOverridesDto {
   @IsOptional()
   @IsNumber()
   radiusKm?: number;
+
+  @ApiPropertyOptional({ enum: LocationModeEnum, default: 'STRICT', description: 'STRICT: chỉ món có quán trong bán kính' })
+  @IsOptional()
+  @IsEnum(LocationModeEnum)
+  locationMode?: LocationModeEnum;
 }
 
 // ── Main DTOs ──────────────────────────────────────────────────────────────────

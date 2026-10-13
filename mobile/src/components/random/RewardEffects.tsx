@@ -69,7 +69,7 @@ function buildParticles(count: number, radius: number, seed: number): ParticleSp
  * zero-size anchor). Particles fly outward, fall slightly under "gravity" and fade.
  */
 export const ParticleBurst = memo(function ParticleBurst({
-  count = 24,
+  count = 12,
   radius = 160,
   seed = 7,
   delay = 0,
@@ -152,14 +152,15 @@ export function Sparkle({ size = 18, color = '#FFD23F' }: { size?: number; color
 
 /** Slowly rotating golden light rays with a soft radial glow (jackpot background). */
 export const Sunburst = memo(function Sunburst({
-  size,
-  rays = 14,
+  size: rawSize,
+  rays = 10,
   color = '#FFD54A',
 }: {
   size: number;
   rays?: number;
   color?: string;
 }) {
+  const size = Math.min(420, rawSize);
   const reducedMotion = useReducedMotion();
   const rotation = useSharedValue(0);
   const appear = useSharedValue(reducedMotion ? 1 : 0);
@@ -197,7 +198,6 @@ export const Sunburst = memo(function Sunburst({
   return (
     <Animated.View
       pointerEvents="none"
-      renderToHardwareTextureAndroid
       style={[{ width: size, height: size }, style]}
     >
       <Svg width={size} height={size} viewBox="0 0 100 100">
@@ -265,7 +265,6 @@ export const MascotAura = memo(function MascotAura({ size }: { size: number }) {
   return (
     <Animated.View
       pointerEvents="none"
-      renderToHardwareTextureAndroid
       style={[{ width: size, height: size }, rootStyle]}
     >
       {/* Warm halo */}
@@ -357,7 +356,7 @@ type RainPiece = {
 export const ConfettiRain = memo(function ConfettiRain({
   width,
   height,
-  count = 14,
+  count = 10,
   seed = 3,
 }: {
   width: number;
@@ -499,6 +498,128 @@ export function usePulse(duration = 900) {
   }, [v, duration, reducedMotion]);
   return v;
 }
+
+/**
+ * Tiered celebration effects for the winning result card:
+ * - Tier 1 (+250ms): Sunburst behind card + MascotAura behind mascot
+ * - Tier 2 (+500ms): 3 TwinkleSparkles + ParticleBurst explosion
+ * Memoized to prevent re-renders when parent states (saved, loading, etc.) update.
+ */
+export const ResultCelebrationEffects = memo(function ResultCelebrationEffects({
+  active,
+  dishId,
+  windowHeight,
+}: {
+  active: boolean;
+  dishId: string;
+  windowHeight: number;
+}) {
+  const [tier1, setTier1] = useState(false);
+  const [tier2, setTier2] = useState(false);
+
+  useEffect(() => {
+    if (!active) {
+      setTier1(false);
+      setTier2(false);
+      return;
+    }
+    const t1 = setTimeout(() => setTier1(true), 250);
+    const t2 = setTimeout(() => setTier2(true), 500);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [active, dishId]);
+
+  if (!active) return null;
+
+  return (
+    <>
+      {/* Tier 1: Sunburst (capped to 420px, 10 rays) + MascotAura */}
+      {tier1 ? (
+        <>
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              top: -120,
+              bottom: -120,
+              left: -120,
+              right: -120,
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 0,
+            }}
+          >
+            <Sunburst size={Math.min(420, windowHeight * 0.6)} color="#FFC928" rays={10} />
+          </View>
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              top: -36,
+              right: -46,
+              width: 230,
+              height: 230,
+              zIndex: 5,
+            }}
+          >
+            <MascotAura size={230} />
+          </View>
+        </>
+      ) : null}
+
+      {/* Tier 2: 3 lightweight TwinkleSparkles + 12-particle burst */}
+      {tier2 ? (
+        <>
+          <TwinkleSparkle size={18} delay={60} style={{ top: 18, left: -6, zIndex: 25 }} />
+          <TwinkleSparkle size={14} color="#FFFFFF" delay={180} style={{ top: 96, left: 22, zIndex: 25 }} />
+          <TwinkleSparkle size={16} delay={300} style={{ top: '46%', right: -4, zIndex: 25 }} />
+          <View
+            pointerEvents="none"
+            style={{
+              position: 'absolute',
+              left: '50%',
+              top: '40%',
+              width: 0,
+              height: 0,
+              zIndex: 30,
+            }}
+          >
+            <ParticleBurst key={`burst-${dishId}`} count={12} radius={160} seed={11} delay={30} />
+          </View>
+        </>
+      ) : null}
+    </>
+  );
+});
+
+/** Tier 2 background confetti rain (starts at 500ms, memoized) */
+export const ResultConfettiBackdrop = memo(function ResultConfettiBackdrop({
+  active,
+  dishId,
+  width,
+  height,
+}: {
+  active: boolean;
+  dishId: string;
+  width: number;
+  height: number;
+}) {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (!active) {
+      setShow(false);
+      return;
+    }
+    const timer = setTimeout(() => setShow(true), 500);
+    return () => clearTimeout(timer);
+  }, [active, dishId]);
+
+  if (!show) return null;
+  return <ConfettiRain width={width} height={height} count={10} key={`rain-${dishId}`} />;
+});
 
 const styles = StyleSheet.create({
   particle: { position: 'absolute', left: 0, top: 0, alignItems: 'center', justifyContent: 'center' },
