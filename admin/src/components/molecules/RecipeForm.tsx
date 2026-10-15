@@ -53,7 +53,7 @@ export const emptyRecipeStep = (): RecipeStepItem => ({
 
 export const defaultRecipe = (): RecipeState => ({
   name: '',
-  servings: '4',
+  servings: '1',
   prepMin: '',
   cookMin: '',
   difficulty: 'MEDIUM',

@@ -208,7 +208,7 @@ export default function CreateDishPage() {
     dineOutPriceTo: '',
   })
   const [ingredients, setIngredients] = useState<DishIngredientRow[]>([])
-  const [servings, setServings] = useState(4)
+  const [servings, setServings] = useState(1)
   const [nutrition, setNutrition] = useState<NutritionState>(defaultNutrition())
   const [recipe, setRecipe] = useState<RecipeState>(defaultRecipe())
   const [media, setMedia] = useState<MediaState>(defaultMedia())
@@ -797,7 +797,7 @@ export default function CreateDishPage() {
   const editErrMsg = errData?.message || 'Không tải được món ăn.'
 
   return (
-    <div className="flex min-h-full flex-col bg-mogu-cream">
+    <div className="flex min-h-full flex-col bg-slate-50/50 dark:bg-slate-950">
       {/* Header */}
       <header className="flex shrink-0 items-start justify-between px-8 pt-6">
         <div>

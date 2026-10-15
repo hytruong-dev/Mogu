@@ -163,18 +163,18 @@ export class DishCommandService {
     const toResolve = needResolve.filter((r) => !r.ing.ingredientId && r.rawName);
     const batch = toResolve.length
       ? await this.ingredientCatalog.resolveOrProvisionBatch(
-          toResolve.map((r) => ({
-            clientRef: r.clientRef,
-            rawName: r.rawName,
-            unit: r.ing.unit,
-          })),
-          {
-            createMissing,
-            createAmbiguous: false,
-            enqueueImageEnrichment: false,
-            createdVia: IngredientCreatedVia.ADMIN_PICKER,
-          },
-        )
+        toResolve.map((r) => ({
+          clientRef: r.clientRef,
+          rawName: r.rawName,
+          unit: r.ing.unit,
+        })),
+        {
+          createMissing,
+          createAmbiguous: false,
+          enqueueImageEnrichment: false,
+          createdVia: IngredientCreatedVia.ADMIN_PICKER,
+        },
+      )
       : null;
 
     return needResolve.map(({ idx, ing, clientRef }) => {
@@ -238,7 +238,7 @@ export class DishCommandService {
         difficulty: aggregate.difficulty,
         prepMinutes: aggregate.prepMinutes,
         cookMinutes: aggregate.cookMinutes,
-        servings: aggregate.servings?.toString(),
+        servings: (aggregate.servings ?? 1).toString(),
         priceMin: aggregate.priceMin,
         priceMax: aggregate.priceMax,
         dineOutPriceMin: aggregate.dineOutPriceMin,
@@ -364,7 +364,7 @@ export class DishCommandService {
         difficulty: dto.difficulty,
         prepMinutes: dto.prepMinutes,
         cookMinutes: dto.cookMinutes,
-        servings: dto.servings?.toString(),
+        servings: (dto.servings ?? 1).toString(),
         priceMin: dto.priceMin,
         priceMax: dto.priceMax,
         dineOutPriceMin: dto.dineOutPriceMin,
@@ -462,9 +462,9 @@ export class DishCommandService {
     const resolvedIngredients =
       dto.ingredients !== undefined
         ? await this.resolveIngredientRows(
-            dto.ingredients,
-            dto.createMissingIngredients ?? false,
-          )
+          dto.ingredients,
+          dto.createMissingIngredients ?? false,
+        )
         : undefined;
 
     try {

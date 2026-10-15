@@ -8,7 +8,7 @@ import sharp from 'sharp';
 config({ path: '.env.local', override: true });
 
 const imagePath = process.argv[2];
-const model = process.env.FOOD_SCAN_MODEL || 'ag/gemini-3.1-pro-low';
+const model = process.env.FOOD_SCAN_MODEL || 'ag/gemini-3.8-flash';
 const base = process.env.FOOD_SCAN_BASE_URL || process.env.XKIRO_BASE_URL;
 const key = process.env.FOOD_SCAN_API_KEY || process.env.XKIRO_API_KEY;
 

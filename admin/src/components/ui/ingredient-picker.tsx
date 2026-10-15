@@ -3,6 +3,7 @@
  */
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { ingredientsApi, type Ingredient } from '../../api/ingredients'
+import { getAllergenDisplayName } from '../ingredients/types'
 import { Image } from './image'
 import { Input } from './input'
 
@@ -364,7 +365,7 @@ export default function IngredientPicker({
                     fontWeight: 600,
                   }}
                 >
-                  {ing.allergenCode}
+                  {getAllergenDisplayName(ing.allergenCode)}
                 </span>
               )}
             </li>

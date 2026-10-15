@@ -5,6 +5,7 @@ import { Heart, Leaf, Plus, ShieldAlert, Tag } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Badge } from '../components/ui/badge'
+import { PageContainer, PageHeader } from '../components/layout'
 import { FoodDataActionsProvider, useFoodDataActions } from '../components/food-data/food-data-context'
 import { ingredientsApi } from '../api/ingredients'
 import { taxonomyAdminApi } from '../api/taxonomy'
@@ -64,7 +65,7 @@ function FoodDataShell() {
       'diet-types': dietTypes.length,
       allergens: allergens.length,
     }),
-    [ingredientResponse?.pagination.total, categories.length, dietTypes.length, allergens.length],
+    [ingredientResponse?.pagination.total, categories.length, dietTypes.length, allergens.length]
   )
 
   const selectTab = (tab: FoodDataTab) => {
@@ -75,41 +76,54 @@ function FoodDataShell() {
   const currentTab = TABS.find((tab) => tab.id === activeTab) ?? TABS[0]
 
   return (
-    <main className="food-data-page">
-      <header className="food-data-header">
-        <div>
-          <h1>Dữ liệu món ăn</h1>
-          <p>Quản lý dữ liệu nền dùng chung cho món ăn và gợi ý.</p>
-        </div>
-        <Button type="button" className="food-data-create-btn" onClick={triggerCreate}>
-          <Plus size={16} />
-          {currentTab.createLabel}
-        </Button>
-      </header>
+    <PageContainer>
+      <PageHeader
+        title="Dữ liệu món ăn"
+        description="Quản lý từ điển nguyên liệu, phân loại danh mục, chế độ ăn và cảnh báo dị ứng dùng chung."
+        actions={
+          <Button
+            type="button"
+            size="sm"
+            onClick={triggerCreate}
+            className="text-xs h-9 gap-1.5 font-bold bg-amber-500 hover:bg-amber-600 text-slate-950 shadow-sm"
+          >
+            <Plus size={15} />
+            {currentTab.createLabel}
+          </Button>
+        }
+        tabs={
+          <Tabs
+            value={activeTab}
+            onValueChange={(val) => selectTab(val as FoodDataTab)}
+            className="w-full"
+          >
+            <TabsList className="h-auto p-1 bg-slate-100 rounded-xl gap-1.5 flex flex-wrap justify-start">
+              {TABS.map((tab) => {
+                const Icon = tab.icon
+                return (
+                  <TabsTrigger
+                    key={tab.id}
+                    value={tab.id}
+                    className="gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm text-slate-600"
+                  >
+                    <Icon size={15} />
+                    <span>{tab.label}</span>
+                    <Badge
+                      variant="secondary"
+                      className="ml-1 text-[10px] px-1.5 py-0 h-4 font-mono font-bold bg-slate-200/80 text-slate-700"
+                    >
+                      {counts[tab.id].toLocaleString('vi-VN')}
+                    </Badge>
+                  </TabsTrigger>
+                )
+              })}
+            </TabsList>
+          </Tabs>
+        }
+      />
 
-      <Tabs value={activeTab} onValueChange={(val) => selectTab(val as FoodDataTab)} className="w-full">
-        <TabsList className="h-auto p-1 bg-muted/60 rounded-xl gap-1.5 flex flex-wrap justify-start">
-          {TABS.map((tab) => {
-            const Icon = tab.icon
-            return (
-              <TabsTrigger
-                key={tab.id}
-                value={tab.id}
-                className="gap-2 px-4 py-2 text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:text-foreground data-[state=active]:shadow-sm"
-              >
-                <Icon size={16} />
-                <span>{tab.label}</span>
-                <Badge variant="secondary" className="ml-1 text-[11px] px-1.5 py-0 h-5 font-mono">
-                  {counts[tab.id].toLocaleString('vi-VN')}
-                </Badge>
-              </TabsTrigger>
-            )
-          })}
-        </TabsList>
-      </Tabs>
-
-      <section className="food-data-panel">
-        {/* Keep tabs mounted to avoid remount flicker when switching */}
+      {/* Tab Panels */}
+      <div className="mt-4">
         <div hidden={activeTab !== 'ingredients'}>
           <IngredientsPage embedded isActive={activeTab === 'ingredients'} />
         </div>
@@ -122,8 +136,8 @@ function FoodDataShell() {
         <div hidden={activeTab !== 'allergens'}>
           <AllergenPage embedded isActive={activeTab === 'allergens'} />
         </div>
-      </section>
-    </main>
+      </div>
+    </PageContainer>
   )
 }
 

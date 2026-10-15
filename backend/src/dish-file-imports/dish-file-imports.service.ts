@@ -497,6 +497,7 @@ export class DishFileImportsService {
         const created = await this.dishes.create(
           {
             name,
+            servings: row.mapped.servings ? Number(row.mapped.servings) : 1,
             createMissingIngredients: false,
             shortDescription: row.mapped.shortDescription,
             prepMinutes: row.mapped.prepMinutes ? Number(row.mapped.prepMinutes) : undefined,
@@ -563,6 +564,7 @@ export class DishFileImportsService {
       shortDescription: ['description', 'mo ta', 'short_desc', 'short_description'],
       prepMinutes: ['prep', 'chuan bi'],
       cookMinutes: ['cook', 'nau', 'cook_time'],
+      servings: ['servings', 'khau phan', 'phan an', 'nguoi', 'portion'],
       imageUrl: ['image_url', 'image', 'anh'],
     }
     return headers.map((h) => {

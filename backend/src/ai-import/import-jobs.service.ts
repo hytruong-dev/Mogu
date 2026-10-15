@@ -171,6 +171,25 @@ export class ImportJobsService {
         `Snapshot: ${taxonomySnapshot.version}${evidence ? ` | Bám theo nguồn: ${discovery.best?.url}` : ' | Không có nguồn, AI sinh công thức chuẩn'}`,
       );
 
+      // ── Quy chuẩn khẩu phần mặc định cho tất cả món nhập vào là 1 ─────────
+      const rawServings = Math.max(1, Math.round(Number(extraction.basic.servings) || 1));
+      if (rawServings > 1) {
+        // Tự động scale định lượng nguyên liệu về đúng 1 phần ăn nếu AI trả về cho nhiều phần
+        extraction.ingredients = extraction.ingredients.map((ing) => {
+          const qty = ing.quantity != null ? Math.round((ing.quantity / rawServings) * 100) / 100 : null;
+          const weight = ing.normalizedWeightGram != null ? Math.round(ing.normalizedWeightGram / rawServings) : null;
+          return {
+            ...ing,
+            quantity: qty,
+            normalizedWeightGram: weight,
+          };
+        });
+      }
+      extraction.basic.servings = 1;
+      if (extraction.recipe) {
+        extraction.recipe.servings = 1;
+      }
+
       // ── Bước 3: Chuẩn hóa ─────────────────────────────────────────────────
       if (!(await this.isRunning(id))) return;
       await this.startStep(id, 'NORMALIZING', 3, 'Đang chuẩn hóa tên nguyên liệu và đơn vị...');
@@ -1098,11 +1117,21 @@ export class ImportJobsService {
   /** Download ảnh từ external URL và upload lên Supabase Storage → trả về storageKey */
   private async uploadImageFromUrl(imageUrl: string, dishId: string): Promise<string | null> {
     try {
-      const res = await fetch(imageUrl);
-      if (!res.ok) return null;
+      const res = await fetch(imageUrl, {
+        headers: {
+          'User-Agent': 'MoguFoodApp/1.0 (https://mogu.app; culinary-bot@mogu.app)',
+        },
+      });
+      if (!res.ok) {
+        this.logger.warn(`uploadImageFromUrl HTTP ${res.status} for ${imageUrl}`);
+        return null;
+      }
       const contentType = res.headers.get('content-type') ?? 'image/jpeg';
       const mimeType = contentType.split(';')[0].trim();
-      if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType)) return null;
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType)) {
+        this.logger.warn(`uploadImageFromUrl unsupported mimeType: ${mimeType}`);
+        return null;
+      }
 
       const buffer = Buffer.from(await res.arrayBuffer());
       const ext = mimeType === 'image/png' ? 'png' : mimeType === 'image/webp' ? 'webp' : 'jpg';
@@ -1116,7 +1145,7 @@ export class ImportJobsService {
         this.logger.warn(`Upload ảnh AI thất bại: ${error.message}`);
         return null;
       }
-      this.logger.debug(`Đã upload ảnh AI → ${storageKey}`);
+      this.logger.log(`Đã upload ảnh AI → ${storageKey}`);
       return storageKey;
     } catch (e: any) {
       this.logger.warn(`uploadImageFromUrl error: ${e.message}`);
