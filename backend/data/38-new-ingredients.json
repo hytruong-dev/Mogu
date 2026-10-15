@@ -1,0 +1,299 @@
+[
+  {
+    "name": "Rau tiến vua",
+    "group": "Rau củ",
+    "unit": "Gói",
+    "query": "rau tiến vua khô ngâm nước gói siêu thị",
+    "imageUrl": "https://product.hstatic.net/200000460455/product/rau_ti_n_vua__g_i_100g__89752c9017ff4f1e97652f3b1c6345f8.png",
+    "identityNormalized": "rau tiến vua",
+    "searchFolded": "rau tien vua"
+  },
+  {
+    "name": "Rau sắng",
+    "group": "Rau củ",
+    "unit": "Bó",
+    "query": "rau sắng chùa hương rau ngót rừng tươi bó",
+    "imageUrl": "https://www.biggreen.com.vn/data/product/rau%20s%E1%BA%AFng.jpg",
+    "identityNormalized": "rau sắng",
+    "searchFolded": "rau sang"
+  },
+  {
+    "name": "Bông atiso",
+    "group": "Rau củ",
+    "unit": "Bông",
+    "query": "bông atiso tươi đà lạt bách hóa xanh",
+    "imageUrl": "https://atisodalat.vn/wp-content/uploads/2025/03/bong-atiso-1-247x185.jpg",
+    "identityNormalized": "bông atiso",
+    "searchFolded": "bong atiso"
+  },
+  {
+    "name": "Hoa hẹ",
+    "group": "Rau củ",
+    "unit": "Bó",
+    "query": "bông hẹ tươi hoa hẹ bách hóa xanh winmart",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/07/19/1369330/bong-he-bong-hanh-la-gi-an-bong-he-co-tac-dung-gi-202107192108134041.jpg",
+    "identityNormalized": "hoa hẹ",
+    "searchFolded": "hoa he"
+  },
+  {
+    "name": "Súp lơ trắng",
+    "group": "Rau củ",
+    "unit": "Búp",
+    "query": "súp lơ trắng bông cải trắng bách hóa xanh winmart",
+    "imageUrl": "https://winmart.onl/assets/media/images/products/05975/oemslt081_0925_171625_6QgMsm.jpg",
+    "identityNormalized": "súp lơ trắng",
+    "searchFolded": "sup lo trang"
+  },
+  {
+    "name": "Khế chua",
+    "group": "Rau củ",
+    "unit": "Kg",
+    "query": "quả khế chua tươi quả khế xanh",
+    "imageUrl": "https://files.benhvien108.vn/ecm/source_files/2022/10/19/221002-4-1-084318-191022-25.jpg",
+    "identityNormalized": "khế chua",
+    "searchFolded": "khe chua"
+  },
+  {
+    "name": "Quả dọc",
+    "group": "Rau củ",
+    "unit": "Kg",
+    "query": "quả dọc tươi nấu canh chua",
+    "imageUrl": "https://vnn-imgs-f.vgcloud.vn/2021/10/14/17/qua-doc-1-1.jpg?width=0&s=JdyAe_smmfEgR0qodqjH1g",
+    "identityNormalized": "quả dọc",
+    "searchFolded": "qua doc"
+  },
+  {
+    "name": "Củ kiệu",
+    "group": "Rau củ",
+    "unit": "Kg",
+    "query": "củ kiệu tươi huế bách hóa xanh",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/7459/233681/bhx/cu-kieu-chua-ngot-vasifood-hu-380g-202101211203120047.jpg",
+    "identityNormalized": "củ kiệu",
+    "searchFolded": "cu kieu"
+  },
+  {
+    "name": "Lá mắc mật",
+    "group": "Rau củ",
+    "unit": "Bó",
+    "query": "lá mắc mật tươi lạng sơn",
+    "imageUrl": "https://langsonshop.com/wp-content/uploads/2022/04/cay-mac-mat.webp",
+    "identityNormalized": "lá mắc mật",
+    "searchFolded": "la mac mat"
+  },
+  {
+    "name": "Quả mắc mật",
+    "group": "Rau củ",
+    "unit": "Kg",
+    "query": "quả mắc mật tươi quả móc mật",
+    "imageUrl": "https://cdn.tgdd.vn/2023/08/CookDish/trai-say-la-trai-gi-cach-bao-quan-trai-say-lau-khong-bi-hu-avt-1200x676-1.jpg",
+    "identityNormalized": "quả mắc mật",
+    "searchFolded": "qua mac mat"
+  },
+  {
+    "name": "Lá chúc",
+    "group": "Rau củ",
+    "unit": "Bó",
+    "query": "lá chúc an giang tươi lá chanh thái kaffir",
+    "imageUrl": "https://file.hstatic.net/1000387874/file/la-chanh-thai-1_affdc90b7da64cfebd2ad1eb54ea3cf7_grande.jpg",
+    "identityNormalized": "lá chúc",
+    "searchFolded": "la chuc"
+  },
+  {
+    "name": "Chẩm chéo",
+    "group": "Gia vị & nước chấm",
+    "unit": "Hũ",
+    "query": "chẩm chéo ướt tây bắc hũ gia vị",
+    "imageUrl": "https://caonguabach.com/wp-content/uploads/2025/01/cham-cheo.webp",
+    "identityNormalized": "chẩm chéo",
+    "searchFolded": "cham cheo"
+  },
+  {
+    "name": "Mắm tép",
+    "group": "Gia vị & nước chấm",
+    "unit": "Hũ",
+    "query": "mắm tép hàng bè mắm tép chưng thịt hũ",
+    "imageUrl": "https://media.loveitopcdn.com/41258/kcfinder/upload/images/mam-tep-chung-thit-hang-be.jpg",
+    "identityNormalized": "mắm tép",
+    "searchFolded": "mam tep"
+  },
+  {
+    "name": "Tiêu sọ Phú Quốc",
+    "group": "Gia vị & nước chấm",
+    "unit": "Hũ",
+    "query": "tiêu sọ phú quốc dh foods hũ",
+    "imageUrl": "https://dhfoods.com.vn/upload/SP_Gia%20Vi%20Tu%20Nhien/2026/Natural-Tieu-So-Xay-Phu-Quoc-45g-New-b9c35029-b304-4f18-9c0a-2fcad5f2c7fb.webp",
+    "identityNormalized": "tiêu sọ phú quốc",
+    "searchFolded": "tieu so phu quoc"
+  },
+  {
+    "name": "Nước màu dừa",
+    "group": "Gia vị & nước chấm",
+    "unit": "Chai",
+    "query": "nước màu dừa bến tre nguyên chất chai",
+    "imageUrl": "https://product.hstatic.net/200000460455/product/nuoc_mau_dua_ben_tre__chai_275gr__914e1d6ae739447e8bcbc2bc9b2e5cab_master.png",
+    "identityNormalized": "nước màu dừa",
+    "searchFolded": "nuoc mau dua"
+  },
+  {
+    "name": "Cá chép giòn",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "cá chép giòn tươi nguyên con",
+    "imageUrl": "https://hieuhaisan.com/datafiles/setone/17694874645819_ca-chep-1kg-bao-nhieu.jpg",
+    "identityNormalized": "cá chép giòn",
+    "searchFolded": "ca chep gion"
+  },
+  {
+    "name": "Cá trắm đen",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "cá trắm đen tươi sông nguyên con",
+    "imageUrl": "https://bactom.com/wp-content/uploads/2022/06/Cam-tram-den.webp",
+    "identityNormalized": "cá trắm đen",
+    "searchFolded": "ca tram den"
+  },
+  {
+    "name": "Cá trắm cỏ",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "cá trắm cỏ tươi làm sạch cắt khúc",
+    "imageUrl": "https://anvita.sgp1.cdn.digitaloceanspaces.com/ubofood/images/ca-tram-co-khuc-tu-500g-700g-03080069300_1000_750_3fa61412-cc31-4751-968f-dbe50e96e877.JPEG",
+    "identityNormalized": "cá trắm cỏ",
+    "searchFolded": "ca tram co"
+  },
+  {
+    "name": "Cá rô đồng",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "cá rô đồng tươi sống bách hóa xanh",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/10/image/Products/Images/8782/309126/bhx/ca-ro-lam-sach_202610021425010048.jpg",
+    "identityNormalized": "cá rô đồng",
+    "searchFolded": "ca ro dong"
+  },
+  {
+    "name": "Cá thòi lòi",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "cá thòi lòi cà mau tươi sống",
+    "imageUrl": "https://chihaisan.com/wp-content/uploads/2024/06/ca-thoi-loi-avr.png",
+    "identityNormalized": "cá thòi lòi",
+    "searchFolded": "ca thoi loi"
+  },
+  {
+    "name": "Cá đuối",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "cá đuối tươi làm sạch khay bách hóa xanh",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/309731/bhx/ca-dieu-hong-lam-sach-nguyen-con_202505252312056234.jpg",
+    "identityNormalized": "cá đuối",
+    "searchFolded": "ca duoi"
+  },
+  {
+    "name": "Cá cơm",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "cá cơm tươi biển khay bách hóa xanh",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/233745/bhx/ca-com-202408221623172166.jpg",
+    "identityNormalized": "cá cơm",
+    "searchFolded": "ca com"
+  },
+  {
+    "name": "Ốc nhồi",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "ốc nhồi tươi sống ốc bươu đen",
+    "imageUrl": "https://monngonmoingay.com/wp-content/uploads/2024/07/Cach-phan-biet-oc-buou-den-va-oc-buou-vang-rat-don-gian-MNMN-1.jpg",
+    "identityNormalized": "ốc nhồi",
+    "searchFolded": "oc nhoi"
+  },
+  {
+    "name": "Ốc len",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "ốc len tươi sống miền tây",
+    "imageUrl": "https://cdn.tgdd.vn/2022/01/CookDish/oc-len-la-gi-oc-len-song-o-dau-oc-len-mua-o-dau-va-bao-nhieu-avt-1200x676.jpg",
+    "identityNormalized": "ốc len",
+    "searchFolded": "oc len"
+  },
+  {
+    "name": "Tu hài",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "tu hài tươi sống ốc vòi voi",
+    "imageUrl": "https://www.haisanhanoi.net/templates/yootheme/cache/d9/tu-hai-canada-02_a9ce1-d901b89d.jpeg",
+    "identityNormalized": "tu hài",
+    "searchFolded": "tu hai"
+  },
+  {
+    "name": "Bào ngư",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "bào ngư tươi sống khay bách hóa xanh winmart",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2025/12/image/Products/Images/8400/334534/bhx/bao-ngu-dong-lanh-tan-hai-hoa-khay-300g_202512310950338059.jpg",
+    "identityNormalized": "bào ngư",
+    "searchFolded": "bao ngu"
+  },
+  {
+    "name": "Hải sâm",
+    "group": "Thủy hải sản",
+    "unit": "Kg",
+    "query": "hải sâm đen tươi biển cát bà",
+    "imageUrl": "https://danviet.ex-cdn.com/files/f1/296231569849192448/2021/8/7/haisam1-162832329687442423745.jpg",
+    "identityNormalized": "hải sâm",
+    "searchFolded": "hai sam"
+  },
+  {
+    "name": "Thịt chim cút",
+    "group": "Thịt",
+    "unit": "Con",
+    "query": "chim cút làm sạch khay bách hóa xanh winmart",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/310968/bhx/310968-1_202408272024103267.jpg",
+    "identityNormalized": "thịt chim cút",
+    "searchFolded": "thit chim cut"
+  },
+  {
+    "name": "Gà ác",
+    "group": "Thịt",
+    "unit": "Con",
+    "query": "gà ác tiềm thuốc bắc làm sạch khay cp bách hóa xanh",
+    "imageUrl": "https://cdn.hstatic.net/products/200001039902/19_ga-ac-tiem-thuoc-bac-1024x1024_8cd25a67f0d24127934a67f4dd2def92.png?width=800",
+    "identityNormalized": "gà ác",
+    "searchFolded": "ga ac"
+  },
+  {
+    "name": "Thịt thỏ",
+    "group": "Thịt",
+    "unit": "Kg",
+    "query": "thịt thỏ tươi làm sạch móc hàm",
+    "imageUrl": "https://filebroker-cdn.lazada.vn/kf/S9f1ba357b25c4c25b83e7097989aa1a7t.jpg",
+    "identityNormalized": "thịt thỏ",
+    "searchFolded": "thit tho"
+  },
+  {
+    "name": "Sườn bò",
+    "group": "Thịt",
+    "unit": "Kg",
+    "query": "sườn bò tươi có xương cắt khúc bách hóa xanh pacow",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images//7172/213843/bhx/files/4502834.jpg",
+    "identityNormalized": "sườn bò",
+    "searchFolded": "suon bo"
+  },
+  {
+    "name": "Cuống tim heo",
+    "group": "Thịt",
+    "unit": "Kg",
+    "query": "cuống tim heo tươi khay cp bách hóa xanh",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8781/241247/bhx/xuong-ong-heo-cp-khay-500g-202106021601524679.jpg",
+    "identityNormalized": "cuống tim heo",
+    "searchFolded": "cuong tim heo"
+  },
+  {
+    "name": "Thịt nọng heo",
+    "group": "Thịt",
+    "unit": "Kg",
+    "query": "thịt nọng heo meat deli cp bách hóa xanh",
+    "imageUrl": "https://cdn.hstatic.net/products/200001087770/8._meatcool_bap_hoa_heo_e97cf325909c4560abe0841d5df10386.png",
+    "identityNormalized": "thịt nọng heo",
+    "searchFolded": "thit nong heo"
+  }
+]

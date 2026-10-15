@@ -187,3 +187,79 @@ describe('ImportJobsService event sequencing', () => {
     ]);
   });
 });
+
+describe('ImportJobsService reconcileIngredients', () => {
+  it('calls resolveOrProvisionBatch with createMissing=false, createAmbiguous=false, enqueueImageEnrichment=false', async () => {
+    const service = Object.create(ImportJobsService.prototype) as any;
+    service.logger = { debug: jest.fn(), warn: jest.fn(), log: jest.fn(), error: jest.fn() };
+    service.log = jest.fn();
+
+    const resolveOrProvisionBatchMock = jest.fn();
+    // pass 1 mock
+    resolveOrProvisionBatchMock.mockResolvedValueOnce({
+      items: [
+        { clientRef: 'ai-0', ingredientId: 'beef-123', canonicalName: 'Thịt bò', outcome: 'EXISTING_EXACT', candidates: [] },
+        { clientRef: 'ai-1', ingredientId: null, canonicalName: null, outcome: 'UNRESOLVED', candidates: [{ id: 'shallot-1', name: 'Hành tím', score: 0.88, synonyms: [] }] },
+        { clientRef: 'ai-2', ingredientId: null, canonicalName: null, outcome: 'UNRESOLVED', candidates: [] },
+      ],
+      byClientRef: new Map([
+        ['ai-0', { clientRef: 'ai-0', ingredientId: 'beef-123', canonicalName: 'Thịt bò', outcome: 'EXISTING_EXACT', candidates: [] }],
+        ['ai-1', { clientRef: 'ai-1', ingredientId: null, canonicalName: null, outcome: 'UNRESOLVED', candidates: [{ id: 'shallot-1', name: 'Hành tím', score: 0.88, synonyms: [] }] }],
+        ['ai-2', { clientRef: 'ai-2', ingredientId: null, canonicalName: null, outcome: 'UNRESOLVED', candidates: [] }],
+      ]),
+      createdIds: [],
+    });
+
+    // pass 2 mock
+    resolveOrProvisionBatchMock.mockResolvedValueOnce({
+      items: [
+        { clientRef: 'ai-0', ingredientId: 'beef-123', canonicalName: 'Thịt bò', outcome: 'EXISTING_EXACT', candidates: [] },
+        { clientRef: 'ai-1', ingredientId: 'shallot-1', canonicalName: 'Hành tím', outcome: 'EXISTING_SYNONYM', confidence: 90, candidates: [] },
+        { clientRef: 'ai-2', ingredientId: null, canonicalName: null, outcome: 'NONE', candidates: [] },
+      ],
+      byClientRef: new Map(),
+      createdIds: [],
+    });
+
+    const aiAdjudicateMock = jest.fn().mockResolvedValue([
+      { ref: 'ai-1', matchId: 'shallot-1', confidence: 90, synonyms: ['hành khô'] },
+    ]);
+
+    const learnSynonymsMock = jest.fn().mockResolvedValue([]);
+
+    service.ingredientCatalog = {
+      resolveOrProvisionBatch: resolveOrProvisionBatchMock,
+      learnSynonyms: learnSynonymsMock,
+    };
+    service.ai = {
+      adjudicateIngredientMatches: aiAdjudicateMock,
+    };
+
+    const result = await service.reconcileIngredients('job-1', 'Phở bò', [
+      { clientRef: 'ai-0', rawName: 'thịt bò', rawText: '500g thịt bò', unit: 'g' },
+      { clientRef: 'ai-1', rawName: 'hành khô', rawText: '3 củ hành khô', unit: 'củ' },
+      { clientRef: 'ai-2', rawName: 'gia vị bí truyền', rawText: '1 gói gia vị bí truyền', unit: 'gói' },
+    ]);
+
+    // Check pass 1 options
+    expect(resolveOrProvisionBatchMock).toHaveBeenNthCalledWith(1, expect.any(Array), {
+      createMissing: false,
+      enqueueImageEnrichment: false,
+      createdVia: 'AI_IMPORT',
+    });
+
+    // Check pass 2 options
+    expect(resolveOrProvisionBatchMock).toHaveBeenNthCalledWith(2, expect.any(Array), {
+      createMissing: false,
+      createAmbiguous: false,
+      enqueueImageEnrichment: false,
+      createdVia: 'AI_IMPORT',
+    });
+
+    expect(result.items[0].ingredientId).toBe('beef-123');
+    expect(result.items[1].ingredientId).toBe('shallot-1');
+    expect(result.items[2].ingredientId).toBeNull();
+    expect(result.createdIds).toEqual([]);
+    expect(learnSynonymsMock).toHaveBeenCalledWith([{ id: 'shallot-1', synonyms: ['hành khô'] }]);
+  });
+});

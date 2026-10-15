@@ -1,0 +1,1436 @@
+[
+  {
+    "code": "la-giang-zxfvs",
+    "name": "Lá giang",
+    "nameEn": "Aganonerion polymorphum leaves",
+    "groupLabel": "Rau củ",
+    "unit": "Bó",
+    "allergenCode": null,
+    "identityNormalized": "lá giang",
+    "searchFolded": "la giang",
+    "synonyms": [
+      "lá giang tươi",
+      "lá vang"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/233971/bhx/la-giang-1kg_202505090937298052.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "la-cach-l462z",
+    "name": "Lá cách",
+    "nameEn": "Premna serratifolia leaves",
+    "groupLabel": "Rau củ",
+    "unit": "Bó",
+    "allergenCode": null,
+    "identityNormalized": "lá cách",
+    "searchFolded": "la cach",
+    "synonyms": [
+      "lá cách tươi",
+      "rau cách"
+    ],
+    "imageUrl": "https://cdn.medigoapp.com/product/la_cach_e5537e1ce7.png",
+    "isSupermarket": true
+  },
+  {
+    "code": "la-mo-long-b7c9e",
+    "name": "Lá mơ lông",
+    "nameEn": "Paederia lanuginosa leaves",
+    "groupLabel": "Rau củ",
+    "unit": "Bó",
+    "allergenCode": null,
+    "identityNormalized": "lá mơ lông",
+    "searchFolded": "la mo long",
+    "synonyms": [
+      "lá mơ",
+      "mơ lông",
+      "lá mơ tam thể"
+    ],
+    "imageUrl": "https://suckhoedoisong.qltns.mediacdn.vn/thumb_w/730/324455921873985536/2024/10/13/photo-1728824914580-1728824914731248619726.jpeg",
+    "isSupermarket": false
+  },
+  {
+    "code": "rau-dang-k8km8",
+    "name": "Rau đắng",
+    "nameEn": "Glinus oppositifolius",
+    "groupLabel": "Rau củ",
+    "unit": "Bó",
+    "allergenCode": null,
+    "identityNormalized": "rau đắng",
+    "searchFolded": "rau dang",
+    "synonyms": [
+      "rau đắng đất",
+      "rau đắng biển"
+    ],
+    "imageUrl": "https://thucphamdongxanh.com/wp-content/uploads/2019/09/Rau-dang.png",
+    "isSupermarket": true
+  },
+  {
+    "code": "rau-cang-cua-5bp4e",
+    "name": "Rau càng cua",
+    "nameEn": "Peperomia pellucida",
+    "groupLabel": "Rau củ",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "rau càng cua",
+    "searchFolded": "rau cang cua",
+    "synonyms": [
+      "càng cua",
+      "rau càng cua tươi"
+    ],
+    "imageUrl": "https://thucphamdongxanh.com/wp-content/uploads/2019/09/Rau-cang-cua-510x510.png",
+    "isSupermarket": true
+  },
+  {
+    "code": "ngo-om-pwu1r",
+    "name": "Ngò om",
+    "nameEn": "Limnophila aromatica",
+    "groupLabel": "Rau củ",
+    "unit": "Bó",
+    "allergenCode": null,
+    "identityNormalized": "ngò om",
+    "searchFolded": "ngo om",
+    "synonyms": [
+      "rau om",
+      "rau ngổ",
+      "ngò ôm"
+    ],
+    "imageUrl": "https://tracuuduoclieu.vn/wp-content/uploads/2019/03/rau-om-rau-ngo.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "keo-neo-ksr7a",
+    "name": "Kèo nèo",
+    "nameEn": "Limnocharis flava",
+    "groupLabel": "Rau củ",
+    "unit": "Bó",
+    "allergenCode": null,
+    "identityNormalized": "kèo nèo",
+    "searchFolded": "keo neo",
+    "synonyms": [
+      "tai tượng",
+      "rau kèo nèo"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/325781/bhx/keo-neo_202504151614088353.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "bong-so-dua-pmmjr",
+    "name": "Bông so đũa",
+    "nameEn": "Sesbania grandiflora flower",
+    "groupLabel": "Rau củ",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "bông so đũa",
+    "searchFolded": "bong so dua",
+    "synonyms": [
+      "hoa so đũa",
+      "bông so đũa tươi"
+    ],
+    "imageUrl": "https://product.hstatic.net/1000288770/product/bong_so_dua_trang_cecc445061ba467e86112bda7640f331_1805b11ba9b1490ab5140d021449a43b_master.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "cu-hu-dua-lqok7",
+    "name": "Củ hũ dừa",
+    "nameEn": "Coconut palm heart",
+    "groupLabel": "Rau củ",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "củ hũ dừa",
+    "searchFolded": "cu hu dua",
+    "synonyms": [
+      "củ hủ dừa tươi",
+      "đọt dừa"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/7459/229123/bhx/co-hu-dua-chua-ngot-thanh-phat-goi-200g-202011111132174486.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "cai-cuc-o25zl",
+    "name": "Cải cúc",
+    "nameEn": "Garland chrysanthemum",
+    "groupLabel": "Rau củ",
+    "unit": "Bó",
+    "allergenCode": null,
+    "identityNormalized": "cải cúc",
+    "searchFolded": "cai cuc",
+    "synonyms": [
+      "tần ô",
+      "rau tần ô",
+      "rau cải cúc"
+    ],
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/337494/bhx/rau-tan-o-300g_202505091128132036.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "rau-ma-konl0",
+    "name": "Rau má",
+    "nameEn": "Centella asiatica",
+    "groupLabel": "Rau củ",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "rau má",
+    "searchFolded": "rau ma",
+    "synonyms": [
+      "rau má tươi",
+      "rau má lá nhỏ"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/271747/bhx/thumb-rau-ma_202506131012086910.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "la-chuoi-0cgd1",
+    "name": "Lá chuối",
+    "nameEn": "Banana leaves",
+    "groupLabel": "Rau củ",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "lá chuối",
+    "searchFolded": "la chuoi",
+    "synonyms": [
+      "lá chuối tươi",
+      "lá chuối gói bánh"
+    ],
+    "imageUrl": "https://legiang.vn/static/product/2022/0826/la%20chuoi%20mau%20dam-774.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "la-e-hl5tp",
+    "name": "Lá é",
+    "nameEn": "Ocimum tenuiflorum leaves",
+    "groupLabel": "Rau củ",
+    "unit": "Bó",
+    "allergenCode": null,
+    "identityNormalized": "lá é",
+    "searchFolded": "la e",
+    "synonyms": [
+      "lá é trắng",
+      "húng trắng",
+      "lá é tươi"
+    ],
+    "imageUrl": "https://www.huongnghiepaau.com/wp-content/uploads/2025/07/nguyen-lieu-lam-lau-ga-la-e.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "rau-chum-ngay-xohv9",
+    "name": "Rau chùm ngây",
+    "nameEn": "Moringa leaves",
+    "groupLabel": "Rau củ",
+    "unit": "Bó",
+    "allergenCode": null,
+    "identityNormalized": "rau chùm ngây",
+    "searchFolded": "rau chum ngay",
+    "synonyms": [
+      "chùm ngây",
+      "rau chùm ngây tươi"
+    ],
+    "imageUrl": "https://medlatec.vn/media/13444/content/20201015_cay-chum-ngay-1.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "hat-doi-wnluw",
+    "name": "Hạt dổi",
+    "nameEn": "Wild pepper seeds",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Hũ",
+    "allergenCode": null,
+    "identityNormalized": "hạt dổi",
+    "searchFolded": "hat doi",
+    "synonyms": [
+      "hạt dổi rừng",
+      "hạt dổi tây bắc"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/216080/bhx/hat-doi-dh-foods-natural-hu-30g-201912101320116387.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "hat-mac-khen-9qdgs",
+    "name": "Hạt mắc khén",
+    "nameEn": "Zanthoxylum rhetsa seeds",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Hũ",
+    "allergenCode": null,
+    "identityNormalized": "hạt mắc khén",
+    "searchFolded": "hat mac khen",
+    "synonyms": [
+      "mắc khén",
+      "mắc khén tây bắc"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/216081/bhx/hat-mac-khen-dh-foods-natural-hu-15g-201912101321418589.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "ruou-mai-que-lo-tjram",
+    "name": "Rượu mai quế lộ",
+    "nameEn": "Mai Que Lo cooking wine",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Chai",
+    "allergenCode": null,
+    "identityNormalized": "rượu mai quế lộ",
+    "searchFolded": "ruou mai que lo",
+    "synonyms": [
+      "rượu mai quế lộ gia vị",
+      "mai quế lộ"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8271/198821/bhx/nuoc-uop-mai-que-lo-thien-thanh-goi-20ml-201901231735041278.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "giam-bong-sh3rp",
+    "name": "Giấm bỗng",
+    "nameEn": "Fermented distillers grain vinegar",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Chai",
+    "allergenCode": null,
+    "identityNormalized": "giấm bỗng",
+    "searchFolded": "giam bong",
+    "synonyms": [
+      "dấm bỗng",
+      "bỗng rượu"
+    ],
+    "imageUrl": "https://dambongnep.com/wp-content/uploads/Dam-bong-2-lit.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "mam-ba-khia-uictu",
+    "name": "Mắm ba khía",
+    "nameEn": "Fermented sesarmid crab",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Hũ",
+    "allergenCode": null,
+    "identityNormalized": "mắm ba khía",
+    "searchFolded": "mam ba khia",
+    "synonyms": [
+      "ba khía muối",
+      "ba khía"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8285/247201/bhx/ba-khia-muoi-nhat-tam-hu-400g-202205231430319488.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "mam-tom-chua-e84jh",
+    "name": "Mắm tôm chua",
+    "nameEn": "Hue fermented sour shrimp",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Hũ",
+    "allergenCode": null,
+    "identityNormalized": "mắm tôm chua",
+    "searchFolded": "mam tom chua",
+    "synonyms": [
+      "tôm chua huế",
+      "tôm chua"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8285/239531/bhx/mam-tom-chua-hue-dh-foods-hu-250g-202105271031056489.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "mam-cay-na6im",
+    "name": "Mắm cáy",
+    "nameEn": "Fermented fiddler crab sauce",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Chai",
+    "allergenCode": null,
+    "identityNormalized": "mắm cáy",
+    "searchFolded": "mam cay",
+    "synonyms": [
+      "nước mắm cáy",
+      "mắm cáy"
+    ],
+    "imageUrl": "https://biggreen.com.vn/data/product/b%E1%BB%99%20%E1%BA%A3nh%20th%C6%B0%C6%A1ng%20hi%E1%BB%87u%202025/m%E1%BA%AFm%20c%C3%A1y%20ho%C3%A0ng%20%C4%91%E1%BA%ADu%20500g%20-%20h%E1%BA%A3i%20d%C6%B0%C6%A1ng.png",
+    "isSupermarket": false
+  },
+  {
+    "code": "mam-ca-sac-mtmlh",
+    "name": "Mắm cá sặc",
+    "nameEn": "Fermented snakeskin gourami",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Hũ",
+    "allergenCode": null,
+    "identityNormalized": "mắm cá sặc",
+    "searchFolded": "mam ca sac",
+    "synonyms": [
+      "mắm sặc",
+      "mắm cá sặc xay"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8285/188806/bhx/mam-ca-sac-song-huong-hu-400g-2-org.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "mam-ca-linh-mueyh",
+    "name": "Mắm cá linh",
+    "nameEn": "Fermented Siamese mud carp",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Hũ",
+    "allergenCode": null,
+    "identityNormalized": "mắm cá linh",
+    "searchFolded": "mam ca linh",
+    "synonyms": [
+      "mắm linh",
+      "mắm cá linh miền tây"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8285/197278/bhx/mam-ca-linh-song-huong-hu-400g-201902271415516055.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "mat-mia-n2jzk",
+    "name": "Mật mía",
+    "nameEn": "Sugarcane molasses",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Chai",
+    "allergenCode": null,
+    "identityNormalized": "mật mía",
+    "searchFolded": "mat mia",
+    "synonyms": [
+      "mật mía nghệ an",
+      "mật mía nguyên chất"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/216855/bhx/nuoc-mau-bep-xua-chai-210g-201912271557478701.JPG",
+    "isSupermarket": true
+  },
+  {
+    "code": "qua-sau-ordbh",
+    "name": "Quả sấu",
+    "nameEn": "Dracontomelon fruit",
+    "groupLabel": "Rau củ",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "quả sấu",
+    "searchFolded": "qua sau",
+    "synonyms": [
+      "sấu xanh",
+      "sấu tươi",
+      "quả sấu hà nội"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/11/09/1396691/hoc-ngay-meo-bao-quan-sau-tuoi-de-quanh-nam-ma-van-thom-ngon-202111090203045771.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "qua-tram-t5hhu",
+    "name": "Quả trám",
+    "nameEn": "Canarium album fruit",
+    "groupLabel": "Rau củ",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "quả trám",
+    "searchFolded": "qua tram",
+    "synonyms": [
+      "trám đen",
+      "trám xanh",
+      "quả trám tươi"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/2023/08/CookDish/qua-tram-den-la-qua-gi-cach-bao-quan-qua-tram-den-tuoi-lau-avt-1200x676.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "tai-chua-3qigp",
+    "name": "Tai chua",
+    "nameEn": "Garcinia cowa dried fruit",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "tai chua",
+    "searchFolded": "tai chua",
+    "synonyms": [
+      "quả tai chua",
+      "tai chua khô"
+    ],
+    "imageUrl": "https://trungtamduoclieu.vn/files/sanpham/435/1/jpg/tai-chua.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "qua-gac-8jrrn",
+    "name": "Quả gấc",
+    "nameEn": "Gac fruit",
+    "groupLabel": "Trái cây",
+    "unit": "Trái",
+    "allergenCode": null,
+    "identityNormalized": "quả gấc",
+    "searchFolded": "qua gac",
+    "synonyms": [
+      "trái gấc",
+      "gấc tươi"
+    ],
+    "imageUrl": "https://media.tripmap.vn/marketplace/2026/02/trai-gac-tuoi-1kg-gac-nep-do-sip-gia-chi-60000d-giao-nhanh-trong-1h-1772133977-6b5zou-600x600.webp",
+    "isSupermarket": false
+  },
+  {
+    "code": "la-cam-121t1",
+    "name": "Lá cẩm",
+    "nameEn": "Magenta plant leaves",
+    "groupLabel": "Rau củ",
+    "unit": "Bó",
+    "allergenCode": null,
+    "identityNormalized": "lá cẩm",
+    "searchFolded": "la cam",
+    "synonyms": [
+      "lá cẩm tím",
+      "lá cẩm tươi"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/10/09/1389010/la-cam-la-la-gi-cong-dung-va-cac-mon-an-ngon-tu-la-cam-202201110136011976.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "hat-danh-danh-4ku5k",
+    "name": "Hạt dành dành",
+    "nameEn": "Gardenia seeds",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "hạt dành dành",
+    "searchFolded": "hat danh danh",
+    "synonyms": [
+      "quả dành dành",
+      "hạt dành dành tạo màu"
+    ],
+    "imageUrl": "https://thaphaco.vn/wp-content/uploads/2025/10/danh-danh-6.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "dinh-huong-6sqwd",
+    "name": "Đinh hương",
+    "nameEn": "Cloves",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Hũ",
+    "allergenCode": null,
+    "identityNormalized": "đinh hương",
+    "searchFolded": "dinh huong",
+    "synonyms": [
+      "nụ đinh hương",
+      "đinh hương khô"
+    ],
+    "imageUrl": "https://bizweb.dktcdn.net/thumb/grande/100/525/457/products/cloves-whole-100gr-2-1770697666839.png?v=1777019212973",
+    "isSupermarket": true
+  },
+  {
+    "code": "tieu-hoi-p19t5",
+    "name": "Tiểu hồi",
+    "nameEn": "Fennel seeds",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "tiểu hồi",
+    "searchFolded": "tieu hoi",
+    "synonyms": [
+      "hạt tiểu hồi",
+      "tiểu hồi hương"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/216082/bhx/hat-tieu-hoi-dh-foods-natural-hu-30g-201912101327523330.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "tran-bi-kjoq8",
+    "name": "Trần bì",
+    "nameEn": "Dried mandarin peel",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "trần bì",
+    "searchFolded": "tran bi",
+    "synonyms": [
+      "vỏ quýt khô",
+      "trần bì sao"
+    ],
+    "imageUrl": "https://sieuthitra.vn/upload/sanpham/tran-bi-vo-quyt-say-kho-hu-pet-80gr-1.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "muoi-hot-3j1wk",
+    "name": "Muối hột",
+    "nameEn": "Coarse sea salt",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "muối hột",
+    "searchFolded": "muoi hot",
+    "synonyms": [
+      "muối hạt",
+      "muối biển hột"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2803/210397/bhx/muoi-hat-thien-nhien-sosalco-goi-1kg-201909071441216173.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "hat-ngo-sjnpe",
+    "name": "Hạt ngò",
+    "nameEn": "Coriander seeds",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Hũ",
+    "allergenCode": null,
+    "identityNormalized": "hạt ngò",
+    "searchFolded": "hat ngo",
+    "synonyms": [
+      "hạt mùi",
+      "hạt mùi khô"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/216079/bhx/hat-ngo-dh-foods-natural-hu-25g-201912101317154020.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "tuong-ban-zkzda",
+    "name": "Tương bần",
+    "nameEn": "Ban fermented soybean paste",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "Chai",
+    "allergenCode": null,
+    "identityNormalized": "tương bần",
+    "searchFolded": "tuong ban",
+    "synonyms": [
+      "tương nếp bần",
+      "tương bần hưng yên"
+    ],
+    "imageUrl": "https://salt.tikicdn.com/cache/750x750/ts/product/98/8a/ca/9494c0c5d1464bc8fd02fbf1110f1186.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "ca-keo-fklvi",
+    "name": "Cá kèo",
+    "nameEn": "Mudskipper / Goby",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "FISH",
+    "identityNormalized": "cá kèo",
+    "searchFolded": "ca keo",
+    "synonyms": [
+      "cá kèo sống",
+      "cá kèo tươi"
+    ],
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/10/image/Products/Images/8782/5368603/bhx/ca-keo-vi-250g_202610021421217334.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "ca-linh-ousod",
+    "name": "Cá linh",
+    "nameEn": "Siamese mud carp",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "FISH",
+    "identityNormalized": "cá linh",
+    "searchFolded": "ca linh",
+    "synonyms": [
+      "cá linh non",
+      "cá linh tươi"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/8/image/Products/Images/8782/5368435/bhx/ca-linh-non-200g_202608240937520835.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "ca-bong-pnhb5",
+    "name": "Cá bống",
+    "nameEn": "Goby fish",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "FISH",
+    "identityNormalized": "cá bống",
+    "searchFolded": "ca bong",
+    "synonyms": [
+      "cá bống dừa",
+      "cá bống cát",
+      "cá bống tươi"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/6/image/production/2026/6/image/Products/8782/244404/ca-bong-1kg_202606010154313665.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "ca-lang-4jvm6",
+    "name": "Cá lăng",
+    "nameEn": "Hemibagrus",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "FISH",
+    "identityNormalized": "cá lăng",
+    "searchFolded": "ca lang",
+    "synonyms": [
+      "cá lăng tươi",
+      "cá lăng đuôi đỏ"
+    ],
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/10/image/Products/Images/8782/313869/bhx/ca-lang-song-lam-sach_202610051054350951.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "ca-chach-aaesm",
+    "name": "Cá chạch",
+    "nameEn": "Spiny eel",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "FISH",
+    "identityNormalized": "cá chạch",
+    "searchFolded": "ca chach",
+    "synonyms": [
+      "cá chạch đồng",
+      "cá chạch quế"
+    ],
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/Products/Images/8782/5367950/bhx/ca-chach-que-lam-sach_202607300919095655.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "ca-trich-10lvz",
+    "name": "Cá trích",
+    "nameEn": "Sardinella",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "FISH",
+    "identityNormalized": "cá trích",
+    "searchFolded": "ca trich",
+    "synonyms": [
+      "cá trích tươi",
+      "cá trích phi lê"
+    ],
+    "imageUrl": "https://ghesong.vn/upload/images/ca-trich-tuoi-sach.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "ca-bop-vgf80",
+    "name": "Cá bớp",
+    "nameEn": "Cobia",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "FISH",
+    "identityNormalized": "cá bớp",
+    "searchFolded": "ca bop",
+    "synonyms": [
+      "cá bớp biển",
+      "cá bớp cắt khoanh"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/316251/bhx/-202405041322436480.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "ca-tai-tuong-8fdit",
+    "name": "Cá tai tượng",
+    "nameEn": "Giant gourami",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "FISH",
+    "identityNormalized": "cá tai tượng",
+    "searchFolded": "ca tai tuong",
+    "synonyms": [
+      "cá tai tượng tươi",
+      "cá tai tượng nguyên con"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/314893/bhx/ca-tai-tuong-lam-sach_202504121747512113.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "ca-chim-trang-mjsqv",
+    "name": "Cá chim trắng",
+    "nameEn": "Silver pomfret",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "FISH",
+    "identityNormalized": "cá chim trắng",
+    "searchFolded": "ca chim trang",
+    "synonyms": [
+      "cá chim tươi",
+      "cá chim"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/233744/bhx/ca-chim-trang-bien-202405072348028444.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "ca-me-b2e1w",
+    "name": "Cá mè",
+    "nameEn": "Silver carp",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "FISH",
+    "identityNormalized": "cá mè",
+    "searchFolded": "ca me",
+    "synonyms": [
+      "cá mè hoa",
+      "cá mè trắng"
+    ],
+    "imageUrl": "https://tepbac.com/upload/species/ge_image/Ca-me-hoa_Aristichthys-nobilis.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "ca-khoai-urbe8",
+    "name": "Cá khoai",
+    "nameEn": "Bombay duck",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "FISH",
+    "identityNormalized": "cá khoai",
+    "searchFolded": "ca khoai",
+    "synonyms": [
+      "cá cháo",
+      "cá khoai tươi"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images//8400/265734/bhx/files/ca-khoai-dong-lanh-hdc-khay-400g-202112281040497762.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "oc-buou-0u4t5",
+    "name": "Ốc bươu",
+    "nameEn": "Apple snail",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "MOLLUSCS",
+    "identityNormalized": "ốc bươu",
+    "searchFolded": "oc buou",
+    "synonyms": [
+      "ốc bươu đen",
+      "ốc bươu tươi"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/306941/bhx/oc-buou-song-1kg-202305081432041496.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "oc-mong-tay-orea2",
+    "name": "Ốc móng tay",
+    "nameEn": "Razor clam",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "MOLLUSCS",
+    "identityNormalized": "ốc móng tay",
+    "searchFolded": "oc mong tay",
+    "synonyms": [
+      "móng tay",
+      "ốc móng tay tươi"
+    ],
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8782/306940/bhx/oc-mong-tay-1kg-202305081416230567.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "oc-huong-wocwz",
+    "name": "Ốc hương",
+    "nameEn": "Areola babylon snail",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "MOLLUSCS",
+    "identityNormalized": "ốc hương",
+    "searchFolded": "oc huong",
+    "synonyms": [
+      "ốc hương sống",
+      "ốc hương biển"
+    ],
+    "imageUrl": "https://cdn.hstatic.net/products/1000182631/_c_h__ng_63417890254f4de1b8b6f64d7a8f125f.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "so-huyet-8hrv8",
+    "name": "Sò huyết",
+    "nameEn": "Blood cockle",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "MOLLUSCS",
+    "identityNormalized": "sò huyết",
+    "searchFolded": "so huyet",
+    "synonyms": [
+      "sò huyết tươi",
+      "sò huyết sống"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/305369/bhx/cdntgddvnproductsimages8782305369bhxso-huyet-202403271641140105_202409061554251125.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "so-diep-wl26x",
+    "name": "Sò điệp",
+    "nameEn": "Scallop",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "MOLLUSCS",
+    "identityNormalized": "sò điệp",
+    "searchFolded": "so diep",
+    "synonyms": [
+      "cồi sò điệp",
+      "sò điệp tươi"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8400/243096/bhx/sellingpoint.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "be-be-d725i",
+    "name": "Bề bề",
+    "nameEn": "Mantis shrimp",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "CRUSTACEANS",
+    "identityNormalized": "bề bề",
+    "searchFolded": "be be",
+    "synonyms": [
+      "tôm tít",
+      "tôm tích",
+      "thịt bề bề"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/07/29/1371689/be-be-tom-tit-la-con-gi-cach-che-bien-be-be-ngon-dung-chuan-202107292051093317.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "tep-dong-94sp7",
+    "name": "Tép đồng",
+    "nameEn": "Freshwater shrimp",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "CRUSTACEANS",
+    "identityNormalized": "tép đồng",
+    "searchFolded": "tep dong",
+    "synonyms": [
+      "tép riu",
+      "tép rong",
+      "tép tươi"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/313876/bhx/tep-rong_202510151051414468.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "cang-ghe-zmn8g",
+    "name": "Càng ghẹ",
+    "nameEn": "Blue crab claws",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "CRUSTACEANS",
+    "identityNormalized": "càng ghẹ",
+    "searchFolded": "cang ghe",
+    "synonyms": [
+      "càng ghẹ xanh",
+      "càng ghẹ tươi"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8400/236777/bhx/thit-cang-ghe-dong-lanh-mama-food-goi-150g-202104060951357746.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "ruoi-ldsbn",
+    "name": "Rươi",
+    "nameEn": "Palolo worm / Ragworm",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "SEAFOOD",
+    "identityNormalized": "rươi",
+    "searchFolded": "ruoi",
+    "synonyms": [
+      "con rươi",
+      "rươi tươi"
+    ],
+    "imageUrl": "https://ruoi.com.vn/wp-content/uploads/2020/05/ruoi-tu-ky-cua-dasavina-4.webp",
+    "isSupermarket": false
+  },
+  {
+    "code": "sa-sung-vursk",
+    "name": "Sá sùng",
+    "nameEn": "Peanut worm",
+    "groupLabel": "Thủy hải sản",
+    "unit": "Kg",
+    "allergenCode": "SEAFOOD",
+    "identityNormalized": "sá sùng",
+    "searchFolded": "sa sung",
+    "synonyms": [
+      "sá sùng khô",
+      "địa sâm"
+    ],
+    "imageUrl": "https://dasavina.com.vn/wp-content/uploads/2023/06/sa-sung-quan-lan-dasavina.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "thit-ngan-nme80",
+    "name": "Thịt ngan",
+    "nameEn": "Muscovy duck meat",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "thịt ngan",
+    "searchFolded": "thit ngan",
+    "synonyms": [
+      "ngan dé",
+      "thịt ngan tươi"
+    ],
+    "imageUrl": "https://product.hstatic.net/200000401369/product/ngan_de_03487cbd31f346ceb69524fd3b9012b6.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "thit-chim-bo-cau-wue92",
+    "name": "Thịt chim bồ câu",
+    "nameEn": "Squab / Pigeon meat",
+    "groupLabel": "Thịt",
+    "unit": "Con",
+    "allergenCode": null,
+    "identityNormalized": "thịt chim bồ câu",
+    "searchFolded": "thit chim bo cau",
+    "synonyms": [
+      "bồ câu ra ràng",
+      "chim bồ câu"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/314819/bhx/bo-cau-con-235g_202504141446587963.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "thit-ngong-s3ewx",
+    "name": "Thịt ngỗng",
+    "nameEn": "Goose meat",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "thịt ngỗng",
+    "searchFolded": "thit ngong",
+    "synonyms": [
+      "thịt ngỗng tươi",
+      "ngỗng cỏ"
+    ],
+    "imageUrl": "https://upload.mybota.vn/upload/web/50/508613/product/2015/12/08/06/33/144955639898.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "thit-be-st7z0",
+    "name": "Thịt bê",
+    "nameEn": "Veal",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "thịt bê",
+    "searchFolded": "thit be",
+    "synonyms": [
+      "bê non",
+      "thịt bê tươi"
+    ],
+    "imageUrl": "https://phanphoithucpham.com.vn/upload/hinhanh/thumb/thit-vai-be-tuoi-co-da-hao-hang5587.png",
+    "isSupermarket": false
+  },
+  {
+    "code": "vit-xiem-tbr2w",
+    "name": "Vịt xiêm",
+    "nameEn": "Barbary duck",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "vịt xiêm",
+    "searchFolded": "vit xiem",
+    "synonyms": [
+      "thịt vịt xiêm",
+      "vịt xiêm làm sạch"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/303471/bhx/vit-nua-con-cp_202512110940466033.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "bao-tu-heo-vkv2z",
+    "name": "Bao tử heo",
+    "nameEn": "Pork stomach",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "bao tử heo",
+    "searchFolded": "bao tu heo",
+    "synonyms": [
+      "dạ dày heo",
+      "dạ dày lợn",
+      "bao tử heo cp"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/3/image/production/2026/3/image/Products/8781/309291/bao-tu-heo-300g_202603201030354341.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "cat-heo-tbunq",
+    "name": "Cật heo",
+    "nameEn": "Pork kidney",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "cật heo",
+    "searchFolded": "cat heo",
+    "synonyms": [
+      "thận heo",
+      "cật lợn"
+    ],
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8781/309298/bhx/cat-heo-300g-202306220842347922.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "doi-truong-8vksc",
+    "name": "Dồi trường",
+    "nameEn": "Pork fallopian tubes",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "dồi trường",
+    "searchFolded": "doi truong",
+    "synonyms": [
+      "dồi trường heo",
+      "tràng heo"
+    ],
+    "imageUrl": "https://bizweb.dktcdn.net/thumb/1024x1024/100/485/487/products/820a4eb1-fc77-49c3-a46e-3e0f1ec2b405.jpg?v=1720278449870",
+    "isSupermarket": true
+  },
+  {
+    "code": "tai-heo-9hp2s",
+    "name": "Tai heo",
+    "nameEn": "Pork ear",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "tai heo",
+    "searchFolded": "tai heo",
+    "synonyms": [
+      "tai lợn",
+      "tai heo làm sạch"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/3/image/Products/Images/8781/309294/bhx/tai-heo-300g_202603201031481217.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "mui-heo-hh6sw",
+    "name": "Mũi heo",
+    "nameEn": "Pork snout",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "mũi heo",
+    "searchFolded": "mui heo",
+    "synonyms": [
+      "mõm heo",
+      "mũi lợn"
+    ],
+    "imageUrl": "https://product.hstatic.net/200000956928/product/mui-heo-sach_6c7f365b205a4a24a1fdeb7267966f2d_grande.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "luoi-heo-p49tb",
+    "name": "Lưỡi heo",
+    "nameEn": "Pork tongue",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "lưỡi heo",
+    "searchFolded": "luoi heo",
+    "synonyms": [
+      "lưỡi lợn",
+      "lưỡi heo cp"
+    ],
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/3/image/Products/Images/8781/309277/bhx/luoi-heo-300g_202603201030090849.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "luoi-bo-jwfch",
+    "name": "Lưỡi bò",
+    "nameEn": "Beef tongue",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "lưỡi bò",
+    "searchFolded": "luoi bo",
+    "synonyms": [
+      "lưỡi bò tươi",
+      "lưỡi bò làm sạch"
+    ],
+    "imageUrl": "https://thucphamgiatot.com.vn/upload/hinhanh/luoi-bo-tuoi845o.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "duoi-bo-0jhij",
+    "name": "Đuôi bò",
+    "nameEn": "Oxtail",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "đuôi bò",
+    "searchFolded": "duoi bo",
+    "synonyms": [
+      "đuôi bò cắt khúc",
+      "đuôi bò tươi"
+    ],
+    "imageUrl": "https://daithanhfood.vn/resize/570x500/1/upload/baiviet/duoibocatkhuc-5723.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "suon-sun-heo-9gfn6",
+    "name": "Sườn sụn heo",
+    "nameEn": "Pork cartilage ribs",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "sườn sụn heo",
+    "searchFolded": "suon sun heo",
+    "synonyms": [
+      "sụn sườn heo",
+      "sụn non heo"
+    ],
+    "imageUrl": "https://bizweb.dktcdn.net/100/485/487/products/f3a609d517163c92afe6b7db36eb6d75-1684891600020.jpg?v=1752486345857",
+    "isSupermarket": true
+  },
+  {
+    "code": "mo-chai-fankq",
+    "name": "Mỡ chài",
+    "nameEn": "Caul fat",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "mỡ chài",
+    "searchFolded": "mo chai",
+    "synonyms": [
+      "màng mỡ chài",
+      "mỡ chài heo"
+    ],
+    "imageUrl": "http://cdn.hstatic.net/products/200000460299/c7baf10312a7432dab18ea169ea7068e_d7d9dcef0871432b8331ff8ff2547c06_grande.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "oc-heo-057wv",
+    "name": "Óc heo",
+    "nameEn": "Pork brain",
+    "groupLabel": "Thịt",
+    "unit": "Bộ",
+    "allergenCode": null,
+    "identityNormalized": "óc heo",
+    "searchFolded": "oc heo",
+    "synonyms": [
+      "óc lợn",
+      "óc heo tươi"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/2021/03/CookProduct/oc1-1200x676.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "trung-ga-non-49rjn",
+    "name": "Trứng gà non",
+    "nameEn": "Unhatched chicken egg",
+    "groupLabel": "Thịt",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "trứng gà non",
+    "searchFolded": "trung ga non",
+    "synonyms": [
+      "trứng non",
+      "trứng gà non buồng"
+    ],
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8790/308246/bhx/trung-ga-non-va-long-ga-nt-pearly-food-300g-202408271532433495.png",
+    "isSupermarket": true
+  },
+  {
+    "code": "nam-mo-s8hjs",
+    "name": "Nấm mỡ",
+    "nameEn": "Button mushroom",
+    "groupLabel": "Nấm",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "nấm mỡ",
+    "searchFolded": "nam mo",
+    "synonyms": [
+      "nấm mỡ trắng",
+      "nấm mỡ tươi"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8779/233788/bhx/nam-mo-trang-hop-150g_202506051703255500.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "nam-tuyet-jicpx",
+    "name": "Nấm tuyết",
+    "nameEn": "Snow fungus",
+    "groupLabel": "Nấm",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "nấm tuyết",
+    "searchFolded": "nam tuyet",
+    "synonyms": [
+      "ngân nhĩ",
+      "nấm tuyết khô"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/222457/bhx/nam-tuyet-viet-san-goi-60g-202008011103130557.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "nam-tram-8rkdd",
+    "name": "Nấm tràm",
+    "nameEn": "Tylopilus felleus mushroom",
+    "groupLabel": "Nấm",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "nấm tràm",
+    "searchFolded": "nam tram",
+    "synonyms": [
+      "nấm tràm phú quốc",
+      "nấm tràm tươi"
+    ],
+    "imageUrl": "https://cdn3.ivivu.com/2023/11/nam-tram-phu-quoc-ivivu-1.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "cu-nang-zjp61",
+    "name": "Củ năng",
+    "nameEn": "Water chestnut",
+    "groupLabel": "Rau củ",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "củ năng",
+    "searchFolded": "cu nang",
+    "synonyms": [
+      "mã thầy",
+      "củ mã thầy"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/303718/bhx/cu-nang-tuoi-got-vo-goi-200gr-202303041503470234.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "cu-au-jfpog",
+    "name": "Củ ấu",
+    "nameEn": "Water caltrop",
+    "groupLabel": "Rau củ",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "củ ấu",
+    "searchFolded": "cu au",
+    "synonyms": [
+      "củ ấu sừng trâu",
+      "củ ấu tươi"
+    ],
+    "imageUrl": "https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/cach_luoc_cu_au_thumb_b20b410581.jpg",
+    "isSupermarket": false
+  },
+  {
+    "code": "khoai-mo-qcf2w",
+    "name": "Khoai mỡ",
+    "nameEn": "Purple yam",
+    "groupLabel": "Rau củ",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "khoai mỡ",
+    "searchFolded": "khoai mo",
+    "synonyms": [
+      "khoai mỡ tím",
+      "khoai vạc"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/233886/bhx/khoai-mo-202312271420168720.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "khoai-tu-3615p",
+    "name": "Khoai từ",
+    "nameEn": "Dioscorea esculenta",
+    "groupLabel": "Rau củ",
+    "unit": "Kg",
+    "allergenCode": null,
+    "identityNormalized": "khoai từ",
+    "searchFolded": "khoai tu",
+    "synonyms": [
+      "củ từ",
+      "củ từ lông"
+    ],
+    "imageUrl": "https://trucvufarm.com.vn/wp-content/uploads/2025/08/20240717194641-101tac_dung_cua_cu_tu_long_1.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "com-ruou-e34q1",
+    "name": "Cơm rượu",
+    "nameEn": "Fermented glutinous rice",
+    "groupLabel": "Nông sản & ngũ cốc",
+    "unit": "Hộp",
+    "allergenCode": null,
+    "identityNormalized": "cơm rượu",
+    "searchFolded": "com ruou",
+    "synonyms": [
+      "rượu nếp",
+      "cơm rượu nếp cẩm"
+    ],
+    "imageUrl": "https://cdn.hstatic.net/products/200000460455/c_m_r__u_n_p_c_i_hoa_v_ng_king_s__h__50g__e79907e10f3341cb915ec9a00d4e0f02.png",
+    "isSupermarket": false
+  },
+  {
+    "code": "bot-cot-dua-g1bup",
+    "name": "Bột cốt dừa",
+    "nameEn": "Coconut milk powder",
+    "groupLabel": "Bột & phụ gia",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "bột cốt dừa",
+    "searchFolded": "bot cot dua",
+    "synonyms": [
+      "bột nước cốt dừa",
+      "bột cốt dừa gói"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2388/229792/bhx/bot-cot-dua-tai-ky-goi-50g-202010171155551938.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "bot-bang-omoat",
+    "name": "Bột báng",
+    "nameEn": "Tapioca pearls for dessert",
+    "groupLabel": "Bột & phụ gia",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "bột báng",
+    "searchFolded": "bot bang",
+    "synonyms": [
+      "hạt bột báng",
+      "bột báng nấu chè"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/198156/bhx/bot-bang-viet-san-goi-150g-202103040200093144.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "bot-khoai-tulfz",
+    "name": "Bột khoai",
+    "nameEn": "Sweet potato tapioca strips",
+    "groupLabel": "Bột & phụ gia",
+    "unit": "Gói",
+    "allergenCode": null,
+    "identityNormalized": "bột khoai",
+    "searchFolded": "bot khoai",
+    "synonyms": [
+      "sợi bột khoai",
+      "bột khoai màu"
+    ],
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/198149/bhx/bot-khoai-viet-san-goi-100g-202103040159560195.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "trung-bac-thao-hqhba",
+    "name": "Trứng bắc thảo",
+    "nameEn": "Century egg",
+    "groupLabel": "Trứng & sữa",
+    "unit": "Hộp",
+    "allergenCode": "EGGS",
+    "identityNormalized": "trứng bắc thảo",
+    "searchFolded": "trung bac thao",
+    "synonyms": [
+      "trứng bách thảo",
+      "hột vịt bắc thảo"
+    ],
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8783/311103/bhx/trung-vit-bac-thao-hop-4-qua-giao-ngau-nhien-thuong-hieu-202404161147546482.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "trung-vit-muoi-qizkr",
+    "name": "Trứng vịt muối",
+    "nameEn": "Salted duck egg",
+    "groupLabel": "Trứng & sữa",
+    "unit": "Hộp",
+    "allergenCode": "EGGS",
+    "identityNormalized": "trứng vịt muối",
+    "searchFolded": "trung vit muoi",
+    "synonyms": [
+      "hột vịt muối",
+      "lòng đỏ trứng muối"
+    ],
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8783/311104/bhx/trung-vit-muoi-hop-4-qua-giao-ngau-nhien-thuong-hieu-202404161158086368.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "trung-vit-lon-amkwc",
+    "name": "Trứng vịt lộn",
+    "nameEn": "Balut duck egg",
+    "groupLabel": "Trứng & sữa",
+    "unit": "Chục",
+    "allergenCode": "EGGS",
+    "identityNormalized": "trứng vịt lộn",
+    "searchFolded": "trung vit lon",
+    "synonyms": [
+      "hột vịt lộn",
+      "trứng vịt lộn tươi"
+    ],
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8783/249752/bhx/dieu-honga2-min_202409301347585189.jpg",
+    "isSupermarket": true
+  },
+  {
+    "code": "trung-cut-lon-1keo1",
+    "name": "Trứng cút lộn",
+    "nameEn": "Balut quail egg",
+    "groupLabel": "Trứng & sữa",
+    "unit": "Chục",
+    "allergenCode": "EGGS",
+    "identityNormalized": "trứng cút lộn",
+    "searchFolded": "trung cut lon",
+    "synonyms": [
+      "hột cút lộn",
+      "cút lộn"
+    ],
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8783/311101/bhx/trung-cut-hop-30_202509301108005468.jpg",
+    "isSupermarket": true
+  }
+]

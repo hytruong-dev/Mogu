@@ -1,0 +1,1804 @@
+[
+  {
+    "cleanName": "Ba chỉ bò",
+    "identityNormalized": "ba chỉ bò",
+    "searchFolded": "ba chi bo",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8139/110004/bhx/ba-chi-bo-my-cuon-dong-lanh-tui-500g.jpg",
+    "originalSample": {
+      "bhxId": 110004,
+      "rawName": "Ba chỉ bò Mỹ đông lạnh",
+      "fullName": "Ba chỉ bò Mỹ cuộn đông lạnh túi 500g",
+      "brandName": "Bách hóa XANH",
+      "price": 129000,
+      "url": "/thit-bo/ba-chi-bo-my-cuon-dong-lanh-tui-500g"
+    },
+    "synonyms": [
+      "Ba chỉ bò Mỹ cuộn đông lạnh túi 500g"
+    ]
+  },
+  {
+    "cleanName": "Ba rọi heo",
+    "identityNormalized": "ba rọi heo",
+    "searchFolded": "ba roi heo",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/226834/ba-roi-heo-1kg_202607300933343971.jpg",
+    "originalSample": {
+      "bhxId": 226834,
+      "rawName": "Ba rọi heo C.P",
+      "fullName": "Ba rọi heo C.P",
+      "brandName": "C.P",
+      "price": 59600,
+      "url": "/thit-heo/ba-roi-heo-1kg"
+    },
+    "synonyms": [
+      "Ba rọi heo C.P"
+    ]
+  },
+  {
+    "cleanName": "Ba rọi rút sườn heo",
+    "identityNormalized": "ba rọi rút sườn heo",
+    "searchFolded": "ba roi rut suon heo",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/275804/ba-roi-heo-nhap-khau_202607130947458793.jpg",
+    "originalSample": {
+      "bhxId": 275804,
+      "rawName": "Ba rọi rút sườn heo",
+      "fullName": "Ba rọi rút sườn heo nhập khẩu Nga",
+      "brandName": "Bách hoá XANH",
+      "price": 47600,
+      "url": "/thit-heo/ba-roi-heo-nhap-khau"
+    },
+    "synonyms": [
+      "Ba rọi rút sườn heo nhập khẩu Nga"
+    ]
+  },
+  {
+    "cleanName": "Bạch tuộc",
+    "identityNormalized": "bạch tuộc",
+    "searchFolded": "bach tuoc",
+    "groupLabel": "Thủy hải sản",
+    "unit": "KG",
+    "allergenCode": "SEAFOOD",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/130005/bhx/bach-tuoc-tuoi-khay-500g.jpg",
+    "originalSample": {
+      "bhxId": 130005,
+      "rawName": "Bạch tuộc tươi",
+      "fullName": "Bạch tuộc tươi làm sạch khay 500g",
+      "brandName": "Bách hóa XANH",
+      "price": 95000,
+      "url": "/ca-tom-muc-ech/bach-tuoc-tuoi-khay-500g"
+    },
+    "synonyms": [
+      "Bạch tuộc tươi làm sạch khay 500g"
+    ]
+  },
+  {
+    "cleanName": "Bắp bò",
+    "identityNormalized": "bắp bò",
+    "searchFolded": "bap bo",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8139/110001/bhx/bap-bo-uc-khay-300g.jpg",
+    "originalSample": {
+      "bhxId": 110001,
+      "rawName": "Bắp bò Úc Pacow",
+      "fullName": "Bắp bò Úc Pacow khay 300g",
+      "brandName": "Pacow",
+      "price": 95000,
+      "url": "/thit-bo/bap-bo-uc-khay-300g"
+    },
+    "synonyms": [
+      "Bắp bò Úc Pacow khay 300g"
+    ]
+  },
+  {
+    "cleanName": "Bắp cải thảo",
+    "identityNormalized": "bắp cải thảo",
+    "searchFolded": "bap cai thao",
+    "groupLabel": "Rau củ",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150007/bhx/bap-cai-thao-1kg.jpg",
+    "originalSample": {
+      "bhxId": 150007,
+      "rawName": "Bắp cải thảo tươi",
+      "fullName": "Bắp cải thảo Đà Lạt túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 19000,
+      "url": "/cu/bap-cai-thao-1kg"
+    },
+    "synonyms": [
+      "Bắp cải thảo Đà Lạt túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Bắp Mỹ",
+    "identityNormalized": "bắp mỹ",
+    "searchFolded": "bap my",
+    "groupLabel": "Rau củ",
+    "unit": "BẮP",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150006/bhx/bap-my-1-trai.jpg",
+    "originalSample": {
+      "bhxId": 150006,
+      "rawName": "Bắp Mỹ ngọt",
+      "fullName": "Bắp Mỹ trái lớn 1 trái",
+      "brandName": "Bách hóa XANH",
+      "price": 12000,
+      "url": "/cu/bap-my-1-trai"
+    },
+    "synonyms": [
+      "Bắp Mỹ trái lớn 1 trái"
+    ]
+  },
+  {
+    "cleanName": "Bầu sao",
+    "identityNormalized": "bầu sao",
+    "searchFolded": "bau sao",
+    "groupLabel": "Rau củ",
+    "unit": "QUẢ",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150015/bhx/bau-sao-1-trai.jpg",
+    "originalSample": {
+      "bhxId": 150015,
+      "rawName": "Bầu sao",
+      "fullName": "Bầu sao tươi 1 trái",
+      "brandName": "Bách hóa XANH",
+      "price": 14000,
+      "url": "/cu/bau-sao-1-trai"
+    },
+    "synonyms": [
+      "Bầu sao tươi 1 trái"
+    ]
+  },
+  {
+    "cleanName": "Bí đỏ hồ lô",
+    "identityNormalized": "bí đỏ hồ lô",
+    "searchFolded": "bi do ho lo",
+    "groupLabel": "Rau củ",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150005/bhx/bi-do-ho-lo-tui-1kg.jpg",
+    "originalSample": {
+      "bhxId": 150005,
+      "rawName": "Bí đỏ hồ lô",
+      "fullName": "Bí đỏ hồ lô túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 16000,
+      "url": "/cu/bi-do-ho-lo-tui-1kg"
+    },
+    "synonyms": [
+      "Bí đỏ hồ lô túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Bí xanh",
+    "identityNormalized": "bí xanh",
+    "searchFolded": "bi xanh",
+    "groupLabel": "Rau củ",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150009/bhx/bi-xanh-tui-1kg.jpg",
+    "originalSample": {
+      "bhxId": 150009,
+      "rawName": "Bí xanh thơm",
+      "fullName": "Bí xanh túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 17000,
+      "url": "/cu/bi-xanh-tui-1kg"
+    },
+    "synonyms": [
+      "Bí xanh túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Bông điên điển",
+    "identityNormalized": "bông điên điển",
+    "searchFolded": "bong dien dien",
+    "groupLabel": "Rau củ",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/8/image/production/2026/8/image/Products/8820/5368048/bong-dien-dien-vi-100g_202608050145269035.jpg",
+    "originalSample": {
+      "bhxId": 5368048,
+      "rawName": "Bông điên điển",
+      "fullName": "Bông điên điển vỉ 100g",
+      "brandName": "Bách hoá XANH",
+      "price": 18000,
+      "url": "/rau-sach/bong-dien-dien-vi-100g"
+    },
+    "synonyms": [
+      "Bông điên điển vỉ 100g"
+    ]
+  },
+  {
+    "cleanName": "Bột nghệ",
+    "identityNormalized": "bột nghệ",
+    "searchFolded": "bot nghe",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8275/190013/bhx/bot-nghe-vianco-goi-50g.jpg",
+    "originalSample": {
+      "bhxId": 190013,
+      "rawName": "Bột nghệ nguyên chất",
+      "fullName": "Bột nghệ Vianco gói 50g",
+      "brandName": "Vianco",
+      "price": 15000,
+      "url": "/bot-gia-vi/bot-nghe-vianco-goi-50g"
+    },
+    "synonyms": [
+      "Bột nghệ Vianco gói 50g"
+    ]
+  },
+  {
+    "cleanName": "Bột ngọt",
+    "identityNormalized": "bột ngọt",
+    "searchFolded": "bot ngot",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2806/190005/bhx/bot-ngot-ajinomoto-hat-lon-goi-454g.jpg",
+    "originalSample": {
+      "bhxId": 190005,
+      "rawName": "Bột ngọt hạt lớn Ajinomoto",
+      "fullName": "Bột ngọt Ajinomoto hạt lớn gói 454g",
+      "brandName": "Ajinomoto",
+      "price": 38000,
+      "url": "/hat-nem/bot-ngot-ajinomoto-hat-lon-goi-454g"
+    },
+    "synonyms": [
+      "Bột ngọt Ajinomoto hạt lớn gói 454g"
+    ]
+  },
+  {
+    "cleanName": "Bột quế",
+    "identityNormalized": "bột quế",
+    "searchFolded": "bot que",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8275/190015/bhx/bot-que-vianco-goi-50g.jpg",
+    "originalSample": {
+      "bhxId": 190015,
+      "rawName": "Bột quế thơm",
+      "fullName": "Bột quế nguyên chất Vianco gói 50g",
+      "brandName": "Vianco",
+      "price": 19000,
+      "url": "/bot-gia-vi/bot-que-vianco-goi-50g"
+    },
+    "synonyms": [
+      "Bột quế nguyên chất Vianco gói 50g"
+    ]
+  },
+  {
+    "cleanName": "Bột tỏi",
+    "identityNormalized": "bột tỏi",
+    "searchFolded": "bot toi",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8275/190014/bhx/bot-toi-vianco-hu-45g.jpg",
+    "originalSample": {
+      "bhxId": 190014,
+      "rawName": "Bột tỏi thơm",
+      "fullName": "Bột tỏi Vianco hũ 45g",
+      "brandName": "Vianco",
+      "price": 18000,
+      "url": "/bot-gia-vi/bot-toi-vianco-hu-45g"
+    },
+    "synonyms": [
+      "Bột tỏi Vianco hũ 45g"
+    ]
+  },
+  {
+    "cleanName": "Bơ thực vật",
+    "identityNormalized": "bơ thực vật",
+    "searchFolded": "bo thuc vat",
+    "groupLabel": "Dầu ăn & mỡ",
+    "unit": "HỘP",
+    "allergenCode": "DAIRY",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/3465/180004/bhx/bo-thuc-vat-tuong-an-hop-200g.jpg",
+    "originalSample": {
+      "bhxId": 180004,
+      "rawName": "Bơ thực vật Tường An",
+      "fullName": "Bơ thực vật Margarine Tường An hộp 200g",
+      "brandName": "Tường An",
+      "price": 17000,
+      "url": "/bo/bo-thuc-vat-tuong-an-hop-200g"
+    },
+    "synonyms": [
+      "Bơ thực vật Margarine Tường An hộp 200g"
+    ]
+  },
+  {
+    "cleanName": "Bưởi da xanh",
+    "identityNormalized": "bưởi da xanh",
+    "searchFolded": "buoi da xanh",
+    "groupLabel": "Trái cây",
+    "unit": "QUẢ",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/170004/bhx/buoi-da-xanh-1-trai.jpg",
+    "originalSample": {
+      "bhxId": 170004,
+      "rawName": "Bưởi da xanh",
+      "fullName": "Bưởi da xanh Bến Tre 1 trái 1.2kg",
+      "brandName": "Bách hóa XANH",
+      "price": 49000,
+      "url": "/trai-cay-tuoi-ngon/buoi-da-xanh-1-trai"
+    },
+    "synonyms": [
+      "Bưởi da xanh Bến Tre 1 trái 1.2kg"
+    ]
+  },
+  {
+    "cleanName": "Cá basa phi lê",
+    "identityNormalized": "cá basa phi lê",
+    "searchFolded": "ca basa phi le",
+    "groupLabel": "Thủy hải sản",
+    "unit": "KG",
+    "allergenCode": "SEAFOOD",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8400/130009/bhx/ca-basa-phi-le-dong-lanh-tui-1kg.jpg",
+    "originalSample": {
+      "bhxId": 130009,
+      "rawName": "Cá basa phi lê",
+      "fullName": "Cá basa phi lê đông lạnh túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 52000,
+      "url": "/ca-hai-san-dong-lanh/ca-basa-phi-le-dong-lanh-tui-1kg"
+    },
+    "synonyms": [
+      "Cá basa phi lê đông lạnh túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Cà chua",
+    "identityNormalized": "cà chua",
+    "searchFolded": "ca chua",
+    "groupLabel": "Rau củ",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150003/bhx/ca-chua-da-lat-tui-1kg.jpg",
+    "originalSample": {
+      "bhxId": 150003,
+      "rawName": "Cà chua chín đỏ",
+      "fullName": "Cà chua Đà Lạt túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 22000,
+      "url": "/cu/ca-chua-da-lat-tui-1kg"
+    },
+    "synonyms": [
+      "Cà chua Đà Lạt túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Cà chua bi",
+    "identityNormalized": "cà chua bi",
+    "searchFolded": "ca chua bi",
+    "groupLabel": "Rau củ",
+    "unit": "HỘP",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150004/bhx/ca-chua-bi-hop-300g.jpg",
+    "originalSample": {
+      "bhxId": 150004,
+      "rawName": "Cà chua bi ngọt",
+      "fullName": "Cà chua bi hộp 300g",
+      "brandName": "Bách hóa XANH",
+      "price": 18000,
+      "url": "/cu/ca-chua-bi-hop-300g"
+    },
+    "synonyms": [
+      "Cà chua bi hộp 300g"
+    ]
+  },
+  {
+    "cleanName": "Cá điêu hồng",
+    "identityNormalized": "cá điêu hồng",
+    "searchFolded": "ca dieu hong",
+    "groupLabel": "Thủy hải sản",
+    "unit": "KG",
+    "allergenCode": "SEAFOOD",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/130007/bhx/ca-dieu-hong-tuoi-lam-sach-con-800g.jpg",
+    "originalSample": {
+      "bhxId": 130007,
+      "rawName": "Cá điêu hồng làm sạch",
+      "fullName": "Cá điêu hồng tươi làm sạch con 800g",
+      "brandName": "Bách hóa XANH",
+      "price": 55000,
+      "url": "/ca-tom-muc-ech/ca-dieu-hong-tuoi-lam-sach-con-800g"
+    },
+    "synonyms": [
+      "Cá điêu hồng tươi làm sạch con 800g"
+    ]
+  },
+  {
+    "cleanName": "Cá hồi phi lê",
+    "identityNormalized": "cá hồi phi lê",
+    "searchFolded": "ca hoi phi le",
+    "groupLabel": "Thủy hải sản",
+    "unit": "KG",
+    "allergenCode": "SEAFOOD",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/130006/bhx/ca-hoi-na-uy-phi-le-tuoi-khay-300g.jpg",
+    "originalSample": {
+      "bhxId": 130006,
+      "rawName": "Cá hồi Na Uy phi lê",
+      "fullName": "Cá hồi Na Uy phi lê tươi khay 300g",
+      "brandName": "Bách hóa XANH",
+      "price": 185000,
+      "url": "/ca-tom-muc-ech/ca-hoi-na-uy-phi-le-tuoi-khay-300g"
+    },
+    "synonyms": [
+      "Cá hồi Na Uy phi lê tươi khay 300g"
+    ]
+  },
+  {
+    "cleanName": "Cá lóc",
+    "identityNormalized": "cá lóc",
+    "searchFolded": "ca loc",
+    "groupLabel": "Thủy hải sản",
+    "unit": "KG",
+    "allergenCode": "SEAFOOD",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/130008/bhx/ca-loc-dong-lam-sach-con-600g.jpg",
+    "originalSample": {
+      "bhxId": 130008,
+      "rawName": "Cá lóc làm sạch",
+      "fullName": "Cá lóc đồng làm sạch con 600g",
+      "brandName": "Bách hóa XANH",
+      "price": 68000,
+      "url": "/ca-tom-muc-ech/ca-loc-dong-lam-sach-con-600g"
+    },
+    "synonyms": [
+      "Cá lóc đồng làm sạch con 600g"
+    ]
+  },
+  {
+    "cleanName": "Cà rốt",
+    "identityNormalized": "cà rốt",
+    "searchFolded": "ca rot",
+    "groupLabel": "Rau củ",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150001/bhx/ca-rot-tui-1kg.jpg",
+    "originalSample": {
+      "bhxId": 150001,
+      "rawName": "Cà rốt tươi",
+      "fullName": "Cà rốt Đà Lạt túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 24000,
+      "url": "/cu/ca-rot-tui-1kg"
+    },
+    "synonyms": [
+      "Cà rốt Đà Lạt túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Cam sành",
+    "identityNormalized": "cam sành",
+    "searchFolded": "cam sanh",
+    "groupLabel": "Trái cây",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/170001/bhx/cam-sanh-tui-1kg.jpg",
+    "originalSample": {
+      "bhxId": 170001,
+      "rawName": "Cam sành vắt nước",
+      "fullName": "Cam sành túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 25000,
+      "url": "/trai-cay-tuoi-ngon/cam-sanh-tui-1kg"
+    },
+    "synonyms": [
+      "Cam sành túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Cánh gà",
+    "identityNormalized": "cánh gà",
+    "searchFolded": "canh ga",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/120002/bhx/canh-ga-giua-cp-khay-500g.jpg",
+    "originalSample": {
+      "bhxId": 120002,
+      "rawName": "Cánh gà tươi C.P",
+      "fullName": "Cánh gà giữa C.P khay 500g",
+      "brandName": "C.P",
+      "price": 52000,
+      "url": "/thit-ga/canh-ga-giua-cp-khay-500g"
+    },
+    "synonyms": [
+      "Cánh gà giữa C.P khay 500g"
+    ]
+  },
+  {
+    "cleanName": "Chanh",
+    "identityNormalized": "chanh",
+    "searchFolded": "chanh",
+    "groupLabel": "Trái cây",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/170002/bhx/chanh-khong-hat-tui-500g.jpg",
+    "originalSample": {
+      "bhxId": 170002,
+      "rawName": "Chanh không hạt",
+      "fullName": "Chanh không hạt túi 500g",
+      "brandName": "Bách hóa XANH",
+      "price": 14000,
+      "url": "/trai-cay-tuoi-ngon/chanh-khong-hat-tui-500g"
+    },
+    "synonyms": [
+      "Chanh không hạt túi 500g"
+    ]
+  },
+  {
+    "cleanName": "Chân gà",
+    "identityNormalized": "chân gà",
+    "searchFolded": "chan ga",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/120005/bhx/chan-ga-tuoi-cp-khay-500g.jpg",
+    "originalSample": {
+      "bhxId": 120005,
+      "rawName": "Chân gà tươi C.P",
+      "fullName": "Chân gà tươi C.P khay 500g",
+      "brandName": "C.P",
+      "price": 42000,
+      "url": "/thit-ga/chan-ga-tuoi-cp-khay-500g"
+    },
+    "synonyms": [
+      "Chân gà tươi C.P khay 500g"
+    ]
+  },
+  {
+    "cleanName": "Chân giò heo",
+    "identityNormalized": "chân giò heo",
+    "searchFolded": "chan gio heo",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/233783/chan-gio-heo-1kg_202607301031597500.jpg",
+    "originalSample": {
+      "bhxId": 233783,
+      "rawName": "Chân giò heo C.P",
+      "fullName": "Chân giò heo C.P",
+      "brandName": "C.P",
+      "price": 44550,
+      "url": "/thit-heo/chan-gio-heo-1kg"
+    },
+    "synonyms": [
+      "Chân giò heo C.P",
+      "Chân giò heo nhập khẩu Đức"
+    ]
+  },
+  {
+    "cleanName": "Chuối già",
+    "identityNormalized": "chuối già",
+    "searchFolded": "chuoi gia",
+    "groupLabel": "Trái cây",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/170005/bhx/chuoi-gia-nam-my-nai-1kg.jpg",
+    "originalSample": {
+      "bhxId": 170005,
+      "rawName": "Chuối già Nam Mỹ",
+      "fullName": "Chuối già Nam Mỹ nải 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 23000,
+      "url": "/trai-cay-tuoi-ngon/chuoi-gia-nam-my-nai-1kg"
+    },
+    "synonyms": [
+      "Chuối già Nam Mỹ nải 1kg"
+    ]
+  },
+  {
+    "cleanName": "Củ cải trắng",
+    "identityNormalized": "củ cải trắng",
+    "searchFolded": "cu cai trang",
+    "groupLabel": "Rau củ",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150012/bhx/cu-cai-trang-tui-1kg.jpg",
+    "originalSample": {
+      "bhxId": 150012,
+      "rawName": "Củ cải trắng",
+      "fullName": "Củ cải trắng Đà Lạt túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 18000,
+      "url": "/cu/cu-cai-trang-tui-1kg"
+    },
+    "synonyms": [
+      "Củ cải trắng Đà Lạt túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Dầu ăn",
+    "identityNormalized": "dầu ăn",
+    "searchFolded": "dau an",
+    "groupLabel": "Dầu ăn & mỡ",
+    "unit": "CHAI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2286/180001/bhx/dau-an-tuong-an-cooking-oil-chai-1-lit.jpg",
+    "originalSample": {
+      "bhxId": 180001,
+      "rawName": "Dầu ăn tinh luyện Tường An",
+      "fullName": "Dầu ăn Tường An Cooking Oil chai 1 lít",
+      "brandName": "Tường An",
+      "price": 49000,
+      "url": "/dau-an/dau-an-tuong-an-cooking-oil-chai-1-lit"
+    },
+    "synonyms": [
+      "Dầu ăn Tường An Cooking Oil chai 1 lít"
+    ]
+  },
+  {
+    "cleanName": "Dầu đậu nành",
+    "identityNormalized": "dầu đậu nành",
+    "searchFolded": "dau dau nanh",
+    "groupLabel": "Dầu ăn & mỡ",
+    "unit": "CHAI",
+    "allergenCode": "SOY",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2286/180002/bhx/dau-dau-nanh-simply-chai-1-lit.jpg",
+    "originalSample": {
+      "bhxId": 180002,
+      "rawName": "Dầu đậu nành nguyên chất Simply",
+      "fullName": "Dầu đậu nành Simply chai 1 lít",
+      "brandName": "Simply",
+      "price": 62000,
+      "url": "/dau-an/dau-dau-nanh-simply-chai-1-lit"
+    },
+    "synonyms": [
+      "Dầu đậu nành Simply chai 1 lít"
+    ]
+  },
+  {
+    "cleanName": "Dầu hào",
+    "identityNormalized": "dầu hào",
+    "searchFolded": "dau hao",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "CHAI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/3465/190016/bhx/dau-hao-maggi-dam-dac-chai-350g.jpg",
+    "originalSample": {
+      "bhxId": 190016,
+      "rawName": "Dầu hào Maggi",
+      "fullName": "Dầu hào Maggi đậm đặc chai 350g",
+      "brandName": "Maggi",
+      "price": 25000,
+      "url": "/bo/dau-hao-maggi-dam-dac-chai-350g"
+    },
+    "synonyms": [
+      "Dầu hào Maggi đậm đặc chai 350g"
+    ]
+  },
+  {
+    "cleanName": "Dầu mè",
+    "identityNormalized": "dầu mè",
+    "searchFolded": "dau me",
+    "groupLabel": "Dầu ăn & mỡ",
+    "unit": "CHAI",
+    "allergenCode": "SESAME",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2286/180003/bhx/dau-me-thom-nakydaco-chai-250ml.jpg",
+    "originalSample": {
+      "bhxId": 180003,
+      "rawName": "Dầu mè thơm Nakydaco",
+      "fullName": "Dầu mè thơm Nakydaco chai 250ml",
+      "brandName": "Nakydaco",
+      "price": 39000,
+      "url": "/dau-an/dau-me-thom-nakydaco-chai-250ml"
+    },
+    "synonyms": [
+      "Dầu mè thơm Nakydaco chai 250ml"
+    ]
+  },
+  {
+    "cleanName": "Dưa hấu đỏ",
+    "identityNormalized": "dưa hấu đỏ",
+    "searchFolded": "dua hau do",
+    "groupLabel": "Trái cây",
+    "unit": "QUẢ",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/170006/bhx/dua-hau-do-1-trai.jpg",
+    "originalSample": {
+      "bhxId": 170006,
+      "rawName": "Dưa hấu đỏ",
+      "fullName": "Dưa hấu không hạt 1 trái 2kg",
+      "brandName": "Bách hóa XANH",
+      "price": 32000,
+      "url": "/trai-cay-tuoi-ngon/dua-hau-do-1-trai"
+    },
+    "synonyms": [
+      "Dưa hấu không hạt 1 trái 2kg"
+    ]
+  },
+  {
+    "cleanName": "Dưa leo",
+    "identityNormalized": "dưa leo",
+    "searchFolded": "dua leo",
+    "groupLabel": "Rau củ",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150010/bhx/dua-leo-tui-1kg.jpg",
+    "originalSample": {
+      "bhxId": 150010,
+      "rawName": "Dưa leo giống Nhật",
+      "fullName": "Dưa leo túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 21000,
+      "url": "/cu/dua-leo-tui-1kg"
+    },
+    "synonyms": [
+      "Dưa leo túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Đùi tỏi gà",
+    "identityNormalized": "đùi tỏi gà",
+    "searchFolded": "dui toi ga",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/120003/bhx/dui-toi-ga-cp-khay-500g.jpg",
+    "originalSample": {
+      "bhxId": 120003,
+      "rawName": "Đùi tỏi gà C.P",
+      "fullName": "Đùi tỏi gà C.P khay 500g",
+      "brandName": "C.P",
+      "price": 48000,
+      "url": "/thit-ga/dui-toi-ga-cp-khay-500g"
+    },
+    "synonyms": [
+      "Đùi tỏi gà C.P khay 500g"
+    ]
+  },
+  {
+    "cleanName": "Đường",
+    "identityNormalized": "đường",
+    "searchFolded": "duong",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2804/190006/bhx/duong-tinh-luyen-bien-hoa-daily-goi-1kg.jpg",
+    "originalSample": {
+      "bhxId": 190006,
+      "rawName": "Đường tinh luyện Biên Hòa",
+      "fullName": "Đường tinh luyện Biên Hòa Daily gói 1kg",
+      "brandName": "Biên Hòa",
+      "price": 28000,
+      "url": "/duong/duong-tinh-luyen-bien-hoa-daily-goi-1kg"
+    },
+    "synonyms": [
+      "Đường tinh luyện Biên Hòa Daily gói 1kg"
+    ]
+  },
+  {
+    "cleanName": "Đường phèn hạt",
+    "identityNormalized": "đường phèn hạt",
+    "searchFolded": "duong phen hat",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2804/190007/bhx/duong-phen-bien-hoa-pro-goi-500g.jpg",
+    "originalSample": {
+      "bhxId": 190007,
+      "rawName": "Đường phèn hạt Biên Hòa",
+      "fullName": "Đường phèn Biên Hòa Pro gói 500g",
+      "brandName": "Biên Hòa",
+      "price": 22000,
+      "url": "/duong/duong-phen-bien-hoa-pro-goi-500g"
+    },
+    "synonyms": [
+      "Đường phèn Biên Hòa Pro gói 500g"
+    ]
+  },
+  {
+    "cleanName": "Giá mầm",
+    "identityNormalized": "giá mầm",
+    "searchFolded": "gia mam",
+    "groupLabel": "Rau củ",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/342012/bhx/httpscdnv2tgddvnbhx-staticbhxproductsimages8820342012bhxhttpscdnv2tgddvnbhx-staticbhxproductsimages8820227717bhxthumb-gia-mam-tich-xanh202508040907463_202509300903521840.jpg",
+    "originalSample": {
+      "bhxId": 342012,
+      "rawName": "Giá mầm sạch",
+      "fullName": "Giá mầm sạch gói 300g",
+      "brandName": "Bách hoá XANH",
+      "price": 8200,
+      "url": "/rau-sach/gia-mam-sach-khoang-300g"
+    },
+    "synonyms": [
+      "Giá mầm sạch gói 300g"
+    ]
+  },
+  {
+    "cleanName": "Giấm gạo lên men",
+    "identityNormalized": "giấm gạo lên men",
+    "searchFolded": "giam gao len men",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "CHAI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/3465/190017/bhx/giam-gao-len-men-ajinomoto-chai-450ml.jpg",
+    "originalSample": {
+      "bhxId": 190017,
+      "rawName": "Giấm gạo lên men",
+      "fullName": "Giấm gạo lên men Ajinomoto chai 450ml",
+      "brandName": "Ajinomoto",
+      "price": 14000,
+      "url": "/bo/giam-gao-len-men-ajinomoto-chai-450ml"
+    },
+    "synonyms": [
+      "Giấm gạo lên men Ajinomoto chai 450ml"
+    ]
+  },
+  {
+    "cleanName": "Hạt nêm",
+    "identityNormalized": "hạt nêm",
+    "searchFolded": "hat nem",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2806/190004/bhx/hat-nem-knorr-goi-400g.jpg",
+    "originalSample": {
+      "bhxId": 190004,
+      "rawName": "Hạt nêm từ thịt thăn Knorr",
+      "fullName": "Hạt nêm Knorr từ thịt thăn, xương ống và tủy gói 400g",
+      "brandName": "Knorr",
+      "price": 34000,
+      "url": "/hat-nem/hat-nem-knorr-goi-400g"
+    },
+    "synonyms": [
+      "Hạt nêm Knorr từ thịt thăn, xương ống và tủy gói 400g"
+    ]
+  },
+  {
+    "cleanName": "Hàu sữa tách vỏ",
+    "identityNormalized": "hàu sữa tách vỏ",
+    "searchFolded": "hau sua tach vo",
+    "groupLabel": "Thủy hải sản",
+    "unit": "KG",
+    "allergenCode": "SEAFOOD",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/130011/bhx/hau-sua-tuoi-tach-vo-tui-300g.jpg",
+    "originalSample": {
+      "bhxId": 130011,
+      "rawName": "Hàu sữa tách vỏ",
+      "fullName": "Hàu sữa tươi tách vỏ túi 300g",
+      "brandName": "Bách hóa XANH",
+      "price": 49000,
+      "url": "/ca-tom-muc-ech/hau-sua-tuoi-tach-vo-tui-300g"
+    },
+    "synonyms": [
+      "Hàu sữa tươi tách vỏ túi 300g"
+    ]
+  },
+  {
+    "cleanName": "Khoai lang mật",
+    "identityNormalized": "khoai lang mật",
+    "searchFolded": "khoai lang mat",
+    "groupLabel": "Rau củ",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150013/bhx/khoai-lang-mat-tui-1kg.jpg",
+    "originalSample": {
+      "bhxId": 150013,
+      "rawName": "Khoai lang mật",
+      "fullName": "Khoai lang mật Đà Lạt túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 29000,
+      "url": "/cu/khoai-lang-mat-tui-1kg"
+    },
+    "synonyms": [
+      "Khoai lang mật Đà Lạt túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Khoai tây",
+    "identityNormalized": "khoai tây",
+    "searchFolded": "khoai tay",
+    "groupLabel": "Rau củ",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150002/bhx/khoai-tay-da-lat-tui-1kg.jpg",
+    "originalSample": {
+      "bhxId": 150002,
+      "rawName": "Khoai tây Đà Lạt",
+      "fullName": "Khoai tây Đà Lạt túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 28000,
+      "url": "/cu/khoai-tay-da-lat-tui-1kg"
+    },
+    "synonyms": [
+      "Khoai tây Đà Lạt túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Khổ qua",
+    "identityNormalized": "khổ qua",
+    "searchFolded": "kho qua",
+    "groupLabel": "Rau củ",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150011/bhx/kho-qua-tui-500g.jpg",
+    "originalSample": {
+      "bhxId": 150011,
+      "rawName": "Khổ qua (mướp đắng)",
+      "fullName": "Khổ qua túi 500g",
+      "brandName": "Bách hóa XANH",
+      "price": 15000,
+      "url": "/cu/kho-qua-tui-500g"
+    },
+    "synonyms": [
+      "Khổ qua túi 500g"
+    ]
+  },
+  {
+    "cleanName": "Muối hồng Himalaya",
+    "identityNormalized": "muối hồng himalaya",
+    "searchFolded": "muoi hong himalaya",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2803/190009/bhx/muoi-hong-himalaya-vianco-hu-300g.jpg",
+    "originalSample": {
+      "bhxId": 190009,
+      "rawName": "Muối hồng Himalaya",
+      "fullName": "Muối hồng Himalaya hạt mịn Vianco hũ 300g",
+      "brandName": "Vianco",
+      "price": 27000,
+      "url": "/muoi-an/muoi-hong-himalaya-vianco-hu-300g"
+    },
+    "synonyms": [
+      "Muối hồng Himalaya hạt mịn Vianco hũ 300g"
+    ]
+  },
+  {
+    "cleanName": "Muối tinh",
+    "identityNormalized": "muối tinh",
+    "searchFolded": "muoi tinh",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2803/190008/bhx/muoi-say-i-ot-bac-lieu-goi-1kg.jpg",
+    "originalSample": {
+      "bhxId": 190008,
+      "rawName": "Muối tinh sấy i-ốt",
+      "fullName": "Muối sấy i-ốt Bạc Liêu gói 1kg",
+      "brandName": "Bạc Liêu",
+      "price": 8000,
+      "url": "/muoi-an/muoi-say-i-ot-bac-lieu-goi-1kg"
+    },
+    "synonyms": [
+      "Muối sấy i-ốt Bạc Liêu gói 1kg"
+    ]
+  },
+  {
+    "cleanName": "Mực nang",
+    "identityNormalized": "mực nang",
+    "searchFolded": "muc nang",
+    "groupLabel": "Thủy hải sản",
+    "unit": "KG",
+    "allergenCode": "SEAFOOD",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/130004/bhx/muc-nang-lam-sach-khay-500g.jpg",
+    "originalSample": {
+      "bhxId": 130004,
+      "rawName": "Mực nang làm sạch",
+      "fullName": "Mực nang làm sạch khay 500g",
+      "brandName": "Bách hóa XANH",
+      "price": 105000,
+      "url": "/ca-tom-muc-ech/muc-nang-lam-sach-khay-500g"
+    },
+    "synonyms": [
+      "Mực nang làm sạch khay 500g"
+    ]
+  },
+  {
+    "cleanName": "Mực ống",
+    "identityNormalized": "mực ống",
+    "searchFolded": "muc ong",
+    "groupLabel": "Thủy hải sản",
+    "unit": "KG",
+    "allergenCode": "SEAFOOD",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/130003/bhx/muc-ong-tuoi-khay-500g.jpg",
+    "originalSample": {
+      "bhxId": 130003,
+      "rawName": "Mực ống tươi",
+      "fullName": "Mực ống tươi làm sạch khay 500g",
+      "brandName": "Bách hóa XANH",
+      "price": 110000,
+      "url": "/ca-tom-muc-ech/muc-ong-tuoi-khay-500g"
+    },
+    "synonyms": [
+      "Mực ống tươi làm sạch khay 500g"
+    ]
+  },
+  {
+    "cleanName": "Mướp hương",
+    "identityNormalized": "mướp hương",
+    "searchFolded": "muop huong",
+    "groupLabel": "Rau củ",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150014/bhx/muop-huong-tui-500g.jpg",
+    "originalSample": {
+      "bhxId": 150014,
+      "rawName": "Mướp hương",
+      "fullName": "Mướp hương túi 500g",
+      "brandName": "Bách hóa XANH",
+      "price": 16000,
+      "url": "/cu/muop-huong-tui-500g"
+    },
+    "synonyms": [
+      "Mướp hương túi 500g"
+    ]
+  },
+  {
+    "cleanName": "Nạc đùi bò",
+    "identityNormalized": "nạc đùi bò",
+    "searchFolded": "nac dui bo",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8139/110005/bhx/nac-dui-bo-uc-khay-300g.jpg",
+    "originalSample": {
+      "bhxId": 110005,
+      "rawName": "Nạc đùi bò tươi",
+      "fullName": "Nạc đùi bò Úc khay 300g",
+      "brandName": "Pacow",
+      "price": 92000,
+      "url": "/thit-bo/nac-dui-bo-uc-khay-300g"
+    },
+    "synonyms": [
+      "Nạc đùi bò Úc khay 300g"
+    ]
+  },
+  {
+    "cleanName": "Nấm bào ngư trắng",
+    "identityNormalized": "nấm bào ngư trắng",
+    "searchFolded": "nam bao ngu trang",
+    "groupLabel": "Nấm",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8779/160004/bhx/nam-bao-ngu-trang-khay-250g.jpg",
+    "originalSample": {
+      "bhxId": 160004,
+      "rawName": "Nấm bào ngư trắng",
+      "fullName": "Nấm bào ngư trắng khay 250g",
+      "brandName": "Bách hóa XANH",
+      "price": 18000,
+      "url": "/nam-tuoi/nam-bao-ngu-trang-khay-250g"
+    },
+    "synonyms": [
+      "Nấm bào ngư trắng khay 250g"
+    ]
+  },
+  {
+    "cleanName": "Nấm đùi gà",
+    "identityNormalized": "nấm đùi gà",
+    "searchFolded": "nam dui ga",
+    "groupLabel": "Nấm",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8779/160001/bhx/nam-dui-ga-khay-200g.jpg",
+    "originalSample": {
+      "bhxId": 160001,
+      "rawName": "Nấm đùi gà",
+      "fullName": "Nấm đùi gà khay 200g",
+      "brandName": "Bách hóa XANH",
+      "price": 21000,
+      "url": "/nam-tuoi/nam-dui-ga-khay-200g"
+    },
+    "synonyms": [
+      "Nấm đùi gà khay 200g"
+    ]
+  },
+  {
+    "cleanName": "Nấm hương",
+    "identityNormalized": "nấm hương",
+    "searchFolded": "nam huong",
+    "groupLabel": "Nấm",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8779/160005/bhx/nam-huong-tuoi-khay-150g.jpg",
+    "originalSample": {
+      "bhxId": 160005,
+      "rawName": "Nấm hương tươi",
+      "fullName": "Nấm hương tươi khay 150g",
+      "brandName": "Bách hóa XANH",
+      "price": 24000,
+      "url": "/nam-tuoi/nam-huong-tuoi-khay-150g"
+    },
+    "synonyms": [
+      "Nấm hương tươi khay 150g"
+    ]
+  },
+  {
+    "cleanName": "Nấm kim châm",
+    "identityNormalized": "nấm kim châm",
+    "searchFolded": "nam kim cham",
+    "groupLabel": "Nấm",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8779/160002/bhx/nam-kim-cham-goi-150g.jpg",
+    "originalSample": {
+      "bhxId": 160002,
+      "rawName": "Nấm kim châm",
+      "fullName": "Nấm kim châm gói 150g",
+      "brandName": "Bách hóa XANH",
+      "price": 11000,
+      "url": "/nam-tuoi/nam-kim-cham-goi-150g"
+    },
+    "synonyms": [
+      "Nấm kim châm gói 150g"
+    ]
+  },
+  {
+    "cleanName": "Nấm rơm",
+    "identityNormalized": "nấm rơm",
+    "searchFolded": "nam rom",
+    "groupLabel": "Nấm",
+    "unit": "HỘP",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8779/160003/bhx/nam-rom-tuoi-hop-200g.jpg",
+    "originalSample": {
+      "bhxId": 160003,
+      "rawName": "Nấm rơm tươi",
+      "fullName": "Nấm rơm tươi hộp 200g",
+      "brandName": "Bách hóa XANH",
+      "price": 26000,
+      "url": "/nam-tuoi/nam-rom-tuoi-hop-200g"
+    },
+    "synonyms": [
+      "Nấm rơm tươi hộp 200g"
+    ]
+  },
+  {
+    "cleanName": "Nghêu trắng",
+    "identityNormalized": "nghêu trắng",
+    "searchFolded": "ngheu trang",
+    "groupLabel": "Thủy hải sản",
+    "unit": "KG",
+    "allergenCode": "SEAFOOD",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/130010/bhx/ngheu-trang-song-tui-1kg.jpg",
+    "originalSample": {
+      "bhxId": 130010,
+      "rawName": "Nghêu trắng sống",
+      "fullName": "Nghêu trắng sống túi 1kg",
+      "brandName": "Bách hóa XANH",
+      "price": 36000,
+      "url": "/ca-tom-muc-ech/ngheu-trang-song-tui-1kg"
+    },
+    "synonyms": [
+      "Nghêu trắng sống túi 1kg"
+    ]
+  },
+  {
+    "cleanName": "Ngò gai, rau om",
+    "identityNormalized": "ngò gai, rau om",
+    "searchFolded": "ngo gai rau om",
+    "groupLabel": "Rau củ",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/309145/bhx/thumb-hung-que-1_202506131023339168.jpg",
+    "originalSample": {
+      "bhxId": 309145,
+      "rawName": "Ngò gai, rau om",
+      "fullName": "Ngò gai, rau om gói 50g",
+      "brandName": "Bách hoá XANH",
+      "price": 4200,
+      "url": "/rau-sach/ngo-gai-rau-om-50g"
+    },
+    "synonyms": [
+      "Ngò gai, rau om gói 50g"
+    ]
+  },
+  {
+    "cleanName": "Nước mắm cá cơm",
+    "identityNormalized": "nước mắm cá cơm",
+    "searchFolded": "nuoc mam ca com",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "CHAI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2289/190001/bhx/nuoc-mam-nam-ngu-de-nhi-chai-900ml.jpg",
+    "originalSample": {
+      "bhxId": 190001,
+      "rawName": "Nước mắm cá cơm Nam Ngư",
+      "fullName": "Nước mắm Nam Ngư Đệ Nhị chai 900ml",
+      "brandName": "Nam Ngư",
+      "price": 29000,
+      "url": "/nuoc-mam/nuoc-mam-nam-ngu-de-nhi-chai-900ml"
+    },
+    "synonyms": [
+      "Nước mắm Nam Ngư Đệ Nhị chai 900ml"
+    ]
+  },
+  {
+    "cleanName": "Nước mắm nhĩ",
+    "identityNormalized": "nước mắm nhĩ",
+    "searchFolded": "nuoc mam nhi",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "CHAI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2289/190002/bhx/nuoc-mam-nhi-phu-quoc-thanh-ha-500ml.jpg",
+    "originalSample": {
+      "bhxId": 190002,
+      "rawName": "Nước mắm nhĩ Phú Quốc",
+      "fullName": "Nước mắm nhĩ Phú Quốc Thanh Hà chai 500ml",
+      "brandName": "Thanh Hà",
+      "price": 55000,
+      "url": "/nuoc-mam/nuoc-mam-nhi-phu-quoc-thanh-ha-500ml"
+    },
+    "synonyms": [
+      "Nước mắm nhĩ Phú Quốc Thanh Hà chai 500ml"
+    ]
+  },
+  {
+    "cleanName": "Nước tương",
+    "identityNormalized": "nước tương",
+    "searchFolded": "nuoc tuong",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "CHAI",
+    "allergenCode": "SOY",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2683/190003/bhx/nuoc-tuong-maggi-dam-dac-chai-700ml.jpg",
+    "originalSample": {
+      "bhxId": 190003,
+      "rawName": "Nước tương đậm đặc Maggi",
+      "fullName": "Nước tương Maggi đậm đặc chai 700ml",
+      "brandName": "Maggi",
+      "price": 32000,
+      "url": "/nuoc-tuong/nuoc-tuong-maggi-dam-dac-chai-700ml"
+    },
+    "synonyms": [
+      "Nước tương Maggi đậm đặc chai 700ml"
+    ]
+  },
+  {
+    "cleanName": "Ớt bột",
+    "identityNormalized": "ớt bột",
+    "searchFolded": "ot bot",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2809/190012/bhx/ot-bot-han-quoc-vay-goi-100g.jpg",
+    "originalSample": {
+      "bhxId": 190012,
+      "rawName": "Ớt bột Hàn Quốc",
+      "fullName": "Ớt bột Hàn Quốc vảy gói 100g",
+      "brandName": "Dh Foods",
+      "price": 29000,
+      "url": "/tieu/ot-bot-han-quoc-vay-goi-100g"
+    },
+    "synonyms": [
+      "Ớt bột Hàn Quốc vảy gói 100g"
+    ]
+  },
+  {
+    "cleanName": "Rau cần tàu",
+    "identityNormalized": "rau cần tàu",
+    "searchFolded": "rau can tau",
+    "groupLabel": "Rau củ",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/309142/bhx/thumb-hung-que-2_202506131023390844.jpg",
+    "originalSample": {
+      "bhxId": 309142,
+      "rawName": "Rau cần tàu (cần ta)",
+      "fullName": "Rau cần tàu (cần ta) 100g",
+      "brandName": "Bách hoá XANH",
+      "price": 5400,
+      "url": "/rau-sach/rau-can-tau-can-ta-100g"
+    },
+    "synonyms": [
+      "Rau cần tàu (cần ta) 100g"
+    ]
+  },
+  {
+    "cleanName": "Rau muống hạt",
+    "identityNormalized": "rau muống hạt",
+    "searchFolded": "rau muong hat",
+    "groupLabel": "Rau củ",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/4/image/production/2026/4/image/Products/8820/298822/rau-muong-hat-goi-300g_202604170932071179.jpg",
+    "originalSample": {
+      "bhxId": 298822,
+      "rawName": "Rau muống hạt",
+      "fullName": "Rau muống hạt gói 400g",
+      "brandName": "Bách hoá XANH",
+      "price": 5000,
+      "url": "/rau-sach/rau-muong-hat-goi-300g"
+    },
+    "synonyms": [
+      "Rau muống hạt gói 400g"
+    ]
+  },
+  {
+    "cleanName": "Rau răm",
+    "identityNormalized": "rau răm",
+    "searchFolded": "rau ram",
+    "groupLabel": "Rau củ",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/309149/bhx/thumb-hung-que-5_202506131024056251.jpg",
+    "originalSample": {
+      "bhxId": 309149,
+      "rawName": "Rau răm",
+      "fullName": "Rau răm 50g",
+      "brandName": "Bách hoá XANH",
+      "price": 3400,
+      "url": "/rau-sach/rau-ram-50g"
+    },
+    "synonyms": [
+      "Rau răm 50g"
+    ]
+  },
+  {
+    "cleanName": "Su su",
+    "identityNormalized": "su su",
+    "searchFolded": "su su",
+    "groupLabel": "Rau củ",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/150008/bhx/su-su-500g.jpg",
+    "originalSample": {
+      "bhxId": 150008,
+      "rawName": "Su su tươi",
+      "fullName": "Su su Đà Lạt túi 500g",
+      "brandName": "Bách hóa XANH",
+      "price": 13000,
+      "url": "/cu/su-su-500g"
+    },
+    "synonyms": [
+      "Su su Đà Lạt túi 500g"
+    ]
+  },
+  {
+    "cleanName": "Sườn que heo",
+    "identityNormalized": "sườn que heo",
+    "searchFolded": "suon que heo",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/1/image/production/2026/1/image/Products/8781/233766/xuong-que-heo-nhap-khau-1kg_202601081014438944.jpg",
+    "originalSample": {
+      "bhxId": 233766,
+      "rawName": "Sườn que heo",
+      "fullName": "Sườn que heo nhập khẩu",
+      "brandName": "Bách hoá XANH",
+      "price": 34500,
+      "url": "/thit-heo/xuong-que-heo-nhap-khau-1kg"
+    },
+    "synonyms": [
+      "Sườn que heo nhập khẩu"
+    ]
+  },
+  {
+    "cleanName": "Tắc",
+    "identityNormalized": "tắc",
+    "searchFolded": "tac",
+    "groupLabel": "Trái cây",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/170003/bhx/tac-tuoi-tui-300g.jpg",
+    "originalSample": {
+      "bhxId": 170003,
+      "rawName": "Tắc tươi (quất)",
+      "fullName": "Tắc tươi túi 300g",
+      "brandName": "Bách hóa XANH",
+      "price": 10000,
+      "url": "/trai-cay-tuoi-ngon/tac-tuoi-tui-300g"
+    },
+    "synonyms": [
+      "Tắc tươi túi 300g"
+    ]
+  },
+  {
+    "cleanName": "Thăn bò",
+    "identityNormalized": "thăn bò",
+    "searchFolded": "than bo",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8139/110002/bhx/than-bo-uc-khay-300g.jpg",
+    "originalSample": {
+      "bhxId": 110002,
+      "rawName": "Thăn bò Úc Pacow",
+      "fullName": "Thăn bò Úc Pacow khay 300g",
+      "brandName": "Pacow",
+      "price": 115000,
+      "url": "/thit-bo/than-bo-uc-khay-300g"
+    },
+    "synonyms": [
+      "Thăn bò Úc Pacow khay 300g"
+    ]
+  },
+  {
+    "cleanName": "Thì là",
+    "identityNormalized": "thì là",
+    "searchFolded": "thi la",
+    "groupLabel": "Rau củ",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/8/image/production/2026/8/image/Products/8820/5368050/thi-la-vi-100g_202608050150514822.jpg",
+    "originalSample": {
+      "bhxId": 5368050,
+      "rawName": "Thì là",
+      "fullName": "Thì là vỉ 100g",
+      "brandName": "Bách hoá XANH",
+      "price": 15000,
+      "url": "/rau-sach/thi-la-vi-100g"
+    },
+    "synonyms": [
+      "Thì là vỉ 100g"
+    ]
+  },
+  {
+    "cleanName": "Thịt bò xay",
+    "identityNormalized": "thịt bò xay",
+    "searchFolded": "thit bo xay",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8139/110003/bhx/thit-bo-xay-uc-khay-300g.jpg",
+    "originalSample": {
+      "bhxId": 110003,
+      "rawName": "Thịt bò xay Úc",
+      "fullName": "Thịt bò xay Úc Pacow khay 300g",
+      "brandName": "Pacow",
+      "price": 85000,
+      "url": "/thit-bo/thit-bo-xay-uc-khay-300g"
+    },
+    "synonyms": [
+      "Thịt bò xay Úc Pacow khay 300g"
+    ]
+  },
+  {
+    "cleanName": "Thịt đùi heo",
+    "identityNormalized": "thịt đùi heo",
+    "searchFolded": "thit dui heo",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/226865/thit-dui-heo-1kg_202607300932513655.jpg",
+    "originalSample": {
+      "bhxId": 226865,
+      "rawName": "Thịt đùi heo C.P",
+      "fullName": "Thịt đùi heo C.P",
+      "brandName": "C.P",
+      "price": 46000,
+      "url": "/thit-heo/thit-dui-heo-1kg"
+    },
+    "synonyms": [
+      "Thịt đùi heo C.P"
+    ]
+  },
+  {
+    "cleanName": "Thịt gà ta",
+    "identityNormalized": "thịt gà ta",
+    "searchFolded": "thit ga ta",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/120004/bhx/ga-ta-tha-vuon-nguyen-con-12kg.jpg",
+    "originalSample": {
+      "bhxId": 120004,
+      "rawName": "Thịt gà ta thả vườn",
+      "fullName": "Thịt gà ta thả vườn nguyên con làm sạch 1.2kg",
+      "brandName": "Bách hóa XANH",
+      "price": 139000,
+      "url": "/thit-ga/ga-ta-tha-vuon-nguyen-con-12kg"
+    },
+    "synonyms": [
+      "Thịt gà ta thả vườn nguyên con làm sạch 1.2kg"
+    ]
+  },
+  {
+    "cleanName": "Thịt heo xay",
+    "identityNormalized": "thịt heo xay",
+    "searchFolded": "thit heo xay",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/333450/thit-heo-xay-cp-100g_202607300938128442.jpg",
+    "originalSample": {
+      "bhxId": 333450,
+      "rawName": "Thịt heo xay C.P",
+      "fullName": "Thịt heo xay C.P túi 100g",
+      "brandName": "C.P",
+      "price": 11459.2592592593,
+      "url": "/thit-heo/thit-heo-xay-cp-100g"
+    },
+    "synonyms": [
+      "Thịt heo xay C.P túi 100g",
+      "Thịt heo xay C.P khay 200g"
+    ]
+  },
+  {
+    "cleanName": "Thịt nạc heo",
+    "identityNormalized": "thịt nạc heo",
+    "searchFolded": "thit nac heo",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/226842/nac-dam-heo-1kg_202607300940333712.jpg",
+    "originalSample": {
+      "bhxId": 226842,
+      "rawName": "Thịt nạc heo C.P",
+      "fullName": "Thịt nạc heo C.P",
+      "brandName": "C.P",
+      "price": 52800,
+      "url": "/thit-heo/nac-dam-heo-1kg"
+    },
+    "synonyms": [
+      "Thịt nạc heo C.P"
+    ]
+  },
+  {
+    "cleanName": "Thịt ức gà",
+    "identityNormalized": "thịt ức gà",
+    "searchFolded": "thit uc ga",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/120001/bhx/uc-ga-phi-le-cp-khay-500g.jpg",
+    "originalSample": {
+      "bhxId": 120001,
+      "rawName": "Thịt ức gà tươi C.P",
+      "fullName": "Ức gà phi lê C.P khay 500g",
+      "brandName": "C.P",
+      "price": 45000,
+      "url": "/thit-ga/uc-ga-phi-le-cp-khay-500g"
+    },
+    "synonyms": [
+      "Ức gà phi lê C.P khay 500g"
+    ]
+  },
+  {
+    "cleanName": "Thịt vịt",
+    "identityNormalized": "thịt vịt",
+    "searchFolded": "thit vit",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/120006/bhx/thit-vit-tuoi-nguyen-con-18kg.jpg",
+    "originalSample": {
+      "bhxId": 120006,
+      "rawName": "Thịt vịt tươi nguyên con",
+      "fullName": "Thịt vịt tươi nguyên con làm sạch 1.8kg",
+      "brandName": "Bách hóa XANH",
+      "price": 165000,
+      "url": "/thit-ga/thit-vit-tuoi-nguyen-con-18kg"
+    },
+    "synonyms": [
+      "Thịt vịt tươi nguyên con làm sạch 1.8kg"
+    ]
+  },
+  {
+    "cleanName": "Tía tô",
+    "identityNormalized": "tía tô",
+    "searchFolded": "tia to",
+    "groupLabel": "Rau củ",
+    "unit": "GÓI",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/299255/bhx/thumb-tia-to_202506131016015354.jpg",
+    "originalSample": {
+      "bhxId": 299255,
+      "rawName": "Tía tô",
+      "fullName": "Tía tô khoảng 100g",
+      "brandName": "Bách hoá XANH",
+      "price": 4700,
+      "url": "/rau-sach/tia-to-goi-100g"
+    },
+    "synonyms": [
+      "Tía tô khoảng 100g"
+    ]
+  },
+  {
+    "cleanName": "Tiêu đen xay",
+    "identityNormalized": "tiêu đen xay",
+    "searchFolded": "tieu den xay",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2809/190010/bhx/tieu-den-xay-dh-foods-hu-55g.jpg",
+    "originalSample": {
+      "bhxId": 190010,
+      "rawName": "Tiêu đen xay Phú Quốc",
+      "fullName": "Tiêu đen xay Dh Foods hũ 55g",
+      "brandName": "Dh Foods",
+      "price": 24000,
+      "url": "/tieu/tieu-den-xay-dh-foods-hu-55g"
+    },
+    "synonyms": [
+      "Tiêu đen xay Dh Foods hũ 55g"
+    ]
+  },
+  {
+    "cleanName": "Tiêu sọ nguyên hạt",
+    "identityNormalized": "tiêu sọ nguyên hạt",
+    "searchFolded": "tieu so nguyen hat",
+    "groupLabel": "Gia vị & nước chấm",
+    "unit": "G",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2809/190011/bhx/tieu-so-nguyen-hat-dh-foods-hu-60g.jpg",
+    "originalSample": {
+      "bhxId": 190011,
+      "rawName": "Tiêu sọ nguyên hạt",
+      "fullName": "Tiêu sọ nguyên hạt Dh Foods hũ 60g",
+      "brandName": "Dh Foods",
+      "price": 32000,
+      "url": "/tieu/tieu-so-nguyen-hat-dh-foods-hu-60g"
+    },
+    "synonyms": [
+      "Tiêu sọ nguyên hạt Dh Foods hũ 60g"
+    ]
+  },
+  {
+    "cleanName": "Tôm sú",
+    "identityNormalized": "tôm sú",
+    "searchFolded": "tom su",
+    "groupLabel": "Thủy hải sản",
+    "unit": "KG",
+    "allergenCode": "SEAFOOD",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/130002/bhx/tom-su-tuoi-hop-500g.jpg",
+    "originalSample": {
+      "bhxId": 130002,
+      "rawName": "Tôm sú tươi",
+      "fullName": "Tôm sú tươi sống hộp 500g",
+      "brandName": "Bách hóa XANH",
+      "price": 145000,
+      "url": "/ca-tom-muc-ech/tom-su-tuoi-hop-500g"
+    },
+    "synonyms": [
+      "Tôm sú tươi sống hộp 500g"
+    ]
+  },
+  {
+    "cleanName": "Tôm thẻ",
+    "identityNormalized": "tôm thẻ",
+    "searchFolded": "tom the",
+    "groupLabel": "Thủy hải sản",
+    "unit": "KG",
+    "allergenCode": "SEAFOOD",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/130001/bhx/tom-the-tuoi-hop-500g.jpg",
+    "originalSample": {
+      "bhxId": 130001,
+      "rawName": "Tôm thẻ tươi",
+      "fullName": "Tôm thẻ tươi sống hộp 500g",
+      "brandName": "Bách hóa XANH",
+      "price": 98000,
+      "url": "/ca-tom-muc-ech/tom-the-tuoi-hop-500g"
+    },
+    "synonyms": [
+      "Tôm thẻ tươi sống hộp 500g"
+    ]
+  },
+  {
+    "cleanName": "Trứng cút",
+    "identityNormalized": "trứng cút",
+    "searchFolded": "trung cut",
+    "groupLabel": "Trứng & sữa",
+    "unit": "HỘP",
+    "allergenCode": "EGG",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8783/140004/bhx/trung-cut-tuoi-hop-30-qua.jpg",
+    "originalSample": {
+      "bhxId": 140004,
+      "rawName": "Trứng cút tươi",
+      "fullName": "Trứng cút tươi hộp 30 quả",
+      "brandName": "Vĩnh Thành Đạt",
+      "price": 26000,
+      "url": "/trung/trung-cut-tuoi-hop-30-qua"
+    },
+    "synonyms": [
+      "Trứng cút tươi hộp 30 quả"
+    ]
+  },
+  {
+    "cleanName": "Trứng gà",
+    "identityNormalized": "trứng gà",
+    "searchFolded": "trung ga",
+    "groupLabel": "Trứng & sữa",
+    "unit": "HỘP",
+    "allergenCode": "EGG",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8783/140001/bhx/trung-ga-tuoi-ba-huan-hop-10-qua.jpg",
+    "originalSample": {
+      "bhxId": 140001,
+      "rawName": "Trứng gà tươi Ba Huân",
+      "fullName": "Trứng gà tươi Ba Huân hộp 10 quả",
+      "brandName": "Ba Huân",
+      "price": 31000,
+      "url": "/trung/trung-ga-tuoi-ba-huan-hop-10-qua"
+    },
+    "synonyms": [
+      "Trứng gà tươi Ba Huân hộp 10 quả"
+    ]
+  },
+  {
+    "cleanName": "Trứng gà ta",
+    "identityNormalized": "trứng gà ta",
+    "searchFolded": "trung ga ta",
+    "groupLabel": "Trứng & sữa",
+    "unit": "HỘP",
+    "allergenCode": "EGG",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8783/140002/bhx/trung-ga-ta-thao-moc-hop-10-qua.jpg",
+    "originalSample": {
+      "bhxId": 140002,
+      "rawName": "Trứng gà ta",
+      "fullName": "Trứng gà ta thảo mộc hộp 10 quả",
+      "brandName": "Vĩnh Thành Đạt",
+      "price": 38000,
+      "url": "/trung/trung-ga-ta-thao-moc-hop-10-qua"
+    },
+    "synonyms": [
+      "Trứng gà ta thảo mộc hộp 10 quả"
+    ]
+  },
+  {
+    "cleanName": "Trứng vịt",
+    "identityNormalized": "trứng vịt",
+    "searchFolded": "trung vit",
+    "groupLabel": "Trứng & sữa",
+    "unit": "HỘP",
+    "allergenCode": "EGG",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8783/140003/bhx/trung-vit-tuoi-ba-huan-hop-10-qua.jpg",
+    "originalSample": {
+      "bhxId": 140003,
+      "rawName": "Trứng vịt tươi",
+      "fullName": "Trứng vịt tươi Ba Huân hộp 10 quả",
+      "brandName": "Ba Huân",
+      "price": 37000,
+      "url": "/trung/trung-vit-tuoi-ba-huan-hop-10-qua"
+    },
+    "synonyms": [
+      "Trứng vịt tươi Ba Huân hộp 10 quả"
+    ]
+  },
+  {
+    "cleanName": "Xà lách thủy tinh",
+    "identityNormalized": "xà lách thủy tinh",
+    "searchFolded": "xa lach thuy tinh",
+    "groupLabel": "Rau củ",
+    "unit": "CÂY",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/303824/bhx/thumb-hung-que-4_202506131023511107.jpg",
+    "originalSample": {
+      "bhxId": 303824,
+      "rawName": "Xà lách thủy tinh thủy canh",
+      "fullName": "Xà lách thủy tinh thủy canh khoảng 200g",
+      "brandName": "Bách hoá XANH",
+      "price": 19000,
+      "url": "/rau-sach/xa-lach-thuy-tinh-thuy-canh-cay-tu-230g"
+    },
+    "synonyms": [
+      "Xà lách thủy tinh thủy canh khoảng 200g"
+    ]
+  },
+  {
+    "cleanName": "Xương heo có thịt",
+    "identityNormalized": "xương heo có thịt",
+    "searchFolded": "xuong heo co thit",
+    "groupLabel": "Thịt",
+    "unit": "KG",
+    "allergenCode": null,
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/233789/xuong-heo-co-thit-1kg_202607300931064156.jpg",
+    "originalSample": {
+      "bhxId": 233789,
+      "rawName": "Xương heo có thịt C.P",
+      "fullName": "Xương heo có thịt C.P",
+      "brandName": "C.P",
+      "price": 35600,
+      "url": "/thit-heo/xuong-heo-co-thit-1kg"
+    },
+    "synonyms": [
+      "Xương heo có thịt C.P"
+    ]
+  }
+]

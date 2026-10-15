@@ -149,7 +149,7 @@ export class DishCommandService {
 
   private async resolveIngredientRows(
     ingredients: CreateDishDto['ingredients'] | undefined,
-    createMissing: boolean,
+    createMissing: boolean = false,
   ) {
     if (!ingredients?.length) return [];
 
@@ -170,10 +170,8 @@ export class DishCommandService {
           })),
           {
             createMissing,
-            // Admin đã chủ động nhập tên tự do → vẫn tạo, nhưng giữ candidates
-            // để bước duyệt có thể gộp nhanh nếu trùng.
-            createAmbiguous: true,
-            enqueueImageEnrichment: true,
+            createAmbiguous: false,
+            enqueueImageEnrichment: false,
             createdVia: IngredientCreatedVia.ADMIN_PICKER,
           },
         )
@@ -349,7 +347,7 @@ export class DishCommandService {
     const slug = await this.generateSlug(dto.slug || name);
     const resolvedIngredients = await this.resolveIngredientRows(
       dto.ingredients,
-      dto.createMissingIngredients ?? true,
+      dto.createMissingIngredients ?? false,
     );
 
     const dish = await this.prisma.db.dish.create({
@@ -465,7 +463,7 @@ export class DishCommandService {
       dto.ingredients !== undefined
         ? await this.resolveIngredientRows(
             dto.ingredients,
-            dto.createMissingIngredients ?? true,
+            dto.createMissingIngredients ?? false,
           )
         : undefined;
 

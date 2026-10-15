@@ -1,0 +1,4986 @@
+[
+  {
+    "id": "e5292227-7f2a-4689-a5d9-f9e1b0c26c84",
+    "code": "bot-bang-omoat",
+    "name": "Bột báng",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "d702929d-4e2a-4bec-94b2-e991cc9f50c5",
+    "code": "bot-banh-ran-pl1la",
+    "name": "Bột bánh rán",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "5934eec4-d76f-4125-a412-2a2cb378a02e",
+    "code": "bot-banh-xeo-56944",
+    "name": "Bột bánh xèo",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "5beac633-c0c9-43ab-9a5f-18ffb62f705b",
+    "code": "bot-bap-nnilq",
+    "name": "Bột bắp",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "d9110758-356e-4e9e-b96d-3a8e8498cbe9",
+    "code": "bot-chien-gion-ahngo",
+    "name": "Bột chiên giòn",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "b0fff680-17aa-40ce-8631-377d396e4f9f",
+    "code": "bot-chien-xu-h2cit",
+    "name": "Bột chiên xù",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "3244758d-ad82-42d5-9c69-361490f2412f",
+    "code": "bot-cot-dua-g1bup",
+    "name": "Bột cốt dừa",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "74e4a995-8d00-4dca-8ec3-3e1e593f8962",
+    "code": "bot-gao-00jy1",
+    "name": "Bột gạo",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "ca07f927-bd01-4e4c-839e-2b149bab5c61",
+    "code": "bot-khoai-tulfz",
+    "name": "Bột khoai",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "ba0f9a5f-5774-45f0-9af4-e4cdd4f8926b",
+    "code": "bot-mi-da-dung-edubj",
+    "name": "Bột mì đa dụng",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": "GLUTEN"
+  },
+  {
+    "id": "2692b6dc-8579-4262-9df1-6a7f92e126e4",
+    "code": "bot-nang-e3ptf",
+    "name": "Bột năng",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "cc6d135a-065e-4f38-a87e-1b402216b9f5",
+    "code": "bot-nep-mlxk1",
+    "name": "Bột nếp",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "39ffbd9c-eb4c-46cd-a79f-4be80e53582b",
+    "code": "bot-no-baking-tymrd",
+    "name": "Bột nở baking",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "1d97c40a-b277-4382-9b4a-e26101a0ea0f",
+    "code": "bot-tam-kho-chien-gion-ap1z2",
+    "name": "Bột tẩm khô chiên giòn",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "1abeab14-d7c3-4a0a-be8c-412c0e160c11",
+    "code": "bot-tau-hu-unu05",
+    "name": "Bột tàu hủ",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "1fc1719b-3fdd-4289-8ef4-617dda13a291",
+    "code": "bot-thach-agar-hr36r",
+    "name": "Bột Thạch Agar",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "4ca08fe2-d7c6-48a5-b78f-92d28fcfd933",
+    "code": "su-2gr8y",
+    "name": "Su",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "0bec2b13-35d5-48bd-a266-1aa5a979187d",
+    "code": "suong-sao-den-g8cjn",
+    "name": "Sương sáo đen",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "294e9cb8-da8b-42d1-8529-c6a809a3a261",
+    "code": "tinh-bot-bap-lam-banh-t00lu",
+    "name": "Tinh bột bắp làm bánh",
+    "group_label": "Bột & phụ gia",
+    "allergen_code": null
+  },
+  {
+    "id": "d92125f3-4f7b-47b0-a318-3d751f4d7dfa",
+    "code": "cu-sen-f2zfm",
+    "name": "Củ sen",
+    "group_label": "Đậu & hạt",
+    "allergen_code": null
+  },
+  {
+    "id": "d11a5c26-b164-414f-a36a-af6242204abe",
+    "code": "ING-1E5E24",
+    "name": "Đậu ngự",
+    "group_label": "Đậu & hạt",
+    "allergen_code": null
+  },
+  {
+    "id": "79c5351a-05e5-4f43-b8ed-b4437891c5a4",
+    "code": "dau-truyen-thong-8d1hn",
+    "name": "Đậu truyền thống",
+    "group_label": "Đậu & hạt",
+    "allergen_code": null
+  },
+  {
+    "id": "c345b9db-769c-48e8-95c5-dad58d689c86",
+    "code": "ING-00A4B0",
+    "name": "Hạt é",
+    "group_label": "Đậu & hạt",
+    "allergen_code": null
+  },
+  {
+    "id": "ac5d1bb1-532b-4376-9784-520556d70d14",
+    "code": "san-8rqgq",
+    "name": "Sắn",
+    "group_label": "Đậu & hạt",
+    "allergen_code": null
+  },
+  {
+    "id": "4baa04c8-75f4-4f06-9f84-f7147c6edca4",
+    "code": "tau-bo-duong-tafu-2xaqb",
+    "name": "Tàu bổ dưỡng Tafu",
+    "group_label": "Đậu & hạt",
+    "allergen_code": null
+  },
+  {
+    "id": "a845a45b-eb0e-4238-bf43-398a32e3a850",
+    "code": "tau-chien-3wkkc",
+    "name": "Tàu chiên",
+    "group_label": "Đậu & hạt",
+    "allergen_code": null
+  },
+  {
+    "id": "050d4189-ca32-4cad-97f8-3d36e3ff360c",
+    "code": "tau-mem-9cuzn",
+    "name": "Tàu mềm",
+    "group_label": "Đậu & hạt",
+    "allergen_code": null
+  },
+  {
+    "id": "22a76026-6ebd-46e7-8ae6-a331c38d4a29",
+    "code": "tau-trung-bo-duong-wwmzr",
+    "name": "Tàu trứng bổ dưỡng",
+    "group_label": "Đậu & hạt",
+    "allergen_code": "EGG"
+  },
+  {
+    "id": "8519a418-1c5b-47de-b039-88b2f437049a",
+    "code": "tau-trung-fuji-san-watcs",
+    "name": "Tàu trứng Fuji San",
+    "group_label": "Đậu & hạt",
+    "allergen_code": "EGG"
+  },
+  {
+    "id": "0316589b-8b53-4e33-8117-f3ab6aa0422f",
+    "code": "bo-o2szx",
+    "name": "Bơ",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": "DAIRY"
+  },
+  {
+    "id": "55a9d45b-e845-4296-8856-90769723cd8f",
+    "code": "bo-thuc-vat-tzaf2",
+    "name": "Bơ thực vật",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": "DAIRY"
+  },
+  {
+    "id": "f4c54557-b739-4a0a-b251-65c8bd36093b",
+    "code": "dau-an-44812",
+    "name": "Dầu ăn",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "4cff681d-8c92-4775-a3ec-7600128ff650",
+    "code": "dau-dua-e3sba",
+    "name": "Dầu dừa",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "287afeda-1c07-4f86-a0f7-879e71208e00",
+    "code": "dau-hao-7cc1u",
+    "name": "Dầu hào",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "be06bd2e-63ab-4eba-9409-f1894f5d16c6",
+    "code": "dau-hat-cai-gh5b6",
+    "name": "Dầu hạt cải",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "25a08d25-1c33-4473-bc0f-a108aced6b63",
+    "code": "dau-huong-duong-qk60q",
+    "name": "Dầu hướng dương",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "932b6c6b-60b9-4a78-82e0-dfeb04eee8b6",
+    "code": "dau-me-wwil9",
+    "name": "Dầu mè",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": "SESAME"
+  },
+  {
+    "id": "64edfa0a-78f0-43a9-a085-3789096baf86",
+    "code": "dau-nanh-jhuhe",
+    "name": "Dầu nành",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "40137073-5c1b-42cd-969d-dfde2bc5685e",
+    "code": "dau-o-liu-extra-virgin-skrmf",
+    "name": "Dầu ô liu Extra Virgin",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "15806560-da92-4b50-bb72-13180326b0b1",
+    "code": "dau-o-liu-olivoila-pomace-xqmse",
+    "name": "Dầu ô liu Olivoila Pomace",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "63014f4e-c460-49f7-b997-c44994605b5a",
+    "code": "dau-oliu-olivoila-extra-virgin-mnc5p",
+    "name": "Dầu ôliu Olivoila Extra Virgin",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "cc327eac-09dd-4ce1-ade2-7dc6dd2b0b62",
+    "code": "dau-ran-o-liu-6imgm",
+    "name": "Dầu rán o liu",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "25ce6577-ba1d-42aa-96b8-ff823ad93fe9",
+    "code": "dau-thuc-vat-lrcxm",
+    "name": "Dầu thực vật",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "b80d6e4b-31c2-4a61-a355-c858b2ce3d42",
+    "code": "dua-a6jya",
+    "name": "Dừa",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "ea52d4ac-a163-4ce6-9c03-b410f09c015b",
+    "code": "huong-duong-gvgzf",
+    "name": "Hướng dương",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "14eabea0-fada-4fe2-8016-bad9bf36724f",
+    "code": "me-chin-s6deu",
+    "name": "Me chín",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "ae912e4e-5b1a-4eaf-85a3-5d251050d158",
+    "code": "mit-h34wm",
+    "name": "Mít",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "975aeb1d-0d47-475c-92d3-42da0718d806",
+    "code": "nhan-vai-1en06",
+    "name": "Nhãn Vải",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "6aa98767-037a-455b-a240-b301a7bd5f0a",
+    "code": "nuoc-dua-i12js",
+    "name": "Nước dừa",
+    "group_label": "Dầu ăn & mỡ",
+    "allergen_code": null
+  },
+  {
+    "id": "a00006d6-e61c-4c90-b9df-4904bfdf06f3",
+    "code": "bot-ca-ri-g50mh",
+    "name": "Bột cà ri",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "584c0b54-0c68-478b-9a61-3d9342c63ef5",
+    "code": "bot-canh-9ndsw",
+    "name": "Bột canh",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "7e2c87b6-6d8e-48ae-b34e-ba112a1a1c4e",
+    "code": "bot-ngot-a0fhu",
+    "name": "Bột ngọt",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "3846b16f-9576-4530-9485-05c9d4b79df0",
+    "code": "ING-136549",
+    "name": "Chẩm chéo",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "35c0e092-74a6-4bae-ba41-2430d292dd7b",
+    "code": "chao-rga5l",
+    "name": "Chao",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "SOY"
+  },
+  {
+    "id": "10c3983d-9475-44ac-aa82-d39e172019d0",
+    "code": "chao-do-bqec4",
+    "name": "Chao đỏ",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "SOY"
+  },
+  {
+    "id": "d201de51-f990-4903-a903-e4688356e64b",
+    "code": "chao-trang-vwzrl",
+    "name": "Chao trắng",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "SOY"
+  },
+  {
+    "id": "0a77d7aa-fcbf-49e2-9d13-3ff5e104ef24",
+    "code": "com-me-e296f",
+    "name": "Cơm mẻ",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "dbd27f08-2c4e-4cdb-b93b-ff6e0c313fa2",
+    "code": "cot-lau-tomyum-84w6g",
+    "name": "Cốt lẩu Tomyum",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "6d1292dd-7e52-42c2-8f59-b74969085bd8",
+    "code": "cu-nen-rn2uw",
+    "name": "Củ nén",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "9f6083af-69d1-41b9-bff6-52cf90d4980e",
+    "code": "dam-susiy",
+    "name": "Dấm",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "e7022b8e-0d00-4a3d-84e9-58e93ea7d78b",
+    "code": "dau-dam-tron-salad-6s6w4",
+    "name": "Dầu dấm trộn salad",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "a5ac5afa-5088-4383-a3ad-962bac434c11",
+    "code": "dau-dieu-giahq",
+    "name": "Dầu điều",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "a761d27d-9dca-4984-a691-86a9f980e079",
+    "code": "dinh-huong-6sqwd",
+    "name": "Đinh hương",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "332b8780-c460-4dbe-8aee-e71e2585ce4f",
+    "code": "duong-m22lk",
+    "name": "Đường",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "90f9431d-aa01-4e63-a3d3-858c5e0ef327",
+    "code": "duong-an-kieng-4zyrm",
+    "name": "Đường ăn kiêng",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "aaaf1123-5fe8-4c3e-91e4-75ba3766acc2",
+    "code": "duong-an-kieng-isomalts-48vgs",
+    "name": "Đường ăn kiêng Isomalts",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "fcf66dc8-9016-42d6-8c69-b8e9a051d917",
+    "code": "duong-den-nu-hoang-lsuuz",
+    "name": "Đường đen nữ hoàng",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "30867d43-f97e-4d3c-af5b-303537d87142",
+    "code": "duong-phen-lnpuc",
+    "name": "Đường phèn",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "22d91b62-4a6f-4f65-bc92-007840668343",
+    "code": "duong-thot-not-vqrc0",
+    "name": "Đường thốt nốt",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "dfb4621e-d4d3-4be8-8ab9-5584b291cf02",
+    "code": "duong-trang-cao-cap-daily-hdbri",
+    "name": "Đường trắng cao cấp Daily",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "f9836eb2-4498-43d1-a513-65074d509410",
+    "code": "duong-vang-khoang-chat-3spgj",
+    "name": "Đường vàng khoáng chất",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "bbd86129-a605-4037-9d44-eaaf99f64bd4",
+    "code": "duong-vang-thien-nhien-rp478",
+    "name": "Đường vàng thiên nhiên",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "c85e2d6c-e34b-4980-9532-dbc366b6623b",
+    "code": "gia-vi-nem-san-lau-thai-i99dv",
+    "name": "Gia vị nêm sẵn lẩu Thái",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "119e762c-3f86-4f68-beb7-30ad6ee2b731",
+    "code": "gia-vi-wasabi-neri-3kpy7",
+    "name": "Gia vị wasabi neri",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "dfc93d60-a258-47c9-83f2-9aafc5daf8ca",
+    "code": "giam-bong-sh3rp",
+    "name": "Giấm bỗng",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "103e97a8-18b3-4d4e-99b3-29a26095b6c0",
+    "code": "hat-danh-danh-4ku5k",
+    "name": "Hạt dành dành",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "a0ec96e3-6abf-437f-a457-dcb33b6d03fa",
+    "code": "hat-doi-wnluw",
+    "name": "Hạt dổi",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "41678b3d-b6b8-4367-a5fc-bbbdfb4c665c",
+    "code": "hat-hem-chin-su-nam-shiitake-tao-kombu-zpmlm",
+    "name": "Hạt hêm Chin Su nấm shiitake & tảo kombu",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "5c8616c2-fe30-464b-888c-f945211dc484",
+    "code": "hat-mac-khen-9qdgs",
+    "name": "Hạt mắc khén",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "b2e50c56-3fff-43da-a20b-e5f73ab5d843",
+    "code": "hat-nem-542i7",
+    "name": "Hạt nêm",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "1e774d11-b4d6-4ddf-97b8-b6ad11478abc",
+    "code": "hat-ngo-sjnpe",
+    "name": "Hạt ngò",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "d102a235-2749-45b4-a7b3-ff87a84ba648",
+    "code": "hoa-hoi-gi64w",
+    "name": "Hoa hồi",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "ed12b8df-c76f-41c1-8f82-de7a0c62d937",
+    "code": "mam-ba-khia-uictu",
+    "name": "Mắm ba khía",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "a5f54ef6-5fbb-4188-8499-85853e6d778d",
+    "code": "mam-ca-linh-mueyh",
+    "name": "Mắm cá linh",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "13b07185-6fdb-4ad3-8791-c837cca56f15",
+    "code": "mam-ca-sac-mtmlh",
+    "name": "Mắm cá sặc",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "9ef0cbdb-8d27-4827-9813-e1a179cc3294",
+    "code": "mam-cay-na6im",
+    "name": "Mắm cáy",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "dbbdff81-7533-44b9-9e87-f3b0b308d5cc",
+    "code": "mam-chay-nhat-tam2-5cy7l",
+    "name": "Mắm chay Nhất Tâm2",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "47f88f47-6d19-434d-8061-1a9e3c84695c",
+    "code": "mam-nem-ill5z",
+    "name": "Mắm nêm",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "c040e490-33f2-4d68-b708-cdd42a999add",
+    "code": "mam-ruoc-rvcsn",
+    "name": "Mắm ruốc",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "725228db-d617-4f67-b9dd-bbe4a9d4f794",
+    "code": "ING-FF7886",
+    "name": "Mắm tép",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "8f9adf96-9d15-4d3d-9751-5a49a2176e3f",
+    "code": "mam-tom-chua-e84jh",
+    "name": "Mắm tôm chua",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "de4564cf-a0f1-493d-946e-080f3a5c9826",
+    "code": "mat-mia-n2jzk",
+    "name": "Mật mía",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "d92d29b0-8d1c-4055-88e4-57d9cc749e3c",
+    "code": "mat-ong-hoa-rung-6wtg3",
+    "name": "Mật ông hoa rừng",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "2748d681-73b5-4191-bfe5-e1230cf5f3da",
+    "code": "mat-ong-sua-chua-4g125",
+    "name": "Mật ong sữa chúa",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "DAIRY"
+  },
+  {
+    "id": "ee6210a1-7f08-4c3c-bce2-87bfc5b3fac1",
+    "code": "me-vat-uib1w",
+    "name": "Me vắt",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "57921ae2-eb05-48ff-9018-43d65c88faca",
+    "code": "mi-chinh-jp-dfbhx",
+    "name": "Mì chính JP",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "6dee3253-2cdb-46e8-a066-ce200fc120cb",
+    "code": "mi-chinh-plus-umwqp",
+    "name": "Mì chính Plus",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "29e38cb4-048f-4d57-a4ee-7e47321da3bc",
+    "code": "mu-tat-wasabi-rpk35",
+    "name": "Mù tạt Wasabi",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "c076a8c7-e910-4163-9ffa-1589837bf16f",
+    "code": "muoi-7g8oe",
+    "name": "Muối",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "019e928e-88b3-4bea-8b99-cbe9f53b76e4",
+    "code": "muoi-bien-mat-troi-t87zd",
+    "name": "Muối biển Mặt trời",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "d7acf1b5-8417-434d-8e23-e068fc822374",
+    "code": "muoi-hong-himalaya-aa9sr",
+    "name": "Muối hồng Himalaya",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "7c4be44c-3b6a-4bc2-bc41-dcbf5afcb2ea",
+    "code": "muoi-hong-xay-nhuyen-gzjxk",
+    "name": "Muối hồng xay nhuyễn",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "2d18eff3-a0e7-450d-9ba7-415456327130",
+    "code": "muoi-hot-3j1wk",
+    "name": "Muối hột",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "3ea1febe-ecd3-4ea8-b325-4f14425c5658",
+    "code": "muoi-o-mai-duyen-hai-tew8z",
+    "name": "Muối ô mai Duyên Hải",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "09b5733f-b601-42ae-a38e-129d65c22fcc",
+    "code": "muoi-tinh-kkewg",
+    "name": "Muối tinh",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "72abcc45-2a50-4aa7-a69d-555cf53a248c",
+    "code": "nuoc-cham-me-rang-j9al7",
+    "name": "Nước chấm mè rang",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "SESAME"
+  },
+  {
+    "id": "a23cc582-4817-4608-90ff-1e5d49da4b4f",
+    "code": "nuoc-cham-nhan-vang-1inwy",
+    "name": "Nước chấm nhãn vàng",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "84308724-dec3-49ed-9ecf-cbc7cf8ff5c7",
+    "code": "nuoc-cham-toi-ot-ly-son-3ejam",
+    "name": "Nước chấm tỏi ớt Lý Sơn",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "042530a4-d5b3-4ad4-80e4-c63483c5d97f",
+    "code": "nuoc-cot-dua-hljct",
+    "name": "Nước cốt dừa",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "913ee18a-c03a-4ff9-857d-0863698552a3",
+    "code": "nuoc-dung-co-dac-thai-chay-4gu0n",
+    "name": "Nước dùng Cô Đặc Thái chay",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "dee0cc33-a074-4d01-a0a7-552e87c2ec20",
+    "code": "nuoc-dung-co-dac-vi-lau-thai-qawdh",
+    "name": "Nước dùng cô đặc vị lẩu Thái",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "02ba3e15-74df-4277-858b-1244c83fd06e",
+    "code": "nuoc-dung-lau-thai-5h773",
+    "name": "Nước Dùng Lẩu Thái",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "f54b232f-7e13-4255-80b8-9e7f4946e22b",
+    "code": "nuoc-lau-tomyum-hotpot-story-ett4u",
+    "name": "Nước lẩu Tomyum Hotpot Story",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "eee4e942-d340-42f7-b5ad-25cc10a70b3f",
+    "code": "nuoc-mam-lvlhj",
+    "name": "Nước mắm",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "bc42a7d2-48e9-444e-88cf-8da7358b9f4e",
+    "code": "ING-09CD7E",
+    "name": "Nước màu dừa",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "bbc1898a-1b7c-4e6d-acfb-45b15a36db45",
+    "code": "nuoc-mau-dua-anh-tuan-khang-0l0hs",
+    "name": "Nước màu dừa Anh Tuấn Khang",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "7dabdfa6-f83c-43c3-aa7c-e57d62fd3f46",
+    "code": "nuoc-sot-me-rang-95e9g",
+    "name": "Nước sốt mè rang",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "SESAME"
+  },
+  {
+    "id": "799b504f-7769-4b05-8eee-4417f416625d",
+    "code": "nuoc-tuong-hqvsl",
+    "name": "Nước tương",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "SOY"
+  },
+  {
+    "id": "0b25ccbf-e46a-4b1e-abf5-bcaeb17dff81",
+    "code": "nuoc-xot-me-rang-vwgkw",
+    "name": "Nước xốt mè rang",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "SESAME"
+  },
+  {
+    "id": "0dce136d-7928-4bf7-8537-253fc2cf716d",
+    "code": "ot-bot-p2g66",
+    "name": "Ớt bột",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "32d04ebf-203e-40a3-b940-8ae00c9020a5",
+    "code": "que-chi-zaaxm",
+    "name": "Quế chi",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "c746ee9b-52fd-4a68-970b-3a3f428cb907",
+    "code": "ruou-mai-que-lo-tjram",
+    "name": "Rượu mai quế lộ",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "3dea22c2-831c-4443-b813-030f6fc930a6",
+    "code": "sa-te-dvhmp",
+    "name": "Sa tế",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "cc1ef7eb-cc7d-4265-84ff-cca3aa67e0c1",
+    "code": "sot-aij-mayo-mayoinaise-ngotdiu-ktaxg",
+    "name": "Sốt Aij Mayo mayoinaise ngọtdịu",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "34326e0e-9d13-4761-bac5-d43a19309549",
+    "code": "sot-arrabbiata-er9b3",
+    "name": "Sốt Arrabbiata",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "fbed6cee-289e-423c-9811-91b9dd433674",
+    "code": "sot-bbq-3hmjt",
+    "name": "Sốt BBQ",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "db1566f4-04ae-4a21-910a-4868abc5b0f6",
+    "code": "sot-dau-tu-xuyen-hcykt",
+    "name": "Sốt đậu Tứ Xuyên",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "a45589f4-e28e-41cf-a7ae-6aaaf09665c9",
+    "code": "sot-gia-vi-canh-chua-nam-bo-i2pxu",
+    "name": "Sốt gia vị canh chua Nam Bộ",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "d17f3680-5c6c-480b-a30c-87d6578ba802",
+    "code": "sot-lau-thai-84f87",
+    "name": "Sốt lẩu Thái",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "b3d915f4-0943-46dd-8aab-73cbf251da6d",
+    "code": "sot-lau-thap-cam-y35wp",
+    "name": "Sốt lẩu thập cẩm",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "c75cf983-4619-4173-a4a3-a8e678110068",
+    "code": "sot-mayonnaise-d9pvm",
+    "name": "Sốt mayonnaise",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "889d533f-68e0-4f2c-af79-3e4d7e93a411",
+    "code": "sot-mayonnaise-huong-vi-nhat-5hbrp",
+    "name": "Sốt mayonnaise hương vị Nhật",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "5354cf98-f8ba-4f17-8a83-f2637b85aa4b",
+    "code": "sot-mi-spaghetti-fresco-rme2x",
+    "name": "Sốt mì Spaghetti Fresco",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "beae0b89-e9c7-44da-aa2b-f883120b7eea",
+    "code": "sot-muoi-kim-chi-2xbny",
+    "name": "Sốt muối kim chi",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "77fe810b-ffac-448c-bdee-c5200245b568",
+    "code": "sot-spagetti-885ra",
+    "name": "Sốt Spagetti",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "f4b91d40-bdac-4698-98bb-9d0dc2dd96c1",
+    "code": "sot-spaghetti-nguyen-ban-f09rs",
+    "name": "Sốt spaghetti nguyên bản",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "cbd40ee5-4eb4-4165-9368-ad4e2b98be87",
+    "code": "sot-tieu-den-u7eu7",
+    "name": "Sốt tiêu đen",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "a657765e-8269-41a5-bfef-1a605e0dc15f",
+    "code": "sot-uop-do-nuong-go1i7",
+    "name": "Sốt ướp đồ nướng",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "c1d9c4d7-3ddf-4ba0-9947-aa66f9b9147f",
+    "code": "sua-dac-co-duong-ile26",
+    "name": "Sữa đặc có đường",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "DAIRY"
+  },
+  {
+    "id": "4b17abc6-143d-4fa0-894c-d4ce7664bb5b",
+    "code": "tai-chua-3qigp",
+    "name": "Tai chua",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "25141886-9db1-4b32-8681-184265fe9b29",
+    "code": "thao-qua-8djt8",
+    "name": "Thảo quả",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "148e63d9-956e-4759-82d2-fd9b2f34b8af",
+    "code": "tieu-3bx3a",
+    "name": "Tiêu",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "2994d001-6dc1-4e02-9b1f-b1c429059110",
+    "code": "tieu-den-u0187",
+    "name": "Tiêu đen",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "db7b7b19-aec5-42db-9920-74d4efca2a14",
+    "code": "tieu-hoi-p19t5",
+    "name": "Tiểu hồi",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "8296e52c-66b7-48e6-8e92-6995a3d3df92",
+    "code": "tieu-so-nguyen-hat-xb5vs",
+    "name": "Tiêu sọ nguyên hạt",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "5deb6610-c27c-4a6f-8f2a-062d96f698ff",
+    "code": "ING-0CCB45",
+    "name": "Tiêu sọ Phú Quốc",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "2db18abf-228c-48b7-96d2-764f6dfee8bc",
+    "code": "tieu-so-xay-h4xai",
+    "name": "Tiêu sọ xay",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "8370aea5-2a45-476b-b495-2790125b3abd",
+    "code": "tieu-xanh-v75p7",
+    "name": "Tiêu xanh",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "afa39048-bd44-4bee-9873-07194cac538a",
+    "code": "tran-bi-kjoq8",
+    "name": "Trần bì",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "f9d670af-c39b-4ea9-bf83-be6b941fa737",
+    "code": "tuong-ban-zkzda",
+    "name": "Tương bần",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "93d57516-34d8-4391-aecb-5432c4338ad4",
+    "code": "tuong-ca-6lfpf",
+    "name": "Tương cà",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "4fc69baa-3ed5-4fbe-91f5-866d8367ff23",
+    "code": "tuong-dau-aubnj",
+    "name": "Tương đậu",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "6a0d214e-df1a-41b2-929d-5bf2a6cd8138",
+    "code": "tuong-ot-zb77n",
+    "name": "Tương ớt",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "344a76cb-a036-41ea-9d40-86b281aeca70",
+    "code": "xot-basilico-jymgq",
+    "name": "Xốt Basilico",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "f15905d8-88ae-4b5c-a4b9-68ddc872a495",
+    "code": "xot-gia-vi-hoan-chinh-ca-ri-pps50",
+    "name": "Xốt gia vị hoàn chỉnh cà ri",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "a3034c3f-d9e0-4e91-8fe3-7bd56e873ebc",
+    "code": "xot-gia-vi-hoan-chinh-nuong-muoi-ot-pk3mm",
+    "name": "Xốt gia vị hoàn chỉnh nướng muối ớt",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "19b27e60-109d-4f5e-b7dd-cdeaa88a4ae5",
+    "code": "xot-mayonnaise-55oaj",
+    "name": "Xốt mayonnaise",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "10e22602-582c-4bea-aaf8-6c7172f31039",
+    "code": "xot-mi-napoletana-481bj",
+    "name": "Xốt mì Napoletana",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "89a38d31-7028-4cfc-882f-12b6c830d9bc",
+    "code": "xot-mi-o-liu-8vr0l",
+    "name": "Xốt mì ô liu",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "3662763a-17aa-4767-8f96-4590a3f9c015",
+    "code": "xot-muoi-kim-cho-asvs4",
+    "name": "Xốt muối kim cho",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "7f4676be-9dff-4344-ad6a-6ef8e766cca0",
+    "code": "xot-salad-me-rang-vmnpx",
+    "name": "Xốt salad mè rang",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": "SESAME"
+  },
+  {
+    "id": "28c40d52-370d-4384-b8d7-e6c101f90049",
+    "code": "xot-spaghetti-presco-ldbcr",
+    "name": "Xốt spaghetti Presco",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "b9758a3d-e6d8-4749-a571-52da3f2ddb85",
+    "code": "xot-tuong-6ilre",
+    "name": "Xốt tương",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "d84c9773-a678-4c1d-8a69-ef7941ccacf5",
+    "code": "xot-xa-xiu-0covg",
+    "name": "Xốt xá xíu",
+    "group_label": "Gia vị & nước chấm",
+    "allergen_code": null
+  },
+  {
+    "id": "beb3e090-c903-4d70-a3aa-94d9074c0076",
+    "code": "nam-huong-roj8j",
+    "name": "Nấm hương",
+    "group_label": "Nấm",
+    "allergen_code": null
+  },
+  {
+    "id": "c8a9668f-c69f-4420-be8c-629ac6cd8ad6",
+    "code": "nam-mo-s8hjs",
+    "name": "Nấm mỡ",
+    "group_label": "Nấm",
+    "allergen_code": null
+  },
+  {
+    "id": "e0942414-1962-45e6-936e-e8b34350230a",
+    "code": "nam-rom-f3hyc",
+    "name": "Nấm rơm",
+    "group_label": "Nấm",
+    "allergen_code": null
+  },
+  {
+    "id": "fd5c4b89-c57f-4f0d-9937-974a595dec09",
+    "code": "nam-tram-8rkdd",
+    "name": "Nấm tràm",
+    "group_label": "Nấm",
+    "allergen_code": null
+  },
+  {
+    "id": "a6642943-ff36-44ca-8e00-87836183dab8",
+    "code": "nam-tuyet-jicpx",
+    "name": "Nấm tuyết",
+    "group_label": "Nấm",
+    "allergen_code": null
+  },
+  {
+    "id": "e531c8bd-3e09-48c0-b263-921affb08429",
+    "code": "banh-da-cvny6",
+    "name": "Bánh đa",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "828a3207-3e82-41a4-b4f4-4ff644028b57",
+    "code": "banh-da-cua-k8vok",
+    "name": "Bánh đa cua",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "172ec200-7889-4642-afbc-9caa20e17538",
+    "code": "banh-da-kho-sb6se",
+    "name": "Bánh đa khô",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "d088f384-af87-44be-9519-acd3295f62d0",
+    "code": "banh-da-nem-z84kl",
+    "name": "Bánh đa nem",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "1499d5a2-e08c-4013-857f-d3a3c8729bd5",
+    "code": "banh-gao-han-quoc-dsu0a",
+    "name": "Bánh gạo Hàn Quốc",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "925978d2-7dcb-4a9f-97ed-c4b1834b8b4c",
+    "code": "banh-mi-fkfq7",
+    "name": "Bánh mì",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": "GLUTEN"
+  },
+  {
+    "id": "8bb41daa-d4ae-4784-85ed-42ad79dffeeb",
+    "code": "banh-pho-gu7a0",
+    "name": "Bánh phở",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "74a30567-cfe0-421a-9b50-5bc279e49cac",
+    "code": "banh-phong-tom-jeets",
+    "name": "Bánh phồng tôm",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "ad0b6ac8-d063-435f-a4a7-2e3273282528",
+    "code": "banh-trang-6pwrx",
+    "name": "Bánh tráng",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "0470e58a-b229-4a3c-a12a-a61e9df81fa7",
+    "code": "ING-2880FA",
+    "name": "Bánh tráng phơi sương",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "f11261c7-83dd-4365-81a3-530da947dc45",
+    "code": "bun-9uslg",
+    "name": "Bún",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "95d1a940-e3ac-4bed-8c53-c18924e3b00d",
+    "code": "bun-kho-rjf5x",
+    "name": "Bún khô",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "13fbf8eb-0a0d-4e5c-8701-001a94e1a3ee",
+    "code": "ING-811E65",
+    "name": "Cốm Làng Vòng",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "2e052284-4644-44ab-a292-cdb50109ce14",
+    "code": "com-ruou-e34q1",
+    "name": "Cơm rượu",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "1ff97a05-f9bb-4088-a761-999bbb18d2e9",
+    "code": "com-te-oqvym",
+    "name": "Cơm tẻ",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "6d6f3ef0-2aa9-43f3-976e-221c06c48118",
+    "code": "dau-gao-lut-og3rt",
+    "name": "Dầu gạo lứt",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "ec09ce3c-5e20-4eaa-8aad-44ad8044a9ab",
+    "code": "dau-xanh-boc-vo-pkdze",
+    "name": "Đậu xanh bóc vỏ",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "beecdad5-dc61-4610-a05f-7f26e56aeb83",
+    "code": "gao-6r0y4",
+    "name": "Gạo",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "d31f545a-b71c-466d-9e51-0beb80cf1d5e",
+    "code": "gao-japonica-g34fn",
+    "name": "Gạo Japonica",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "57849b34-1f86-474a-ba14-d9b3835a93c5",
+    "code": "gao-luc-do-mb2e1",
+    "name": "Gạo Lức đỏ",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "0bb9e54b-649e-4475-9fc9-237b007293e9",
+    "code": "gao-lut-ph96l",
+    "name": "Gạo lứt",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "12a01f2e-da85-4acb-a9d2-d47d467bd518",
+    "code": "gao-nep-p8exz",
+    "name": "Gạo nếp",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "a53683a1-506c-497e-bb69-4c259448a3e9",
+    "code": "gao-nep-cai-hoa-vang-flml1",
+    "name": "Gạo nếp cái hoa vàng",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "2903d86a-34c2-4409-a4ec-8a70a0ff0be1",
+    "code": "gao-nep-hoa-vang-dac-biet-wyh7y",
+    "name": "Gạo nếp hoa vàng đặc biệt",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "63b9d899-6aa1-45f6-b913-e8ee552c62b0",
+    "code": "gao-phuc-tho-cay-trong-y1h0s",
+    "name": "Gạo phúc thọ cây trồng",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "2fdff1c1-4971-4eb3-bc23-55cfb17147ec",
+    "code": "gao-seng-cu-itamy",
+    "name": "Gạo Séng Cù",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "07f10d80-48e8-456d-b5b4-7097b6e99b9e",
+    "code": "gao-st-25-dac-san-ansjg",
+    "name": "Gạo ST 25 đặc sản",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "4cba5908-438a-49b4-ac8c-ad47e5675e67",
+    "code": "gao-st25-tq2b5",
+    "name": "Gạo ST25",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "4f696755-2af2-4b7d-bcad-e19956983013",
+    "code": "gao-st25-giong-cay-trong-tw-8fp99",
+    "name": "Gạo ST25 Giống Cây Trồng TW",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "cfb2e636-440d-467c-ae48-ecd850f82267",
+    "code": "gao-st25-lua-ruong-ruoi-9wus5",
+    "name": "Gạo ST25 lúa ruộng rươi",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "6c5e6b89-4c81-4829-915f-1738730ae8be",
+    "code": "gao-tam-go-cong-d1an7",
+    "name": "Gạo tám Gò Công",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "9af68ca9-f66a-4328-8007-aff99ff9ed6b",
+    "code": "gao-tam-soc-trang-fim4u",
+    "name": "Gạo Tám Sóc Trăng",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "470954f0-3792-45a1-98c0-d2350da28fff",
+    "code": "gao-te-5rixd",
+    "name": "Gạo tẻ",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "ad6ce4fe-a4e7-4c54-9002-d9b1ad4f2004",
+    "code": "giam-gao-vri2z",
+    "name": "Giấm gạo",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "67774ffd-e66f-4f7c-a8b9-c22e83844918",
+    "code": "hat-lac-nhan-fb3my",
+    "name": "Hạt lạc nhân",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": "PEANUT"
+  },
+  {
+    "id": "bb94cc38-27d9-47cb-ac99-54059e302c3f",
+    "code": "hat-sen-senta-3kfql",
+    "name": "Hạt sen Senta",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "354eecbe-27d4-467e-9705-fee75fb60fcf",
+    "code": "hu-tieu-nam-vang-18-x-wp0iw",
+    "name": "Hủ tiếu Nam Vang 18 x",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "a5981ba7-596e-43f7-b4f6-18dade543178",
+    "code": "la-kim-cuon-com-5j68q",
+    "name": "Lá Kim cuốn cơm",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "d05388e8-d1ee-496d-8123-9073bb529f45",
+    "code": "la-kim-tam-dau-o-liu-sji4g",
+    "name": "Lá Kim tẩm dầu Ô Liu",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "060ffe3f-45ba-44f9-b18c-d3b89f2510f6",
+    "code": "la-kim-tam-gia-vi-cuuix",
+    "name": "Lá kim tẩm gia vị",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "3b1fc03b-0aaf-4b68-a3e6-6d2836a55364",
+    "code": "la-rong-bien-cuon-com-obols",
+    "name": "Lá rong biển cuốn cơm",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "15d9b91c-c4f1-45d1-9b31-66a68c35269e",
+    "code": "mi-an-lien-4nri2",
+    "name": "Mì ăn liền",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "642acd81-b5d2-4b64-8acb-b333db6ea3b0",
+    "code": "mi-chay-cao-cap-b7u2f",
+    "name": "Mì Chay Cao Cấp",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "37f31187-0a82-4889-8f66-50a36c5b14a0",
+    "code": "mi-soi-gno75",
+    "name": "Mì sợi",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "1f85646e-8f29-4ee6-8277-c9980155e72e",
+    "code": "mien-det-ecfac",
+    "name": "Miến dẹt",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "91080d42-e9b2-4f3d-ae21-bd239dc33751",
+    "code": "mien-dong-iy7kf",
+    "name": "Miến dong",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "bed04ede-974d-4d57-8092-f1ea6a3b2478",
+    "code": "mien-kho-ea2pa",
+    "name": "Miến khô",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "0a850bad-ba1f-402a-b0ce-122a652f003b",
+    "code": "mien-lau-thai-xs6u6",
+    "name": "Miến lẩu Thái",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "cc81ae4b-0940-45df-9edf-9b34d4a4dad1",
+    "code": "mien-soi-ercl6",
+    "name": "Miến sợi",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "f77d2db4-193a-49ed-a159-a51b3970d62b",
+    "code": "mien-yen-tiec-vina-fd5h0",
+    "name": "Miến Yến tiệc Vina",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "44f64e9b-6ace-481a-9709-8e18cde23efb",
+    "code": "nep-sap-fc5s2",
+    "name": "Nếp sáp",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "36d62a96-3bc4-44e2-82b2-ef7d24f8fa45",
+    "code": "ngo-7wvaj",
+    "name": "Ngô",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "252c878e-af85-407f-a1e0-83524a0d531e",
+    "code": "ngu-coc-an-sang-j06am",
+    "name": "Ngũ cốc ăn sáng",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "1b2877ef-b3f0-4edf-9d42-dcde3afb5984",
+    "code": "ngu-coc-dinh-duong-jwg71",
+    "name": "Ngũ cốc dinh dưỡng",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "189fdcc8-52cf-4202-a2d3-b8f3f955c2ed",
+    "code": "ngu-coc-mat-ong-yxlz0",
+    "name": "Ngũ cốc mật ong",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "c123d553-d17a-4e7f-b4d9-fbc36cd60d5d",
+    "code": "ngu-coc-muesli-5-dried-fruits-honey-av6rv",
+    "name": "Ngũ cốc Muesli 5 Dried Fruits & Honey",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "edcc3367-a49f-4fd1-91d1-d7383ae9a06e",
+    "code": "ngu-coc-muesli-5-grains-cranberry-honey-c5qqf",
+    "name": "Ngũ cốc Muesli 5 Grains Cranberry & Honey",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "18c86240-de15-44a5-8854-ebefa0533ba6",
+    "code": "ngu-coc-muesli-5-nuts-honey-t74yf",
+    "name": "Ngũ cốc Muesli 5 Nuts & Honey",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "9f6cda68-56d2-472e-a602-70aa053e6a78",
+    "code": "ngu-coc-muesli-5-tropical-fruits-honey-vgep4",
+    "name": "Ngũ cốc Muesli 5 Tropical Fruits & Honey",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "dec622b4-1088-4fce-bba7-1b6bab2ed7fa",
+    "code": "ngu-coc-trai-cay-ngx26",
+    "name": "Ngũ cốc Trái cây",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "66dccf77-7427-4608-8ead-5646b0654d44",
+    "code": "nui-cao-cap-chu-c-qmntc",
+    "name": "Nui cao cấp chữ C",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "99f5a278-1075-4181-ac5b-982253dc6654",
+    "code": "nui-hinh-xoan-agbwp",
+    "name": "Nui hình xoắn",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "677ac2fc-3ae9-444e-8f3c-152f485bbcb7",
+    "code": "nui-ong-tlh85",
+    "name": "Nui ống",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "5cfd2c5c-97f3-4e70-a6fb-88e1a6c35bfd",
+    "code": "nuoc-xot-me-rang-wasabi-va-rong-bien-yiull",
+    "name": "Nước xốt mè rang wasabi và rong biển",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": "SESAME"
+  },
+  {
+    "id": "f90f4966-2dcb-4027-ab7c-37f2366fd522",
+    "code": "rong-bien-w3vm7",
+    "name": "Rong biển",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "1952efe6-fff3-416b-92a9-9bca3224990e",
+    "code": "rong-bien-em-be-cuoi-hat-huong-duong-va-hanh-nhan-z0he7",
+    "name": "Rong biển em bé cười hạt hướng dương và hạnh nhân",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "23d1f4f1-1009-4882-b103-0d9fd12c2c13",
+    "code": "rong-bien-gion-tron-gia-vi-q3quv",
+    "name": "Rong Biển Giòn Trộn Gia Vị",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "1691ccf7-ea6b-4f93-bd7e-98636fa183d5",
+    "code": "rong-bien-gion-tron-hai-san-nnuq1",
+    "name": "Rong Biển Giòn Trộn Hải Sản",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "def4edf1-eacc-4f16-b7ef-fa2467ede7a2",
+    "code": "rong-bien-gion-tron-oc-cho-hanh-nhan-esj5a",
+    "name": "Rong Biển Giòn Trộn Óc Chó, Hạnh Nhân",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "c185f4c1-7300-4c99-ab02-780660f3d5a7",
+    "code": "rong-bien-nau-canh-bxnbj",
+    "name": "Rong biển nấu canh",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "27d993e1-433a-4007-acdb-dd44a3c86d85",
+    "code": "rong-bien-tam-gia-vi-8-x-aciom",
+    "name": "Rong biển tẩm gia vị 8 x",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "d871377a-6348-40b9-8fd1-951bc8f1ba6e",
+    "code": "rong-bien-tam-gia-vi-an-lien-rgewr",
+    "name": "Rong biển tẩm gia vị ăn liền",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "1e2f3f54-6c52-443f-947c-825f5d051397",
+    "code": "rong-bien-tron-com-food-ej4p9",
+    "name": "Rong biển trộn cơm Food",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "62e97ede-29df-4a5d-bced-40124cffd678",
+    "code": "rong-bien-tron-com-hai-san-m2s2z",
+    "name": "Rong biển trộn cơm hải sản",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "e3f7db53-46b9-4e7c-b8c2-82dd1224ddb9",
+    "code": "rong-bien-vi-truyen-thong-91w46",
+    "name": "Rong biển vị truyền thống",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "9f4bfce4-a92b-4446-bd6e-fb2a02e404c0",
+    "code": "tao-bien-3-x-3h8yp",
+    "name": "Tảo biển 3 x",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "15979121-20e5-4f35-a8b0-0febca350596",
+    "code": "tao-bien-green-3-x-kghvn",
+    "name": "Tảo biển Green 3 x",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "4bd2162f-2de8-4d9b-b4c7-e4017b4a5c1e",
+    "code": "tao-bien-mini-type-8-x-9jplt",
+    "name": "Tảo biển Mini Type 8 x",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "71f55c17-06c3-4c01-8d67-00ee16deddd3",
+    "code": "tao-bien-wild-3-x-7gkt6",
+    "name": "Tảo biển Wild 3 x",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "7337b046-73ef-4738-8712-c44f6ade168b",
+    "code": "tao-cuon-com-130-o8g49",
+    "name": "Tảo cuốn cơm *130",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "56341acc-4371-4d0b-8a60-2df3f614b7a7",
+    "code": "tao-mi-yuk-36-farvl",
+    "name": "Tảo Mi Yuk *36",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "3b45f65f-45b9-4419-b040-1cf7b6fff31b",
+    "code": "tao-truyen-thong-jaban-a4120",
+    "name": "Tảo truyền thống Jaban",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "d4fbe2ea-09eb-434f-8711-be2e706373d1",
+    "code": "ING-5C4AF6",
+    "name": "Tàu hũ ky",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "7415d54c-a1c3-44bf-ac65-e891487576b8",
+    "code": "vi-chua-zkocf",
+    "name": "Vị chua",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "da0fb512-54e0-4b0f-a30d-98c3c60962d2",
+    "code": "yen-mach-an-lien-n64lv",
+    "name": "Yến mạch ăn liền",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "1bd89993-d18f-4c0c-8d1f-89ba727bbdf6",
+    "code": "yen-mach-hanh-nhan-pho-mai-gh0a2",
+    "name": "Yến Mạch Hạnh nhân Phô mai",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": "DAIRY"
+  },
+  {
+    "id": "b88cffd1-e3b4-4203-8f6c-cbb2fe8fccf7",
+    "code": "yen-mach-oganic-2veep",
+    "name": "Yến Mạch Oganic",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "f750087d-0b98-4c11-ba2a-724b77e0e0e9",
+    "code": "yen-mach-trai-cay-pu610",
+    "name": "Yến Mạch Trái Cây",
+    "group_label": "Nông sản & ngũ cốc",
+    "allergen_code": null
+  },
+  {
+    "id": "9cacf962-0274-4b02-95e7-ef674053c015",
+    "code": "bap-cai-go81w",
+    "name": "Bắp cải",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "be45a549-09c7-4c11-80fc-7537bb048972",
+    "code": "bap-cai-tim-k8mhi",
+    "name": "Bắp cải tím",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "d40dd484-3e4b-409a-a4af-18b078bc5282",
+    "code": "bap-chuoi-77ypa",
+    "name": "Bắp chuối",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "2ca8d2a1-b9ff-4c78-895a-58fcb00e6e54",
+    "code": "bap-my-kmlds",
+    "name": "Bắp Mỹ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "ab414451-7ebe-458d-a662-4b7ff840b6c1",
+    "code": "bau-sao-be053",
+    "name": "Bầu sao",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "7f88fbb8-bbef-4c04-98c6-ed5bdec708bb",
+    "code": "bi-dao-1zb16",
+    "name": "Bí đao",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "cda3b056-4cb4-44af-b505-49b033d4facc",
+    "code": "bi-do-8fog6",
+    "name": "Bí đỏ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "b7ac679c-a4f0-4b5a-90c5-fd4e70e6f9b0",
+    "code": "bi-xanh-ot8st",
+    "name": "Bí xanh",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "09dae9b1-1165-42b3-bcd6-924b5c4e98b3",
+    "code": "ING-AE97D4",
+    "name": "Bông atiso",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "5a671264-7e94-4b25-9a2a-803fd8166ac6",
+    "code": "bong-bi-nu-250l1",
+    "name": "Bông bí nụ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "0b61e7c2-ad3d-4648-b486-8d78f4462b96",
+    "code": "bong-dien-dien-f6tm2",
+    "name": "Bông điên điển",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "cbde66ea-707c-436a-9670-4b18d8dcc9ff",
+    "code": "bong-so-dua-pmmjr",
+    "name": "Bông so đũa",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "7705f0aa-317a-4b02-9b64-5280a59063de",
+    "code": "bot-nghe-3hqqs",
+    "name": "Bột nghệ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "952bd657-91c8-4d74-8dd6-d556f09d9300",
+    "code": "bot-rau-cau-4zvx6",
+    "name": "Bột rau câu",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "0db3c250-8df9-4efe-9cb9-6a6b17deddee",
+    "code": "bot-san-day-rau-cau-thach-q08p0",
+    "name": "Bột sắn dây rau câu thạch",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "0a4b36b1-ee1b-480f-82c1-8233a0488fe8",
+    "code": "bot-toi-thom-bhahe",
+    "name": "Bột tỏi thơm",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "42d21c7f-bd1d-4fd4-bb2d-f3bba64461fc",
+    "code": "bup-mang-uf8du",
+    "name": "Búp măng",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "1d46fe94-178f-4e96-9169-a812efec0147",
+    "code": "ca-cao-ca-phe-bot-vk8h7",
+    "name": "Ca cao Cà phê bột",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "6650ebce-8096-496f-9650-194039247055",
+    "code": "ca-chua-v3v00",
+    "name": "Cà chua",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "546b6c1e-2829-48db-9bc9-7b32b67abcb1",
+    "code": "ca-chua-beef-t1hwq",
+    "name": "Cà chua beef",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "2a57579d-8938-4127-9e0c-39e8de2ef5a5",
+    "code": "ca-chua-bi-cffih",
+    "name": "Cà chua bi",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "95a7ce55-168b-4b66-a0e3-23afa16746bc",
+    "code": "ca-chua-cherry-do-guo25",
+    "name": "Cà chua cherry đỏ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "63d1df10-d6b8-4c17-a370-b89318e58760",
+    "code": "ca-chua-cherry-mix-s2gfz",
+    "name": "Cà chua cherry mix",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "6b2231c0-f0b9-4495-a5d9-48230fe0aac8",
+    "code": "ca-phao-hycv3",
+    "name": "Cà pháo",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "ccce0de1-87cf-49b6-b3bc-302e1d6e9975",
+    "code": "ca-rot-4rcfv",
+    "name": "Cà rốt",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "71415394-e558-44ba-9025-d05d9e49e63c",
+    "code": "ca-tim-yjqwn",
+    "name": "Cà tím",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "09a0b5b5-0905-4574-b41e-aa3fd00157d2",
+    "code": "cai-wktvn",
+    "name": "Cải",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "ec933320-5070-4504-8241-45c0bfd078c1",
+    "code": "cai-bo-xoi-9iujl",
+    "name": "Cải bó xôi",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "fad59d1a-3a05-4f49-a655-067e39666810",
+    "code": "cai-chip-2qucf",
+    "name": "Cải chíp",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "b6b19a8c-fc0d-4220-abfd-c504b1a6bab9",
+    "code": "cai-cuc-o25zl",
+    "name": "Cải cúc",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "d1f5e45a-26fb-421d-a021-9d1dafb33664",
+    "code": "cai-thao-24o6c",
+    "name": "Cải thảo",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "7c864ace-650f-4d99-b25a-ef155ac7eec8",
+    "code": "cai-thia-guvqs",
+    "name": "Cải thìa",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "8963b8da-75e1-48f3-a9e5-7e7a889e6401",
+    "code": "cai-xanh-7d9l7",
+    "name": "Cải xanh",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "919e0a91-6330-4adf-bba4-e497880f4435",
+    "code": "cai-xoan-1ip4l",
+    "name": "Cải xoăn",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "a1dc5b97-720e-4a5a-be2b-234f690275dc",
+    "code": "can-tay-i0beh",
+    "name": "Cần tây",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "e7f69540-c5cc-460c-a2d8-39e66427bc23",
+    "code": "cu-au-jfpog",
+    "name": "Củ ấu",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "d6abb171-82e1-4fe7-9dd9-0c31de2302ff",
+    "code": "cu-cai-trang-v974j",
+    "name": "Củ cải trắng",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "fbe399c5-e557-422d-b746-e5806d180b4d",
+    "code": "cu-dau-8rgrs",
+    "name": "Củ đậu",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "c6de0ee1-6b73-4c23-b329-28b96b222cff",
+    "code": "cu-hu-dua-lqok7",
+    "name": "Củ hũ dừa",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "dc1eef5e-8af0-44af-83f9-36ff897058bf",
+    "code": "ING-FD182E",
+    "name": "Củ kiệu",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "aadbc990-aabb-44e1-8a5e-783b7334dce1",
+    "code": "cu-nang-zjp61",
+    "name": "Củ năng",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "21a66ef6-5ae9-45d3-9db0-4f6251d98904",
+    "code": "dau-8xfnt",
+    "name": "Đậu",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "5f71f0fe-073a-4510-88c6-eb673d402297",
+    "code": "dau-bap-9shx0",
+    "name": "Đậu bắp",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "7d60ed5d-98aa-4047-bf6e-56f025579a73",
+    "code": "dau-cove-nhat-ayvp1",
+    "name": "Đậu cove nhật",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "31c760b9-e1a1-4a65-ac24-29665f8d8335",
+    "code": "dau-cove-xanh-gnh2y",
+    "name": "Đậu cove xanh",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "a39d2ad4-dfe2-4ce2-8b6f-f7fbf5ae5d32",
+    "code": "dau-den-03l28",
+    "name": "Đậu đen",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "f67465a9-1eab-4d0f-a8c3-e37da7121ca7",
+    "code": "dau-do-hsuac",
+    "name": "Đậu đỏ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "47da09a4-efde-4a5c-ab2a-daa9296eb1df",
+    "code": "dau-ha-lan-r538l",
+    "name": "Đậu Hà Lan",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "c0e28ade-9b67-4766-94f6-88b0e568aa5c",
+    "code": "dau-nanh-mscqc",
+    "name": "Đậu nành",
+    "group_label": "Rau củ",
+    "allergen_code": "SOY"
+  },
+  {
+    "id": "de4b631f-61ca-4a5e-a411-fa5322764c38",
+    "code": "dau-phong-dooky",
+    "name": "Đậu phộng",
+    "group_label": "Rau củ",
+    "allergen_code": "PEANUT"
+  },
+  {
+    "id": "63e1414d-92f2-490a-9edb-1cebbf97a9b1",
+    "code": "dau-que-cx1sm",
+    "name": "Đậu que",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "5eb800b4-a943-4023-95e6-308a07cf44a3",
+    "code": "dau-xanh-rmkwx",
+    "name": "Đậu xanh",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "51b23ae7-4117-4976-850f-861aec350793",
+    "code": "diep-ca-e8wsh",
+    "name": "Diếp cá",
+    "group_label": "Rau củ",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "dbeb9188-607f-48f2-b6b7-e258fd2275a5",
+    "code": "doc-mung-93uh3",
+    "name": "Dọc mùng",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "d1578573-8028-45b8-b1ec-bf9235880018",
+    "code": "dua-cai-muoi-lzmu6",
+    "name": "Dưa cải muối",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "2bca69aa-ff16-45e2-a130-bd87c26da723",
+    "code": "dua-chuot-dai-ubn6l",
+    "name": "Dưa chuột dài",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "7d43799b-04d0-4255-a646-24011e1d628e",
+    "code": "dua-leo-a56dg",
+    "name": "Dưa leo",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "2609539d-ff98-42ac-b173-d85d3848494a",
+    "code": "gia-do-x0e72",
+    "name": "Giá đỗ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "06babf4e-a815-4e54-8230-495347827837",
+    "code": "gia-mam-hvoff",
+    "name": "Giá mầm",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "eeac23ec-b658-4e34-87c9-bd1e7aa95b1a",
+    "code": "gung-x2tfi",
+    "name": "Gừng",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "7228d536-73cf-4806-af25-c84885fdd262",
+    "code": "hanh-cu-hai-duong-dgesg",
+    "name": "Hành củ Hải Dương",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+    "code": "hanh-la-53bgh",
+    "name": "Hành lá",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "f7a8403a-f03b-4b3f-ae06-f20c02da5dd7",
+    "code": "hanh-ly-son-t6ruo",
+    "name": "Hành Lý Sơn",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "08939bf6-eb68-45a2-8e7a-2cdf8cde92c9",
+    "code": "hanh-phi-toi-phi-fokrk",
+    "name": "Hành phi tỏi phi",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "8fa7681c-79c2-49fe-81d0-f066b1cb4dc2",
+    "code": "hanh-tay-aoc56",
+    "name": "Hành tây",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "58a7dc8b-c12a-4357-80ec-c74a36e02ecc",
+    "code": "hanh-tim-jo4u8",
+    "name": "Hành tím",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "8c05916f-6d40-4cae-96a7-d0bca2b97aaa",
+    "code": "hat-dieu-liq0i",
+    "name": "Hạt điều",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "167d46d2-4e34-4c1f-bb7e-dcde40c772dd",
+    "code": "he-la-ijv36",
+    "name": "Hẹ lá",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "57138eea-1b9c-433b-9185-d0b8021abeed",
+    "code": "ING-895894",
+    "name": "Hoa hẹ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "4c107c02-dd19-424a-98bb-91e9a32f410f",
+    "code": "hung-bac-ha-zjhjc",
+    "name": "Húng bạc hà",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "aa8d6560-5a73-4487-b080-736397e830e0",
+    "code": "hung-que-rnc49",
+    "name": "Húng quế",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "50074026-fc6a-4f22-99e1-915c284f2136",
+    "code": "keo-neo-ksr7a",
+    "name": "Kèo nèo",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "e6b57185-7d6b-461c-b382-581da92c55bc",
+    "code": "ING-416E10",
+    "name": "Khế chua",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "0df39635-c3ba-4505-bd2d-ae9acf8b6665",
+    "code": "kho-qua-wvg6k",
+    "name": "Khổ qua",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "baa57b2f-01b4-4976-8b15-044b647d74fa",
+    "code": "khoai-lang-tdeig",
+    "name": "Khoai lang",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "8441da6a-766b-4ce4-8942-8596446a03ff",
+    "code": "khoai-mo-qcf2w",
+    "name": "Khoai mỡ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "9a7deefc-afd8-40b5-b29c-587e8f379f1a",
+    "code": "khoai-mon-33zwz",
+    "name": "Khoai môn",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "95637c83-9bfb-4631-aff1-2abbec7a946d",
+    "code": "khoai-tay-k5tz0",
+    "name": "Khoai tây",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "fa5b2686-cce1-4519-9fee-042ce1214ce8",
+    "code": "khoai-tu-3615p",
+    "name": "Khoai từ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "959f3b10-7818-4eb1-b2af-de40fb966f35",
+    "code": "kinh-gioi-pmadw",
+    "name": "Kinh giới",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "96268c0d-d617-4c92-8171-1d81290598a8",
+    "code": "la-cach-l462z",
+    "name": "Lá cách",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "63f25ec8-0090-44db-a0da-c1be06cd8eb8",
+    "code": "la-cam-121t1",
+    "name": "Lá cẩm",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "effd7c88-64e2-4cbe-97de-a3d8d9321d6e",
+    "code": "la-chanh-obg4j",
+    "name": "Lá chanh",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "7dbeeea5-3714-4144-b32d-7e06fc7c479d",
+    "code": "ING-85BFE2",
+    "name": "Lá chúc",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "0e4ad130-c753-4b56-b517-72d3bcda94cb",
+    "code": "la-chuoi-0cgd1",
+    "name": "Lá chuối",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "ccfa31da-31eb-4e1d-b2be-bad76ec7d4f9",
+    "code": "la-e-hl5tp",
+    "name": "Lá é",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "667d1024-0fff-4126-a865-191b0af30345",
+    "code": "la-giang-zxfvs",
+    "name": "Lá giang",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "ff5bd910-157f-43e5-ac12-51cd09fb29e0",
+    "code": "la-lot-g0sbv",
+    "name": "Lá lốt",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "147f17fb-e0e6-41a1-ad70-fef9c78a0116",
+    "code": "ING-5379DD",
+    "name": "Lá mắc mật",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "295e26a4-e600-4268-bac0-a6d6474be7a7",
+    "code": "la-me-62fjw",
+    "name": "Lá mè",
+    "group_label": "Rau củ",
+    "allergen_code": "SESAME"
+  },
+  {
+    "id": "e8de5440-ab49-44a0-9680-a84cbe97ae65",
+    "code": "la-mo-long-b7c9e",
+    "name": "Lá mơ lông",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "5209caeb-f219-45e0-9f64-4ba332ff3ba2",
+    "code": "la-sung-aylqd",
+    "name": "Lá sung",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "2c8df83c-b638-445d-9037-41e5e3126ae0",
+    "code": "mang-zbc0c",
+    "name": "Măng",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "75a6cebb-97ec-4d5d-976f-1de08f8526bf",
+    "code": "mang-chua-thai-san-np1cf",
+    "name": "Măng chua thái sẵn",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "d9effd84-2cc9-4cae-a17e-f944a41e77fe",
+    "code": "mang-cu-thai-san-619na",
+    "name": "Măng củ thái sẵn",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "18ecb359-929c-4450-aa26-ac30abe4584c",
+    "code": "mang-giang-dac-san-0xb7z",
+    "name": "Măng giang đặc sản",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "31e57b10-f586-447b-9dc0-e614b4f568bb",
+    "code": "mang-lay-hov6l",
+    "name": "Măng lay",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "bd77345b-5bb6-49a0-8504-806839c067ad",
+    "code": "mang-nua-6uuy5",
+    "name": "Măng nứa",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "4fda8a02-812f-47a1-807f-70fe1de5ffc3",
+    "code": "mang-nua-kho-nau-ngay-149vv",
+    "name": "Măng nứa khô nấu ngay",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "4da3a950-e0ee-4891-a691-ce5180e0cfba",
+    "code": "mang-ong-kho-nau-ngay-66v6z",
+    "name": "Măng ống khô nấu ngay",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "3a225b19-77b0-41dd-955f-d0adc60291cb",
+    "code": "mang-soi-kho-nau-ngay-bf4z2",
+    "name": "Măng sợi khô nấu ngay",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "ca552d75-4817-4026-be30-dd0b6ad3b3e9",
+    "code": "mang-tay-xanh-3vhld",
+    "name": "Măng tây xanh",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "03167d63-abe6-4d6e-9e32-4efe15a78417",
+    "code": "mang-truc-dac-san-s20x3",
+    "name": "Măng trúc đặc sản",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "6681fe16-4a00-4e74-bed3-3bf3f225ada9",
+    "code": "mang-truc-quan-thu-jthx0",
+    "name": "Măng trúc quân thử",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "59d1eee2-1ade-4e06-8b5f-951801eaab71",
+    "code": "mat-ong-ujbji",
+    "name": "Mật ong",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "3ab3fe64-743b-433b-acf2-509278dd5fc2",
+    "code": "me-dszji",
+    "name": "Mè",
+    "group_label": "Rau củ",
+    "allergen_code": "SESAME"
+  },
+  {
+    "id": "88af3363-c099-44b0-b361-ef1d93ae2e48",
+    "code": "mui-ta-3nn2i",
+    "name": "Mùi ta",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "2357d337-0a67-42df-bc16-2e212c85279b",
+    "code": "mui-tau-gr4ie",
+    "name": "Mùi tàu",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "be1b14e1-67c3-492a-9d64-8bf671068f50",
+    "code": "muop-rktbi",
+    "name": "Mướp",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "ef563534-4a0a-441b-bbd8-07d6c7ce30d8",
+    "code": "muop-huong-d1p5j",
+    "name": "Mướp hương",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "caf4d21b-8245-498e-98cc-61c05b227033",
+    "code": "nam-bunapi-meinf",
+    "name": "Nấm Bunapi",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "14311b5b-f925-419a-b798-82ebadd52b86",
+    "code": "nam-bunashimeji-ak86j",
+    "name": "Nấm Bunashimeji",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "688cc03f-910e-480c-96ee-06ac407202e6",
+    "code": "nam-dong-co-7vrm6",
+    "name": "Nấm Đông Cô",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "bc690379-f87f-4263-a3eb-c14b84811d8c",
+    "code": "nam-dong-trung-ha-thao-5teac",
+    "name": "Nấm đông trùng hạ thảo",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "26a6542a-bf04-4ccb-b291-7b6f97bb7cad",
+    "code": "nam-hon-hop-abiwy",
+    "name": "Nấm hỗn hợp",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "db4939c0-f339-4bd2-810b-4fb61b9a6c90",
+    "code": "nam-hon-hop-dong-trung-ha-thao-tvmml",
+    "name": "Nấm hỗn hợp đông trùng hạ thảo",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "71c94529-0a82-4e07-98d9-912c314c139b",
+    "code": "nam-kim-cham-twrfh",
+    "name": "Nấm kim châm",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "97b5486c-47aa-4178-8159-12c152dec91f",
+    "code": "nghe-fbiyn",
+    "name": "Nghệ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "d7e5d0a0-ca9b-4753-bc34-c53b01c0a954",
+    "code": "ngo-gai-h004i",
+    "name": "Ngò gai",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "4b23dec6-72bd-450d-996d-70636ce24fd9",
+    "code": "ngo-gai-rau-om-0klwz",
+    "name": "Ngò gai, rau om",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "386bbba7-2089-4339-bcd3-117f8268b121",
+    "code": "ngo-ngot-uyen-uong-hws9k",
+    "name": "Ngô ngọt uyên ương",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "2aabc327-ea32-4dc0-80e5-e2bfab951200",
+    "code": "ngo-om-pwu1r",
+    "name": "Ngò om",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "8191ad57-d838-40f3-91a9-56ebecb89c4a",
+    "code": "ngo-ri-icfsd",
+    "name": "Ngò rí",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "67dbc07d-623f-4078-834b-11571bfe3a77",
+    "code": "ngon-bi-3kpp9",
+    "name": "Ngọn bí",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "864fb267-f71b-488d-bae9-92496a252042",
+    "code": "ngu-vi-huong-gxbhj",
+    "name": "Ngũ vị hương",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "4bef3967-135d-4f83-b974-026e635918ea",
+    "code": "nuoc-loc-3ymsv",
+    "name": "Nước lọc",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "a8f978fa-61c9-4989-8019-740335e20468",
+    "code": "ot-bot-ot-kho-5m485",
+    "name": "Ớt bột Ớt khô",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "d4d9a040-74f5-40b1-8096-3e3819e9ccc7",
+    "code": "ot-sung-odmvo",
+    "name": "Ớt sừng",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "31493d16-4b06-47c6-8a97-e8fc34e06efe",
+    "code": "ot-trai-cay-hcs54",
+    "name": "Ớt trái cây",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "1404584e-e8d0-4ece-9df9-d99e8a3690e6",
+    "code": "pho-chay-rau-nam-d1lmr",
+    "name": "Phở chay rau nấm",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "b3238cee-0463-462f-bd8a-4d36e34f4d0d",
+    "code": "qua-bau-66ypa",
+    "name": "Quả bầu",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "c8d96e0a-9790-4077-9935-2b01caf691ee",
+    "code": "ING-B7BAE4",
+    "name": "Quả dọc",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "dc3c2098-33f8-4eb2-af3c-05869319c96d",
+    "code": "ING-2BBBFA",
+    "name": "Quả mắc mật",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "dfca90a5-407e-46dc-8c1c-4bb02a310a75",
+    "code": "qua-sau-ordbh",
+    "name": "Quả sấu",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "6b726bf4-5bb6-4b52-a365-d1211cb75dc8",
+    "code": "qua-tram-t5hhu",
+    "name": "Quả trám",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "fa64fc2a-0ac9-4fc8-84a7-3bb59bebfea7",
+    "code": "quat-8ald6",
+    "name": "Quất",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "f66052a3-754c-479a-803c-352122ba0187",
+    "code": "rau-can-tau-olvr0",
+    "name": "Rau cần tàu",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "a2473cb5-25e9-47c1-9777-40cbc9498d45",
+    "code": "rau-cang-cua-5bp4e",
+    "name": "Rau càng cua",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "604fd836-0af8-4c4d-b504-6d1b86b7fddd",
+    "code": "rau-chum-ngay-xohv9",
+    "name": "Rau chùm ngây",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "e0b20418-9981-40a3-be96-7bfdace5a62a",
+    "code": "rau-cu-hon-hop-1h200",
+    "name": "Rau củ hỗn hợp",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "9c835ff7-c591-4b70-9ef2-1d3e73f92157",
+    "code": "rau-dang-k8km8",
+    "name": "Rau đắng",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "105e7e7e-a4d9-4d7f-9c97-d71e7073fde5",
+    "code": "rau-day-b98rh",
+    "name": "Rau đay",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "849be6fd-175a-496e-9e04-f0d25fc82781",
+    "code": "rau-den-yrr9z",
+    "name": "Rau dền",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "67deef9c-6939-406f-bc7f-759d5f7048c0",
+    "code": "rau-lang-3d8t5",
+    "name": "Rau lang",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "b1e523e3-a25b-498f-8572-777191521d5e",
+    "code": "rau-ma-konl0",
+    "name": "Rau má",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "41ce303e-8b2a-4ed5-b899-c726c83bc95a",
+    "code": "rau-mam-cai-xanh-vccds",
+    "name": "Rau mầm cải xanh",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "018f366b-937c-4de3-b09a-0d90f2416fb5",
+    "code": "rau-mong-toi-uk2x5",
+    "name": "Rau mồng tơi",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "d8942198-f6a9-4235-8172-3058c6b4dff6",
+    "code": "rau-muong-cw5jj",
+    "name": "Rau muống",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "53c44fc2-4eda-48a1-9c5e-ec7daa367356",
+    "code": "rau-ngot-fd2ol",
+    "name": "Rau ngót",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "631488bc-48ab-49ee-98a6-04bf2c005a62",
+    "code": "rau-nhut-rau-ngo-psxki",
+    "name": "Rau nhút rau ngổ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "81b0181c-5394-4c42-93cd-be5e413e73c6",
+    "code": "rau-ram-6ymci",
+    "name": "Rau Răm",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "364d3d32-eb48-46d1-9b7c-0ac82dc0ee40",
+    "code": "ING-5FDF0F",
+    "name": "Rau sắng",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "97d82861-e626-4f5f-9473-57a1d7b136c0",
+    "code": "rau-thom-dn6lr",
+    "name": "Rau thơm",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "1ffccdcb-61f4-463b-b1f6-efa1b800b51d",
+    "code": "ING-EBCC4D",
+    "name": "Rau tiến vua",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "c920407b-2620-4cf3-8383-5583639d418c",
+    "code": "rau-xa-lach-ouq9m",
+    "name": "Rau xà lách",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "4a06c7ea-bcd8-42fd-9797-517b2aa97b32",
+    "code": "rieng-roszh",
+    "name": "Riềng",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "7ef68e37-87a2-4adc-a2c2-63cd85b77db5",
+    "code": "rong-bien-tron-com-rau-cu-zq0lm",
+    "name": "Rong biển trộn cơm rau củ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "811c093d-5790-4095-bb38-5894bd7309ba",
+    "code": "ruou-nau-an-rtbo9",
+    "name": "Rượu nấu ăn",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "ebd494f9-1c87-468d-adf4-02d054e34f1a",
+    "code": "sa-taifl",
+    "name": "Sả",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "0ae4d1e5-962a-4528-8a8c-df4e2b6efa66",
+    "code": "sa-cay-ayhd3",
+    "name": "Sả cây",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "f53e3242-eac4-40f0-8c6a-8b04ee80a651",
+    "code": "su-hao-mrxsh",
+    "name": "Su hào",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "814541b5-3e4f-4978-81b3-8a5b43481ada",
+    "code": "su-su-dh3po",
+    "name": "Su su",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "b0165bf5-f13d-4ed1-b0c8-db144200a338",
+    "code": "sup-lo-xlgrw",
+    "name": "Súp lơ",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "2dbd1651-3cd0-4e46-81fb-561ab696c975",
+    "code": "ING-E5612F",
+    "name": "Súp lơ trắng",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "075a593f-7c71-4775-b157-32e39d0908a1",
+    "code": "thach-rau-cau-vi-khoai-mon-k2so1",
+    "name": "Thạch rau câu vị khoai môn",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "8cf5c6bb-45ab-41e5-b951-64de4966d8e0",
+    "code": "thi-la-3frhq",
+    "name": "Thì là",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "62982354-0623-4be2-a604-0867dd55448d",
+    "code": "tia-to-9k3wv",
+    "name": "Tía tô",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "7f3e38b0-de2e-41c8-836f-61426f0cb3eb",
+    "code": "toi-ehjc3",
+    "name": "Tỏi",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "8f6c0e07-38d2-4d2b-be07-b2095b3796b8",
+    "code": "toi-cu-hai-duong-ndm8m",
+    "name": "Tỏi củ Hải Dương",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "3b5e8de5-817a-4515-bff2-a6a1d816f3a0",
+    "code": "toi-cu-ly-son-icxvr",
+    "name": "Tỏi củ Lý Sơn",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "6c34e145-5c3b-46b4-bb96-b9d3e8dfb936",
+    "code": "tra-ck3za",
+    "name": "Trà",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "7bc14ec9-2ad7-49a6-8119-b0c95c3d8124",
+    "code": "tuong-ca-chua-uavoi",
+    "name": "Tương cà chua",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "1babddcf-702e-4d30-b44a-c4de2d3da439",
+    "code": "tuong-hot-tuong-ban-selvr",
+    "name": "Tương hột Tương bần",
+    "group_label": "Rau củ",
+    "allergen_code": "SOY"
+  },
+  {
+    "id": "8b0b70d2-fe3d-4259-a1da-5b572caeab9d",
+    "code": "xa-lach-lolo-xanh-y8hpe",
+    "name": "Xà lách lolo xanh",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "835eb546-f2e5-4547-98de-c9f96fda7405",
+    "code": "xa-lach-thuy-tinh-d40w8",
+    "name": "Xà lách thủy tinh",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "e3808999-16b5-4b4f-9c8e-aec99d3b54a7",
+    "code": "xot-gia-vi-hoan-chinh-xao-sa-ot-pvro5",
+    "name": "Xốt gia vị hoàn chỉnh xào sả ớt",
+    "group_label": "Rau củ",
+    "allergen_code": null
+  },
+  {
+    "id": "5de8dbd4-987a-416e-970f-13af8c66350f",
+    "code": "ba-chi-bo-ct2he",
+    "name": "Ba chỉ bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "2591231b-ba18-4e70-854f-64ac386ba6bc",
+    "code": "ba-roi-heo-fgpr6",
+    "name": "Ba rọi heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "660b3118-b694-4b95-80e1-40333d2f3c98",
+    "code": "ba-roi-rut-suon-heo-bcn8e",
+    "name": "Ba rọi rút sườn heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "4d5984c7-d534-4e32-b0aa-d1ad0e0253b1",
+    "code": "bao-tu-heo-vkv2z",
+    "name": "Bao tử heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "a919f391-66b4-47f0-b90e-8b91dedc5944",
+    "code": "bap-gtgpv",
+    "name": "Bắp",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "8dc9865c-9445-49be-aa06-daa9136d5f51",
+    "code": "bap-bo-ovswy",
+    "name": "Bắp bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "eb181223-5337-4234-813c-7e09b554793a",
+    "code": "bap-gio-cuon-7p1r2",
+    "name": "Bắp giò cuộn",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "e947641f-18e4-4d7f-bd3b-5de7cc0878dd",
+    "code": "bot-chien-ga-gion-6s923",
+    "name": "Bột chiên gà giòn",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "ff615e5b-4657-46a3-9a9d-6ab610ad0290",
+    "code": "bun-bo-hue-xhhbd",
+    "name": "Bún bò Huế",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "08df819e-c68f-42a2-a900-025ea0af6421",
+    "code": "canh-ga-2kxkj",
+    "name": "Cánh gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "59bff627-1a25-47b6-99e2-affd86c74e09",
+    "code": "cat-heo-tbunq",
+    "name": "Cật heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "a7abc164-9f74-451e-8c57-ee25e98ebc29",
+    "code": "cha-lua-yhjhc",
+    "name": "Chả lụa",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "e0589bc3-d3ea-413f-8206-5c3c67d6915f",
+    "code": "chan-ga-sgdrn",
+    "name": "Chân gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "bba606a1-a3b6-4d8b-9ac9-0357228a696d",
+    "code": "chan-gio-heo-1pbeg",
+    "name": "Chân giò heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "3f2ab039-7a35-475f-9f3d-2ce215e2711b",
+    "code": "ING-17F9AE",
+    "name": "Cuống tim heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "3cc63d0a-9d98-4429-ac4c-a4c28e637642",
+    "code": "da-heo-i8l22",
+    "name": "Da heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "6a8e5930-7bfd-4f6e-a9ca-9b419ac5c0f6",
+    "code": "doi-truong-8vksc",
+    "name": "Dồi trường",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "94537cd6-2e32-4647-9a22-85b1ed3f61fd",
+    "code": "dui-bo-eywl8",
+    "name": "Đùi bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "6347d84b-df39-4f8c-8654-97c583880ad6",
+    "code": "dui-ga-rut-xuong-kl6og",
+    "name": "Đùi gà rút xương",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "fbc47736-d36a-4a7b-badd-c353058b9359",
+    "code": "dui-toi-ga-cz7hn",
+    "name": "Đùi tỏi gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "d13f9c77-5145-45e4-b643-58169e1299fd",
+    "code": "duoi-bo-0jhij",
+    "name": "Đuôi bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "febf7f58-9a44-4b9e-9d76-3cae29b02de6",
+    "code": "ING-EED44E",
+    "name": "Gà ác",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "ef7fce56-55d0-4666-9341-2731b98d561c",
+    "code": "ga-ta-lbi3c",
+    "name": "Gà ta",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "08e034b9-49f3-44e0-a68e-387b2b986cae",
+    "code": "gan-bo-0ocq1",
+    "name": "Gân bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "f27ac469-0e74-4045-960a-2865f0de5721",
+    "code": "gau-bo-5y4bz",
+    "name": "Gầu bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "73092b49-c17f-43b8-b2ee-fc85eaaae9f4",
+    "code": "gia-vi-bun-bo-hue-dhfood-natural-tbggg",
+    "name": "Gia vị bún bò huế DHFood Natural",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "cdb8166b-898f-44d9-8b4e-8178ab3d8d10",
+    "code": "gia-vi-hoan-chinh-thit-kho-dang-xot-63625",
+    "name": "Gia vị hoàn chỉnh thịt kho dạng xốt",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "78f8ca98-81c8-4526-8378-ce8a746feb82",
+    "code": "gia-vi-hoan-chinh-thit-kho-tau-wyi4a",
+    "name": "Gia vị hoàn chỉnh thịt kho tàu",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "5686e824-4245-40ba-b4e0-8891bfe93905",
+    "code": "gia-vi-nau-pho-bo-sg-sbjui",
+    "name": "Gia Vị Nấu Phở Bò SG",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "f33f807d-ff67-4cd6-98e8-28d04b65d63e",
+    "code": "huyet-heo-tknv1",
+    "name": "Huyết heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "f249a90a-933f-4138-8da1-4e3d810b26b1",
+    "code": "long-heo-34c41",
+    "name": "Lòng heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "cf51fbaa-f071-40c7-ac21-def5ab8b6b4d",
+    "code": "luoi-bo-jwfch",
+    "name": "Lưỡi bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "888cacd8-bf9e-47fe-8337-ee0187be8ad7",
+    "code": "luoi-heo-p49tb",
+    "name": "Lưỡi heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "bd671c99-5bf2-4ed0-82ba-67649221b4c9",
+    "code": "mang-luoi-lon-kho-nau-ngay-regxp",
+    "name": "Măng lưỡi lợn khô nấu ngay",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "a7d23002-8126-4e42-9978-eddad15219a9",
+    "code": "mien-an-lien-vi-suon-heo-3lh2s",
+    "name": "Miến ăn liền vị sườn heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "288e3b1d-b9f9-4827-aa14-f54ea09ebeec",
+    "code": "mien-an-lien-vi-thit-bam-xrw7t",
+    "name": "Miến ăn liền vị thịt bằm",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "0786df16-b581-4647-911e-c92eee025282",
+    "code": "mien-huong-vi-ga-mr8sy",
+    "name": "Miến Hương vị Gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "a2f8cab9-332d-47e0-85f0-b02578a569cf",
+    "code": "mien-mang-vit-y9rca",
+    "name": "Miến Măng Vịt",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "09a8d8f1-3277-4a88-825d-30310cfbdb15",
+    "code": "mo-chai-fankq",
+    "name": "Mỡ chài",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "872caa47-749c-4a2e-8e40-ae67f36a0962",
+    "code": "mo-heo-mic4j",
+    "name": "Mỡ heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "4ecacaf9-10b7-40b8-97d9-c58010df64d8",
+    "code": "mui-heo-hh6sw",
+    "name": "Mũi heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "3d99fc65-e98a-4f5e-9a87-2ab38b33d213",
+    "code": "nac-vai-bo-9u11v",
+    "name": "Nạc vai bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "03dc2cdf-5abc-40c3-82ea-bd6f17c2188f",
+    "code": "nam-bo-e5fh0",
+    "name": "Nạm bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "b5b53d6e-ce7d-4b01-a46d-10fe6da48c28",
+    "code": "nam-dui-ga-2xftq",
+    "name": "Nấm đùi gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "3a0fee8d-4824-405f-9881-6ee2e9b52627",
+    "code": "nuoc-dung-ga-bo-p3zle",
+    "name": "Nước dùng gà bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "1d5ce793-9266-4200-b19f-95252a13bbd6",
+    "code": "oc-heo-057wv",
+    "name": "Óc heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "e51163e1-9a5b-4067-b0fd-4dec6d5a909e",
+    "code": "pho-bo-gnyzr",
+    "name": "Phở bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "a8fb504e-eaf2-44aa-b12b-911813ac1443",
+    "code": "pho-bo-an-lien-vina-9j4vs",
+    "name": "Phở bò ăn liền Vina",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "415677ab-87fd-42d8-9431-65ec0e98bab4",
+    "code": "pho-bo-chin-su-story-co-thit-to-on820",
+    "name": "Phở Bò Chin su Story có thịt tô",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "4ec42981-02fa-4f80-b4a3-0eb59528d5f0",
+    "code": "pho-co-xot-thit-vi-bo-xrfgt",
+    "name": "Phở Có Xốt Thịt Vị Bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "ca794de3-a5a4-4987-9203-942841ac9509",
+    "code": "pho-co-xot-thit-vi-ga-ezsxs",
+    "name": "Phở Có Xốt Thịt Vị Gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "cd945773-2697-4c5c-8567-0fc2d43ea2d2",
+    "code": "pho-ga-vvv0y",
+    "name": "Phở gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "f580238b-42d1-41e9-83b8-de654b3bb04e",
+    "code": "pho-huong-vi-bo-30-ajyfc",
+    "name": "Phở hương vị bò *30",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "25e4b817-6f92-4f44-9da8-a8264d7d38d0",
+    "code": "pho-huong-vi-ga-30-z0t6m",
+    "name": "Phở hương vị gà *30",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "9c80a232-07cc-402e-b004-a7b30a85a650",
+    "code": "pho-thit-bo-o2q9x",
+    "name": "Phở thịt bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "2858df19-77da-4620-ae3d-e7c42143aea8",
+    "code": "rong-bien-gion-tron-kho-ga-m3u2l",
+    "name": "Rong biển giòn trộn khô gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "c7006c84-c984-404c-ac50-fc0be6713169",
+    "code": "sot-ga-chien-vi-cay-han-quoc-mfs3c",
+    "name": "Sốt gà chiên vị cay Han Quốc",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "19c41777-082d-401e-8b1f-f0dbbdd76f90",
+    "code": "sot-ga-chien-vi-phomai-k21k4",
+    "name": "Sốt gà chiên vị phomai",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "b1bf04a3-6835-4a40-9e26-cef774fafda3",
+    "code": "sot-gia-vi-thit-nuong-sa-cq2z4",
+    "name": "Sốt gia vị thịt nướng sả",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "e5e91efc-5432-42dc-9a09-03c30c5e522e",
+    "code": "sot-uop-thit-vi-cay-lkux6",
+    "name": "Sốt uớp thịt vị cay",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "a5a4ac41-b4ea-4337-b613-91f3f5241ed5",
+    "code": "sot-uop-thit-vi-truyen-thong-f0ord",
+    "name": "Sốt uớp thịt vị truyền thống",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "c07e9590-ce9a-46e5-b4db-4e5a8a0f542a",
+    "code": "sun-ga-a4f8f",
+    "name": "Sụn gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "cdb1523f-6347-4289-808c-f716a87dfce7",
+    "code": "ING-664FDF",
+    "name": "Sườn bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "4bcc2a02-9a88-43cf-ada2-42b16a54230c",
+    "code": "suon-heo-dixf5",
+    "name": "Sườn heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "bc061f7c-2ca7-4d9f-89aa-7d44edbadb09",
+    "code": "suon-que-heo-k8ccn",
+    "name": "Sườn que heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "5c5887e8-1574-4582-96d7-3c0a81e7abe4",
+    "code": "suon-st-louis-kk2g9",
+    "name": "Sườn St. Louis",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "c162058a-195b-4559-ba94-bb8937b88f28",
+    "code": "suon-sun-heo-9gfn6",
+    "name": "Sườn sụn heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "04af8df1-6af8-44af-b772-4b74090ceb14",
+    "code": "tai-heo-9hp2s",
+    "name": "Tai heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "18b0a0bc-be53-4d9e-9954-34257430279a",
+    "code": "than-bo-7vwk3",
+    "name": "Thăn bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+    "code": "thit-42b9b",
+    "name": "Thịt",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "be22714b-64c8-414f-b15d-5416b6290378",
+    "code": "thit-ba-roi-co-da-mh-giun-que-d2lkr",
+    "name": "Thịt Ba Rọi có da MH giun quế",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "f8ead8ce-b0d1-46ce-9767-97395fd12c18",
+    "code": "thit-be-st7z0",
+    "name": "Thịt bê",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "a04a1697-5943-4854-b0de-9ecdf51ec54d",
+    "code": "thit-bo-hamburger-ua7g7",
+    "name": "Thịt bò Hamburger",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "5dfaea33-531a-492a-ae51-fadd0f2411d6",
+    "code": "thit-bo-nac-yv4cc",
+    "name": "Thịt bò nạc",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "7c29a6ae-8263-48b8-b317-120b62235fac",
+    "code": "thit-bo-xay-qfizs",
+    "name": "Thịt bò xay",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "c8f6040b-d9bc-41b0-89c2-6dfda5ff7399",
+    "code": "thit-chim-bo-cau-wue92",
+    "name": "Thịt chim bồ câu",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "750c5b97-3140-4881-bd58-47d2a2dc4cb0",
+    "code": "ING-506AFE",
+    "name": "Thịt chim cút",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "d617ecc4-4ae7-43fb-8af8-f97d5e1f156f",
+    "code": "thit-de-5oord",
+    "name": "Thịt dê",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "e1f74666-d65b-403b-a844-f989dd8398bf",
+    "code": "thit-dui-heo-c20uu",
+    "name": "Thịt đùi heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "2b7636c7-8708-4e1c-8f86-b13aa162bac6",
+    "code": "thit-ech-8dulh",
+    "name": "Thịt ếch",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "4c9772f8-fafa-46c5-8bae-10f90cdf2fe8",
+    "code": "thit-ga-e2bhi",
+    "name": "Thịt gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "4badc5c0-efda-4cb5-a0ff-23380fa7ddf2",
+    "code": "thit-heo-ba-chi-ou4je",
+    "name": "Thịt heo ba chỉ",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "2eb699dc-70ee-4192-9ea2-6291535345e1",
+    "code": "thit-heo-mo-2sua2",
+    "name": "Thịt heo mỡ",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "39fcc4e7-cd22-43cf-84e6-e8dae27828fd",
+    "code": "thit-heo-nac-dua8b",
+    "name": "Thịt heo nạc",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "3634e051-6e4e-4bde-9d05-2c86ff2a8bc6",
+    "code": "thit-heo-xay-3pche",
+    "name": "Thịt heo xay",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "4e6e0e7e-9ea8-4650-ba4f-c71103149391",
+    "code": "thit-heo-xay-dac-biet-xk5ep",
+    "name": "Thịt heo xay đặc biệt",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "4c78304c-8e2e-4c15-b45a-f4f64e9056a7",
+    "code": "thit-nac-dam-dau-gion-92rit",
+    "name": "Thịt Nạc dăm đầu giòn",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "ca4e4ae8-440c-4c19-9884-2ac716854fb0",
+    "code": "thit-nac-dam-heo-nr094",
+    "name": "Thịt Nạc dăm heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "6d21ba01-c314-4d52-bc6f-8c4ee32ae957",
+    "code": "thit-nac-heo-w7psl",
+    "name": "Thịt nạc heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "dbc277ce-16e7-4a75-966f-7e2fcd5ac323",
+    "code": "thit-nac-nong-w1hx1",
+    "name": "Thịt Nạc nọng",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "b365519c-2602-4989-80a7-a3c5c403bdd6",
+    "code": "thit-nac-than-heo-c0ocx",
+    "name": "Thịt Nạc thăn heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "6daf05f2-f000-469f-86ac-cb61994c4a0c",
+    "code": "thit-nam-bung-bo-22ze5",
+    "name": "Thịt Nạm bụng bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "c1749162-986c-4607-856d-82d4400c342c",
+    "code": "thit-ngan-nme80",
+    "name": "Thịt ngan",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "4d6893b4-2eba-4150-b7f2-6c50d30d842b",
+    "code": "thit-ngong-s3ewx",
+    "name": "Thịt ngỗng",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "f4f70d67-d036-4210-b0bc-006e2bb21054",
+    "code": "thit-nguoi-thit-xong-khoi-w2na5",
+    "name": "Thịt nguội Thịt xông khói",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "43bd7325-c1e9-41bf-af8c-36c8dfd0deb6",
+    "code": "ING-3D9F30",
+    "name": "Thịt nọng heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "93c3ef88-8cf8-49a6-89aa-9af29f92150d",
+    "code": "thit-suon-than-70qhh",
+    "name": "Thịt Sườn thăn",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "a4f79ed8-8242-4bfc-b29f-d090185c760c",
+    "code": "thit-suon-vai-heo-825j3",
+    "name": "Thịt Sườn vai heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "a270e17e-34a9-4d10-941c-a082a7e5f741",
+    "code": "ING-9F59D5",
+    "name": "Thịt thỏ",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "ab6e96e2-66ed-4df1-af95-427ce2f922e8",
+    "code": "thit-trau-fghgm",
+    "name": "Thịt trâu",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "f08d0b07-bb15-48ea-8fc3-5ca4d81bd71b",
+    "code": "thit-vai-heo-me15t",
+    "name": "Thịt vai heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "891a1cda-548a-462b-a01c-46f8684f7eb1",
+    "code": "thit-vit-o6tfh",
+    "name": "Thịt vịt",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "d4899648-06e8-4bf6-891b-4dd0cce980d0",
+    "code": "tim-ga-8o0bs",
+    "name": "Tim gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "77c3c97e-34c9-4d6e-aba5-6bd4ea880845",
+    "code": "tim-heo-2o8rv",
+    "name": "Tim heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "5a5aeff4-37db-4571-9aba-248bab3218ca",
+    "code": "trung-ga-luo5e",
+    "name": "Trứng gà",
+    "group_label": "Thịt",
+    "allergen_code": "EGG"
+  },
+  {
+    "id": "048830dc-2a98-4aa8-b465-aacb8c42c412",
+    "code": "trung-ga-non-49rjn",
+    "name": "Trứng gà non",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "a06e22f8-07f8-4693-857d-5281c39a577d",
+    "code": "trung-vit-b4bx2",
+    "name": "Trứng vịt",
+    "group_label": "Thịt",
+    "allergen_code": "EGG"
+  },
+  {
+    "id": "6aae552b-599c-44d2-922c-79ea85a3c58a",
+    "code": "uc-ga-3olk1",
+    "name": "Ức gà",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "89acad4b-0df0-495c-80a5-7ea639d83ce9",
+    "code": "vit-xiem-tbr2w",
+    "name": "Vịt xiêm",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "ac679b9f-e41a-4e71-8d1f-40a1683426ed",
+    "code": "xot-bo-kho-bfkln",
+    "name": "Xốt bò kho",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "d1fb22be-ecbe-4e35-9328-fc647ffdf566",
+    "code": "xot-ca-chua-thit-bo-bam-7ljqu",
+    "name": "Xốt cà chua thịt bò băm",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "7ddc91da-519c-419f-b40e-ef47aa4eea76",
+    "code": "xot-gia-vi-hoan-chinh-ga-chien-nuoc-mam-gbhjq",
+    "name": "Xốt gia vị hoàn chỉnh gà chiên nước mắm",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "9393e19d-6789-47bb-9a7e-06643c85fe3d",
+    "code": "xot-gia-vi-hoan-chinh-thit-nuong-aujz7",
+    "name": "Xốt gia vị hoàn chỉnh thịt nướng",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "71f60905-5da7-4f6f-b519-f97c12bbe495",
+    "code": "xot-uop-thit-nuong-rpn1d",
+    "name": "Xốt ướp thịt nướng",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "5513c707-cbf7-4ed8-80d2-c2658a88017f",
+    "code": "xuc-xich-yssrm",
+    "name": "Xúc xích",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "f982cac6-e0e4-4584-b0d7-7ff8a3419f69",
+    "code": "xuong-bo-c9924",
+    "name": "Xương bò",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "aed43da7-af5b-467d-87d6-7a726da055e8",
+    "code": "xuong-duoi-heo-fla1l",
+    "name": "Xương đuôi heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "9ff88d18-c4da-4d38-b64e-7170e592f41f",
+    "code": "xuong-heo-s74p8",
+    "name": "Xương heo",
+    "group_label": "Thịt",
+    "allergen_code": null
+  },
+  {
+    "id": "6190d4d7-799c-478b-a5c5-1901d19127ee",
+    "code": "bach-tuoc-4aey5",
+    "name": "Bạch tuộc",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "250f9dbb-3f7a-4098-a0de-0e28144ac590",
+    "code": "ING-5D6F19",
+    "name": "Bào ngư",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "747b9170-6cf7-4247-a4d7-e86ac7e9539a",
+    "code": "bao-tu-ca-basa-ermwt",
+    "name": "Bao tử cá basa",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "3ce6ffe5-a507-4820-b81b-d97c3b4beb77",
+    "code": "be-be-d725i",
+    "name": "Bề bề",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "CRUSTACEANS"
+  },
+  {
+    "id": "d7c9c942-89c9-46f1-8a24-ee5c40db0469",
+    "code": "bun-rieu-cua-an-lien-30-x-qg0xq",
+    "name": "Bún riêu cua ăn liền 30 x",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "9e602e05-8056-4a22-adcc-962235dd0141",
+    "code": "ca-1imyi",
+    "name": "Cá",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "ee8400c1-7f06-4e9d-853c-703317f65c46",
+    "code": "ca-basa-lj524",
+    "name": "Cá basa",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "23a69575-746f-43c3-bc98-82ccba0879c3",
+    "code": "ca-bong-pnhb5",
+    "name": "Cá bống",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "FISH"
+  },
+  {
+    "id": "75d0b3a1-0b30-4917-b8d1-9e931bc4dea3",
+    "code": "ca-bop-vgf80",
+    "name": "Cá bớp",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "FISH"
+  },
+  {
+    "id": "0c816d8c-de17-4c44-b2cf-13a9230f1fa7",
+    "code": "ca-chach-aaesm",
+    "name": "Cá chạch",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "FISH"
+  },
+  {
+    "id": "dd3d03b8-bdc8-4fbe-8b0a-2a56caa4e6b8",
+    "code": "ca-chep-e3fjd",
+    "name": "Cá chép",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "8406d8ea-3602-42ae-9112-3c86ec72339c",
+    "code": "ING-2BDEB6",
+    "name": "Cá chép giòn",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "6aa6bee1-57e4-4f58-af5f-9fce39c890dd",
+    "code": "ca-chim-trang-mjsqv",
+    "name": "Cá chim trắng",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "FISH"
+  },
+  {
+    "id": "cc51cbc9-3a36-4434-8f82-5539d10c8ed3",
+    "code": "ING-D8242E",
+    "name": "Cá cơm",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "93cc8388-a0b1-4f62-b7ed-05b1c4d42a02",
+    "code": "ca-dieu-hong-1gm7u",
+    "name": "Cá điêu hồng",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "fec2e83a-126d-4fb2-a39c-f4eee2767091",
+    "code": "ING-B711F3",
+    "name": "Cá đuối",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "6e784035-0ff9-4fbc-a796-765baffd8a61",
+    "code": "ca-hoi-87e4r",
+    "name": "Cá hồi",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "dfb61229-ff4c-4b43-9e74-8c1985fdad2d",
+    "code": "ca-keo-fklvi",
+    "name": "Cá kèo",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "FISH"
+  },
+  {
+    "id": "498ea5bb-f9d8-4921-8dc5-aa664baa985d",
+    "code": "ca-kho-oq9qb",
+    "name": "Cá khô",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "c4b9d295-b5cf-40ae-b096-c83ac0826fff",
+    "code": "ca-khoai-urbe8",
+    "name": "Cá khoai",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "FISH"
+  },
+  {
+    "id": "93dbc312-c9cc-4ac1-a2a1-7c2c79834d53",
+    "code": "ca-lang-4jvm6",
+    "name": "Cá lăng",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "FISH"
+  },
+  {
+    "id": "ee9510cd-031f-4c7c-bc95-4fed69f981ba",
+    "code": "ca-linh-ousod",
+    "name": "Cá linh",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "FISH"
+  },
+  {
+    "id": "b873a19b-3328-4d64-9ef2-1ca59e5e0637",
+    "code": "ca-loc-h8dt6",
+    "name": "Cá lóc",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "d258dd1a-5fa7-481a-9bb5-44f8fd39c0b6",
+    "code": "ca-me-b2e1w",
+    "name": "Cá mè",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "FISH"
+  },
+  {
+    "id": "35ebfdba-1bb1-4c93-af6d-0e7b6f029354",
+    "code": "ca-ngu-we1go",
+    "name": "Cá ngừ",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "b42aac49-339e-4576-b972-4adf97a4f4a4",
+    "code": "ca-nuc-3w9zj",
+    "name": "Cá nục",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "399b0839-3ab0-4793-81b5-c38d05b66c1d",
+    "code": "ING-CA6617",
+    "name": "Cá rô đồng",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "f25857f8-4a2d-466d-b61d-75cae6331669",
+    "code": "ca-ro-phi-2fmx8",
+    "name": "Cá rô phi",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "b853daad-bff3-4460-8a8f-bfb16daac66e",
+    "code": "ca-tai-tuong-8fdit",
+    "name": "Cá tai tượng",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "FISH"
+  },
+  {
+    "id": "1d4e485c-b86d-4716-b238-784683f7ca91",
+    "code": "ING-FB29BC",
+    "name": "Cá thòi lòi",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "bdfacf39-9a29-4caf-990c-4415e8a37b8f",
+    "code": "ca-thu-0ywnt",
+    "name": "Cá thu",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "f76c44af-dc29-4d21-a2c8-ccd284464793",
+    "code": "ING-E84306",
+    "name": "Cá trắm cỏ",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "de588559-4a9f-4126-b149-73fff27c30ed",
+    "code": "ING-8D067A",
+    "name": "Cá trắm đen",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "f60a2b88-fc4c-49f8-82e0-46fd04310d41",
+    "code": "ca-tre-kfe30",
+    "name": "Cá trê",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "97ba6bd9-d7df-4b17-ae99-492a362dbbae",
+    "code": "ca-trich-10lvz",
+    "name": "Cá trích",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "FISH"
+  },
+  {
+    "id": "9ea5ecb9-0b3f-4fd8-bc6a-9f58d54048fe",
+    "code": "cang-ghe-zmn8g",
+    "name": "Càng ghẹ",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "CRUSTACEANS"
+  },
+  {
+    "id": "3d7c5fe0-de42-48e1-ac47-bbe431153b0a",
+    "code": "cha-cua-cha-ca-9n66u",
+    "name": "Chả cua chả cá",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "bb76f8ab-6922-4269-a361-1ef6e1130ff4",
+    "code": "cha-oc-nscbd",
+    "name": "Chả ốc",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "a312dd06-ec70-48a2-9afe-d6a77018dae4",
+    "code": "cua-bien-ghe-78k5h",
+    "name": "Cua biển ghẹ",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "d580308a-097a-42ed-8d97-45e5fa4009fd",
+    "code": "cua-dong-fo5hh",
+    "name": "Cua đồng",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "1e5726f9-9f3e-400a-b050-fceaea1aa12e",
+    "code": "gao-lua-tom-st25-8ovoe",
+    "name": "Gạo lúa tôm ST25",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "6293871d-46cd-40ff-8178-5db440fb0687",
+    "code": "gia-vi-hoan-chinh-ca-kho-rieng-0jnuh",
+    "name": "Gia vị hoàn chỉnh cá kho riềng",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "339841e7-da71-41d0-88d0-63f550aefb41",
+    "code": "ING-FE0F0E",
+    "name": "Hải sâm",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "213a743b-0667-49f6-b908-83d03394bc2a",
+    "code": "hau-nuong-pho-mai-92tzu",
+    "name": "Hàu nướng phô mai",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "7716d851-8476-42af-a27b-145ea0c1178f",
+    "code": "hau-sua-tach-vo-d893r",
+    "name": "Hàu sữa tách vỏ",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "1e9ef5b5-6850-4560-a201-fa0c9be1dc23",
+    "code": "hau-sua-thai-hasubi-4zs5f",
+    "name": "Hàu sữa Thái Hasubi",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "d2532db8-905c-442c-b6b8-2e45f822b661",
+    "code": "luon-ji5zr",
+    "name": "Lươn",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "2429a742-a99c-4a0f-a6be-ab0d86809ef2",
+    "code": "mam-nem-mam-ca-ey1ef",
+    "name": "Mắm nêm mắm cá",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "882fa29b-5580-4ded-a93f-3cca91828bbb",
+    "code": "mam-tom-rnte3",
+    "name": "Mắm tôm",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "896168c8-a330-451e-8840-01012d875a09",
+    "code": "mien-cua-yrjsg",
+    "name": "Miến Cua",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "0ea40214-6635-4668-b7e9-0046733fc6b9",
+    "code": "muc-tqodj",
+    "name": "Mực",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "7956638d-5092-4a89-b266-e886f0029dbe",
+    "code": "muc-kho-g550k",
+    "name": "Mực khô",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "8d812908-0a32-438c-86b6-1e26e059bb91",
+    "code": "muc-nang-m2775",
+    "name": "Mực nang",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "3aef799a-2dad-4462-ba24-5dbe318fdc1e",
+    "code": "muc-ong-h5aa8",
+    "name": "Mực ống",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "aad1f429-e337-4d5c-a6d1-ad967c777162",
+    "code": "muc-trung-3n7zt",
+    "name": "Mực trứng",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "9b65f695-1bc2-499f-907a-5b167318a8fa",
+    "code": "muc-trung-com-xoi-ntf-y5u0e",
+    "name": "Mực trứng cơm xôi NTF",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "664ac6a7-f1c1-4832-9529-0d42d7406440",
+    "code": "muoi-cham-tom-chua-cay-3yevc",
+    "name": "Muối chấm Tôm chua cay",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "c94f92b8-b4f0-4bce-afdb-355083eeab1f",
+    "code": "muoi-tom-ot-kieu-tay-ninh-lx2h4",
+    "name": "Muối tôm ớt kiểu Tây Ninh",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "87c8d479-a9a3-44b5-8c53-cbbd55ab48a8",
+    "code": "muoi-tom-tay-ninh-uz3yj",
+    "name": "Muối tôm Tây Ninh",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "a6f95839-312c-4b98-96bd-bd7b71bc8ac2",
+    "code": "nam-bao-ngu-trang-f8vyd",
+    "name": "Nấm bào ngư trắng",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "213223b4-798a-4967-9117-30c2b47af831",
+    "code": "ngheu-p0h76",
+    "name": "Nghêu",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "76159385-8fb3-4d57-a0f4-460f0a4b22d8",
+    "code": "ngheu-so-hen-wnl20",
+    "name": "Nghêu sò hến",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "63355314-a8d9-4a9e-8d2d-2707c432c751",
+    "code": "nhong-tam-mhqpi",
+    "name": "Nhộng tằm",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "b444671b-9561-4d79-839e-0c04035e60b7",
+    "code": "oc-buou-0u4t5",
+    "name": "Ốc bươu",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "MOLLUSCS"
+  },
+  {
+    "id": "228e6223-fd6e-4074-8965-216fffd41fff",
+    "code": "oc-huong-wocwz",
+    "name": "Ốc hương",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "MOLLUSCS"
+  },
+  {
+    "id": "55a639a9-25b1-4cb1-ad84-651038a6eb73",
+    "code": "ING-BF53C1",
+    "name": "Ốc len",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "4bb1fcee-3edb-4c67-be8c-891b0ac03b0b",
+    "code": "oc-mong-tay-orea2",
+    "name": "Ốc móng tay",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "MOLLUSCS"
+  },
+  {
+    "id": "ed9772cc-57e5-4ae3-813c-9c2865cb0020",
+    "code": "ING-ABD821",
+    "name": "Ốc nhồi",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "8034856d-59f1-4a13-a9b9-0229777198e2",
+    "code": "oc-vien-y4wjw",
+    "name": "Ốc viên",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "2a1be08f-38b2-430c-a6dd-b86d30d0e505",
+    "code": "pate-gan-oz58z",
+    "name": "Pate gan",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "e933d0f6-628c-4a88-b989-13642661d64c",
+    "code": "rong-bien-cuon-nuong-vi-muc-mrugb",
+    "name": "Rong biển cuộn nướng vị mực",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "87fab06e-e828-4ff5-9e79-7c740e188c75",
+    "code": "rong-bien-em-be-cuoi-tom-va-ca-com-a896p",
+    "name": "Rong biển em bé cười tôm và cá cơm",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "bf552542-8a07-40d5-b738-e6ccd23bf0aa",
+    "code": "ruoi-ldsbn",
+    "name": "Rươi",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "c1651f37-57c0-49e0-ba37-9e1376870230",
+    "code": "sa-sung-vursk",
+    "name": "Sá sùng",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "272885e9-8c1a-4f13-98ec-2c1885bd89db",
+    "code": "sa-te-tom-b0pkr",
+    "name": "Sa tế tôm",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "6fd22801-ca06-4c44-a4ad-a7aa4ed0a7e5",
+    "code": "so-diep-wl26x",
+    "name": "Sò điệp",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "MOLLUSCS"
+  },
+  {
+    "id": "63a28001-d1f2-47c7-8d9d-209a8f3186fe",
+    "code": "so-huyet-8hrv8",
+    "name": "Sò huyết",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "MOLLUSCS"
+  },
+  {
+    "id": "255b8e3c-d47d-486e-bc09-b4ab72f6cfdf",
+    "code": "sot-gia-vi-ca-thit-kho-fn0xh",
+    "name": "Sốt gia vị cá thịt kho",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "41dcb577-c0ce-487f-916d-2f1ad0bf4e15",
+    "code": "tep-zpnhv",
+    "name": "Tép",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "710ebba7-f09c-4e36-9269-9354fe50c7d4",
+    "code": "tep-dong-94sp7",
+    "name": "Tép đồng",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "CRUSTACEANS"
+  },
+  {
+    "id": "04f75fe9-192a-4601-82c2-0b58f26fb0df",
+    "code": "thit-hen-gtqjx",
+    "name": "Thịt hến",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "a9dfb313-9c83-45a3-983e-c76e8612b05e",
+    "code": "thit-oc-wqlvu",
+    "name": "Thịt ốc",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "862689ca-46ca-40b7-bf10-cc677fdb9d41",
+    "code": "tom-c0k7d",
+    "name": "Tôm",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "60d8c5d2-606e-4f01-990a-553b7e13d5b8",
+    "code": "tom-kho-4blae",
+    "name": "Tôm khô",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "894e3a4f-35af-413d-8d36-6df2d4bef9cb",
+    "code": "tom-su-niihr",
+    "name": "Tôm sú",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "6c85b9a1-d048-43e1-ac2c-fa6e5712717a",
+    "code": "tom-the-gsp89",
+    "name": "Tôm thẻ",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "70f0f5a7-244e-452a-8d4b-a6508d1d63e7",
+    "code": "tom-thit-zcki6",
+    "name": "Tôm thịt",
+    "group_label": "Thủy hải sản",
+    "allergen_code": "SEAFOOD"
+  },
+  {
+    "id": "cca7b932-f6db-45ad-8ed4-e6dc4991ee07",
+    "code": "ING-C004C3",
+    "name": "Tu hài",
+    "group_label": "Thủy hải sản",
+    "allergen_code": null
+  },
+  {
+    "id": "378e0ecd-63d2-43c8-a139-83c2ea9099e0",
+    "code": "bot-que-thom-rpstk",
+    "name": "Bột quế thơm",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "e38b8e90-1321-4dc7-b032-448d1b63a091",
+    "code": "buoi-5-roi-5xq22",
+    "name": "Bưởi 5 roi",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "47ae344a-8fb8-474d-815e-85029f789c2a",
+    "code": "buoi-da-xanh-lhwqj",
+    "name": "Bưởi da xanh",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "9af265ca-97f5-40b2-8277-984eb1cf7c37",
+    "code": "buoi-hong-da-xanh-plupp",
+    "name": "Bưởi hồng da xanh",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "4a4a328e-97fb-413e-b66d-ba56f3656662",
+    "code": "cam-lqgo2",
+    "name": "Cam",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "f362d5a5-9883-4a23-a1e1-ed0b056e8431",
+    "code": "cam-cara-ec9r1",
+    "name": "Cam cara",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "2163019a-7f4d-49fb-a9b1-9d6b039bc125",
+    "code": "cam-ruot-vang-sq6n4",
+    "name": "Cam ruột vàng",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "e7f2e093-f67e-4221-89e9-82c7cb7f7dd7",
+    "code": "cam-sanh-xxfno",
+    "name": "Cam sành",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "94b04411-af53-4e16-bff4-759699399a76",
+    "code": "cha-la-nguyen-canh-devie-ghj4p",
+    "name": "Chà là nguyên cành Devie",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "9cf036c5-6905-4dff-b1a6-edbe094448df",
+    "code": "chanh-bfxpq",
+    "name": "Chanh",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "d383336b-18ba-49fd-b694-76d75a000512",
+    "code": "chanh-co-hat-7ry46",
+    "name": "Chanh có hạt",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "278711bc-9734-40fc-b310-413b6dd92f59",
+    "code": "chanh-leo-zv070",
+    "name": "Chanh leo",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "08b34da6-c1c8-44ea-9b26-800e0025293c",
+    "code": "chom-chom-c9xm7",
+    "name": "Chôm chôm",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "ad3154aa-8663-479c-9119-b04fadca0efc",
+    "code": "chuoi-chin-wk1zs",
+    "name": "Chuối chín",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "c86db771-c36a-4b52-87ee-030550af4f64",
+    "code": "chuoi-gia-h2evv",
+    "name": "Chuối già",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "b126e449-6895-4a65-b7cc-96f2637b8fc1",
+    "code": "dam-tao-u41mw",
+    "name": "Dấm táo",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "bf9f4a10-1dcc-435a-aa85-bae681397701",
+    "code": "dau-dau-lang-mo-thai-corp-gupj3",
+    "name": "Đậu đậu Làng Mơ Thai corp",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "4e1913cf-128e-4e2a-9b1b-296f5c20b61d",
+    "code": "dau-me-thom-1hp1w",
+    "name": "Dầu mè thơm",
+    "group_label": "Trái cây",
+    "allergen_code": "SESAME"
+  },
+  {
+    "id": "5254db4e-89d3-4b8f-90a0-8e284f7f1f36",
+    "code": "dau-phu-non-lang-mo-hocc3",
+    "name": "Đâu phụ non làng mơ",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "2cebafd0-4a94-4cf4-83be-e08f4eb0b6da",
+    "code": "dau-tay-fjvyd",
+    "name": "Dâu tây",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "41273570-2f61-473d-927c-bf5afcd2aedc",
+    "code": "du-du-ruot-do-9i5vd",
+    "name": "Đu đủ ruột đỏ",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "b51402ae-d19a-469f-90b4-3ae081892f48",
+    "code": "du-du-xanh-qk3ut",
+    "name": "Đu đủ xanh",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "c1529acb-4060-44c6-bfd4-185ab227c0c8",
+    "code": "dua-sq7ca",
+    "name": "Dứa",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "28612dd5-9318-47e5-8706-bbdba71d4be6",
+    "code": "dua-de-vuong-king-ruot-cam-3ciu8",
+    "name": "Dưa Đế Vương King ruột cam",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "e9b7c862-6aea-4f52-8f7b-7274362e73ca",
+    "code": "dua-hau-6ut1j",
+    "name": "Dưa hấu",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "d0b670f3-361b-4602-b4c9-ee56b370c9bc",
+    "code": "dua-khom-4viuc",
+    "name": "Dứa khóm",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "f581c98f-6711-44ec-a2d1-e8b1a9a01126",
+    "code": "dua-le-kim-co-nuong-af3d3",
+    "name": "Dưa lê kim cô nương",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "36303690-fa0e-4d11-9978-f7bff03becac",
+    "code": "dua-vo-xanh-ruot-cam-q7dvb",
+    "name": "Dưa vỏ xanh ruột cam",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "f00b1746-2a98-43e5-af0b-8a0ddc23ef66",
+    "code": "he-368qv",
+    "name": "Hẹ",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "cb781f17-cc53-4ae6-97f8-0fbb3c4ea9d0",
+    "code": "kiwi-vang-c11hz",
+    "name": "Kiwi vàng",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "17150d68-9251-44c6-97c1-46d4a41cb35e",
+    "code": "kiwi-xanh-zdge4",
+    "name": "Kiwi xanh",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "1ed273c8-2c5f-4e0e-b419-4c3e8b82032c",
+    "code": "la-dua-e6b8e",
+    "name": "Lá dứa",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "d3dfff63-fcdb-43a1-8a44-f47dfa3b1d42",
+    "code": "le-e4haj",
+    "name": "Lê",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "54222fc4-5f9e-47f1-be66-daa435b1651d",
+    "code": "man-an-phuoc-pkvsh",
+    "name": "Mận An Phước",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "d44075a1-68d2-444e-95e0-1ca6269a6962",
+    "code": "man-da-duong-6wi8u",
+    "name": "Mận đá đường",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "e1f33f82-afcf-43de-b4e4-6760db7b24ba",
+    "code": "man-sua-xf46w",
+    "name": "Mận sữa",
+    "group_label": "Trái cây",
+    "allergen_code": "DAIRY"
+  },
+  {
+    "id": "919df89b-ebb0-4ec6-8de2-3b9020dac3f9",
+    "code": "moc-nhi-me408",
+    "name": "Mộc nhĩ",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "462f30d0-a26d-48a1-9cc1-78a03681e03b",
+    "code": "muoi-ot-chanh-nha-trang-mwhoz",
+    "name": "Muối ớt chanh Nha Trang",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "4333c02e-d313-40e8-a4ae-93888e41d4b7",
+    "code": "nho-den-357sk",
+    "name": "Nho đen",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "2e2f0e69-168f-4b04-a437-4cf0fbbb111b",
+    "code": "nuoc-cot-chanh-day-siro-mn3wl",
+    "name": "Nước cốt chanh dây siro",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "c4131213-04b2-49bb-8e89-d6998da55c4b",
+    "code": "ot-149n9",
+    "name": "Ớt",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "0cb7d902-cb25-4fd7-9dc3-01cc4c902723",
+    "code": "ot-chuong-mgy4o",
+    "name": "Ớt chuông",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "4734f696-dfaf-43c9-9137-a82ed6a9c4d4",
+    "code": "qua-gac-8jrrn",
+    "name": "Quả gấc",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "b2b4974b-71d2-410e-ad6c-c7cfe57d9f7e",
+    "code": "rong-nho-woso9",
+    "name": "Rong nho",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "a95a6d76-3b30-4e3e-8548-8ffacdc59a91",
+    "code": "rong-nho-sot-me-rang-5-w71dt",
+    "name": "Rong nho sốt mè rang *5",
+    "group_label": "Trái cây",
+    "allergen_code": "SESAME"
+  },
+  {
+    "id": "c9531686-894a-41f9-852c-260fd999d368",
+    "code": "tac-vm8ws",
+    "name": "Tắc",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "e3292edb-f5af-4fc6-8643-377eb0ef33fc",
+    "code": "tao-a7ixr",
+    "name": "Táo",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "b0a0b4da-4582-45a9-b53b-5d46396e8adb",
+    "code": "tao-breeze-newzealand-o9a3e",
+    "name": "Táo Breeze Newzealand",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "ee428787-0cb8-41f9-bb95-eb79e793ad3c",
+    "code": "tao-envy-tkpeh",
+    "name": "Táo Envy",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "c9777f8d-58ab-4b3a-93f6-9bea794b6957",
+    "code": "tao-fuji-nam-phi-4h4zp",
+    "name": "Táo Fuji Nam Phi",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "facc08bb-a7e8-46b7-ae03-0fe3a0012db1",
+    "code": "tao-jazz-z7t2j",
+    "name": "Táo Jazz",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "b3791d48-1738-4a7d-bd99-0b0a16d43c38",
+    "code": "tao-koru-11may",
+    "name": "Táo Koru",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "06abab00-dd17-48c2-b12d-65cfaf354b6f",
+    "code": "tao-rockit-trai-docsw",
+    "name": "Táo Rockit trái",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "52922153-9450-49ab-a3ee-9b11f1ef0810",
+    "code": "tao-royal-gala-pg-no6pl",
+    "name": "Táo Royal Gala PG",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "f646aaeb-d7e1-4d13-9baa-5edd1810b2bd",
+    "code": "xoai-cat-chu-bao-vang-1zwj8",
+    "name": "Xoài cát chu bao vàng",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "e3758956-7336-43f5-9316-e5d73a233c85",
+    "code": "xoai-cat-chu-chu-chin-kdtce",
+    "name": "Xoài Cát Chu Chú Chín",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "b45623d9-c964-4783-a8ef-e91dad2a30ef",
+    "code": "xoai-dai-giong-dai-loan-7xucr",
+    "name": "Xoài dài giống Đài Loan",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "b31bd82b-3027-44f0-9602-554d8f3f2339",
+    "code": "xoai-do-giong-dai-loan-e3zfa",
+    "name": "Xoài Đỏ giống Đài Loan",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "a11a98a1-a84c-4b00-b5b4-2a02008b61fb",
+    "code": "xoai-giong-j2ekw",
+    "name": "Xoài giống",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "7a2d3f1e-cf47-4c3a-b015-9d2d7480274a",
+    "code": "xoai-keo-6dmo0",
+    "name": "Xoài keo",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "9aae869c-b33c-4397-a2bd-3b5ee4185f93",
+    "code": "xoai-tu-quy-xwjx8",
+    "name": "Xoài tứ quý",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "dbb6c19e-8472-43fb-a0c8-1631b9a09c32",
+    "code": "xoai-xanh-xy1fq",
+    "name": "Xoài xanh",
+    "group_label": "Trái cây",
+    "allergen_code": null
+  },
+  {
+    "id": "d0a56b9e-f531-49f6-903e-31a722e46de5",
+    "code": "kem-i869r",
+    "name": "Kem",
+    "group_label": "Trứng & sữa",
+    "allergen_code": null
+  },
+  {
+    "id": "76281002-5da8-4e91-bc63-76b549792482",
+    "code": "nuoc-xot-pho-mai-cay-26csx",
+    "name": "Nước xốt phô mai cay",
+    "group_label": "Trứng & sữa",
+    "allergen_code": "DAIRY"
+  },
+  {
+    "id": "aa3f9ffb-eb37-4f22-8528-f56780c5e51d",
+    "code": "pho-mai-373g2",
+    "name": "Phô mai",
+    "group_label": "Trứng & sữa",
+    "allergen_code": "DAIRY"
+  },
+  {
+    "id": "0ce35733-af41-473a-aaf5-7e834c587a6b",
+    "code": "sua-j20xt",
+    "name": "Sữa",
+    "group_label": "Trứng & sữa",
+    "allergen_code": "DAIRY"
+  },
+  {
+    "id": "f966ff52-8151-44f2-a0d0-93b51a7d6d15",
+    "code": "sua-chua-igm69",
+    "name": "Sữa chua",
+    "group_label": "Trứng & sữa",
+    "allergen_code": "DAIRY"
+  },
+  {
+    "id": "dee823be-fbb8-4e96-8ace-dc601df62d59",
+    "code": "sua-dau-nanh-vxfox",
+    "name": "Sữa đậu nành",
+    "group_label": "Trứng & sữa",
+    "allergen_code": "SOY"
+  },
+  {
+    "id": "5ba7d6a2-4011-4e23-b365-1fae1dbc0a4e",
+    "code": "trung-bac-thao-hqhba",
+    "name": "Trứng bắc thảo",
+    "group_label": "Trứng & sữa",
+    "allergen_code": "EGGS"
+  },
+  {
+    "id": "75e1d811-8890-4500-8d36-f213b4bc11dc",
+    "code": "trung-cut-5mmup",
+    "name": "Trứng cút",
+    "group_label": "Trứng & sữa",
+    "allergen_code": "EGG"
+  },
+  {
+    "id": "41df9d6a-90cf-44fc-b58e-4bc3e1c7a03f",
+    "code": "trung-cut-lon-1keo1",
+    "name": "Trứng cút lộn",
+    "group_label": "Trứng & sữa",
+    "allergen_code": "EGGS"
+  },
+  {
+    "id": "51895ee7-82f3-41b0-8cdc-0bfc3fba54b7",
+    "code": "trung-vit-lon-amkwc",
+    "name": "Trứng vịt lộn",
+    "group_label": "Trứng & sữa",
+    "allergen_code": "EGGS"
+  },
+  {
+    "id": "26014be6-d7ac-4bde-b194-70671acac233",
+    "code": "trung-vit-muoi-qizkr",
+    "name": "Trứng vịt muối",
+    "group_label": "Trứng & sữa",
+    "allergen_code": "EGGS"
+  }
+]

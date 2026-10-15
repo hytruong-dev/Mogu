@@ -53,13 +53,24 @@ export const CATEGORY_CODE_ALIASES: Record<string, string[]> = {
   RICE: ['RICE', 'COM', 'COM_XOI'],
   GRILL: ['GRILL', 'NUONG', 'MON_NUONG', 'THIT'],
   STIR_FRY: ['STIR_FRY', 'XAO', 'MON_XAO'],
-  STEAM: ['STEAM', 'HAP', 'HAP_LUOC'],
-  SALAD: ['SALAD', 'GOI', 'GOI_NOM', 'NOM'],
-  BREAD: ['BREAD', 'BANH_MI', 'BANH'],
+  STEAM: ['STEAM', 'HAP', 'HAP_LUOC', 'MON_HAP_LUOC'],
+  SALAD: ['SALAD', 'GOI', 'GOI_NOM', 'NOM', 'GOI_SALAD'],
+  BREAD: ['BREAD', 'BANH_MI', 'BANH', 'FAST_FOOD'],
   DESSERT: ['DESSERT', 'TRANG_MIENG', 'CHE', 'BANH_NGOT'],
   DRINK: ['DRINK', 'DO_UONG', 'NUOC_UONG', 'BEVERAGE'],
   SNACK: ['SNACK', 'AN_VAT', 'STREET_FOOD'],
-  OTHER: ['OTHER', 'KHAC', 'MON_KHAC'],
+  OTHER: [
+    'OTHER',
+    'KHAC',
+    'MON_KHAC',
+    'MON_KHO',
+    'MON_CHIEN',
+    'MON_CUON',
+    'MON_HAM_TIEM',
+    'CA_RI_SOT',
+    'DUA_MUOI_KEM',
+    'DAI_TIEC_SET',
+  ],
 };
 
 export function normalizeCategoryCode(code: string): string {

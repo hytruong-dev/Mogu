@@ -1,0 +1,464 @@
+[
+  {
+    "id": "e531c8bd-3e09-48c0-b263-921affb08429",
+    "name": "Bánh đa",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427283214610007953-g1-bonh-da-cua-an-lien-vifon-gui-60g-og.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/3234/215801/bhx/banh-trang-me-nuong-an-nhien-goi-120g-201912040954252409.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "925978d2-7dcb-4a9f-97ed-c4b1834b8b4c",
+    "name": "Bánh mì",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/bbm_2022-20230526020130.png",
+    "newUrl": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=930287682706091",
+    "source": "FOOD_SEARCH"
+  },
+  {
+    "id": "2ca8d2a1-b9ff-4c78-895a-58fcb00e6e54",
+    "name": "Bắp Mỹ",
+    "oldUrl": "https://cdn.tgdd.vn/Products/Images//8785/290836/bhx/files/sl%2012.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8785/222881/bhx/bap-my-2-trai-202012282219106049.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "ab414451-7ebe-458d-a662-4b7ff840b6c1",
+    "name": "Bầu sao",
+    "oldUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/233898/bhx/bau-sao-tui-1kg_202508111310313768.jpg",
+    "newUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/312963/bhx/bau-sao-500g_202507291538440211.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "5beac633-c0c9-43ab-9a5f-18ffb62f705b",
+    "name": "Bột bắp",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/stfood-tinh-bot-bap-lam-banh-200g-t24-20230727063930.jpg",
+    "newUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/botbap-150g-copy-20230526081212.png",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "39ffbd9c-eb4c-46cd-a79f-4be80e53582b",
+    "name": "Bột nở baking",
+    "oldUrl": "https://cdn.tgdd.vn/Products/Images/2388/129533/bhx/bot-noi-baking-soda-arm-hammer-hop-454g-201911151505196028.JPG",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/2388/129533/bhx/bot-noi-baking-soda-arm-hammer-hop-454g-201911151505196028.JPG",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "0db3c250-8df9-4efe-9cb9-6a6b17deddee",
+    "name": "Bột sắn dây rau câu thạch",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2024/06/03/1566438/cach-lam-thach-san-day-tai-nha-don-gian-thom-ngon-202406031517253975.jpeg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8286/234480/bhx/bot-san-day-sora-nguyen-chat-goi-300g-202101260951598978.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "9e602e05-8056-4a22-adcc-962235dd0141",
+    "name": "Cá",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/ca-hoi-uc-nguyen-con.jpg",
+    "newUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/226851/bhx/ca-dieu-hong-lam-sach-vi-800g_202505301345436899.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "ee8400c1-7f06-4e9d-853c-703317f65c46",
+    "name": "Cá basa",
+    "oldUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/233833/bhx/233833-3_202408311533335523.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8782/311245/bhx/ca-basa-phi-le-250g-202311202033557945.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "1d46fe94-178f-4e96-9169-a812efec0147",
+    "name": "Ca cao Cà phê bột",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2023/02/21/1511768/bot-ca-cao-nguyen-chat-con-chon-vang-golden-co-ngon-khong-gia-bao-nhieu-202302211207528981.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8286/225223/bhx/bot-ca-cao-nguyen-chat-cacaomi-original-hop-127g-202211230926129317.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "498ea5bb-f9d8-4921-8dc5-aa664baa985d",
+    "name": "Cá khô",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2017/03/09/958858/cach-chon-mua-so-che-va-bao-quan-ca-kho-202202161716306342.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8782/233745/bhx/ca-com-202408221623172166.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "6b2231c0-f0b9-4495-a5d9-48230fe0aac8",
+    "name": "Cà pháo",
+    "oldUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/301611/bhx/301611-4-1_202409051015022327.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8785/301611/bhx/ca-phao-vi-200g-202301110814339191.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "09a0b5b5-0905-4574-b41e-aa3fd00157d2",
+    "name": "Cải",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/10281825-1-.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8820/230443/bhx/cai-thia-202312271059011562.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "8963b8da-75e1-48f3-a9e5-7e7a889e6401",
+    "name": "Cải xanh",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/10281839.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8820/309156/bhx/cai-be-xanh-500g-202401121613149216.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "10c3983d-9475-44ac-aa82-d39e172019d0",
+    "name": "Chao đỏ",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2018/08/01/1105745/chao-trang-va-chao-do-co-gi-khac-nhau-1_800x400.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/3525/174518/bhx/chao-bong-mai-hu-170g-2-700x467.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "d201de51-f990-4903-a903-e4688356e64b",
+    "name": "Chao trắng",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2018/08/01/1105745/chao-trang-va-chao-do-co-gi-khac-nhau-2_800x400.jpg",
+    "newUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/3525/339521/bhx/chao-khoai-mon-bong-mai-hu-170g_202510131403583249.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "ad3154aa-8663-479c-9119-b04fadca0efc",
+    "name": "Chuối chín",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2020/05/27/1258744/mua-chuoi-hay-chon-nhung-qua-nay-nguoi-ban-chi-biet-gat-dau-khen-ngoi-202201201141540113.jpg",
+    "newUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/228923/bhx/chuoi-gia-giong-nam-my_202512031458490151.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "c86db771-c36a-4b52-87ee-030550af4f64",
+    "name": "Chuối già",
+    "oldUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/228923/bhx/bs9a9088_202412181326000308.jpg",
+    "newUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/313132/bhx/chuoi-gia-giong-nam-my-1kg_202505201047413543.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "1ff97a05-f9bb-4088-a761-999bbb18d2e9",
+    "name": "Cơm tẻ",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2017/10/24/1035469/phan-biet-gao-nep-va-gao-te-chung-duoc-dung-de-nau-mon-gi-202202161559495525.jpg",
+    "newUrl": "https://down-vn.img.susercontent.com/file/vn-11134207-820l4-mf7y5zi3pj4f4e",
+    "source": "FOOD_SEARCH"
+  },
+  {
+    "id": "6d1292dd-7e52-42c2-8f59-b74969085bd8",
+    "name": "Củ nén",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2022/02/18/1416134/cach-trong-cu-nen-don-gian-tai-nha-ai-cung-trong-duoc-202202180626248618.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_260x260/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/241815/bhx/bap-my-1-trai_202504140933150847.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "a312dd06-ec70-48a2-9afe-d6a77018dae4",
+    "name": "Cua biển ghẹ",
+    "oldUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/News/Images/2024/10/01/1570630/knh-1_202410011609396410.jpg",
+    "newUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/News/Images/2024/10/01/1570630/knh-1_202410011609396410.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "3cc63d0a-9d98-4429-ac4c-a4c28e637642",
+    "name": "Da heo",
+    "oldUrl": "https://cdn.tgdd.vn/Products/Images/7259/286699/bhx/sellingpoint.jpg",
+    "newUrl": "https://cafefcdn.com/203337114487263232/2025/6/10/heo-cp2-1749531140210634424717-1749536358589-17495363587662004253307.jpg",
+    "source": "FOOD_SEARCH"
+  },
+  {
+    "id": "21a66ef6-5ae9-45d3-9db0-4f6251d98904",
+    "name": "Đậu",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-bap-goi-300g_7448b3d9-5997-4bbe-bd19-e64495b21c70-og.png",
+    "newUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-cove-xanh-goi-500g_fe356ea1-4a64-415e-b3a4-a817039f0173-og.png",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "a5ac5afa-5088-4383-a3ad-962bac434c11",
+    "name": "Dầu điều",
+    "oldUrl": "https://cdn.tgdd.vn/Products/Images/8271/323030/bhx/dau-mau-dieu-dh-foods-chai-100ml-202408011014449362.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8271/323030/bhx/dau-mau-dieu-dh-foods-chai-100ml-202404030946077879.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "c0e28ade-9b67-4766-94f6-88b0e568aa5c",
+    "name": "Đậu nành",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2025/12/sbo-1l_10010065-20251206093706.png",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/3235/83021/bhx/dau-nanh-hat-nho-vua-deu-viet-san-500g-201812041355329350.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "5eb800b4-a943-4023-95e6-308a07cf44a3",
+    "name": "Đậu xanh",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-xanh-boc-vo-thu-dung-goi-500g.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/3235/80595/bhx/dau-xanh-hat-viet-san-150g-201812041426289819.JPG",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "51b23ae7-4117-4976-850f-861aec350793",
+    "name": "Diếp cá",
+    "oldUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/299258/bhx/rau-diep-ca-goi-100g_202503271049382147.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/299258/bhx/rau-diep-ca-goi-100g_202505091413116213.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "b80d6e4b-31c2-4a61-a355-c858b2ce3d42",
+    "name": "Dừa",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/jim-willie-bot-lam-thach-trai-dua10gt24-20230727064612.png",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8788/314978/bhx/combo-3-trai-dua-xiem-got-vo-202309161129449788.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "22d91b62-4a6f-4f65-bc92-007840668343",
+    "name": "Đường thốt nốt",
+    "oldUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/2804/207729/bhx/duong-thot-not-dang-vien-7-moutains-goi-200g-201907241731261053.JPG",
+    "newUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2804/207731/bhx/207731-thumb-moi_202411112107287986.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "08e034b9-49f3-44e0-a68e-387b2b986cae",
+    "name": "Gân bò",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2022/08/04/1453059/mach-ban-cach-lam-gan-bo-ham-sa-bat-vi-nong-hoi-ngay-mua-202208040744052495.jpg",
+    "newUrl": "https://img.lazcdn.com/g/p/8d0e9a6b517a249748904035c386ad79.png_720x720q80.png",
+    "source": "FOOD_SEARCH"
+  },
+  {
+    "id": "0bb9e54b-649e-4475-9fc9-237b007293e9",
+    "name": "Gạo lứt",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/dau-gao-lut-light-5-duong-chat-tuong-an-chai-1-lit-202205311046108642-20230224043436.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/2513/138644/bhx/gao-luc-huyet-rong-pmt-tui-1kg-201912101606511730.JPG",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "470954f0-3792-45a1-98c0-d2350da28fff",
+    "name": "Gạo tẻ",
+    "oldUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/8/image/production/2026/8/image/Products/2513/5368447/gao-deo-thom-gao-oi-tui-2kg_202608271127178521.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/2513/236014/bhx/gao-thom-vua-gao-st25-tui-5kg-202103131616343493.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "d0a56b9e-f531-49f6-903e-31a722e46de5",
+    "name": "Kem",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2024/03/30/1563946/tu-29-03-27-06-2025-kem-cac-loai-mua-2-tang-1-202403301823054905.jpg",
+    "newUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/kem-sua-tuoi-danh-tiet-trung-anchor-hop-250ml_43491195-af3b-4aa2-9ed1-2407c03e26bb-og.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "effd7c88-64e2-4cbe-97de-a3d8d9321d6e",
+    "name": "Lá chanh",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2017/04/23/975336/meo-dung-la-chanh-trong-nau-an-2_760x760.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8275/326918/bhx/bot-chanh-knorr-goi-100g-202408211620007626.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "1ed273c8-2c5f-4e0e-b419-4c3e8b82032c",
+    "name": "Lá dứa",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2020/11/11/1306026/cach-lam-mut-dua-la-dua-vua-thom-vua-dep-ai-an-cung-me-202401241548323842.jpg",
+    "newUrl": "https://www.lottemart.vn/media/catalog/product/cache/0x0/0/4/0400272520006-1-bb.jpg.webp",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "ff5bd910-157f-43e5-ac12-51cd09fb29e0",
+    "name": "Lá lốt",
+    "oldUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/1/image/Products/Images/7259/362365/bhx/frame-3476028_202601221553582910.jpg",
+    "newUrl": "https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=1564984575656825",
+    "source": "FOOD_SEARCH"
+  },
+  {
+    "id": "f249a90a-933f-4138-8da1-4e3d810b26b1",
+    "name": "Lòng heo",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2023/10/04/1550291/cac-loai-do-long-heo-dang-ban-tai-website-bach-hoa-xanh-202310040837575013.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8781/228333/bhx/suon-non-heo-cp-500g-5-7-mieng-202401301654404985.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "47f88f47-6d19-434d-8061-1a9e3c84695c",
+    "name": "Mắm nêm",
+    "oldUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_260x260/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/7779/91393/bhx/91393-thumb-moi_202412012248331434.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Files/2022/09/06/1465588/mam-di-can-da-nang-co-nhung-loai-nao-cach-su-dung-nhu-the-nao-202209061018018254.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "2429a742-a99c-4a0f-a6be-ab0d86809ef2",
+    "name": "Mắm nêm mắm cá",
+    "oldUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_260x260/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/7779/91393/bhx/91393-thumb-moi_202412012248331434.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8285/197278/bhx/mam-ca-linh-song-huong-hu-400g-201902271415516055.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "882fa29b-5580-4ded-a93f-3cca91828bbb",
+    "name": "Mắm tôm",
+    "oldUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/7779/333544/bhx/333544-thumb-moi_202412241643072093.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/7779/204277/bhx/cdntgddvnproductsimages7779204277bhx-202311220902415696_202411301555541186.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "3ab3fe64-743b-433b-acf2-509278dd5fc2",
+    "name": "Mè",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/la-me-50g.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/3235/86774/bhx/me-trang-khong-vo-viet-san-250gr-202107071048344563.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "ee6210a1-7f08-4c3c-bce2-87bfc5b3fac1",
+    "name": "Me vắt",
+    "oldUrl": "https://cdn.tgdd.vn/Products/Images/8785/222877/bhx/me-chua-vat-hop-68g-202205181657130760.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8785/289628/bhx/me-chua-vat-goi-250g-202209071046494427.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "15d9b91c-c4f1-45d1-9b31-66a68c35269e",
+    "name": "Mì ăn liền",
+    "oldUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_260x260/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/2565/77644/mi-bo-rau-thom-3-mien_202607131323106012.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2565/77622/bhx/slide-1_202410151354441725.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "37f31187-0a82-4889-8f66-50a36c5b14a0",
+    "name": "Mì sợi",
+    "oldUrl": "https://img.tgdd.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8158/279079/bhx/mi-soi-lon-ottogi-goi-500g-202205210835343800.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8158/80133/bhx/mi-trung-safoco-cao-cap-500g-2-700x467.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "03dc2cdf-5abc-40c3-82ea-bd6f17c2188f",
+    "name": "Nạm bò",
+    "oldUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_260x260/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8139/238859/bhx/nam-bo-tuoi-ngon-tui-1kg_202512041003538471.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8139/238859/bhx/nam-bo-tuoi-ngon-tui-1kg_202508181609362938.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "beb3e090-c903-4d70-a3aa-94d9074c0076",
+    "name": "Nấm hương",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/06/maggi-dau-hao-nam-huong-820gr-t12_9b63a207-a24b-45bd-9080-082ac1e4f071-og-removebg-preview-20230614073854.png",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/3235/197209/bhx/nam-huong-kho-viet-san-goi-250g-201812121505285905.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "76159385-8fb3-4d57-a0f4-460f0a4b22d8",
+    "name": "Nghêu sò hến",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2023/02/01/1506460/cach-lam-lau-ngheu-so-oc-hen-ngot-thanh-duom-vi-huong-que-202302011458217212.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/4/image/Products/Images/8782/365369/bhx/ngheu-co-song_202604041842461199.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "2e2f0e69-168f-4b04-a437-4cf0fbbb111b",
+    "name": "Nước cốt chanh dây siro",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2022/08/02/1452636/siro-la-fresh-co-bao-nhieu-loai-gia-bao-nhieu-202208021118519546.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/7779/195879/bhx/sot-chanh-day-chua-ngot-dh-foods-chai-200g-202205172014267170.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "3a0fee8d-4824-405f-9881-6ee2e9b52627",
+    "name": "Nước dùng gà bò",
+    "oldUrl": "https://cdn.tgdd.vn/Products/Images/8271/294587/bhx/nuoc-dung-hoan-chinh-pho-ga-barona-goi-145g-202210271041128163.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8271/286218/bhx/nuoc-dung-hoan-chinh-lau-ga-barona-goi-140g-202208161117580388.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "aa3f9ffb-eb37-4f22-8528-f56780c5e51d",
+    "name": "Phô mai",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428326143310009535-cha-sot-mayonnaise-kewpie-gui-300g-og.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/8/image/Products/Images/7558/201194/bhx/pho-mai-con-bo-cuoi-hop-120g-8-mieng_202608241432538373.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "ac5d1bb1-532b-4376-9784-520556d70d14",
+    "name": "Sắn",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2020/11/19/1307929/mua-cu-san-o-dau-o-tphcm-vua-re-vua-chat-luong-202011191606058266.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8785/233854/bhx/cu-san-202312251507003100.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "0ce35733-af41-473a-aaf5-7e834c587a6b",
+    "name": "Sữa",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427277527810007259-lo-cà-pho-tan-gold-original-vinacafe-800g-og.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/2386/79296/bhx/sua-tuoi-tiet-trung-co-duong-th-true-milk-hop-1-lit-202211231533101889.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "f966ff52-8151-44f2-a0d0-93b51a7d6d15",
+    "name": "Sữa chua",
+    "oldUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/6/image/production/2026/6/image/Products/7558/5367181/thung-48-hop-sua-chua-an-co-duong-dong-xanh-100g_202606170039319873.jpg",
+    "newUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/7558/198066/bhx/loc-4-hu-sua-chua-co-duong-vinamilk-len-men-tu-nhien-100g_202508281518442130.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "4bcc2a02-9a88-43cf-ada2-42b16a54230c",
+    "name": "Sườn heo",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mien-an-lien-phu-huong-vi-suon-heo-acecook-goi-58g_23bde912-498f-456b-84a5-2adb9db67b32-og.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8781/228333/bhx/suon-non-heo-cp-500g-5-7-mieng-202401301654404985.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "b0165bf5-f13d-4ed1-b0c8-db144200a338",
+    "name": "Súp lơ",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2017/05/14/982278/cach-chon-mua-bao-quan-va-che-bien-sup-lo-xanh-danh-cho-ban-202205301611469551.jpg",
+    "newUrl": "https://winmart.onl/assets/media/images/products/500g-sup-lo-xanh_25092021_175752.jpg",
+    "source": "FOOD_SEARCH"
+  },
+  {
+    "id": "25141886-9db1-4b32-8681-184265fe9b29",
+    "name": "Thảo quả",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2021/08/02/1372468/thao-qua-la-gi-cong-dung-cua-cay-thao-qua-202108021358274582.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8275/216077/bhx/thao-qua-dh-foods-natural-hu-20g-201912101315463089.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "d617ecc4-4ae7-43fb-8af8-f97d5e1f156f",
+    "name": "Thịt dê",
+    "oldUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/News/Images/2024/12/13/1573174/image4_202412131337419247.jpg",
+    "newUrl": "https://decuubaoquan.com/files/product/dui-de-tuoi-fodm1rvg.jpg",
+    "source": "FOOD_SEARCH"
+  },
+  {
+    "id": "4c9772f8-fafa-46c5-8bae-10f90cdf2fe8",
+    "name": "Thịt gà",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428620476610007931-t--thung-30-gui-mo-hao-hao-vi-sate-hành-tom-75g-og.jpg",
+    "newUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/226876/bhx/dui-toi-ga-vi-500g_202511041054423699.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "ab6e96e2-66ed-4df1-af95-427ce2f922e8",
+    "name": "Thịt trâu",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2021/03/23/1337530/thit-trau-gac-bep-la-dac-san-gi-ma-gia-1-2-trieu-kg-van-duoc-san-don-202201031805470786.jpg",
+    "newUrl": "https://vinafood.vn/wp-content/uploads/2021/10/Bap-hoa-Trau-M60-1.jpg",
+    "source": "FOOD_SEARCH"
+  },
+  {
+    "id": "148e63d9-956e-4759-82d2-fd9b2f34b8af",
+    "name": "Tiêu",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/tieu-xanh-goi-50g.jpg",
+    "newUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2809/225392/bhx/225392-slide-moi_202411121307016558.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "7f3e38b0-de2e-41c8-836f-61426f0cb3eb",
+    "name": "Tỏi",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10283199-20241205094046.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8820/271536/bhx/toi-co-don-tui-300g-202205190845024132.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "60d8c5d2-606e-4f01-990a-553b7e13d5b8",
+    "name": "Tôm khô",
+    "oldUrl": "https://cdn.tgdd.vn/Products/Images/8400/327361/bhx/tom-kho-vs-hon-viet-hu-100g-202406270934595655.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8400/326569/bhx/tom-kho-an-vinh-hu-100g-202406071423208120.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "6c85b9a1-d048-43e1-ac2c-fa6e5712717a",
+    "name": "Tôm thẻ",
+    "oldUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/04/10282371-hdc-tom-the-non-tu-nhien-200g-20240404082107.jpg",
+    "newUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/340083/bhx/tom-the-cp_202511101112421650.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "6c34e145-5c3b-46b4-bb96-b9d3e8dfb936",
+    "name": "Trà",
+    "oldUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/6/image/production/2026/6/image/Products/8938/5367253/3-chai-tra-o-long-xanh-huong-chanh-tea-plus-1-lit_202606191447354272.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/2385/203772/bhx/tra-xanh-thai-nguyen-hung-thai-2-sao-hop-200g-202209122330358192.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "1babddcf-702e-4d30-b44a-c4de2d3da439",
+    "name": "Tương hột Tương bần",
+    "oldUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/News/Images/2024/11/11/1571933/1_202411111523327171.jpg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/2567/76915/bhx/tuong-hot-cholimex-250g-2-700x467.jpg",
+    "source": "SUPERMARKET"
+  },
+  {
+    "id": "f982cac6-e0e4-4584-b0d7-7ff8a3419f69",
+    "name": "Xương bò",
+    "oldUrl": "https://cdn.tgdd.vn/Files/2020/09/12/1289516/meo-ham-xuong-bo-nau-pho-nhanh-mau-mem-ma-lai-khong-bi-hoi-202201140946280727.jpeg",
+    "newUrl": "https://cdn.tgdd.vn/Products/Images/8781/241247/bhx/xuong-ong-heo-khay-500g-5-7-mieng-202111262119376013.jpg",
+    "source": "SUPERMARKET"
+  }
+]

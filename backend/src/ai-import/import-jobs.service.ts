@@ -342,11 +342,12 @@ export class ImportJobsService {
           unit: ing.unit || undefined,
         })),
       );
-      const newCount = provisioned.createdIds.length;
-      pendingIngredientCount = newCount;
+      pendingIngredientCount = 0;
+      const linkedCount = provisioned.items.filter((i) => i.ingredientId).length;
+      const unlinkedCount = provisioned.items.length - linkedCount;
       this.log(id, 'RECONCILING', 4,
-        `Đã xử lý ${provisioned.items.length} nguyên liệu`,
-        `Mới: ${newCount} (tự động tìm, cần duyệt) | Đã tồn tại: ${provisioned.items.length - newCount}`,
+        `Đã đối chiếu ${provisioned.items.length} nguyên liệu`,
+        `Khớp với kho: ${linkedCount} | Chưa khớp (chỉ lưu trong công thức món, không tạo mới vào kho): ${unlinkedCount}`,
       );
 
       // ── Bước 5: Làm giàu dữ liệu (Nutrition + Image) ─────────────────────
@@ -689,11 +690,11 @@ export class ImportJobsService {
   }
 
   /**
-   * Đối chiếu nguyên liệu theo 4 lớp để KHÔNG sinh bản ghi trùng:
-   *  L1 deterministic (identity / synonym / fold / canonical) → link ngay.
-   *  L2 heuristic (core, containment, pg_trgm) → chỉ ra ứng viên.
-   *  L3 AI phân xử 1 lần cho các item còn ứng viên → link + học synonym.
-   *  L4 chỉ tạo PENDING khi AI xác nhận khác hoặc không có ứng viên nào.
+   * Đối chiếu nguyên liệu theo 3 vòng với kho nguyên liệu chuẩn có sẵn:
+   *  Vòng 1 (L1 deterministic + L2 heuristic): link ngay nếu khớp chính xác, synonym, fold...
+   *  Vòng 2 (L3 AI phân xử): phân xử ứng viên đối với các item chưa link nhưng có ứng viên tương đồng >= 85%.
+   *  Vòng 3: link theo quyết định AI. Các item không khớp giữ nguyên trong công thức món (ingredientId = null),
+   *          tuyệt đối KHÔNG tự động tạo mới vào bảng ingredients và KHÔNG cào ảnh.
    */
   private async reconcileIngredients(
     jobId: string,
@@ -753,7 +754,7 @@ export class ImportJobsService {
       );
     }
 
-    // Vòng 3: link theo quyết định AI + tạo PENDING cho phần còn lại.
+    // Vòng 3: link theo quyết định AI (chỉ map vào kho có sẵn, không tạo mới vào DB, không tìm ảnh).
     const pass2Inputs: ResolveOrProvisionInput[] = inputs.map(({ clientRef, rawName, unit }) => {
       const first = pass1.byClientRef.get(clientRef);
       if (first?.ingredientId) {
@@ -779,9 +780,9 @@ export class ImportJobsService {
     });
 
     const pass2 = await this.ingredientCatalog.resolveOrProvisionBatch(pass2Inputs, {
-      createMissing: true,
-      createAmbiguous: true, // đã qua AI phân xử → được phép tạo
-      enqueueImageEnrichment: true,
+      createMissing: false,
+      createAmbiguous: false,
+      enqueueImageEnrichment: false,
       createdVia: IngredientCreatedVia.AI_IMPORT,
     });
 
@@ -803,10 +804,10 @@ export class ImportJobsService {
       }),
     );
 
-    // Học synonyms AI gợi ý cho các nguyên liệu MỚI tạo (giúp lần sau khớp L1).
+    // Học synonyms AI gợi ý cho các nguyên liệu đã liên kết (giúp lần sau khớp L1).
     const learn: Array<{ id: string; synonyms: string[] }> = [];
     for (const item of pass2.items) {
-      if (!item.isNew || !item.ingredientId) continue;
+      if (!item.ingredientId) continue;
       const d = decisionByRef.get(item.clientRef);
       if (d?.synonyms?.length) learn.push({ id: item.ingredientId, synonyms: d.synonyms });
     }

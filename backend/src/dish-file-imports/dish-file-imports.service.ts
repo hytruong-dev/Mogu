@@ -497,7 +497,7 @@ export class DishFileImportsService {
         const created = await this.dishes.create(
           {
             name,
-            createMissingIngredients: true,
+            createMissingIngredients: false,
             shortDescription: row.mapped.shortDescription,
             prepMinutes: row.mapped.prepMinutes ? Number(row.mapped.prepMinutes) : undefined,
             cookMinutes: row.mapped.cookMinutes ? Number(row.mapped.cookMinutes) : undefined,

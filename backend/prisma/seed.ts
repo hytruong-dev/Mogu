@@ -6,6 +6,11 @@
  */
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
+import {
+  ENRICHED_CATEGORIES,
+  ENRICHED_DIET_TYPES,
+  ENRICHED_ALLERGENS,
+} from '../src/taxonomy/constants/taxonomy.constants';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 
@@ -99,27 +104,23 @@ async function main() {
   console.log(`✅ DietaryPreferences: ${dietaryPreferences.length} records`);
 
   // ── Allergens ──────────────────────────────────────────────────────────────
-  const allergens = [
-    { code: 'SEAFOOD', name: 'Hải sản', displayOrder: 1 },
-    { code: 'PEANUT', name: 'Đậu phộng', displayOrder: 2 },
-    { code: 'MILK', name: 'Sữa và chế phẩm từ sữa', displayOrder: 3 },
-    { code: 'EGG', name: 'Trứng', displayOrder: 4 },
-    { code: 'GLUTEN', name: 'Gluten (lúa mì)', displayOrder: 5 },
-    { code: 'SOY', name: 'Đậu nành', displayOrder: 6 },
-    { code: 'TREENUT', name: 'Hạt cây (điều, hạnh nhân...)', displayOrder: 7 },
-    { code: 'FISH', name: 'Cá', displayOrder: 8 },
-    { code: 'SHELLFISH', name: 'Tôm, cua, sò', displayOrder: 9 },
-    { code: 'SESAME', name: 'Mè (vừng)', displayOrder: 10 },
-  ];
-
-  for (const allergen of allergens) {
+  for (const allergen of ENRICHED_ALLERGENS) {
     await prisma.allergen.upsert({
       where: { code: allergen.code },
-      update: { name: allergen.name, displayOrder: allergen.displayOrder },
-      create: { ...allergen },
+      update: {
+        name: allergen.name,
+        description: allergen.description,
+        displayOrder: allergen.displayOrder,
+      },
+      create: {
+        code: allergen.code,
+        name: allergen.name,
+        description: allergen.description,
+        displayOrder: allergen.displayOrder,
+      },
     });
   }
-  console.log(`✅ Allergens: ${allergens.length} records`);
+  console.log(`✅ Allergens: ${ENRICHED_ALLERGENS.length} records`);
 
   // ── BA-004: Regions ────────────────────────────────────────────────────────
   const regions = [
@@ -198,29 +199,23 @@ async function main() {
   console.log(`✅ Provinces: ${provinces.length} records`);
 
   // ── BA-004: Dish Categories ────────────────────────────────────────────────
-  const dishCategories = [
-    { code: 'RICE', name: 'Cơm', displayOrder: 1 },
-    { code: 'NOODLE', name: 'Bún / Phở / Mì', displayOrder: 2 },
-    { code: 'SOUP', name: 'Canh / Súp', displayOrder: 3 },
-    { code: 'STIR_FRY', name: 'Xào', displayOrder: 4 },
-    { code: 'GRILL', name: 'Nướng', displayOrder: 5 },
-    { code: 'STEAM', name: 'Hấp', displayOrder: 6 },
-    { code: 'SALAD', name: 'Gỏi / Salad', displayOrder: 7 },
-    { code: 'BREAD', name: 'Bánh mì / Bánh', displayOrder: 8 },
-    { code: 'SNACK', name: 'Ăn vặt', displayOrder: 9 },
-    { code: 'DRINK', name: 'Đồ uống', displayOrder: 10 },
-    { code: 'DESSERT', name: 'Tráng miệng', displayOrder: 11 },
-    { code: 'HOT_POT', name: 'Lẩu', displayOrder: 12 },
-    { code: 'OTHER', name: 'Khác', displayOrder: 99 },
-  ];
-  for (const dc of dishCategories) {
+  for (const dc of ENRICHED_CATEGORIES) {
     await (prisma as any).dishCategory.upsert({
       where: { code: dc.code },
-      update: { name: dc.name, displayOrder: dc.displayOrder },
-      create: dc,
+      update: {
+        name: dc.name,
+        description: dc.description,
+        displayOrder: dc.displayOrder,
+      },
+      create: {
+        code: dc.code,
+        name: dc.name,
+        description: dc.description,
+        displayOrder: dc.displayOrder,
+      },
     });
   }
-  console.log(`✅ DishCategories: ${dishCategories.length} records`);
+  console.log(`✅ DishCategories: ${ENRICHED_CATEGORIES.length} records`);
 
   // ── BA-004: Meal Type Tags ─────────────────────────────────────────────────
   const mealTypeTags = [
@@ -240,25 +235,23 @@ async function main() {
   console.log(`✅ MealTypeTags: ${mealTypeTags.length} records`);
 
   // ── BA-004: Diet Types ─────────────────────────────────────────────────────
-  const dietTypes = [
-    { code: 'VEGETARIAN', name: 'Chay', description: 'Không thịt động vật', displayOrder: 1 },
-    { code: 'VEGAN', name: 'Thuần chay (Vegan)', description: 'Không sản phẩm động vật', displayOrder: 2 },
-    { code: 'KETO', name: 'Keto', description: 'Ít carb, nhiều béo', displayOrder: 3 },
-    { code: 'EAT_CLEAN', name: 'Eat Clean', description: 'Tươi, ít chế biến', displayOrder: 4 },
-    { code: 'LOW_CARB', name: 'Low Carb', description: 'Ít tinh bột', displayOrder: 5 },
-    { code: 'HIGH_PROTEIN', name: 'High Protein', description: 'Nhiều đạm', displayOrder: 6 },
-    { code: 'GLUTEN_FREE', name: 'Không Gluten', description: 'Phù hợp celiac', displayOrder: 7 },
-    { code: 'DAIRY_FREE', name: 'Không sữa', description: 'Không lactose', displayOrder: 8 },
-    { code: 'HALAL', name: 'Halal', description: 'Chuẩn Halal', displayOrder: 9 },
-  ];
-  for (const dt of dietTypes) {
+  for (const dt of ENRICHED_DIET_TYPES) {
     await (prisma as any).dietType.upsert({
       where: { code: dt.code },
-      update: { name: dt.name, description: dt.description, displayOrder: dt.displayOrder },
-      create: dt,
+      update: {
+        name: dt.name,
+        description: dt.description,
+        displayOrder: dt.displayOrder,
+      },
+      create: {
+        code: dt.code,
+        name: dt.name,
+        description: dt.description,
+        displayOrder: dt.displayOrder,
+      },
     });
   }
-  console.log(`✅ DietTypes: ${dietTypes.length} records`);
+  console.log(`✅ DietTypes: ${ENRICHED_DIET_TYPES.length} records`);
 
   console.log('🎉 Seed completed!');
 }

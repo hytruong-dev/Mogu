@@ -49,14 +49,17 @@ const mockPrismaService = {
 
 describe('DishCommandService', () => {
   let service: DishCommandService;
+  let mockIngredientCatalog: { resolveOrProvisionBatch: jest.Mock };
 
   beforeEach(async () => {
+    mockIngredientCatalog = { resolveOrProvisionBatch: jest.fn() };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         DishCommandService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: DishQueryService, useValue: mockDishQueryService },
-        { provide: IngredientCatalogService, useValue: { resolveOrProvisionBatch: jest.fn() } },
+        { provide: IngredientCatalogService, useValue: mockIngredientCatalog },
       ],
     }).compile();
 
@@ -265,6 +268,47 @@ describe('DishCommandService', () => {
       mockPrismaService.db.dish.update.mockResolvedValue({ ...mockDish, status: DishStatus.UNPUBLISHED });
       const result = await service.unpublish('d1', 'actor1');
       expect(result.status).toBe(DishStatus.UNPUBLISHED);
+    });
+  });
+
+  describe('create with ingredients', () => {
+    it('defaults createMissing=false and enqueueImageEnrichment=false in resolveIngredientRows', async () => {
+      mockPrismaService.db.dish.findFirst.mockResolvedValue(null);
+      mockPrismaService.db.dish.create.mockResolvedValue({ id: 'd-1', status: DishStatus.DRAFT, slug: 'pho-bo' });
+      mockIngredientCatalog.resolveOrProvisionBatch.mockResolvedValue({
+        items: [
+          { clientRef: 'row-0', ingredientId: 'ing-1', outcome: 'EXISTING_EXACT' },
+        ],
+        byClientRef: new Map([
+          ['row-0', { clientRef: 'row-0', ingredientId: 'ing-1', outcome: 'EXISTING_EXACT' }],
+        ]),
+        createdIds: [],
+      });
+
+      await service.create(
+        {
+          name: 'Phở bò',
+          ingredients: [
+            { rawText: 'Thịt bò 200g', canonicalNameCandidate: 'Thịt bò' },
+          ],
+        },
+        'actor-1',
+      );
+
+      expect(mockIngredientCatalog.resolveOrProvisionBatch).toHaveBeenCalledWith(
+        [
+          expect.objectContaining({
+            clientRef: 'row-0',
+            rawName: 'Thịt bò',
+          }),
+        ],
+        expect.objectContaining({
+          createMissing: false,
+          createAmbiguous: false,
+          enqueueImageEnrichment: false,
+          createdVia: 'ADMIN_PICKER',
+        }),
+      );
     });
   });
 });

@@ -166,7 +166,7 @@ function ResultDishPhoto({
   isPrefetched?: boolean;
 }) {
   const fallback = getDishFallbackImage(dishName);
-  return (
+    return (
     <View style={styles.photoWrap}>
       <AppImage
         uri={uri}
@@ -242,7 +242,7 @@ function RewardChip({
   label: string;
   tint: string;
 }) {
-    return (
+  return (
     <View style={[styles.rewardChip, { backgroundColor: tint }]}>
       <Icon size={14} color="#6B4A32" strokeWidth={2.4} />
       <Text style={styles.rewardChipTxt} numberOfLines={1}>
@@ -795,7 +795,7 @@ export function RandomFlowScreen({ onClose }: Props) {
             <View style={styles.resultHeader}>
               <Pressable onPress={() => setPhase('setup')} style={styles.plainBackBtn} hitSlop={14}>
                 <ArrowLeft size={24} color="#2A1A10" strokeWidth={2.4} />
-              </Pressable>
+      </Pressable>
               <View style={styles.resultBrand} pointerEvents="none">
                 <NoanWordmark width={128} height={47} />
               </View>
@@ -826,7 +826,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                   NOAN chọn được món rồi!
                 </Text>
                 <Text style={styles.resultSub}>Một món ngon dành riêng cho bạn hôm nay</Text>
-              </Animated.View>
+    </Animated.View>
 
               <Animated.View style={[styles.resultDishCardContainer, cardPopStyle]}>
                 {/* Rotating jackpot rays behind the card */}
@@ -844,12 +844,12 @@ export function RandomFlowScreen({ onClose }: Props) {
 
                 {/* Celebration confetti ring / burst behind mascot */}
                 <View style={styles.confettiRingWrap} pointerEvents="none">
-                  <Image
+        <Image
                     source={CONFETTI_RING}
                     resizeMode="contain"
                     style={styles.fullSize}
-                  />
-                </View>
+        />
+      </View>
 
                 {/* Pulsing golden glow behind the card */}
                 <Animated.View style={[styles.cardGlow, cardGlowStyle]} pointerEvents="none" />
@@ -920,7 +920,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                             strokeWidth={1.8}
                           />
                         </StyledPressable>
-                      </View>
+          </View>
 
                       <View style={styles.rewardChips}>
                         <RewardChip Icon={Wallet} label={priceLabel} tint="#FFF4D1" />
@@ -935,9 +935,9 @@ export function RandomFlowScreen({ onClose }: Props) {
                         {nearbyBadge ? (
                           <RewardChip Icon={MapPin} label={nearbyBadge} tint="#E6F0FF" />
                         ) : null}
-                      </View>
-                    </View>
-                  </View>
+        </View>
+      </View>
+        </View>
                 </LinearGradient>
 
                 {/* Nghé NOAN jumping celebrating at top-right overlapping card */}
@@ -947,8 +947,8 @@ export function RandomFlowScreen({ onClose }: Props) {
                     resizeMode="contain"
                     style={[styles.fullSize, celebratingMascotStyle]}
                     accessibilityLabel="Nghé NOAN đang nhảy ăn mừng món ăn được chọn"
-                  />
-                </View>
+        />
+      </View>
               </Animated.View>
 
               <Animated.View style={ctaPulseStyle}>
@@ -963,7 +963,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                   <Text style={styles.chooseTxt}>Xem món ăn</Text>
                   <ChevronRight size={20} color="#2A1A10" strokeWidth={3} />
                 </StyledPressable>
-              </Animated.View>
+    </Animated.View>
 
               <StyledPressable
                 style={({ pressed }) => [styles.againBtn, pressed && styles.pressed]}
@@ -1028,7 +1028,7 @@ export function RandomFlowScreen({ onClose }: Props) {
               <View style={styles.mealGrid}>
                 {MEALS.map(({ key, label, Icon }) => {
                   const selected = meal === key;
-                  return (
+  return (
                     <Pressable
                       key={key}
                       style={[styles.mealChip, selected && styles.mealChipOn]}
@@ -1043,7 +1043,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                       <Text style={[styles.mealChipTxt, selected && styles.mealChipTxtOn]}>
                         {label}
                       </Text>
-                    </Pressable>
+          </Pressable>
                   );
                 })}
               </View>
@@ -1064,7 +1064,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                       {selected ? (
                         <View style={styles.selectedBadge}>
                           <Check size={9} color={INK} strokeWidth={3} />
-                        </View>
+                </View>
                       ) : null}
                       <Text
                         style={[styles.budgetChipTxt, selected && styles.budgetChipTxtOn]}
@@ -1079,9 +1079,9 @@ export function RandomFlowScreen({ onClose }: Props) {
                   );
                 })}
               </View>
-            </View>
+              </View>
 
-            <Pressable
+              <Pressable
               style={styles.profileRow}
               onPress={() => setSheetOpen(true)}
               accessibilityRole="button"
@@ -1094,13 +1094,13 @@ export function RandomFlowScreen({ onClose }: Props) {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.profileTxt}>
                     {profileDeclared ? 'Đã áp dụng hồ sơ ăn uống' : 'Hoàn thiện hồ sơ ăn uống'}
-                  </Text>
+              </Text>
                   <Text style={styles.profileSub} numberOfLines={1}>
                     {profileDeclared
                       ? 'NOAN lọc món theo các tiêu chí bên dưới'
                       : 'Giúp NOAN gợi ý món hợp với bạn hơn'}
-                  </Text>
-                </View>
+              </Text>
+              </View>
                 <ChevronRight size={18} color={MUTED} />
               </View>
               {profileChips.length > 0 ? (
@@ -1116,7 +1116,7 @@ export function RandomFlowScreen({ onClose }: Props) {
               ) : null}
             </Pressable>
 
-            <Pressable
+                  <Pressable
               style={styles.profileRow}
               onPress={() => {
                 if (!userLocation.coords) {
@@ -1139,7 +1139,7 @@ export function RandomFlowScreen({ onClose }: Props) {
               <View style={styles.profileTop}>
                 <View style={[styles.profileIcon, !userLocation.coords && styles.profileIconWarn]}>
                   <MapPin size={18} color={userLocation.coords ? '#15803D' : '#B45309'} />
-                </View>
+              </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.profileTxt}>
                     {userLocation.coords
@@ -1165,7 +1165,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                             ? 'Vui lòng bật GPS trên thiết bị để NOAN tìm quán gần bạn.'
                             : 'Nhấn để thử lấy lại tín hiệu GPS của bạn.'}
                   </Text>
-                </View>
+              </View>
                 {!userLocation.coords && !userLocation.loading ? (
                   <View style={styles.locationActionBadge}>
                     <Text style={styles.locationActionBadgeTxt}>
@@ -1175,7 +1175,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                           ? 'Bật GPS'
                           : 'Thử lại'}
                     </Text>
-                  </View>
+                </View>
                 ) : null}
               </View>
             </Pressable>
@@ -1184,16 +1184,16 @@ export function RandomFlowScreen({ onClose }: Props) {
               <View style={styles.errorBox}>
                 <Text style={styles.errorTxt}>{errorBanner}</Text>
                 <View style={styles.errorActions}>
-                  <Pressable
+                <Pressable
                     style={styles.errorBtn}
-                    onPress={() => {
+                  onPress={() => {
                       setFetchError(null);
                       setNoCandidateMessage(null);
                       openMachine('fresh');
-                    }}
-                  >
+                  }}
+                >
                     <Text style={styles.errorBtnTxt}>Thử lại</Text>
-                  </Pressable>
+                </Pressable>
                   <Pressable
                     style={styles.errorBtnGhost}
                     onPress={() => {
@@ -1251,7 +1251,7 @@ export function RandomFlowScreen({ onClose }: Props) {
                 ? 'NOAN chỉ gợi ý món có quán bán trong bán kính 3km.'
                 : 'Không ưng? Bạn có thể đổi món.'}
             </Text>
-          </View>
+      </View>
         </>
       )}
 
@@ -1460,7 +1460,7 @@ function LoadingOverlay({
               <Text style={styles.livePillText} numberOfLines={1}>
                 {finishing ? 'ĐÃ CHỌN XONG' : spinning ? 'ĐANG CHỌN MÓN' : 'SẴN SÀNG CHỌN MÓN'}
               </Text>
-      </View>
+        </View>
             <Svg width={18} height={14} viewBox="0 0 18 14" style={styles.sparkleRay}>
               <Path d="M2 12L7 4" stroke="#FFB800" strokeWidth="2.5" strokeLinecap="round" />
               <Path d="M10 13L15 2" stroke="#FFB800" strokeWidth="2.5" strokeLinecap="round" />
