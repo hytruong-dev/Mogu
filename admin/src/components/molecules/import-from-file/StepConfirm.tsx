@@ -13,6 +13,8 @@ import {
 } from 'lucide-react'
 import type { ErrorPolicy, ImportOptions, NewIngredientPolicy, PostStatus } from './types'
 import { YellowCheck, YellowRadio, YellowSwitch } from './widgets'
+import { Card, CardContent } from '../../ui/card'
+import { cn } from '@/lib/utils'
 
 interface Props {
   options: ImportOptions
@@ -33,110 +35,118 @@ export function StepConfirm({ options, onChange, fileName }: Props) {
     <div className="space-y-4">
       <div className="grid grid-cols-5 gap-2.5">
         {STATS.map((s) => (
-          <div key={s.label} className="rounded-xl border border-black/10 px-3 py-3">
-            <div className={`mb-2 flex h-8 w-8 items-center justify-center rounded-lg ${s.bg}`}>
-              <s.icon className={`h-4 w-4 ${s.color}`} />
-            </div>
-            <p className="text-xl font-extrabold leading-none">{s.value}</p>
-            <p className="mt-1 text-[11px] leading-snug text-[#6B7280]">{s.label}</p>
-          </div>
+          <Card key={s.label} className="shadow-xs">
+            <CardContent className="p-3">
+              <div className={cn('mb-2 flex h-8 w-8 items-center justify-center rounded-lg', s.bg)}>
+                <s.icon className={cn('h-4 w-4', s.color)} />
+              </div>
+              <p className="text-xl font-bold tracking-tight text-foreground leading-none">{s.value}</p>
+              <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{s.label}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
       <div className="grid grid-cols-[1.3fr_0.9fr] gap-4">
-        <div className="space-y-3 rounded-xl border border-black/10 p-4">
-          <p className="text-sm font-semibold">Tùy chọn nhập</p>
+        <Card className="shadow-xs">
+          <CardContent className="p-4 space-y-3">
+            <p className="text-sm font-semibold text-foreground">Tùy chọn nhập</p>
 
-          <OptionRow icon={FileSpreadsheet} title="Trạng thái sau khi nhập">
-            <YellowRadio
-              checked={options.postStatus === 'draft'}
-              onChange={() => onChange({ postStatus: 'draft' as PostStatus })}
-              title="Tạo bản nháp"
-              hint="Dữ liệu sẽ được lưu ở trạng thái nháp để bạn kiểm tra trước."
-            />
-            <YellowRadio
-              checked={options.postStatus === 'review'}
-              onChange={() => onChange({ postStatus: 'review' as PostStatus })}
-              title="Gửi kiểm duyệt tự động"
-              hint="Chuyển thẳng vào hàng đợi kiểm duyệt."
-            />
-          </OptionRow>
+            <OptionRow icon={FileSpreadsheet} title="Trạng thái sau khi nhập">
+              <YellowRadio
+                checked={options.postStatus === 'draft'}
+                onChange={() => onChange({ postStatus: 'draft' as PostStatus })}
+                title="Tạo bản nháp"
+                hint="Dữ liệu sẽ được lưu ở trạng thái nháp để bạn kiểm tra trước."
+              />
+              <YellowRadio
+                checked={options.postStatus === 'review'}
+                onChange={() => onChange({ postStatus: 'review' as PostStatus })}
+                title="Gửi kiểm duyệt tự động"
+                hint="Chuyển thẳng vào hàng đợi kiểm duyệt."
+              />
+            </OptionRow>
 
-          <OptionRow icon={Image} title="Hình ảnh từ URL">
-            <YellowSwitch
-              checked={options.downloadImages}
-              onChange={(v) => onChange({ downloadImages: v })}
-              label="Tải về Supabase Storage"
-            />
-            <p className="mb-2 text-xs text-[#6B7280]">Tải ảnh về và lưu vào Supabase Storage.</p>
-            <YellowCheck
-              checked={options.keepUrlOnFail}
-              onChange={(v) => onChange({ keepUrlOnFail: v })}
-              label="Giữ URL gốc nếu tải thất bại"
-            />
-          </OptionRow>
+            <OptionRow icon={Image} title="Hình ảnh từ URL">
+              <YellowSwitch
+                checked={options.downloadImages}
+                onChange={(v) => onChange({ downloadImages: v })}
+                label="Tải về Supabase Storage"
+              />
+              <p className="mb-2 text-xs text-muted-foreground">Tải ảnh về và lưu vào Supabase Storage.</p>
+              <YellowCheck
+                checked={options.keepUrlOnFail}
+                onChange={(v) => onChange({ keepUrlOnFail: v })}
+                label="Giữ URL gốc nếu tải thất bại"
+              />
+            </OptionRow>
 
-          <OptionRow icon={Database} title="Nguồn tham khảo">
-            <YellowCheck
-              checked={options.createDishSource}
-              onChange={(v) => onChange({ createDishSource: v })}
-              label="Tạo bản ghi DishSource"
-            />
-          </OptionRow>
+            <OptionRow icon={Database} title="Nguồn tham khảo">
+              <YellowCheck
+                checked={options.createDishSource}
+                onChange={(v) => onChange({ createDishSource: v })}
+                label="Tạo bản ghi DishSource"
+              />
+            </OptionRow>
 
-          <OptionRow icon={Leaf} title="Nguyên liệu mới">
-            <YellowRadio
-              checked={options.newIngredientPolicy === 'create'}
-              onChange={() => onChange({ newIngredientPolicy: 'create' as NewIngredientPolicy })}
-              title="Tạo mới ở trạng thái chờ chuẩn hóa"
-            />
-            <YellowRadio
-              checked={options.newIngredientPolicy === 'skip'}
-              onChange={() => onChange({ newIngredientPolicy: 'skip' as NewIngredientPolicy })}
-              title="Bỏ qua nguyên liệu chưa có"
-            />
-          </OptionRow>
+            <OptionRow icon={Leaf} title="Nguyên liệu mới">
+              <YellowRadio
+                checked={options.newIngredientPolicy === 'create'}
+                onChange={() => onChange({ newIngredientPolicy: 'create' as NewIngredientPolicy })}
+                title="Tạo mới ở trạng thái chờ chuẩn hóa"
+              />
+              <YellowRadio
+                checked={options.newIngredientPolicy === 'skip'}
+                onChange={() => onChange({ newIngredientPolicy: 'skip' as NewIngredientPolicy })}
+                title="Bỏ qua nguyên liệu chưa có"
+              />
+            </OptionRow>
 
-          <OptionRow icon={RotateCcw} title="Xử lý lỗi hệ thống">
-            <YellowRadio
-              checked={options.errorPolicy === 'rollback'}
-              onChange={() => onChange({ errorPolicy: 'rollback' as ErrorPolicy })}
-              title="Rollback toàn bộ batch"
-              hint="Nếu lỗi, hoàn tác toàn bộ lô nhập."
-            />
-            <YellowRadio
-              checked={options.errorPolicy === 'keep'}
-              onChange={() => onChange({ errorPolicy: 'keep' as ErrorPolicy })}
-              title="Giữ các dòng đã thành công"
-            />
-          </OptionRow>
-        </div>
+            <OptionRow icon={RotateCcw} title="Xử lý lỗi hệ thống">
+              <YellowRadio
+                checked={options.errorPolicy === 'rollback'}
+                onChange={() => onChange({ errorPolicy: 'rollback' as ErrorPolicy })}
+                title="Rollback toàn bộ batch"
+                hint="Nếu lỗi, hoàn tác toàn bộ lô nhập."
+              />
+              <YellowRadio
+                checked={options.errorPolicy === 'keep'}
+                onChange={() => onChange({ errorPolicy: 'keep' as ErrorPolicy })}
+                title="Giữ các dòng đã thành công"
+              />
+            </OptionRow>
+          </CardContent>
+        </Card>
 
         <div className="space-y-3">
-          <div className="rounded-xl border border-black/10 p-4">
-            <p className="mb-3 text-sm font-semibold">Ước tính khi nhập</p>
-            <ul className="space-y-2.5 text-sm">
-              <Est icon={Utensils} color="text-[#2563EB]" label="Món ăn (bản nháp)" value="~243" />
-              <Est icon={Leaf} color="text-[#16A34A]" label="Mối quan hệ nguyên liệu" value="~1,420" />
-              <Est icon={FileSpreadsheet} color="text-[#16A34A]" label="Hồ sơ dinh dưỡng" value="~243" />
-              <Est icon={Image} color="text-[#EA580C]" label="Hình ảnh" value="~730" />
-            </ul>
-            <p className="mt-3 flex items-start gap-2 text-[11px] text-[#6B7280]">
-              <Clock3 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              Thời gian ước tính: Tùy thuộc vào kích thước file và tốc độ mạng.
-            </p>
-          </div>
+          <Card className="shadow-xs">
+            <CardContent className="p-4">
+              <p className="mb-3 text-sm font-semibold text-foreground">Ước tính khi nhập</p>
+              <ul className="space-y-2.5 text-sm">
+                <Est icon={Utensils} color="text-blue-600" label="Món ăn (bản nháp)" value="~243" />
+                <Est icon={Leaf} color="text-emerald-600" label="Mối quan hệ nguyên liệu" value="~1,420" />
+                <Est icon={FileSpreadsheet} color="text-emerald-600" label="Hồ sơ dinh dưỡng" value="~243" />
+                <Est icon={Image} color="text-amber-600" label="Hình ảnh" value="~730" />
+              </ul>
+              <p className="mt-3 flex items-start gap-2 text-[11px] text-muted-foreground">
+                <Clock3 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                Thời gian ước tính: Tùy thuộc vào kích thước file và tốc độ mạng.
+              </p>
+            </CardContent>
+          </Card>
 
-          <div className="rounded-xl border border-black/10 p-4 text-sm">
-            <p className="mb-3 font-semibold">Thông tin lô nhập</p>
-            <dl className="space-y-2 text-[13px]">
-              <Row k="Batch ID" v="#BATCH-2026-0812" />
-              <Row k="File" v={fileName} />
-              <Row k="Kích thước" v="2.45 MB" />
-              <Row k="Người tạo" v="Admin Mogu" />
-              <Row k="Thời gian" v="12/08/2026 10:24" />
-            </dl>
-          </div>
+          <Card className="shadow-xs">
+            <CardContent className="p-4 text-sm">
+              <p className="mb-3 font-semibold text-foreground">Thông tin lô nhập</p>
+              <dl className="space-y-2 text-[13px]">
+                <Row k="Batch ID" v="#BATCH-2026-0812" />
+                <Row k="File" v={fileName} />
+                <Row k="Kích thước" v="2.45 MB" />
+                <Row k="Người tạo" v="Admin Mogu" />
+                <Row k="Thời gian" v="12/08/2026 10:24" />
+              </dl>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

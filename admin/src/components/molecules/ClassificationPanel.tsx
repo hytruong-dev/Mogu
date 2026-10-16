@@ -17,6 +17,7 @@ import { SectionLabel } from '../atoms/SectionLabel'
 import { FilterChip } from '../atoms/FilterChip'
 import { TagCheckbox } from './TagCheckbox'
 import { Input } from '../ui/input'
+import { Card, CardContent } from '../ui/card'
 import { cn } from '@/lib/utils'
 
 export interface ClassificationState {
@@ -117,8 +118,9 @@ export function ClassificationPanel({
     dietTypes.find((d) => state.dietTypeIds[0] === d.id)?.name ?? DIET_OPTIONS[4]
 
   return (
-    <div className="space-y-6 rounded-2xl border border-border bg-card p-6">
-      <h3 className="text-base font-semibold">Phân loại & khả năng phù hợp</h3>
+    <Card className="shadow-xs">
+      <CardContent className="space-y-6 p-6">
+        <h3 className="text-base font-semibold text-foreground">Phân loại & khả năng phù hợp</h3>
 
       {/* Danh mục món ăn */}
       <div>
@@ -401,6 +403,7 @@ export function ClassificationPanel({
           </div>
         </div>
       </div>
-    </div>
+    </CardContent>
+  </Card>
   )
 }

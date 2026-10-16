@@ -131,6 +131,18 @@ function LinkDishDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="px-6 space-y-3">
+          {report?.imageUrl && (
+            <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200/80 rounded-xl">
+              <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-200 flex-shrink-0">
+                <Image src={report.imageUrl} alt="Ảnh scan" className="w-full h-full object-cover" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-semibold text-slate-800">Ảnh chụp cần liên kết</div>
+                <div className="text-xs text-amber-700 font-medium truncate">{report.recognizedName || 'Chưa nhận diện được tên'}</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">Gửi {timeAgo(report.createdAt)}</div>
+              </div>
+            </div>
+          )}
           <div className="relative">
             <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input

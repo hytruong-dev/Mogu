@@ -3,6 +3,9 @@ import { GripVertical, Pencil, Play, Plus, Star, Trash2, ZoomIn } from 'lucide-r
 import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Checkbox } from '../ui/checkbox'
+import { Card, CardContent } from '../ui/card'
+import { Badge } from '../ui/badge'
+import { Label } from '../ui/label'
 import { Image } from '../ui/image'
 import { Select } from '../ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
@@ -82,7 +85,8 @@ export function MediaForm({ state, onChange, onSelectFiles, uploading }: MediaFo
   }
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-8">
+    <Card className="shadow-xs">
+      <CardContent className="p-8">
       <h2 className="text-lg font-bold">Ảnh đại diện</h2>
       {uploading && <p className="mt-2 text-sm text-amber-700">Đang tải ảnh lên máy chủ...</p>}
       <div className="mt-4 flex gap-4">
@@ -171,7 +175,7 @@ export function MediaForm({ state, onChange, onSelectFiles, uploading }: MediaFo
       </div>
 
       <div className="mt-8">
-        <label className="text-[13px] font-semibold">Video</label>
+        <Label className="text-[13px] font-semibold text-foreground">Video</Label>
         <div className="mt-2 flex gap-4">
           <Input value={state.videoUrl} onChange={(e) => patch({ videoUrl: e.target.value })}
             placeholder="https://youtube.com/..." className="h-11 flex-1 rounded-xl" />
@@ -210,7 +214,9 @@ export function MediaForm({ state, onChange, onSelectFiles, uploading }: MediaFo
               <TableRow key={s.id}>
                 <TableCell className="py-2"><Input value={s.name} className="h-9" onChange={(e) => patch({ sources: state.sources.map((x) => x.id === s.id ? { ...x, name: e.target.value } : x) })} /></TableCell>
                 <TableCell className="py-2"><Input value={s.url} className="h-9" onChange={(e) => patch({ sources: state.sources.map((x) => x.id === s.id ? { ...x, url: e.target.value } : x) })} /></TableCell>
-                <TableCell className="py-2"><span className="rounded-full bg-ok-green-bg px-2 py-0.5 text-xs font-semibold text-ok-green">{s.trust}%</span></TableCell>
+                <TableCell className="py-2">
+                  <Badge variant="success" className="font-semibold">{s.trust}%</Badge>
+                </TableCell>
                 <TableCell className="py-2">
                   <Select value={s.type} className="h-9 rounded-lg" onChange={(e) => patch({ sources: state.sources.map((x) => x.id === s.id ? { ...x, type: e.target.value } : x) })}>
                     <option value="JSON-LD">JSON-LD</option>
@@ -251,6 +257,7 @@ export function MediaForm({ state, onChange, onSelectFiles, uploading }: MediaFo
       </div>
 
       <MediaLightbox {...lightboxProps} />
-    </div>
+      </CardContent>
+    </Card>
   )
 }

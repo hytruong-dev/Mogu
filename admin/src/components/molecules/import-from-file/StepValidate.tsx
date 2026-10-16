@@ -10,6 +10,8 @@ import {
 import { Input } from '../../ui/input'
 import { Select } from '../../ui/select'
 import { Button } from '../../ui/button'
+import { Card, CardContent } from '../../ui/card'
+import { Tabs, TabsList, TabsTrigger } from '../../ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../ui/table'
 import type { DuplicatePolicy, IssueRow, ValidateTab } from './types'
 import { YellowCheck, YellowRadio } from './widgets'
@@ -80,38 +82,35 @@ export function StepValidate({
     <div className="space-y-4">
       <div className="grid grid-cols-5 gap-2.5">
         {STATS.map((s) => (
-          <div key={s.key} className="rounded-xl border border-black/10 bg-white px-3 py-3">
-            <div className={cn('mb-2 flex h-8 w-8 items-center justify-center rounded-lg', s.iconBg)}>
-              <s.icon className={cn('h-4 w-4', s.iconColor)} />
-            </div>
-            <p className="text-xl font-extrabold leading-none">{s.value}</p>
-            <p className="mt-1 text-xs text-[#6B7280]">{s.label}</p>
-          </div>
+          <Card key={s.key} className="shadow-xs">
+            <CardContent className="p-3">
+              <div className={cn('mb-2 flex h-8 w-8 items-center justify-center rounded-lg', s.iconBg)}>
+                <s.icon className={cn('h-4 w-4', s.iconColor)} />
+              </div>
+              <p className="text-xl font-bold tracking-tight text-foreground leading-none">{s.value}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{s.label}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
       <div className="grid grid-cols-[1fr_250px] gap-4">
         <div>
-          <div className="flex items-center gap-1 border-b border-black/10">
-            {TABS.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => onTab(t.id)}
-                className={cn(
-                  '-mb-px border-b-2 px-3 py-2 text-[13px] font-semibold',
-                  tab === t.id ? t.active : 'border-transparent text-[#6B7280] hover:text-black',
-                )}
-              >
-                {t.label} {t.count}
-              </button>
-            ))}
-          </div>
+          <Tabs value={tab} onValueChange={(val) => onTab(val as ValidateTab)}>
+            <TabsList className="w-full justify-start h-9 p-1">
+              {TABS.map((t) => (
+                <TabsTrigger key={t.id} value={t.id} className="text-xs gap-1.5">
+                  <span>{t.label}</span>
+                  <span className="text-[11px] opacity-70">({t.count})</span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
 
-          <div className="mt-3 overflow-hidden rounded-xl border border-black/10">
+          <Card className="mt-3 overflow-hidden">
             <Table className="w-full text-[13px]">
               <TableHeader>
-                <TableRow className="bg-[#FAFAF9] text-left text-xs font-semibold text-[#6B7280]">
+                <TableRow className="text-left text-xs font-semibold text-muted-foreground">
                   <TableHead className="px-3 py-2">Dòng</TableHead>
                   <TableHead className="px-3 py-2">Tên món</TableHead>
                   <TableHead className="px-3 py-2">Trường lỗi</TableHead>
@@ -163,7 +162,7 @@ export function StepValidate({
                 ))}
               </TableBody>
             </Table>
-          </div>
+          </Card>
 
           <div className="mt-3 flex items-center gap-2">
             <Button
@@ -188,41 +187,45 @@ export function StepValidate({
         </div>
 
         <div className="space-y-3">
-          <div className="rounded-xl border border-black/10 p-3.5">
-            <p className="mb-3 text-sm font-semibold">Quy tắc khi gặp dữ liệu trùng</p>
-            <div className="space-y-2.5">
-              <YellowRadio checked={duplicatePolicy === 'skip'} onChange={() => onDuplicatePolicy('skip')} title="Bỏ qua" hint="Không nhập dòng trùng." />
-              <YellowRadio checked={duplicatePolicy === 'update'} onChange={() => onDuplicatePolicy('update')} title="Cập nhật món hiện có" hint="Ghi đè dữ liệu món đã có." />
-              <YellowRadio checked={duplicatePolicy === 'draft'} onChange={() => onDuplicatePolicy('draft')} title="Tạo bản nháp mới" hint="Giữ món cũ, tạo bản nháp riêng." />
-            </div>
-            <div className="mt-3 border-t border-black/5 pt-3">
-              <YellowCheck
-                checked={updateEmptyOnly}
-                onChange={onUpdateEmptyOnly}
-                label="Chỉ cập nhật trường trống"
-              />
-            </div>
-          </div>
+          <Card className="shadow-xs">
+            <CardContent className="p-3.5">
+              <p className="mb-3 text-sm font-semibold text-foreground">Quy tắc khi gặp dữ liệu trùng</p>
+              <div className="space-y-2.5">
+                <YellowRadio checked={duplicatePolicy === 'skip'} onChange={() => onDuplicatePolicy('skip')} title="Bỏ qua" hint="Không nhập dòng trùng." />
+                <YellowRadio checked={duplicatePolicy === 'update'} onChange={() => onDuplicatePolicy('update')} title="Cập nhật món hiện có" hint="Ghi đè dữ liệu món đã có." />
+                <YellowRadio checked={duplicatePolicy === 'draft'} onChange={() => onDuplicatePolicy('draft')} title="Tạo bản nháp mới" hint="Giữ món cũ, tạo bản nháp riêng." />
+              </div>
+              <div className="mt-3 border-t border-border pt-3">
+                <YellowCheck
+                  checked={updateEmptyOnly}
+                  onChange={onUpdateEmptyOnly}
+                  label="Chỉ cập nhật trường trống"
+                />
+              </div>
+            </CardContent>
+          </Card>
 
-          <div className="rounded-xl border border-black/10 p-3.5">
-            <p className="mb-3 text-sm font-semibold">Điều kiện nhập</p>
-            <div className="space-y-2 text-[13px]">
-              <div className="flex items-start gap-2">
-                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#DC2626]" />
-                <div>
-                  <p className="font-medium">Dòng lỗi (7 dòng)</p>
-                  <p className="text-xs text-[#6B7280]">Không được nhập</p>
+          <Card className="shadow-xs">
+            <CardContent className="p-3.5">
+              <p className="mb-3 text-sm font-semibold text-foreground">Điều kiện nhập</p>
+              <div className="space-y-2 text-[13px]">
+                <div className="flex items-start gap-2">
+                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-rose-500" />
+                  <div>
+                    <p className="font-medium text-foreground">Dòng lỗi (7 dòng)</p>
+                    <p className="text-xs text-muted-foreground">Không được nhập</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
+                  <div>
+                    <p className="font-medium text-foreground">Dòng cảnh báo (12 dòng)</p>
+                    <p className="text-xs text-muted-foreground">Vẫn được nhập</p>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-start gap-2">
-                <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[#F59E0B]" />
-                <div>
-                  <p className="font-medium">Dòng cảnh báo (12 dòng)</p>
-                  <p className="text-xs text-[#6B7280]">Vẫn được nhập</p>
-                </div>
-              </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

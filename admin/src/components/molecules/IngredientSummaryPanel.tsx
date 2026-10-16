@@ -1,4 +1,5 @@
 import { ChefHat, CircleCheck, Info, Scale, ShieldCheck, TriangleAlert } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Progress } from '../ui/progress'
 import type { DishIngredientRow } from './IngredientsTable'
 
@@ -48,49 +49,56 @@ export function IngredientSummaryPanel({ rows, servings }: IngredientSummaryPane
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-black/10 bg-white p-6">
-        <h3 className="text-lg font-bold">Tóm tắt thành phần</h3>
-        <div className="mt-3 divide-y divide-black/5">
-          {summary.map(({ icon: Icon, label, value }) => (
-            <div key={label} className="flex items-center gap-3 py-3.5">
-              <Icon className="h-[18px] w-[18px] text-gray-500" strokeWidth={1.8} />
-              <span className="flex-1 text-[15px]">{label}</span>
-              <span className="text-[15px] font-semibold">{value}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="rounded-2xl border border-black/10 bg-white p-6">
-        <h3 className="text-lg font-bold">Kiểm tra dữ liệu</h3>
-        <div className="mt-4 space-y-5">
-          {checks.map((c) => (
-            <div key={c.title} className="flex items-start gap-3">
-              {c.ok ? (
-                <CircleCheck className="h-6 w-6 shrink-0 text-ok-green" strokeWidth={1.8} />
-              ) : (
-                <TriangleAlert className="h-6 w-6 shrink-0 text-warn-orange" strokeWidth={1.8} />
-              )}
-              <div>
-                <div className="text-[15px] font-semibold">{c.title}</div>
-                <div className="mt-0.5 text-sm text-gray-500">{c.ok ? c.okDesc : c.warnDesc}</div>
+      <Card className="shadow-xs">
+        <CardHeader className="p-6 pb-2">
+          <CardTitle className="text-base font-semibold">Tóm tắt thành phần</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <div className="divide-y divide-border">
+            {summary.map(({ icon: Icon, label, value }) => (
+              <div key={label} className="flex items-center gap-3 py-3">
+                <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} />
+                <span className="flex-1 text-sm text-foreground">{label}</span>
+                <span className="text-sm font-semibold text-foreground">{value}</span>
               </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-7">
-          <div className="flex items-center justify-between">
-            <span className="text-[15px] font-bold">Mức độ hoàn thiện</span>
-            <span className="text-[15px] font-bold">{completion} %</span>
+            ))}
           </div>
-          <Progress
-            value={completion}
-            indicatorClassName="bg-gradient-to-r from-ok-green to-green-400"
-            className="mt-3 h-2.5 bg-gray-100"
-          />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
+
+      <Card className="shadow-xs">
+        <CardHeader className="p-6 pb-2">
+          <CardTitle className="text-base font-semibold">Kiểm tra dữ liệu</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0 space-y-4">
+          <div className="space-y-4">
+            {checks.map((c) => (
+              <div key={c.title} className="flex items-start gap-3">
+                {c.ok ? (
+                  <CircleCheck className="h-5 w-5 shrink-0 text-emerald-600" strokeWidth={1.8} />
+                ) : (
+                  <TriangleAlert className="h-5 w-5 shrink-0 text-amber-500" strokeWidth={1.8} />
+                )}
+                <div>
+                  <div className="text-sm font-medium text-foreground">{c.title}</div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">{c.ok ? c.okDesc : c.warnDesc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 border-t border-border pt-4">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-semibold text-foreground">Mức độ hoàn thiện</span>
+              <span className="font-bold text-foreground">{completion}%</span>
+            </div>
+            <Progress
+              value={completion}
+              className="mt-2.5 h-2"
+            />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

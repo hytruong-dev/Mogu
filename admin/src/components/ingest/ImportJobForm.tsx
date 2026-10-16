@@ -9,6 +9,7 @@ import {
 import { Button } from '../ui/button'
 import { Card } from '../ui/card'
 import { Input } from '../ui/input'
+import { Label } from '../ui/label'
 import { Checkbox } from '../ui/checkbox'
 import { SOURCE_OPTIONS } from './types'
 
@@ -47,15 +48,17 @@ export function ImportJobForm({
     <div className="ingest-grid">
       {/* ── Form Card ── */}
       <Card className="form-card">
-        <label>
-          Tên món ăn *
+        <div className="space-y-1.5">
+          <Label className="text-xs font-semibold text-foreground">
+            Tên món ăn <span className="text-destructive">*</span>
+          </Label>
           <Input
             value={dishName}
             onChange={(e) => onDishNameChange(e.target.value)}
             placeholder="Phở bò"
             onKeyDown={(e) => e.key === 'Enter' && onSubmit()}
           />
-        </label>
+        </div>
 
         <button
           type="button"
@@ -73,15 +76,17 @@ export function ImportJobForm({
 
         {showAdvanced && (
           <>
-            <label>
-              Từ khóa liên quan
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-foreground">
+                Từ khóa liên quan
+              </Label>
               <Input
                 value={keywords}
                 onChange={(e) => onKeywordsChange(e.target.value)}
                 placeholder="phở tái, Vietnamese beef pho"
               />
-              <small>Giúp AI hiểu ngữ cảnh chính xác hơn (cách nhau bởi dấu phẩy).</small>
-            </label>
+              <p className="text-[11px] text-muted-foreground">Giúp AI hiểu ngữ cảnh chính xác hơn (cách nhau bởi dấu phẩy).</p>
+            </div>
 
             <h3>Vùng miền</h3>
             <div className="choice-row">

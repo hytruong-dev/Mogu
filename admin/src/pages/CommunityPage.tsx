@@ -25,7 +25,7 @@ import {
 import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
-import { Card } from '../components/ui/card'
+import { Card, CardContent } from '../components/ui/card'
 import {
   Dialog,
   DialogContent,
@@ -64,16 +64,25 @@ function StatCard({
   tone?: 'yellow' | 'green' | 'red' | 'blue'
   note?: string
 }) {
+  const toneStyles = {
+    yellow: 'bg-amber-50 text-amber-600 border-amber-200/60',
+    green: 'bg-emerald-50 text-emerald-600 border-emerald-200/60',
+    blue: 'bg-blue-50 text-blue-600 border-blue-200/60',
+    red: 'bg-rose-50 text-rose-600 border-rose-200/60',
+  }
+
   return (
-    <Card className="stat-card">
-      <div className={`metric-icon ${tone}`}>
-        <Icon size={26} />
-      </div>
-      <div>
-        <b>{value}</b>
-        <p>{label}</p>
-        {note ? <small className="note">{note}</small> : null}
-      </div>
+    <Card className="hover:shadow-sm transition-shadow">
+      <CardContent className="p-5 flex items-start justify-between">
+        <div className="space-y-1">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+          <div className="text-2xl font-bold tracking-tight text-foreground">{value}</div>
+          {note && <span className="text-xs text-muted-foreground block">{note}</span>}
+        </div>
+        <div className={`flex h-11 w-11 items-center justify-center rounded-xl border shadow-xs ${toneStyles[tone]}`}>
+          <Icon size={22} strokeWidth={2.2} />
+        </div>
+      </CardContent>
     </Card>
   )
 }

@@ -1,4 +1,6 @@
 import { CheckCircle2, Clock, Flame, Wallet, ZoomIn } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Badge } from '../ui/badge'
 import { Textarea } from '../ui/textarea'
 import { Checkbox } from '../ui/checkbox'
 import { Select } from '../ui/select'
@@ -23,7 +25,6 @@ interface ReviewSidePanelProps {
   onReviewNote: (v: string) => void
   totalMin: number
 }
-
 export function ReviewSidePanel({
   basic, nutrition, recipe: _recipe, media, sodiumAck, onSodiumAck, reviewTeam, onReviewTeam, reviewNote, onReviewNote, totalMin,
 }: ReviewSidePanelProps) {
@@ -33,11 +34,13 @@ export function ReviewSidePanel({
 
   return (
     <div className="space-y-5">
-      <div className="overflow-hidden rounded-2xl border border-black/10 bg-white">
-        <h3 className="px-5 pt-5 text-lg font-bold">Xem trước trên ứng dụng</h3>
-        <div className="p-4">
-          <div className="overflow-hidden rounded-xl border border-black/10">
-            <div className="group relative h-40 bg-gray-100">
+      <Card className="overflow-hidden shadow-xs">
+        <CardHeader className="p-5 pb-2">
+          <CardTitle className="text-base font-semibold">Xem trước trên ứng dụng</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 pt-0">
+          <div className="overflow-hidden rounded-xl border border-border">
+            <div className="group relative h-40 bg-muted">
               {media.coverUrl && (
                 <>
                   <Image src={media.coverUrl} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
@@ -54,30 +57,30 @@ export function ReviewSidePanel({
             </div>
             <div className="p-4">
               <div className="flex items-center gap-2">
-                <h4 className="text-lg font-bold">{basic.name || 'Tên món'}</h4>
-                <CheckCircle2 className="h-4 w-4 text-ok-green" />
+                <h4 className="text-base font-bold text-foreground">{basic.name || 'Tên món'}</h4>
+                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
               </div>
-              <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-600">
+              <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1"><Flame className="h-3.5 w-3.5" /> {nutrition.calories || '—'} kcal</span>
                 <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {totalMin || '—'} phút</span>
                 <span className="flex items-center gap-1"><Wallet className="h-3.5 w-3.5" /> —</span>
               </div>
-              <p className="mt-2 line-clamp-2 text-sm text-gray-500">{basic.shortDescription || 'Mô tả món ăn...'}</p>
+              <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{basic.shortDescription || 'Mô tả món ăn...'}</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {['Món nước', 'Việt Nam', 'Dễ làm'].map((t) => (
-                  <span key={t} className="rounded-md bg-gray-100 px-2 py-0.5 text-xs">{t}</span>
+                  <Badge key={t} variant="secondary" className="text-xs font-normal">{t}</Badge>
                 ))}
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
       {sodiumWarn && (
-        <div className="rounded-2xl border border-warn-orange-border bg-warn-orange-bg p-4">
-          <h4 className="font-bold text-warn-orange">Cảnh báo cần xác nhận</h4>
-          <p className="mt-1 text-sm">Natri {sodium} mg — cao hơn mức khuyến nghị cho một khẩu phần.</p>
-          <label className="mt-3 flex items-start gap-2.5 text-sm cursor-pointer">
+        <div className="rounded-xl border border-amber-300 bg-amber-50/80 p-4">
+          <h4 className="text-sm font-bold text-amber-900">Cảnh báo cần xác nhận</h4>
+          <p className="mt-1 text-xs text-amber-800">Natri {sodium} mg — cao hơn mức khuyến nghị cho một khẩu phần.</p>
+          <label className="mt-3 flex items-start gap-2.5 text-xs text-amber-900 cursor-pointer">
             <Checkbox
               checked={sodiumAck}
               onCheckedChange={(checked) => onSodiumAck(Boolean(checked))}
@@ -88,25 +91,29 @@ export function ReviewSidePanel({
         </div>
       )}
 
-      <div className="rounded-2xl border border-black/10 bg-white p-6">
-        <h3 className="text-lg font-bold">Thông tin gửi duyệt</h3>
-        <Label className="mt-3 block text-sm font-semibold">Gửi đến nhóm kiểm duyệt</Label>
-        <div className="mt-1.5">
-          <Select
-            value={reviewTeam}
-            onChange={(e) => onReviewTeam(e.target.value)}
-            className="h-11 rounded-xl border border-black/10 bg-white px-3 text-sm"
-          >
-            <option value="Kiểm duyệt nội dung">Kiểm duyệt nội dung</option>
-            <option value="Kiểm duyệt dinh dưỡng">Kiểm duyệt dinh dưỡng</option>
-            <option value="Biên tập viên">Biên tập viên</option>
-          </Select>
-        </div>
-        <Label className="mt-4 block text-sm font-semibold">Ghi chú gửi duyệt (tuỳ chọn)</Label>
-        <Textarea rows={4} value={reviewNote} onChange={(e) => onReviewNote(e.target.value.slice(0, 300))}
-          className="mt-1.5 rounded-xl" placeholder="Ghi chú cho reviewer..." />
-        <div className="mt-1 text-right text-xs text-gray-400">{reviewNote.length}/300</div>
-      </div>
+      <Card className="shadow-xs">
+        <CardHeader className="p-6 pb-2">
+          <CardTitle className="text-base font-semibold">Thông tin gửi duyệt</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <Label className="mt-2 block text-xs font-semibold text-foreground">Gửi đến nhóm kiểm duyệt</Label>
+          <div className="mt-1.5">
+            <Select
+              value={reviewTeam}
+              onChange={(e) => onReviewTeam(e.target.value)}
+              className="h-10 rounded-xl text-sm"
+            >
+              <option value="Kiểm duyệt nội dung">Kiểm duyệt nội dung</option>
+              <option value="Kiểm duyệt dinh dưỡng">Kiểm duyệt dinh dưỡng</option>
+              <option value="Biên tập viên">Biên tập viên</option>
+            </Select>
+          </div>
+          <Label className="mt-4 block text-xs font-semibold text-foreground">Ghi chú gửi duyệt (tuỳ chọn)</Label>
+          <Textarea rows={4} value={reviewNote} onChange={(e) => onReviewNote(e.target.value.slice(0, 300))}
+            className="mt-1.5 rounded-xl" placeholder="Ghi chú cho reviewer..." />
+          <div className="mt-1 text-right text-xs text-muted-foreground">{reviewNote.length}/300</div>
+        </CardContent>
+      </Card>
 
       <MediaLightbox {...lightboxProps} />
     </div>

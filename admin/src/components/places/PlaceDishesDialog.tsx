@@ -11,6 +11,7 @@ import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
+import { Select } from '../ui/select'
 import { Spinner } from '../ui/spinner'
 
 const STATUS_OPTIONS: { value: PlaceDishMatchStatus; label: string }[] = [
@@ -149,27 +150,30 @@ export function PlaceDishesDialog({ place, onClose, onCountChange }: Props) {
                     {it.matchScore != null && ` · điểm ${it.matchScore.toFixed(2)}`}
                   </div>
                 </div>
-                <select
-                  value={it.matchStatus}
-                  disabled={busyDishId === it.dishId}
-                  onChange={(e) => mutate(it.dishId, { matchStatus: e.target.value as PlaceDishMatchStatus })}
-                  className="h-7 rounded-md border border-input bg-background px-2 text-xs"
-                >
-                  {STATUS_OPTIONS.map((s) => (
-                    <option key={s.value} value={s.value}>
-                      {s.label}
-                    </option>
-                  ))}
-                </select>
+                <div className="w-28 shrink-0">
+                  <Select
+                    value={it.matchStatus}
+                    disabled={busyDishId === it.dishId}
+                    onChange={(e) => mutate(it.dishId, { matchStatus: e.target.value as PlaceDishMatchStatus })}
+                    className="h-8 text-xs"
+                  >
+                    {STATUS_OPTIONS.map((s) => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
                 <Button
                   size="icon"
                   variant="outline"
-                  className="h-7 w-7 text-rose-600 hover:bg-rose-50"
+                  className="h-8 w-8 text-rose-600 hover:bg-rose-50 hover:border-rose-200 transition-colors"
                   disabled={busyDishId === it.dishId}
                   onClick={() => mutate(it.dishId, { remove: true })}
                   title="Xóa liên kết"
+                  aria-label="Xóa liên kết món này"
                 >
-                  {busyDishId === it.dishId ? <Spinner size="sm" /> : <Trash2 size={12} />}
+                  {busyDishId === it.dishId ? <Spinner size="sm" /> : <Trash2 size={13} />}
                 </Button>
               </div>
             ))

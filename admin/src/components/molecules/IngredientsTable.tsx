@@ -7,6 +7,7 @@ import { Checkbox } from '../ui/checkbox'
 import { Select } from '../ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
+import { Card, CardContent } from '../ui/card'
 import IngredientPicker from '../ui/ingredient-picker'
 import { cn } from '@/lib/utils'
 
@@ -123,8 +124,9 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
   }
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-8">
-      <h2 className="text-lg font-bold">Thành phần món ăn</h2>
+    <Card className="shadow-xs">
+      <CardContent className="p-8">
+        <h2 className="text-lg font-bold">Thành phần món ăn</h2>
 
       <div className="mt-4 flex flex-wrap items-center gap-4">
         <div className="relative max-w-[340px] flex-1">
@@ -314,6 +316,7 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+      </CardContent>
+    </Card>
   )
 }

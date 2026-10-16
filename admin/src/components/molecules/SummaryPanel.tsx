@@ -1,6 +1,8 @@
 import { CheckCircle2, Circle } from 'lucide-react'
 import { FilterChip } from '../atoms/FilterChip'
 import { Progress } from '../ui/progress'
+import { Card, CardContent } from '../ui/card'
+import { Badge } from '../ui/badge'
 import type { ClassificationState } from './ClassificationPanel'
 
 interface SummaryPanelProps {
@@ -52,84 +54,82 @@ export function SummaryPanel({ state, categories, mealTypes, goals, dietTypes }:
   return (
     <div className="space-y-6">
       {/* Xem trước phân loại */}
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <h3 className="font-semibold">Xem trước phân loại</h3>
-        <div className="mt-4 divide-y divide-border">
-          {groups.map((g) => (
-            <div key={g.label} className="flex items-start gap-4 py-3 text-sm">
-              <span className="w-24 shrink-0 text-muted-foreground">{g.label}</span>
-              <div className="flex flex-wrap gap-1.5">
-                {g.tags.length ? (
-                  g.tags.map((t) => <FilterChip key={t} label={t} variant="yellow" />)
-                ) : (
-                  <span className="text-xs text-muted-foreground/60">—</span>
-                )}
+      <Card className="shadow-xs">
+        <CardContent className="p-6">
+          <h3 className="font-semibold text-foreground">Xem trước phân loại</h3>
+          <div className="mt-4 divide-y divide-border">
+            {groups.map((g) => (
+              <div key={g.label} className="flex items-start gap-4 py-3 text-sm">
+                <span className="w-24 shrink-0 text-muted-foreground">{g.label}</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {g.tags.length ? (
+                    g.tags.map((t) => <FilterChip key={t} label={t} variant="yellow" />)
+                  ) : (
+                    <span className="text-xs text-muted-foreground/60">—</span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-          <div className="flex items-center gap-4 py-3 text-sm">
-            <span className="w-24 shrink-0 text-muted-foreground">Giá nấu nhà</span>
-            <span className="font-medium">
-              {fmtPrice(state.priceFrom)} – {fmtPrice(state.priceTo)}
-              <span className="ml-1 text-xs text-muted-foreground">(cả công thức)</span>
-            </span>
-          </div>
-          <div className="flex items-center gap-4 py-3 text-sm">
-            <span className="w-24 shrink-0 text-muted-foreground">Giá ăn ngoài</span>
-            <span className="font-medium">
-              {state.dineOutPriceFrom || state.dineOutPriceTo
-                ? `${fmtPrice(state.dineOutPriceFrom)} – ${fmtPrice(state.dineOutPriceTo)}`
-                : '—'}
-              {(state.dineOutPriceFrom || state.dineOutPriceTo) && (
-                <span className="ml-1 text-xs text-muted-foreground">(1 phần)</span>
-              )}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Phạm vi gợi ý */}
-      <div className="rounded-2xl border border-border bg-card p-6">
-        <h3 className="font-semibold">Phạm vi gợi ý</h3>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Món ăn của bạn sẽ xuất hiện tại các khu vực gợi ý phù hợp
-        </p>
-        <div className="mt-4 space-y-4">
-          {SUGGESTIONS.map((s) => (
-            <div key={s.title} className="flex items-start gap-3">
-              {s.fit ? (
-                <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-500" />
-              ) : (
-                <Circle className="mt-0.5 h-5 w-5 text-muted-foreground" />
-              )}
-              <div className="flex-1">
-                <div className="text-sm font-medium">{s.title}</div>
-                <div className="text-xs text-muted-foreground">{s.desc}</div>
-              </div>
-              <span
-                className={
-                  s.fit
-                    ? 'rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs text-emerald-700'
-                    : 'rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground'
-                }
-              >
-                {s.fit ? 'Phù hợp' : 'Không'}
+            ))}
+            <div className="flex items-center gap-4 py-3 text-sm">
+              <span className="w-24 shrink-0 text-muted-foreground">Giá nấu nhà</span>
+              <span className="font-medium">
+                {fmtPrice(state.priceFrom)} – {fmtPrice(state.priceTo)}
+                <span className="ml-1 text-xs text-muted-foreground">(cả công thức)</span>
               </span>
             </div>
-          ))}
-        </div>
-
-        {/* Progress */}
-        <div className="mt-6">
-          <div className="flex items-center justify-between text-sm">
-            <span className="font-medium">Hoàn thiện phân loại</span>
-            <span className="font-semibold">
-              {completed} / {total}
-            </span>
+            <div className="flex items-center gap-4 py-3 text-sm">
+              <span className="w-24 shrink-0 text-muted-foreground">Giá ăn ngoài</span>
+              <span className="font-medium">
+                {state.dineOutPriceFrom || state.dineOutPriceTo
+                  ? `${fmtPrice(state.dineOutPriceFrom)} – ${fmtPrice(state.dineOutPriceTo)}`
+                  : '—'}
+                {(state.dineOutPriceFrom || state.dineOutPriceTo) && (
+                  <span className="ml-1 text-xs text-muted-foreground">(1 phần)</span>
+                )}
+              </span>
+            </div>
           </div>
-          <Progress value={progressPct} indicatorClassName="bg-emerald-500" className="mt-2 h-2" />
-        </div>
-      </div>
+        </CardContent>
+      </Card>
+
+      {/* Phạm vi gợi ý */}
+      <Card className="shadow-xs">
+        <CardContent className="p-6">
+          <h3 className="font-semibold text-foreground">Phạm vi gợi ý</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Món ăn của bạn sẽ xuất hiện tại các khu vực gợi ý phù hợp
+          </p>
+          <div className="mt-4 space-y-4">
+            {SUGGESTIONS.map((s) => (
+              <div key={s.title} className="flex items-start gap-3">
+                {s.fit ? (
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-emerald-500" />
+                ) : (
+                  <Circle className="mt-0.5 h-5 w-5 text-muted-foreground" />
+                )}
+                <div className="flex-1">
+                  <div className="text-sm font-medium">{s.title}</div>
+                  <div className="text-xs text-muted-foreground">{s.desc}</div>
+                </div>
+                <Badge variant={s.fit ? 'success' : 'neutral'} className="text-xs">
+                  {s.fit ? 'Phù hợp' : 'Không'}
+                </Badge>
+              </div>
+            ))}
+          </div>
+
+          {/* Progress */}
+          <div className="mt-6">
+            <div className="flex items-center justify-between text-sm">
+              <span className="font-medium text-foreground">Hoàn thiện phân loại</span>
+              <span className="font-semibold text-foreground">
+                {completed} / {total}
+              </span>
+            </div>
+            <Progress value={progressPct} indicatorClassName="bg-emerald-500" className="mt-2 h-2" />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

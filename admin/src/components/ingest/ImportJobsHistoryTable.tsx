@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Loader2, Search } from 'lucide-react'
+import { FileText, Loader2, Plus, RotateCw, Search, Timer, Utensils } from 'lucide-react'
 import type { ImportJob, ImportJobStatus } from '../../types'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
+import { Badge } from '../ui/badge'
+import { Progress } from '../ui/progress'
 import { Input } from '../ui/input'
 import { Select } from '../ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
@@ -52,21 +54,24 @@ export function ImportJobsHistoryTable({
   )
 
   return (
-    <div className="ai-import-history-page space-y-4">
-      <div className="ai-history-heading flex items-center justify-between">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-foreground">Lịch sử nhập món bằng AI</h1>
+          <h1 className="text-xl font-bold tracking-tight text-foreground">Lịch sử nhập món bằng AI</h1>
           <p className="text-xs text-muted-foreground">Theo dõi các lần tạo bản nháp gần đây.</p>
         </div>
-        <Button onClick={onBackToNew}>⊕ Nhập món mới</Button>
+        <Button onClick={onBackToNew} className="gap-1.5">
+          <Plus size={14} />
+          <span>Nhập món mới</span>
+        </Button>
       </div>
 
-      <Card className="ai-history-filter p-3">
+      <Card className="p-3">
         <div className="flex gap-3 flex-wrap">
-          <div className="ai-history-search flex items-center gap-2 flex-1 min-w-[200px]">
-            <Search size={16} className="text-muted-foreground" />
+          <div className="flex items-center gap-2 flex-1 min-w-[200px]">
+            <Search size={16} className="text-muted-foreground shrink-0" />
             <Input
-              className="border-none focus:border-none h-8 text-xs"
+              className="border-none shadow-none focus-visible:ring-0 h-8 text-xs"
               value={historyQuery}
               onChange={(e) => setHistoryQuery(e.target.value)}
               placeholder="Tìm theo tên món..."
@@ -86,8 +91,8 @@ export function ImportJobsHistoryTable({
         </div>
       </Card>
 
-      <Card className="ai-history-table-wrap overflow-hidden">
-        <Table className="ai-history-table">
+      <Card className="overflow-hidden">
+        <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Món ăn</TableHead>
@@ -100,7 +105,7 @@ export function ImportJobsHistoryTable({
           <TableBody>
             {isLoading && (
               <TableRow>
-                <TableCell colSpan={5} className="ai-history-empty text-center py-8">
+                <TableCell colSpan={5} className="text-center py-8">
                   <div className="flex items-center justify-center gap-2 text-muted-foreground text-xs">
                     <Loader2 size={18} className="animate-spin" /> Đang tải lịch sử...
                   </div>
@@ -109,7 +114,7 @@ export function ImportJobsHistoryTable({
             )}
             {!isLoading && filteredHistoryJobs.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="ai-history-empty text-center py-8 text-muted-foreground text-xs">
+                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground text-xs">
                   Chưa tìm thấy lần nhập món phù hợp.
                 </TableCell>
               </TableRow>
@@ -117,29 +122,37 @@ export function ImportJobsHistoryTable({
             {filteredHistoryJobs.map((job) => {
               const active = ACTIVE_STATUSES.includes(job.status)
               const successful = job.status === 'DONE'
+              const badgeVariant =
+                job.status === 'DONE'
+                  ? 'success'
+                  : job.status === 'FAILED'
+                  ? 'destructive'
+                  : job.status === 'CANCELLED'
+                  ? 'neutral'
+                  : 'warning'
+
               return (
                 <TableRow key={job.id}>
                   <TableCell>
-                    <div className="ai-history-dish flex items-center gap-2 font-semibold text-xs">
-                      <span>🍜</span>
+                    <div className="flex items-center gap-2 font-medium text-xs text-foreground">
+                      <Utensils size={14} className="text-amber-500 shrink-0" />
                       <span>{job.query}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className={`ai-history-status ${job.status.toLowerCase()} text-xs`}>
-                      ● {statusLabel(job.status)}
-                    </span>
+                    <Badge variant={badgeVariant} className="text-[11px] font-medium">
+                      {statusLabel(job.status)}
+                    </Badge>
                   </TableCell>
                   <TableCell>
                     {successful || active ? (
-                      <div className="ai-history-progress flex items-center gap-2 text-xs">
-                        <b>{successful ? 100 : job.progress}%</b>
-                        <div className="w-20 bg-muted rounded-full h-1.5 overflow-hidden">
-                          <div
-                            className="bg-amber-500 h-full rounded-full transition-all"
-                            style={{ width: `${successful ? 100 : job.progress}%` }}
-                          />
-                        </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="font-semibold w-9">{successful ? 100 : job.progress}%</span>
+                        <Progress
+                          value={successful ? 100 : job.progress}
+                          className="w-24 h-1.5"
+                          indicatorClassName={successful ? 'bg-emerald-500' : 'bg-amber-500'}
+                        />
                       </div>
                     ) : (
                       '—'
@@ -150,12 +163,14 @@ export function ImportJobsHistoryTable({
                   </TableCell>
                   <TableCell className="text-right">
                     {successful && job.resultDishId ? (
-                      <Button variant="outline" size="sm" onClick={() => setPreviewJobId(job.id)}>
-                        ▣ Mở bản nháp
+                      <Button variant="outline" size="sm" onClick={() => setPreviewJobId(job.id)} className="gap-1.5 text-xs">
+                        <FileText size={13} />
+                        Mở bản nháp
                       </Button>
                     ) : active ? (
-                      <Button variant="outline" size="sm" onClick={onBackToNew}>
-                        ◷ Xem tiến trình
+                      <Button variant="outline" size="sm" onClick={onBackToNew} className="gap-1.5 text-xs">
+                        <Timer size={13} />
+                        Xem tiến trình
                       </Button>
                     ) : (
                       <Button
@@ -165,8 +180,10 @@ export function ImportJobsHistoryTable({
                           onRetry(job)
                           onBackToNew()
                         }}
+                        className="gap-1.5 text-xs"
                       >
-                        ⟳ Tạo lại job
+                        <RotateCw size={13} />
+                        Tạo lại job
                       </Button>
                     )}
                   </TableCell>

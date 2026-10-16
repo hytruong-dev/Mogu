@@ -1,6 +1,9 @@
 import { useRef, useState } from 'react'
 import { Circle, CircleCheck, UploadCloud } from 'lucide-react'
 import { Image } from '../ui/image'
+import { Card, CardContent } from '../ui/card'
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
 import { MediaLightbox, useMediaLightbox } from '../ui/media-lightbox'
 import type { BasicInfoState } from './BasicInfoForm'
 
@@ -81,117 +84,126 @@ export function PreviewPanel({
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-black/10 bg-white p-6">
-        <h3 className="text-lg font-bold">Xem trước trên ứng dụng</h3>
+      <Card className="shadow-xs">
+        <CardContent className="p-6">
+          <h3 className="text-lg font-bold text-foreground">Xem trước trên ứng dụng</h3>
 
-        <input
-          ref={fileRef}
-          type="file"
-          accept={ACCEPT}
-          className="hidden"
-          onChange={(e) => {
-            takeFile(e.target.files?.[0])
-            e.target.value = ''
-          }}
-        />
+          <input
+            ref={fileRef}
+            type="file"
+            accept={ACCEPT}
+            className="hidden"
+            onChange={(e) => {
+              takeFile(e.target.files?.[0])
+              e.target.value = ''
+            }}
+          />
 
-        <button
-          type="button"
-          onClick={openPicker}
-          onDragOver={(e) => {
-            e.preventDefault()
-            setDragOver(true)
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault()
-            setDragOver(false)
-            takeFile(e.dataTransfer.files?.[0])
-          }}
-          className={`group mt-4 flex w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-dashed py-10 transition ${
-            dragOver ? 'border-mogu-yellow bg-mogu-yellow/10' : 'border-black/15 hover:border-mogu-yellow'
-          }`}
-        >
-          {shownUrl ? (
-            <div className="max-h-40 w-full overflow-hidden px-4">
-              <Image src={shownUrl} alt="Ảnh món ăn" className="max-h-40 w-full object-cover rounded-lg" />
-            </div>
-          ) : (
-            <>
-              <UploadCloud className="h-8 w-8 text-gray-800 group-hover:text-mogu-yellow-dark" />
-              <span className="text-[15px] font-semibold">Thêm ảnh món ăn</span>
-              <span className="text-sm text-gray-400">JPG, PNG tối đa 5MB</span>
-            </>
-          )}
-        </button>
-        {shownUrl && (
           <button
             type="button"
             onClick={openPicker}
-            className="mt-2 w-full text-center text-sm font-semibold text-gray-600 hover:text-mogu-yellow-dark"
+            onDragOver={(e) => {
+              e.preventDefault()
+              setDragOver(true)
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={(e) => {
+              e.preventDefault()
+              setDragOver(false)
+              takeFile(e.dataTransfer.files?.[0])
+            }}
+            className={`group mt-4 flex w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-dashed py-10 transition ${
+              dragOver ? 'border-amber-400 bg-amber-50/50' : 'border-border hover:border-amber-400'
+            }`}
           >
-            Đổi ảnh
-          </button>
-        )}
-        {uploading && <p className="mt-2 text-sm text-amber-700">Đang tải ảnh lên máy chủ...</p>}
-        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
-
-        <div className="mt-4 rounded-xl border border-black/10 p-4">
-          <div className="flex gap-4">
-            <div className="group relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-black/5 bg-gray-100">
-              <Image
-                src={shownUrl}
-                alt={state.name || 'Ảnh món ăn'}
-                aspectRatio="square"
-                zoomable
-                title={state.name || 'Ảnh món ăn'}
-                subtitle={regionName}
-                fallbackIcon="image"
-                className="h-full w-full object-cover"
-              />
-            </div>
-            <div className="min-w-0">
-              <h4 className="text-lg font-bold leading-tight">{state.name || 'Tên món ăn'}</h4>
-              <div className="mt-2 flex gap-2">
-                {regionName && (
-                  <span className="rounded-md bg-gray-100 px-2.5 py-1 text-xs text-gray-700">{regionName}</span>
-                )}
-                {provinceName && (
-                  <span className="rounded-md bg-gray-100 px-2.5 py-1 text-xs text-gray-700">{provinceName}</span>
-                )}
+            {shownUrl ? (
+              <div className="max-h-40 w-full overflow-hidden px-4">
+                <Image src={shownUrl} alt="Ảnh món ăn" className="max-h-40 w-full object-cover rounded-lg" />
               </div>
-              <p className="mt-2 text-sm">
-                {catNames.length > 0 && <span className="text-gray-900">{catNames.join(' • ')}</span>}
-              </p>
-              <p className="mt-0.5 truncate text-sm text-gray-400">
-                {state.shortDescription || 'Mô tả ngắn về món ăn sẽ hiển thị tại đây...'}
-              </p>
+            ) : (
+              <>
+                <UploadCloud className="h-8 w-8 text-muted-foreground group-hover:text-amber-500" />
+                <span className="text-[15px] font-semibold text-foreground">Thêm ảnh món ăn</span>
+                <span className="text-sm text-muted-foreground">JPG, PNG tối đa 5MB</span>
+              </>
+            )}
+          </button>
+          {shownUrl && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={openPicker}
+              className="mt-2 w-full text-center text-xs font-semibold text-muted-foreground hover:text-foreground"
+            >
+              Đổi ảnh
+            </Button>
+          )}
+          {uploading && <p className="mt-2 text-sm text-amber-700">Đang tải ảnh lên máy chủ...</p>}
+          {error && <p className="mt-2 text-sm text-destructive">{error}</p>}
+
+          <div className="mt-4 rounded-xl border border-border p-4 bg-muted/20">
+            <div className="flex gap-4">
+              <div className="group relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted">
+                <Image
+                  src={shownUrl}
+                  alt={state.name || 'Ảnh món ăn'}
+                  aspectRatio="square"
+                  zoomable
+                  title={state.name || 'Ảnh món ăn'}
+                  subtitle={regionName}
+                  fallbackIcon="image"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+              <div className="min-w-0">
+                <h4 className="text-lg font-bold leading-tight text-foreground">{state.name || 'Tên món ăn'}</h4>
+                <div className="mt-2 flex gap-2">
+                  {regionName && (
+                    <Badge variant="neutral" className="text-xs font-normal">
+                      {regionName}
+                    </Badge>
+                  )}
+                  {provinceName && (
+                    <Badge variant="neutral" className="text-xs font-normal">
+                      {provinceName}
+                    </Badge>
+                  )}
+                </div>
+                <p className="mt-2 text-sm font-medium text-foreground">
+                  {catNames.length > 0 && catNames.join(' • ')}
+                </p>
+                <p className="mt-0.5 truncate text-sm text-muted-foreground">
+                  {state.shortDescription || 'Mô tả ngắn về món ăn sẽ hiển thị tại đây...'}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      <div className="rounded-2xl border border-black/10 bg-white p-6">
-        <h3 className="font-bold">
-          Đã hoàn thành <span className="text-green-600">{doneCount}/8</span> mục
-        </h3>
-        <ul className="mt-4 space-y-3">
-          {CHECKLIST.map(({ key, label }) => {
-            const done = doneMap[key]
-            return (
-              <li key={key} className="flex items-center gap-2.5 text-[15px]">
-                {done ? (
-                  <CircleCheck className="h-5 w-5 fill-green-50 text-green-500" />
-                ) : (
-                  <Circle className="h-5 w-5 text-gray-300" />
-                )}
-                <span className={done ? 'text-gray-900' : 'text-gray-700'}>{label}</span>
-              </li>
-            )
-          })}
-        </ul>
-      </div>
-
+      <Card className="shadow-xs">
+        <CardContent className="p-6">
+          <h3 className="font-bold text-foreground">
+            Đã hoàn thành <span className="text-emerald-600 font-semibold">{doneCount}/8</span> mục
+          </h3>
+          <ul className="mt-4 space-y-3">
+            {CHECKLIST.map(({ key, label }) => {
+              const done = doneMap[key]
+              return (
+                <li key={key} className="flex items-center gap-2.5 text-[15px]">
+                  {done ? (
+                    <CircleCheck className="h-5 w-5 fill-emerald-50 text-emerald-500 shrink-0" />
+                  ) : (
+                    <Circle className="h-5 w-5 text-muted-foreground/40 shrink-0" />
+                  )}
+                  <span className={done ? 'text-foreground font-medium' : 'text-muted-foreground'}>{label}</span>
+                </li>
+              )
+            })}
+          </ul>
+        </CardContent>
+      </Card>
       <MediaLightbox {...lightboxProps} />
     </div>
   )

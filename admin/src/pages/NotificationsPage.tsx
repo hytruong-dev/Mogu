@@ -192,30 +192,26 @@ export default function NotificationsPage() {
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Phạm vi người nhận</Label>
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   type="button"
+                  variant={form.scope === 'ALL' ? 'default' : 'outline'}
+                  size="sm"
                   onClick={() => setForm({ ...form, scope: 'ALL' })}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
-                    form.scope === 'ALL'
-                      ? 'border-primary bg-primary/10 text-primary font-semibold'
-                      : 'border-border bg-card text-muted-foreground hover:bg-muted/40'
-                  }`}
+                  className="gap-2 text-xs h-9"
                 >
                   <Users size={14} />
                   Toàn bộ người dùng (Broadcast All)
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
+                  variant={form.scope === 'SPECIFIC_USER' ? 'default' : 'outline'}
+                  size="sm"
                   onClick={() => setForm({ ...form, scope: 'SPECIFIC_USER' })}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-xs font-medium transition-all ${
-                    form.scope === 'SPECIFIC_USER'
-                      ? 'border-primary bg-primary/10 text-primary font-semibold'
-                      : 'border-border bg-card text-muted-foreground hover:bg-muted/40'
-                  }`}
+                  className="gap-2 text-xs h-9"
                 >
                   <User size={14} />
                   Người dùng cụ thể
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -240,18 +236,16 @@ export default function NotificationsPage() {
               <Label className="text-xs font-semibold">Phân loại thông báo</Label>
               <div className="flex items-center gap-2">
                 {(['SYSTEM', 'PROMO', 'REMINDER'] as BroadcastType[]).map((t) => (
-                  <button
+                  <Button
                     key={t}
                     type="button"
+                    variant={form.type === t ? 'default' : 'outline'}
+                    size="sm"
                     onClick={() => setForm({ ...form, type: t })}
-                    className={`px-3 py-1 text-xs font-medium rounded-md border transition-colors ${
-                      form.type === t
-                        ? 'bg-zinc-900 text-white border-zinc-900 shadow-sm'
-                        : 'bg-card text-muted-foreground border-border hover:text-foreground'
-                    }`}
+                    className="text-xs h-8"
                   >
                     {t === 'SYSTEM' ? 'Hệ thống' : t === 'PROMO' ? 'Khuyến mãi / Tin tức' : 'Nhắc nhở'}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>

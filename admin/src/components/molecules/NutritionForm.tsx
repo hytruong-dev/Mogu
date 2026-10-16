@@ -4,6 +4,7 @@ import { Input } from '../ui/input'
 import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { Select } from '../ui/select'
+import { Card, CardContent } from '../ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { cn } from '@/lib/utils'
 
@@ -162,8 +163,9 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
   }
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-8">
-      <h2 className="text-lg font-bold">Dinh dưỡng tham khảo</h2>
+    <Card className="shadow-xs">
+      <CardContent className="p-8">
+        <h2 className="text-lg font-bold text-foreground">Dinh dưỡng tham khảo</h2>
 
       {/* Cơ sở khẩu phần */}
       <div className="mt-6 flex items-end justify-between gap-4">
@@ -353,7 +355,8 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
         </button>
         Giá trị chỉ mang tính tham khảo
       </label>
-    </div>
+    </CardContent>
+  </Card>
   )
 }
 

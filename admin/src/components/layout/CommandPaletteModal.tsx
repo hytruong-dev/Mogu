@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Archive,
   Bell,
   BookOpen,
   CloudDownload,
@@ -14,6 +13,7 @@ import {
   ScanSearch,
   Search,
   ShieldCheck,
+  TrendingUp,
   Users,
   Utensils,
 } from 'lucide-react'
@@ -44,7 +44,7 @@ export function CommandPaletteModal({
     { path: '/review', label: 'Hàng đợi duyệt món', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: ShieldCheck, desc: 'Duyệt các món ăn mới tạo hoặc chỉnh sửa' },
     { path: '/community', label: 'Quản lý cộng đồng', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: Heart, desc: 'Bài viết chia sẻ, thảo luận và tương tác thành viên' },
     { path: '/notifications', label: 'Phát thông báo', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: Bell, desc: 'Gửi broadcast push notification tới người dùng' },
-    { path: '/reports', label: 'Báo cáo vi phạm', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: Archive, desc: 'Xử lý phản ánh, vi phạm nội dung cộng đồng' },
+    { path: '/reports', label: 'Báo cáo & Phân tích', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: TrendingUp, desc: 'Thống kê hiệu suất, mức độ gắn kết và phân tích dữ liệu' },
     { path: '/users', label: 'Quản lý người dùng', category: 'HỆ THỐNG', icon: Users, desc: 'Phân quyền, tài khoản và lịch sử thao tác hệ thống' },
   ]
 

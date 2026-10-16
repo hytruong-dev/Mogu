@@ -6,6 +6,8 @@ import {
   Users,
   Star,
   Pencil,
+  Tag,
+  Utensils,
   Image as ImageIcon,
 } from 'lucide-react'
 import { Dialog, DialogContent } from '../ui/dialog'
@@ -149,13 +151,15 @@ export function DishDetailDialog({ dish, onClose, onEdit }: DishDetailDialogProp
             {(categories.length > 0 || mealTypes.length > 0) && (
               <div className="flex flex-wrap gap-2">
                 {categories.map((c) => (
-                  <Badge key={c.id} variant="secondary" className="text-xs font-semibold bg-slate-100 text-slate-700">
-                    🏷️ {c.name}
+                  <Badge key={c.id} variant="secondary" className="text-xs font-semibold bg-slate-100 text-slate-700 gap-1">
+                    <Tag size={12} className="text-slate-500" />
+                    <span>{c.name}</span>
                   </Badge>
                 ))}
                 {mealTypes.map((m) => (
-                  <Badge key={m.id} variant="outline" className="text-xs font-semibold text-amber-800 border-amber-200 bg-amber-50/50">
-                    🍽️ {m.name}
+                  <Badge key={m.id} variant="outline" className="text-xs font-semibold text-amber-800 border-amber-200 bg-amber-50/50 gap-1">
+                    <Utensils size={12} className="text-amber-600" />
+                    <span>{m.name}</span>
                   </Badge>
                 ))}
               </div>

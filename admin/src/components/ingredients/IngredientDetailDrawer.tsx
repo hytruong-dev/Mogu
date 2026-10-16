@@ -5,6 +5,8 @@ import {
   Trash2,
   CheckCircle2,
   RefreshCw,
+  Leaf,
+  AlertTriangle,
 } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -87,8 +89,9 @@ export function IngredientDetailDrawer({
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex items-center justify-center h-full text-slate-400 text-3xl">
-              🥄
+            <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-1.5">
+              <Leaf size={28} className="text-slate-300" />
+              <span className="text-[11px] text-slate-400">Chưa có ảnh nguyên liệu</span>
             </div>
           )}
         </div>
@@ -130,8 +133,9 @@ export function IngredientDetailDrawer({
             <span className="text-slate-500">Dị ứng:</span>
             <span className="font-semibold text-slate-800">
               {allergenName ? (
-                <span className="text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded">
-                  ⚠️ {allergenName}
+                <span className="inline-flex items-center gap-1 text-rose-600 bg-rose-50 border border-rose-200/60 px-2 py-0.5 rounded-md text-[11px]">
+                  <AlertTriangle size={12} className="text-rose-500" />
+                  {allergenName}
                 </span>
               ) : (
                 'Không có'

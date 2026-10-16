@@ -24,7 +24,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
-import { Card } from '../components/ui/card'
+import { Card, CardContent } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
@@ -94,15 +94,27 @@ function Stat({
   tone?: 'yellow' | 'green' | 'red'
   loading?: boolean
 }) {
+  const toneStyles = {
+    yellow: 'bg-amber-50 text-amber-600 border-amber-200/60',
+    green: 'bg-emerald-50 text-emerald-600 border-emerald-200/60',
+    red: 'bg-rose-50 text-rose-600 border-rose-200/60',
+  }
+
   return (
-    <Card className="stat-card">
-      <div className={`metric-icon ${tone}`}>
-        <Icon size={26} />
-      </div>
-      <div>
-        {loading ? <Skeleton className="h-7 w-20 mb-1" /> : <b>{value}</b>}
-        <p>{label}</p>
-      </div>
+    <Card className="hover:shadow-sm transition-shadow">
+      <CardContent className="p-5 flex items-start justify-between">
+        <div className="space-y-1">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+          {loading ? (
+            <Skeleton className="h-7 w-20 mb-1" />
+          ) : (
+            <div className="text-2xl font-bold tracking-tight text-foreground">{value}</div>
+          )}
+        </div>
+        <div className={`flex h-11 w-11 items-center justify-center rounded-xl border shadow-xs ${toneStyles[tone]}`}>
+          <Icon size={22} strokeWidth={2.2} />
+        </div>
+      </CardContent>
     </Card>
   )
 }

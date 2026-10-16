@@ -11,6 +11,8 @@ import {
 } from 'lucide-react'
 import type { CompleteTab } from './types'
 import { cn } from '@/lib/utils'
+import { Card, CardContent } from '../../ui/card'
+import { Tabs, TabsList, TabsTrigger } from '../../ui/tabs'
 
 interface Props {
   tab: CompleteTab
@@ -52,34 +54,30 @@ export function StepComplete({ tab, onTab, created = 0, skipped = 0, failed = 0,
 
       <div className="grid grid-cols-5 gap-2.5">
         {metrics.map((m) => (
-          <div key={m.label} className="rounded-xl border border-black/10 px-3 py-3">
-            <div className={cn('mb-2 flex h-8 w-8 items-center justify-center rounded-lg', m.bg)}>
-              <m.icon className={cn('h-4 w-4', m.color)} />
-            </div>
-            <p className="text-xl font-extrabold leading-none">{m.value}</p>
-            <p className="mt-1 text-[11px] leading-snug text-[#6B7280]">{m.label}</p>
-          </div>
+          <Card key={m.label} className="shadow-xs">
+            <CardContent className="p-3">
+              <div className={cn('mb-2 flex h-8 w-8 items-center justify-center rounded-lg', m.bg)}>
+                <m.icon className={cn('h-4 w-4', m.color)} />
+              </div>
+              <p className="text-xl font-bold tracking-tight text-foreground leading-none">{m.value}</p>
+              <p className="mt-1 text-[11px] leading-snug text-muted-foreground">{m.label}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
-      <div className="flex items-center gap-1 border-b border-black/10">
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => onTab(t.id)}
-            className={cn(
-              '-mb-px flex items-center gap-1.5 border-b-2 px-3 py-2 text-[13px] font-semibold',
-              tab === t.id ? 'border-[#22C55E] text-[#166534]' : 'border-transparent text-[#6B7280] hover:text-black',
-            )}
-          >
-            {t.label}
-            {t.badge && (
-              <span className={cn('rounded-full px-1.5 py-0.5 text-[10px] font-bold', t.badge.cls)}>{t.badge.n}</span>
-            )}
-          </button>
-        ))}
-      </div>
+      <Tabs value={tab} onValueChange={(val) => onTab(val as CompleteTab)}>
+        <TabsList className="w-full justify-start h-9 p-1">
+          {tabs.map((t) => (
+            <TabsTrigger key={t.id} value={t.id} className="text-xs gap-1.5">
+              <span>{t.label}</span>
+              {t.badge && (
+                <span className={cn('rounded-full px-1.5 py-0.2 text-[10px] font-bold', t.badge.cls)}>{t.badge.n}</span>
+              )}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
 
       {tab === 'overview' && (
         <div className="grid grid-cols-2 gap-4">

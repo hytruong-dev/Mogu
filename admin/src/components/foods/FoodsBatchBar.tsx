@@ -21,7 +21,7 @@ export function FoodsBatchBar({
   if (selectedCount === 0) return null
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-800 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-200">
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-950/90 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700/80 ring-1 ring-white/10 flex items-center gap-4 animate-in fade-in slide-in-from-bottom-4 duration-200">
       <div className="flex items-center gap-2 pr-3 border-r border-slate-700 text-xs font-semibold">
         <CheckSquare size={16} className="text-amber-400" />
         <span>Đã chọn <b className="text-amber-400">{selectedCount}</b> món</span>

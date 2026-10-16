@@ -19,6 +19,7 @@ import { Button } from '../ui/button'
 import { Select } from '../ui/select'
 import { Label } from '../ui/label'
 import { Image } from '../ui/image'
+import { Card, CardContent } from '../ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { MediaLightbox, useMediaLightbox } from '../ui/media-lightbox'
 import { cn } from '@/lib/utils'
@@ -121,58 +122,59 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
   const vid = youtubeId(state.videoUrl)
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-8">
-      <div className="flex gap-3">
-        <button type="button" className="h-10 rounded-xl border-2 border-mogu-yellow bg-mogu-yellow-light px-4 text-sm font-semibold">
-          Công thức chuẩn
-        </button>
-        <button type="button" className="h-10 rounded-xl border border-black/10 px-4 text-sm font-medium text-gray-600 hover:border-mogu-yellow">
-          + Thêm công thức khác
-        </button>
-      </div>
+    <Card className="shadow-xs">
+      <CardContent className="p-8">
+        <div className="flex gap-3">
+          <Button type="button" variant="default" size="sm" className="h-10 rounded-xl font-semibold">
+            Công thức chuẩn
+          </Button>
+          <Button type="button" variant="outline" size="sm" className="h-10 rounded-xl font-medium">
+            + Thêm công thức khác
+          </Button>
+        </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <div className="lg:col-span-2">
-          <label className="text-[13px] font-semibold">Tên công thức <span className="text-red-500">*</span></label>
-          <Input value={state.name} onChange={(e) => patch({ name: e.target.value })} placeholder="Phở gà truyền thống"
-            className="mt-1.5 h-11 rounded-xl" />
-        </div>
-        <div>
-          <label className="text-[13px] font-semibold">Khẩu phần</label>
-          <div className="relative mt-1.5">
-            <Input value={state.servings} onChange={(e) => patch({ servings: e.target.value })} className="h-11 rounded-xl pr-12" />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">phần</span>
+        <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-5">
+          <div className="lg:col-span-2">
+            <Label className="text-[13px] font-semibold text-foreground">Tên công thức <span className="text-red-500">*</span></Label>
+            <Input value={state.name} onChange={(e) => patch({ name: e.target.value })} placeholder="Phở gà truyền thống"
+              className="mt-1.5 h-11 rounded-xl" />
+          </div>
+          <div>
+            <Label className="text-[13px] font-semibold text-foreground">Khẩu phần</Label>
+            <div className="relative mt-1.5">
+              <Input value={state.servings} onChange={(e) => patch({ servings: e.target.value })} className="h-11 rounded-xl pr-12" />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">phần</span>
+            </div>
+          </div>
+          <div>
+            <Label className="text-[13px] font-semibold text-foreground">Thời gian chuẩn bị</Label>
+            <div className="relative mt-1.5">
+              <Input value={state.prepMin} onChange={(e) => patch({ prepMin: e.target.value })} className="h-11 rounded-xl pr-12" />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">phút</span>
+            </div>
+          </div>
+          <div>
+            <Label className="text-[13px] font-semibold text-foreground">Thời gian nấu</Label>
+            <div className="relative mt-1.5">
+              <Input value={state.cookMin} onChange={(e) => patch({ cookMin: e.target.value })} className="h-11 rounded-xl pr-12" />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">phút</span>
+            </div>
           </div>
         </div>
-        <div>
-          <label className="text-[13px] font-semibold">Thời gian chuẩn bị</label>
-          <div className="relative mt-1.5">
-            <Input value={state.prepMin} onChange={(e) => patch({ prepMin: e.target.value })} className="h-11 rounded-xl pr-12" />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">phút</span>
+        <div className="mt-4 max-w-[220px]">
+          <Label className="text-[13px] font-semibold text-foreground">Độ khó</Label>
+          <div className="mt-1.5">
+            <Select
+              value={state.difficulty}
+              onChange={(e) => patch({ difficulty: e.target.value as RecipeState['difficulty'] })}
+              className="h-11 rounded-xl text-sm"
+            >
+              <option value="EASY">Dễ</option>
+              <option value="MEDIUM">Trung bình</option>
+              <option value="HARD">Khó</option>
+            </Select>
           </div>
         </div>
-        <div>
-          <label className="text-[13px] font-semibold">Thời gian nấu</label>
-          <div className="relative mt-1.5">
-            <Input value={state.cookMin} onChange={(e) => patch({ cookMin: e.target.value })} className="h-11 rounded-xl pr-12" />
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">phút</span>
-          </div>
-        </div>
-      </div>
-      <div className="mt-4 max-w-[220px]">
-        <Label className="text-[13px] font-semibold text-foreground">Độ khó</Label>
-        <div className="mt-1.5">
-          <Select
-            value={state.difficulty}
-            onChange={(e) => patch({ difficulty: e.target.value as RecipeState['difficulty'] })}
-            className="h-11 rounded-xl border border-black/10 bg-white px-3 text-sm"
-          >
-            <option value="EASY">Dễ</option>
-            <option value="MEDIUM">Trung bình</option>
-            <option value="HARD">Khó</option>
-          </Select>
-        </div>
-      </div>
 
       <div className="mt-8">
         <h3 className="text-[15px] font-bold">Các bước thực hiện</h3>
@@ -300,18 +302,28 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
         </div>
 
         <div className="mt-4 flex gap-3">
-          <button type="button" onClick={() => patch({ steps: [...state.steps, emptyRecipeStep()] })}
-            className="flex h-10 items-center gap-2 rounded-xl border-2 border-mogu-yellow px-4 text-sm font-semibold hover:bg-mogu-yellow-light">
-            <Plus className="h-4 w-4" /> Thêm bước
-          </button>
-          <button type="button" className="flex h-10 items-center gap-2 rounded-xl px-4 text-sm font-medium text-gray-600 hover:bg-gray-50">
-            <FileText className="h-4 w-4" /> Tạo bước từ văn bản
-          </button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => patch({ steps: [...state.steps, emptyRecipeStep()] })}
+            className="border-primary/40 font-semibold"
+          >
+            <Plus className="mr-1.5 h-4 w-4" /> Thêm bước
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="font-medium text-muted-foreground"
+          >
+            <FileText className="mr-1.5 h-4 w-4" /> Tạo bước từ văn bản
+          </Button>
         </div>
       </div>
 
       <div className="mt-8">
-        <label className="text-[13px] font-semibold">Video hướng dẫn (nếu có)</label>
+        <Label className="text-[13px] font-semibold text-foreground">Video hướng dẫn (nếu có)</Label>
         <div className="mt-2 flex gap-4">
           <Input value={state.videoUrl} onChange={(e) => patch({ videoUrl: e.target.value })}
             placeholder="https://youtube.com/watch?v=..." className="h-11 flex-1 rounded-xl" />
@@ -468,6 +480,7 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
       </Dialog>
 
       <MediaLightbox {...videoLightboxProps} />
-    </div>
+      </CardContent>
+    </Card>
   )
 }

@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { Checkbox } from '../../ui/checkbox'
 import { Switch } from '../../ui/switch'
 import { Button } from '../../ui/button'
+import { Badge } from '../../ui/badge'
 
 export const WIZARD_STEPS = [
   { n: 1, key: 'upload', label: 'Tải file' },
@@ -133,18 +134,18 @@ export function StatusPill({
   tone: 'green' | 'orange' | 'gray' | 'red' | 'blue' | 'purple'
   children: ReactNode
 }) {
-  const cls = {
-    green: 'bg-[#ECFDF3] text-[#166534]',
-    orange: 'bg-[#FFF7ED] text-[#C2410C]',
-    gray: 'bg-[#F3F4F6] text-[#6B7280]',
-    red: 'bg-[#FEF2F2] text-[#B91C1C]',
-    blue: 'bg-[#EFF6FF] text-[#1D4ED8]',
-    purple: 'bg-[#F5F3FF] text-[#6D28D9]',
+  const variant = {
+    green: 'success' as const,
+    orange: 'warning' as const,
+    gray: 'neutral' as const,
+    red: 'destructive' as const,
+    blue: 'info' as const,
+    purple: 'purple' as const,
   }[tone]
   return (
-    <span className={cn('inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold', cls)}>
+    <Badge variant={variant} className="gap-1 px-2 py-0.5 text-[11px] font-semibold">
       {children}
-    </span>
+    </Badge>
   )
 }
 

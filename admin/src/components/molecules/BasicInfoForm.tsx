@@ -4,6 +4,8 @@ import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
 import { Label } from '../ui/label'
 import { Select } from '../ui/select'
+import { Card, CardContent } from '../ui/card'
+import { Badge } from '../ui/badge'
 import { cn } from '@/lib/utils'
 import {
   type MealTypeOption,
@@ -82,49 +84,50 @@ export function BasicInfoForm({
   )
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-8">
-      {/* Tên món ăn + Tên khác */}
-      <div className="grid grid-cols-2 gap-6">
-        <div>
-          <label className="text-[15px] font-semibold">
-            Tên món ăn <span className="text-red-500">*</span>
-          </label>
-          <Input
-            value={state.name}
-            onChange={(e) => onChange({ ...state, name: e.target.value })}
-            className="mt-2 h-12 rounded-xl border-black/10 text-[15px] focus-visible:border-mogu-yellow focus-visible:ring-2 focus-visible:ring-mogu-yellow/30"
-            placeholder="Nhập tên món ăn..."
-          />
+    <Card className="shadow-xs">
+      <CardContent className="p-8">
+        {/* Tên món ăn + Tên khác */}
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <Label className="text-[15px] font-semibold text-foreground">
+              Tên món ăn <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              value={state.name}
+              onChange={(e) => onChange({ ...state, name: e.target.value })}
+              className="mt-2 h-12 rounded-xl text-[15px]"
+              placeholder="Nhập tên món ăn..."
+            />
+          </div>
+          <div>
+            <Label className="text-[15px] font-semibold text-foreground">Tên khác</Label>
+            <Input
+              value={state.altName}
+              onChange={(e) => onChange({ ...state, altName: e.target.value })}
+              className="mt-2 h-12 rounded-xl text-[15px]"
+              placeholder="Nhập tên gọi khác..."
+            />
+          </div>
         </div>
-        <div>
-          <label className="text-[15px] font-semibold">Tên khác</label>
-          <Input
-            value={state.altName}
-            onChange={(e) => onChange({ ...state, altName: e.target.value })}
-            className="mt-2 h-12 rounded-xl border-black/10 text-[15px] focus-visible:border-mogu-yellow focus-visible:ring-2 focus-visible:ring-mogu-yellow/30"
-            placeholder="Nhập tên gọi khác..."
-          />
-        </div>
-      </div>
 
-      {/* Mô tả ngắn */}
-      <div className="mt-7">
-        <label className="text-[15px] font-semibold">
-          Mô tả ngắn <span className="text-red-500">*</span>
-        </label>
-        <div className="relative mt-2">
-          <Textarea
-            value={state.shortDescription}
-            maxLength={180}
-            onChange={(e) => onChange({ ...state, shortDescription: e.target.value })}
-            placeholder="Mô tả ngắn về món ăn (hương vị, đặc điểm nổi bật, cách thưởng thức...)"
-            className="h-[104px] resize-none rounded-xl border-black/10 p-4 text-[15px] focus-visible:border-mogu-yellow focus-visible:ring-2 focus-visible:ring-mogu-yellow/30"
-          />
-          <span className="pointer-events-none absolute bottom-3 right-4 text-sm text-gray-400">
-            {state.shortDescription.length}/180
-          </span>
+        {/* Mô tả ngắn */}
+        <div className="mt-7">
+          <Label className="text-[15px] font-semibold text-foreground">
+            Mô tả ngắn <span className="text-red-500">*</span>
+          </Label>
+          <div className="relative mt-2">
+            <Textarea
+              value={state.shortDescription}
+              maxLength={180}
+              onChange={(e) => onChange({ ...state, shortDescription: e.target.value })}
+              placeholder="Mô tả ngắn về món ăn (hương vị, đặc điểm nổi bật, cách thưởng thức...)"
+              className="h-[104px] resize-none rounded-xl p-4 text-[15px]"
+            />
+            <span className="pointer-events-none absolute bottom-3 right-4 text-sm text-muted-foreground">
+              {state.shortDescription.length}/180
+            </span>
+          </div>
         </div>
-      </div>
 
       {/* Vùng miền + Tỉnh/thành */}
       <div className="mt-7 grid grid-cols-2 gap-6">
@@ -164,27 +167,28 @@ export function BasicInfoForm({
 
       {/* Danh mục */}
       <div className="mt-7">
-        <label className="text-[15px] font-semibold">
+        <Label className="text-[15px] font-semibold text-foreground">
           Danh mục <span className="text-red-500">*</span>
-        </label>
-        <div className="mt-2 flex h-14 flex-wrap items-center gap-2 rounded-xl border border-black/10 bg-white px-3">
+        </Label>
+        <div className="mt-2 flex min-h-12 flex-wrap items-center gap-2 rounded-xl border border-input bg-background p-2">
           {state.categoryIds.map((id) => {
             const cat = categories.find((c) => c.id === id)
             if (!cat) return null
             return (
-              <span
+              <Badge
                 key={id}
-                className="flex items-center gap-1.5 rounded-lg border border-mogu-yellow bg-mogu-yellow-light px-3 py-1.5 text-[15px]"
+                variant="warning"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium"
               >
                 {cat.name}
                 <X
-                  className="h-3.5 w-3.5 cursor-pointer text-gray-500 hover:text-black"
+                  className="h-3.5 w-3.5 cursor-pointer text-muted-foreground hover:text-foreground"
                   onClick={() => toggleCategory(id)}
                 />
-              </span>
+              </Badge>
             )
           })}
-          <ChevronDown className="ml-auto h-4 w-4 text-gray-400" />
+          <ChevronDown className="ml-auto h-4 w-4 text-muted-foreground shrink-0" />
         </div>
         {state.categoryIds.length === 0 && (
           <div className="mt-2 flex flex-wrap gap-2">
@@ -193,7 +197,7 @@ export function BasicInfoForm({
                 key={c.id}
                 type="button"
                 onClick={() => toggleCategory(c.id)}
-                className="rounded-lg border border-dashed border-black/15 px-3 py-1.5 text-sm text-gray-500 hover:border-mogu-yellow"
+                className="rounded-lg border border-dashed border-input px-3 py-1.5 text-sm text-muted-foreground hover:border-amber-400 hover:text-foreground transition-colors"
               >
                 + {c.name}
               </button>
@@ -204,7 +208,7 @@ export function BasicInfoForm({
 
       {/* Bữa ăn phù hợp */}
       <div className="mt-7">
-        <label className="text-[15px] font-semibold">Bữa ăn phù hợp</label>
+        <Label className="text-[15px] font-semibold text-foreground">Bữa ăn phù hợp</Label>
         <div className="mt-2 grid grid-cols-4 gap-4">
           {slotMealTypes.map((meal) => {
             const code = meal.code?.toUpperCase() ?? ''
@@ -216,10 +220,10 @@ export function BasicInfoForm({
                 type="button"
                 onClick={() => toggleMeal(meal.id)}
                 className={cn(
-                  'flex h-12 items-center justify-center gap-2 rounded-xl border text-[15px] transition',
+                  'flex h-12 items-center justify-center gap-2 rounded-xl border text-[15px] transition-colors',
                   selected
-                    ? 'border-mogu-yellow bg-mogu-yellow-light font-medium'
-                    : 'border-black/10 bg-white text-gray-800 hover:border-mogu-yellow/60',
+                    ? 'border-amber-400 bg-amber-50 font-medium text-amber-900 dark:bg-amber-950/40 dark:text-amber-300'
+                    : 'border-input bg-card text-foreground hover:border-amber-300',
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -232,14 +236,15 @@ export function BasicInfoForm({
 
       {/* Trạng thái */}
       <div className="mt-7">
-        <label className="text-[15px] font-semibold">Trạng thái</label>
+        <Label className="text-[15px] font-semibold text-foreground">Trạng thái</Label>
         <div className="mt-2">
-          <span className="inline-flex items-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-4 py-2 text-sm text-purple-700">
+          <Badge variant="purple" className="px-3 py-1.5 text-xs font-semibold gap-1.5">
             <span className="h-1.5 w-1.5 rounded-full bg-purple-500" />
             Bản nháp
-          </span>
+          </Badge>
         </div>
       </div>
-    </div>
+    </CardContent>
+  </Card>
   )
 }

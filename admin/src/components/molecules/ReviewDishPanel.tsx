@@ -1,4 +1,7 @@
 import { AlertTriangle, CheckCircle2, ChevronDown, Pencil } from 'lucide-react'
+import { Card, CardContent } from '../ui/card'
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
 import type { BasicInfoState } from './BasicInfoForm'
 import type { ClassificationState } from './ClassificationPanel'
 import type { DishIngredientRow } from './IngredientsTable'
@@ -118,42 +121,46 @@ export function ReviewDishPanel({
           </ul>
         </div>
       )}
-      <div className="flex items-center gap-6 rounded-2xl border border-black/10 bg-white p-6">
-        <div className="relative flex h-24 w-24 items-center justify-center">
-          <svg className="h-24 w-24 -rotate-90" viewBox="0 0 36 36">
-            <circle cx="18" cy="18" r="15.5" fill="none" stroke="#E5E7EB" strokeWidth="3" />
-            <circle cx="18" cy="18" r="15.5" fill="none" stroke="#22C55E" strokeWidth="3"
-              strokeDasharray={`${pct} 100`} strokeLinecap="round" />
-          </svg>
-          <span className="absolute text-lg font-extrabold text-ok-green">{pct}%</span>
-        </div>
-        <div>
-          <h3 className="text-lg font-bold">Hồ sơ gần hoàn tất</h3>
-          <div className="mt-2 flex flex-wrap gap-4 text-sm">
-            <span className="flex items-center gap-1 text-ok-green"><CheckCircle2 className="h-4 w-4" /> {valids} mục hợp lệ</span>
-            <span className="flex items-center gap-1 text-warn-orange"><AlertTriangle className="h-4 w-4" /> {warnings} cảnh báo</span>
-            <span className="flex items-center gap-1 text-gray-500">{blocking.length} lỗi bắt buộc</span>
+      <Card className="shadow-xs">
+        <CardContent className="flex items-center gap-6 p-6">
+          <div className="relative flex h-20 w-20 items-center justify-center shrink-0">
+            <svg className="h-20 w-20 -rotate-90" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="15.5" fill="none" stroke="currentColor" className="text-muted/40" strokeWidth="3" />
+              <circle cx="18" cy="18" r="15.5" fill="none" stroke="currentColor" className="text-emerald-500" strokeWidth="3"
+                strokeDasharray={`${pct} 100`} strokeLinecap="round" />
+            </svg>
+            <span className="absolute text-base font-extrabold text-emerald-600">{pct}%</span>
           </div>
-        </div>
-      </div>
-
-      <div className="overflow-hidden rounded-2xl border border-black/10 bg-white">
-        {rows.map((r) => (
-          <div key={r.id} className="flex items-center gap-4 border-b border-black/5 px-5 py-4 last:border-0">
-            {r.ok ? <CheckCircle2 className="h-6 w-6 shrink-0 text-ok-green" /> : <AlertTriangle className="h-6 w-6 shrink-0 text-warn-orange" />}
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="font-semibold">{r.n}. {r.title}</span>
-                {r.badge && <span className="rounded-full bg-warn-orange-bg px-2 py-0.5 text-xs font-semibold text-warn-orange">{r.badge}</span>}
-              </div>
-              <p className="mt-0.5 truncate text-sm text-gray-500">{r.summary}</p>
+          <div>
+            <h3 className="text-base font-bold text-foreground">Hồ sơ gần hoàn tất</h3>
+            <div className="mt-2 flex flex-wrap gap-4 text-xs">
+              <span className="flex items-center gap-1 font-medium text-emerald-600"><CheckCircle2 className="h-3.5 w-3.5" /> {valids} mục hợp lệ</span>
+              <span className="flex items-center gap-1 font-medium text-amber-600"><AlertTriangle className="h-3.5 w-3.5" /> {warnings} cảnh báo</span>
+              <span className="flex items-center gap-1 text-muted-foreground">{blocking.length} lỗi bắt buộc</span>
             </div>
-            <button type="button" onClick={() => onEdit(r.id)} className="flex items-center gap-1 text-sm font-semibold text-gray-600 hover:text-black">
-              <Pencil className="h-3.5 w-3.5" /> Chỉnh sửa <ChevronDown className="h-4 w-4" />
-            </button>
           </div>
-        ))}
-      </div>
+        </CardContent>
+      </Card>
+
+      <Card className="overflow-hidden shadow-xs">
+        <CardContent className="p-0">
+          {rows.map((r) => (
+            <div key={r.id} className="flex items-center gap-4 border-b border-border px-5 py-4 last:border-0 hover:bg-muted/30 transition-colors">
+              {r.ok ? <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" /> : <AlertTriangle className="h-5 w-5 shrink-0 text-amber-500" />}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-foreground">{r.n}. {r.title}</span>
+                  {r.badge && <Badge variant="warning" className="text-[11px]">{r.badge}</Badge>}
+                </div>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">{r.summary}</p>
+              </div>
+              <Button type="button" variant="ghost" size="sm" onClick={() => onEdit(r.id)} className="h-8 gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground">
+                <Pencil className="h-3.5 w-3.5" /> Chỉnh sửa <ChevronDown className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   )
 }

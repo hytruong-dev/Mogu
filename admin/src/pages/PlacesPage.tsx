@@ -38,8 +38,6 @@ const OPEN_STATUS_LABEL: Record<string, { text: string; className: string }> = {
   UNKNOWN: { text: 'Chưa rõ giờ', className: 'text-muted-foreground' },
 }
 
-const FILTER_SELECT_CLASS =
-  'h-8 rounded-md border border-input bg-background px-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-ring'
 import { Badge } from '../components/ui/badge'
 import { Button } from '../components/ui/button'
 import { Checkbox } from '../components/ui/checkbox'
@@ -54,6 +52,7 @@ import {
 } from '../components/ui/dialog'
 import { Input } from '../components/ui/input'
 import { Label } from '../components/ui/label'
+import { Select } from '../components/ui/select'
 import { TableSkeleton } from '../components/ui/page-skeleton'
 import { Spinner } from '../components/ui/spinner'
 import { Image } from '../components/ui/image'
@@ -258,47 +257,53 @@ export default function PlacesPage() {
 
             {/* Search + filters */}
             <div className="flex flex-wrap items-center gap-2">
-              <select
-                value={providerFilter}
-                onChange={(e) => {
-                  setProviderFilter(e.target.value)
-                  setPage(1)
-                }}
-                className={FILTER_SELECT_CLASS}
-                aria-label="Lọc nguồn"
-              >
-                <option value="">Mọi nguồn</option>
-                <option value="SHOPEEFOOD">ShopeeFood</option>
-                <option value="OSM">OpenStreetMap</option>
-                <option value="GOOGLE">Google</option>
-                <option value="LOCAL">Cộng đồng / Local</option>
-              </select>
-              <select
-                value={verifiedFilter}
-                onChange={(e) => {
-                  setVerifiedFilter(e.target.value as '' | 'true' | 'false')
-                  setPage(1)
-                }}
-                className={FILTER_SELECT_CLASS}
-                aria-label="Lọc xác thực"
-              >
-                <option value="">Mọi trạng thái</option>
-                <option value="false">Chưa duyệt</option>
-                <option value="true">Đã xác minh</option>
-              </select>
-              <select
-                value={dishFilter}
-                onChange={(e) => {
-                  setDishFilter(e.target.value as '' | 'true' | 'false')
-                  setPage(1)
-                }}
-                className={FILTER_SELECT_CLASS}
-                aria-label="Lọc món liên kết"
-              >
-                <option value="">Món: tất cả</option>
-                <option value="true">Có món liên kết</option>
-                <option value="false">Chưa có món</option>
-              </select>
+              <div className="w-36">
+                <Select
+                  value={providerFilter}
+                  onChange={(e) => {
+                    setProviderFilter(e.target.value)
+                    setPage(1)
+                  }}
+                  className="h-8 text-xs"
+                  aria-label="Lọc nguồn"
+                >
+                  <option value="">Mọi nguồn</option>
+                  <option value="SHOPEEFOOD">ShopeeFood</option>
+                  <option value="OSM">OpenStreetMap</option>
+                  <option value="GOOGLE">Google</option>
+                  <option value="LOCAL">Cộng đồng / Local</option>
+                </Select>
+              </div>
+              <div className="w-36">
+                <Select
+                  value={verifiedFilter}
+                  onChange={(e) => {
+                    setVerifiedFilter(e.target.value as '' | 'true' | 'false')
+                    setPage(1)
+                  }}
+                  className="h-8 text-xs"
+                  aria-label="Lọc xác thực"
+                >
+                  <option value="">Mọi trạng thái</option>
+                  <option value="false">Chưa duyệt</option>
+                  <option value="true">Đã xác minh</option>
+                </Select>
+              </div>
+              <div className="w-36">
+                <Select
+                  value={dishFilter}
+                  onChange={(e) => {
+                    setDishFilter(e.target.value as '' | 'true' | 'false')
+                    setPage(1)
+                  }}
+                  className="h-8 text-xs"
+                  aria-label="Lọc món liên kết"
+                >
+                  <option value="">Món: tất cả</option>
+                  <option value="true">Có món liên kết</option>
+                  <option value="false">Chưa có món</option>
+                </Select>
+              </div>
               <div className="relative w-64">
                 <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <Input

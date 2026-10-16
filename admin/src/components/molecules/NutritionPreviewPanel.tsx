@@ -1,6 +1,7 @@
 import { AlertCircle, CheckCircle2, ChevronDown } from 'lucide-react'
 import { energySplit, type NutritionState } from './NutritionForm'
-import { cn } from '@/lib/utils'
+import { Card, CardContent } from '../ui/card'
+import { Badge } from '../ui/badge'
 
 interface NutritionPreviewPanelProps {
   state: NutritionState
@@ -28,55 +29,61 @@ export function NutritionPreviewPanel({ state }: NutritionPreviewPanelProps) {
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-black/10 bg-white p-6">
-        <h3 className="text-lg font-bold">Kiểm tra dinh dưỡng</h3>
-        <div className="mt-4 divide-y divide-black/5">
-          {checks.map((c) => (
-            <div key={c.title} className="flex items-center gap-3 py-3">
-              {c.ok ? (
-                <CheckCircle2 className="h-5 w-5 shrink-0 text-ok-green" />
-              ) : (
-                <AlertCircle className="h-5 w-5 shrink-0 text-warn-orange" />
-              )}
-              <div className="min-w-0 flex-1">
-                <div className="text-[15px] font-medium">{c.title}</div>
+      <Card className="shadow-xs">
+        <CardContent className="p-6">
+          <h3 className="text-lg font-bold text-foreground">Kiểm tra dinh dưỡng</h3>
+          <div className="mt-4 divide-y divide-border">
+            {checks.map((c) => (
+              <div key={c.title} className="flex items-center gap-3 py-3">
+                {c.ok ? (
+                  <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-500" />
+                ) : (
+                  <AlertCircle className="h-5 w-5 shrink-0 text-amber-500" />
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="text-[15px] font-medium text-foreground">{c.title}</div>
+                </div>
+                <Badge variant={c.ok ? 'success' : 'warning'} className="text-xs">
+                  {c.ok ? c.okLabel : c.warnLabel}
+                </Badge>
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
               </div>
-              <span className={cn('text-sm font-medium', c.ok ? 'text-ok-green' : 'text-warn-orange')}>
-                {c.ok ? c.okLabel : c.warnLabel}
-              </span>
-              <ChevronDown className="h-4 w-4 text-gray-400" />
-            </div>
-          ))}
-        </div>
-      </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-      <div className="rounded-2xl border border-black/10 bg-white p-6">
-        <h3 className="text-lg font-bold">Xem trước trên ứng dụng</h3>
-        <div className="mt-4">
-          <div className="text-3xl font-extrabold">{kcal || '—'} kcal</div>
-          <div className="mt-1 text-sm text-gray-500">/ {state.servingLabel}</div>
-          <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-ok-green" /> Protein {protein || 0} g
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-mogu-yellow" /> Carb {carb || 0} g
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-warn-orange" /> Chất béo {fat || 0} g
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-gray-400" /> Chất xơ {fiber || 0} g
+      <Card className="shadow-xs">
+        <CardContent className="p-6">
+          <h3 className="text-lg font-bold text-foreground">Xem trước trên ứng dụng</h3>
+          <div className="mt-4">
+            <div className="text-3xl font-extrabold text-foreground">{kcal || '—'} kcal</div>
+            <div className="mt-1 text-sm text-muted-foreground">/ {state.servingLabel}</div>
+            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div className="flex items-center gap-2 text-foreground">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Protein {protein || 0} g
+              </div>
+              <div className="flex items-center gap-2 text-foreground">
+                <span className="h-2.5 w-2.5 rounded-full bg-amber-400" /> Carb {carb || 0} g
+              </div>
+              <div className="flex items-center gap-2 text-foreground">
+                <span className="h-2.5 w-2.5 rounded-full bg-orange-500" /> Chất béo {fat || 0} g
+              </div>
+              <div className="flex items-center gap-2 text-foreground">
+                <span className="h-2.5 w-2.5 rounded-full bg-slate-400" /> Chất xơ {fiber || 0} g
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      <div className="rounded-2xl border border-black/10 bg-white p-6">
-        <h3 className="text-lg font-bold">Sai số ước tính</h3>
-        <div className="mt-2 text-3xl font-extrabold">±{split.total ? 8 : 0}%</div>
-        <p className="mt-1 text-sm text-gray-500">So với giá trị thực tế</p>
-      </div>
+      <Card className="shadow-xs">
+        <CardContent className="p-6">
+          <h3 className="text-lg font-bold text-foreground">Sai số ước tính</h3>
+          <div className="mt-2 text-3xl font-extrabold text-foreground">±{split.total ? 8 : 0}%</div>
+          <p className="mt-1 text-sm text-muted-foreground">So với giá trị thực tế</p>
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AlertCircle, CheckCircle2, ImageIcon } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Image } from '../ui/image'
 import { Textarea } from '../ui/textarea'
@@ -26,38 +27,42 @@ export function RecipePreviewPanel({
 
   return (
     <div className="space-y-5">
-      <div className="rounded-2xl border border-black/10 bg-white p-6">
-        <h3 className="text-lg font-bold">Kiểm tra công thức</h3>
-        <div className="mt-4 space-y-3 text-[15px]">
+      <Card className="shadow-xs">
+        <CardHeader className="p-6 pb-2">
+          <CardTitle className="text-base font-semibold">Kiểm tra công thức</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0 space-y-3 text-sm">
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="h-5 w-5 text-ok-green" /> Tổng số bước: {state.steps.length}
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Tổng số bước: {state.steps.length}
           </div>
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="h-5 w-5 text-ok-green" /> Thứ tự bước hợp lệ
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Thứ tự bước hợp lệ
           </div>
           <div className="flex items-center gap-3">
-            <CheckCircle2 className="h-5 w-5 text-ok-green" /> Tổng thời gian: {totalMin || 0} phút
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Tổng thời gian: {totalMin || 0} phút
           </div>
           <div className="flex items-start gap-3">
             {missingMedia > 0 ? (
-              <AlertCircle className="mt-0.5 h-5 w-5 text-warn-orange" />
+              <AlertCircle className="mt-0.5 h-4 w-4 text-amber-500" />
             ) : (
-              <CheckCircle2 className="h-5 w-5 text-ok-green" />
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
             )}
-            <span>
+            <span className="text-muted-foreground">
               Phương tiện minh họa:{' '}
               {missingMedia > 0 ? `${missingMedia} bước chưa có ảnh/video` : 'Đủ ảnh/video'}
             </span>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
 
-      <div className="rounded-2xl border border-black/10 bg-white p-6">
-        <h3 className="text-lg font-bold">Xem trước trên ứng dụng</h3>
-        <div className="mt-4 space-y-3">
+      <Card className="shadow-xs">
+        <CardHeader className="p-6 pb-2">
+          <CardTitle className="text-base font-semibold">Xem trước trên ứng dụng</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0 space-y-3">
           {state.steps.map((s, i) => (
             <div key={s.id} className="flex items-center gap-3">
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-mogu-yellow text-xs font-bold">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">
                 {i + 1}
               </span>
 
@@ -86,7 +91,7 @@ export function RecipePreviewPanel({
                     }
                   }}
                   title="Chưa có ảnh. Nhấn để gán URL ảnh cho bước này"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-dashed border-gray-300 bg-gray-50 text-gray-400 transition hover:border-mogu-yellow hover:bg-mogu-yellow-light/30 hover:text-mogu-yellow-dark"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-dashed border-border bg-muted/40 text-muted-foreground transition hover:border-primary hover:text-primary"
                 >
                   <ImageIcon className="h-4 w-4" />
                 </button>
@@ -94,24 +99,28 @@ export function RecipePreviewPanel({
 
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-semibold">{s.title || `Bước ${i + 1}`}</div>
-                <div className="text-xs text-gray-400">{s.durationMin || 0} phút</div>
+                <div className="text-xs text-muted-foreground">{s.durationMin || 0} phút</div>
               </div>
             </div>
           ))}
-          {state.steps.length === 0 && <p className="text-sm text-gray-400">Chưa có bước nào.</p>}
-        </div>
-      </div>
+          {state.steps.length === 0 && <p className="text-sm text-muted-foreground">Chưa có bước nào.</p>}
+        </CardContent>
+      </Card>
 
-      <div className="rounded-2xl border border-black/10 bg-white p-6">
-        <h3 className="text-lg font-bold">Ghi chú nội bộ</h3>
-        <Textarea
-          value={state.notes}
-          onChange={(e) => onChange({ ...state, notes: e.target.value.slice(0, 500) })}
-          placeholder="Ghi chú cho đội kiểm duyệt..."
-          className="mt-3 min-h-[110px] rounded-xl"
-        />
-        <div className="mt-1 text-right text-xs text-gray-400">{state.notes.length}/500</div>
-      </div>
+      <Card className="shadow-xs">
+        <CardHeader className="p-6 pb-2">
+          <CardTitle className="text-base font-semibold">Ghi chú nội bộ</CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pt-0">
+          <Textarea
+            value={state.notes}
+            onChange={(e) => onChange({ ...state, notes: e.target.value.slice(0, 500) })}
+            placeholder="Ghi chú cho đội kiểm duyệt..."
+            className="min-h-[110px] rounded-xl"
+          />
+          <div className="mt-1 text-right text-xs text-muted-foreground">{state.notes.length}/500</div>
+        </CardContent>
+      </Card>
 
       <Dialog open={previewImage !== null} onOpenChange={(open) => { if (!open) setPreviewImage(null) }}>
         <DialogContent className="max-w-lg p-5">

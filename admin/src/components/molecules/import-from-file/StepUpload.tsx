@@ -13,6 +13,16 @@ import {
 import { FILE_RULES, SAMPLE_CSV, formatBytes } from './demo-data'
 import type { UploadedFileInfo } from './types'
 import { ExcelMark, YellowCheck } from './widgets'
+import { Badge } from '../../ui/badge'
+import { Button } from '../../ui/button'
+import { Progress } from '../../ui/progress'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../../ui/dialog'
 
 const RULE_ICONS = [Columns3, FileType2, List, Tags]
 
@@ -90,24 +100,27 @@ export function StepUpload({ file, headerRow, onHeaderChange, onFile, onClear }:
           <p className="mt-1 text-xs text-[#6B7280]">CSV, XLSX · tối đa 10 MB</p>
         </button>
       ) : (
-        <div className="flex items-center gap-3 rounded-xl border border-[#BBF7D0] bg-[#F0FDF4] px-4 py-3">
+        <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-3">
           <ExcelMark size={40} />
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <p className="truncate text-sm font-semibold text-black">{file.name}</p>
-              <span className="shrink-0 text-xs text-[#6B7280]">{file.sizeLabel}</span>
+              <p className="truncate text-sm font-semibold text-foreground">{file.name}</p>
+              <span className="shrink-0 text-xs text-muted-foreground">{file.sizeLabel}</span>
             </div>
-            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-[#BBF7D0]">
-              <div className="h-full w-full rounded-full bg-[#22C55E]" />
-            </div>
+            <Progress value={100} indicatorClassName="bg-emerald-500" className="mt-1.5 h-1.5 bg-emerald-100" />
           </div>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[#DCFCE7] px-2.5 py-1 text-[11px] font-semibold text-[#166534]">
-            <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-[#22C55E] text-white">✓</span>
-            Đã tải lên
-          </span>
-          <button type="button" onClick={onClear} className="shrink-0 rounded-md p-1 text-[#9CA3AF] hover:bg-black/5 hover:text-black">
+          <Badge variant="success" className="gap-1 font-semibold text-[11px] py-1 px-2.5 shrink-0">
+            ✓ Đã tải lên
+          </Badge>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onClear}
+            className="h-8 w-8 text-muted-foreground hover:text-foreground shrink-0"
+          >
             <X className="h-4 w-4" />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -184,32 +197,29 @@ export function StepUpload({ file, headerRow, onHeaderChange, onFile, onClear }:
         Lần nhập gần nhất: 12/08/2026 • 250 món • hoàn tất
       </div>
 
-      {guideOpen && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center rounded-2xl bg-black/40 p-4">
-          <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl">
-            <div className="flex items-start justify-between">
-              <h3 className="text-lg font-bold">Hướng dẫn chuẩn bị dữ liệu</h3>
-              <button type="button" onClick={() => setGuideOpen(false)} className="rounded-md p-1 hover:bg-black/5">
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            <ul className="mt-4 space-y-3 text-sm text-[#4B5563]">
-              <li>• Cột bắt buộc: <b>dish_name</b>, <b>region</b>, <b>category</b>.</li>
-              <li>• Calories, protein, carbs, fat phải là số (không viết chữ).</li>
-              <li>• meal_types và ingredients phân tách bằng dấu <b>;</b></li>
-              <li>• image_url nên dùng HTTPS, dung lượng ảnh &lt; 2 MB.</li>
-              <li>• Một món một dòng. Không gộp nhiều món.</li>
-            </ul>
-            <button
+      <Dialog open={guideOpen} onOpenChange={setGuideOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Hướng dẫn chuẩn bị dữ liệu</DialogTitle>
+          </DialogHeader>
+          <ul className="mt-2 space-y-3 text-sm text-muted-foreground">
+            <li>• Cột bắt buộc: <strong className="text-foreground">dish_name</strong>, <strong className="text-foreground">region</strong>, <strong className="text-foreground">category</strong>.</li>
+            <li>• Calories, protein, carbs, fat phải là số (không viết chữ).</li>
+            <li>• meal_types và ingredients phân tách bằng dấu <strong className="text-foreground">;</strong></li>
+            <li>• image_url nên dùng HTTPS, dung lượng ảnh &lt; 2 MB.</li>
+            <li>• Một món một dòng. Không gộp nhiều món.</li>
+          </ul>
+          <DialogFooter className="mt-4">
+            <Button
               type="button"
               onClick={() => setGuideOpen(false)}
-              className="mt-5 h-10 w-full rounded-lg bg-mogu-yellow text-sm font-bold"
+              className="w-full sm:w-auto"
             >
               Đã hiểu
-            </button>
-          </div>
-        </div>
-      )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

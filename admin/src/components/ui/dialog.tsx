@@ -95,9 +95,10 @@ export function DialogContent({
       >
         {children}
         <button
+          type="button"
           onClick={() => onOpenChange(false)}
-          className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-          aria-label="Close"
+          className="absolute right-4 top-4 h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+          aria-label="Đóng cửa sổ"
         >
           <X size={18} />
         </button>

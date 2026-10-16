@@ -9,6 +9,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground shadow hover:bg-primary/90 active:scale-[0.98]',
+        emerald: 'bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 active:scale-[0.98] focus-visible:ring-emerald-500',
+        success: 'bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 active:scale-[0.98]',
+        warning: 'bg-amber-600 text-white shadow-xs hover:bg-amber-700 active:scale-[0.98]',
         destructive: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
         danger: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
         outline: 'border border-border bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',

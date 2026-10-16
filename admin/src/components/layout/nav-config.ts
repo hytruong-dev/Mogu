@@ -1,5 +1,4 @@
 import {
-  Archive,
   Bell,
   BookOpen,
   CloudDownload,
@@ -10,6 +9,7 @@ import {
   MapPin,
   ScanSearch,
   ShieldCheck,
+  TrendingUp,
   Users,
   Utensils,
   type LucideIcon,
@@ -59,7 +59,7 @@ export const navGroups: NavGroup[] = [
       { path: '/review', label: 'Hàng đợi duyệt', icon: ShieldCheck, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN', 'REVIEWER'] },
       { path: '/community', label: 'Cộng đồng', icon: Heart, badge: 'Mới', roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
       { path: '/notifications', label: 'Phát thông báo', icon: Bell, roles: ['SUPER_ADMIN', 'CONTENT_ADMIN'] },
-      { path: '/reports', label: 'Báo cáo vi phạm', icon: Archive, roles: ['SUPER_ADMIN'] },
+      { path: '/reports', label: 'Báo cáo & Phân tích', icon: TrendingUp, roles: ['SUPER_ADMIN'] },
     ],
   },
   {

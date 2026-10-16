@@ -48,6 +48,7 @@ export default function TopicsPage() {
   const [editing, setEditing] = useState<Topic | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<Topic | null>(null)
   const [saving, setSaving] = useState(false)
+  const [formError, setFormError] = useState('')
 
   const [form, setForm] = useState<CreateTopicDto>({
     slug: '',
@@ -88,6 +89,7 @@ export default function TopicsPage() {
 
   const openCreate = () => {
     setEditing(null)
+    setFormError('')
     setForm({
       slug: '',
       title: '',
@@ -101,6 +103,7 @@ export default function TopicsPage() {
 
   const openEdit = (topic: Topic) => {
     setEditing(topic)
+    setFormError('')
     setForm({
       slug: topic.slug,
       title: topic.title,
@@ -114,10 +117,11 @@ export default function TopicsPage() {
 
   const handleSave = async () => {
     if (!form.title.trim() || !form.slug.trim()) {
-      alert('Vui lòng nhập đầy đủ tiêu đề và slug')
+      setFormError('Vui lòng nhập đầy đủ tiêu đề và slug URL')
       return
     }
     setSaving(true)
+    setFormError('')
     try {
       if (editing) {
         await topicsAdminApi.update(editing.id, form as UpdateTopicDto)
@@ -127,7 +131,7 @@ export default function TopicsPage() {
       setShowModal(false)
       await load()
     } catch (e: any) {
-      alert(e.response?.data?.message ?? e.message ?? 'Lỗi khi lưu chủ đề')
+      setFormError(e.response?.data?.message ?? e.message ?? 'Lỗi khi lưu chủ đề')
     } finally {
       setSaving(false)
     }
@@ -422,6 +426,11 @@ export default function TopicsPage() {
                 </div>
               </div>
             </div>
+            {formError && (
+              <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                {formError}
+              </div>
+            )}
           </div>
 
           <DialogFooter className="gap-2 sm:gap-0">

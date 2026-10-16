@@ -30,7 +30,7 @@ export function TableRow({ className, ...props }: HTMLAttributes<HTMLTableRowEle
   return (
     <tr
       className={cn(
-        'border-b border-border transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted',
+        'border-b border-slate-100 transition-colors hover:bg-slate-50/70 data-[state=selected]:bg-emerald-50/40',
         className
       )}
       {...props}
@@ -42,7 +42,7 @@ export function TableHead({ className, ...props }: ThHTMLAttributes<HTMLTableCel
   return (
     <th
       className={cn(
-        'h-10 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'h-11 px-4 text-left align-middle font-semibold text-xs text-slate-700 uppercase tracking-wider bg-slate-50/80 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}
@@ -54,7 +54,7 @@ export function TableCell({ className, ...props }: TdHTMLAttributes<HTMLTableCel
   return (
     <td
       className={cn(
-        'p-4 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'p-3.5 align-middle text-sm text-slate-700 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}
