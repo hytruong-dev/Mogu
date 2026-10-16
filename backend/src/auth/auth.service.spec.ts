@@ -7,10 +7,10 @@ jest.mock('@supabase/supabase-js', () => ({
       refreshSession: jest.fn(),
       signOut: jest.fn(),
       admin: {
-        getUserById: jest.fn(),
-        updateUserById: jest.fn(),
-        listUsers: jest.fn(),
-        signOut: jest.fn(),
+        getUserById: jest.fn().mockResolvedValue({ data: { user: null }, error: null }),
+        updateUserById: jest.fn().mockResolvedValue({ error: null }),
+        listUsers: jest.fn().mockResolvedValue({ data: { users: [] }, error: null }),
+        signOut: jest.fn().mockResolvedValue({ error: null }),
       },
     },
   })),
@@ -31,6 +31,7 @@ const mockPrismaDb = {
   },
   account: {
     findUnique: jest.fn(),
+    findFirst: jest.fn(),
     upsert: jest.fn(),
     update: jest.fn(),
   },
@@ -40,6 +41,13 @@ const mockPrismaDb = {
   refreshSession: {
     createMany: jest.fn(),
     deleteMany: jest.fn(),
+    updateMany: jest.fn(),
+  },
+  passwordResetToken: {
+    findUnique: jest.fn(),
+    create: jest.fn(),
+    deleteMany: jest.fn(),
+    update: jest.fn(),
   },
   $transaction: jest.fn().mockImplementation((fn: (tx: any) => Promise<any>) =>
     fn(mockPrismaDb),
@@ -143,6 +151,60 @@ describe('AuthService', () => {
       const result = await (service as any).buildUserResponse('user-3');
       expect(result.displayName).toBeNull();
       expect(result.roles).toEqual([]);
+    });
+  });
+
+  // ── Password Recovery & OTP ───────────────────────────────────────────────
+
+  describe('passwordResetRequest & confirm', () => {
+    it('creates 6-digit OTP and returns neutral message with devOtp in non-prod', async () => {
+      mockPrismaDb.account.findUnique.mockResolvedValueOnce({
+        id: 'acc-1',
+        userId: 'u-123',
+        username: 'huytruong',
+      });
+      mockPrismaDb.passwordResetToken.deleteMany.mockResolvedValueOnce({ count: 0 });
+      mockPrismaDb.passwordResetToken.create.mockResolvedValueOnce({ id: 'prt-1' });
+
+      const res = await service.passwordResetRequest({ identifier: 'huytruong' });
+      expect(res.message).toBeDefined();
+      expect((res as any).devOtp).toMatch(/^\d{6}$/);
+      expect(mockPrismaDb.passwordResetToken.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            userId: 'u-123',
+          }),
+        }),
+      );
+    });
+
+    it('confirms reset when OTP is valid and updates user password', async () => {
+      mockPrismaDb.passwordResetToken.findUnique.mockResolvedValueOnce({
+        id: 'prt-1',
+        userId: 'u-123',
+        usedAt: null,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+      });
+      mockPrismaDb.passwordResetToken.update.mockResolvedValueOnce({ id: 'prt-1' });
+      mockPrismaDb.account.findFirst.mockResolvedValueOnce({ id: 'acc-1' });
+      mockPrismaDb.account.update.mockResolvedValueOnce({ id: 'acc-1' });
+      mockPrismaDb.refreshSession.updateMany.mockResolvedValueOnce({ count: 2 });
+
+      const res = await service.passwordResetConfirm({
+        tokenOrOtp: '123456',
+        newPassword: 'NewPassword@2026',
+      });
+
+      expect(res.message).toContain('thành công');
+      expect(mockPrismaDb.passwordResetToken.update).toHaveBeenCalled();
+      expect(mockPrismaDb.account.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            mustChangePassword: false,
+            failedLoginAttempts: 0,
+          }),
+        }),
+      );
     });
   });
 });

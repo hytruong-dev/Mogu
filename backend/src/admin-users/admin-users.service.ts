@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import { createHash, randomBytes, randomUUID } from 'crypto';
 import { ConfigService } from '@nestjs/config';
@@ -19,14 +20,16 @@ export class AdminUsersService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: ConfigService,
+    @Optional() private readonly config?: ConfigService,
   ) {
     const url =
-      this.config.get<string>('app.supabase.url') ??
-      this.config.get<string>('SUPABASE_URL');
+      this.config?.get<string>('app.supabase.url') ??
+      this.config?.get<string>('SUPABASE_URL') ??
+      process.env.SUPABASE_URL;
     const key =
-      this.config.get<string>('app.supabase.secretKey') ??
-      this.config.get<string>('SUPABASE_SERVICE_ROLE_KEY');
+      this.config?.get<string>('app.supabase.secretKey') ??
+      this.config?.get<string>('SUPABASE_SERVICE_ROLE_KEY') ??
+      process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (url && key) {
       this.supabase = createClient(url, key, {
         auth: { persistSession: false, autoRefreshToken: false },

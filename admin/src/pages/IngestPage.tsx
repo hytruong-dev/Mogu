@@ -12,7 +12,6 @@ import type { ImportJob } from '../types'
 import {
   ImportJobForm,
   ImportJobsHistoryTable,
-  MultiJobQueueTracker,
 } from '../components/ingest'
 import { ImportJobPreviewModal } from '../components/ui/import-job-preview-modal'
 
@@ -118,18 +117,6 @@ export default function IngestPage() {
     }
   }
 
-  // Hủy tác vụ đang chạy
-  const handleCancelJob = (jobId: string) => {
-    importJobActions.cancel.mutate(jobId, {
-      onSuccess: () => {
-        showNotice('success', 'Đã yêu cầu dừng tác vụ.')
-      },
-      onError: (err: any) => {
-        showNotice('error', 'Không thể hủy: ' + (err?.message || 'Lỗi'))
-      },
-    })
-  }
-
   const jobs = jobsData?.data ?? []
 
   return (
@@ -147,7 +134,7 @@ export default function IngestPage() {
           >
             {showHistory ? (
               <>
-                <Sparkles size={14} /> Trình theo dõi đa nhiệm
+                <Sparkles size={14} /> Trình tạo món mới
               </>
             ) : (
               <>
@@ -190,36 +177,37 @@ export default function IngestPage() {
           onBackToNew={() => setShowHistory(false)}
         />
       ) : (
-        /* ── Giao diện Đa Nhiệm Chính: Form Nhập + Bảng Hàng Đợi Thời Gian Thực ── */
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Cột trái: Form nhập món (Đơn lẻ hoặc Hàng loạt) */}
-          <div className="lg:col-span-5 space-y-4">
-            <ImportJobForm
-              dishName={dishName}
-              onDishNameChange={setDishName}
-              keywords={keywords}
-              onKeywordsChange={setKeywords}
-              onSingleSubmit={handleSingleSubmit}
-              onBatchSubmit={handleBatchSubmit}
-              regionCode={regionCode}
-              onRegionCodeChange={setRegionCode}
-              regions={regions}
-              selectedSources={selectedSources}
-              onToggleSource={toggleSource}
-              isSubmitting={createJob.isPending}
-              error={submitError}
-            />
-          </div>
+        /* ── Giao diện Nhập Món AI Gọn Gàng & Tập Trung ── */
+        <div className="max-w-3xl mx-auto space-y-4">
+          <ImportJobForm
+            dishName={dishName}
+            onDishNameChange={setDishName}
+            keywords={keywords}
+            onKeywordsChange={setKeywords}
+            onSingleSubmit={handleSingleSubmit}
+            onBatchSubmit={handleBatchSubmit}
+            regionCode={regionCode}
+            onRegionCodeChange={setRegionCode}
+            regions={regions}
+            selectedSources={selectedSources}
+            onToggleSource={toggleSource}
+            isSubmitting={createJob.isPending}
+            error={submitError}
+          />
 
-          {/* Cột phải: Bảng Tiến Trình Thời Gian Thực Cho Từng Món */}
-          <div className="lg:col-span-7 space-y-4">
-            <MultiJobQueueTracker
-              jobs={jobs}
-              isLoading={isLoading}
-              onCancelJob={handleCancelJob}
-              onRetryJob={handleRetry}
-              onPreviewJob={(job) => setPreviewJob(job)}
-            />
+          <div className="flex items-center justify-between p-3.5 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Sparkles size={15} className="text-amber-500 shrink-0" />
+              <span>Tiến trình các món đang thu thập sẽ hiển thị trực tiếp ở <strong>hộp thoại nổi ở góc dưới màn hình</strong>.</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowHistory(true)}
+              className="text-xs font-semibold h-7 text-amber-700 dark:text-amber-400 hover:text-amber-800"
+            >
+              Xem lịch sử đầy đủ →
+            </Button>
           </div>
         </div>
       )}

@@ -444,7 +444,7 @@ export class AuthService {
   }
 
   async passwordResetRequest(dto: PasswordResetRequestDto) {
-    const neutral = {
+    const neutral: { message: string; devOtp?: string } = {
       message:
         'Nếu tài khoản tồn tại trong hệ thống, hướng dẫn đặt lại mật khẩu đã được gửi.',
     };

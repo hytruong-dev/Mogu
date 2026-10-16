@@ -2,16 +2,19 @@ import { useEffect, useState } from 'react'
 import {
   AlertCircle,
   Calendar,
+  Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock,
+  Copy,
   Key,
   Laptop,
   RotateCcw,
   Search,
   ShieldAlert,
   Smartphone,
+  Sparkles,
   Target,
   Upload,
   User,
@@ -34,6 +37,15 @@ import { Spinner } from '../components/ui/spinner'
 import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import { PageContainer } from '../components/layout'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '../components/ui/dialog'
+import { useAuth } from '../providers/AuthProvider'
+import {
   useAdminUser,
   useAdminUserActions,
   useAdminUsers,
@@ -42,7 +54,7 @@ import {
   useUserSessions,
   useUsersSummary,
 } from '../hooks/useUsers'
-import { usersApi } from '../api/users'
+import { usersApi, type CreateAdminUserResponse } from '../api/users'
 
 const avatarFallback = '/assets/avatar.jpg'
 
@@ -118,6 +130,453 @@ function Stat({
   )
 }
 
+function CreateUserModal({
+  open,
+  onClose,
+  onCreated,
+}: {
+  open: boolean
+  onClose: () => void
+  onCreated: () => void
+}) {
+  const actions = useAdminUserActions()
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [displayName, setDisplayName] = useState('')
+  const [role, setRole] = useState<'USER' | 'REVIEWER' | 'CONTENT_ADMIN' | 'SUPER_ADMIN'>('USER')
+  const [password, setPassword] = useState('')
+  const [mustChangePassword, setMustChangePassword] = useState(true)
+  const [error, setError] = useState('')
+  const [result, setResult] = useState<CreateAdminUserResponse | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  const handleGeneratePassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*'
+    let pwd = 'Mogu@'
+    for (let i = 0; i < 6; i++) {
+      pwd += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    pwd += '9'
+    setPassword(pwd)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!username.trim() || username.trim().length < 3) {
+      setError('Tên đăng nhập tối thiểu 3 ký tự.')
+      return
+    }
+    setError('')
+    try {
+      const res = await actions.createUser.mutateAsync({
+        username: username.trim().toLowerCase(),
+        email: email.trim() || undefined,
+        displayName: displayName.trim() || undefined,
+        role,
+        password: password.trim() || undefined,
+        mustChangePassword,
+      })
+      setResult(res)
+      onCreated()
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? err?.message ?? 'Không thể tạo tài khoản.')
+    }
+  }
+
+  const handleCopy = () => {
+    if (!result) return
+    const text = `Tài khoản Mogu:\nTên đăng nhập: ${result.username}\nMật khẩu: ${result.temporaryPassword}\nVai trò: ${result.role}`
+    navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleResetForm = () => {
+    setUsername('')
+    setEmail('')
+    setDisplayName('')
+    setRole('USER')
+    setPassword('')
+    setMustChangePassword(true)
+    setError('')
+    setResult(null)
+    setCopied(false)
+    onClose()
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleResetForm}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <UserPlus size={18} className="text-primary" />
+            <span>Tạo tài khoản người dùng / Quản trị</span>
+          </DialogTitle>
+          <DialogDescription>
+            Khởi tạo tài khoản trực tiếp trong hệ thống với vai trò và quyền hạn tương ứng.
+          </DialogDescription>
+        </DialogHeader>
+
+        {result ? (
+          <div className="space-y-4 py-2">
+            <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 space-y-2.5">
+              <div className="flex items-center gap-2 font-bold text-sm">
+                <CheckCircle2 size={18} className="text-emerald-600" />
+                <span>Tài khoản đã tạo thành công!</span>
+              </div>
+              <div className="text-xs space-y-1.5 font-mono bg-card/60 p-3 rounded-lg border border-border">
+                <div><span className="text-muted-foreground font-sans">Tên đăng nhập:</span> <span className="font-bold text-foreground">{result.username}</span></div>
+                {result.email && <div><span className="text-muted-foreground font-sans">Email:</span> <span className="text-foreground">{result.email}</span></div>}
+                <div><span className="text-muted-foreground font-sans">Vai trò:</span> <span className="text-foreground font-semibold">{result.role}</span></div>
+                <div><span className="text-muted-foreground font-sans">Mật khẩu tạm:</span> <span className="font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 px-1.5 py-0.5 rounded">{result.temporaryPassword}</span></div>
+              </div>
+              <p className="text-[11px] text-muted-foreground font-sans">
+                {result.mustChangePassword
+                  ? '⚠️ Người dùng sẽ được yêu cầu đổi mật khẩu ở lần đăng nhập đầu tiên.'
+                  : 'Người dùng có thể đăng nhập ngay với mật khẩu trên.'}
+              </p>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="gap-1.5 text-xs"
+                onClick={handleCopy}
+              >
+                {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                <span>{copied ? 'Đã sao chép!' : 'Sao chép thông tin'}</span>
+              </Button>
+              <Button type="button" onClick={handleResetForm} className="text-xs">
+                Hoàn tất
+              </Button>
+            </DialogFooter>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-3 py-2">
+            {error && (
+              <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                <AlertCircle size={14} className="shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-foreground">
+                Tên đăng nhập <span className="text-rose-500">*</span>
+              </label>
+              <Input
+                placeholder="VD: reviewer_nam"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="h-8.5 text-xs"
+                required
+              />
+              <span className="text-[10px] text-muted-foreground">3-32 ký tự, không dấu (a-z, 0-9, ., _)</span>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-foreground">
+                Email
+              </label>
+              <Input
+                type="email"
+                placeholder="VD: user@example.com (để nhận mã reset & thông báo)"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="h-8.5 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-foreground">
+                Tên hiển thị
+              </label>
+              <Input
+                placeholder="VD: Nguyễn Văn Nam"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="h-8.5 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-foreground">
+                Vai trò truy cập <span className="text-rose-500">*</span>
+              </label>
+              <Select
+                value={role}
+                onChange={(e) => setRole(e.target.value as any)}
+                className="h-8.5 text-xs w-full bg-card"
+              >
+                <option value="USER">Người dùng thông thường (USER)</option>
+                <option value="REVIEWER">Kiểm duyệt viên món ăn (REVIEWER)</option>
+                <option value="CONTENT_ADMIN">Quản trị nội dung & bài viết (CONTENT_ADMIN)</option>
+                <option value="SUPER_ADMIN">Quản trị viên cấp cao (SUPER_ADMIN)</option>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-foreground">
+                  Mật khẩu khởi tạo
+                </label>
+                <button
+                  type="button"
+                  onClick={handleGeneratePassword}
+                  className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                >
+                  <Sparkles size={11} />
+                  <span>Tạo mật khẩu an toàn</span>
+                </button>
+              </div>
+              <Input
+                type="text"
+                placeholder="Để trống để hệ thống tự sinh ngẫu nhiên"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="h-8.5 text-xs font-mono"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="checkbox"
+                id="mustChangePassword"
+                checked={mustChangePassword}
+                onChange={(e) => setMustChangePassword(e.target.checked)}
+                className="rounded border-border text-primary focus:ring-primary w-4 h-4 cursor-pointer"
+              />
+              <label htmlFor="mustChangePassword" className="text-xs text-foreground cursor-pointer select-none">
+                Yêu cầu đổi mật khẩu ở lần đăng nhập đầu tiên
+              </label>
+            </div>
+
+            <DialogFooter className="gap-2 pt-3">
+              <Button type="button" variant="outline" size="sm" onClick={handleResetForm} className="text-xs">
+                Hủy
+              </Button>
+              <Button type="submit" size="sm" disabled={actions.createUser.isPending} className="text-xs gap-1.5 font-semibold">
+                {actions.createUser.isPending ? <Spinner size="sm" /> : <UserPlus size={14} />}
+                <span>Tạo tài khoản</span>
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function DirectPasswordResetModal({
+  open,
+  userId,
+  username,
+  onClose,
+  onSuccess,
+}: {
+  open: boolean
+  userId: string
+  username: string
+  onClose: () => void
+  onSuccess: (msg: string) => void
+}) {
+  const actions = useAdminUserActions()
+  const [mode, setMode] = useState<'email' | 'direct'>('direct')
+  const [temporaryPassword, setTemporaryPassword] = useState('')
+  const [reasonCode, setReasonCode] = useState('ADMIN_TEMP_PASSWORD')
+  const [error, setError] = useState('')
+  const [result, setResult] = useState<any>(null)
+  const [copied, setCopied] = useState(false)
+
+  const handleGeneratePassword = () => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*'
+    let pwd = 'Mogu@'
+    for (let i = 0; i < 6; i++) {
+      pwd += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    pwd += '9'
+    setTemporaryPassword(pwd)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+    if (mode === 'email') {
+      try {
+        await actions.passwordReset.mutateAsync(userId)
+        onSuccess('Đã gửi liên kết đặt lại mật khẩu đến email người dùng.')
+        onClose()
+      } catch (err: any) {
+        setError(err?.response?.data?.message ?? 'Không thể gửi email.')
+      }
+      return
+    }
+
+    try {
+      const res = await actions.directPasswordReset.mutateAsync({
+        userId,
+        body: {
+          temporaryPassword: temporaryPassword.trim() || undefined,
+          reasonCode,
+        },
+      })
+      setResult(res)
+      onSuccess('Mật khẩu tạm thời đã được thiết lập.')
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? 'Không thể đặt lại mật khẩu.')
+    }
+  }
+
+  const handleCopy = () => {
+    if (!result) return
+    navigator.clipboard.writeText(result.temporaryPassword)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Key size={18} className="text-amber-500" />
+            <span>Đặt lại mật khẩu cho {username}</span>
+          </DialogTitle>
+          <DialogDescription>
+            Chọn phương thức khôi phục mật khẩu hoặc cấp mật khẩu tạm thời cho người dùng.
+          </DialogDescription>
+        </DialogHeader>
+
+        {result ? (
+          <div className="space-y-4 py-2">
+            <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200 space-y-2.5">
+              <div className="flex items-center gap-2 font-bold text-sm">
+                <CheckCircle2 size={18} className="text-emerald-600" />
+                <span>Mật khẩu tạm thời đã sẵn sàng</span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Hãy sao chép và gửi mật khẩu tạm này cho người dùng qua kênh bảo mật:
+              </p>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-card border border-border">
+                <span className="font-mono text-base font-bold text-foreground">
+                  {result.temporaryPassword}
+                </span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5 text-xs"
+                  onClick={handleCopy}
+                >
+                  {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                  <span>{copied ? 'Đã chép' : 'Sao chép'}</span>
+                </Button>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                ⚠️ Tất cả các phiên đăng nhập cũ đã được thu hồi. Người dùng bắt buộc phải đổi mật khẩu khi đăng nhập bằng mật khẩu này.
+              </p>
+            </div>
+            <DialogFooter>
+              <Button type="button" onClick={onClose} className="text-xs">
+                Đóng
+              </Button>
+            </DialogFooter>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-3.5 py-2">
+            {error && (
+              <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+                <AlertCircle size={14} className="shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-2 p-1 bg-muted/40 rounded-lg border border-border">
+              <button
+                type="button"
+                onClick={() => setMode('direct')}
+                className={`py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                  mode === 'direct' ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Cấp mật khẩu tạm thời
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode('email')}
+                className={`py-1.5 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                  mode === 'email' ? 'bg-card text-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                Gửi email khôi phục
+              </button>
+            </div>
+
+            {mode === 'direct' ? (
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-foreground">
+                      Mật khẩu tạm thời
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleGeneratePassword}
+                      className="text-[11px] text-primary hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                    >
+                      <Sparkles size={11} />
+                      <span>Tự sinh ngẫu nhiên</span>
+                    </button>
+                  </div>
+                  <Input
+                    type="text"
+                    placeholder="Để trống để hệ thống tự sinh ngẫu nhiên"
+                    value={temporaryPassword}
+                    onChange={(e) => setTemporaryPassword(e.target.value)}
+                    className="h-8.5 text-xs font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">Lý do</label>
+                  <Select
+                    value={reasonCode}
+                    onChange={(e) => setReasonCode(e.target.value)}
+                    className="h-8.5 text-xs w-full bg-card"
+                  >
+                    <option value="ADMIN_TEMP_PASSWORD">Hỗ trợ hotline/ticket khẩn cấp</option>
+                    <option value="SECURITY_RESET">Nghi ngờ lộ mật khẩu</option>
+                    <option value="USER_REQUEST">Người dùng yêu cầu trực tiếp</option>
+                  </Select>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 rounded-lg bg-muted/30 border border-border text-xs text-muted-foreground">
+                Hệ thống sẽ gửi email chứa liên kết và hướng dẫn đặt lại mật khẩu đến địa chỉ email đã đăng ký của người dùng.
+              </div>
+            )}
+
+            <DialogFooter className="gap-2 pt-2">
+              <Button type="button" variant="outline" size="sm" onClick={onClose} className="text-xs">
+                Hủy
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={actions.directPasswordReset.isPending || actions.passwordReset.isPending}
+                className="text-xs font-semibold"
+              >
+                {(actions.directPasswordReset.isPending || actions.passwordReset.isPending) ? <Spinner size="sm" /> : null}
+                {mode === 'direct' ? 'Thiết lập mật khẩu tạm' : 'Gửi email'}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 function UserDrawer({
   userId,
   close,
@@ -129,23 +588,17 @@ function UserDrawer({
 }) {
   const { data, isLoading, isError, error, refetch } = useAdminUser(userId)
   const actions = useAdminUserActions()
+  const { user: currentAdmin } = useAuth()
+  const isSelf = currentAdmin?.id === userId
   const [activeTab, setActiveTab] = useState<'info' | 'roles' | 'sessions' | 'audit'>('info')
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [suspendReason, setSuspendReason] = useState<string>('POLICY_VIOLATION')
   const [suspendModalOpen, setSuspendModalOpen] = useState(false)
+  const [resetModalOpen, setResetModalOpen] = useState(false)
 
   const sessions = useUserSessions(userId)
   const audit = useUserAuditEvents(userId)
   const authAudit = useUserAuthAudit(userId)
-
-  const handlePasswordReset = async () => {
-    try {
-      await actions.passwordReset.mutateAsync(userId)
-      setFeedback({ type: 'success', text: 'Đã gửi liên kết đặt lại mật khẩu đến email.' })
-    } catch (e: any) {
-      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể gửi email.' })
-    }
-  }
 
   const handleVerificationReminder = async () => {
     try {
@@ -239,7 +692,14 @@ function UserDrawer({
             <User size={16} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-foreground">Chi tiết người dùng</h3>
+            <div className="flex items-center gap-1.5">
+              <h3 className="text-sm font-bold text-foreground">Chi tiết người dùng</h3>
+              {isSelf && (
+                <Badge variant="outline" className="border-amber-400 bg-amber-500/10 text-amber-700 dark:text-amber-300 text-[10px] py-0 px-1.5 font-semibold">
+                  Tài khoản của bạn
+                </Badge>
+              )}
+            </div>
             <p className="text-[11px] text-muted-foreground">ID: {userId.slice(0, 12)}...</p>
           </div>
         </div>
@@ -629,12 +1089,11 @@ function UserDrawer({
             <Button
               variant="outline"
               size="sm"
-              disabled={actions.passwordReset.isPending}
-              onClick={handlePasswordReset}
-              className="text-xs h-8"
+              onClick={() => setResetModalOpen(true)}
+              className="text-xs h-8 gap-1.5"
             >
-              {actions.passwordReset.isPending ? <Spinner size="sm" /> : null}
-              Đặt lại mật khẩu
+              <Key size={13} className="text-amber-500" />
+              <span>Đặt lại mật khẩu</span>
             </Button>
             <Button
               variant="outline"
@@ -671,14 +1130,23 @@ function UserDrawer({
               <Button
                 variant="destructive"
                 size="sm"
-                disabled={actions.suspend.isPending}
+                disabled={isSelf || actions.suspend.isPending}
                 onClick={() => setSuspendModalOpen(true)}
+                title={isSelf ? 'Không thể hạn chế tài khoản của chính bạn' : undefined}
                 className="text-xs h-8"
               >
                 Hạn chế tài khoản
               </Button>
             )}
           </div>
+
+          <DirectPasswordResetModal
+            open={resetModalOpen}
+            userId={userId}
+            username={data.identity.username || 'user'}
+            onClose={() => setResetModalOpen(false)}
+            onSuccess={(text) => setFeedback({ type: 'success', text })}
+          />
         </div>
       )}
     </Card>
@@ -693,6 +1161,7 @@ export default function UsersPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [cursorStack, setCursorStack] = useState<(string | null)[]>([null])
   const [isExporting, setIsExporting] = useState(false)
+  const [createModalOpen, setCreateModalOpen] = useState(false)
   const cursor = cursorStack[cursorStack.length - 1]
 
   useEffect(() => {
@@ -787,16 +1256,27 @@ export default function UsersPage() {
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          className="h-9 gap-1.5 font-semibold text-xs self-start sm:self-auto shadow-2xs"
-          disabled={isExporting || actions.createExport.isPending}
-          onClick={handleExport}
-        >
-          {isExporting || actions.createExport.isPending ? <Spinner size="sm" /> : <Upload size={14} />}
-          <span>{isExporting ? 'Đang xuất...' : 'Xuất danh sách'}</span>
-        </Button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <Button
+            type="button"
+            className="h-9 gap-1.5 font-semibold text-xs bg-primary text-primary-foreground hover:bg-primary/90 shadow-2xs cursor-pointer"
+            onClick={() => setCreateModalOpen(true)}
+          >
+            <UserPlus size={14} />
+            <span>Tạo tài khoản mới</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            className="h-9 gap-1.5 font-semibold text-xs shadow-2xs"
+            disabled={isExporting || actions.createExport.isPending}
+            onClick={handleExport}
+          >
+            {isExporting || actions.createExport.isPending ? <Spinner size="sm" /> : <Upload size={14} />}
+            <span>{isExporting ? 'Đang xuất...' : 'Xuất danh sách'}</span>
+          </Button>
+        </div>
       </div>
 
       {/* ── Stat Cards ── */}
@@ -1098,6 +1578,15 @@ export default function UsersPage() {
           </div>
         )}
       </div>
+
+      <CreateUserModal
+        open={createModalOpen}
+        onClose={() => setCreateModalOpen(false)}
+        onCreated={() => {
+          list.refetch()
+          summary.refetch()
+        }}
+      />
 
       <MediaLightbox {...lightboxProps} />
     </PageContainer>

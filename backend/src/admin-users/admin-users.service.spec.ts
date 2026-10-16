@@ -13,13 +13,16 @@ describe('AdminUsersService', () => {
       count: jest.fn(),
       findMany: jest.fn(),
       findUnique: jest.fn(),
+      create: jest.fn(),
       update: jest.fn(),
     },
     account: {
       count: jest.fn(),
+      findUnique: jest.fn(),
       findFirst: jest.fn(),
       findMany: jest.fn(),
       update: jest.fn(),
+      create: jest.fn(),
     },
     accountRestriction: {
       findFirst: jest.fn(),
@@ -43,6 +46,7 @@ describe('AdminUsersService', () => {
     profileRole: {
       upsert: jest.fn(),
       delete: jest.fn(),
+      create: jest.fn(),
       count: jest.fn(),
     },
     $transaction: jest.fn((fn) => (typeof fn === 'function' ? fn(db) : Promise.all(fn))),
@@ -133,6 +137,57 @@ describe('AdminUsersService', () => {
     expect(result).not.toHaveProperty('password');
     expect(result).not.toHaveProperty('token');
     expect(db.passwordResetToken.create).toHaveBeenCalled();
+    expect(db.adminActionAudit.create).toHaveBeenCalled();
+  });
+
+  it('createUser provisions account and profile and writes audit', async () => {
+    db.account.findUnique.mockResolvedValue(null);
+    db.profile.create.mockResolvedValue({ id: 'prof-new' });
+    db.account.create.mockResolvedValue({ id: 'acc-new' });
+    db.profileRole.create.mockResolvedValue({});
+    db.adminActionAudit.create.mockResolvedValue({});
+
+    const res = await service.createUser(actorId, {
+      username: 'reviewer_test',
+      email: 'reviewer@mogu.vn',
+      displayName: 'Reviewer Test',
+      role: 'REVIEWER' as any,
+    });
+
+    expect(res.username).toBe('reviewer_test');
+    expect(res.role).toBe('REVIEWER');
+    expect(res.temporaryPassword).toBeDefined();
+    expect(res.mustChangePassword).toBe(true);
+    expect(db.profile.create).toHaveBeenCalled();
+    expect(db.account.create).toHaveBeenCalled();
+    expect(db.profileRole.create).toHaveBeenCalled();
+    expect(db.adminActionAudit.create).toHaveBeenCalled();
+  });
+
+  it('directPasswordReset sets mustChangePassword and revokes sessions', async () => {
+    db.profile.findUnique.mockResolvedValue({ userId });
+    db.account.findFirst.mockResolvedValue({ id: 'acc-1' });
+    db.account.update.mockResolvedValue({ id: 'acc-1' });
+    db.refreshSession.updateMany.mockResolvedValue({ count: 1 });
+    db.adminActionAudit.create.mockResolvedValue({});
+
+    const res = await service.directPasswordReset(actorId, userId, {
+      temporaryPassword: 'Temp@Password123',
+      reasonCode: 'HOTLINE',
+    });
+
+    expect(res.status).toBe('SUCCESS');
+    expect(res.temporaryPassword).toBe('Temp@Password123');
+    expect(res.mustChangePassword).toBe(true);
+    expect(db.account.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          mustChangePassword: true,
+          failedLoginAttempts: 0,
+        }),
+      }),
+    );
+    expect(db.refreshSession.updateMany).toHaveBeenCalled();
     expect(db.adminActionAudit.create).toHaveBeenCalled();
   });
 });
