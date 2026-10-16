@@ -72,16 +72,16 @@ export function useImportJobs(params?: ImportJobQuery) {
     queryKey: ['import-jobs', params],
     queryFn: () => importJobsApi.list(params),
     enabled: !!session,
-    // Chỉ poll khi WebSocket không connect được
+    // Poll mỗi 2.5s khi có job đang chạy để đảm bảo mượt mà
     refetchInterval: (query) => {
       if (!session) return false
       const jobs = query.state.data?.data ?? []
       const hasActive = jobs.some((j) => ACTIVE_STATUSES.includes(j.status))
-      return hasActive ? 5000 : false // fallback poll 5s (WebSocket là primary)
+      return hasActive ? 2500 : false
     },
   })
 
-  // Subscribe WebSocket → invalidate query khi có update
+  // Subscribe WebSocket → cập nhật tiến trình trực tiếp vào cache
   useEffect(() => {
     if (!session) return
     const socket = getSocket(session.access_token)
@@ -95,21 +95,21 @@ export function useImportJobs(params?: ImportJobQuery) {
           data: old.data.map((job: ImportJob) =>
             job.id === data.jobId
               ? {
-                  ...job,
-                  status: data.status,
-                  progress: data.progress,
-                  currentStep: data.stepIndex,
-                  currentStepName: data.step,
-                  currentStepMessage: data.message,
-                  resultDishId: data.resultDishId ?? job.resultDishId,
-                  errorMessage: data.errorMessage ?? job.errorMessage,
-                }
+                ...job,
+                status: data.status,
+                progress: data.progress,
+                currentStep: data.stepIndex,
+                currentStepName: data.step,
+                currentStepMessage: data.message,
+                resultDishId: data.resultDishId ?? job.resultDishId,
+                errorMessage: data.errorMessage ?? job.errorMessage,
+              }
               : job,
           ),
         }
       })
 
-      // Nếu job DONE/FAILED → refetch để lấy logs đầy đủ
+      // Nếu job DONE/FAILED → refetch để lấy logs và relations đầy đủ
       if (data.status === 'DONE' || data.status === 'FAILED' || data.status === 'CANCELLED') {
         qc.invalidateQueries({ queryKey: ['import-jobs'] })
       }
@@ -118,6 +118,33 @@ export function useImportJobs(params?: ImportJobQuery) {
     socket.on('job:progress', handler)
     return () => { socket.off('job:progress', handler) }
   }, [session, qc, params])
+
+  // Tự động subscribe room WebSocket cho TẤT CẢ các jobs đang chạy
+  useEffect(() => {
+    if (!session) return
+    const socket = getSocket(session.access_token)
+    const jobs = result.data?.data ?? []
+    const active = jobs.filter((j: ImportJob) => ACTIVE_STATUSES.includes(j.status))
+    if (active.length === 0) return
+
+    const subscribeActive = () => {
+      active.forEach((j: ImportJob) => {
+        socket.emit('job:subscribe', { jobId: j.id })
+      })
+    }
+
+    socket.on('connect', subscribeActive)
+    if (socket.connected) {
+      subscribeActive()
+    }
+
+    return () => {
+      socket.off('connect', subscribeActive)
+      active.forEach((j: ImportJob) => {
+        socket.emit('job:unsubscribe', { jobId: j.id })
+      })
+    }
+  }, [session, result.data?.data])
 
   return result
 }
@@ -178,7 +205,18 @@ export function useCreateImportJob() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (dto: CreateImportJobDto) => importJobsApi.create(dto),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['import-jobs'] }),
+    onSuccess: (newJob) => {
+      qc.setQueriesData({ queryKey: ['import-jobs'] }, (old: any) => {
+        if (!old?.data) return old
+        if (old.data.some((j: any) => j.id === newJob.id)) return old
+        return {
+          ...old,
+          data: [newJob, ...old.data],
+          total: (old.total ?? old.data.length) + 1,
+        }
+      })
+      qc.invalidateQueries({ queryKey: ['import-jobs'] })
+    },
   })
 }
 
@@ -187,5 +225,22 @@ export function useImportJobActions() {
   const invalidate = () => qc.invalidateQueries({ queryKey: ['import-jobs'] })
   return {
     cancel: useMutation({ mutationFn: importJobsApi.cancel, onSuccess: invalidate }),
+    retry: useMutation({
+      mutationFn: (id: string) => importJobsApi.retry(id),
+      onSuccess: (updatedJob) => {
+        // Tái sử dụng tiến trình và cập nhật trực tiếp tại chỗ trong danh sách
+        qc.setQueriesData({ queryKey: ['import-jobs'] }, (old: any) => {
+          if (!old?.data) return old
+          return {
+            ...old,
+            data: old.data.map((j: any) =>
+              j.id === updatedJob.id ? { ...j, ...updatedJob } : j
+            ),
+          }
+        })
+        qc.invalidateQueries({ queryKey: ['import-jobs'] })
+        qc.invalidateQueries({ queryKey: ['import-job', updatedJob.id] })
+      },
+    }),
   }
 }

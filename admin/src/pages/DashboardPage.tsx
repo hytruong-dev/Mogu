@@ -30,6 +30,7 @@ import {
 import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import { Image } from '../components/ui/image'
 import { useNavigate } from 'react-router-dom'
+import { PageContainer } from '../components/layout'
 import {
   Area,
   AreaChart,
@@ -1099,7 +1100,7 @@ export default function DashboardPage() {
     logGrowthPct == null ? null : `${logGrowthPct > 0 ? '+' : ''}${logGrowthPct}%`
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-8">
+    <PageContainer className="space-y-6">
       {/* ── Header Bar ── */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-1 border-b border-border/60">
         <div>
@@ -1289,6 +1290,6 @@ export default function DashboardPage() {
       />
 
       <MediaLightbox {...lightboxProps} />
-    </div>
+    </PageContainer>
   )
 }

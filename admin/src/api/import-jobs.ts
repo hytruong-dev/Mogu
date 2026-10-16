@@ -25,4 +25,7 @@ export const importJobsApi = {
 
   cancel: (id: string) =>
     api.post<ImportJob>(`/admin/import-jobs/${id}/cancel`).then((r) => r.data),
+
+  retry: (id: string) =>
+    api.post<ImportJob>(`/admin/import-jobs/${id}/retry`).then((r) => r.data),
 }

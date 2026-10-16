@@ -128,6 +128,54 @@ export class DishMediaService {
     };
   }
 
+  /**
+   * Tạo signed URL upload ảnh trực tiếp (cho Articles, Topics, Places...)
+   */
+  async presignDirectUpload(
+    folder: string,
+    mimeType: string,
+    actorId: string,
+  ): Promise<PresignUploadResponse & { publicUrl: string }> {
+    if (!ALLOWED_IMAGE_TYPES.includes(mimeType)) {
+      throw new BadRequestException({
+        error: {
+          code: 'INVALID_MIME_TYPE',
+          message: `Chỉ chấp nhận: ${ALLOWED_IMAGE_TYPES.join(', ')}`,
+        },
+      });
+    }
+
+    const safeFolder = folder.replace(/[^a-zA-Z0-9_-]/g, '') || 'general';
+    const ext = this.getExtension(mimeType);
+    const storageKey = `${safeFolder}/${Date.now()}-${actorId.slice(0, 8)}.${ext}`;
+
+    const { data, error } = await this.supabase.storage
+      .from(STORAGE_BUCKET)
+      .createSignedUploadUrl(storageKey, { upsert: false });
+
+    if (error || !data) {
+      this.logger.error(
+        `Supabase Storage createSignedUploadUrl error: ${JSON.stringify(error)}`,
+        { folder, mimeType, storageKey },
+      );
+      throw new BadRequestException({
+        error: {
+          code: 'PRESIGN_FAILED',
+          message: `Không thể tạo URL upload: ${error?.message ?? 'Unknown error'}`,
+          detail: error,
+        },
+      });
+    }
+
+    return {
+      uploadUrl: data.signedUrl,
+      storageKey,
+      token: data.token,
+      expiresAt: new Date(Date.now() + PRESIGN_EXPIRES_SECONDS * 1000).toISOString(),
+      publicUrl: `${this.publicBaseUrl}/${storageKey}`,
+    };
+  }
+
   // ── Commit Media ────────────────────────────────────────────────────────────
 
   /**

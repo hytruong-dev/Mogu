@@ -1,5 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { usersApi, type AdminUserListQuery } from '../api/users'
+import {
+  usersApi,
+  type AdminUserListQuery,
+  type CreateAdminUserPayload,
+  type DirectPasswordResetPayload,
+} from '../api/users'
 import { useAuth } from '../providers/AuthProvider'
 
 export function useUsersSummary() {
@@ -69,10 +74,22 @@ export function useAdminUserActions() {
     }
   }
   return {
+    createUser: useMutation({
+      mutationFn: (body: CreateAdminUserPayload) => usersApi.create(body),
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: ['admin-users'] })
+        qc.invalidateQueries({ queryKey: ['admin-users-summary'] })
+      },
+    }),
     passwordReset: useMutation({
       mutationFn: (userId: string) =>
         usersApi.requestPasswordReset(userId, { reasonCode: 'SUPPORT_REQUEST' }),
       onSuccess: (_d, userId) => invalidate(userId),
+    }),
+    directPasswordReset: useMutation({
+      mutationFn: ({ userId, body }: { userId: string; body?: DirectPasswordResetPayload }) =>
+        usersApi.directPasswordReset(userId, body),
+      onSuccess: (_d, vars) => invalidate(vars.userId),
     }),
     verificationReminder: useMutation({
       mutationFn: (userId: string) =>

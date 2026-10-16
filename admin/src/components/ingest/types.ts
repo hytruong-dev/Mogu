@@ -41,3 +41,12 @@ export function parseJobSummary(job: ImportJob) {
     protein: protMatch ? protMatch[1] : null,
   }
 }
+
+export function formatRelativeTime(timeStr?: string): string {
+  if (!timeStr) return 'vừa xong'
+  const diffSec = Math.floor((Date.now() - new Date(timeStr).getTime()) / 1000)
+  if (diffSec < 60) return `${Math.max(1, diffSec)}s trước`
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)} phút trước`
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} giờ trước`
+  return `${Math.floor(diffSec / 86400)} ngày trước`
+}

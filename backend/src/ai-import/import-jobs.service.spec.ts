@@ -263,3 +263,47 @@ describe('ImportJobsService reconcileIngredients', () => {
     expect(learnSynonymsMock).toHaveBeenCalledWith([{ id: 'shallot-1', synonyms: ['hành khô'] }]);
   });
 });
+
+describe('ImportJobsService retry', () => {
+  it('resets job progress to PENDING and reuses the existing job id', async () => {
+    const service = bareService();
+    const existingJob = {
+      id: 'job-123',
+      query: 'Phở bò tái lăn',
+      status: 'FAILED',
+      currentStep: 2,
+      progress: 30,
+      errorMessage: 'AI timeout',
+      sourceTypes: ['AI_GENERATED'],
+      relatedKeywords: ['phở'],
+      regionHint: 'NORTH',
+    };
+    service.findOne = jest.fn().mockResolvedValue(existingJob);
+    service.running = new Set(['job-123']);
+    service.store = {
+      update: jest.fn().mockImplementation((_id: string, patch: any) => Promise.resolve({ ...existingJob, ...patch })),
+      addLog: jest.fn().mockResolvedValue(undefined),
+    };
+    service.emitProgress = jest.fn();
+    service.queue = {
+      enqueue: jest.fn().mockResolvedValue(true),
+    };
+
+    const retried = await service.retry('job-123', 'actor-1');
+
+    expect(retried.id).toBe('job-123');
+    expect(retried.status).toBe('PENDING');
+    expect(retried.progress).toBe(0);
+    expect(retried.errorMessage).toBeUndefined();
+    expect(service.queue.enqueue).toHaveBeenCalledWith({
+      jobId: 'job-123',
+      actorId: 'actor-1',
+      request: {
+        query: 'Phở bò tái lăn',
+        sourceTypes: ['AI_GENERATED'],
+        relatedKeywords: ['phở'],
+        regionHint: 'NORTH',
+      },
+    });
+  });
+});

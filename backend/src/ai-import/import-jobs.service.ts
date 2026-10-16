@@ -124,6 +124,58 @@ export class ImportJobsService {
     return job;
   }
 
+  /**
+   * Tái sử dụng tiến trình import hiện có thay vì tạo mới.
+   * Đặt lại trạng thái về PENDING và đẩy vào hàng đợi pipeline.
+   */
+  async retry(id: string, actorId: string): Promise<ImportJobDto> {
+    const existing = await this.findOne(id);
+    if (!existing) throw new NotFoundException(`Import job ${id} không tồn tại`);
+
+    this.running.delete(id);
+
+    const resetPatch: Partial<ImportJobDto> = {
+      status: 'PENDING',
+      currentStep: 0,
+      progress: 0,
+      currentStepName: undefined,
+      currentStepMessage: 'Đang chuẩn bị thu thập lại dữ liệu...',
+      errorMessage: undefined,
+      resultDishId: undefined,
+      suggestedImageUrl: undefined,
+      cancelRequested: false,
+      completedAt: undefined,
+    };
+
+    const updated = await this.store.update(id, resetPatch);
+    const job = updated ?? { ...existing, ...resetPatch };
+
+    await this.store.addLog(id, {
+      step: 'SEARCHING',
+      stepIndex: 0,
+      message: 'Khởi động lại tiến trình thu thập (Tái sử dụng tiến trình)...',
+      timestamp: new Date().toISOString(),
+    });
+
+    this.emitProgress(job, 'Đang chuẩn bị thu thập lại dữ liệu...', 'PENDING');
+
+    const dto: CreateImportJobDto = {
+      query: job.query,
+      sourceTypes: job.sourceTypes as any,
+      relatedKeywords: job.relatedKeywords,
+      regionHint: job.regionHint as any,
+    };
+
+    const queued = await this.queue.enqueue({ jobId: id, actorId, request: dto });
+    if (!queued) {
+      this.runPipeline(id, dto, actorId).catch((err) => {
+        this.logger.error(`Pipeline retry failed for job ${id}: ${err.message}`);
+      });
+    }
+
+    return job;
+  }
+
   async process(id: string, dto: CreateImportJobDto, actorId?: string): Promise<void> {
     if (await this.store.isCancellationRequested(id)) return;
     await this.runPipeline(id, dto, actorId);

@@ -39,6 +39,7 @@ import { Select } from '../components/ui/select'
 import { Image } from '../components/ui/image'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
+import { PageContainer } from '../components/layout'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
@@ -432,7 +433,7 @@ export default function CommunityPage() {
   }
 
   return (
-    <div className="mod-page-container">
+    <PageContainer className="space-y-6">
       {/* ── Page Heading & Top Switcher ── */}
       <div className="page-heading">
         <div>
@@ -1429,6 +1430,6 @@ export default function CommunityPage() {
 
       {/* ── Image Lightbox Modal ── */}
       <MediaLightbox {...lightboxProps} />
-    </div>
+    </PageContainer>
   )
 }

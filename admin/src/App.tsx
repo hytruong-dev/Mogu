@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider, useAuth } from './providers/AuthProvider'
 import { PageSkeleton } from './components/ui/page-skeleton'
 import { Sidebar, Header } from './components/layout'
+import { GlobalJobProgressTray } from './components/ingest'
 import './App.css'
 
 // ─── Lazy pages ───────────────────────────────────────────────────────────────
@@ -63,6 +64,7 @@ function ProtectedLayout({ children, currentPath }: { children: ReactNode; curre
         <Header />
         <div className="flex-1 pb-16">{children}</div>
       </main>
+      <GlobalJobProgressTray />
     </div>
   )
 }
@@ -101,6 +103,7 @@ function AppRoutes() {
         <Route path="/dashboard" element={<ProtectedLayout currentPath="/dashboard"><DashboardPage /></ProtectedLayout>} />
         <Route path="/foods" element={<ProtectedLayout currentPath="/foods"><FoodsPage /></ProtectedLayout>} />
         <Route path="/foods/new" element={<ProtectedLayout currentPath="/foods"><CreateDishPage key="dish-new" /></ProtectedLayout>} />
+        <Route path="/foods/ingest" element={<Navigate to="/ingest" replace />} />
         <Route path="/foods/:id" element={<ProtectedLayout currentPath="/foods"><CreateDishPage key="dish-edit" /></ProtectedLayout>} />
         <Route path="/ingest" element={<ProtectedLayout currentPath="/ingest"><IngestPage /></ProtectedLayout>} />
         <Route path="/review" element={<ProtectedLayout currentPath="/review"><ReviewPage /></ProtectedLayout>} />

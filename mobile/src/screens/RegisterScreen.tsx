@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Keyboard, StyleSheet, Text, TextInput, View } from 'react-native';
-import { ArrowLeft, LockKeyhole, ShieldCheck, User } from '@/components/icons';
+import { ArrowLeft, LockKeyhole, Mail, ShieldCheck, User } from '@/components/icons';
 import { StyledPressable } from '../components/ui/styled-pressable';
 import {
   A,
@@ -17,31 +17,41 @@ import {
 
 type Props = {
   onLogin: () => void;
-  onRegister: (username: string, password: string) => Promise<void>;
+  onRegister: (username: string, password: string, email?: string) => Promise<void>;
 };
 
 const USERNAME_RE = /^[a-zA-Z0-9._]+$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function RegisterScreen({ onLogin, onRegister }: Props) {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [accepted, setAccepted] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [focusedField, setFocusedField] = useState<'username' | 'password' | 'confirm' | null>(null);
+  const [focusedField, setFocusedField] = useState<'username' | 'email' | 'password' | 'confirm' | null>(null);
 
   const usernameRef = useRef<TextInput>(null);
+  const emailRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const confirmRef = useRef<TextInput>(null);
 
   const u = username.trim();
+  const em = email.trim();
   const usernameError =
     u.length > 0 && !USERNAME_RE.test(u)
       ? 'Chỉ dùng chữ, số, dấu chấm và gạch dưới.'
       : u.length > 0 && u.length < 3
         ? 'Tối thiểu 3 ký tự.'
         : null;
+
+  const emailError =
+    em.length > 0 && !EMAIL_RE.test(em)
+      ? 'Email không đúng định dạng.'
+      : null;
+
   const confirmError = confirm.length > 0 && confirm !== password ? 'Mật khẩu xác nhận chưa khớp.' : null;
 
   const submit = async () => {
@@ -51,6 +61,7 @@ export function RegisterScreen({ onLogin, onRegister }: Props) {
     if (!u || !password) return setError('Vui lòng nhập đầy đủ thông tin.');
     if (u.length < 3) return setError('Tên đăng nhập tối thiểu 3 ký tự.');
     if (!USERNAME_RE.test(u)) return setError('Tên đăng nhập chỉ gồm chữ, số, dấu chấm và gạch dưới.');
+    if (em && !EMAIL_RE.test(em)) return setError('Email không đúng định dạng.');
     if (password.length < 8 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password))
       return setError('Mật khẩu cần ít nhất 8 ký tự, gồm chữ hoa, chữ thường và số.');
     if (password !== confirm) return setError('Mật khẩu xác nhận chưa trùng khớp.');
@@ -58,7 +69,7 @@ export function RegisterScreen({ onLogin, onRegister }: Props) {
     setLoading(true);
     setError('');
     try {
-      await onRegister(u.toLowerCase(), password);
+      await onRegister(u.toLowerCase(), password, em || undefined);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Không thể tạo tài khoản.');
     } finally {
@@ -114,6 +125,29 @@ export function RegisterScreen({ onLogin, onRegister }: Props) {
           error={usernameError}
           onChangeText={(v) => {
             setUsername(v);
+            clear();
+          }}
+          onSubmitEditing={() => emailRef.current?.focus()}
+        />
+        <AuthField
+          ref={emailRef}
+          label="Email (Khôi phục & thông báo)"
+          icon={Mail}
+          placeholder="email@example.com (không bắt buộc)"
+          autoCapitalize="none"
+          autoCorrect={false}
+          autoComplete="email"
+          keyboardType="email-address"
+          returnKeyType="next"
+          value={email}
+          isFocused={focusedField === 'email'}
+          onFocus={() => setFocusedField('email')}
+          onBlur={() => {
+            if (focusedField === 'email') setFocusedField(null);
+          }}
+          error={emailError}
+          onChangeText={(v) => {
+            setEmail(v);
             clear();
           }}
           onSubmitEditing={() => passwordRef.current?.focus()}

@@ -59,6 +59,20 @@ export class DishMediaController {
     return this.mediaService.presignUpload(body.dishId, body.mimeType, actorId);
   }
 
+  // ── Presign Direct Upload (Articles, Topics, Places...) ─────────────────────
+
+  @Post('media/presign-direct')
+  @Roles(SystemRole.CONTENT_ADMIN, SystemRole.SUPER_ADMIN)
+  @ApiOperation({
+    summary: '[Admin] Tạo signed URL upload ảnh trực tiếp (cho bài viết, chủ đề, địa điểm...)',
+  })
+  presignDirectUpload(
+    @Body() body: { folder?: string; mimeType: string },
+    @CurrentUser('sub') actorId: string,
+  ) {
+    return this.mediaService.presignDirectUpload(body.folder || 'general', body.mimeType, actorId);
+  }
+
   // ── Commit after Upload ────────────────────────────────────────────────────
 
   @Post('dishes/:id/media')

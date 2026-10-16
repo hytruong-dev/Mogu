@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react';
 import { Keyboard, StyleSheet, Text, TextInput } from 'react-native';
 import { LockKeyhole, User } from '@/components/icons';
-import { ConfirmDialog } from '../components/ui/confirm-dialog';
 import { StyledPressable } from '../components/ui/styled-pressable';
 import {
   A,
@@ -17,15 +16,16 @@ import {
 export function LoginScreen({
   onRegister,
   onLogin,
+  onForgotPassword,
 }: {
   onRegister: () => void;
   onLogin: (username: string, password: string) => Promise<void>;
+  onForgotPassword?: () => void;
 }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [forgotVisible, setForgotVisible] = useState(false);
   const [focusedField, setFocusedField] = useState<'username' | 'password' | null>(null);
   const usernameRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
@@ -96,7 +96,13 @@ export function LoginScreen({
           onSubmitEditing={submit}
         />
 
-        <StyledPressable onPress={() => setForgotVisible(true)} hitSlop={8} style={styles.forgot}>
+        <StyledPressable
+          onPress={onForgotPassword}
+          hitSlop={8}
+          style={styles.forgot}
+          accessibilityRole="button"
+          accessibilityLabel="Quên mật khẩu"
+        >
           <Text style={styles.forgotText}>Quên mật khẩu?</Text>
         </StyledPressable>
 
@@ -110,17 +116,6 @@ export function LoginScreen({
       </AuthCard>
 
       <AuthLink question="Chưa có tài khoản?" action="Đăng ký ngay" onPress={onRegister} />
-
-      <ConfirmDialog
-        visible={forgotVisible}
-        tone="info"
-        title="Quên mật khẩu?"
-        description="Vui lòng liên hệ bộ phận hỗ trợ để được reset mật khẩu. Tính năng tự phục vụ đang được phát triển."
-        confirmLabel="Đã hiểu"
-        cancelLabel="Đóng"
-        onCancel={() => setForgotVisible(false)}
-        onConfirm={() => setForgotVisible(false)}
-      />
     </AuthScaffold>
   );
 }

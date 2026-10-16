@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   AlertCircle,
   Calendar,
@@ -6,16 +6,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
-  History,
   Key,
   Laptop,
   RotateCcw,
   Search,
-  Shield,
   ShieldAlert,
   Smartphone,
   Target,
-  Trash2,
   Upload,
   User,
   UserPlus,
@@ -28,12 +25,14 @@ import { Card, CardContent } from '../components/ui/card'
 import { Input } from '../components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
+import { Badge } from '../components/ui/badge'
 import { Select } from '../components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
 import { Skeleton } from '../components/ui/skeleton'
 import { PageSkeleton, StatsSkeleton, TableSkeleton } from '../components/ui/page-skeleton'
 import { Spinner } from '../components/ui/spinner'
 import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
+import { PageContainer } from '../components/layout'
 import {
   useAdminUser,
   useAdminUserActions,
@@ -43,7 +42,7 @@ import {
   useUserSessions,
   useUsersSummary,
 } from '../hooks/useUsers'
-import { usersApi, type AdminUserListItem } from '../api/users'
+import { usersApi } from '../api/users'
 
 const avatarFallback = '/assets/avatar.jpg'
 
@@ -56,9 +55,9 @@ function relativeTime(iso: string | null) {
   const diff = Date.now() - new Date(iso).getTime()
   const mins = Math.floor(diff / 60_000)
   if (mins < 1) return 'vừa xong'
-  if (mins < 60) return `${mins} phút trước`
+  if (mins < 60) return `${mins}p trước`
   const hours = Math.floor(mins / 60)
-  if (hours < 24) return `${hours} giờ trước`
+  if (hours < 24) return `${hours}h trước`
   const days = Math.floor(hours / 24)
   if (days < 30) return `${days} ngày trước`
   return new Date(iso).toLocaleDateString('vi-VN')
@@ -95,24 +94,24 @@ function Stat({
   loading?: boolean
 }) {
   const toneStyles = {
-    yellow: 'bg-amber-50 text-amber-600 border-amber-200/60',
-    green: 'bg-emerald-50 text-emerald-600 border-emerald-200/60',
-    red: 'bg-rose-50 text-rose-600 border-rose-200/60',
+    yellow: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20',
+    green: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20',
+    red: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 ring-1 ring-rose-500/20',
   }
 
   return (
-    <Card className="hover:shadow-sm transition-shadow">
-      <CardContent className="p-5 flex items-start justify-between">
+    <Card className="border-border/60 shadow-xs hover:border-amber-500/30 transition-colors">
+      <CardContent className="p-4 flex items-center justify-between">
         <div className="space-y-1">
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{label}</span>
+          <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{label}</span>
           {loading ? (
             <Skeleton className="h-7 w-20 mb-1" />
           ) : (
-            <div className="text-2xl font-bold tracking-tight text-foreground">{value}</div>
+            <div className="text-2xl font-bold tracking-tight text-foreground font-mono">{value}</div>
           )}
         </div>
-        <div className={`flex h-11 w-11 items-center justify-center rounded-xl border shadow-xs ${toneStyles[tone]}`}>
-          <Icon size={22} strokeWidth={2.2} />
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${toneStyles[tone]}`}>
+          <Icon size={20} />
         </div>
       </CardContent>
     </Card>
@@ -128,95 +127,95 @@ function UserDrawer({
   close: () => void
   onPreviewAvatar?: (url: string, title?: string, subtitle?: string) => void
 }) {
-  const { data, isLoading, isError, refetch, error } = useAdminUser(userId)
+  const { data, isLoading, isError, error, refetch } = useAdminUser(userId)
   const actions = useAdminUserActions()
+  const [activeTab, setActiveTab] = useState<'info' | 'roles' | 'sessions' | 'audit'>('info')
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [suspendReason, setSuspendReason] = useState<string>('POLICY_VIOLATION')
+  const [suspendModalOpen, setSuspendModalOpen] = useState(false)
+
   const sessions = useUserSessions(userId)
   const audit = useUserAuditEvents(userId)
   const authAudit = useUserAuthAudit(userId)
 
-  const [activeTab, setActiveTab] = useState<'info' | 'roles' | 'sessions' | 'audit'>('info')
-  const [suspendModalOpen, setSuspendModalOpen] = useState(false)
-  const [suspendReason, setSuspendReason] = useState('POLICY_VIOLATION')
-  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
-  // Clear feedback when user changes
-  useEffect(() => {
-    setFeedback(null)
-    setSuspendModalOpen(false)
-  }, [userId])
-
   const handlePasswordReset = async () => {
     try {
-      setFeedback(null)
       await actions.passwordReset.mutateAsync(userId)
-      setFeedback({ type: 'success', text: 'Đã gửi email hướng dẫn đặt lại mật khẩu.' })
+      setFeedback({ type: 'success', text: 'Đã gửi liên kết đặt lại mật khẩu đến email.' })
     } catch (e: any) {
-      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể gửi email đặt lại mật khẩu.' })
+      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể gửi email.' })
     }
   }
 
   const handleVerificationReminder = async () => {
     try {
-      setFeedback(null)
       await actions.verificationReminder.mutateAsync(userId)
-      setFeedback({ type: 'success', text: 'Đã gửi nhắc nhở xác minh email.' })
+      setFeedback({ type: 'success', text: 'Đã gửi email nhắc xác minh tài khoản.' })
     } catch (e: any) {
-      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể gửi nhắc nhở xác minh.' })
+      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể gửi email.' })
     }
   }
 
   const handleUnlock = async () => {
     try {
-      setFeedback(null)
       await actions.unlock.mutateAsync(userId)
-      setFeedback({ type: 'success', text: 'Đã mở khóa tài khoản thành công.' })
+      setFeedback({ type: 'success', text: 'Đã mở khóa tài khoản người dùng.' })
     } catch (e: any) {
-      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể mở khóa tài khoản.' })
+      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể mở khóa.' })
     }
   }
 
   const handleSuspendWithReason = async () => {
     try {
-      setFeedback(null)
       await actions.suspendWithReason.mutateAsync({ userId, reasonCode: suspendReason })
+      setFeedback({ type: 'success', text: 'Đã đình chỉ tài khoản theo lý do đã chọn.' })
       setSuspendModalOpen(false)
-      setFeedback({ type: 'success', text: 'Đã hạn chế tài khoản thành công.' })
     } catch (e: any) {
-      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể hạn chế tài khoản.' })
+      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể đình chỉ tài khoản.' })
     }
   }
 
   const handleEndSuspension = async () => {
     try {
-      setFeedback(null)
-      await actions.endSuspension.mutateAsync({
-        userId,
-        suspensionId: data?.activeRestriction?.id,
-      })
-      setFeedback({ type: 'success', text: 'Đã gỡ đình chỉ tài khoản thành công.' })
+      await actions.endSuspension.mutateAsync({ userId })
+      setFeedback({ type: 'success', text: 'Đã gỡ bỏ hạn chế cho tài khoản.' })
     } catch (e: any) {
-      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể gỡ đình chỉ.' })
+      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể gỡ hạn chế.' })
     }
   }
 
-  const handleToggleRole = async (role: string, current: boolean) => {
+  const handleToggleRole = async (roleId: string, hasIt: boolean) => {
     try {
-      setFeedback(null)
-      if (current) {
-        await actions.revokeRole.mutateAsync({ userId, role })
-        setFeedback({ type: 'success', text: `Đã thu hồi quyền ${role}.` })
+      if (hasIt) {
+        await actions.revokeRole.mutateAsync({ userId, role: roleId })
+        setFeedback({ type: 'success', text: `Đã thu hồi vai trò ${roleId}.` })
       } else {
-        await actions.assignRole.mutateAsync({ userId, role })
-        setFeedback({ type: 'success', text: `Đã cấp quyền ${role}.` })
+        await actions.assignRole.mutateAsync({ userId, role: roleId })
+        setFeedback({ type: 'success', text: `Đã cấp vai trò ${roleId}.` })
       }
     } catch (e: any) {
-      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Lỗi thay đổi quyền.' })
+      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể cập nhật vai trò.' })
+    }
+  }
+
+  const handleRevokeSession = async (sessionId: string) => {
+    try {
+      await usersApi.revokeSessions(userId, {
+        scope: 'SELECTED',
+        sessionIds: [sessionId],
+        reasonCode: 'ADMIN_REVOKE',
+      })
+      await sessions.refetch()
+      setFeedback({ type: 'success', text: 'Đã thu hồi phiên đăng nhập.' })
+    } catch (e: any) {
+      setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể thu hồi phiên.' })
     }
   }
 
   const handleRevokeAllSessions = async () => {
     try {
-      setFeedback(null)
       await actions.revokeSessions.mutateAsync(userId)
+      await sessions.refetch()
       setFeedback({ type: 'success', text: 'Đã thu hồi tất cả phiên đăng nhập.' })
     } catch (e: any) {
       setFeedback({ type: 'error', text: e?.response?.data?.message ?? 'Không thể thu hồi phiên.' })
@@ -232,412 +231,455 @@ function UserDrawer({
   const isSuspended = data?.account.status === 'SUSPENDED' || data?.activeRestriction != null
 
   return (
-    <Card className="user-drawer">
-      <header>
+    <Card className="border-border/80 shadow-md flex flex-col h-fit sticky top-20">
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b border-border/70 bg-card">
         <div className="flex items-center gap-2">
-          <User size={18} className="text-amber-600" />
-          <b>Chi tiết người dùng</b>
+          <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center ring-1 ring-amber-500/20">
+            <User size={16} />
+          </div>
+          <div>
+            <h3 className="text-sm font-bold text-foreground">Chi tiết người dùng</h3>
+            <p className="text-[11px] text-muted-foreground">ID: {userId.slice(0, 12)}...</p>
+          </div>
         </div>
-        <Button type="button" variant="ghost" size="icon" onClick={close} aria-label="Đóng bảng chi tiết" className="h-8 w-8">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={close}
+          aria-label="Đóng bảng chi tiết"
+          className="h-8 w-8 text-muted-foreground hover:text-foreground"
+        >
           <X size={16} />
         </Button>
-      </header>
+      </div>
 
       {isLoading && <PageSkeleton rows={6} withAvatar className="p-5" />}
 
       {isError && (
-        <div className="p-5">
-          <p className="text-sm text-red-600 mb-3">
+        <div className="p-5 space-y-3">
+          <p className="text-xs text-rose-600 font-medium">
             {(error as Error)?.message ?? 'Không tải được thông tin chi tiết.'}
           </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
+          <Button variant="outline" size="sm" onClick={() => refetch()} className="h-8 text-xs">
             Thử lại
           </Button>
         </div>
       )}
 
       {data && (
-        <>
-          {/* ── Sub Navigation Tabs ── */}
-          <div className="border-b border-border px-4 pt-2 bg-muted/20">
-            <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as typeof activeTab)}>
-              <TabsList className="bg-transparent h-9 p-0 gap-2">
-                <TabsTrigger
-                  value="info"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-amber-500 data-[state=active]:text-amber-600 data-[state=active]:shadow-none rounded-none bg-transparent px-2 pb-2 text-xs flex items-center gap-1.5 font-semibold"
-                >
-                  <User size={14} /> Thông tin
-                </TabsTrigger>
-                <TabsTrigger
-                  value="roles"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-amber-500 data-[state=active]:text-amber-600 data-[state=active]:shadow-none rounded-none bg-transparent px-2 pb-2 text-xs flex items-center gap-1.5 font-semibold"
-                >
-                  <Shield size={14} /> Vai trò ({data.access.roles.length})
-                </TabsTrigger>
-                <TabsTrigger
-                  value="sessions"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-amber-500 data-[state=active]:text-amber-600 data-[state=active]:shadow-none rounded-none bg-transparent px-2 pb-2 text-xs flex items-center gap-1.5 font-semibold"
-                >
-                  <Smartphone size={14} /> Phiên ({data.access.activeSessionCount ?? 0})
-                </TabsTrigger>
-                <TabsTrigger
-                  value="audit"
-                  className="data-[state=active]:border-b-2 data-[state=active]:border-amber-500 data-[state=active]:text-amber-600 data-[state=active]:shadow-none rounded-none bg-transparent px-2 pb-2 text-xs flex items-center gap-1.5 font-semibold"
-                >
-                  <History size={14} /> Lịch sử
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
+        <div className="p-4 space-y-4 max-h-[calc(100vh-180px)] overflow-y-auto">
+          {/* Sub Navigation Tabs */}
+          <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as typeof activeTab)}>
+            <TabsList className="w-full grid grid-cols-4 bg-muted/50 p-1 h-9">
+              <TabsTrigger value="info" className="text-xs font-semibold px-1 py-1">
+                Thông tin
+              </TabsTrigger>
+              <TabsTrigger value="roles" className="text-xs font-semibold px-1 py-1">
+                Vai trò ({data.access.roles.length})
+              </TabsTrigger>
+              <TabsTrigger value="sessions" className="text-xs font-semibold px-1 py-1">
+                Phiên ({data.access.activeSessionCount ?? 0})
+              </TabsTrigger>
+              <TabsTrigger value="audit" className="text-xs font-semibold px-1 py-1">
+                Lịch sử
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-          <div className="user-drawer-body">
-            {/* ── Feedback Notification ── */}
-            {feedback && (
-              <div
-                className={`p-3 mb-3 rounded-lg text-xs flex items-center gap-2 ${
-                  feedback.type === 'success'
-                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                    : 'bg-rose-50 text-rose-800 border border-rose-200'
-                }`}
-              >
-                {feedback.type === 'success' ? (
-                  <CheckCircle2 size={16} className="text-emerald-600 shrink-0" />
-                ) : (
-                  <AlertCircle size={16} className="text-rose-600 shrink-0" />
-                )}
-                <span>{feedback.text}</span>
-              </div>
-            )}
+          {/* Feedback banner */}
+          {feedback && (
+            <div
+              className={`p-3 rounded-lg text-xs flex items-center gap-2 animate-in fade-in-50 ${
+                feedback.type === 'success'
+                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                  : 'bg-rose-50 text-rose-800 border border-rose-200'
+              }`}
+            >
+              {feedback.type === 'success' ? (
+                <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
+              ) : (
+                <AlertCircle size={15} className="text-rose-600 shrink-0" />
+              )}
+              <span className="flex-1">{feedback.text}</span>
+              <button onClick={() => setFeedback(null)} className="text-muted-foreground hover:text-foreground">
+                <X size={13} />
+              </button>
+            </div>
+          )}
 
-            {/* TAB: INFO */}
-            {activeTab === 'info' && (
-              <>
-                {/* ── Profile Hero Card ── */}
-                <div className="drawer-profile-card">
-                  <div className="relative group cursor-zoom-in">
-                    <Avatar className="h-20 w-20 cursor-zoom-in" onClick={() => onPreviewAvatar?.(data.identity.avatarUrl || avatarFallback, data.identity.displayName ?? 'Avatar người dùng', data.identity.email ?? undefined)}>
-                      <AvatarImage src={data.identity.avatarUrl || avatarFallback} alt={data.identity.displayName ?? 'Avatar'} />
-                      <AvatarFallback>{(data.identity.displayName ?? data.identity.email ?? 'U').slice(0, 1).toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    {data.account.status === 'ACTIVE' && (
-                      <span className="online-indicator" title="Tài khoản đang hoạt động" />
-                    )}
-                  </div>
-                  <div className="meta">
-                    <b>{data.identity.displayName ?? 'Chưa đặt tên'}</b>
-                    <small title={data.identity.email}>{data.identity.email}</small>
-                    <div className="mt-1 flex items-center gap-2 flex-wrap">
-                      <span className={`status-badge ${data.account.status.toLowerCase()}`}>
-                        <span className="status-dot" />
-                        {statusLabel(data.account.status)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* ── Mini Stats Grid ── */}
-                <div className="drawer-stats-grid">
-                  <div className="drawer-stat-item">
-                    <b>{data.productSummary.savedDishCount}</b>
-                    <span>Món đã lưu</span>
-                  </div>
-                  <div className="drawer-stat-item">
-                    <b>{data.productSummary.randomRunCount}</b>
-                    <span>Lượt random</span>
-                  </div>
-                  <div className="drawer-stat-item">
-                    <b>{data.productSummary.publishedPostCount}</b>
-                    <span>Bài viết</span>
-                  </div>
-                </div>
-
-                {/* ── Detailed Info List ── */}
-                <div className="drawer-info-list">
-                  <div className="drawer-info-row">
-                    <span>Username</span>
-                    <b>{data.identity.username ?? '—'}</b>
-                  </div>
-                  <div className="drawer-info-row">
-                    <span>Mục tiêu</span>
-                    <b>{data.productSummary.primaryGoal?.name ?? 'Chưa thiết lập'}</b>
-                  </div>
-                  <div className="drawer-info-row">
-                    <span>Trạng thái tài khoản</span>
-                    <b>{statusLabel(data.account.status)}</b>
-                  </div>
-                  <div className="drawer-info-row">
-                    <span>Vai trò</span>
-                    <b>{data.access.roles.join(', ') || 'USER'}</b>
-                  </div>
-                  <div className="drawer-info-row">
-                    <span>Phiên đang mở</span>
-                    <b>{data.access.activeSessionCount ?? 0}</b>
-                  </div>
-                  <div className="drawer-info-row">
-                    <span>Ngày tham gia</span>
-                    <b>{new Date(data.account.createdAt).toLocaleDateString('vi-VN')}</b>
-                  </div>
-                  {data.activeRestriction != null && (
-                    <div className="drawer-info-row bg-rose-50/50">
-                      <span className="text-rose-700 font-medium">Hạn chế đang áp dụng</span>
-                      <b className="text-rose-700">Có hiệu lực</b>
-                    </div>
+          {/* TAB: INFO */}
+          {activeTab === 'info' && (
+            <div className="space-y-4">
+              {/* Profile Card */}
+              <div className="flex items-center gap-3.5 p-3 rounded-xl bg-muted/30 border border-border/60">
+                <div
+                  className="relative shrink-0 w-16 h-16 rounded-full overflow-hidden border-2 border-border shadow-xs cursor-zoom-in"
+                  onClick={() =>
+                    onPreviewAvatar?.(
+                      data.identity.avatarUrl || avatarFallback,
+                      data.identity.displayName ?? 'Avatar người dùng',
+                      data.identity.email ?? undefined,
+                    )
+                  }
+                >
+                  <Avatar className="w-16 h-16">
+                    <AvatarImage
+                      src={data.identity.avatarUrl || avatarFallback}
+                      alt={data.identity.displayName ?? 'Avatar'}
+                      className="object-cover w-full h-full"
+                    />
+                    <AvatarFallback className="text-base font-bold bg-amber-500/10 text-amber-600">
+                      {(data.identity.displayName ?? data.identity.email ?? 'U').slice(0, 1).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  {data.account.status === 'ACTIVE' && (
+                    <span
+                      className="absolute bottom-0 right-0 w-3.5 h-3.5 rounded-full bg-emerald-500 ring-2 ring-card"
+                      title="Tài khoản đang hoạt động"
+                    />
                   )}
                 </div>
-
-                {suspendModalOpen && (
-                  <div className="p-3 my-3 border border-rose-200 bg-rose-50 rounded-lg space-y-2">
-                    <b className="text-xs text-rose-900 block">Chọn lý do đình chỉ tài khoản:</b>
-                    <Select
-                      value={suspendReason}
-                      onChange={(e) => setSuspendReason(e.target.value)}
-                      className="w-full text-xs"
+                <div className="min-w-0 flex-1 space-y-1">
+                  <h4 className="text-sm font-bold text-foreground truncate">
+                    {data.identity.displayName ?? 'Chưa đặt tên'}
+                  </h4>
+                  <p className="text-xs text-muted-foreground truncate" title={data.identity.email}>
+                    {data.identity.email}
+                  </p>
+                  <div>
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] font-semibold py-0.5 gap-1 ${
+                        data.account.status === 'ACTIVE'
+                          ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                          : data.account.status === 'LOCKED' || data.account.status === 'SUSPENDED'
+                          ? 'bg-rose-500/10 text-rose-600 border-rose-500/20'
+                          : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+                      }`}
                     >
-                      <option value="POLICY_VIOLATION">Vi phạm chính sách cộng đồng (POLICY_VIOLATION)</option>
-                      <option value="SPAM">Phát tán spam, quảng cáo lừa đảo (SPAM)</option>
-                      <option value="HARASSMENT">Quấy rối, công kích người khác (HARASSMENT)</option>
-                      <option value="SECURITY_CONCERN">Nghi ngờ xâm phạm bảo mật (SECURITY_CONCERN)</option>
-                    </Select>
-                    <div className="flex gap-2 justify-end pt-1">
-                      <Button size="sm" variant="outline" onClick={() => setSuspendModalOpen(false)}>
-                        Hủy
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        disabled={actions.suspendWithReason.isPending}
-                        onClick={handleSuspendWithReason}
-                      >
-                        {actions.suspendWithReason.isPending ? <Spinner size="sm" /> : null}
-                        Xác nhận đình chỉ
-                      </Button>
-                    </div>
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full ${
+                          data.account.status === 'ACTIVE'
+                            ? 'bg-emerald-500'
+                            : data.account.status === 'LOCKED' || data.account.status === 'SUSPENDED'
+                            ? 'bg-rose-500'
+                            : 'bg-amber-500'
+                        }`}
+                      />
+                      {statusLabel(data.account.status)}
+                    </Badge>
                   </div>
-                )}
-              </>
-            )}
-
-            {/* TAB: ROLES */}
-            {activeTab === 'roles' && (
-              <div className="space-y-3 pt-1">
-                <p className="text-xs text-muted-foreground">
-                  Quản lý quyền quản trị hệ thống. Quyền Super Admin có cơ chế bảo vệ chống xóa quản trị viên cuối cùng.
-                </p>
-                {AVAILABLE_ROLES.map((r) => {
-                  const hasIt = data.access.roles.includes(r.id)
-                  const isPending =
-                    actions.assignRole.isPending || actions.revokeRole.isPending
-                  return (
-                    <div
-                      key={r.id}
-                      className="p-3 rounded-lg border border-border bg-card flex items-start justify-between gap-3"
-                    >
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <b className="text-xs text-foreground">{r.name}</b>
-                          {hasIt && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
-                              Đang có
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-[11px] text-muted-foreground">{r.desc}</p>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant={hasIt ? 'danger' : 'outline'}
-                        disabled={isPending}
-                        onClick={() => handleToggleRole(r.id, hasIt)}
-                        className="text-xs h-7 px-2 shrink-0"
-                      >
-                        {hasIt ? 'Gỡ quyền' : 'Cấp quyền'}
-                      </Button>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-
-            {/* TAB: SESSIONS */}
-            {activeTab === 'sessions' && (
-              <div className="space-y-3 pt-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">
-                    Các phiên đăng nhập đang hoạt động
-                  </span>
-                  <Button
-                    size="sm"
-                    variant="danger"
-                    disabled={actions.revokeSessions.isPending}
-                    onClick={handleRevokeAllSessions}
-                    className="text-xs h-7 px-2.5"
-                  >
-                    <Trash2 size={12} className="mr-1" />
-                    Thu hồi tất cả
-                  </Button>
                 </div>
-                {sessions.isLoading ? (
-                  <div className="space-y-2 py-2">
-                    <Skeleton className="h-14 w-full rounded-lg" />
-                    <Skeleton className="h-14 w-full rounded-lg" />
+              </div>
+
+              {/* Product Stats Grid */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="p-2.5 rounded-lg bg-card border border-border text-center space-y-0.5">
+                  <div className="text-base font-bold text-foreground font-mono">
+                    {data.productSummary.savedDishCount}
                   </div>
-                ) : !sessions.data?.items || sessions.data.items.length === 0 ? (
-                  <div className="text-center py-6 text-xs text-muted-foreground">
-                    Không có phiên đăng nhập nào đang hoạt động.
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Món đã lưu</div>
+                </div>
+                <div className="p-2.5 rounded-lg bg-card border border-border text-center space-y-0.5">
+                  <div className="text-base font-bold text-foreground font-mono">
+                    {data.productSummary.randomRunCount}
                   </div>
-                ) : (
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Random</div>
+                </div>
+                <div className="p-2.5 rounded-lg bg-card border border-border text-center space-y-0.5">
+                  <div className="text-base font-bold text-foreground font-mono">
+                    {data.productSummary.publishedPostCount}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Bài viết</div>
+                </div>
+              </div>
+
+              {/* Info Rows */}
+              <div className="divide-y divide-border/60 rounded-xl border border-border/80 bg-card overflow-hidden">
+                <div className="flex items-center justify-between p-2.5 text-xs">
+                  <span className="text-muted-foreground">Username</span>
+                  <span className="font-semibold text-foreground font-mono">{data.identity.username ?? '—'}</span>
+                </div>
+                <div className="flex items-center justify-between p-2.5 text-xs">
+                  <span className="text-muted-foreground">Mục tiêu</span>
+                  <span className="font-semibold text-foreground">
+                    {data.productSummary.primaryGoal?.name ?? 'Chưa thiết lập'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-2.5 text-xs">
+                  <span className="text-muted-foreground">Vai trò</span>
+                  <span className="font-semibold text-foreground font-mono">
+                    {data.access.roles.join(', ') || 'USER'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-2.5 text-xs">
+                  <span className="text-muted-foreground">Phiên đang mở</span>
+                  <span className="font-semibold text-foreground font-mono">
+                    {data.access.activeSessionCount ?? 0}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between p-2.5 text-xs">
+                  <span className="text-muted-foreground">Ngày tham gia</span>
+                  <span className="font-semibold text-foreground font-mono">
+                    {new Date(data.account.createdAt).toLocaleDateString('vi-VN')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Suspension Reason Dialog */}
+              {suspendModalOpen && (
+                <div className="p-3 border border-rose-200 bg-rose-50 dark:bg-rose-950/30 rounded-xl space-y-2.5 animate-in fade-in-50">
+                  <span className="text-xs font-bold text-rose-900 dark:text-rose-300 block">
+                    Chọn lý do đình chỉ tài khoản:
+                  </span>
+                  <Select
+                    value={suspendReason}
+                    onChange={(e) => setSuspendReason(e.target.value)}
+                    className="w-full text-xs bg-card"
+                  >
+                    <option value="POLICY_VIOLATION">Vi phạm chính sách cộng đồng (POLICY_VIOLATION)</option>
+                    <option value="SPAM">Phát tán spam, quảng cáo lừa đảo (SPAM)</option>
+                    <option value="HARASSMENT">Quấy rối, công kích người khác (HARASSMENT)</option>
+                    <option value="SECURITY_CONCERN">Nghi ngờ xâm phạm bảo mật (SECURITY_CONCERN)</option>
+                  </Select>
+                  <div className="flex gap-2 justify-end pt-1">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setSuspendModalOpen(false)}
+                      className="h-8 text-xs"
+                    >
+                      Hủy
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      disabled={actions.suspendWithReason.isPending}
+                      onClick={handleSuspendWithReason}
+                      className="h-8 text-xs font-semibold"
+                    >
+                      {actions.suspendWithReason.isPending ? <Spinner size="sm" /> : null}
+                      Xác nhận đình chỉ
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB: ROLES */}
+          {activeTab === 'roles' && (
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                Quản lý quyền quản trị hệ thống. Quyền Super Admin có cơ chế bảo vệ chống xóa quản trị viên cuối cùng.
+              </p>
+              {AVAILABLE_ROLES.map((r) => {
+                const hasIt = data.access.roles.includes(r.id)
+                const isPending = actions.assignRole.isPending || actions.revokeRole.isPending
+                return (
+                  <div
+                    key={r.id}
+                    className="p-3 rounded-xl border border-border bg-card flex items-start justify-between gap-3"
+                  >
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-foreground">{r.name}</span>
+                        {hasIt && (
+                          <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-600 border-emerald-500/20 py-0 font-semibold">
+                            Đang có
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">{r.desc}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant={hasIt ? 'destructive' : 'outline'}
+                      disabled={isPending}
+                      onClick={() => handleToggleRole(r.id, hasIt)}
+                      className="text-xs h-7 px-2.5 shrink-0"
+                    >
+                      {hasIt ? 'Gỡ quyền' : 'Cấp quyền'}
+                    </Button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* TAB: SESSIONS */}
+          {activeTab === 'sessions' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Phiên đăng nhập đang hoạt động</span>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={actions.revokeSessions.isPending || !sessions.data?.items?.length}
+                  onClick={handleRevokeAllSessions}
+                  className="text-xs h-7 px-2 text-rose-600 hover:text-rose-700"
+                >
+                  Đăng xuất tất cả
+                </Button>
+              </div>
+
+              {sessions.isLoading ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-12 w-full rounded-lg" />
+                  <Skeleton className="h-12 w-full rounded-lg" />
+                </div>
+              ) : !sessions.data?.items || sessions.data.items.length === 0 ? (
+                <p className="text-xs text-muted-foreground py-4 text-center">Không có phiên đăng nhập nào đang hoạt động.</p>
+              ) : (
+                <div className="space-y-2">
+                  {sessions.data.items.map((s: any) => (
+                    <div key={s.id} className="p-2.5 rounded-lg border border-border bg-card text-xs space-y-1.5">
+                      <div className="flex items-center justify-between font-medium">
+                        <span className="flex items-center gap-1.5 text-foreground">
+                          {s.deviceType === 'MOBILE' ? <Smartphone size={13} /> : <Laptop size={13} />}
+                          {s.deviceName ?? 'Thiết bị'}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-6 text-[11px] text-rose-600 hover:bg-rose-50"
+                          onClick={() => handleRevokeSession(s.id)}
+                        >
+                          Thu hồi
+                        </Button>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span>IP: {s.ip ?? s.ipHash?.slice(0, 10) ?? 'N/A'}</span>
+                        <span>Hoạt động: {relativeTime(s.lastActiveAt ?? s.updatedAt)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB: AUDIT */}
+          {activeTab === 'audit' && (
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
+                  <ShieldAlert size={14} className="text-amber-500" />
+                  Hành động quản trị (Admin Action Audit)
+                </h4>
+                {audit.isLoading ? (
                   <div className="space-y-2">
-                    {sessions.data.items.map((s: any) => (
-                      <div
-                        key={s.id ?? s.sessionId}
-                        className="p-2.5 rounded-lg border border-border bg-card text-xs space-y-1"
-                      >
-                        <div className="flex items-center justify-between font-medium">
-                          <span className="flex items-center gap-1.5 text-foreground font-semibold">
-                            <Laptop size={13} className="text-muted-foreground" />
-                            {s.userAgent?.slice(0, 35) || 'Thiết bị không xác định'}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">
-                            {new Date(s.createdAt ?? Date.now()).toLocaleDateString('vi-VN')}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                          <span>IP: {s.ip ?? s.ipHash?.slice(0, 10) ?? 'N/A'}</span>
-                          <span>
-                            Hoạt động: {relativeTime(s.lastActiveAt ?? s.updatedAt)}
+                    <Skeleton className="h-10 w-full rounded-lg" />
+                  </div>
+                ) : !audit.data?.items || audit.data.items.length === 0 ? (
+                  <p className="text-xs text-muted-foreground py-2">Chưa có hành động quản trị nào trên tài khoản này.</p>
+                ) : (
+                  <div className="space-y-1.5">
+                    {audit.data.items.slice(0, 10).map((ev: any) => (
+                      <div key={ev.eventId} className="p-2 rounded-lg border border-border bg-muted/20 text-xs">
+                        <div className="flex items-center justify-between font-semibold">
+                          <span className="text-amber-600 dark:text-amber-400">{ev.eventType}</span>
+                          <span className="text-[10px] text-muted-foreground font-normal">
+                            {new Date(ev.occurredAt).toLocaleString('vi-VN')}
                           </span>
                         </div>
+                        {ev.reasonCode && (
+                          <p className="text-[11px] text-muted-foreground mt-0.5">Lý do: {ev.reasonCode}</p>
+                        )}
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            )}
 
-            {/* TAB: AUDIT */}
-            {activeTab === 'audit' && (
-              <div className="space-y-4 pt-1">
-                {/* Admin action audits */}
-                <div>
-                  <h4 className="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-                    <ShieldAlert size={14} className="text-amber-500" />
-                    Hành động quản trị (Admin Action Audit)
-                  </h4>
-                  {audit.isLoading ? (
-                    <div className="space-y-2 py-2">
-                      <Skeleton className="h-12 w-full rounded-lg" />
-                      <Skeleton className="h-12 w-full rounded-lg" />
-                    </div>
-                  ) : !audit.data?.items || audit.data.items.length === 0 ? (
-                    <p className="text-xs text-muted-foreground py-2">Chưa có hành động quản trị nào trên tài khoản này.</p>
-                  ) : (
-                    <div className="space-y-2">
-                      {audit.data.items.slice(0, 10).map((ev: any) => (
-                        <div key={ev.eventId} className="p-2 rounded border border-border bg-muted/20 text-xs">
-                          <div className="flex items-center justify-between font-semibold">
-                            <span className="text-amber-700">{ev.eventType}</span>
-                            <span className="text-[10px] text-muted-foreground font-normal">
-                              {new Date(ev.occurredAt).toLocaleString('vi-VN')}
-                            </span>
-                          </div>
-                          {ev.reasonCode && (
-                            <p className="text-[11px] text-muted-foreground mt-0.5">Lý do: {ev.reasonCode}</p>
-                          )}
+              <div className="pt-2 border-t border-border">
+                <h4 className="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
+                  <Key size={14} className="text-blue-500" />
+                  Lịch sử xác thực (Auth Audit Log)
+                </h4>
+                {authAudit.isLoading ? (
+                  <div className="space-y-1.5">
+                    <Skeleton className="h-9 w-full rounded-md" />
+                  </div>
+                ) : !authAudit.data?.items || authAudit.data.items.length === 0 ? (
+                  <p className="text-xs text-muted-foreground py-2">Chưa ghi nhận sự kiện xác thực nào.</p>
+                ) : (
+                  <div className="space-y-1.5">
+                    {authAudit.data.items.slice(0, 10).map((l: any) => (
+                      <div key={l.id} className="p-2 rounded-lg border border-border bg-card text-xs flex items-center justify-between">
+                        <div>
+                          <span className="font-semibold text-foreground">{l.action}</span>
+                          <span className="text-[10px] text-muted-foreground ml-2">{l.ip ?? 'N/A'}</span>
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Auth audit logs */}
-                <div className="pt-2 border-t border-border">
-                  <h4 className="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-                    <Key size={14} className="text-blue-500" />
-                    Lịch sử xác thực (Auth Audit Log)
-                  </h4>
-                  {authAudit.isLoading ? (
-                    <div className="space-y-1.5 py-2">
-                      <Skeleton className="h-9 w-full rounded-md" />
-                      <Skeleton className="h-9 w-full rounded-md" />
-                    </div>
-                  ) : !authAudit.data?.items || authAudit.data.items.length === 0 ? (
-                    <p className="text-xs text-muted-foreground py-2">Chưa ghi nhận sự kiện xác thực nào.</p>
-                  ) : (
-                    <div className="space-y-1.5">
-                      {authAudit.data.items.slice(0, 10).map((l: any) => (
-                        <div key={l.id} className="p-2 rounded border border-border bg-card text-xs flex items-center justify-between">
-                          <div>
-                            <span className="font-semibold text-foreground mr-1.5">{l.eventType}</span>
-                            <span className={`text-[10px] px-1 py-0.2 rounded font-bold ${
-                              l.result === 'SUCCESS' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'
-                            }`}>
-                              {l.result}
-                            </span>
-                            {l.platform && (
-                              <span className="text-[10px] text-muted-foreground ml-2">({l.platform})</span>
-                            )}
-                          </div>
-                          <span className="text-[10px] text-muted-foreground">
-                            {new Date(l.occurredAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                        <span className="text-[10px] text-muted-foreground">
+                          {new Date(l.createdAt).toLocaleDateString('vi-VN')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
-
-          {/* ── Drawer Actions ── */}
-          {activeTab === 'info' && (
-            <div className="drawer-actions-footer">
-              <Button
-                variant="outline"
-                disabled={actions.passwordReset.isPending}
-                onClick={handlePasswordReset}
-              >
-                {actions.passwordReset.isPending ? <Spinner size="sm" /> : null}
-                Gửi đặt lại mật khẩu
-              </Button>
-              <Button
-                variant="outline"
-                disabled={actions.verificationReminder.isPending}
-                onClick={handleVerificationReminder}
-              >
-                {actions.verificationReminder.isPending ? <Spinner size="sm" /> : null}
-                Nhắc xác minh email
-              </Button>
-              {data.account.status === 'LOCKED' ? (
-                <Button
-                  disabled={actions.unlock.isPending}
-                  onClick={handleUnlock}
-                >
-                  {actions.unlock.isPending ? <Spinner size="sm" /> : null}
-                  Mở khóa bảo mật
-                </Button>
-              ) : isSuspended ? (
-                <Button
-                  variant="outline"
-                  className="border-emerald-500 text-emerald-700 hover:bg-emerald-50"
-                  disabled={actions.endSuspension.isPending}
-                  onClick={handleEndSuspension}
-                >
-                  {actions.endSuspension.isPending ? <Spinner size="sm" /> : null}
-                  Gỡ đình chỉ tài khoản
-                </Button>
-              ) : (
-                <Button
-                  variant="danger"
-                  disabled={actions.suspend.isPending}
-                  onClick={() => setSuspendModalOpen(true)}
-                >
-                  Hạn chế tài khoản
-                </Button>
-              )}
             </div>
           )}
-        </>
+
+          {/* Quick Actions Footer */}
+          <div className="pt-3 border-t border-border/70 flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={actions.passwordReset.isPending}
+              onClick={handlePasswordReset}
+              className="text-xs h-8"
+            >
+              {actions.passwordReset.isPending ? <Spinner size="sm" /> : null}
+              Đặt lại mật khẩu
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={actions.verificationReminder.isPending}
+              onClick={handleVerificationReminder}
+              className="text-xs h-8"
+            >
+              {actions.verificationReminder.isPending ? <Spinner size="sm" /> : null}
+              Nhắc xác minh
+            </Button>
+            {data.account.status === 'LOCKED' ? (
+              <Button
+                size="sm"
+                disabled={actions.unlock.isPending}
+                onClick={handleUnlock}
+                className="text-xs h-8 bg-amber-500 hover:bg-amber-600 text-white"
+              >
+                {actions.unlock.isPending ? <Spinner size="sm" /> : null}
+                Mở khóa bảo mật
+              </Button>
+            ) : isSuspended ? (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-8 border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                disabled={actions.endSuspension.isPending}
+                onClick={handleEndSuspension}
+              >
+                {actions.endSuspension.isPending ? <Spinner size="sm" /> : null}
+                Gỡ đình chỉ
+              </Button>
+            ) : (
+              <Button
+                variant="destructive"
+                size="sm"
+                disabled={actions.suspend.isPending}
+                onClick={() => setSuspendModalOpen(true)}
+                className="text-xs h-8"
+              >
+                Hạn chế tài khoản
+              </Button>
+            )}
+          </div>
+        </div>
       )}
     </Card>
   )
@@ -658,63 +700,56 @@ export default function UsersPage() {
     return () => clearTimeout(t)
   }, [q])
 
-  useEffect(() => {
-    setCursorStack([null])
-  }, [debouncedQ, status])
-
-  const summary = useUsersSummary()
   const list = useAdminUsers({
     q: debouncedQ || undefined,
     status: status || undefined,
-    cursor: cursor ?? undefined,
+    cursor: cursor || undefined,
     limit: 20,
   })
+
+  const summary = useUsersSummary()
   const actions = useAdminUserActions()
 
-  const items: AdminUserListItem[] = list.data?.items ?? []
+  const metrics = summary.data?.metrics ?? {
+    totalUsers: 0,
+    activeUsersToday: 0,
+    newUsers: 0,
+    restrictedUsers: 0,
+  }
+
+  const items = list.data?.items ?? []
   const pageInfo = list.data?.pageInfo
 
-  const metrics = useMemo(
-    () => ({
-      total: summary.data?.metrics.totalUsers ?? 0,
-      active: summary.data?.metrics.activeUsersToday ?? 0,
-      neu: summary.data?.metrics.newUsers ?? 0,
-      restricted: summary.data?.metrics.restrictedUsers ?? 0,
-    }),
-    [summary.data],
-  )
-
-  const hasActiveFilter = !!(debouncedQ || status)
+  const hasActiveFilter = Boolean(q || status)
 
   const handleResetFilters = () => {
     setQ('')
-    setDebouncedQ('')
     setStatus('')
+    setCursorStack([null])
   }
 
   const handleExport = async () => {
     setIsExporting(true)
     try {
       const res = await actions.createExport.mutateAsync()
+      const jobId = res?.jobId ?? (res as any)?.id
+      if (!jobId) {
+        alert('Không khởi tạo được tác vụ xuất file.')
+        return
+      }
+
       let attempts = 0
       let downloaded = false
-      while (attempts < 15) {
-        await new Promise((r) => setTimeout(r, 600))
-        const statusRes = await usersApi.getExport(res.jobId)
-        if (statusRes.status === 'READY' && statusRes.download?.url) {
-          const apiBase = (import.meta.env.VITE_API_URL ?? 'http://localhost:3001/v1').replace(/\/v1\/?$/, '')
-          const downloadUrl = statusRes.download.url.startsWith('http')
-            ? statusRes.download.url
-            : `${apiBase}${statusRes.download.url}`
-
-          const a = document.createElement('a')
-          a.href = downloadUrl
-          a.target = '_blank'
-          a.setAttribute('download', `users-export-${new Date().toISOString().slice(0, 10)}.csv`)
-          document.body.appendChild(a)
-          a.click()
-          document.body.removeChild(a)
+      while (attempts < 20 && !downloaded) {
+        await new Promise((r) => setTimeout(r, 1500))
+        const statusRes = await usersApi.getExport(jobId)
+        if (statusRes.status === 'COMPLETED' && statusRes.downloadUrl) {
+          window.open(statusRes.downloadUrl, '_blank')
           downloaded = true
+          break
+        }
+        if (statusRes.status === 'FAILED') {
+          alert('Xuất danh sách thất bại: ' + (statusRes.error ?? 'Lỗi không xác định.'))
           break
         }
         attempts++
@@ -730,72 +765,79 @@ export default function UsersPage() {
   }
 
   return (
-    <>
-      <div className="page-heading">
+    <PageContainer className="space-y-6">
+      {/* ── Page Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1>Người dùng</h1>
-          <p>Quản lý tài khoản, trạng thái xác minh và phân quyền truy cập hệ thống</p>
+          <div className="flex items-center gap-2">
+            <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
+              <Users size={22} />
+            </span>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                Quản lý người dùng
+                <Badge variant="secondary" className="font-mono text-xs font-semibold">
+                  {formatNumber(metrics.totalUsers)} tài khoản
+                </Badge>
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Quản lý tài khoản, trạng thái xác minh và phân quyền truy cập hệ thống Mogu.
+              </p>
+            </div>
+          </div>
         </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="h-9 gap-1.5 font-semibold text-xs self-start sm:self-auto shadow-2xs"
+          disabled={isExporting || actions.createExport.isPending}
+          onClick={handleExport}
+        >
+          {isExporting || actions.createExport.isPending ? <Spinner size="sm" /> : <Upload size={14} />}
+          <span>{isExporting ? 'Đang xuất...' : 'Xuất danh sách'}</span>
+        </Button>
       </div>
 
+      {/* ── Stat Cards ── */}
       {summary.isLoading ? (
         <StatsSkeleton />
       ) : (
-        <div className="stats-grid">
-          <Stat
-            icon={Users}
-            value={formatNumber(metrics.total)}
-            label="Tổng người dùng"
-            tone="yellow"
-          />
-          <Stat
-            icon={Zap}
-            value={formatNumber(metrics.active)}
-            label="Hoạt động hôm nay"
-            tone="yellow"
-          />
-          <Stat
-            icon={UserPlus}
-            value={formatNumber(metrics.neu)}
-            label="Tài khoản mới"
-            tone="green"
-          />
-          <Stat
-            icon={ShieldAlert}
-            value={formatNumber(metrics.restricted)}
-            label="Bị hạn chế"
-            tone="red"
-          />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <Stat icon={Users} value={formatNumber(metrics.totalUsers)} label="Tổng người dùng" tone="yellow" />
+          <Stat icon={Zap} value={formatNumber(metrics.activeUsersToday)} label="Hoạt động hôm nay" tone="yellow" />
+          <Stat icon={UserPlus} value={formatNumber(metrics.newUsers)} label="Tài khoản mới" tone="green" />
+          <Stat icon={ShieldAlert} value={formatNumber(metrics.restrictedUsers)} label="Bị hạn chế" tone="red" />
         </div>
       )}
 
-      <div className={selectedId ? 'users-layout open' : 'users-layout'}>
-        <Card className="users-table">
-          {/* ── Filter Toolbar ── */}
-          <div className="filters">
-            <div className="search-box">
-              <Search size={16} className="search-icon" />
+      {/* ── Filter Toolbar ── */}
+      <Card className="border-border/60 shadow-xs">
+        <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 flex-1 max-w-md">
+            <div className="relative flex-1">
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
                 placeholder="Tìm theo tên, username, email..."
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                className="pl-9 pr-8 h-9 text-xs"
+                className="pl-9 pr-8 h-9 text-xs bg-muted/30 focus-visible:bg-card"
               />
               {q && (
                 <button
                   type="button"
-                  className="search-clear-btn"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   onClick={() => setQ('')}
                   title="Xóa tìm kiếm"
                 >
-                  <X size={12} />
+                  <X size={13} />
                 </button>
               )}
             </div>
 
             <Select
-              className="filter-select"
+              className="w-44 h-9 text-xs bg-muted/30"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
               aria-label="Lọc theo trạng thái"
@@ -811,78 +853,70 @@ export default function UsersPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-stone-600 hover:text-stone-900 gap-1.5"
+                className="text-muted-foreground hover:text-foreground gap-1.5 h-9 text-xs"
                 onClick={handleResetFilters}
               >
-                <RotateCcw size={14} />
-                Xóa bộ lọc
+                <RotateCcw size={13} />
+                Xóa lọc
               </Button>
             )}
-
-            <div className="filter-meta">
-              <span>
-                Hiển thị <b>{items.length}</b> người dùng
-              </span>
-            </div>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="export-btn h-9 gap-1.5"
-              disabled={isExporting || actions.createExport.isPending}
-              onClick={handleExport}
-            >
-              {isExporting || actions.createExport.isPending ? <Spinner size="sm" /> : <Upload size={15} />}
-              {isExporting ? 'Đang xuất...' : 'Xuất danh sách'}
-            </Button>
           </div>
 
-          {/* ── Loading State ── */}
+          <div className="text-xs text-muted-foreground">
+            Hiển thị <strong className="text-foreground font-mono">{items.length}</strong> người dùng
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Layout Grid: Table + Detail Drawer ── */}
+      <div className={`grid grid-cols-1 ${selectedId ? 'xl:grid-cols-12 gap-6' : ''}`}>
+        <Card className={`border-border/60 shadow-xs overflow-hidden ${selectedId ? 'xl:col-span-7 2xl:col-span-8' : 'w-full'}`}>
+          {/* Loading State */}
           {list.isLoading && <TableSkeleton rows={8} cols={6} />}
 
-          {/* ── Error State ── */}
+          {/* Error State */}
           {list.isError && (
-            <div className="p-8 text-center">
-              <AlertCircle size={36} className="mx-auto text-rose-500 mb-2" />
-              <p className="text-stone-800 font-semibold mb-1">Không tải được danh sách người dùng</p>
-              <p className="text-stone-500 text-sm mb-4">
-                Vui lòng kiểm tra lại kết nối mạng hoặc thử lại.
-              </p>
-              <Button variant="outline" onClick={() => list.refetch()}>
+            <div className="p-8 text-center space-y-3">
+              <AlertCircle size={36} className="mx-auto text-rose-500" />
+              <div className="space-y-1">
+                <p className="text-foreground font-semibold text-sm">Không tải được danh sách người dùng</p>
+                <p className="text-muted-foreground text-xs">Vui lòng kiểm tra lại kết nối mạng hoặc thử lại.</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => list.refetch()} className="h-8 text-xs">
                 Thử lại
               </Button>
             </div>
           )}
 
-          {/* ── Empty State ── */}
+          {/* Empty State */}
           {!list.isLoading && !list.isError && items.length === 0 && (
-            <div className="p-12 text-center">
-              <Users size={40} className="mx-auto text-stone-300 mb-3" />
-              <p className="text-stone-800 font-semibold mb-1">Không tìm thấy người dùng phù hợp</p>
-              <p className="text-stone-500 text-sm mb-4">
-                Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc trạng thái.
-              </p>
+            <div className="p-12 text-center space-y-3">
+              <Users size={36} className="mx-auto text-muted-foreground/40" />
+              <div className="space-y-1">
+                <p className="text-foreground font-semibold text-sm">Không tìm thấy người dùng phù hợp</p>
+                <p className="text-muted-foreground text-xs">Thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc trạng thái.</p>
+              </div>
               {hasActiveFilter && (
-                <Button variant="outline" size="sm" onClick={handleResetFilters}>
+                <Button variant="outline" size="sm" onClick={handleResetFilters} className="h-8 text-xs">
                   Xóa bộ lọc tìm kiếm
                 </Button>
               )}
             </div>
           )}
 
-          {/* ── Modern Data Table ── */}
+          {/* Table Data */}
           {!list.isLoading && !list.isError && items.length > 0 && (
             <>
-              <div className="table-responsive">
-                <Table className="modern-data-table">
+              <div className="overflow-x-auto">
+                <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="col-user">Người dùng</TableHead>
-                      <TableHead className="col-goal">Mục tiêu</TableHead>
-                      <TableHead className="col-status">Trạng thái</TableHead>
-                      <TableHead className="col-activity">Hoạt động gần nhất</TableHead>
-                      <TableHead className="col-joined">Ngày tham gia</TableHead>
-                      <TableHead className="col-actions">Thao tác</TableHead>
+                    <TableRow className="bg-muted/30">
+                      <TableHead className="min-w-[220px]">Người dùng</TableHead>
+                      <TableHead className="w-[140px]">Mục tiêu</TableHead>
+                      <TableHead className="w-[130px]">Trạng thái</TableHead>
+                      <TableHead className="w-[140px]">Hoạt động</TableHead>
+                      <TableHead className="w-[120px]">Tham gia</TableHead>
+                      <TableHead className="w-[70px] text-right">Chi tiết</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -891,83 +925,123 @@ export default function UsersPage() {
                       return (
                         <TableRow
                           key={u.userId}
-                          className={isSelected ? 'selected-row' : ''}
-                          onClick={() => setSelectedId(u.userId)}
+                          className={`cursor-pointer transition-colors ${
+                            isSelected ? 'bg-amber-50/70 dark:bg-amber-950/20 hover:bg-amber-50 dark:hover:bg-amber-950/30' : 'hover:bg-muted/40'
+                          }`}
+                          onClick={() => setSelectedId(isSelected ? null : u.userId)}
                         >
-                          {/* ── User info cell ── */}
-                          <TableCell>
-                            <div className="user-cell">
-                              <div className="user-avatar-wrap relative group/avatar cursor-zoom-in" onClick={(e) => e.stopPropagation()}>
-                                <Avatar className="h-full w-full cursor-zoom-in" onClick={() => openImage(u.avatarUrl || avatarFallback, u.displayName ?? u.username ?? 'Avatar người dùng', u.email)}>
-                                  <AvatarImage src={u.avatarUrl || avatarFallback} alt={u.displayName ?? u.username ?? 'Avatar'} />
-                                  <AvatarFallback>{(u.displayName ?? u.username ?? 'U').slice(0, 1).toUpperCase()}</AvatarFallback>
+                          {/* User info cell */}
+                          <TableCell className="max-w-[260px]">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className="relative shrink-0 w-10 h-10 rounded-full overflow-hidden border border-border shadow-xs cursor-zoom-in"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  openImage(u.avatarUrl || avatarFallback, u.displayName ?? u.username ?? 'Avatar người dùng', u.email)
+                                }}
+                              >
+                                <Avatar className="w-10 h-10">
+                                  <AvatarImage
+                                    src={u.avatarUrl || avatarFallback}
+                                    alt={u.displayName ?? u.username ?? 'Avatar'}
+                                    className="object-cover w-full h-full"
+                                  />
+                                  <AvatarFallback className="text-xs font-bold bg-amber-500/10 text-amber-600">
+                                    {(u.displayName ?? u.username ?? 'U').slice(0, 1).toUpperCase()}
+                                  </AvatarFallback>
                                 </Avatar>
                                 {u.accountStatus === 'ACTIVE' && (
-                                  <span className="online-indicator" title="Đang hoạt động" />
+                                  <span
+                                    className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-card"
+                                    title="Đang hoạt động"
+                                  />
                                 )}
                               </div>
-                              <div className="user-info">
-                                <span className="user-name">
-                                  {u.displayName ?? u.username ?? '—'}
+                              <div className="min-w-0 flex-1">
+                                <span className="font-semibold text-xs text-foreground truncate block">
+                                  {u.displayName ?? u.username ?? 'Chưa đặt tên'}
                                 </span>
-                                <span className="user-email" title={u.email}>
+                                <span className="text-[11px] text-muted-foreground truncate block" title={u.email}>
                                   {u.email}
                                 </span>
                               </div>
                             </div>
                           </TableCell>
 
-                          {/* ── Primary goal cell ── */}
+                          {/* Goal cell */}
                           <TableCell>
                             {u.primaryGoal ? (
-                              <span className="goal-chip">
+                              <Badge
+                                variant="outline"
+                                className="text-[11px] font-medium bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 gap-1.5 py-0.5"
+                              >
                                 <Target size={12} />
-                                <span>{u.primaryGoal.name}</span>
-                              </span>
+                                <span className="truncate max-w-[100px]">{u.primaryGoal.name}</span>
+                              </Badge>
                             ) : (
-                              <span className="goal-empty">—</span>
+                              <span className="text-xs text-muted-foreground">—</span>
                             )}
                           </TableCell>
 
-                          {/* ── Account status cell ── */}
+                          {/* Status cell */}
                           <TableCell>
-                            <span className={`status-badge ${u.accountStatus.toLowerCase()}`}>
-                              <span className="status-dot" />
+                            <Badge
+                              variant="outline"
+                              className={`text-[11px] font-semibold gap-1.5 py-0.5 ${
+                                u.accountStatus === 'ACTIVE'
+                                  ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                                  : u.accountStatus === 'LOCKED' || u.accountStatus === 'SUSPENDED'
+                                  ? 'bg-rose-500/10 text-rose-600 border-rose-500/20'
+                                  : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+                              }`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${
+                                  u.accountStatus === 'ACTIVE'
+                                    ? 'bg-emerald-500'
+                                    : u.accountStatus === 'LOCKED' || u.accountStatus === 'SUSPENDED'
+                                    ? 'bg-rose-500'
+                                    : 'bg-amber-500'
+                                }`}
+                              />
                               {statusLabel(u.accountStatus)}
-                            </span>
+                            </Badge>
                           </TableCell>
 
-                          {/* ── Last active cell ── */}
-                          <TableCell>
-                            <div className="time-cell">
-                              <Clock size={13} />
+                          {/* Last active cell */}
+                          <TableCell className="text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1.5">
+                              <Clock size={13} className="text-muted-foreground/70 shrink-0" />
                               <span title={u.lastActiveAt ? new Date(u.lastActiveAt).toLocaleString('vi-VN') : undefined}>
                                 {relativeTime(u.lastActiveAt)}
                               </span>
                             </div>
                           </TableCell>
 
-                          {/* ── Joined date cell ── */}
-                          <TableCell>
-                            <div className="date-cell">
-                              <Calendar size={13} />
+                          {/* Joined date cell */}
+                          <TableCell className="text-xs text-muted-foreground">
+                            <div className="flex items-center gap-1.5 font-mono">
+                              <Calendar size={13} className="text-muted-foreground/70 shrink-0" />
                               <span>{new Date(u.joinedAt).toLocaleDateString('vi-VN')}</span>
                             </div>
                           </TableCell>
 
-                          {/* ── Row action button ── */}
-                          <TableCell className="col-actions">
+                          {/* Action cell */}
+                          <TableCell className="text-right">
                             <Button
                               type="button"
                               variant="ghost"
                               size="icon"
+                              className={`h-7 w-7 text-muted-foreground hover:text-foreground ${
+                                isSelected ? 'bg-amber-500/20 text-amber-700' : ''
+                              }`}
                               title="Xem chi tiết người dùng"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                setSelectedId(u.userId)
+                                setSelectedId(isSelected ? null : u.userId)
                               }}
                             >
-                              <ChevronRight size={17} />
+                              <ChevronRight size={15} />
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -977,19 +1051,20 @@ export default function UsersPage() {
                 </Table>
               </div>
 
-              {/* ── Modern Pagination Footer ── */}
-              <div className="table-pagination-footer">
-                <div className="pagination-info">
-                  Trang {cursorStack.length}
+              {/* Pagination footer */}
+              <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
+                <div className="text-xs text-muted-foreground">
+                  Trang <span className="font-semibold text-foreground font-mono">{cursorStack.length}</span>
                 </div>
-                <div className="pagination-actions">
+                <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={cursorStack.length <= 1}
                     onClick={() => setCursorStack((s) => s.slice(0, -1))}
+                    className="h-8 text-xs font-semibold"
                   >
-                    <ChevronLeft size={14} className="mr-1" />
+                    <ChevronLeft size={13} className="mr-1" />
                     Trang trước
                   </Button>
                   <Button
@@ -1001,9 +1076,10 @@ export default function UsersPage() {
                         setCursorStack((s) => [...s, pageInfo.nextCursor])
                       }
                     }}
+                    className="h-8 text-xs font-semibold"
                   >
                     Trang sau
-                    <ChevronRight size={14} className="ml-1" />
+                    <ChevronRight size={13} className="ml-1" />
                   </Button>
                 </div>
               </div>
@@ -1011,17 +1087,19 @@ export default function UsersPage() {
           )}
         </Card>
 
-        {/* ── User Detail Drawer ── */}
+        {/* User Detail Drawer (when selected) */}
         {selectedId && (
-          <UserDrawer
-            userId={selectedId}
-            close={() => setSelectedId(null)}
-            onPreviewAvatar={openImage}
-          />
+          <div className="xl:col-span-5 2xl:col-span-4">
+            <UserDrawer
+              userId={selectedId}
+              close={() => setSelectedId(null)}
+              onPreviewAvatar={openImage}
+            />
+          </div>
         )}
       </div>
 
       <MediaLightbox {...lightboxProps} />
-    </>
+    </PageContainer>
   )
 }

@@ -8,6 +8,7 @@ import {
   Flame,
   ImageOff,
   Leaf,
+  Loader2,
   MapPin,
   Play,
   Utensils,
@@ -19,6 +20,7 @@ import {
   ClipboardList,
   Sparkles,
 } from 'lucide-react'
+import type { ImportJob } from '../../types'
 import { Button } from './button'
 import { Image } from './image'
 import { Dialog, DialogContent } from './dialog'
@@ -31,6 +33,7 @@ import { useAdminDish } from '../../hooks/useDishes'
 interface Props {
   jobId: string
   onClose: () => void
+  initialJob?: ImportJob
 }
 
 const DIFF_LABEL: Record<string, string> = {
@@ -65,9 +68,10 @@ function youtubeThumb(url: string): string | null {
   return m?.[1] ? `https://img.youtube.com/vi/${m[1]}/mqdefault.jpg` : null
 }
 
-export function ImportJobPreviewModal({ jobId, onClose }: Props) {
+export function ImportJobPreviewModal({ jobId, onClose, initialJob }: Props) {
   const navigate = useNavigate()
-  const { data: job } = useImportJob(jobId)
+  const { data: fetchedJob } = useImportJob(jobId)
+  const job = fetchedJob ?? initialJob
   const { data: dish } = useAdminDish(job?.resultDishId ?? '')
   const [imgError, setImgError] = useState(false)
   const { openImage, openVideo, lightboxProps } = useMediaLightbox()
@@ -84,7 +88,18 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
     }
   }, [onClose])
 
-  if (!job) return null
+  if (!job) {
+    return (
+      <Dialog open onOpenChange={(open) => { if (!open) onClose() }}>
+        <DialogContent className="max-w-md p-6 bg-card border-border rounded-xl">
+          <div className="flex flex-col items-center justify-center py-8 gap-3">
+            <Loader2 className="animate-spin text-amber-500" size={28} />
+            <p className="text-sm font-medium text-muted-foreground">Đang tải thông tin bản nháp...</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
 
   const suggestedImg = (job as any).suggestedImageUrl as string | undefined
   const displayImg = !imgError && suggestedImg ? suggestedImg : null
@@ -412,7 +427,7 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
                 <ClipboardList size={14} /> Nhật ký tiến trình AI
               </h4>
               <div className="space-y-1.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-border">
-                {job.logs.map((log, i) => (
+                {job.logs.map((log: any, i: number) => (
                   <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
                     <CheckCircle2 size={13} className="text-emerald-500 shrink-0 mt-0.5" />
                     <div>

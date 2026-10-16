@@ -42,6 +42,7 @@ import {
   TableRow,
 } from '../components/ui/table'
 import { Textarea } from '../components/ui/textarea'
+import { PageContainer } from '../components/layout'
 
 const QUICK_LINKS = [
   { label: 'Trang chủ', link: 'mogu://home' },
@@ -139,7 +140,7 @@ export default function NotificationsPage() {
   const totalPages = Math.ceil(historyTotal / limit)
 
   return (
-    <div className="space-y-6">
+    <PageContainer className="space-y-6">
       {/* Page Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
@@ -552,6 +553,6 @@ export default function NotificationsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </PageContainer>
   )
 }

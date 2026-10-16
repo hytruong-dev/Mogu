@@ -67,7 +67,46 @@ export type AdminUserDetail = {
   availableActions: string[]
 }
 
+export type CreateAdminUserPayload = {
+  username: string
+  email?: string
+  displayName?: string
+  password?: string
+  role: 'USER' | 'REVIEWER' | 'CONTENT_ADMIN' | 'SUPER_ADMIN'
+  mustChangePassword?: boolean
+}
+
+export type CreateAdminUserResponse = {
+  userId: string
+  username: string
+  email: string
+  displayName: string
+  role: string
+  mustChangePassword: boolean
+  temporaryPassword?: string
+  message: string
+}
+
+export type DirectPasswordResetPayload = {
+  temporaryPassword?: string
+  reasonCode?: string
+  caseId?: string
+}
+
+export type DirectPasswordResetResponse = {
+  status: string
+  temporaryPassword: string
+  mustChangePassword: boolean
+  message: string
+}
+
 export const usersApi = {
+  create: (body: CreateAdminUserPayload) =>
+    api.post<CreateAdminUserResponse>('/admin/users', body).then((r) => r.data),
+
+  directPasswordReset: (userId: string, body?: DirectPasswordResetPayload) =>
+    api.post<DirectPasswordResetResponse>(`/admin/users/${userId}/direct-password-reset`, body ?? {}).then((r) => r.data),
+
   summary: (params?: { from?: string; to?: string; timezone?: string }) =>
     api.get<AdminUserSummary>('/admin/users/summary', { params }).then((r) => r.data),
 

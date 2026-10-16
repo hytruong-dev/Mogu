@@ -5,13 +5,34 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { createHash, randomBytes } from 'crypto';
+import { createHash, randomBytes, randomUUID } from 'crypto';
+import { ConfigService } from '@nestjs/config';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { AccountStatus, SystemRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateAdminUserDto, DirectPasswordResetDto } from './dto/create-admin-user.dto';
 
 @Injectable()
 export class AdminUsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly supabase?: SupabaseClient;
+  private readonly INTERNAL_DOMAIN = 'user.mogu.internal';
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {
+    const url =
+      this.config.get<string>('app.supabase.url') ??
+      this.config.get<string>('SUPABASE_URL');
+    const key =
+      this.config.get<string>('app.supabase.secretKey') ??
+      this.config.get<string>('SUPABASE_SERVICE_ROLE_KEY');
+    if (url && key) {
+      this.supabase = createClient(url, key, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      });
+    }
+  }
 
   private maskEmail(username: string, email?: string | null) {
     if (email && email.includes('@')) {
@@ -465,6 +486,177 @@ export class AdminUsersService {
     return {
       status: 'QUEUED',
       nextAllowedAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+    };
+  }
+
+  /**
+   * Tạo tài khoản người dùng hoặc nhân sự mới trực tiếp bởi Super Admin
+   */
+  async createUser(
+    actorUserId: string,
+    dto: CreateAdminUserDto,
+    requestId?: string,
+  ) {
+    const existing = await this.prisma.db.account.findUnique({
+      where: { username: dto.username.toLowerCase() },
+    });
+    if (existing) {
+      throw new ConflictException({
+        code: 'USERNAME_EXISTS',
+        message: 'Tên đăng nhập này đã được sử dụng.',
+      });
+    }
+
+    const tempPassword =
+      dto.password?.trim() ||
+      `Mogu@${randomBytes(4).toString('hex').toUpperCase()}9`;
+
+    const internalEmail =
+      dto.email?.trim() || `${dto.username.toLowerCase()}@${this.INTERNAL_DOMAIN}`;
+
+    let supabaseUserId: string;
+
+    if (this.supabase) {
+      const { data: signUpData, error: signUpError } =
+        await this.supabase.auth.admin.createUser({
+          email: internalEmail,
+          password: tempPassword,
+          email_confirm: true,
+          user_metadata: {
+            username: dto.username.toLowerCase(),
+            display_name: dto.displayName,
+          },
+        });
+
+      if (signUpError || !signUpData?.user) {
+        throw new BadRequestException({
+          code: 'AUTH_CREATE_FAILED',
+          message: signUpError?.message || 'Không thể tạo tài khoản trên hệ thống Auth.',
+        });
+      }
+      supabaseUserId = signUpData.user.id;
+    } else {
+      supabaseUserId = randomUUID();
+    }
+
+    const mustChange = dto.mustChangePassword ?? true;
+
+    await this.prisma.db.$transaction(async (tx) => {
+      const profile = await tx.profile.create({
+        data: {
+          userId: supabaseUserId,
+          displayName: dto.displayName?.trim() || dto.username,
+          accountStatus: AccountStatus.ACTIVE,
+          onboardingStatus: 'COMPLETED',
+        },
+      });
+
+      await tx.account.create({
+        data: {
+          username: dto.username.toLowerCase(),
+          userId: supabaseUserId,
+          passwordHash: supabaseUserId,
+          mustChangePassword: mustChange,
+        },
+      });
+
+      if (dto.role && dto.role !== SystemRole.USER) {
+        await tx.profileRole.create({
+          data: {
+            profileId: profile.id,
+            role: dto.role,
+            assignedBy: actorUserId,
+          },
+        });
+      }
+    });
+
+    await this.writeAudit({
+      actorUserId,
+      targetId: supabaseUserId,
+      action: 'USER_CREATED_BY_ADMIN',
+      reasonCode: 'ADMIN_PROVISIONING',
+      requestId,
+      after: {
+        username: dto.username,
+        email: internalEmail,
+        role: dto.role,
+        mustChangePassword: mustChange,
+      },
+    });
+
+    return {
+      userId: supabaseUserId,
+      username: dto.username.toLowerCase(),
+      email: internalEmail,
+      displayName: dto.displayName || dto.username,
+      role: dto.role,
+      mustChangePassword: mustChange,
+      temporaryPassword: tempPassword,
+      message: 'Tài khoản đã được khởi tạo thành công.',
+    };
+  }
+
+  /**
+   * Cấp mật khẩu tạm trực tiếp và yêu cầu đổi mật khẩu ở lần đăng nhập tới
+   */
+  async directPasswordReset(
+    actorUserId: string,
+    userId: string,
+    body: DirectPasswordResetDto,
+    requestId?: string,
+  ) {
+    const profile = await this.prisma.db.profile.findUnique({ where: { userId } });
+    if (!profile) throw new NotFoundException({ code: 'USER_NOT_FOUND' });
+
+    const tempPassword =
+      body.temporaryPassword?.trim() ||
+      `Mogu@${randomBytes(4).toString('hex').toUpperCase()}9`;
+
+    if (this.supabase) {
+      const { error } = await this.supabase.auth.admin.updateUserById(userId, {
+        password: tempPassword,
+      });
+      if (error) {
+        throw new BadRequestException({
+          code: 'RESET_FAILED',
+          message: error.message,
+        });
+      }
+      await this.supabase.auth.admin.signOut(userId, 'global').catch(() => null);
+    }
+
+    const account = await this.findAccount(userId);
+    if (account) {
+      await this.prisma.db.account.update({
+        where: { id: account.id },
+        data: {
+          mustChangePassword: true,
+          failedLoginAttempts: 0,
+          lockedUntil: null,
+        },
+      }).catch(() => null);
+
+      await this.prisma.db.refreshSession.updateMany({
+        where: { accountId: account.id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }).catch(() => null);
+    }
+
+    await this.writeAudit({
+      actorUserId,
+      targetId: userId,
+      action: 'DIRECT_PASSWORD_RESET',
+      reasonCode: body.reasonCode || 'ADMIN_TEMP_PASSWORD',
+      caseId: body.caseId,
+      requestId,
+    });
+
+    return {
+      status: 'SUCCESS',
+      temporaryPassword: tempPassword,
+      mustChangePassword: true,
+      message: 'Mật khẩu tạm thời đã được thiết lập thành công.',
     };
   }
 

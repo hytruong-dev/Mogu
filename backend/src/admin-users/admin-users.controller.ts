@@ -21,6 +21,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { AdminUsersService } from './admin-users.service';
+import { CreateAdminUserDto, DirectPasswordResetDto } from './dto/create-admin-user.dto';
 
 @ApiTags('Admin / Users')
 @ApiBearerAuth()
@@ -55,6 +56,17 @@ export class AdminUsersController {
     return this.adminUsers.listUsers({ q, status, cursor, limit });
   }
 
+  @Post('users')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Tạo tài khoản người dùng / nhân sự mới' })
+  createUser(
+    @Body() dto: CreateAdminUserDto,
+    @CurrentUser() actor: any,
+    @Headers('x-request-id') requestId?: string,
+  ) {
+    return this.adminUsers.createUser(this.actorId(actor), dto, requestId);
+  }
+
   @Get('users/:userId')
   @ApiOperation({ summary: 'Chi tiết user (email masked)' })
   getUser(@Param('userId', ParseUUIDPipe) userId: string) {
@@ -72,6 +84,23 @@ export class AdminUsersController {
     @Headers('x-request-id') requestId?: string,
   ) {
     return this.adminUsers.requestPasswordReset(
+      this.actorId(actor),
+      userId,
+      body,
+      requestId,
+    );
+  }
+
+  @Post('users/:userId/direct-password-reset')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Cấp mật khẩu tạm trực tiếp và yêu cầu đổi mật khẩu' })
+  directPasswordReset(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Body() body: DirectPasswordResetDto,
+    @CurrentUser() actor: any,
+    @Headers('x-request-id') requestId?: string,
+  ) {
+    return this.adminUsers.directPasswordReset(
       this.actorId(actor),
       userId,
       body,

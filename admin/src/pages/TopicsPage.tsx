@@ -1,13 +1,19 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
+  AlertCircle,
   BookOpen,
-  Edit2,
-  Eye,
+  CheckCircle2,
   EyeOff,
+  FileText,
   Image as ImageIcon,
+  Pencil,
   Plus,
+  RotateCcw,
   Search,
+  Sparkles,
   Trash2,
+  Wand2,
+  X,
 } from 'lucide-react'
 import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
 import { topicsAdminApi, type Topic, type CreateTopicDto, type UpdateTopicDto } from '../api/explore'
@@ -16,7 +22,7 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
 import { Badge } from '../components/ui/badge'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import { Card, CardContent } from '../components/ui/card'
 import {
   Table,
   TableBody,
@@ -33,10 +39,34 @@ import {
   DialogHeader,
   DialogTitle,
 } from '../components/ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../components/ui/alert-dialog'
 import { Switch } from '../components/ui/switch'
 import { Label } from '../components/ui/label'
 import { Image } from '../components/ui/image'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../components/ui/alert-dialog'
+import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
+import { PageContainer } from '../components/layout'
+import { ImageUpload } from '../components/ui/image-upload'
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+}
 
 export default function TopicsPage() {
   const { lightboxProps } = useMediaLightbox()
@@ -44,9 +74,11 @@ export default function TopicsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL')
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState<Topic | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<Topic | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState('')
 
@@ -77,15 +109,30 @@ export default function TopicsPage() {
   }, [])
 
   const filteredTopics = useMemo(() => {
-    if (!searchQuery.trim()) return topics
-    const q = searchQuery.toLowerCase()
-    return topics.filter(
-      (t) =>
-        t.title.toLowerCase().includes(q) ||
-        t.slug.toLowerCase().includes(q) ||
-        (t.description && t.description.toLowerCase().includes(q)),
-    )
-  }, [topics, searchQuery])
+    return topics.filter((t) => {
+      const matchesSearch =
+        !searchQuery.trim() ||
+        t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        t.slug.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (t.description && t.description.toLowerCase().includes(searchQuery.toLowerCase()))
+
+      const matchesStatus =
+        statusFilter === 'ALL' ||
+        (statusFilter === 'ACTIVE' && t.isActive) ||
+        (statusFilter === 'INACTIVE' && !t.isActive)
+
+      return matchesSearch && matchesStatus
+    })
+  }, [topics, searchQuery, statusFilter])
+
+  // Stats calculation
+  const stats = useMemo(() => {
+    const total = topics.length
+    const active = topics.filter((t) => t.isActive).length
+    const inactive = total - active
+    const totalArticles = topics.reduce((sum, t) => sum + (t._count?.articles ?? 0), 0)
+    return { total, active, inactive, totalArticles }
+  }, [topics])
 
   const openCreate = () => {
     setEditing(null)
@@ -95,7 +142,7 @@ export default function TopicsPage() {
       title: '',
       description: '',
       coverImageUrl: '',
-      displayOrder: topics.length,
+      displayOrder: topics.length + 1,
       isActive: true,
     })
     setShowModal(true)
@@ -139,12 +186,15 @@ export default function TopicsPage() {
 
   const handleDelete = async () => {
     if (!deleteConfirm) return
+    setDeleting(true)
     try {
       await topicsAdminApi.delete(deleteConfirm.id)
       setDeleteConfirm(null)
       await load()
     } catch (e: any) {
       alert(e.response?.data?.message ?? e.message ?? 'Không thể xóa chủ đề này')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -157,89 +207,208 @@ export default function TopicsPage() {
     }
   }
 
+  const hasActiveFilters = Boolean(searchQuery || statusFilter !== 'ALL')
+
   return (
-    <div className="space-y-6">
-      {/* Heading & Actions */}
+    <PageContainer className="space-y-6">
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl flex items-center gap-2.5">
-            <BookOpen size={28} className="text-amber-500" />
-            Chủ đề khám phá (Topics)
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Quản lý các danh mục chuyên đề hiển thị trên thanh cuộn ngang và khám phá của app Mogu.
-          </p>
+          <div className="flex items-center gap-2">
+            <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
+              <BookOpen size={22} />
+            </span>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+                Chủ đề khám phá (Topics)
+                <Badge variant="secondary" className="font-mono text-xs font-semibold">
+                  {topics.length} chủ đề
+                </Badge>
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Quản lý các nhóm danh mục ẩm thực hiển thị trên thanh cuộn ngang feed Khám phá của ứng dụng Mogu.
+              </p>
+            </div>
+          </div>
         </div>
+
         <Button
           onClick={openCreate}
-          className="font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm"
+          className="font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm flex items-center gap-1.5 h-9 px-4 self-start sm:self-auto"
         >
           <Plus size={16} />
           <span>Thêm chủ đề mới</span>
         </Button>
       </div>
 
+      {/* Metric Cards Banner */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <Card className="border-border/60 shadow-xs hover:border-amber-500/30 transition-colors">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                Tổng số chủ đề
+              </span>
+              <div className="text-2xl font-bold text-foreground font-mono">{stats.total}</div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+              <BookOpen size={20} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/60 shadow-xs hover:border-emerald-500/30 transition-colors">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                Đang hiển thị
+              </span>
+              <div className="text-2xl font-bold text-emerald-600 font-mono">{stats.active}</div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center shrink-0">
+              <CheckCircle2 size={20} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/60 shadow-xs hover:border-slate-500/30 transition-colors">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                Đang tạm ẩn
+              </span>
+              <div className="text-2xl font-bold text-muted-foreground font-mono">{stats.inactive}</div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-slate-500/10 text-slate-500 flex items-center justify-center shrink-0">
+              <EyeOff size={20} />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-border/60 shadow-xs hover:border-blue-500/30 transition-colors">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                Bài viết liên kết
+              </span>
+              <div className="text-2xl font-bold text-blue-600 font-mono">{stats.totalArticles}</div>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
+              <FileText size={20} />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Filter / Search Bar */}
-      <Card>
+      <Card className="border-border/60 shadow-xs">
         <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="relative flex-1 max-w-sm">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm theo tên chủ đề, slug..."
-              className="pl-9 h-9"
-            />
+          <div className="flex items-center gap-2.5 flex-1 max-w-md">
+            <div className="relative flex-1">
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Tìm kiếm chủ đề theo tên, slug, mô tả..."
+                className="pl-9 pr-8 h-9 text-xs bg-muted/30 focus-visible:bg-card"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  title="Xóa tìm kiếm"
+                >
+                  <X size={13} />
+                </button>
+              )}
+            </div>
+
+            {hasActiveFilters && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setSearchQuery('')
+                  setStatusFilter('ALL')
+                }}
+                className="h-9 text-xs gap-1 text-muted-foreground hover:text-foreground shrink-0"
+              >
+                <RotateCcw size={12} />
+                Đặt lại
+              </Button>
+            )}
           </div>
-          <div className="text-xs text-muted-foreground">
-            Hiển thị <strong className="text-foreground">{filteredTopics.length}</strong> / {topics.length} chủ đề
+
+          <div className="flex items-center gap-3">
+            <Tabs
+              value={statusFilter}
+              onValueChange={(v) => setStatusFilter(v as 'ALL' | 'ACTIVE' | 'INACTIVE')}
+              className="shrink-0"
+            >
+              <TabsList className="bg-muted/60 p-1 h-9">
+                <TabsTrigger value="ALL" className="text-xs px-2.5">
+                  Tất cả ({topics.length})
+                </TabsTrigger>
+                <TabsTrigger value="ACTIVE" className="text-xs px-2.5">
+                  Đang hiện ({stats.active})
+                </TabsTrigger>
+                <TabsTrigger value="INACTIVE" className="text-xs px-2.5">
+                  Đang ẩn ({stats.inactive})
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            <span className="text-xs text-muted-foreground hidden lg:inline">
+              Hiển thị <strong className="text-foreground font-mono">{filteredTopics.length}</strong> / {topics.length}
+            </span>
           </div>
         </CardContent>
       </Card>
 
       {/* Main Table Card */}
-      <Card>
-        <CardHeader className="p-5 pb-3">
-          <CardTitle className="text-base font-bold">Danh sách chủ đề</CardTitle>
-          <CardDescription className="text-xs">
-            Thứ tự hiển thị số nhỏ hơn sẽ được ưu tiên hiển thị trước trên app.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-0">
-          {error && (
-            <div className="m-5 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold">
-              {error}
-            </div>
-          )}
+      <Card className="border-border/60 shadow-xs overflow-hidden">
+        {error && (
+          <div className="p-4 bg-rose-50 border-b border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+            <AlertCircle size={15} />
+            <span>{error}</span>
+          </div>
+        )}
 
-          {loading ? (
-            <div className="p-5">
-              <TableSkeleton rows={5} cols={6} />
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/40 hover:bg-muted/40">
-                  <TableHead className="w-20">Ảnh bìa</TableHead>
-                  <TableHead className="min-w-[180px]">Tên chủ đề</TableHead>
-                  <TableHead>Slug nhận diện</TableHead>
-                  <TableHead className="text-center w-24">Thứ tự</TableHead>
-                  <TableHead className="text-center w-28">Số bài viết</TableHead>
-                  <TableHead className="text-center w-28">Trạng thái</TableHead>
-                  <TableHead className="text-right w-32">Thao tác</TableHead>
+        {loading ? (
+          <div className="p-6">
+            <TableSkeleton rows={5} cols={6} />
+          </div>
+        ) : (
+          <Table>
+            <TableHeader className="bg-muted/40">
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="min-w-[280px]">Ảnh bìa & Chủ đề</TableHead>
+                <TableHead className="w-48">Slug nhận diện</TableHead>
+                <TableHead className="w-24 text-center">Thứ tự</TableHead>
+                <TableHead className="w-28 text-center">Số bài viết</TableHead>
+                <TableHead className="w-36 text-center">Trạng thái</TableHead>
+                <TableHead className="w-28 text-right">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredTopics.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-16 text-muted-foreground">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <BookOpen size={36} className="text-muted-foreground/30" />
+                      <span className="text-sm font-medium">Không tìm thấy chủ đề nào phù hợp.</span>
+                      <p className="text-xs text-muted-foreground/70">
+                        Thử thay đổi bộ lọc tìm kiếm hoặc bấm Thêm chủ đề mới.
+                      </p>
+                    </div>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredTopics.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
-                      Không tìm thấy chủ đề nào phù hợp.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredTopics.map((topic) => (
-                    <TableRow key={topic.id} className="hover:bg-muted/30 transition-colors">
-                      <TableCell>
+              ) : (
+                filteredTopics.map((topic) => (
+                  <TableRow key={topic.id} className="hover:bg-muted/30 transition-colors">
+                    {/* Cover & Title */}
+                    <TableCell className="py-3">
+                      <div className="flex items-center gap-3">
                         {topic.coverImageUrl ? (
                           <Image
                             src={topic.coverImageUrl}
@@ -248,163 +417,198 @@ export default function TopicsPage() {
                             zoomable
                             title={topic.title}
                             subtitle="Ảnh bìa chủ đề"
-                            className="w-14 h-9 object-cover rounded-md border border-border"
+                            className="w-16 h-11 object-cover rounded-lg border border-border/80 shadow-xs shrink-0"
                           />
                         ) : (
-                          <div className="w-14 h-9 rounded-md bg-muted flex items-center justify-center border border-border">
-                            <ImageIcon size={14} className="text-muted-foreground/60" />
+                          <div className="w-16 h-11 rounded-lg bg-muted flex items-center justify-center border border-border/80 shrink-0 text-muted-foreground/60">
+                            <ImageIcon size={16} />
                           </div>
                         )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-semibold text-foreground text-sm">{topic.title}</div>
-                        {topic.description && (
-                          <div className="text-xs text-muted-foreground line-clamp-1 max-w-xs mt-0.5">
-                            {topic.description}
+                        <div className="min-w-0 flex-1">
+                          <div className="font-semibold text-foreground text-xs sm:text-sm">
+                            {topic.title}
                           </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground">
-                          {topic.slug}
-                        </code>
-                      </TableCell>
-                      <TableCell className="text-center font-mono text-xs font-semibold">
+                          {topic.description ? (
+                            <div className="text-[11px] text-muted-foreground line-clamp-1 max-w-sm mt-0.5">
+                              {topic.description}
+                            </div>
+                          ) : (
+                            <div className="text-[11px] text-muted-foreground/60 italic mt-0.5">
+                              Chưa có mô tả chi tiết
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    {/* Slug */}
+                    <TableCell>
+                      <code className="text-[11px] bg-muted/60 px-2 py-1 rounded-md font-mono text-muted-foreground border border-border/40">
+                        {topic.slug}
+                      </code>
+                    </TableCell>
+
+                    {/* Display Order */}
+                    <TableCell className="text-center">
+                      <span className="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-muted/50 font-mono text-xs font-semibold text-foreground border border-border/40">
                         {topic.displayOrder}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="secondary" className="font-mono text-xs">
-                          {topic._count?.articles ?? 0}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
+                      </span>
+                    </TableCell>
+
+                    {/* Articles count */}
+                    <TableCell className="text-center">
+                      <Badge
+                        variant="secondary"
+                        className="font-mono text-xs font-semibold px-2 py-0.5 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border-blue-200/60"
+                      >
+                        {topic._count?.articles ?? 0} bài
+                      </Badge>
+                    </TableCell>
+
+                    {/* Active toggle */}
+                    <TableCell className="text-center">
+                      <button
+                        type="button"
+                        onClick={() => toggleActive(topic)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold border transition-all hover:scale-105 ${
+                          topic.isActive
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300'
+                            : 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-900 dark:text-slate-400'
+                        }`}
+                        title="Bấm để bật / tắt hiển thị trên ứng dụng"
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${topic.isActive ? 'bg-emerald-500' : 'bg-slate-400'}`}
+                        />
+                        {topic.isActive ? 'Đang hiển thị' : 'Đang tạm ẩn'}
+                      </button>
+                    </TableCell>
+
+                    {/* Actions */}
+                    <TableCell className="text-right">
+                      <div className="inline-flex items-center gap-1 bg-muted/40 p-1 rounded-lg border border-border/60">
                         <Button
                           variant="ghost"
-                          size="sm"
-                          onClick={() => toggleActive(topic)}
-                          className="h-7 px-2 hover:bg-transparent"
+                          size="icon"
+                          className="h-7 w-7 rounded-md text-muted-foreground hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/30"
+                          onClick={() => openEdit(topic)}
+                          title="Chỉnh sửa chủ đề"
                         >
-                          {topic.isActive ? (
-                            <Badge variant="success" className="cursor-pointer flex items-center gap-1">
-                              <Eye size={11} /> Hiển thị
-                            </Badge>
-                          ) : (
-                            <Badge variant="secondary" className="cursor-pointer flex items-center gap-1">
-                              <EyeOff size={11} /> Đang ẩn
-                            </Badge>
-                          )}
+                          <Pencil size={13} />
                         </Button>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                            onClick={() => openEdit(topic)}
-                            title="Chỉnh sửa chủ đề"
-                          >
-                            <Edit2 size={14} />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/30"
-                            onClick={() => setDeleteConfirm(topic)}
-                            title="Xóa chủ đề"
-                          >
-                            <Trash2 size={14} />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 rounded-md text-muted-foreground hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+                          onClick={() => setDeleteConfirm(topic)}
+                          title="Xóa chủ đề"
+                        >
+                          <Trash2 size={13} />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        )}
       </Card>
 
-      {/* Modal Tạo/Sửa Chủ Đề (Shadcn Dialog) */}
+      {/* ── MODAL THÊM / CHỈNH SỬA CHỦ ĐỀ (Redesigned) ── */}
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{editing ? 'Chỉnh sửa chủ đề' : 'Thêm chủ đề mới'}</DialogTitle>
-            <DialogDescription>
-              Cập nhật thông tin nhận diện và ảnh bìa cho chủ đề khám phá.
-            </DialogDescription>
+        <DialogContent className="sm:max-w-xl max-h-[90vh] flex flex-col p-0">
+          <DialogHeader className="px-6 py-4 border-b border-border bg-card shrink-0">
+            <div className="flex items-center gap-2.5">
+              <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/20">
+                {editing ? <Pencil size={18} /> : <Sparkles size={18} />}
+              </span>
+              <div>
+                <DialogTitle className="text-base font-bold text-foreground">
+                  {editing ? 'Chỉnh sửa chủ đề' : 'Thêm chủ đề khám phá mới'}
+                </DialogTitle>
+                <DialogDescription className="text-xs text-muted-foreground">
+                  Cập nhật thông tin nhận diện, slug URL và ảnh bìa đại diện cho nhóm chủ đề.
+                </DialogDescription>
+              </div>
+            </div>
           </DialogHeader>
 
-          <div className="space-y-4 py-2">
-            <div className="space-y-1.5">
-              <Label htmlFor="topic-title" className="text-xs font-semibold">
-                Tiêu đề chủ đề <span className="text-rose-500">*</span>
-              </Label>
-              <Input
-                id="topic-title"
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                placeholder="VD: Món ngon mùa mưa"
-                className="h-9"
-              />
+          <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            {/* Title & Slug */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="topic-title" className="text-xs font-semibold text-foreground">
+                  Tiêu đề chủ đề <span className="text-rose-500">*</span>
+                </Label>
+                <Input
+                  id="topic-title"
+                  value={form.title}
+                  onChange={(e) => {
+                    const newTitle = e.target.value
+                    setForm((prev) => ({
+                      ...prev,
+                      title: newTitle,
+                      slug: !prev.slug || prev.slug === slugify(prev.title) ? slugify(newTitle) : prev.slug,
+                    }))
+                  }}
+                  placeholder="VD: Món ngon mùa mưa"
+                  className="h-9 text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="topic-slug" className="text-xs font-semibold text-foreground">
+                    Slug URL <span className="text-rose-500">*</span>
+                  </Label>
+                  <button
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, slug: slugify(prev.title) }))}
+                    className="text-[11px] text-amber-600 hover:underline inline-flex items-center gap-1"
+                  >
+                    <Wand2 size={11} /> Tự động tạo slug
+                  </button>
+                </div>
+                <Input
+                  id="topic-slug"
+                  value={form.slug}
+                  onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                  placeholder="mon-ngon-mua-mua"
+                  className="h-9 text-xs font-mono"
+                />
+              </div>
             </div>
 
+            {/* Description */}
             <div className="space-y-1.5">
-              <Label htmlFor="topic-slug" className="text-xs font-semibold">
-                Slug URL <span className="text-rose-500">*</span>
-              </Label>
-              <Input
-                id="topic-slug"
-                value={form.slug}
-                onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                placeholder="VD: mon-ngon-mua-mua"
-                className="h-9 font-mono"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="topic-desc" className="text-xs font-semibold">
-                Mô tả ngắn
+              <Label htmlFor="topic-desc" className="text-xs font-semibold text-foreground">
+                Mô tả tóm tắt
               </Label>
               <Textarea
                 id="topic-desc"
                 value={form.description ?? ''}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
-                placeholder="Mô tả tóm tắt nội dung chủ đề..."
+                placeholder="Mô tả nội dung thu hút xuất hiện bên dưới tiêu đề chủ đề..."
                 rows={2}
+                className="text-xs leading-relaxed"
               />
             </div>
 
-            <div className="space-y-1.5">
-              <Label htmlFor="topic-img" className="text-xs font-semibold">
-                URL ảnh bìa
-              </Label>
-              <Input
-                id="topic-img"
-                value={form.coverImageUrl ?? ''}
-                onChange={(e) => setForm({ ...form, coverImageUrl: e.target.value })}
-                placeholder="https://..."
-                className="h-9"
-              />
-              {form.coverImageUrl && (
-                <div className="pt-2">
-                  <Image
-                    src={form.coverImageUrl}
-                    alt="Xem trước ảnh bìa"
-                    aspectRatio="video"
-                    zoomable
-                    title={form.title || 'Ảnh bìa chủ đề'}
-                    className="h-24 w-full object-cover rounded-lg border border-border"
-                  />
-                </div>
-              )}
-            </div>
+            {/* Cover Image Upload */}
+            <ImageUpload
+              value={form.coverImageUrl ?? ''}
+              onChange={(url) => setForm({ ...form, coverImageUrl: url })}
+              folder="topics"
+              label="Ảnh bìa đại diện chủ đề"
+              aspectRatio="video"
+            />
 
-            <div className="grid grid-cols-2 gap-4 pt-1">
+            {/* Display Order & Active Switch */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl border border-border/80 bg-muted/20">
               <div className="space-y-1.5">
-                <Label htmlFor="topic-order" className="text-xs font-semibold">
-                  Thứ tự hiển thị
+                <Label htmlFor="topic-order" className="text-xs font-semibold text-foreground">
+                  Thứ tự hiển thị (Priority)
                 </Label>
                 <Input
                   id="topic-order"
@@ -412,35 +616,48 @@ export default function TopicsPage() {
                   value={form.displayOrder ?? 0}
                   onChange={(e) => setForm({ ...form, displayOrder: Number(e.target.value) })}
                   min={0}
-                  className="h-9"
+                  className="h-9 text-xs font-mono"
                 />
+                <span className="text-[11px] text-muted-foreground block">
+                  Số thứ tự nhỏ hơn sẽ được ưu tiên xuất hiện trước trên thanh cuộn.
+                </span>
               </div>
 
-              <div className="space-y-1.5 flex flex-col justify-end pb-1">
-                <div className="flex items-center gap-2">
+              <div className="space-y-1.5 flex flex-col justify-between">
+                <Label className="text-xs font-semibold text-foreground">Trạng thái phát hành</Label>
+                <div className="flex items-center gap-2.5 p-2 rounded-lg bg-card border border-border/60">
                   <Switch
                     checked={form.isActive}
                     onCheckedChange={(checked) => setForm({ ...form, isActive: checked })}
                   />
-                  <Label className="text-xs cursor-pointer">Kích hoạt hiển thị</Label>
+                  <div>
+                    <span className="text-xs font-semibold text-foreground block">
+                      {form.isActive ? 'Kích hoạt hiển thị' : 'Tạm ẩn chủ đề'}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {form.isActive ? 'Sẽ xuất hiện trên App người dùng' : 'Ẩn khỏi thanh cuộn feed'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
+
             {formError && (
-              <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs">
-                {formError}
+              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                <AlertCircle size={15} />
+                <span>{formError}</span>
               </div>
             )}
           </div>
 
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setShowModal(false)}>
-              Hủy
+          <DialogFooter className="px-6 py-4 border-t border-border bg-muted/20 shrink-0 flex items-center justify-end gap-2">
+            <Button variant="outline" onClick={() => setShowModal(false)} className="h-9 px-4 text-xs">
+              Hủy bỏ
             </Button>
             <Button
               onClick={handleSave}
               disabled={saving}
-              className="bg-primary text-primary-foreground font-semibold"
+              className="h-9 px-4 text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white"
             >
               {saving ? 'Đang lưu...' : editing ? 'Lưu thay đổi' : 'Tạo chủ đề'}
             </Button>
@@ -448,22 +665,38 @@ export default function TopicsPage() {
         </DialogContent>
       </Dialog>
 
+      {/* ── DIALOG XÁC NHẬN XÓA (AlertDialog) ── */}
       <AlertDialog open={Boolean(deleteConfirm)} onOpenChange={(open) => !open && setDeleteConfirm(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Xóa chủ đề này?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa chủ đề <strong>{deleteConfirm?.title}</strong>? Hành động này không thể hoàn tác.
+            <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center mb-2">
+              <Trash2 size={20} />
+            </div>
+            <AlertDialogTitle className="text-base font-bold text-foreground">
+              Xác nhận xóa chủ đề?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              Bạn có chắc chắn muốn xóa chủ đề{' '}
+              <strong className="text-foreground">"{deleteConfirm?.title}"</strong>? Các bài viết thuộc chủ đề này
+              sẽ được chuyển về trạng thái Chưa gắn chủ đề.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>Xác nhận xóa</AlertDialogAction>
+          <AlertDialogFooter className="gap-2 sm:gap-0 pt-2">
+            <AlertDialogCancel disabled={deleting} className="text-xs h-9">
+              Hủy bỏ
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={handleDelete}
+              className="text-xs h-9 font-semibold bg-rose-600 hover:bg-rose-700 text-white"
+            >
+              {deleting ? 'Đang xóa...' : 'Xác nhận xóa'}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <MediaLightbox {...lightboxProps} />
-    </div>
+    </PageContainer>
   )
 }

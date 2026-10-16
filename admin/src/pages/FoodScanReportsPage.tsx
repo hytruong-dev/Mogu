@@ -42,6 +42,7 @@ import {
   useFoodScanReports,
   useUpdateFoodScanReport,
 } from '../hooks/useFoodScanReports'
+import { PageContainer } from '../components/layout'
 
 const TABS: { value: FoodScanReportStatus; label: string; key: 'new' | 'inProgress' | 'added' | 'dismissed' }[] = [
   { value: 'NEW', label: 'Mới', key: 'new' },
@@ -365,7 +366,7 @@ export default function FoodScanReportsPage() {
   const items = data?.items ?? []
 
   return (
-    <div className="space-y-5">
+    <PageContainer className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-black tracking-tight flex items-center gap-2">
@@ -460,6 +461,6 @@ export default function FoodScanReportsPage() {
 
       <LinkDishDialog report={linkTarget} onClose={() => setLinkTarget(null)} />
       <MediaLightbox {...lightboxProps} />
-    </div>
+    </PageContainer>
   )
 }

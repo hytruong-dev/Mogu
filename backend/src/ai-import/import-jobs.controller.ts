@@ -95,4 +95,19 @@ export class ImportJobsController {
   cancel(@Param('id', ParseUUIDPipe) id: string) {
     return this.service.cancel(id);
   }
+
+  /**
+   * POST /admin/import-jobs/:id/retry
+   * Tái sử dụng tiến trình import hiện có (reset và chạy lại trên cùng 1 job ID)
+   */
+  @Post(':id/retry')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Thử lại import job (tái sử dụng tiến trình hiện có)' })
+  @ApiParam({ name: 'id', description: 'UUID của job' })
+  retry(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('sub') actorId: string,
+  ) {
+    return this.service.retry(id, actorId);
+  }
 }

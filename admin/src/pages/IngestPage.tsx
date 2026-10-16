@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Sparkles, Clock } from 'lucide-react'
+import { History, Sparkles } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { PageContainer, PageHeader } from '../components/layout'
 import {
@@ -10,12 +10,11 @@ import {
 import { useRegions } from '../hooks/useTaxonomy'
 import type { ImportJob } from '../types'
 import {
-  ACTIVE_STATUSES,
   ImportJobForm,
   ImportJobsHistoryTable,
-  ImportProgressView,
-  ImportSuccessView,
+  MultiJobQueueTracker,
 } from '../components/ingest'
+import { ImportJobPreviewModal } from '../components/ui/import-job-preview-modal'
 
 export default function IngestPage() {
   const [dishName, setDishName] = useState('')
@@ -24,7 +23,8 @@ export default function IngestPage() {
   const [selectedSources, setSelectedSources] = useState<string[]>(['AI_GENERATED'])
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [showHistory, setShowHistory] = useState(false)
-  const [dismissedSuccessJobId, setDismissedSuccessJobId] = useState<string | null>(null)
+  const [previewJob, setPreviewJob] = useState<ImportJob | null>(null)
+  const [feedbackNotice, setFeedbackNotice] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
   const createJob = useCreateImportJob()
   const importJobActions = useImportJobActions()
@@ -38,24 +38,36 @@ export default function IngestPage() {
     )
   }
 
-  const handleSubmit = async () => {
+  // Thông báo phản hồi ngắn biến mất sau 4 giây
+  const showNotice = (type: 'success' | 'error', message: string) => {
+    setFeedbackNotice({ type, message })
+    setTimeout(() => {
+      setFeedbackNotice((curr) => (curr?.message === message ? null : curr))
+    }, 4500)
+  }
+
+  // ── Xử lý nhập đơn lẻ liên tục ──
+  const handleSingleSubmit = async () => {
     if (!dishName.trim()) {
       setSubmitError('Vui lòng nhập tên món ăn')
       return
     }
     setSubmitError(null)
+    const targetName = dishName.trim()
 
     try {
       await createJob.mutateAsync({
-        query: dishName.trim(),
+        query: targetName,
         relatedKeywords: keywords.trim()
           ? keywords.split(',').map((k) => k.trim()).filter(Boolean)
           : undefined,
         regionHint: regionCode || undefined,
         sourceTypes: selectedSources,
       })
+      // Reset input ngay lập tức để người dùng có thể nhập món thứ 2, thứ 3...
       setDishName('')
       setKeywords('')
+      showNotice('success', `Đã thêm "${targetName}" vào hàng đợi AI thu thập!`)
     } catch (e: any) {
       const status = e?.response?.status
       const msg = e?.response?.data?.message ?? e?.message ?? 'Lỗi không xác định'
@@ -63,89 +75,163 @@ export default function IngestPage() {
         window.location.href = '/login'
       } else {
         setSubmitError('Tạo job thất bại: ' + msg)
+        showNotice('error', 'Lỗi khi tạo: ' + msg)
       }
     }
   }
 
-  const handleRetry = (job: ImportJob) => {
-    setDishName(job.query)
-    setKeywords(job.relatedKeywords?.join(', ') ?? '')
-    setRegionCode(job.regionHint ?? '')
-    setSelectedSources(job.sourceTypes?.length ? job.sourceTypes : ['AI_GENERATED'])
-    setShowHistory(false)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+  // ── Xử lý nhập danh sách hàng loạt nhiều món ──
+  const handleBatchSubmit = async (dishes: string[]) => {
+    if (dishes.length === 0) return
+    setSubmitError(null)
+
+    const promises = dishes.map((name) =>
+      createJob.mutateAsync({
+        query: name,
+        regionHint: regionCode || undefined,
+        sourceTypes: selectedSources,
+      })
+    )
+
+    const results = await Promise.allSettled(promises)
+    const succeeded = results.filter((r) => r.status === 'fulfilled').length
+    const failed = results.filter((r) => r.status === 'rejected').length
+
+    if (succeeded > 0) {
+      showNotice(
+        'success',
+        `Đã kích hoạt thành công ${succeeded} món vào hàng đợi thu thập song song!`
+      )
+    }
+    if (failed > 0) {
+      setSubmitError(`Có ${failed} món bị lỗi khi gửi yêu cầu.`)
+    }
+  }
+
+  // Thử lại món thất bại (Tái sử dụng tiến trình hiện có)
+  const handleRetry = async (job: ImportJob) => {
+    try {
+      await importJobActions.retry.mutateAsync(job.id)
+      showNotice('success', `Đang khởi động lại tiến trình thu thập cho món "${job.query}"...`)
+    } catch (e: any) {
+      showNotice('error', 'Lỗi khi thử lại: ' + (e?.message || 'Không xác định'))
+    }
+  }
+
+  // Hủy tác vụ đang chạy
+  const handleCancelJob = (jobId: string) => {
+    importJobActions.cancel.mutate(jobId, {
+      onSuccess: () => {
+        showNotice('success', 'Đã yêu cầu dừng tác vụ.')
+      },
+      onError: (err: any) => {
+        showNotice('error', 'Không thể hủy: ' + (err?.message || 'Lỗi'))
+      },
+    })
   }
 
   const jobs = jobsData?.data ?? []
-  const activeJobs = jobs.filter((j) => ACTIVE_STATUSES.includes(j.status))
-  const latestCompletedJob = jobs.find((job) => job.status === 'DONE' && job.resultDishId)
 
-  if (showHistory) {
-    return (
-      <PageContainer>
+  return (
+    <PageContainer>
+      {/* ── Tiêu đề trang & Nút chuyển đổi Lịch sử ── */}
+      <PageHeader
+        title="Nhập món tự động bằng AI (Đa nhiệm)"
+        description="Khởi tạo nhiều món ăn cùng lúc. AI sẽ tự động tìm kiếm, chuẩn hóa nguyên liệu và tính toán dinh dưỡng theo thời gian thực."
+        actions={
+          <Button
+            variant={showHistory ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setShowHistory((prev) => !prev)}
+            className="gap-1.5 text-xs font-semibold"
+          >
+            {showHistory ? (
+              <>
+                <Sparkles size={14} /> Trình theo dõi đa nhiệm
+              </>
+            ) : (
+              <>
+                <History size={14} /> Bảng lịch sử chi tiết
+              </>
+            )}
+          </Button>
+        }
+      />
+
+      {/* ── Floating Notification Bar ── */}
+      {feedbackNotice && (
+        <div
+          className={`p-3 rounded-xl border text-xs font-semibold flex items-center justify-between mb-4 animate-in fade-in slide-in-from-top-2 duration-200 ${
+            feedbackNotice.type === 'success'
+              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300'
+              : 'bg-destructive/10 border-destructive/30 text-destructive'
+          }`}
+        >
+          <span className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-current" />
+            {feedbackNotice.message}
+          </span>
+          <button
+            type="button"
+            onClick={() => setFeedbackNotice(null)}
+            className="text-xs opacity-70 hover:opacity-100"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* ── Giao diện Lịch sử mở rộng (Khi người dùng bấm xem bảng) ── */}
+      {showHistory ? (
         <ImportJobsHistoryTable
           jobs={jobs}
           isLoading={isLoading}
           onRetry={handleRetry}
           onBackToNew={() => setShowHistory(false)}
         />
-      </PageContainer>
-    )
-  }
-
-  if (activeJobs.length > 0) {
-    const job = activeJobs[0]
-    return (
-      <PageContainer>
-        <ImportProgressView job={job} onCancel={() => importJobActions.cancel.mutate(job.id)} />
-      </PageContainer>
-    )
-  }
-
-  if (latestCompletedJob && dismissedSuccessJobId !== latestCompletedJob.id) {
-    return (
-      <PageContainer>
-        <ImportSuccessView
-          job={latestCompletedJob}
-          onNew={() => setDismissedSuccessJobId(latestCompletedJob.id)}
-        />
-      </PageContainer>
-    )
-  }
-
-  return (
-    <PageContainer>
-      <PageHeader
-        title="Nhập món bằng AI"
-        description="Nhập tên món, AI sẽ tạo một bản nháp tự động để bạn kiểm tra và chỉnh sửa trước khi xuất bản."
-        badge={
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
-            <Sparkles size={16} />
-            <span>AI Automated Ingest</span>
+      ) : (
+        /* ── Giao diện Đa Nhiệm Chính: Form Nhập + Bảng Hàng Đợi Thời Gian Thực ── */
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Cột trái: Form nhập món (Đơn lẻ hoặc Hàng loạt) */}
+          <div className="lg:col-span-5 space-y-4">
+            <ImportJobForm
+              dishName={dishName}
+              onDishNameChange={setDishName}
+              keywords={keywords}
+              onKeywordsChange={setKeywords}
+              onSingleSubmit={handleSingleSubmit}
+              onBatchSubmit={handleBatchSubmit}
+              regionCode={regionCode}
+              onRegionCodeChange={setRegionCode}
+              regions={regions}
+              selectedSources={selectedSources}
+              onToggleSource={toggleSource}
+              isSubmitting={createJob.isPending}
+              error={submitError}
+            />
           </div>
-        }
-        actions={
-          <Button variant="outline" size="sm" onClick={() => setShowHistory(true)} className="gap-1.5">
-            <Clock size={14} />
-            Lịch sử nhập món
-          </Button>
-        }
-      />
 
-      <ImportJobForm
-        dishName={dishName}
-        onDishNameChange={setDishName}
-        keywords={keywords}
-        onKeywordsChange={setKeywords}
-        regionCode={regionCode}
-        onRegionCodeChange={setRegionCode}
-        regions={regions}
-        selectedSources={selectedSources}
-        onToggleSource={toggleSource}
-        onSubmit={handleSubmit}
-        isSubmitting={createJob.isPending}
-        error={submitError}
-      />
+          {/* Cột phải: Bảng Tiến Trình Thời Gian Thực Cho Từng Món */}
+          <div className="lg:col-span-7 space-y-4">
+            <MultiJobQueueTracker
+              jobs={jobs}
+              isLoading={isLoading}
+              onCancelJob={handleCancelJob}
+              onRetryJob={handleRetry}
+              onPreviewJob={(job) => setPreviewJob(job)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal Xem Trước Bản Nháp (Khi bấm 'Xem bản nháp') ── */}
+      {previewJob && (
+        <ImportJobPreviewModal
+          jobId={previewJob.id}
+          initialJob={previewJob}
+          onClose={() => setPreviewJob(null)}
+        />
+      )}
     </PageContainer>
   )
 }

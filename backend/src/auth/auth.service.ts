@@ -463,26 +463,36 @@ export class AuthService {
         const account = await this.prisma.db.account.findUnique({
           where: { username: dto.identifier.toLowerCase() },
         });
-        userId = account?.passwordHash ?? null;
+        userId = account?.userId ?? account?.passwordHash ?? null;
       }
 
       if (!userId) return neutral;
 
-      const rawToken = randomBytes(32).toString('hex');
-      const tokenHash = this.hashToken(rawToken);
+      // Sinh mã OTP 6 số bảo mật cho người dùng mobile
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const tokenHash = this.hashToken(otp);
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
+
+      // Xóa các mã cũ chưa sử dụng của user này
+      await (this.prisma.db as any).passwordResetToken.deleteMany({
+        where: { userId, usedAt: null },
+      }).catch(() => null);
+
       await (this.prisma.db as any).passwordResetToken.create({
         data: {
           userId,
           tokenHash,
-          expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+          expiresAt,
         },
       });
 
       const nodeEnv = this.config.get<string>('NODE_ENV') ?? process.env.NODE_ENV;
-      if (nodeEnv !== 'production') {
-        this.logger.log(`[DEV] password reset token for ${userId}: ${rawToken}`);
-      }
-      // Production email send would go here when SMTP is configured.
+      this.logger.log(`[AUTH-OTP] Mã OTP đặt lại mật khẩu cho ${dto.identifier} (${userId}): ${otp}`);
+
+      return {
+        message: 'Nếu tài khoản tồn tại trong hệ thống, mã xác nhận đặt lại mật khẩu đã được gửi.',
+        devOtp: nodeEnv !== 'production' ? otp : undefined,
+      };
     } catch (err) {
       this.logger.warn(`passwordResetRequest: ${(err as Error).message}`);
     }
@@ -491,7 +501,7 @@ export class AuthService {
   }
 
   async passwordResetConfirm(dto: PasswordResetConfirmationDto) {
-    const tokenHash = this.hashToken(dto.tokenOrOtp);
+    const tokenHash = this.hashToken(dto.tokenOrOtp.trim());
     const row = await (this.prisma.db as any).passwordResetToken.findUnique({
       where: { tokenHash },
     });
@@ -499,7 +509,7 @@ export class AuthService {
     if (!row || row.usedAt || row.expiresAt < new Date()) {
       throw new BadRequestException({
         code: 'RESET_TOKEN_INVALID',
-        message: 'Mã đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.',
+        message: 'Mã xác thực không hợp lệ hoặc đã hết hạn (hiệu lực 15 phút).',
       });
     }
 
@@ -518,18 +528,27 @@ export class AuthService {
       data: { usedAt: new Date() },
     });
 
-    await this.supabase.auth.admin.signOut(row.userId, 'global');
+    await this.supabase.auth.admin.signOut(row.userId, 'global').catch(() => null);
 
     const account = await this.findAccountByUserId(row.userId);
     if (account) {
+      await this.prisma.db.account.update({
+        where: { id: account.id },
+        data: {
+          mustChangePassword: false,
+          failedLoginAttempts: 0,
+          lockedUntil: null,
+        },
+      }).catch(() => null);
+
       await this.prisma.db.refreshSession.updateMany({
         where: { accountId: account.id, revokedAt: null },
         data: { revokedAt: new Date() },
-      });
+      }).catch(() => null);
     }
 
     return {
-      message: 'Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập lại.',
+      message: 'Mật khẩu đã được đặt lại thành công. Vui lòng đăng nhập với mật khẩu mới.',
     };
   }
 

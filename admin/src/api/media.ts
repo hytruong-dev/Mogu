@@ -91,4 +91,27 @@ export const mediaApi = {
         params: { storageKey, expiresIn },
       })
       .then((r) => r.data.signedUrl),
+
+  /**
+   * Upload ảnh trực tiếp lên Supabase Storage và nhận public URL
+   * Dùng cho Bài viết, Chủ đề, Quán ăn, Avatar...
+   */
+  async uploadImage(file: File, folder = 'general'): Promise<string> {
+    const mimeType = (file.type === 'image/jpg' || !file.type ? 'image/jpeg' : file.type) as AllowedMimeType
+    const presign = await api
+      .post<{ uploadUrl: string; storageKey: string; publicUrl: string }>('/admin/media/presign-direct', {
+        folder,
+        mimeType,
+      })
+      .then((r) => r.data)
+
+    const uploadUrl = presign.uploadUrl
+    if (!uploadUrl) throw new Error('Không nhận được URL upload từ server.')
+
+    await axios.put(uploadUrl, file, {
+      headers: { 'Content-Type': mimeType },
+    })
+
+    return presign.publicUrl
+  },
 }

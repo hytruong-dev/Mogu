@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import {
   ChevronDown,
   Clock,
@@ -6,12 +6,10 @@ import {
   FileText,
   GripVertical,
   ImageIcon,
-  Link2,
   Pencil,
   Play,
   Plus,
   Trash2,
-  UploadCloud,
 } from 'lucide-react'
 import { Input } from '../ui/input'
 import { Textarea } from '../ui/textarea'
@@ -22,6 +20,7 @@ import { Image } from '../ui/image'
 import { Card, CardContent } from '../ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
 import { MediaLightbox, useMediaLightbox } from '../ui/media-lightbox'
+import { ImageUpload } from '../ui/image-upload'
 import { cn } from '@/lib/utils'
 
 export interface RecipeStepItem {
@@ -77,8 +76,6 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
   const [dragIdx, setDragIdx] = useState<number | null>(null)
   const [imgModalStepId, setImgModalStepId] = useState<number | null>(null)
   const [imgModalUrl, setImgModalUrl] = useState('')
-  const [imgModalTab, setImgModalTab] = useState<'url' | 'upload'>('url')
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const { openVideo, lightboxProps: videoLightboxProps } = useMediaLightbox()
 
   const patch = (p: Partial<RecipeState>) => onChange({ ...state, ...p })
@@ -88,7 +85,6 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
   const openImageModal = (stepId: number, currentUrl?: string) => {
     setImgModalStepId(stepId)
     setImgModalUrl(currentUrl || '')
-    setImgModalTab('url')
   }
 
   const handleApplyImage = () => {
@@ -96,18 +92,6 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
       patchStep(imgModalStepId, { imageUrl: imgModalUrl.trim() || undefined })
     }
     setImgModalStepId(null)
-  }
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const reader = new FileReader()
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setImgModalUrl(reader.result)
-      }
-    }
-    reader.readAsDataURL(file)
   }
 
   const onDrop = (to: number) => {
@@ -366,76 +350,14 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
             </DialogTitle>
           </DialogHeader>
 
-          {/* Tabs */}
-          <div className="mt-4 flex gap-2 border-b border-black/10 pb-2">
-            <Button
-              type="button"
-              variant={imgModalTab === 'url' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setImgModalTab('url')}
-              className="flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <Link2 className="h-3.5 w-3.5" /> Dán link URL
-            </Button>
-            <Button
-              type="button"
-              variant={imgModalTab === 'upload' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setImgModalTab('upload')}
-              className="flex items-center gap-1.5 text-xs font-semibold"
-            >
-              <UploadCloud className="h-3.5 w-3.5" /> Tải từ máy tính
-            </Button>
-          </div>
-
-          {imgModalTab === 'url' ? (
-            <div className="mt-4">
-              <Label className="text-xs font-semibold text-gray-700">Đường dẫn ảnh (URL)</Label>
-              <Input
-                value={imgModalUrl}
-                onChange={(e) => setImgModalUrl(e.target.value)}
-                placeholder="https://example.com/anh-buoc.jpg"
-                className="mt-1.5 h-10 rounded-xl text-sm"
-                autoFocus
-              />
-            </div>
-          ) : (
-            <div className="mt-4">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 py-6 text-gray-500 transition hover:border-mogu-yellow hover:bg-mogu-yellow-light/20"
-              >
-                <UploadCloud className="h-6 w-6 text-gray-400" />
-                <span className="text-xs font-medium">Bấm để chọn file ảnh từ máy (JPG, PNG, WebP)</span>
-              </button>
-            </div>
-          )}
-
-          {/* Preview */}
           <div className="mt-4">
-            <span className="text-xs font-semibold text-gray-500">Xem trước:</span>
-            {imgModalUrl ? (
-              <div className="mt-1.5 relative h-36 w-full overflow-hidden rounded-xl border border-black/10 bg-gray-50">
-                <Image
-                  src={imgModalUrl}
-                  alt="Preview"
-                  className="h-full w-full object-contain"
-                  fallbackText="Không thể tải link ảnh này"
-                />
-              </div>
-            ) : (
-              <div className="mt-1.5 flex h-24 w-full items-center justify-center rounded-xl border border-dashed border-gray-200 bg-gray-50 text-xs text-gray-400">
-                Chưa có ảnh
-              </div>
-            )}
+            <ImageUpload
+              value={imgModalUrl}
+              onChange={(url) => setImgModalUrl(url)}
+              folder="recipes"
+              label="Ảnh minh họa bước nấu"
+              aspectRatio="video"
+            />
           </div>
 
           {/* Footer Buttons */}

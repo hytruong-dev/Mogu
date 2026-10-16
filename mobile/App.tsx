@@ -25,6 +25,7 @@ import { OnboardingScreen } from './src/screens/onboarding/OnboardingScreen';
 import { OpenAppScreen } from './src/screens/OpenAppScreen';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { RegisterScreen } from './src/screens/RegisterScreen';
+import { ForgotPasswordScreen } from './src/screens/ForgotPasswordScreen';
 import { HomeScreen } from './src/screens/HomeScreen';
 import { RandomFlowScreen } from './src/screens/RandomFlowScreen';
 import { ExploreScreenV2 as ExploreScreen } from './src/screens/ExploreScreenV2';
@@ -71,6 +72,7 @@ type RootParamList = {
 type AuthParamList = {
   Login: undefined;
   Register: undefined;
+  ForgotPassword: { identifier?: string } | undefined;
 };
 
 type MainTabParamList = {
@@ -110,8 +112,8 @@ function AuthNavigator({ navigation }: { navigation: any }) {
   );
 
   const handleRegister = useCallback(
-    async (username: string, password: string) => {
-      const result = await authApi.register(username, password);
+    async (username: string, password: string, email?: string) => {
+      const result = await authApi.register(username, password, { email });
       void notificationRealtime.connectSocket();
       void registerPushNotificationsAsync();
       navigation.replace(result.nextStep?.startsWith('onboarding') ? 'Onboarding' : 'Main');
@@ -125,6 +127,7 @@ function AuthNavigator({ navigation }: { navigation: any }) {
         {({ navigation: authNav }) => (
           <LoginScreen
             onRegister={() => authNav.navigate('Register')}
+            onForgotPassword={() => authNav.navigate('ForgotPassword')}
             onLogin={handleLogin}
           />
         )}
@@ -134,6 +137,14 @@ function AuthNavigator({ navigation }: { navigation: any }) {
           <RegisterScreen
             onLogin={() => authNav.navigate('Login')}
             onRegister={handleRegister}
+          />
+        )}
+      </AuthNav.Screen>
+      <AuthNav.Screen name="ForgotPassword">
+        {({ navigation: authNav, route }: any) => (
+          <ForgotPasswordScreen
+            initialIdentifier={route.params?.identifier}
+            onBackToLogin={() => authNav.navigate('Login')}
           />
         )}
       </AuthNav.Screen>

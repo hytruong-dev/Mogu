@@ -16,6 +16,7 @@ import { Badge } from '../components/ui/badge'
 import { Progress } from '../components/ui/progress'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { exploreAdminApi, type ExploreAnalytics } from '../api/explore'
+import { PageContainer } from '../components/layout'
 
 function StatCard({
   icon: Icon,
@@ -220,7 +221,7 @@ export default function ReportsPage() {
   }, [data, safetyRate, range])
 
   return (
-    <div className="space-y-6">
+    <PageContainer className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -414,6 +415,6 @@ export default function ReportsPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageContainer>
   )
 }
