@@ -43,10 +43,12 @@ function ProtectedLayout({ children, currentPath }: { children: ReactNode; curre
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen text-slate-500">
-        <div className="text-center space-y-2">
-          <div className="text-2xl animate-spin">⏳</div>
-          <p className="text-sm font-medium">Đang kiểm tra phiên đăng nhập...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-500">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center mx-auto ring-1 ring-amber-500/30 animate-pulse">
+            <span className="font-bold text-sm tracking-tight">NOAN</span>
+          </div>
+          <p className="text-xs font-semibold text-slate-600 dark:text-slate-400">Đang khởi tạo Studio Console...</p>
         </div>
       </div>
     )
@@ -55,11 +57,11 @@ function ProtectedLayout({ children, currentPath }: { children: ReactNode; curre
   if (!session) return <Navigate to="/login" replace />
 
   return (
-    <div className="app-shell">
+    <div className="flex min-h-screen bg-slate-50/70 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
       <Sidebar currentPath={currentPath} />
-      <main className="min-w-0 flex-1 flex flex-col">
+      <main className="min-w-0 flex-1 flex flex-col overflow-x-hidden">
         <Header />
-        <div className="content flex-1">{children}</div>
+        <div className="flex-1 pb-16">{children}</div>
       </main>
     </div>
   )
@@ -72,8 +74,8 @@ function PublicRoute() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--bg, #faf8f3)' }}>
-        <PageSkeleton rows={5} withAvatar className="max-w-md mx-auto pt-24" />
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+        <PageSkeleton rows={5} withAvatar className="max-w-md w-full p-8" />
       </div>
     )
   }

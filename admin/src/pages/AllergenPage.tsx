@@ -64,7 +64,7 @@ function AllergenFormDialog({
         </DialogHeader>
 
         <form
-          className="fd-modal-body"
+          className="space-y-4 pt-2"
           onSubmit={async (e) => {
             e.preventDefault()
             if (!isEdit && !code.trim()) return setError('Mã không được trống')
@@ -101,77 +101,80 @@ function AllergenFormDialog({
             }
           }}
         >
-          <div className="fd-form-grid">
+          <div className="space-y-3.5">
             {!isEdit && (
-              <div className="fd-field">
-                <label>
-                  Mã <span className="req">*</span>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Mã <span className="text-rose-500">*</span>
                 </label>
                 <Input
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''))}
                   placeholder="PEANUT"
                   required
-                  style={{ fontFamily: 'ui-monospace, monospace' }}
+                  className="h-9 text-xs font-mono"
                 />
-                <p className="fd-field-hint">Mã viết hoa, không dấu và không khoảng trắng</p>
+                <p className="text-[11px] text-slate-500">Mã viết hoa, không dấu và không khoảng trắng</p>
               </div>
             )}
 
-            <div className="fd-field">
-              <label>
-                Tên nhóm <span className="req">*</span>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Tên nhóm <span className="text-rose-500">*</span>
               </label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nhập tên nhóm dị ứng"
                 required
+                className="h-9 text-xs"
               />
-              <p className="fd-field-hint">Tên đầy đủ, dễ hiểu cho nhóm dị ứng.</p>
+              <p className="text-[11px] text-slate-500">Tên đầy đủ, dễ hiểu cho nhóm dị ứng.</p>
             </div>
 
-            <div className="fd-field">
-              <label>Ví dụ nguyên liệu</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Ví dụ nguyên liệu</label>
               <Input
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Nhập ví dụ nguyên liệu"
+                className="h-9 text-xs"
               />
-              <p className="fd-field-hint">Các nguyên liệu thường thuộc nhóm này, cách nhau bởi dấu phẩy.</p>
+              <p className="text-[11px] text-slate-500">Các nguyên liệu thường thuộc nhóm này, cách nhau bởi dấu phẩy.</p>
             </div>
 
-            <div className="fd-field">
-              <label>Thứ tự hiển thị</label>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Thứ tự hiển thị</label>
               <Input
                 type="number"
                 min={0}
                 value={displayOrder}
                 onChange={(e) => setDisplayOrder(Number(e.target.value))}
+                className="h-9 text-xs"
               />
-              <p className="fd-field-hint">Số nhỏ hiển thị trước.</p>
+              <p className="text-[11px] text-slate-500">Số nhỏ hiển thị trước.</p>
             </div>
 
-            <div className="fd-switch-row">
-              <Switch checked={active} onCheckedChange={setActive} aria-label="Hiển thị nhóm dị ứng" />
-              <div>
-                <strong>Hiển thị</strong>
-                <span>Ẩn nhóm nếu tắt.</span>
+            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40">
+              <div className="space-y-0.5">
+                <strong className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">Hiển thị</strong>
+                <span className="text-[11px] text-slate-500">Ẩn nhóm nếu tắt.</span>
               </div>
+              <Switch checked={active} onCheckedChange={setActive} aria-label="Hiển thị nhóm dị ứng" />
             </div>
 
             {error && (
-              <div style={{ background: '#fef2f2', color: '#b91c1c', borderRadius: 10, padding: '10px 12px', fontSize: 13 }}>
+              <div className="bg-rose-50 text-rose-700 rounded-lg p-2.5 text-xs border border-rose-200">
                 {error}
               </div>
             )}
           </div>
 
-          <DialogFooter className="fd-modal-footer">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={saving || localSaving}>
+          <DialogFooter className="pt-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)} disabled={saving || localSaving} className="text-xs h-9">
               Hủy
             </Button>
-            <Button type="submit" disabled={saving || localSaving}>
+            <Button type="submit" size="sm" disabled={saving || localSaving} className="text-xs h-9 font-semibold bg-amber-500 hover:bg-amber-600 text-white">
               {saving || localSaving ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Tạo nhóm dị ứng'}
             </Button>
           </DialogFooter>
@@ -256,27 +259,27 @@ export default function AllergenPage({
   const pageItems = filtered.slice((pageSafe - 1) * limit, pageSafe * limit)
 
   return (
-    <div className={embedded ? 'food-data-embedded allergens-panel' : undefined} style={{ padding: embedded ? 0 : '28px 32px' }}>
+    <div className={embedded ? 'p-0' : 'p-6 sm:p-8'}>
       {!embedded && (
-        <div className="fd-panel-heading" style={{ marginBottom: 20 }}>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Dị ứng</h1>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Dị ứng</h1>
         </div>
       )}
 
-      <h2 className="fd-section-title">Danh sách nhóm dị ứng</h2>
+      <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-2 mb-3">Danh sách nhóm dị ứng</h2>
 
-      <div className="fd-toolbar">
-        <div className="fd-search" style={{ position: 'relative' }}>
-          <Search size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#9ca3af' }} />
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <Input
             value={q}
             onChange={(e) => { setQ(e.target.value); setPage(1) }}
             placeholder="Tìm theo tên nhóm..."
-            style={{ paddingLeft: 34 }}
+            className="pl-9 h-9 text-xs"
           />
         </div>
-        <div className="fd-toolbar-filters">
-          <Select value={status} onChange={(e) => { setStatus(e.target.value as typeof status); setPage(1) }}>
+        <div className="flex items-center gap-2">
+          <Select value={status} onChange={(e) => { setStatus(e.target.value as typeof status); setPage(1) }} className="h-9 text-xs w-40">
             <option value="all">Tất cả trạng thái</option>
             <option value="active">Đang hiển thị</option>
             <option value="inactive">Đã ẩn</option>
@@ -284,21 +287,35 @@ export default function AllergenPage({
         </div>
       </div>
 
-      <div className="fd-table-wrap">
-        <Table className="fd-table">
-          <TableHeader><TableRow><TableHead>Mã</TableHead><TableHead>Tên nhóm</TableHead><TableHead>Hiển thị</TableHead><TableHead style={{ width: 120 }}>Thao tác</TableHead></TableRow></TableHeader>
+      <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-slate-50/70 dark:bg-slate-800/40 hover:bg-slate-50/70">
+              <TableHead className="font-semibold text-xs text-slate-700 dark:text-slate-300">Mã</TableHead>
+              <TableHead className="font-semibold text-xs text-slate-700 dark:text-slate-300">Tên nhóm</TableHead>
+              <TableHead className="font-semibold text-xs text-slate-700 dark:text-slate-300">Hiển thị</TableHead>
+              <TableHead className="font-semibold text-xs text-slate-700 dark:text-slate-300 text-right pr-6" style={{ width: 120 }}>Thao tác</TableHead>
+            </TableRow>
+          </TableHeader>
           <TableBody>
-            {isLoading && <TableRow><TableCell colSpan={4} className="fd-empty p-0"><TableSkeleton rows={5} cols={4} /></TableCell></TableRow>}
-            {!isLoading && pageItems.length === 0 && <TableRow><TableCell colSpan={4} className="fd-empty">Không có dị ứng nào</TableCell></TableRow>}
+            {isLoading && <TableRow><TableCell colSpan={4} className="p-0"><TableSkeleton rows={5} cols={4} /></TableCell></TableRow>}
+            {!isLoading && pageItems.length === 0 && <TableRow><TableCell colSpan={4} className="text-center py-8 text-xs text-slate-500">Không có dị ứng nào</TableCell></TableRow>}
             {pageItems.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell><code className="fd-code">{item.code}</code></TableCell>
-                <TableCell><div className="fd-name-cell"><strong>{item.name}</strong>{item.description && <span>{item.description}</span>}</div></TableCell>
+              <TableRow key={item.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                <TableCell><code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-xs text-slate-800 dark:text-slate-200">{item.code}</code></TableCell>
+                <TableCell>
+                  <div className="flex flex-col min-w-0">
+                    <strong className="text-xs font-semibold text-slate-900 dark:text-slate-100">{item.name}</strong>
+                    {item.description && <span className="text-[11px] text-slate-500 truncate max-w-sm">{item.description}</span>}
+                  </div>
+                </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}><Switch checked={item.active} onCheckedChange={() => toggleMut.mutate(item.id)} aria-label={`Hiển thị ${item.name}`} /></TableCell>
-                <TableCell><div className="fd-row-actions">
-                  <Button variant="outline" size="icon" title="Sửa" onClick={() => { setEditItem(item); setModalOpen(true) }}><Pencil size={14} /></Button>
-                  <Button variant="destructive" size="icon" title="Ẩn" disabled={!item.active} onClick={() => setHideItem(item)}><Trash2 size={14} /></Button>
-                </div></TableCell>
+                <TableCell className="text-right pr-6">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <Button variant="outline" size="icon" className="h-8 w-8" title="Sửa" onClick={() => { setEditItem(item); setModalOpen(true) }}><Pencil size={13} /></Button>
+                    <Button variant="destructive" size="icon" className="h-8 w-8" title="Ẩn" disabled={!item.active} onClick={() => setHideItem(item)}><Trash2 size={13} /></Button>
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

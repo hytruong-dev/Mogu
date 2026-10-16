@@ -27,16 +27,17 @@ export function FoodDataPagination({
   const pages = buildPageList(page, totalPages)
 
   return (
-    <div className="fd-pagination">
-      <p className="fd-pagination-meta">
-        Hiển thị {from}–{to} trong tổng số {total.toLocaleString('vi-VN')} {itemLabel}
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-border text-xs text-muted-foreground">
+      <p className="font-medium">
+        Hiển thị <span className="font-semibold text-foreground">{from}–{to}</span> trong tổng số{' '}
+        <span className="font-semibold text-foreground">{total.toLocaleString('vi-VN')}</span> {itemLabel}
       </p>
-      <div className="fd-pagination-controls">
+      <div className="flex items-center gap-3">
         <Select
           value={String(limit)}
           onChange={(e) => onLimitChange(Number(e.target.value))}
           aria-label="Số dòng mỗi trang"
-          className="fd-page-size"
+          className="h-8 w-28 text-xs font-medium"
         >
           {[10, 20, 50].map((n) => (
             <option key={n} value={n}>
@@ -44,42 +45,50 @@ export function FoodDataPagination({
             </option>
           ))}
         </Select>
-        <div className="fd-page-buttons">
+        <div className="flex items-center gap-1">
           <Button
             type="button"
             variant="outline"
             size="icon"
+            className="h-8 w-8"
             disabled={page <= 1}
             onClick={() => onPageChange(page - 1)}
             aria-label="Trang trước"
           >
-            <ChevronLeft size={16} />
+            <ChevronLeft size={14} />
           </Button>
           {pages.map((p, idx) =>
             p === '…' ? (
-              <span key={`ellipsis-${idx}`} className="fd-page-ellipsis">
+              <span key={`ellipsis-${idx}`} className="px-2 text-muted-foreground">
                 …
               </span>
             ) : (
-              <button
+              <Button
                 key={p}
                 type="button"
-                className={`fd-page-num${p === page ? ' is-active' : ''}`}
+                variant={p === page ? 'default' : 'outline'}
+                size="sm"
+                className={`h-8 min-w-8 px-2.5 text-xs font-semibold ${
+                  p === page
+                    ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-xs'
+                    : 'text-foreground hover:bg-muted'
+                }`}
                 onClick={() => onPageChange(p)}
               >
                 {p}
-              </button>
+              </Button>
             ),
           )}
           <Button
             type="button"
             variant="outline"
             size="icon"
+            className="h-8 w-8"
             disabled={page >= totalPages || totalPages === 0}
             onClick={() => onPageChange(page + 1)}
             aria-label="Trang sau"
           >
-            <ChevronRight size={16} />
+            <ChevronRight size={14} />
           </Button>
         </div>
       </div>

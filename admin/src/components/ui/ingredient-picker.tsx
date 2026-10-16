@@ -6,6 +6,9 @@ import { ingredientsApi, type Ingredient } from '../../api/ingredients'
 import { getAllergenDisplayName } from '../ingredients/types'
 import { Image } from './image'
 import { Input } from './input'
+import { Button } from './button'
+import { Badge } from './badge'
+import { Loader2, Plus } from 'lucide-react'
 
 interface Props {
   value: string
@@ -178,18 +181,10 @@ export default function IngredientPicker({
             : null
 
   return (
-    <div className="ing-picker-wrap" style={{ position: 'relative', flex: 2, ...style }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+    <div className="ing-picker-wrap relative flex-2" style={style}>
+      <div className="flex items-center gap-2">
         <div
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 8,
-            overflow: 'hidden',
-            background: '#f5f5f5',
-            flexShrink: 0,
-            border: '1px solid #eee',
-          }}
+          className="w-9 h-9 rounded-lg overflow-hidden bg-muted shrink-0 border border-border flex items-center justify-center text-xs text-muted-foreground"
           aria-hidden
         >
           {ingredientImageUrl ? (
@@ -200,117 +195,67 @@ export default function IngredientPicker({
               className="h-full w-full object-cover"
             />
           ) : (
-            <div
-              style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 11,
-                color: '#999',
-              }}
-            >
-              —
+            <span>—</span>
+          )}
+        </div>
+        <div className="relative flex-1">
+          <Input
+            ref={inputRef}
+            value={query}
+            onChange={handleInput}
+            onKeyDown={handleKeyDown}
+            onFocus={() => {
+              if (results.length > 0 || query.trim()) setOpen(true)
+            }}
+            placeholder={placeholder}
+            autoComplete="off"
+            aria-busy={loading || provisioning}
+            className="h-9 w-full bg-background text-xs font-medium pr-8"
+          />
+          {(loading || provisioning) && (
+            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Loader2 size={14} className="animate-spin text-amber-500" />
             </div>
           )}
         </div>
-        <Input
-          ref={inputRef}
-          value={query}
-          onChange={handleInput}
-          onKeyDown={handleKeyDown}
-          onFocus={() => {
-            if (results.length > 0 || query.trim()) setOpen(true)
-          }}
-          placeholder={placeholder}
-          autoComplete="off"
-          aria-busy={loading || provisioning}
-          className="h-[38px] w-full bg-white text-sm"
-        />
       </div>
 
       {statusLabel && (
-        <div
-          style={{
-            marginTop: 4,
-            fontSize: 11,
-            fontWeight: 600,
-            color:
+        <div className="mt-1 flex items-center gap-1.5 text-[11px] font-semibold">
+          <span
+            className={
               statusLabel === 'Đã từ chối'
-                ? '#dc2626'
+                ? 'text-destructive'
                 : statusLabel === 'Tự động tìm - cần duyệt'
-                  ? '#b45309'
+                  ? 'text-amber-600 dark:text-amber-400'
                   : statusLabel === 'Đã liên kết'
-                    ? '#15803d'
-                    : '#666',
-          }}
-        >
-          {statusLabel}
-          {!ingredientImageUrl && _ingredientId ? ' · Chưa có ảnh' : ''}
-        </div>
-      )}
-
-      {(loading || provisioning) && (
-        <div
-          style={{
-            position: 'absolute',
-            right: 10,
-            top: 10,
-            fontSize: 12,
-            color: '#aaa',
-          }}
-        >
-          ⟳
+                    ? 'text-emerald-600 dark:text-emerald-400'
+                    : 'text-muted-foreground'
+            }
+          >
+            {statusLabel}
+          </span>
+          {!ingredientImageUrl && _ingredientId && (
+            <span className="text-muted-foreground font-normal">· Chưa có ảnh</span>
+          )}
         </div>
       )}
 
       {open && results.length > 0 && (
         <ul
           ref={listRef}
-          style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            zIndex: 9999,
-            background: '#fff',
-            border: '1.5px solid #f0a500',
-            borderRadius: 10,
-            marginTop: 4,
-            padding: 4,
-            maxHeight: 260,
-            overflowY: 'auto',
-            listStyle: 'none',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-          }}
+          className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 bg-popover border border-amber-500/40 rounded-xl shadow-lg max-h-64 overflow-y-auto p-1 list-none"
         >
           {results.map((ing, i) => (
             <li
               key={ing.id}
               onMouseDown={() => select(ing)}
               onMouseEnter={() => setHighlighted(i)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '8px 10px',
-                borderRadius: 8,
-                cursor: 'pointer',
-                background: highlighted === i ? '#fff8ed' : 'transparent',
-              }}
+              className={`flex items-center gap-2.5 p-2 rounded-lg cursor-pointer transition-colors ${
+                highlighted === i ? 'bg-amber-500/10 text-amber-950 dark:text-amber-100' : 'hover:bg-muted'
+              }`}
             >
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: 8,
-                  overflow: 'hidden',
-                  background: '#f5f5f5',
-                  flexShrink: 0,
-                  border: '1px solid #eee',
-                }}
-              >
+              <div className="w-8 h-8 rounded-md overflow-hidden bg-muted shrink-0 border border-border flex items-center justify-center text-xs text-muted-foreground">
                 {ing.imageUrl ? (
                   <Image
                     src={ing.imageUrl}
@@ -319,54 +264,24 @@ export default function IngredientPicker({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 11,
-                      color: '#999',
-                    }}
-                  >
-                    —
-                  </div>
+                  <span>—</span>
                 )}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div
-                  style={{
-                    fontWeight: 600,
-                    fontSize: 13,
-                    color: '#222',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-xs text-foreground truncate">
                   {ing.name}
                 </div>
                 {ing.status === 'PENDING_REVIEW' && (
-                  <div style={{ fontSize: 11, color: '#b45309' }}>Tự động tìm - cần duyệt</div>
+                  <div className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">Tự động tìm - cần duyệt</div>
                 )}
                 {ing.status === 'REJECTED' && (
-                  <div style={{ fontSize: 11, color: '#dc2626' }}>Đã từ chối</div>
+                  <div className="text-[10px] text-destructive font-medium">Đã từ chối</div>
                 )}
               </div>
               {ing.allergenCode && (
-                <span
-                  style={{
-                    fontSize: 10,
-                    background: '#fff3e0',
-                    color: '#e65100',
-                    padding: '2px 6px',
-                    borderRadius: 4,
-                    fontWeight: 600,
-                  }}
-                >
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-amber-50 text-amber-700 border-amber-200 shrink-0">
                   {getAllergenDisplayName(ing.allergenCode)}
-                </span>
+                </Badge>
               )}
             </li>
           ))}
@@ -374,45 +289,23 @@ export default function IngredientPicker({
       )}
 
       {open && !loading && results.length === 0 && query.trim() && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '100%',
-            left: 0,
-            right: 0,
-            zIndex: 9999,
-            background: '#fff',
-            border: '1.5px solid #eee',
-            borderRadius: 10,
-            marginTop: 4,
-            padding: '12px 16px',
-            fontSize: 13,
-            color: '#555',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-          }}
-        >
-          <div style={{ marginBottom: 8 }}>Không tìm thấy “{query}”</div>
+        <div className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 bg-popover border border-border rounded-xl shadow-lg p-3 text-xs text-muted-foreground">
+          <div className="mb-2">Không tìm thấy &ldquo;{query}&rdquo; trong kho</div>
           {allowCreate && (
-            <button
+            <Button
               type="button"
+              size="sm"
               onMouseDown={(e) => {
                 e.preventDefault()
                 void createPending()
               }}
               disabled={provisioning}
               aria-label={`Tạo ${query} thành nguyên liệu mới`}
-              style={{
-                width: '100%',
-                height: 36,
-                borderRadius: 8,
-                border: '1.5px solid #f0a500',
-                background: '#fff8ed',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
+              className="w-full h-8 text-xs font-semibold bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 border border-amber-500/30 gap-1.5"
             >
-              {provisioning ? 'Đang tạo nguyên liệu...' : `Tạo “${query}” và tìm ảnh`}
-            </button>
+              <Plus size={13} />
+              {provisioning ? 'Đang tạo nguyên liệu...' : `Tạo “${query}” và tìm ảnh AI`}
+            </Button>
           )}
         </div>
       )}

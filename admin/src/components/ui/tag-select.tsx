@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { X, Check } from 'lucide-react'
+import { Badge } from './badge'
 
 export interface TagOption {
   id: string
@@ -9,7 +11,7 @@ export interface TagOption {
 interface TagSelectProps {
   label?: string
   options: TagOption[]
-  selected: string[]           // mảng id đã chọn
+  selected: string[] // mảng id đã chọn
   onChange: (ids: string[]) => void
   placeholder?: string
   accentColor?: string
@@ -21,7 +23,6 @@ export function TagSelect({
   selected,
   onChange,
   placeholder = 'Tìm và chọn...',
-  accentColor = '#f0a500',
   loading = false,
 }: TagSelectProps) {
   const [query, setQuery] = useState('')
@@ -33,7 +34,6 @@ export function TagSelect({
   const listRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
 
-  // Đóng dropdown khi click ra ngoài
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
@@ -46,24 +46,22 @@ export function TagSelect({
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  // Chỉ hiển thị items CHƯA được chọn trong dropdown
   const filtered = query.trim()
     ? options.filter(
-      o => !selected.includes(o.id) && o.name.toLowerCase().includes(query.toLowerCase()),
-    )
-    : options.filter(o => !selected.includes(o.id))
+        (o) => !selected.includes(o.id) && o.name.toLowerCase().includes(query.toLowerCase()),
+      )
+    : options.filter((o) => !selected.includes(o.id))
 
-  const selectedItems = options.filter(o => selected.includes(o.id))
+  const selectedItems = options.filter((o) => selected.includes(o.id))
 
   const toggle = useCallback(
     (id: string) => {
       if (selected.includes(id)) {
-        onChange(selected.filter(s => s !== id))
+        onChange(selected.filter((s) => s !== id))
       } else {
         onChange([...selected, id])
         setQuery('')
         setActiveIndex(-1)
-        // Giữ focus vào input để tiếp tục tìm kiếm
         setTimeout(() => inputRef.current?.focus(), 0)
       }
     },
@@ -71,11 +69,10 @@ export function TagSelect({
   )
 
   const remove = (id: string) => {
-    onChange(selected.filter(s => s !== id))
+    onChange(selected.filter((s) => s !== id))
     inputRef.current?.focus()
   }
 
-  // Scroll item được highlight vào view
   useEffect(() => {
     if (activeIndex >= 0 && itemRefs.current[activeIndex]) {
       itemRefs.current[activeIndex]?.scrollIntoView({ block: 'nearest' })
@@ -94,12 +91,12 @@ export function TagSelect({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault()
-        setActiveIndex(prev => (prev + 1 < filtered.length ? prev + 1 : 0))
+        setActiveIndex((prev) => (prev + 1 < filtered.length ? prev + 1 : 0))
         break
 
       case 'ArrowUp':
         e.preventDefault()
-        setActiveIndex(prev => (prev - 1 >= 0 ? prev - 1 : filtered.length - 1))
+        setActiveIndex((prev) => (prev - 1 >= 0 ? prev - 1 : filtered.length - 1))
         break
 
       case 'Enter':
@@ -116,7 +113,6 @@ export function TagSelect({
         break
 
       case 'Backspace':
-        // Xóa tag cuối nếu input rỗng
         if (query === '' && selectedItems.length > 0) {
           remove(selectedItems[selectedItems.length - 1].id)
         }
@@ -124,88 +120,46 @@ export function TagSelect({
     }
   }
 
-  const accentLight = accentColor + '22'
-
   return (
-    <div ref={wrapRef} style={{ position: 'relative', width: '100%' }}>
+    <div ref={wrapRef} className="relative w-full">
       {/* Input box + tags */}
       <div
-        style={{
-          minHeight: 42,
-          border: `1.5px solid ${open ? accentColor : '#dedbd4'}`,
-          borderRadius: 8,
-          padding: '5px 8px',
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 5,
-          alignItems: 'center',
-          background: '#fff',
-          cursor: 'text',
-          boxShadow: open ? `0 0 0 2px ${accentColor}33` : 'none',
-          transition: 'border-color .15s, box-shadow .15s',
-        }}
+        className={`min-h-[40px] border rounded-lg px-2.5 py-1.5 flex flex-wrap gap-1.5 items-center bg-background cursor-text transition-all ${
+          open
+            ? 'border-amber-500 ring-2 ring-amber-500/20'
+            : 'border-input hover:border-slate-300 dark:hover:border-slate-700'
+        }`}
         onClick={() => {
           setOpen(true)
           inputRef.current?.focus()
         }}
       >
-        {/* Tags đã chọn */}
-        {selectedItems.map(item => (
-          <span
+        {selectedItems.map((item) => (
+          <Badge
             key={item.id}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              background: accentColor,
-              color: '#fff',
-              borderRadius: 999,
-              padding: '2px 6px 2px 12px',
-              fontSize: 13,
-              fontWeight: 600,
-              lineHeight: '20px',
-              whiteSpace: 'nowrap',
-            }}
+            variant="secondary"
+            className="bg-amber-500/10 text-amber-700 dark:text-amber-400 hover:bg-amber-500/20 border border-amber-500/30 gap-1 px-2 py-0.5 text-xs font-semibold"
           >
             {item.name}
             <button
               type="button"
-              onMouseDown={e => e.stopPropagation()}
-              onClick={e => {
+              onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
                 e.stopPropagation()
                 remove(item.id)
               }}
+              className="text-amber-600 dark:text-amber-400 hover:text-amber-800 rounded-full p-0.5 hover:bg-amber-500/20 transition-colors"
               title={`Xóa ${item.name}`}
-              style={{
-                border: 'none',
-                background: 'rgba(0,0,0,0.2)',
-                color: '#fff',
-                cursor: 'pointer',
-                padding: 0,
-                width: 18,
-                height: 18,
-                borderRadius: '50%',
-                fontSize: 13,
-                lineHeight: '18px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                transition: 'background .1s',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.35)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.2)')}
             >
-              ×
+              <X size={12} />
             </button>
-          </span>
+          </Badge>
         ))}
 
-        {/* Input tìm kiếm */}
         <input
           ref={inputRef}
           value={query}
-          onChange={e => {
+          onChange={(e) => {
             setQuery(e.target.value)
             setOpen(true)
             setActiveIndex(0)
@@ -213,17 +167,7 @@ export function TagSelect({
           onFocus={() => setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={selectedItems.length === 0 ? placeholder : ''}
-          style={{
-            border: 'none',
-            outline: 'none',
-            background: 'transparent',
-            fontSize: 14,
-            color: '#222',
-            minWidth: 80,
-            flex: '1 1 80px',
-            height: 28,
-            fontFamily: 'inherit',
-          }}
+          className="border-none outline-none bg-transparent text-xs text-foreground placeholder:text-muted-foreground min-w-[100px] flex-1 h-6"
         />
       </div>
 
@@ -231,71 +175,49 @@ export function TagSelect({
       {open && (
         <div
           ref={listRef}
-          style={{
-            position: 'absolute',
-            top: 'calc(100% + 4px)',
-            left: 0,
-            right: 0,
-            zIndex: 200,
-            background: '#fff',
-            border: '1px solid #dedbd4',
-            borderRadius: 10,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-            maxHeight: 240,
-            overflowY: 'auto',
-          }}
+          className="absolute top-[calc(100%+4px)] left-0 right-0 z-50 bg-popover border border-border rounded-xl shadow-lg max-h-60 overflow-y-auto p-1"
         >
           {loading && (
-            <div style={{ padding: '12px 14px', color: '#aaa', fontSize: 13 }}>Đang tải...</div>
+            <div className="p-3 text-xs text-muted-foreground text-center">Đang tải dữ liệu...</div>
           )}
 
           {!loading && options.length === 0 && (
-            <div style={{ padding: '12px 14px', color: '#aaa', fontSize: 13 }}>Chưa có dữ liệu</div>
+            <div className="p-3 text-xs text-muted-foreground text-center">Chưa có dữ liệu lựa chọn</div>
           )}
 
           {!loading && options.length > 0 && filtered.length === 0 && query && (
-            <div style={{ padding: '12px 14px', color: '#aaa', fontSize: 13 }}>
-              Không tìm thấy "{query}"
+            <div className="p-3 text-xs text-muted-foreground text-center">
+              Không tìm thấy &ldquo;{query}&rdquo;
             </div>
           )}
 
           {!loading && options.length > 0 && filtered.length === 0 && !query && (
-            <div style={{ padding: '12px 14px', color: '#888', fontSize: 13 }}>
-              Đã chọn tất cả
+            <div className="p-3 text-xs text-muted-foreground text-center">
+              Đã chọn toàn bộ mục
             </div>
           )}
 
-          {/* Chỉ hiển thị items CHƯA chọn */}
           {!loading &&
             filtered.map((opt, idx) => {
               const isActive = idx === activeIndex
               return (
                 <button
                   key={opt.id}
-                  ref={el => {
+                  ref={(el) => {
                     itemRefs.current[idx] = el
                   }}
                   type="button"
-                  onMouseDown={e => e.preventDefault()}
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => toggle(opt.id)}
                   onMouseEnter={() => setActiveIndex(idx)}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    textAlign: 'left',
-                    padding: '9px 14px',
-                    border: 'none',
-                    background: isActive ? accentLight : 'none',
-                    cursor: 'pointer',
-                    fontSize: 14,
-                    color: isActive ? accentColor : '#2c1810',
-                    fontWeight: isActive ? 600 : 400,
-                    fontFamily: 'inherit',
-                    borderBottom: '1px solid #f5f0e8',
-                    transition: 'background .1s, color .1s',
-                  }}
+                  className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${
+                    isActive
+                      ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400 font-semibold'
+                      : 'text-foreground hover:bg-muted'
+                  }`}
                 >
-                  {opt.name}
+                  <span>{opt.name}</span>
+                  {selected.includes(opt.id) && <Check size={14} className="text-amber-500" />}
                 </button>
               )
             })}

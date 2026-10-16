@@ -14,12 +14,12 @@ import {
   Search,
   ShieldCheck,
   Utensils,
+  Command,
 } from 'lucide-react'
 import { useAuth } from '../../providers/AuthProvider'
 import { useDashboardActivities } from '../../hooks/useDashboard'
 import { useFoodScanReportSummary } from '../../hooks/useFoodScanReports'
 import { Button } from '../ui/button'
-import { Separator } from '../ui/separator'
 import { Avatar, AvatarFallback } from '../ui/avatar'
 import {
   DropdownMenu,
@@ -85,54 +85,60 @@ export function Header() {
 
   return (
     <>
-      <header className="modern-topbar">
+      <header className="h-16 px-6 bg-white/85 dark:bg-slate-900/85 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between sticky top-0 z-30 transition-colors">
         {/* Left: Breadcrumbs */}
-        <div className="topbar-left">
-          <nav className="breadcrumb-nav" aria-label="Breadcrumb">
+        <div className="flex items-center gap-2">
+          <nav className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400" aria-label="Breadcrumb">
             <button
               type="button"
-              className="breadcrumb-home-btn"
+              className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200 transition-colors"
               onClick={() => navigate('/dashboard')}
               title="Trang tổng quan"
             >
               <Home size={15} />
             </button>
-            <span className="breadcrumb-sep"><ChevronRight size={13} /></span>
-            <span className="breadcrumb-group">{currentGroupTitle}</span>
-            <span className="breadcrumb-sep"><ChevronRight size={13} /></span>
-            <span className="breadcrumb-current-pill">{currentNavLabel}</span>
+            <ChevronRight size={13} className="text-slate-300 dark:text-slate-600 shrink-0" />
+            <span className="text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+              {currentGroupTitle}
+            </span>
+            <ChevronRight size={13} className="text-slate-300 dark:text-slate-600 shrink-0" />
+            <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-semibold text-xs">
+              {currentNavLabel}
+            </span>
           </nav>
         </div>
 
         {/* Center: Command Palette Trigger */}
-        <div className="topbar-center">
+        <div className="flex-1 max-w-md mx-6 hidden md:block">
           <button
             type="button"
-            className="command-search-btn"
+            className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-lg border border-slate-200/90 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-xs text-slate-400 dark:text-slate-500 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-white dark:hover:bg-slate-800 transition-all shadow-xs"
             onClick={() => setCommandOpen(true)}
             title="Tìm kiếm nhanh (Ctrl+K / ⌘K)"
           >
-            <div className="command-search-left">
-              <Search size={15} />
+            <div className="flex items-center gap-2">
+              <Search size={14} className="text-slate-400" />
               <span>Tìm kiếm nhanh trang, tính năng...</span>
             </div>
-            <kbd className="command-kbd">⌘ K</kbd>
+            <kbd className="inline-flex items-center gap-0.5 font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-500 dark:text-slate-400 shadow-2xs">
+              <Command size={10} /> K
+            </kbd>
           </button>
         </div>
 
         {/* Right: Actions & Profile */}
-        <div className="topbar-right">
+        <div className="flex items-center gap-3">
           {/* Quick Create Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" className="quick-create-btn">
+              <Button size="sm" className="bg-amber-500 hover:bg-amber-600 text-white font-medium text-xs h-8 gap-1.5 px-3 rounded-lg shadow-xs shadow-amber-500/20">
                 <Plus size={15} />
-                <span>Tạo mới</span>
+                <span className="hidden sm:inline">Tạo mới</span>
                 <ChevronDown size={13} className="opacity-70" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 p-1.5 shadow-xl rounded-xl">
-              <DropdownMenuLabel className="text-[10.5px] font-bold text-slate-400 px-3 py-1 uppercase tracking-wider">
+            <DropdownMenuContent align="end" className="w-56 p-1.5 shadow-xl rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+              <DropdownMenuLabel className="text-[10.5px] font-bold text-slate-400 dark:text-slate-500 px-3 py-1 uppercase tracking-wider">
                 Tạo nội dung mới
               </DropdownMenuLabel>
               <DropdownMenuItem
@@ -156,7 +162,7 @@ export function Header() {
                 <BookOpen size={15} className="text-emerald-500" />
                 <span>Tạo chủ đề mới</span>
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="my-1" />
+              <DropdownMenuSeparator className="my-1 border-slate-100 dark:border-slate-800" />
               <DropdownMenuItem
                 onClick={() => navigate('/ingest')}
                 className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium"
@@ -172,39 +178,41 @@ export function Header() {
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="topbar-icon-btn relative"
+                className="relative p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
                 title="Thông báo hệ thống"
               >
-                <Bell size={16} />
-                {scanMissingCount > 0 && <span className="notif-ping-dot" />}
+                <Bell size={17} />
+                {scanMissingCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-slate-900" />
+                )}
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-80 p-0 shadow-xl overflow-hidden rounded-xl border border-border">
-              <div className="flex items-center justify-between px-3 py-2 border-b border-border/60 bg-slate-50/50">
-                <span className="text-xs font-bold text-slate-800">Hoạt động gần đây</span>
-                <span className="text-[11px] font-medium text-amber-600">
-                  Mogu Cloud
+            <DropdownMenuContent align="end" className="w-80 p-0 shadow-xl overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/40">
+                <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Hoạt động gần đây</span>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400 border border-amber-200/60 dark:border-amber-800/60">
+                  Mogu Live
                 </span>
               </div>
               <div className="p-1 space-y-1 max-h-72 overflow-y-auto">
                 {scanMissingCount > 0 && (
                   <DropdownMenuItem
-                    className="mx-1 px-3 py-2 text-xs rounded-md cursor-pointer bg-rose-50 hover:bg-rose-100 transition-colors flex flex-col items-start gap-0.5"
+                    className="mx-1 px-3 py-2 text-xs rounded-lg cursor-pointer bg-rose-50/80 hover:bg-rose-100/80 dark:bg-rose-950/40 dark:hover:bg-rose-900/40 transition-colors flex flex-col items-start gap-0.5"
                     onClick={() => navigate('/food-scan-reports')}
                   >
-                    <div className="font-semibold text-rose-800 flex items-center gap-1.5">
-                      <ScanSearch size={13} className="flex-shrink-0" />
+                    <div className="font-semibold text-rose-800 dark:text-rose-300 flex items-center gap-1.5">
+                      <ScanSearch size={13} className="shrink-0" />
                       {scanMissingCount} món quét chưa có trong kho
                     </div>
-                    <p className="text-[11px] text-rose-700/80">
+                    <p className="text-[11px] text-rose-600 dark:text-rose-400">
                       Người dùng đã chụp các món Mogu chưa có. Bấm để bổ sung.
                     </p>
                   </DropdownMenuItem>
                 )}
                 {isActLoading ? (
-                  <div className="px-3 py-3 text-xs text-slate-500 text-center">Đang tải hoạt động...</div>
+                  <div className="px-3 py-4 text-xs text-slate-400 text-center">Đang tải hoạt động...</div>
                 ) : !activities || activities.length === 0 ? (
-                  <div className="px-3 py-3 text-xs text-slate-500 text-center">Chưa có hoạt động mới</div>
+                  <div className="px-3 py-4 text-xs text-slate-400 text-center">Chưa có hoạt động mới</div>
                 ) : (
                   activities.map((act) => {
                     const dotColor =
@@ -220,7 +228,7 @@ export function Header() {
                     return (
                       <DropdownMenuItem
                         key={act.id}
-                        className="px-3 py-2 text-xs hover:bg-slate-50 rounded-md cursor-pointer transition-colors flex flex-col items-start gap-0.5"
+                        className="px-3 py-2 text-xs hover:bg-slate-50 dark:hover:bg-slate-800/60 rounded-lg cursor-pointer transition-colors flex flex-col items-start gap-0.5"
                         onClick={() => {
                           if (act.type === 'DISH_REVIEW') navigate('/review')
                           else if (act.type === 'MODERATION') navigate('/community')
@@ -229,14 +237,14 @@ export function Header() {
                           else if (act.route) navigate(act.route)
                         }}
                       >
-                        <div className="font-semibold text-slate-800 flex items-center gap-1.5 truncate w-full">
-                          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColor}`} />
+                        <div className="font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 truncate w-full">
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
                           <span className="truncate">{act.title}</span>
                         </div>
                         {act.description && (
-                          <p className="text-[11px] text-slate-500 line-clamp-2">{act.description}</p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">{act.description}</p>
                         )}
-                        <span className="text-[10px] text-slate-400 mt-0.5 block">
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 block">
                           {new Date(act.occurredAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </DropdownMenuItem>
@@ -247,55 +255,47 @@ export function Header() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Separator orientation="vertical" className="h-5 mx-0.5" />
-
-          {/* User Profile Trigger & Dropdown */}
+          {/* User Profile Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button type="button" className="topbar-profile-trigger">
-                <Avatar className="h-7 w-7 text-xs font-bold border border-border">
-                  <AvatarFallback className="bg-amber-500/15 text-amber-700 font-bold">{initial}</AvatarFallback>
+              <button
+                type="button"
+                className="flex items-center gap-2.5 p-1 pl-1.5 pr-2.5 rounded-lg border border-slate-200/80 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-left group"
+              >
+                <Avatar className="w-7 h-7 rounded-lg bg-amber-500 text-white font-bold text-xs ring-1 ring-amber-500/30">
+                  <AvatarFallback className="bg-amber-500 text-white font-bold text-xs">
+                    {initial}
+                  </AvatarFallback>
                 </Avatar>
-                <div className="topbar-user-meta">
-                  <span className="topbar-user-name">{displayName}</span>
-                  <span className="topbar-user-role">{roleLabel()}</span>
+                <div className="hidden lg:flex flex-col">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-tight group-hover:text-amber-600 transition-colors">
+                    {displayName}
+                  </span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium leading-none mt-0.5">
+                    {roleLabel()}
+                  </span>
                 </div>
-                <ChevronDown size={13} className="text-slate-400 ml-0.5" />
+                <ChevronDown size={13} className="text-slate-400 group-hover:text-slate-600 transition-colors hidden sm:inline" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 p-1.5 shadow-xl rounded-xl">
-              <div className="flex items-center gap-2.5 px-3 py-2 border-b border-border/60 mb-1">
-                <Avatar className="h-8 w-8 text-xs font-bold border border-border">
-                  <AvatarFallback className="bg-amber-500/15 text-amber-700 font-bold">{initial}</AvatarFallback>
-                </Avatar>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-bold text-slate-800 truncate">{displayName}</span>
-                  <span className="text-[10.5px] text-slate-500 truncate">{roleLabel()} • Mogu Cloud</span>
-                </div>
+            <DropdownMenuContent align="end" className="w-56 p-1.5 shadow-xl rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+              <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 mb-1">
+                <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">{displayName}</p>
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate">ID: {user?.id.slice(0, 8) ?? 'admin'}</p>
               </div>
-
               <DropdownMenuItem
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/users')}
                 className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium"
               >
-                <Home size={15} className="text-slate-500" />
-                <span>Bảng điều khiển</span>
+                <ShieldCheck size={14} className="text-slate-500" />
+                <span>Quản lý phân quyền</span>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => navigate('/review')}
-                className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium"
-              >
-                <ShieldCheck size={15} className="text-slate-500" />
-                <span>Hàng đợi kiểm duyệt</span>
-              </DropdownMenuItem>
-
-              <DropdownMenuSeparator className="my-1" />
-
+              <DropdownMenuSeparator className="my-1 border-slate-100 dark:border-slate-800" />
               <DropdownMenuItem
                 onClick={signOut}
-                className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium text-rose-600 focus:text-rose-700 focus:bg-rose-50"
+                className="gap-2.5 py-2 px-3 cursor-pointer rounded-lg text-xs font-medium text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40"
               >
-                <LogOut size={15} />
+                <LogOut size={14} />
                 <span>Đăng xuất</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -303,7 +303,7 @@ export function Header() {
         </div>
       </header>
 
-      {/* Command Palette Modal */}
+      {/* Global Command Palette */}
       <CommandPaletteModal open={commandOpen} onOpenChange={setCommandOpen} />
     </>
   )

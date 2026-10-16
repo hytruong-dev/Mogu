@@ -63,7 +63,7 @@ function DietTypeFormDialog({
         </DialogHeader>
 
         <form
-          className="fd-modal-body"
+          className="space-y-4 pt-2"
           onSubmit={async (e) => {
             e.preventDefault()
             if (!isEdit && !code.trim()) return setError('Mã không được trống')
@@ -90,66 +90,70 @@ function DietTypeFormDialog({
             }
           }}
         >
-          <div className="fd-form-grid">
+          <div className="space-y-3.5">
             {!isEdit && (
-              <div className="fd-field">
-                <label>
-                  Mã <span className="req">*</span>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Mã <span className="text-rose-500">*</span>
                 </label>
                 <Input
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''))}
                   placeholder="HIGH_PROTEIN"
                   required
-                  style={{ fontFamily: 'ui-monospace, monospace' }}
+                  className="h-9 text-xs font-mono"
                 />
-                <p className="fd-field-hint">Mã không thể thay đổi sau khi tạo</p>
+                <p className="text-[11px] text-slate-500">Mã không thể thay đổi sau khi tạo</p>
               </div>
             )}
 
-            <div className="fd-field">
-              <label>
-                Tên hiển thị <span className="req">*</span>
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Tên hiển thị <span className="text-rose-500">*</span>
               </label>
               <Input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nhập tên hiển thị"
                 required
+                className="h-9 text-xs"
               />
             </div>
 
-            <div className="fd-field">
-              <label>Mô tả</label>
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Mô tả</label>
+                <span className="text-[11px] text-slate-400">{description.length}/255</span>
+              </div>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value.slice(0, 255))}
                 placeholder="Nhập mô tả chế độ ăn (tùy chọn)"
-                rows={4}
+                rows={3}
+                className="text-xs resize-none"
               />
-              <div className="fd-char-count">{description.length}/255</div>
             </div>
 
-            <div className="fd-switch-row">
-              <Switch checked={isActive} onCheckedChange={setIsActive} aria-label="Kích hoạt chế độ ăn" />
-              <div>
-                <strong>Kích hoạt</strong>
-                <span>Chế độ ăn sẽ hiển thị và có thể được sử dụng khi được kích hoạt.</span>
+            <div className="flex items-center justify-between p-3 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40">
+              <div className="space-y-0.5">
+                <strong className="text-xs font-semibold text-slate-800 dark:text-slate-200 block">Kích hoạt</strong>
+                <span className="text-[11px] text-slate-500">Chế độ ăn sẽ hiển thị và có thể được sử dụng khi được kích hoạt.</span>
               </div>
+              <Switch checked={isActive} onCheckedChange={setIsActive} aria-label="Kích hoạt chế độ ăn" />
             </div>
 
             {error && (
-              <div style={{ background: '#fef2f2', color: '#b91c1c', borderRadius: 10, padding: '10px 12px', fontSize: 13 }}>
+              <div className="bg-rose-50 text-rose-700 rounded-lg p-2.5 text-xs border border-rose-200">
                 {error}
               </div>
             )}
           </div>
 
-          <DialogFooter className="fd-modal-footer">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={saving || localSaving}>
+          <DialogFooter className="pt-2">
+            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)} disabled={saving || localSaving} className="text-xs h-9">
               Hủy
             </Button>
-            <Button type="submit" disabled={saving || localSaving}>
+            <Button type="submit" size="sm" disabled={saving || localSaving} className="text-xs h-9 font-semibold bg-amber-500 hover:bg-amber-600 text-white">
               {saving || localSaving ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Tạo chế độ ăn'}
             </Button>
           </DialogFooter>
@@ -228,27 +232,27 @@ export default function DietTypesPage({
   const pageItems = filtered.slice((pageSafe - 1) * limit, pageSafe * limit)
 
   return (
-    <div className={embedded ? 'food-data-embedded diet-types-panel' : undefined} style={{ padding: embedded ? 0 : '28px 32px' }}>
+    <div className={embedded ? 'p-0' : 'p-6 sm:p-8'}>
       {!embedded && (
-        <div className="fd-panel-heading" style={{ marginBottom: 20 }}>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>Chế độ ăn</h1>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Chế độ ăn</h1>
         </div>
       )}
 
-      <h2 className="fd-section-title">Danh sách chế độ ăn</h2>
+      <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200 mt-2 mb-3">Danh sách chế độ ăn</h2>
 
-      <div className="fd-toolbar">
-        <div className="fd-search" style={{ position: 'relative' }}>
-          <Search size={15} style={{ position: 'absolute', left: 12, top: 12, color: '#9ca3af' }} />
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+        <div className="relative flex-1 max-w-sm">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <Input
             value={q}
             onChange={(e) => { setQ(e.target.value); setPage(1) }}
             placeholder="Tìm theo tên, mã..."
-            style={{ paddingLeft: 34 }}
+            className="pl-9 h-9 text-xs"
           />
         </div>
-        <div className="fd-toolbar-filters">
-          <Select value={status} onChange={(e) => { setStatus(e.target.value as typeof status); setPage(1) }}>
+        <div className="flex items-center gap-2">
+          <Select value={status} onChange={(e) => { setStatus(e.target.value as typeof status); setPage(1) }} className="h-9 text-xs w-40">
             <option value="all">Tất cả trạng thái</option>
             <option value="active">Kích hoạt</option>
             <option value="inactive">Đã ẩn</option>
@@ -256,20 +260,47 @@ export default function DietTypesPage({
         </div>
       </div>
 
-      <div className="fd-table-wrap">
-        <Table className="fd-table">
-          <TableHeader><TableRow><TableHead>Mã</TableHead><TableHead>Trạng thái</TableHead><TableHead style={{ width: 150 }}>Hành động</TableHead></TableRow></TableHeader>
+      <div className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xs overflow-hidden">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-slate-50/70 dark:bg-slate-800/40 hover:bg-slate-50/70">
+              <TableHead className="font-semibold text-xs text-slate-700 dark:text-slate-300">Mã</TableHead>
+              <TableHead className="font-semibold text-xs text-slate-700 dark:text-slate-300">Tên hiển thị</TableHead>
+              <TableHead className="font-semibold text-xs text-slate-700 dark:text-slate-300">Trạng thái</TableHead>
+              <TableHead className="font-semibold text-xs text-slate-700 dark:text-slate-300 text-right pr-6" style={{ width: 160 }}>Hành động</TableHead>
+            </TableRow>
+          </TableHeader>
           <TableBody>
-            {isLoading && <TableRow><TableCell colSpan={3} className="fd-empty p-0"><TableSkeleton rows={5} cols={3} /></TableCell></TableRow>}
-            {!isLoading && pageItems.length === 0 && <TableRow><TableCell colSpan={3} className="fd-empty">Không có chế độ ăn nào</TableCell></TableRow>}
+            {isLoading && <TableRow><TableCell colSpan={4} className="p-0"><TableSkeleton rows={5} cols={4} /></TableCell></TableRow>}
+            {!isLoading && pageItems.length === 0 && <TableRow><TableCell colSpan={4} className="text-center py-8 text-xs text-slate-500">Không có chế độ ăn nào</TableCell></TableRow>}
             {pageItems.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell><div className="fd-name-cell"><strong style={{ fontFamily: 'ui-monospace, monospace' }}>{item.code}</strong><span>{item.name}</span></div></TableCell>
-                <TableCell><span className={`fd-status ${item.isActive ? 'is-on' : 'is-off'}`}>{item.isActive ? 'Kích hoạt' : 'Đã ẩn'}</span></TableCell>
-                <TableCell><div className="fd-row-actions">
-                  <Button variant="outline" size="sm" onClick={() => { setEditItem(item); setModalOpen(true) }}><Pencil size={13} /> Sửa</Button>
-                  <Button variant="destructive" size="sm" disabled={!item.isActive} onClick={() => setHideItem(item)}><EyeOff size={13} /> Ẩn</Button>
-                </div></TableCell>
+              <TableRow key={item.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                <TableCell><code className="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 font-mono text-xs text-slate-800 dark:text-slate-200">{item.code}</code></TableCell>
+                <TableCell>
+                  <div className="flex flex-col min-w-0">
+                    <strong className="text-xs font-semibold text-slate-900 dark:text-slate-100">{item.name}</strong>
+                    {item.description && <span className="text-[11px] text-slate-500 truncate max-w-sm">{item.description}</span>}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                    item.isActive
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60 dark:bg-emerald-950/40 dark:text-emerald-400'
+                      : 'bg-slate-100 text-slate-500 border border-slate-200/60 dark:bg-slate-800 dark:text-slate-400'
+                  }`}>
+                    {item.isActive ? 'Kích hoạt' : 'Đã ẩn'}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right pr-6">
+                  <div className="flex items-center justify-end gap-1.5">
+                    <Button variant="outline" size="sm" onClick={() => { setEditItem(item); setModalOpen(true) }} className="h-8 px-2.5 text-xs font-medium gap-1">
+                      <Pencil size={12} /> Sửa
+                    </Button>
+                    <Button variant="destructive" size="sm" disabled={!item.isActive} onClick={() => setHideItem(item)} className="h-8 px-2.5 text-xs font-medium gap-1">
+                      <EyeOff size={12} /> Ẩn
+                    </Button>
+                  </div>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
