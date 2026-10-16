@@ -1,16 +1,9 @@
 import { useState } from 'react'
-import {
-  Eye,
-  GitMerge,
-  ImageOff,
-  MoreVertical,
-  Pencil,
-  Trash2,
-} from 'lucide-react'
-import { Switch } from '../ui/switch'
+import { Image } from '../ui/image'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { Image } from '../ui/image'
+import { Switch } from '../ui/switch'
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../ui/table'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,10 +13,21 @@ import {
 } from '../ui/dropdown-menu'
 import { MediaLightbox } from '../ui/media-lightbox'
 import {
+  Eye,
+  Pencil,
+  GitMerge,
+  Trash2,
+  MoreVertical,
+  ImageOff,
+  Salad,
+  AlertTriangle,
+} from 'lucide-react'
+import { TableSkeleton } from '../ui/page-skeleton'
+import { EmptyState } from '../ui/empty-state'
+import {
   STATUS_LABELS,
   STATUS_BADGES,
   CREATED_VIA_LABELS,
-  getAllergenDisplayName,
   getIngredientImageUrl,
 } from './types'
 import type { Ingredient } from '../../api/ingredients'
@@ -31,7 +35,7 @@ import type { Ingredient } from '../../api/ingredients'
 interface IngredientsTableProps {
   ingredients: Ingredient[]
   isLoading?: boolean
-  allergenMap?: Record<string, string>
+  allergenMap: Record<string, string>
   onView: (item: Ingredient) => void
   onEdit: (item: Ingredient) => void
   onMerge: (item: Ingredient) => void
@@ -53,151 +57,155 @@ export function IngredientsTable({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200/80 p-12 text-center shadow-sm">
-        <div className="inline-block animate-spin text-2xl mb-2">🥬</div>
-        <p className="text-xs text-slate-500 font-medium">Đang tải danh sách nguyên liệu...</p>
+      <div className="bg-card rounded-xl border border-border shadow-2xs overflow-hidden">
+        <TableSkeleton rows={8} cols={9} />
       </div>
     )
   }
 
   if (ingredients.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200/80 p-16 text-center shadow-sm space-y-3">
-        <div className="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-xl">
-          🥬
-        </div>
-        <div className="space-y-1">
-          <h3 className="text-sm font-bold text-slate-800">Không tìm thấy nguyên liệu nào</h3>
-          <p className="text-xs text-slate-400">Hãy thử đổi điều kiện lọc hoặc tạo mới nguyên liệu</p>
-        </div>
-      </div>
+      <EmptyState
+        icon={Salad}
+        title="Không tìm thấy nguyên liệu nào"
+        description="Hãy thử đổi điều kiện lọc tìm kiếm hoặc tạo mới một nguyên liệu vào từ điển dữ liệu."
+      />
     )
   }
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div className="bg-card rounded-xl border border-border shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-slate-50/75 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="w-16 px-4 py-3">Ảnh</th>
-                <th className="px-4 py-3 min-w-[200px]">Tên nguyên liệu</th>
-                <th className="px-4 py-3 min-w-[120px]">Mã code</th>
-                <th className="px-4 py-3 w-32">Dị ứng</th>
-                <th className="px-4 py-3 w-28">Nguồn tạo</th>
-                <th className="px-4 py-3 w-24">Số món</th>
-                <th className="px-4 py-3 w-28 text-center">Kích hoạt</th>
-                <th className="px-4 py-3 w-28">Trạng thái</th>
-                <th className="px-4 py-3 w-24 text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead className="w-16 px-4 py-3">Ảnh</TableHead>
+                <TableHead className="px-4 py-3 min-w-[200px]">Tên nguyên liệu</TableHead>
+                <TableHead className="px-4 py-3 min-w-[120px]">Mã code</TableHead>
+                <TableHead className="px-4 py-3 w-36">Dị ứng</TableHead>
+                <TableHead className="px-4 py-3 w-28">Nguồn tạo</TableHead>
+                <TableHead className="px-4 py-3 w-24">Số món</TableHead>
+                <TableHead className="px-4 py-3 w-28 text-center">Kích hoạt</TableHead>
+                <TableHead className="px-4 py-3 w-28">Trạng thái</TableHead>
+                <TableHead className="px-4 py-3 w-24 text-right">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {ingredients.map((item) => {
                 const imgUrl = getIngredientImageUrl(item.imageUrl)
-                const statusBadge = STATUS_BADGES[item.status ?? 'ACTIVE'] ?? {
-                  bg: 'bg-slate-100',
-                  text: 'text-slate-700',
-                  border: 'border-slate-200',
+                const allergenName = item.allergenCode ? (allergenMap[item.allergenCode] || item.allergenCode) : null
+                const statusBadge = STATUS_BADGES[item.status ?? ''] ?? {
+                  bg: 'bg-muted',
+                  text: 'text-muted-foreground',
+                  border: 'border-border',
                 }
-                const allergenName = item.allergenCode
-                  ? getAllergenDisplayName(item.allergenCode, allergenMap)
-                  : null
 
                 return (
-                  <tr key={item.id} className="hover:bg-amber-50/30 transition-colors">
+                  <TableRow
+                    key={item.id}
+                    className="hover:bg-muted/30 transition-colors group"
+                  >
                     {/* Thumbnail */}
-                    <td className="px-4 py-3">
+                    <TableCell className="px-4 py-3">
                       {imgUrl ? (
                         <div
                           onClick={() => setLightboxImage({ url: imgUrl, name: item.name })}
-                          className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100 border border-slate-200/80 cursor-zoom-in relative group flex-shrink-0"
+                          className="w-10 h-10 rounded-lg overflow-hidden bg-muted border border-border cursor-zoom-in relative group/img shrink-0"
                           title="Bấm để xem ảnh lớn"
                         >
                           <Image
                             src={imgUrl}
                             alt={item.name}
                             aspectRatio="square"
-                            className="h-full w-full object-cover group-hover:scale-105 transition-transform"
+                            className="h-full w-full object-cover group-hover/img:scale-105 transition-transform"
                           />
+                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white">
+                            <Eye size={12} />
+                          </div>
                         </div>
                       ) : (
-                        <div className="w-10 h-10 rounded-lg bg-slate-100 border border-dashed border-slate-300 flex items-center justify-center text-slate-400">
-                          <ImageOff size={15} />
+                        <div className="w-10 h-10 rounded-lg bg-muted border border-dashed border-border flex items-center justify-center text-muted-foreground">
+                          <ImageOff size={14} />
                         </div>
                       )}
-                    </td>
+                    </TableCell>
 
                     {/* Name & Synonyms */}
-                    <td className="px-4 py-3">
+                    <TableCell className="px-4 py-3">
                       <div
                         onClick={() => onView(item)}
-                        className="font-bold text-slate-900 hover:text-amber-700 cursor-pointer text-[13px] line-clamp-1"
+                        className="font-bold text-foreground hover:text-primary transition-colors cursor-pointer text-[13px] line-clamp-1"
                       >
                         {item.name}
                       </div>
                       {item.synonyms && item.synonyms.length > 0 && (
-                        <div className="text-[11px] text-slate-400 mt-0.5 line-clamp-1">
+                        <div className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">
                           Đồng nghĩa: {item.synonyms.slice(0, 3).join(', ')}
                           {item.synonyms.length > 3 && ` (+${item.synonyms.length - 3})`}
                         </div>
                       )}
-                    </td>
+                    </TableCell>
 
                     {/* Code */}
-                    <td className="px-4 py-3 font-mono text-[11px] text-slate-600">
+                    <TableCell className="px-4 py-3 font-mono text-[11px] text-muted-foreground">
                       {item.code}
-                    </td>
+                    </TableCell>
 
                     {/* Allergen */}
-                    <td className="px-4 py-3">
+                    <TableCell className="px-4 py-3">
                       {allergenName ? (
-                        <span className="inline-block bg-rose-50 text-rose-700 border border-rose-200 text-[10.5px] px-2 py-0.5 rounded font-medium">
-                          ⚠️ {allergenName}
-                        </span>
+                        <Badge
+                          variant="warning"
+                          className="text-[10px] font-semibold py-0.5 px-2 flex items-center gap-1 w-fit max-w-[140px] truncate"
+                        >
+                          <AlertTriangle size={11} className="shrink-0" />
+                          <span className="truncate">{allergenName}</span>
+                        </Badge>
                       ) : (
-                        <span className="text-slate-300 text-[11px]">—</span>
+                        <span className="text-muted-foreground/60 text-[11px]">—</span>
                       )}
-                    </td>
+                    </TableCell>
 
                     {/* Created Via */}
-                    <td className="px-4 py-3">
-                      <span className="text-[10.5px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">
+                    <TableCell className="px-4 py-3">
+                      <span className="text-[10.5px] font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded">
                         {CREATED_VIA_LABELS[item.createdVia ?? 'MANUAL'] ?? item.createdVia}
                       </span>
-                    </td>
+                    </TableCell>
 
                     {/* Dish count */}
-                    <td className="px-4 py-3 font-semibold text-slate-700 text-[11.5px]">
+                    <TableCell className="px-4 py-3 font-semibold text-foreground text-[11.5px]">
                       {(item.dishCount ?? 0).toLocaleString('vi-VN')} món
-                    </td>
+                    </TableCell>
 
                     {/* Active toggle */}
-                    <td className="px-4 py-3 text-center">
+                    <TableCell className="px-4 py-3 text-center">
                       <Switch
                         checked={!!item.isActive}
                         onCheckedChange={(checked) => onToggleActive(item.id, checked)}
+                        aria-label={`Bật tắt trạng thái hoạt động ${item.name}`}
                       />
-                    </td>
+                    </TableCell>
 
                     {/* Status */}
-                    <td className="px-4 py-3">
+                    <TableCell className="px-4 py-3">
                       <Badge
                         variant="outline"
                         className={`text-[10.5px] font-semibold px-2 py-0.5 rounded-md ${statusBadge.bg} ${statusBadge.text} ${statusBadge.border}`}
                       >
                         {STATUS_LABELS[item.status ?? ''] ?? (item.isActive ? 'Hoạt động' : 'Đã ẩn')}
                       </Badge>
-                    </td>
+                    </TableCell>
 
                     {/* Actions */}
-                    <td className="px-4 py-3 text-right">
+                    <TableCell className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-slate-500 hover:text-slate-900"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
                           onClick={() => onView(item)}
                           title="Xem chi tiết"
                         >
@@ -210,7 +218,7 @@ export function IngredientsTable({
                               type="button"
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-slate-400 hover:text-slate-700"
+                              className="h-8 w-8 text-muted-foreground hover:text-foreground"
                             >
                               <MoreVertical size={14} />
                             </Button>
@@ -220,7 +228,7 @@ export function IngredientsTable({
                               onClick={() => onView(item)}
                               className="gap-2.5 py-2 px-3 cursor-pointer text-xs font-medium"
                             >
-                              <Eye size={14} className="text-slate-500" />
+                              <Eye size={14} className="text-muted-foreground" />
                               <span>Xem chi tiết</span>
                             </DropdownMenuItem>
 
@@ -228,13 +236,13 @@ export function IngredientsTable({
                               onClick={() => onEdit(item)}
                               className="gap-2.5 py-2 px-3 cursor-pointer text-xs font-medium"
                             >
-                              <Pencil size={14} className="text-slate-500" />
+                              <Pencil size={14} className="text-muted-foreground" />
                               <span>Sửa thông tin</span>
                             </DropdownMenuItem>
 
                             <DropdownMenuItem
                               onClick={() => onMerge(item)}
-                              className="gap-2.5 py-2 px-3 cursor-pointer text-xs font-medium text-purple-700"
+                              className="gap-2.5 py-2 px-3 cursor-pointer text-xs font-medium text-purple-600 focus:text-purple-700"
                             >
                               <GitMerge size={14} />
                               <span>Gộp nguyên liệu</span>
@@ -244,7 +252,7 @@ export function IngredientsTable({
 
                             <DropdownMenuItem
                               onClick={() => onDelete(item)}
-                              className="gap-2.5 py-2 px-3 cursor-pointer text-xs font-medium text-rose-600 focus:bg-rose-50"
+                              className="gap-2.5 py-2 px-3 cursor-pointer text-xs font-medium text-destructive focus:bg-destructive/10 focus:text-destructive"
                             >
                               <Trash2 size={14} />
                               <span>Xóa nguyên liệu</span>
@@ -252,12 +260,12 @@ export function IngredientsTable({
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 

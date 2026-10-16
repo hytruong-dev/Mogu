@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Cloud, Play, Save, X } from 'lucide-react'
+import { Cloud, Play, Save, X, Check } from 'lucide-react'
 import { Dialog, DialogContent, DialogTitle } from '../../ui/dialog'
 import { Checkbox } from '../../ui/checkbox'
 import { dishImportsApi, type ImportValidationSummary } from '../../../api/dish-imports'
@@ -210,7 +210,7 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
                 )}
                 {phase === 'complete' && (
                   <span className="inline-flex items-center gap-1 rounded-full bg-[#DCFCE7] px-2.5 py-0.5 text-[11px] font-bold text-[#166534]">
-                    ✓ Thành công
+                    <Check className="h-3 w-3" /> Thành công
                   </span>
                 )}
               </div>

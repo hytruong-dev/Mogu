@@ -22,6 +22,7 @@ import { Badge } from '../ui/badge'
 import { Image } from '../ui/image'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { TableSkeleton } from '../ui/page-skeleton'
+import { Skeleton } from '../ui/skeleton'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -154,11 +155,33 @@ export function ReviewQueueList({
 
       {/* Loading Skeleton */}
       {isLoading && (
-        <Card>
-          <CardContent className="p-4">
-            <TableSkeleton rows={5} cols={4} />
-          </CardContent>
-        </Card>
+        viewMode === 'grid' ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className="overflow-hidden border-border bg-card">
+                <Skeleton className="h-44 w-full rounded-none" />
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex justify-between items-center">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-5 w-16 rounded-full" />
+                  </div>
+                  <Skeleton className="h-3.5 w-full" />
+                  <Skeleton className="h-3.5 w-2/3" />
+                  <div className="pt-2 flex justify-between items-center border-t border-border">
+                    <Skeleton className="h-8 w-24 rounded-lg" />
+                    <Skeleton className="h-8 w-8 rounded-lg" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="p-4">
+              <TableSkeleton rows={5} cols={5} />
+            </CardContent>
+          </Card>
+        )
       )}
 
       {/* Empty State */}

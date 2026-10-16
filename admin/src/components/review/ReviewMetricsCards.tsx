@@ -1,5 +1,6 @@
 import { Clock, CheckCircle2, ShieldAlert, Sparkles } from 'lucide-react'
 import { Card } from '../ui/card'
+import { Skeleton } from '../ui/skeleton'
 
 export interface ReviewMetrics {
   readyCount: number
@@ -28,8 +29,8 @@ export function ReviewMetricsCards({
             <Clock size={16} />
           </div>
         </div>
-        <div className="mt-2 text-2xl font-extrabold text-foreground">
-          {isLoading ? '...' : total}
+        <div className="mt-2 text-2xl font-extrabold text-foreground min-h-[32px] flex items-center">
+          {isLoading ? <Skeleton className="h-7 w-12" /> : total}
         </div>
         <p className="text-[11px] text-muted-foreground mt-0.5">
           Món ăn đang chờ rà soát
@@ -44,8 +45,8 @@ export function ReviewMetricsCards({
             <CheckCircle2 size={16} />
           </div>
         </div>
-        <div className="mt-2 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">
-          {isLoading ? '...' : metrics.readyCount}
+        <div className="mt-2 text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 min-h-[32px] flex items-center">
+          {isLoading ? <Skeleton className="h-7 w-12" /> : metrics.readyCount}
         </div>
         <p className="text-[11px] text-muted-foreground mt-0.5">
           Điểm tin cậy cao (≥80%)
@@ -60,8 +61,8 @@ export function ReviewMetricsCards({
             <ShieldAlert size={16} />
           </div>
         </div>
-        <div className="mt-2 text-2xl font-extrabold text-rose-600 dark:text-rose-400">
-          {isLoading ? '...' : metrics.needsWorkCount}
+        <div className="mt-2 text-2xl font-extrabold text-rose-600 dark:text-rose-400 min-h-[32px] flex items-center">
+          {isLoading ? <Skeleton className="h-7 w-12" /> : metrics.needsWorkCount}
         </div>
         <p className="text-[11px] text-muted-foreground mt-0.5">
           Thiếu ảnh hoặc calo (&lt;80%)
@@ -76,9 +77,9 @@ export function ReviewMetricsCards({
             <Sparkles size={16} />
           </div>
         </div>
-        <div className="mt-2 flex items-baseline gap-1.5">
+        <div className="mt-2 flex items-baseline gap-1.5 min-h-[32px]">
           <span className="text-2xl font-extrabold text-foreground">
-            {isLoading ? '...' : `${metrics.avgScore}%`}
+            {isLoading ? <Skeleton className="h-7 w-14" /> : `${metrics.avgScore}%`}
           </span>
         </div>
         <div className="w-full bg-muted rounded-full h-1.5 mt-1.5 overflow-hidden">

@@ -657,7 +657,7 @@ export default function CommunityPage() {
                             {renderTargetBadge(r.targetType)}
                             {r.priority === 'HIGH' && (
                               <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-700">
-                                ⚑ Cao
+                                <Flag size={11} /> Cao
                               </span>
                             )}
                           </div>
@@ -677,8 +677,9 @@ export default function CommunityPage() {
                         </p>
 
                         <div className="mod-queue-card-footer">
-                          <span className="text-xs font-medium text-zinc-600">
-                            ⚠ {r.reasonLabel || r.reasonCode}
+                          <span className="text-xs font-medium text-zinc-600 flex items-center gap-1">
+                            <AlertTriangle size={12} className="text-amber-500 shrink-0" />
+                            {r.reasonLabel || r.reasonCode}
                           </span>
                           <span className="text-xs font-semibold text-rose-600">
                             {r.openReportCount > 1

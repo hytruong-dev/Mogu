@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   CheckCircle2, ChefHat, Clock3, Edit3,
   Flame, ImageOff, Leaf, MapPin, Play, Utensils, X, ZoomIn,
+  Home, Soup, Video, ClipboardList, Sparkles,
 } from 'lucide-react'
 import { Button } from './button'
 import { Image } from './image'
@@ -121,8 +122,10 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
             position: 'absolute', top: 14, left: 18,
             background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(6px)',
             color: '#ffd43b', borderRadius: 20, padding: '3px 12px', fontSize: 12, fontWeight: 600,
+            display: 'flex', alignItems: 'center', gap: 6,
           }}>
-            ✦ AI Generated · DRAFT
+            <Sparkles size={13} className="text-amber-400" />
+            AI Generated · DRAFT
           </div>
         </div>
 
@@ -136,8 +139,9 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
                 {dish?.name ?? job.query}
               </h2>
               {job.regionHint && (
-                <span style={{ fontSize: 13, color: '#888', marginTop: 2, display: 'block' }}>
-                  {job.regionHint === 'north' ? '📍 Miền Bắc' : job.regionHint === 'south' ? '📍 Miền Nam' : job.regionHint === 'central' ? '📍 Miền Trung' : `📍 ${job.regionHint}`}
+                <span style={{ fontSize: 13, color: '#888', marginTop: 2, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                  <MapPin size={13} />
+                  {job.regionHint === 'north' ? 'Miền Bắc' : job.regionHint === 'south' ? 'Miền Nam' : job.regionHint === 'central' ? 'Miền Trung' : job.regionHint}
                 </span>
               )}
             </div>
@@ -161,21 +165,21 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
               { icon: <Utensils size={16} />, label: 'Khẩu phần', value: dish?.servings   ? `${dish.servings} người`  : '—' },
               { icon: <ChefHat size={16} />,  label: 'Độ khó',   value: dish?.difficulty  ? DIFF_LABEL[dish.difficulty] ?? dish.difficulty : '—' },
               {
-                icon: <span style={{ fontSize: 15 }}>🏠</span>,
+                icon: <Home size={16} />,
                 label: 'Nấu nhà (cả công thức)',
                 value: dish?.priceMin || dish?.priceMax
                   ? `${Number(dish.priceMin ?? 0).toLocaleString('vi-VN')}–${Number(dish.priceMax ?? dish.priceMin ?? 0).toLocaleString('vi-VN')}₫`
                   : '—',
               },
               {
-                icon: <span style={{ fontSize: 15 }}>🍽️</span>,
+                icon: <Utensils size={16} />,
                 label: 'Ăn ngoài (1 phần)',
                 value: (dish as any)?.dineOutPriceMin || (dish as any)?.dineOutPriceMax
                   ? `${Number((dish as any).dineOutPriceMin ?? 0).toLocaleString('vi-VN')}–${Number((dish as any).dineOutPriceMax ?? (dish as any).dineOutPriceMin ?? 0).toLocaleString('vi-VN')}₫`
                   : '—',
               },
               {
-                icon: <span style={{ fontSize: 15 }}>🍜</span>,
+                icon: <Soup size={16} />,
                 label: 'Loại món',
                 value: (dish as any)?.dishType === 'WET' ? 'Món nước' : (dish as any)?.dishType === 'DRY' ? 'Món khô' : '—',
               },
@@ -278,7 +282,9 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
                 </button>
               )}
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 12, color: '#999' }}>🎬 Video hướng dẫn</div>
+                <div style={{ fontSize: 12, color: '#999', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <Video size={13} /> Video hướng dẫn
+                </div>
                 <button
                   type="button"
                   onClick={() => openVideo((dish as any).videoUrl, `Video: ${dish?.name || job.query}`)}
@@ -294,7 +300,8 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
           {ingredients.length > 0 && (
             <div>
               <h4 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 700, color: '#1a1008', display: 'flex', alignItems: 'center', gap: 6 }}>
-                🥬 Nguyên liệu <span style={{ fontWeight: 400, color: '#999', fontSize: 13 }}>({ingredients.length} loại)</span>
+                <Leaf size={15} className="text-emerald-600" />
+                Nguyên liệu <span style={{ fontWeight: 400, color: '#999', fontSize: 13 }}>({ingredients.length} loại)</span>
               </h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8 }}>
                 {ingredients.map((ing: any, idx: number) => {
@@ -329,7 +336,7 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
                             </div>
                           </>
                         ) : (
-                          <span style={{ fontSize: 20 }}>🥄</span>
+                          <Utensils size={18} className="text-amber-700/60" />
                         )}
                       </div>
                       <div style={{ minWidth: 0 }}>
@@ -349,7 +356,8 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
           {steps.length > 0 && (
             <div>
               <h4 style={{ margin: '0 0 14px', fontSize: 14, fontWeight: 700, color: '#1a1008', display: 'flex', alignItems: 'center', gap: 6 }}>
-                👨‍🍳 Cách nấu <span style={{ fontWeight: 400, color: '#999', fontSize: 13 }}>({steps.length} bước)</span>
+                <ChefHat size={16} className="text-amber-600" />
+                Cách nấu <span style={{ fontWeight: 400, color: '#999', fontSize: 13 }}>({steps.length} bước)</span>
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {steps.map((step: any) => {
@@ -421,7 +429,7 @@ export function ImportJobPreviewModal({ jobId, onClose }: Props) {
           {job.logs && job.logs.length > 0 && (
             <div style={{ borderTop: '1px solid #ede8df', paddingTop: 16 }}>
               <h4 style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 600, color: '#999', display: 'flex', alignItems: 'center', gap: 6 }}>
-                📋 Log pipeline AI
+                <ClipboardList size={14} /> Log pipeline AI
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                 {job.logs.map((log, i) => (

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FileText, Loader2, Plus, RotateCw, Search, Timer, Utensils } from 'lucide-react'
+import { FileText, Plus, RotateCw, Search, Timer, Utensils } from 'lucide-react'
 import type { ImportJob, ImportJobStatus } from '../../types'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
@@ -8,6 +8,7 @@ import { Progress } from '../ui/progress'
 import { Input } from '../ui/input'
 import { Select } from '../ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
+import { Skeleton } from '../ui/skeleton'
 import { ImportJobPreviewModal } from '../ui/import-job-preview-modal'
 import { ACTIVE_STATUSES } from './types'
 
@@ -103,15 +104,16 @@ export function ImportJobsHistoryTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
-                  <div className="flex items-center justify-center gap-2 text-muted-foreground text-xs">
-                    <Loader2 size={18} className="animate-spin" /> Đang tải lịch sử...
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
+            {isLoading &&
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell><Skeleton className="h-4 w-36" /></TableCell>
+                  <TableCell><Skeleton className="h-5 w-20 rounded-md" /></TableCell>
+                  <TableCell><Skeleton className="h-2 w-28 rounded-full" /></TableCell>
+                  <TableCell><Skeleton className="h-3.5 w-24" /></TableCell>
+                  <TableCell className="text-right"><Skeleton className="h-7 w-20 ml-auto rounded-md" /></TableCell>
+                </TableRow>
+              ))}
             {!isLoading && filteredHistoryJobs.length === 0 && (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-8 text-muted-foreground text-xs">

@@ -2,10 +2,13 @@ import { useState } from 'react'
 import { Checkbox } from '../ui/checkbox'
 import { Image } from '../ui/image'
 import { Badge } from '../ui/badge'
-import { Star, Flame, Eye, ImageOff } from 'lucide-react'
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../ui/table'
+import { Star, Flame, Eye, ImageOff, UtensilsCrossed } from 'lucide-react'
 import { MediaLightbox } from '../ui/media-lightbox'
 import { DishRowActions } from './DishRowActions'
 import { STATUS_LABELS, STATUS_BADGE_VARIANTS, getMediaUrl } from './types'
+import { TableSkeleton } from '../ui/page-skeleton'
+import { EmptyState } from '../ui/empty-state'
 import type { Dish } from '../../types'
 
 interface FoodsTableProps {
@@ -34,85 +37,80 @@ export function FoodsTable({
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200/80 p-12 text-center shadow-sm">
-        <div className="inline-block animate-spin text-2xl mb-2">🍽️</div>
-        <p className="text-xs text-slate-500 font-medium">Đang tải danh sách món ăn...</p>
+      <div className="bg-card rounded-xl border border-border shadow-2xs overflow-hidden">
+        <TableSkeleton rows={8} cols={9} />
       </div>
     )
   }
 
   if (dishes.length === 0) {
     return (
-      <div className="bg-white rounded-xl border border-slate-200/80 p-16 text-center shadow-sm space-y-3">
-        <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-xl">
-          🍲
-        </div>
-        <div className="space-y-1">
-          <h3 className="text-sm font-bold text-slate-800">Không tìm thấy món ăn nào</h3>
-          <p className="text-xs text-slate-400">Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm</p>
-        </div>
-      </div>
+      <EmptyState
+        icon={UtensilsCrossed}
+        title="Không tìm thấy món ăn nào"
+        description="Hãy thử điều chỉnh bộ lọc, khoảng giá, hoặc từ khóa tìm kiếm để tìm thấy món ăn phù hợp."
+      />
     )
   }
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-slate-200/80 shadow-sm overflow-hidden">
+      <div className="bg-card rounded-xl border border-border shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-slate-50/75 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
-                <th className="w-10 px-4 py-3 text-center">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableHead className="w-10 px-4 py-3 text-center">
                   <Checkbox
                     checked={isAllSelected ? true : isSomeSelected ? 'indeterminate' : false}
                     onCheckedChange={onToggleSelectAll}
                     aria-label="Chọn tất cả"
                   />
-                </th>
-                <th className="w-16 px-3 py-3">Ảnh</th>
-                <th className="px-4 py-3 min-w-[220px]">Món ăn</th>
-                <th className="px-4 py-3 min-w-[140px]">Danh mục & Bữa</th>
-                <th className="px-4 py-3 min-w-[150px]">Dinh dưỡng</th>
-                <th className="px-3 py-3 w-24">Đánh giá</th>
-                <th className="px-4 py-3 w-32">Trạng thái</th>
-                <th className="px-4 py-3 w-28">Cập nhật</th>
-                <th className="px-4 py-3 w-28 text-right">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
+                </TableHead>
+                <TableHead className="w-16 px-3 py-3">Ảnh</TableHead>
+                <TableHead className="px-4 py-3 min-w-[220px]">Món ăn</TableHead>
+                <TableHead className="px-4 py-3 min-w-[140px]">Danh mục & Bữa</TableHead>
+                <TableHead className="px-4 py-3 min-w-[150px]">Dinh dưỡng</TableHead>
+                <TableHead className="px-3 py-3 w-24">Đánh giá</TableHead>
+                <TableHead className="px-4 py-3 w-32">Trạng thái</TableHead>
+                <TableHead className="px-4 py-3 w-28">Cập nhật</TableHead>
+                <TableHead className="px-4 py-3 w-28 text-right">Thao tác</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {dishes.map((dish) => {
                 const isSelected = selectedIds.has(dish.id)
                 const primaryMedia = dish.media?.find((m: any) => m.isPrimary) ?? dish.media?.[0]
                 const imgUrl = getMediaUrl(primaryMedia)
                 const nutrition = dish.nutrition
                 const statusStyle = STATUS_BADGE_VARIANTS[dish.status] ?? {
-                  bg: 'bg-slate-100',
-                  text: 'text-slate-700',
-                  border: 'border-slate-200',
+                  bg: 'bg-muted',
+                  text: 'text-muted-foreground',
+                  border: 'border-border',
                 }
 
                 return (
-                  <tr
+                  <TableRow
                     key={dish.id}
-                    className={`hover:bg-amber-50/30 transition-colors group ${
-                      isSelected ? 'bg-amber-50/50' : ''
+                    className={`hover:bg-muted/30 transition-colors group ${
+                      isSelected ? 'bg-primary/5' : ''
                     }`}
                   >
                     {/* Checkbox */}
-                    <td className="px-4 py-3 text-center">
+                    <TableCell className="px-4 py-3 text-center">
                       <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => onToggleSelect(dish.id)}
                         aria-label={`Chọn ${dish.name}`}
                       />
-                    </td>
+                    </TableCell>
 
                     {/* Image Thumbnail */}
-                    <td className="px-3 py-3">
+                    <TableCell className="px-3 py-3">
                       {imgUrl ? (
                         <div
                           onClick={() => setLightboxImage({ url: imgUrl, name: dish.name })}
-                          className="w-11 h-11 rounded-lg overflow-hidden bg-slate-100 border border-slate-200/80 cursor-zoom-in relative group/img flex-shrink-0"
+                          className="w-11 h-11 rounded-lg overflow-hidden bg-muted border border-border cursor-zoom-in relative group/img shrink-0"
                           title="Bấm để xem ảnh lớn"
                         >
                           <Image
@@ -126,33 +124,36 @@ export function FoodsTable({
                           </div>
                         </div>
                       ) : (
-                        <div className="w-11 h-11 rounded-lg bg-slate-100 border border-dashed border-slate-300 flex items-center justify-center text-slate-400">
+                        <div className="w-11 h-11 rounded-lg bg-muted border border-dashed border-border flex items-center justify-center text-muted-foreground">
                           <ImageOff size={16} />
                         </div>
                       )}
-                    </td>
+                    </TableCell>
 
                     {/* Dish Info */}
-                    <td className="px-4 py-3">
-                      <div className="font-bold text-slate-900 hover:text-amber-700 cursor-pointer text-[13px] line-clamp-1" onClick={() => onView(dish)}>
+                    <TableCell className="px-4 py-3">
+                      <div
+                        className="font-bold text-foreground hover:text-primary transition-colors cursor-pointer text-[13px] line-clamp-1"
+                        onClick={() => onView(dish)}
+                      >
                         {dish.name}
                       </div>
                       <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                         {dish.region?.name && (
-                          <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                          <span className="text-[10px] font-semibold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                             {dish.region.name}
                           </span>
                         )}
                         {dish.difficulty && (
-                          <span className="text-[10px] text-slate-400">
+                          <span className="text-[10px] text-muted-foreground">
                             • {dish.difficulty === 'EASY' ? 'Dễ' : dish.difficulty === 'MEDIUM' ? 'Vừa' : 'Khó'}
                           </span>
                         )}
                       </div>
-                    </td>
+                    </TableCell>
 
                     {/* Categories & Meal types */}
-                    <td className="px-4 py-3">
+                    <TableCell className="px-4 py-3">
                       <div className="flex flex-wrap gap-1">
                         {dish.categories && dish.categories.length > 0 ? (
                           dish.categories.slice(0, 2).map((c: any, idx: number) => {
@@ -161,74 +162,74 @@ export function FoodsTable({
                             return (
                               <span
                                 key={id}
-                                className="inline-block bg-slate-100 text-slate-600 text-[10.5px] px-2 py-0.5 rounded font-medium truncate max-w-[110px]"
+                                className="inline-block bg-muted text-muted-foreground text-[10.5px] px-2 py-0.5 rounded font-medium truncate max-w-[110px]"
                               >
                                 {name}
                               </span>
                             )
                           })
                         ) : (
-                          <span className="text-slate-400 text-[11px]">—</span>
+                          <span className="text-muted-foreground text-[11px]">—</span>
                         )}
                       </div>
-                    </td>
+                    </TableCell>
 
                     {/* Nutrition Macro Chips */}
-                    <td className="px-4 py-3">
+                    <TableCell className="px-4 py-3">
                       {nutrition?.calories ? (
                         <div className="space-y-1">
-                          <div className="flex items-center gap-1 font-bold text-slate-800 text-[11.5px]">
+                          <div className="flex items-center gap-1 font-bold text-foreground text-[11.5px]">
                             <Flame size={12} className="text-amber-500" />
                             <span>{nutrition.calories} kcal</span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono">
+                          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-mono">
                             <span>P:{nutrition.proteinG ?? 0}g</span>
                             <span>C:{nutrition.carbsG ?? 0}g</span>
                             <span>F:{nutrition.fatG ?? 0}g</span>
                           </div>
                         </div>
                       ) : (
-                        <span className="text-slate-400 text-[11px]">Chưa tính</span>
+                        <span className="text-muted-foreground text-[11px]">Chưa tính</span>
                       )}
-                    </td>
+                    </TableCell>
 
                     {/* Rating */}
-                    <td className="px-3 py-3">
+                    <TableCell className="px-3 py-3">
                       {dish.ratingAvg != null && dish.ratingAvg > 0 ? (
-                        <div className="flex items-center gap-1 text-[11px] font-bold text-amber-700">
+                        <div className="flex items-center gap-1 text-[11px] font-bold text-amber-600">
                           <Star size={12} className="fill-amber-400 text-amber-500" />
                           <span>{Number(dish.ratingAvg).toFixed(1)}</span>
-                          <span className="text-[10px] text-slate-400 font-normal">({dish.ratingCount ?? 0})</span>
+                          <span className="text-[10px] text-muted-foreground font-normal">({dish.ratingCount ?? 0})</span>
                         </div>
                       ) : (
-                        <span className="text-slate-300 text-[11px]">—</span>
+                        <span className="text-muted-foreground/60 text-[11px]">—</span>
                       )}
-                    </td>
+                    </TableCell>
 
                     {/* Status */}
-                    <td className="px-4 py-3">
+                    <TableCell className="px-4 py-3">
                       <Badge
                         variant="outline"
                         className={`text-[10.5px] font-semibold px-2 py-0.5 rounded-md ${statusStyle.bg} ${statusStyle.text} ${statusStyle.border}`}
                       >
                         {STATUS_LABELS[dish.status] ?? dish.status}
                       </Badge>
-                    </td>
+                    </TableCell>
 
                     {/* Updated At */}
-                    <td className="px-4 py-3 text-slate-400 text-[11px]">
+                    <TableCell className="px-4 py-3 text-muted-foreground text-[11px]">
                       {new Date(dish.updatedAt).toLocaleDateString('vi-VN')}
-                    </td>
+                    </TableCell>
 
                     {/* Actions */}
-                    <td className="px-4 py-3 text-right">
+                    <TableCell className="px-4 py-3 text-right">
                       <DishRowActions dish={dish} onView={onView} onEdit={onEdit} />
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
 

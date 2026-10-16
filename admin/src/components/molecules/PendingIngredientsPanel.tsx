@@ -599,12 +599,12 @@ function PendingIngredientRow({
                     </div>
                     {isAiVerified && (
                       <div className="mt-0.5 inline-flex items-center gap-0.5 rounded bg-emerald-50 px-1 text-[9px] font-medium text-emerald-700">
-                        ✓ AI xác minh
+                        <Check size={10} /> AI xác minh
                       </div>
                     )}
                     {isAiRejected && (
                       <div className="mt-0.5 inline-flex items-center gap-0.5 rounded bg-red-50 px-1 text-[9px] font-medium text-red-600">
-                        ✗ AI cảnh báo
+                        <X size={10} /> AI cảnh báo
                       </div>
                     )}
                     <div className="mt-0.5 truncate text-[9px] text-zinc-400">
@@ -613,9 +613,9 @@ function PendingIngredientRow({
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="hover:underline text-blue-500"
+                        className="hover:underline text-blue-500 inline-flex items-center gap-0.5"
                       >
-                        {c.licenseCode || 'Nguồn'} ↗
+                        {c.licenseCode || 'Nguồn'} <ExternalLink size={9} />
                       </a>
                     </div>
                     {selectedCandidateId === c.id && (

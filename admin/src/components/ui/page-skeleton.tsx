@@ -23,7 +23,7 @@ export function PageSkeleton({
         </div>
       )}
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="flex items-center gap-3 rounded-xl border border-black/5 bg-white p-4">
+        <div key={i} className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-2xs">
           <Skeleton className="h-10 w-10 rounded-lg shrink-0" />
           <div className="flex-1 space-y-2">
             <Skeleton className="h-3 w-1/4" />
@@ -59,7 +59,7 @@ export function StatsSkeleton({ count = 4 }: { count?: number }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="rounded-xl border border-black/5 bg-white p-4 space-y-2">
+        <div key={i} className="rounded-xl border border-border bg-card p-4 space-y-2 shadow-2xs">
           <Skeleton className="h-8 w-8 rounded-lg" />
           <Skeleton className="h-6 w-16" />
           <Skeleton className="h-3 w-24" />

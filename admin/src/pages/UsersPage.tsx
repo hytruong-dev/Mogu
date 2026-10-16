@@ -477,7 +477,10 @@ function UserDrawer({
                   </Button>
                 </div>
                 {sessions.isLoading ? (
-                  <p className="text-xs text-muted-foreground text-center py-6">Đang tải danh sách phiên...</p>
+                  <div className="space-y-2 py-2">
+                    <Skeleton className="h-14 w-full rounded-lg" />
+                    <Skeleton className="h-14 w-full rounded-lg" />
+                  </div>
                 ) : !sessions.data?.items || sessions.data.items.length === 0 ? (
                   <div className="text-center py-6 text-xs text-muted-foreground">
                     Không có phiên đăng nhập nào đang hoạt động.
@@ -521,7 +524,10 @@ function UserDrawer({
                     Hành động quản trị (Admin Action Audit)
                   </h4>
                   {audit.isLoading ? (
-                    <p className="text-xs text-muted-foreground py-2">Đang tải lịch sử...</p>
+                    <div className="space-y-2 py-2">
+                      <Skeleton className="h-12 w-full rounded-lg" />
+                      <Skeleton className="h-12 w-full rounded-lg" />
+                    </div>
                   ) : !audit.data?.items || audit.data.items.length === 0 ? (
                     <p className="text-xs text-muted-foreground py-2">Chưa có hành động quản trị nào trên tài khoản này.</p>
                   ) : (
@@ -550,7 +556,10 @@ function UserDrawer({
                     Lịch sử xác thực (Auth Audit Log)
                   </h4>
                   {authAudit.isLoading ? (
-                    <p className="text-xs text-muted-foreground py-2">Đang tải lịch sử đăng nhập...</p>
+                    <div className="space-y-1.5 py-2">
+                      <Skeleton className="h-9 w-full rounded-md" />
+                      <Skeleton className="h-9 w-full rounded-md" />
+                    </div>
                   ) : !authAudit.data?.items || authAudit.data.items.length === 0 ? (
                     <p className="text-xs text-muted-foreground py-2">Chưa ghi nhận sự kiện xác thực nào.</p>
                   ) : (

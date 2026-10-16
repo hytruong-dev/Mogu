@@ -21,6 +21,7 @@ import { Input } from '../components/ui/input'
 import { Checkbox } from '../components/ui/checkbox'
 import { Image } from '../components/ui/image'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
+import { Skeleton } from '../components/ui/skeleton'
 import {
   Dialog,
   DialogContent,
@@ -410,7 +411,21 @@ export default function FoodScanReportsPage() {
       {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-80 rounded-xl bg-muted animate-pulse" />
+            <Card key={i} className="overflow-hidden border-border bg-card">
+              <Skeleton className="h-44 w-full rounded-none" />
+              <CardContent className="p-4 space-y-3">
+                <div className="flex justify-between items-center">
+                  <Skeleton className="h-4 w-28" />
+                  <Skeleton className="h-4 w-16 rounded-full" />
+                </div>
+                <Skeleton className="h-3.5 w-full" />
+                <Skeleton className="h-3.5 w-3/4" />
+                <div className="pt-2 flex justify-between items-center border-t border-border">
+                  <Skeleton className="h-8 w-24 rounded-lg" />
+                  <Skeleton className="h-8 w-8 rounded-lg" />
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       ) : isError ? (

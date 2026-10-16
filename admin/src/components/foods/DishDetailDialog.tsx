@@ -14,6 +14,7 @@ import { Dialog, DialogContent } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Image } from '../ui/image'
+import { Skeleton } from '../ui/skeleton'
 import { MediaLightbox } from '../ui/media-lightbox'
 import { useAdminDish } from '../../hooks/useDishes'
 import { STATUS_LABELS, STATUS_BADGE_VARIANTS, getMediaUrl } from './types'
@@ -26,7 +27,7 @@ interface DishDetailDialogProps {
 }
 
 export function DishDetailDialog({ dish, onClose, onEdit }: DishDetailDialogProps) {
-  const { data: detail } = useAdminDish(dish.id)
+  const { data: detail, isLoading: isDetailLoading } = useAdminDish(dish.id)
   const d = (detail ?? dish) as any
 
   const [lightboxMedia, setLightboxMedia] = useState<{ url: string; name: string } | null>(null)
@@ -193,7 +194,19 @@ export function DishDetailDialog({ dish, onClose, onEdit }: DishDetailDialogProp
             )}
 
             {/* Ingredients list */}
-            {ingredients.length > 0 && (
+            {isDetailLoading && ingredients.length === 0 ? (
+              <div>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                  Đang tải nguyên liệu...
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <Skeleton className="h-9 w-full rounded-lg" />
+                  <Skeleton className="h-9 w-full rounded-lg" />
+                  <Skeleton className="h-9 w-full rounded-lg" />
+                  <Skeleton className="h-9 w-full rounded-lg" />
+                </div>
+              </div>
+            ) : ingredients.length > 0 ? (
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
                   Nguyên liệu ({ingredients.length})
@@ -211,10 +224,20 @@ export function DishDetailDialog({ dish, onClose, onEdit }: DishDetailDialogProp
                   })}
                 </div>
               </div>
-            )}
+            ) : null}
 
             {/* Recipe steps */}
-            {steps.length > 0 && (
+            {isDetailLoading && steps.length === 0 ? (
+              <div>
+                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                  Đang tải công thức...
+                </h4>
+                <div className="space-y-2.5">
+                  <Skeleton className="h-16 w-full rounded-xl" />
+                  <Skeleton className="h-16 w-full rounded-xl" />
+                </div>
+              </div>
+            ) : steps.length > 0 ? (
               <div>
                 <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
                   Cách nấu ({steps.length} bước)
@@ -242,7 +265,7 @@ export function DishDetailDialog({ dish, onClose, onEdit }: DishDetailDialogProp
                   ))}
                 </div>
               </div>
-            )}
+            ) : null}
 
             {/* Community Rating */}
             {(d.ratingAvg > 0 || d.ratingCount > 0) && (

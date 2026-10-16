@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '../ui/input'
 import { Select } from '../ui/select'
 import { Spinner } from '../ui/spinner'
+import { Skeleton } from '../ui/skeleton'
+import { EmptyState } from '../ui/empty-state'
 
 const STATUS_OPTIONS: { value: PlaceDishMatchStatus; label: string }[] = [
   { value: 'CONFIRMED', label: 'Xác nhận' },
@@ -128,11 +130,25 @@ export function PlaceDishesDialog({ place, onClose, onCountChange }: Props) {
 
         <div className="max-h-[360px] overflow-y-auto border border-border rounded-lg divide-y divide-border">
           {loading && items.length === 0 ? (
-            <div className="p-6 flex justify-center">
-              <Spinner />
+            <div className="p-4 space-y-3">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="flex items-center gap-3">
+                  <div className="flex-1 space-y-1.5">
+                    <Skeleton className="h-4 w-3/4 rounded" />
+                    <Skeleton className="h-3 w-1/2 rounded" />
+                  </div>
+                  <Skeleton className="h-8 w-28 rounded-md shrink-0" />
+                  <Skeleton className="h-8 w-8 rounded-md shrink-0" />
+                </div>
+              ))}
             </div>
           ) : items.length === 0 ? (
-            <div className="p-6 text-center text-xs text-muted-foreground">Chưa có món nào được liên kết.</div>
+            <EmptyState
+              icon={Utensils}
+              title="Chưa có món nào được liên kết"
+              description="Tìm kiếm món ăn ở bên dưới để gắn thủ công vào quán này."
+              className="py-6 border-0"
+            />
           ) : (
             items.map((it) => (
               <div key={it.id} className="flex items-center gap-3 px-3 py-2.5">

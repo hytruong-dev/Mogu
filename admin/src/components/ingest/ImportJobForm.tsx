@@ -5,6 +5,10 @@ import {
   Clock3,
   Database,
   Loader2,
+  SlidersHorizontal,
+  ChevronDown,
+  Info,
+  AlertTriangle,
 } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Card } from '../ui/card'
@@ -62,16 +66,16 @@ export function ImportJobForm({
 
         <button
           type="button"
-          className="ingest-advanced-toggle"
+          className="ingest-advanced-toggle flex items-center justify-between w-full"
           onClick={() => setShowAdvanced((v) => !v)}
           aria-expanded={showAdvanced}
         >
-          <span>
-            <span className="ingest-tune-icon">☷</span>
+          <span className="flex items-center gap-2">
+            <SlidersHorizontal size={14} className="text-muted-foreground" />
             <b>Tùy chọn nâng cao</b>
-            <small>Từ khóa liên quan và vùng miền</small>
+            <small className="text-muted-foreground">Từ khóa liên quan và vùng miền</small>
           </span>
-          <span className={showAdvanced ? 'ingest-chevron open' : 'ingest-chevron'}>⌄</span>
+          <ChevronDown size={14} className={`transition-transform duration-200 ${showAdvanced ? 'rotate-180' : ''}`} />
         </button>
 
         {showAdvanced && (
@@ -117,12 +121,14 @@ export function ImportJobForm({
           </>
         )}
 
-        <div className="ingest-info-note">
-          ⓘ Mỗi lần chỉ tạo 1 món. Kết quả luôn ở trạng thái <b>BẢN NHÁP</b>.
+        <div className="ingest-info-note flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/50 p-2.5 rounded-lg border border-border">
+          <Info size={14} className="text-blue-500 shrink-0" />
+          <span>Mỗi lần chỉ tạo 1 món. Kết quả luôn ở trạng thái <b>BẢN NHÁP</b>.</span>
         </div>
         {error && (
-          <div className="ingest-error" role="alert">
-            ⚠ {error}
+          <div className="ingest-error flex items-center gap-1.5 text-xs text-rose-600 bg-rose-50 p-2.5 rounded-lg border border-rose-200" role="alert">
+            <AlertTriangle size={14} className="shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 

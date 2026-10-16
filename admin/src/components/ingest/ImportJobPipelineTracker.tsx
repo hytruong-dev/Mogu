@@ -1,4 +1,5 @@
 import { type CSSProperties } from 'react'
+import { Check, Clock, Hash, ArrowDownLeft, Terminal, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react'
 import type { ImportJob } from '../../types'
 import { useJobProgress } from '../../hooks/useImportJobs'
 import { Card } from '../ui/card'
@@ -231,34 +232,18 @@ export function StepTracker({ job, dark = false }: StepTrackerProps) {
 
       {isDone && (
         <div
-          style={{
-            marginTop: 10,
-            padding: '6px 10px',
-            background: '#f0fdf4',
-            borderRadius: 8,
-            border: '1px solid #bbf7d0',
-            fontSize: 12,
-            color: '#16a34a',
-            fontWeight: 600,
-          }}
+          className="mt-2.5 p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 font-semibold flex items-center gap-1.5"
         >
-          ✅ Hoàn tất — bản nháp đã được tạo thành công!
+          <CheckCircle2 size={14} className="text-emerald-600 shrink-0" />
+          Hoàn tất — bản nháp đã được tạo thành công!
         </div>
       )}
       {isFailed && (
         <div
-          style={{
-            marginTop: 10,
-            padding: '6px 10px',
-            background: '#fef2f2',
-            borderRadius: 8,
-            border: '1px solid #fecaca',
-            fontSize: 12,
-            color: '#dc2626',
-            fontWeight: 600,
-          }}
+          className="mt-2.5 p-2 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 font-semibold flex items-center gap-1.5"
         >
-          ❌ {currentMessage ?? 'Pipeline thất bại'}
+          <AlertCircle size={14} className="text-rose-600 shrink-0" />
+          {currentMessage ?? 'Pipeline thất bại'}
         </div>
       )}
     </div>
@@ -304,7 +289,7 @@ export function ImportProgressView({ job, onCancel }: ImportProgressViewProps) {
                   className={step < currentStep ? 'complete' : step === currentStep ? 'current' : ''}
                   key={label}
                 >
-                  <span>{step < currentStep ? '✓' : step}</span>
+                  <span className="flex items-center justify-center">{step < currentStep ? <Check size={14} /> : step}</span>
                   <b>{label}</b>
                   {step === currentStep && <i className="ai-step-pulse" />}
                 </div>
@@ -312,25 +297,25 @@ export function ImportProgressView({ job, onCancel }: ImportProgressViewProps) {
             })}
           </div>
           <div className="ai-progress-meta">
-            <span>◷ Đã chạy {Math.max(1, Math.round(progress / 3))} giây</span>
+            <span className="flex items-center gap-1.5"><Clock size={13} /> Đã chạy {Math.max(1, Math.round(progress / 3))} giây</span>
             <i />
-            <span>⌘ Mã job {job.id.slice(0, 12).toUpperCase()}</span>
+            <span className="flex items-center gap-1.5"><Hash size={13} /> Mã job {job.id.slice(0, 12).toUpperCase()}</span>
           </div>
           <div className="ai-progress-actions">
-            <Button variant="outline" onClick={() => window.history.back()}>
-              ↻ Chạy nền
+            <Button variant="outline" onClick={() => window.history.back()} className="gap-1.5 cursor-pointer">
+              <ArrowDownLeft size={14} /> Chạy nền
             </Button>
-            <Button variant="ghost" onClick={onCancel}>
+            <Button variant="ghost" onClick={onCancel} className="cursor-pointer">
               Hủy
             </Button>
           </div>
           <details className="ai-technical-details">
-            <summary>☷ Chi tiết kỹ thuật</summary>
+            <summary className="cursor-pointer flex items-center gap-1.5 font-medium"><Terminal size={13} /> Chi tiết kỹ thuật</summary>
             <p>{message}</p>
           </details>
         </Card>
         <aside className="ai-after-complete">
-          <span>✦</span>
+          <span className="text-amber-500"><Sparkles size={18} /></span>
           <b>Sau khi hoàn tất</b>
           <p>
             Món ăn sẽ được lưu dưới dạng <strong>BẢN NHÁP</strong>. Bạn có thể mở để kiểm tra và chỉnh

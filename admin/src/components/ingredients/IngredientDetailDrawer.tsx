@@ -11,6 +11,7 @@ import {
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Image } from '../ui/image'
+import { Skeleton } from '../ui/skeleton'
 import {
   STATUS_LABELS,
   STATUS_BADGES,
@@ -194,36 +195,43 @@ export function IngredientDetailDrawer({
             </Button>
           </div>
 
-          <div className="space-y-2">
-            {imageCandidates.map((c) => (
-              <div
-                key={c.id}
-                className="p-2 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between gap-2.5"
-              >
-                <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-200 flex-shrink-0">
-                  <Image
-                    src={c.publicUrl || c.previewUrl || c.originalUrl}
-                    alt=""
-                    aspectRatio="square"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-semibold text-slate-800 truncate">{c.provider}</div>
-                  <div className="text-[10px] text-slate-400">Điểm phù hợp: {c.score}</div>
-                </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => onApproveCandidate(c.id)}
-                  disabled={imageBusy}
-                  className="h-7 text-[11px] px-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold"
+          {imageBusy && imageCandidates.length === 0 ? (
+            <div className="space-y-2">
+              <Skeleton className="h-16 w-full rounded-xl" />
+              <Skeleton className="h-16 w-full rounded-xl" />
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {imageCandidates.map((c) => (
+                <div
+                  key={c.id}
+                  className="p-2 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between gap-2.5"
                 >
-                  Chọn ảnh này
-                </Button>
-              </div>
-            ))}
-          </div>
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-200 flex-shrink-0">
+                    <Image
+                      src={c.publicUrl || c.previewUrl || c.originalUrl}
+                      alt=""
+                      aspectRatio="square"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-slate-800 truncate">{c.provider}</div>
+                    <div className="text-[10px] text-slate-400">Điểm phù hợp: {c.score}</div>
+                  </div>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => onApproveCandidate(c.id)}
+                    disabled={imageBusy}
+                    className="h-7 text-[11px] px-2.5 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold"
+                  >
+                    Chọn ảnh này
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

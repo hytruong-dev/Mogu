@@ -128,7 +128,7 @@ export function MediaForm({ state, onChange, onSelectFiles, uploading }: MediaFo
       <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
 
       <h3 className="mt-8 text-[15px] font-bold">Thư viện ảnh</h3>
-      <p className="text-sm text-gray-400">Kéo để sắp xếp thứ tự — nhấn ☆ để đặt làm ảnh đại diện</p>
+      <p className="text-sm text-gray-400">Kéo để sắp xếp thứ tự — nhấn biểu tượng ngôi sao để đặt làm ảnh đại diện</p>
       <div className="mt-3 flex flex-wrap gap-3">
         {state.gallery.map((g, i) => (
           <div key={g.id} className="w-28">

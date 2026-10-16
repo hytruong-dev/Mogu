@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { ChevronLeft, ChevronRight, X, AlertTriangle } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { StepTabs } from '../components/molecules/StepTabs'
@@ -1038,7 +1038,12 @@ export default function CreateDishPage() {
 
       {/* Footer */}
       <footer className="flex shrink-0 items-center justify-end gap-4 border-t border-black/5 bg-mogu-cream px-8 py-5">
-        {submitError && <span className="mr-auto text-sm text-red-600">⚠️ {submitError}</span>}
+        {submitError && (
+          <span className="mr-auto text-sm text-red-600 flex items-center gap-1.5 font-medium">
+            <AlertTriangle size={15} />
+            {submitError}
+          </span>
+        )}
         {phase === 'review' ? (
           <>
             <Button type="button" variant="outline" onClick={() => setPhase('wizard')}>

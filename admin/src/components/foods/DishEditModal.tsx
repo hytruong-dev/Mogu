@@ -6,6 +6,15 @@ import {
   Trash2,
   X,
   ZoomIn,
+  Pencil,
+  MapPin,
+  BarChart3,
+  Tag,
+  SunMedium,
+  Flame,
+  Users,
+  Save,
+  Check,
 } from 'lucide-react'
 import { Dialog, DialogContent } from '../ui/dialog'
 import { Button } from '../ui/button'
@@ -391,7 +400,10 @@ export function DishEditModal({
           {/* Header */}
           <div className="px-6 pt-5 pb-3 border-b border-slate-100 flex items-center justify-between">
             <div>
-              <h3 className="text-base font-bold text-slate-900">✏️ Chỉnh sửa món ăn</h3>
+              <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Pencil size={16} className="text-amber-500" />
+                Chỉnh sửa món ăn
+              </h3>
               <p className="text-xs text-slate-500 mt-0.5">{dish.name}</p>
             </div>
           </div>
@@ -440,7 +452,10 @@ export function DishEditModal({
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">🗺️ Vùng miền</label>
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 mb-1">
+                      <MapPin size={13} className="text-amber-500" />
+                      Vùng miền
+                    </label>
                     <Select
                       value={form.regionId}
                       onChange={(e) => setForm((f) => ({ ...f, regionId: e.target.value }))}
@@ -453,7 +468,10 @@ export function DishEditModal({
                     </Select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">📊 Độ khó</label>
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 mb-1">
+                      <BarChart3 size={13} className="text-blue-500" />
+                      Độ khó
+                    </label>
                     <Select
                       value={form.difficulty}
                       onChange={(e) => setForm((f) => ({ ...f, difficulty: e.target.value }))}
@@ -468,7 +486,10 @@ export function DishEditModal({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">🏷️ Danh mục</label>
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 mb-1">
+                      <Tag size={13} className="text-emerald-500" />
+                      Danh mục
+                    </label>
                     <TagSelect
                       options={categories.map((c: any) => ({ id: c.id, name: c.name }))}
                       selected={form.categoryIds}
@@ -477,7 +498,10 @@ export function DishEditModal({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">🌅 Bữa ăn</label>
+                    <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 mb-1">
+                      <SunMedium size={13} className="text-amber-500" />
+                      Bữa ăn
+                    </label>
                     <TagSelect
                       options={mealTypes.map((m: any) => ({ id: m.id, name: m.name }))}
                       selected={form.mealTypeIds}
@@ -489,7 +513,9 @@ export function DishEditModal({
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">⏱ Chuẩn bị (phút)</label>
+                    <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 mb-1">
+                      Chuẩn bị (phút)
+                    </label>
                     <Input
                       type="number"
                       min={0}
@@ -499,7 +525,10 @@ export function DishEditModal({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">🔥 Nấu (phút)</label>
+                    <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 mb-1">
+                      <Flame size={13} className="text-rose-500" />
+                      Nấu (phút)
+                    </label>
                     <Input
                       type="number"
                       min={0}
@@ -509,7 +538,10 @@ export function DishEditModal({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">🍽️ Khẩu phần</label>
+                    <label className="flex items-center gap-1 text-xs font-semibold text-slate-700 mb-1">
+                      <Users size={13} className="text-purple-500" />
+                      Khẩu phần
+                    </label>
                     <Input
                       type="number"
                       min={1}
@@ -720,13 +752,16 @@ export function DishEditModal({
                     size="sm"
                     onClick={handleSaveRecipe}
                     disabled={savingRecipe}
-                    className="bg-slate-900 text-white hover:bg-slate-800 h-8 text-xs"
+                    className="bg-slate-900 text-white hover:bg-slate-800 h-8 text-xs gap-1.5"
                   >
-                    {savingRecipe ? 'Đang lưu...' : '💾 Lưu cách nấu'}
+                    <Save size={13} />
+                    {savingRecipe ? 'Đang lưu...' : 'Lưu cách nấu'}
                   </Button>
                 </div>
                 {recipeSaved && (
-                  <p className="text-xs text-emerald-600 font-medium">✓ Đã cập nhật các bước nấu!</p>
+                  <p className="text-xs text-emerald-600 font-medium flex items-center gap-1.5">
+                    <Check size={13} /> Đã cập nhật các bước nấu!
+                  </p>
                 )}
               </div>
             )}

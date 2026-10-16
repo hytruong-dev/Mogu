@@ -1,4 +1,4 @@
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Leaf } from 'lucide-react'
 import { Button } from '../ui/button'
 import {
   Dialog,
@@ -52,7 +52,9 @@ export function HideConfirmDialog({
           {itemImageUrl ? (
             <Image src={itemImageUrl} alt={itemName} aspectRatio="square" className="w-10 h-10 rounded-lg object-cover" />
           ) : (
-            <div className="fd-hide-item-placeholder">🌿</div>
+            <div className="fd-hide-item-placeholder flex items-center justify-center">
+              <Leaf size={18} className="text-emerald-500" />
+            </div>
           )}
           <strong>{itemName}</strong>
         </div>

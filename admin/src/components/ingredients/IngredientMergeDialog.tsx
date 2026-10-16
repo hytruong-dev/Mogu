@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { GitMerge, Search } from 'lucide-react'
+import { GitMerge, Search, Utensils } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -130,8 +130,8 @@ export function IngredientMergeDialog({
                         className="w-7 h-7 rounded-md object-cover flex-shrink-0"
                       />
                     ) : (
-                      <div className="w-7 h-7 rounded-md bg-slate-200 flex items-center justify-center text-[10px] text-slate-500 flex-shrink-0">
-                        🥄
+                      <div className="w-7 h-7 rounded-md bg-slate-200 flex items-center justify-center text-slate-500 flex-shrink-0">
+                        <Utensils size={13} className="text-slate-500" />
                       </div>
                     )}
                     <div className="min-w-0">

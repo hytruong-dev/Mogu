@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { CloudUpload, Plus, X } from 'lucide-react'
+import { CloudUpload, Plus, X, Pencil } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -89,8 +89,16 @@ export function IngredientFormDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl p-0 overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200">
         <DialogHeader className="p-5 pb-3 border-b border-slate-100">
-          <DialogTitle className="text-base font-bold text-slate-900">
-            {isEdit ? '✏️ Sửa nguyên liệu' : '➕ Thêm nguyên liệu mới'}
+          <DialogTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
+            {isEdit ? (
+              <>
+                <Pencil size={16} className="text-amber-500" /> Sửa nguyên liệu
+              </>
+            ) : (
+              <>
+                <Plus size={16} className="text-amber-500" /> Thêm nguyên liệu mới
+              </>
+            )}
           </DialogTitle>
         </DialogHeader>
 

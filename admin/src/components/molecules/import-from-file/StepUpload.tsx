@@ -9,6 +9,7 @@ import {
   Tags,
   Upload,
   X,
+  Check,
 } from 'lucide-react'
 import { FILE_RULES, SAMPLE_CSV, formatBytes } from './demo-data'
 import type { UploadedFileInfo } from './types'
@@ -110,7 +111,7 @@ export function StepUpload({ file, headerRow, onHeaderChange, onFile, onClear }:
             <Progress value={100} indicatorClassName="bg-emerald-500" className="mt-1.5 h-1.5 bg-emerald-100" />
           </div>
           <Badge variant="success" className="gap-1 font-semibold text-[11px] py-1 px-2.5 shrink-0">
-            ✓ Đã tải lên
+            <Check className="h-3 w-3" /> Đã tải lên
           </Badge>
           <Button
             type="button"
