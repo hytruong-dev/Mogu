@@ -226,7 +226,7 @@ export default function TopicsPage() {
                 </Badge>
               </h1>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Quản lý các nhóm danh mục ẩm thực hiển thị trên thanh cuộn ngang feed Khám phá của ứng dụng Mogu.
+                Quản lý các nhóm danh mục ẩm thực hiển thị trên thanh cuộn ngang feed Khám phá của ứng dụng NOAN.
               </p>
             </div>
           </div>

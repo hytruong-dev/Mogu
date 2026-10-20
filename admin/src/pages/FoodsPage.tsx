@@ -75,19 +75,14 @@ export default function FoodsPage() {
   const totalCount = dishesResponse?.total ?? dishes.length
   const totalPages = Math.max(1, Math.ceil(totalCount / limit))
 
-  // Separate stats queries for quick metrics
-  const { data: allDishes } = useAdminDishes({ limit: 1 })
-  const { data: pubDishes } = useAdminDishes({ status: 'PUBLISHED', limit: 1 })
-  const { data: pendDishes } = useAdminDishes({ status: 'PENDING_REVIEW', limit: 1 })
-  const { data: draftDishes } = useAdminDishes({ status: 'DRAFT', limit: 1 })
-  const { data: archDishes } = useAdminDishes({ status: 'ARCHIVED', limit: 1 })
-
+  // Stats from summary
+  const summary = (dishesResponse as any)?.summary
   const stats = {
-    total: allDishes?.total ?? 0,
-    published: pubDishes?.total ?? 0,
-    pending: pendDishes?.total ?? 0,
-    draft: draftDishes?.total ?? 0,
-    archived: archDishes?.total ?? 0,
+    total: summary?.total ?? totalCount,
+    published: summary?.published ?? 0,
+    pending: summary?.pendingReview ?? 0,
+    draft: summary?.draft ?? 0,
+    archived: summary?.archived ?? 0,
   }
 
   // Row selection state
@@ -185,7 +180,7 @@ export default function FoodsPage() {
               variant="outline"
               size="sm"
               onClick={() => setImportOpen(true)}
-              className="text-xs h-9 gap-1.5 font-semibold text-slate-700 bg-white"
+              className="text-xs h-9 gap-1.5 font-semibold border-border bg-background text-foreground hover:bg-muted"
             >
               <Upload size={14} />
               Nhập từ file Excel
@@ -358,12 +353,12 @@ export default function FoodsPage() {
 
       {/* Floating Toast Notification */}
       {bulkNotice && (
-        <div className="fixed bottom-6 right-6 z-50 bg-white border border-amber-200 rounded-xl shadow-xl p-3.5 flex items-center gap-3 text-xs text-slate-800 animate-in fade-in slide-in-from-bottom-2">
+        <div className="fixed bottom-6 right-6 z-50 bg-card border border-amber-500/30 rounded-xl shadow-xl p-3.5 flex items-center gap-3 text-xs text-foreground animate-in fade-in slide-in-from-bottom-2">
           <span>{bulkNotice}</span>
           <button
             type="button"
             onClick={() => setBulkNotice(null)}
-            className="text-slate-400 hover:text-slate-600 p-0.5"
+            className="text-muted-foreground hover:text-foreground p-0.5"
           >
             <X size={14} />
           </button>

@@ -63,7 +63,7 @@ function SmallSelect({
     <Select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="h-10 rounded-lg border border-black/10 bg-white text-sm"
+      className="h-10 rounded-lg border border-input bg-background text-foreground text-sm"
     >
       {options.map((o) => (
         <option key={o} value={o}>{o}</option>
@@ -130,28 +130,28 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
 
       <div className="mt-4 flex flex-wrap items-center gap-4">
         <div className="relative max-w-[340px] flex-1">
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none" />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Lọc trong danh sách thành phần..."
-            className="h-11 w-full rounded-xl border-black/10 bg-white pl-10 pr-4 text-sm focus-visible:ring-mogu-yellow"
+            className="h-11 w-full rounded-xl border-input bg-background pl-10 pr-4 text-sm focus-visible:ring-amber-500"
           />
         </div>
         <Button
           type="button"
           onClick={addRow}
-          className="flex h-11 items-center gap-2 rounded-xl border-2 border-mogu-yellow bg-white px-5 text-sm font-semibold text-foreground hover:bg-mogu-yellow-light"
+          className="flex h-11 items-center gap-2 rounded-xl border-2 border-amber-500 bg-background px-5 text-sm font-semibold text-foreground hover:bg-amber-500/10"
           variant="outline"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="h-4 w-4 text-amber-500" />
           Thêm nguyên liệu mới
         </Button>
         <Button
           type="button"
           variant="link"
           onClick={() => setPasteOpen(true)}
-          className="ml-2 text-sm font-semibold text-gray-900 underline underline-offset-4 hover:text-mogu-yellow-dark"
+          className="ml-2 text-sm font-semibold text-amber-600 dark:text-amber-400 underline underline-offset-4 hover:text-amber-700"
         >
           Nhập nhanh từ văn bản
         </Button>
@@ -159,7 +159,7 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
 
       <Table className="mt-5">
         <TableHeader>
-          <TableRow className="border-b border-black/10 text-left text-sm text-gray-800">
+          <TableRow className="border-b border-border text-left text-sm text-foreground">
             <TableHead className="w-[24%] pb-3 font-semibold">Nguyên liệu</TableHead>
             <TableHead className="w-[13%] pb-3 font-semibold">Số lượng</TableHead>
             <TableHead className="w-[13%] pb-3 font-semibold">Đơn vị</TableHead>
@@ -170,7 +170,7 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
         </TableHeader>
         <TableBody>
           {visible.map((row) => (
-            <TableRow key={row.id} className="border-b border-black/5">
+            <TableRow key={row.id} className="border-b border-border/60">
               <TableCell className="py-2.5 pr-4">
                 <IngredientPicker
                   value={row.name}
@@ -204,7 +204,7 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
                 <Input
                   value={row.qty}
                   onChange={(e) => update(row.id, { qty: e.target.value })}
-                  className="h-10 rounded-lg border-black/10 shadow-none focus-visible:border-mogu-yellow focus-visible:ring-mogu-yellow/30"
+                  className="h-10 rounded-lg border-input bg-background shadow-none focus-visible:border-amber-500 focus-visible:ring-amber-500/30"
                 />
               </TableCell>
               <TableCell className="py-2.5 pr-4">
@@ -215,7 +215,7 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
                   value={row.prep}
                   onChange={(e) => update(row.id, { prep: e.target.value })}
                   placeholder="vd: luộc và xé"
-                  className="h-10 rounded-lg border-black/10 shadow-none focus-visible:border-mogu-yellow focus-visible:ring-mogu-yellow/30"
+                  className="h-10 rounded-lg border-input bg-background shadow-none focus-visible:border-amber-500 focus-visible:ring-amber-500/30"
                 />
               </TableCell>
               <TableCell className="py-2.5 pr-4">
@@ -228,7 +228,7 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
                 </label>
               </TableCell>
               <TableCell className="py-2.5">
-                <Button type="button" variant="ghost" size="icon" onClick={() => removeRow(row.id)} className="text-gray-400 hover:text-red-500">
+                <Button type="button" variant="ghost" size="icon" onClick={() => removeRow(row.id)} className="text-muted-foreground hover:text-destructive">
                   <Trash2 className="h-[18px] w-[18px]" />
                 </Button>
               </TableCell>
@@ -265,40 +265,40 @@ export function IngredientsTable({ rows, onChange, servings, onServingsChange }:
 
       <div className="mt-6">
         <h3 className="text-[15px] font-semibold">Dị ứng & thành phần cần cảnh báo</h3>
-        <div className="mt-3 grid grid-cols-3 gap-4">
-          <div className={cn('flex items-start gap-3 rounded-xl border px-4 py-3', hasGluten ? 'border-warn-orange-border bg-warn-orange-bg' : 'border-black/10 bg-white')}>
+        <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className={cn('flex items-start gap-3 rounded-xl border px-4 py-3', hasGluten ? 'border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-800' : 'border-border bg-card')}>
             {hasGluten ? (
-              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-warn-orange text-xs font-bold text-warn-orange">!</span>
+              <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 border-amber-500 text-xs font-bold text-amber-600">!</span>
             ) : (
-              <CircleCheck className="mt-0.5 h-6 w-6 shrink-0 text-ok-green" strokeWidth={1.8} />
+              <CircleCheck className="mt-0.5 h-6 w-6 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.8} />
             )}
             <div>
-              <div className="text-[15px] font-semibold">Gluten</div>
-              <div className={cn('text-sm', hasGluten ? 'text-warn-orange' : 'text-ok-green')}>
+              <div className="text-[15px] font-semibold text-foreground">Gluten</div>
+              <div className={cn('text-sm font-medium', hasGluten ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400')}>
                 {hasGluten ? 'Có thể chứa' : 'Không chứa'}
               </div>
             </div>
           </div>
-          <div className="flex items-start gap-3 rounded-xl border border-black/10 bg-white px-4 py-3">
-            <CircleCheck className="mt-0.5 h-6 w-6 shrink-0 text-ok-green" strokeWidth={1.8} />
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3">
+            <CircleCheck className="mt-0.5 h-6 w-6 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.8} />
             <div>
-              <div className="text-[15px] font-semibold">Đậu phộng</div>
-              <div className="text-sm text-ok-green">Không chứa</div>
+              <div className="text-[15px] font-semibold text-foreground">Đậu phộng</div>
+              <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Không chứa</div>
             </div>
           </div>
-          <div className="flex items-start gap-3 rounded-xl border border-black/10 bg-white px-4 py-3">
-            <CircleCheck className="mt-0.5 h-6 w-6 shrink-0 text-ok-green" strokeWidth={1.8} />
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-card px-4 py-3">
+            <CircleCheck className="mt-0.5 h-6 w-6 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.8} />
             <div>
-              <div className="text-[15px] font-semibold">Sữa</div>
-              <div className="text-sm text-ok-green">Không chứa</div>
+              <div className="text-[15px] font-semibold text-foreground">Sữa</div>
+              <div className="text-sm font-medium text-emerald-600 dark:text-emerald-400">Không chứa</div>
             </div>
           </div>
         </div>
 
         {hasGluten && (
-          <div className="mt-4 flex items-center gap-3 rounded-xl border border-warn-orange-border bg-warn-orange-bg px-4 py-3.5">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 border-warn-orange text-xs font-bold text-warn-orange">!</span>
-            <p className="text-[15px] text-gray-900">Bánh phở và gia vị cần kiểm tra nguồn để xác nhận gluten.</p>
+          <div className="mt-4 flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-800 px-4 py-3.5">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 border-amber-500 text-xs font-bold text-amber-600">!</span>
+            <p className="text-[15px] text-amber-900 dark:text-amber-200">Bánh phở và gia vị cần kiểm tra nguồn để xác nhận gluten.</p>
           </div>
         )}
       </div>

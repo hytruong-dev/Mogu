@@ -99,45 +99,44 @@ export function PreviewPanel({
             }}
           />
 
-          <button
-            type="button"
-            onClick={openPicker}
-            onDragOver={(e) => {
-              e.preventDefault()
-              setDragOver(true)
-            }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={(e) => {
-              e.preventDefault()
-              setDragOver(false)
-              takeFile(e.dataTransfer.files?.[0])
-            }}
-            className={`group mt-4 flex w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-dashed py-10 transition ${
-              dragOver ? 'border-amber-400 bg-amber-50/50' : 'border-border hover:border-amber-400'
-            }`}
-          >
-            {shownUrl ? (
-              <div className="max-h-40 w-full overflow-hidden px-4">
-                <Image src={shownUrl} alt="Ảnh món ăn" className="max-h-40 w-full object-cover rounded-lg" />
+          {shownUrl ? (
+            <div className="relative mt-4 h-44 w-full overflow-hidden rounded-xl border border-border bg-muted group">
+              <Image src={shownUrl} alt="Ảnh món ăn" className="h-full w-full object-cover" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={openPicker}
+                  className="text-xs font-semibold shadow-md bg-white/90 hover:bg-white text-slate-900"
+                >
+                  <UploadCloud size={14} className="mr-1.5" />
+                  Đổi ảnh
+                </Button>
               </div>
-            ) : (
-              <>
-                <UploadCloud className="h-8 w-8 text-muted-foreground group-hover:text-amber-500" />
-                <span className="text-[15px] font-semibold text-foreground">Thêm ảnh món ăn</span>
-                <span className="text-sm text-muted-foreground">JPG, PNG tối đa 5MB</span>
-              </>
-            )}
-          </button>
-          {shownUrl && (
-            <Button
+            </div>
+          ) : (
+            <button
               type="button"
-              variant="ghost"
-              size="sm"
               onClick={openPicker}
-              className="mt-2 w-full text-center text-xs font-semibold text-muted-foreground hover:text-foreground"
+              onDragOver={(e) => {
+                e.preventDefault()
+                setDragOver(true)
+              }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={(e) => {
+                e.preventDefault()
+                setDragOver(false)
+                takeFile(e.dataTransfer.files?.[0])
+              }}
+              className={`group mt-4 flex w-full flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border-2 border-dashed py-10 transition ${
+                dragOver ? 'border-amber-400 bg-amber-50/50 dark:bg-amber-950/20' : 'border-border hover:border-amber-400'
+              }`}
             >
-              Đổi ảnh
-            </Button>
+              <UploadCloud className="h-8 w-8 text-muted-foreground group-hover:text-amber-500" />
+              <span className="text-[15px] font-semibold text-foreground">Thêm ảnh món ăn</span>
+              <span className="text-sm text-muted-foreground">JPG, PNG tối đa 5MB</span>
+            </button>
           )}
           {uploading && <p className="mt-2 text-sm text-amber-700">Đang tải ảnh lên máy chủ...</p>}
           {error && <p className="mt-2 text-sm text-destructive">{error}</p>}

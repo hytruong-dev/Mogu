@@ -538,7 +538,7 @@ const TASK_META: Record<
   },
   FOOD_SCAN_MISSING: {
     label: 'Món quét chưa có trong kho',
-    note: 'Người dùng chụp món Mogu chưa có',
+    note: 'Người dùng chụp món chưa có trong kho',
     priorityLabel: 'Bổ sung món',
     tone: 'amber',
   },

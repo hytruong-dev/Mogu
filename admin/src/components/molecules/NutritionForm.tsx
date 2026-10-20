@@ -175,7 +175,7 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
             <Select
               value={state.servingLabel}
               onChange={(e) => patch({ servingLabel: e.target.value })}
-              className="h-12 rounded-xl border border-black/10 bg-white px-4 text-[15px]"
+              className="h-12 rounded-xl border border-input bg-background text-foreground px-4 text-[15px]"
             >
               {SERVING_OPTIONS.map((o) => (
                 <option key={o} value={o}>{o}</option>
@@ -186,7 +186,7 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
         <Button
           type="button"
           variant="link"
-          className="mb-2 shrink-0 text-sm font-semibold text-gray-700 underline underline-offset-4 hover:text-mogu-yellow-dark"
+          className="mb-2 shrink-0 text-sm font-semibold text-amber-600 dark:text-amber-400 underline underline-offset-4 hover:text-amber-700"
         >
           Quản lý khẩu phần
         </Button>
@@ -194,7 +194,7 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
 
       {/* Phương pháp tính */}
       <div className="mt-6">
-        <label className="text-[15px] font-semibold">Phương pháp tính</label>
+        <label className="text-[15px] font-semibold text-foreground">Phương pháp tính</label>
         <div className="mt-2 grid grid-cols-3 gap-3">
           {METHODS.map((m) => (
             <button
@@ -202,10 +202,10 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
               type="button"
               onClick={() => patch({ method: m.id })}
               className={cn(
-                'h-11 rounded-xl border text-[14px] font-medium transition',
+                'h-11 rounded-xl border text-[14px] font-medium transition-all',
                 state.method === m.id
-                  ? 'border-mogu-yellow bg-mogu-yellow-light font-semibold'
-                  : 'border-black/10 bg-white hover:border-mogu-yellow/60',
+                  ? 'border-amber-400 bg-amber-500/10 text-amber-900 dark:text-amber-300 font-semibold ring-1 ring-amber-400/30'
+                  : 'border-input bg-card text-muted-foreground hover:border-amber-400/60 hover:text-foreground',
               )}
             >
               {m.label}
@@ -218,16 +218,16 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
       <div className="mt-6 grid grid-cols-2 gap-4">
         {MACRO_FIELDS.map(({ key, label, unit }) => (
           <div key={key}>
-            <label className="text-[15px] font-semibold">{label}</label>
+            <label className="text-[15px] font-semibold text-foreground">{label}</label>
             <div className="relative mt-2">
               <Input
                 type="number"
                 min={0}
                 value={String(state[key] ?? '')}
                 onChange={(e) => patch({ [key]: e.target.value } as Partial<NutritionState>)}
-                className="h-12 rounded-xl border-black/10 pr-14 text-[15px] shadow-none focus-visible:border-mogu-yellow focus-visible:ring-mogu-yellow/30"
+                className="h-12 rounded-xl border-input bg-background pr-14 text-[15px] shadow-none focus-visible:border-amber-500 focus-visible:ring-amber-500/30"
               />
-              <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">{unit}</span>
+              <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{unit}</span>
             </div>
           </div>
         ))}
@@ -236,9 +236,9 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
       <button
         type="button"
         onClick={addMicro}
-        className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-black/15 text-sm font-medium text-gray-700 hover:border-mogu-yellow"
+        className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-card text-sm font-medium text-foreground hover:border-amber-500 transition-colors"
       >
-        <Plus className="h-4 w-4" />
+        <Plus className="h-4 w-4 text-amber-500" />
         Thêm vi chất
       </button>
 
@@ -298,14 +298,14 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
 
       {/* Nguồn & phương pháp */}
       <div className="mt-8">
-        <h3 className="text-[15px] font-semibold">Nguồn & phương pháp</h3>
+        <h3 className="text-[15px] font-semibold text-foreground">Nguồn & phương pháp</h3>
         <div className="mt-3">
-          <Label className="text-sm font-medium text-gray-600">Nguồn dữ liệu</Label>
+          <Label className="text-sm font-medium text-muted-foreground">Nguồn dữ liệu</Label>
           <div className="mt-1.5">
             <Select
               value={state.source}
               onChange={(e) => patch({ source: e.target.value })}
-              className="h-12 rounded-xl border border-black/10 bg-white px-4 text-[15px]"
+              className="h-12 rounded-xl border border-input bg-background text-foreground px-4 text-[15px]"
             >
               {(SOURCE_OPTIONS.includes(state.source) ? SOURCE_OPTIONS : [state.source, ...SOURCE_OPTIONS]).map((o) => (
                 <option key={o} value={o}>{o}</option>
@@ -315,16 +315,16 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
         </div>
         <div className="mt-4 grid grid-cols-[1fr_140px] gap-4">
           <div>
-            <label className="text-sm font-medium text-gray-600">Link nguồn (nếu có)</label>
+            <label className="text-sm font-medium text-muted-foreground">Link nguồn (nếu có)</label>
             <Input
               value={state.sourceUrl}
               onChange={(e) => patch({ sourceUrl: e.target.value })}
               placeholder="https://..."
-              className="mt-1.5 h-12 rounded-xl border-black/10"
+              className="mt-1.5 h-12 rounded-xl border-input bg-background"
             />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-600">Độ tin cậy</label>
+            <label className="text-sm font-medium text-muted-foreground">Độ tin cậy</label>
             <div className="relative mt-1.5">
               <Input
                 type="number"
@@ -332,9 +332,9 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
                 max={100}
                 value={state.confidence}
                 onChange={(e) => patch({ confidence: e.target.value })}
-                className="h-12 rounded-xl border-black/10 pr-8"
+                className="h-12 rounded-xl border-input bg-background pr-8"
               />
-              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">%</span>
+              <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">%</span>
             </div>
           </div>
         </div>
@@ -342,16 +342,16 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
 
       {state.provenance && <ProvenanceTable provenance={state.provenance} />}
 
-      <label className="mt-6 flex cursor-pointer items-center gap-3 text-[15px]">
+      <label className="mt-6 flex cursor-pointer items-center gap-3 text-[15px] text-foreground">
         <button
           type="button"
           onClick={() => patch({ referenceOnly: !state.referenceOnly })}
           className={cn(
             'flex h-5 w-5 items-center justify-center rounded-[5px] border-2 transition',
-            state.referenceOnly ? 'border-mogu-yellow bg-mogu-yellow' : 'border-black/20 bg-white',
+            state.referenceOnly ? 'border-amber-500 bg-amber-500 text-white' : 'border-input bg-background',
           )}
         >
-          {state.referenceOnly && <Check className="h-3.5 w-3.5 text-black" strokeWidth={3} />}
+          {state.referenceOnly && <Check className="h-3.5 w-3.5 text-white" strokeWidth={3} />}
         </button>
         Giá trị chỉ mang tính tham khảo
       </label>
@@ -374,19 +374,19 @@ export function ProvenanceTable({ provenance }: { provenance: NutritionProvenanc
   const coverage = provenance.coveragePct ?? 0
 
   return (
-    <div className="mt-8 rounded-xl border border-black/10 bg-gray-50/60 p-5">
+    <div className="mt-8 rounded-xl border border-border bg-muted/30 p-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-[15px] font-semibold">Nguồn tham khảo & độ phủ</h3>
+        <h3 className="text-[15px] font-semibold text-foreground">Nguồn tham khảo & độ phủ</h3>
         <span
           className={cn(
             'rounded-full px-3 py-0.5 text-xs font-semibold',
-            coverage >= 70 ? 'bg-emerald-100 text-emerald-700' : coverage >= 40 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700',
+            coverage >= 70 ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : coverage >= 40 ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' : 'bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-300',
           )}
         >
           Độ phủ theo khối lượng: {coverage}%
         </span>
       </div>
-      <p className="mt-1 text-xs text-gray-500">
+      <p className="mt-1 text-xs text-muted-foreground">
         {provenance.generatedBy === 'CALCULATOR'
           ? 'Tính từ từng nguyên liệu bằng cơ sở dữ liệu dinh dưỡng, chia theo khẩu phần.'
           : provenance.generatedBy === 'SOURCE'
@@ -400,7 +400,7 @@ export function ProvenanceTable({ provenance }: { provenance: NutritionProvenanc
         <ul className="mt-3 space-y-1.5">
           {refs.map((r) => (
             <li key={`${r.provider}-${r.url ?? ''}`} className="flex items-center gap-2 text-sm">
-              <span className="rounded-md bg-white px-2 py-0.5 text-xs font-semibold text-gray-700 ring-1 ring-black/10">
+              <span className="rounded-md bg-background px-2 py-0.5 text-xs font-semibold text-foreground ring-1 ring-border">
                 {PROVIDER_LABEL[r.provider] ?? r.provider}
               </span>
               {r.url ? (
@@ -408,13 +408,13 @@ export function ProvenanceTable({ provenance }: { provenance: NutritionProvenanc
                   href={r.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-gray-700 underline underline-offset-2 hover:text-mogu-yellow-dark"
+                  className="inline-flex items-center gap-1 text-foreground underline underline-offset-2 hover:text-amber-500"
                 >
                   {r.title ?? r.url}
                   <ExternalLink className="h-3 w-3" />
                 </a>
               ) : (
-                <span className="text-gray-600">{r.title}</span>
+                <span className="text-muted-foreground">{r.title}</span>
               )}
             </li>
           ))}
@@ -422,7 +422,7 @@ export function ProvenanceTable({ provenance }: { provenance: NutritionProvenanc
       )}
 
       {rows.length > 0 && (
-        <div className="mt-4 overflow-hidden rounded-lg border border-black/10 bg-white">
+        <div className="mt-4 overflow-hidden rounded-lg border border-border bg-card">
           <Table className="w-full text-sm">
             <TableHeader className="bg-gray-50 text-xs uppercase text-gray-500">
               <TableRow>

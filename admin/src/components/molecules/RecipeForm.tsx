@@ -172,16 +172,16 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
               onDragStart={() => setDragIdx(i)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDrop(i)}
-              className="rounded-xl border border-black/10 bg-white p-4"
+              className="rounded-xl border border-border bg-card p-4"
             >
               <div className="flex items-start gap-3">
-                <GripVertical className="mt-1 h-5 w-5 cursor-grab text-gray-300" />
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-mogu-yellow text-sm font-bold">
+                <GripVertical className="mt-1 h-5 w-5 cursor-grab text-muted-foreground" />
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-amber-500 text-slate-950 text-sm font-bold">
                   {i + 1}
                 </span>
 
                 {s.imageUrl ? (
-                  <div className="group relative h-20 w-28 shrink-0 overflow-hidden rounded-xl border border-black/10 bg-gray-100 shadow-sm">
+                  <div className="group relative h-20 w-28 shrink-0 overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
                     <Image
                       src={s.imageUrl}
                       alt={`Bước ${i + 1}`}
@@ -191,7 +191,7 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
                       <button
                         type="button"
                         onClick={() => openImageModal(s.id, s.imageUrl)}
-                        className="rounded-full bg-white/90 p-1.5 text-gray-800 shadow hover:bg-white"
+                        className="rounded-full bg-white/90 p-1.5 text-slate-800 shadow hover:bg-white"
                         title="Đổi ảnh"
                       >
                         <Pencil className="h-3.5 w-3.5" />
@@ -210,10 +210,10 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
                   <button
                     type="button"
                     onClick={() => openImageModal(s.id, '')}
-                    className="group flex h-20 w-28 shrink-0 flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 bg-gray-50/80 text-gray-400 transition hover:border-mogu-yellow hover:bg-mogu-yellow-light/20 hover:text-mogu-yellow-dark"
+                    className="group flex h-20 w-28 shrink-0 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/40 text-muted-foreground transition hover:border-amber-400 hover:text-amber-500"
                     title="Thêm ảnh minh họa cho bước này"
                   >
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-100 text-gray-400 transition group-hover:bg-mogu-yellow/30 group-hover:text-mogu-yellow-dark">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-muted text-muted-foreground transition group-hover:bg-amber-500/20 group-hover:text-amber-500">
                       <Plus className="h-4 w-4" />
                     </div>
                     <span className="mt-1 text-[11px] font-medium">Thêm ảnh</span>
@@ -344,8 +344,8 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
         }}
       >
         <DialogContent className="max-w-md p-6">
-          <DialogHeader className="border-b border-black/10 pb-3">
-            <DialogTitle className="text-base font-bold text-gray-900">
+          <DialogHeader className="border-b border-border pb-3">
+            <DialogTitle className="text-base font-bold text-foreground">
               Ảnh minh họa bước nấu
             </DialogTitle>
           </DialogHeader>
@@ -361,7 +361,7 @@ export function RecipeForm({ state, onChange }: RecipeFormProps) {
           </div>
 
           {/* Footer Buttons */}
-          <div className="mt-5 flex items-center justify-between gap-3 border-t border-black/10 pt-4">
+          <div className="mt-5 flex items-center justify-between gap-3 border-t border-border pt-4">
             {imgModalUrl ? (
               <Button
                 type="button"

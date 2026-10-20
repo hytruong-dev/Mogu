@@ -470,7 +470,7 @@ export default function ArticlesPage() {
                 </Badge>
               </h1>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Biên soạn, kiểm duyệt nội dung chuyên sâu và lên lịch xuất bản bài viết ẩm thực trên ứng dụng Mogu.
+                Biên soạn, kiểm duyệt nội dung chuyên sâu và lên lịch xuất bản bài viết ẩm thực trên ứng dụng NOAN.
               </p>
             </div>
           </div>
@@ -706,7 +706,7 @@ export default function ArticlesPage() {
                             </div>
                             <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
                               <span className="font-medium text-foreground/80">
-                                {article.author?.displayName ?? 'Mogu Editorial'}
+                                {article.author?.displayName ?? 'NOAN Editorial'}
                               </span>
                               <span>•</span>
                               <span>{new Date(article.createdAt).toLocaleDateString('vi-VN')}</span>
@@ -907,7 +907,7 @@ export default function ArticlesPage() {
                     Soạn thảo bài viết mới
                   </DialogTitle>
                   <DialogDescription className="text-xs text-muted-foreground">
-                    Viết bài cẩm nang, mẹo dinh dưỡng và công thức ẩm thực định dạng Markdown chuẩn feed Mogu.
+                    Viết bài cẩm nang, mẹo dinh dưỡng và công thức ẩm thực định dạng Markdown chuẩn feed NOAN.
                   </DialogDescription>
                 </div>
               </div>

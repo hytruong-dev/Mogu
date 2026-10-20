@@ -3,6 +3,7 @@ import {
   Archive,
   BarChart3,
   CheckCircle2,
+  Download,
   Flame,
   Leaf,
   PieChart,
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
+import { Button } from '../components/ui/button'
 import { Progress } from '../components/ui/progress'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { exploreAdminApi, type ExploreAnalytics } from '../api/explore'
@@ -220,6 +222,29 @@ export default function ReportsPage() {
     return list
   }, [data, safetyRate, range])
 
+  const handleExportCSV = () => {
+    if (!data) return
+    const rows = [
+      ['Chỉ số', 'Giá trị', 'Ghi chú'],
+      ['Lượt impression', data.impressions ?? 0, 'Tổng số lượt hiển thị feed'],
+      ['Độ an toàn nội dung', safetyRate, 'Tỷ lệ nội dung không vi phạm'],
+      ['DAU hoạt động', data.engagementDau ?? 0, 'Người dùng tương tác'],
+      ['Lượt mở chi tiết', data.openDetails ?? 0, 'Lượt khám phá bài'],
+      ['Tổng bài viết', data.totalArticles ?? 0, 'Bài viết chuyên sâu'],
+      ['Tổng bài đăng', data.totalPosts ?? 0, 'Bài đăng cộng đồng'],
+      ['Báo cáo vi phạm', data.totalReports ?? 0, 'Báo cáo cần rà soát'],
+    ]
+    const csvContent = '\uFEFF' + rows.map((e) => e.map(cell => `"${cell}"`).join(',')).join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `bao-cao-noan-${range}-${new Date().toISOString().slice(0, 10)}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <PageContainer className="space-y-6">
       {/* Header */}
@@ -230,7 +255,7 @@ export default function ReportsPage() {
             Báo cáo & Phân tích (Analytics)
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Tổng quan hiệu suất tương tác, lượt xem và mức độ gắn kết trên hệ sinh thái Mogu.
+            Tổng quan hiệu suất tương tác, lượt xem và mức độ gắn kết trên hệ sinh thái NOAN.
             {loading && <span className="text-muted-foreground ml-1">· Đang đồng bộ...</span>}
           </p>
         </div>
@@ -249,6 +274,17 @@ export default function ReportsPage() {
               </TabsTrigger>
             </TabsList>
           </Tabs>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleExportCSV}
+            className="text-xs h-9 gap-1.5 font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border-border"
+          >
+            <Download size={14} />
+            <span>Xuất CSV</span>
+          </Button>
         </div>
       </div>
 
@@ -367,12 +403,14 @@ export default function ReportsPage() {
               topList.map((item, i) => {
                 const pct = Math.round((item.value / totalMax) * 100)
                 return (
-                  <div key={`${item.name}-${i}`} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-foreground truncate max-w-[280px]">
+                  <div key={`${item.name}-${i}`} className="space-y-1.5 p-2 rounded-lg hover:bg-muted/40 transition-colors">
+                    <div className="flex items-center justify-between text-xs gap-3">
+                      <span className="font-semibold text-foreground flex-1 truncate" title={item.name}>
                         {i + 1}. {item.name}
                       </span>
-                      <span className="font-mono font-bold text-muted-foreground">{formatNum(item.value)}</span>
+                      <span className="font-mono font-bold text-amber-600 dark:text-amber-400 shrink-0">
+                        {formatNum(item.value)}
+                      </span>
                     </div>
                     <Progress value={pct} className="h-1.5" />
                   </div>

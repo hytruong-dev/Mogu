@@ -127,12 +127,12 @@ export function MediaForm({ state, onChange, onSelectFiles, uploading }: MediaFo
       <p className="mt-2 text-xs text-gray-400">Tối thiểu 1200×800 · JPG/PNG/WebP · tối đa 5 MB</p>
       <input ref={fileRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
 
-      <h3 className="mt-8 text-[15px] font-bold">Thư viện ảnh</h3>
-      <p className="text-sm text-gray-400">Kéo để sắp xếp thứ tự — nhấn biểu tượng ngôi sao để đặt làm ảnh đại diện</p>
+      <h3 className="mt-8 text-[15px] font-bold text-foreground">Thư viện ảnh</h3>
+      <p className="text-sm text-muted-foreground">Kéo để sắp xếp thứ tự — nhấn biểu tượng ngôi sao để đặt làm ảnh đại diện</p>
       <div className="mt-3 flex flex-wrap gap-3">
         {state.gallery.map((g, i) => (
           <div key={g.id} className="w-28">
-            <div className="group relative h-24 overflow-hidden rounded-xl border border-black/10">
+            <div className="group relative h-24 overflow-hidden rounded-xl border border-border bg-muted">
               <Image src={g.url} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
               <button
                 type="button"
@@ -162,14 +162,14 @@ export function MediaForm({ state, onChange, onSelectFiles, uploading }: MediaFo
                 className="absolute right-1 top-1 z-10 rounded-full bg-black/40 p-1"
                 title={g.isCover ? 'Ảnh bìa chính' : 'Đặt làm ảnh bìa'}
               >
-                <Star className={cn('h-3.5 w-3.5', g.isCover ? 'fill-mogu-yellow text-mogu-yellow' : 'text-white')} />
+                <Star className={cn('h-3.5 w-3.5', g.isCover ? 'fill-amber-400 text-amber-400' : 'text-white')} />
               </button>
             </div>
-            <p className="mt-1 truncate text-center text-xs text-gray-500">{i + 1}. {g.caption}</p>
+            <p className="mt-1 truncate text-center text-xs text-muted-foreground">{i + 1}. {g.caption}</p>
           </div>
         ))}
         <button type="button" onClick={() => fileRef.current?.click()}
-          className="flex h-24 w-28 flex-col items-center justify-center rounded-xl border-2 border-dashed border-black/15 text-sm text-gray-500 hover:border-mogu-yellow">
+          className="flex h-24 w-28 flex-col items-center justify-center rounded-xl border-2 border-dashed border-border text-sm text-muted-foreground hover:border-amber-500 hover:text-amber-500 transition-colors">
           <Plus className="h-5 w-5" /> Thêm ảnh
         </button>
       </div>

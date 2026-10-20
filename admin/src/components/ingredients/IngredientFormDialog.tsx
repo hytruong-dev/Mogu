@@ -87,9 +87,9 @@ export function IngredientFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden rounded-2xl bg-white shadow-2xl border border-slate-200">
-        <DialogHeader className="p-5 pb-3 border-b border-slate-100">
-          <DialogTitle className="text-base font-bold text-slate-900 flex items-center gap-2">
+      <DialogContent className="max-w-xl p-0 overflow-hidden rounded-2xl bg-card text-card-foreground shadow-2xl border border-border">
+        <DialogHeader className="p-5 pb-3 border-b border-border">
+          <DialogTitle className="text-base font-bold text-foreground flex items-center gap-2">
             {isEdit ? (
               <>
                 <Pencil size={16} className="text-amber-500" /> Sửa nguyên liệu
@@ -265,7 +265,7 @@ export function IngredientFormDialog({
                 {(form.synonyms ?? []).map((s) => (
                   <span
                     key={s}
-                    className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-[11px]"
+                    className="inline-flex items-center gap-1 bg-muted text-foreground px-2 py-0.5 rounded-md text-[11px]"
                   >
                     {s}
                     <button
@@ -276,7 +276,7 @@ export function IngredientFormDialog({
                           synonyms: (f.synonyms ?? []).filter((x) => x !== s),
                         }))
                       }
-                      className="text-slate-400 hover:text-slate-700"
+                      className="text-muted-foreground hover:text-foreground"
                     >
                       <X size={12} />
                     </button>
@@ -287,10 +287,10 @@ export function IngredientFormDialog({
           </div>
 
           {/* Active switch */}
-          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-muted/40 border border-border">
             <div>
-              <span className="block font-semibold text-slate-800">Trạng thái kích hoạt</span>
-              <span className="text-[11px] text-slate-400">Cho phép các món ăn liên kết và tìm kiếm nguyên liệu này</span>
+              <span className="block font-semibold text-foreground">Trạng thái kích hoạt</span>
+              <span className="text-[11px] text-muted-foreground">Cho phép các món ăn liên kết và tìm kiếm nguyên liệu này</span>
             </div>
             <Switch
               checked={!!form.isActive}
@@ -299,12 +299,12 @@ export function IngredientFormDialog({
           </div>
 
           {error && (
-            <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700">
+            <div className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/30 text-xs text-rose-600 dark:text-rose-400">
               {error}
             </div>
           )}
 
-          <DialogFooter className="pt-3 border-t border-slate-100">
+          <DialogFooter className="pt-3 border-t border-border">
             <Button type="button" variant="ghost" size="sm" onClick={() => onOpenChange(false)} disabled={busy} className="text-xs">
               Hủy
             </Button>

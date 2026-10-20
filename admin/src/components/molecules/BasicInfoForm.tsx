@@ -139,7 +139,7 @@ export function BasicInfoForm({
             <Select
               value={state.regionId ?? ''}
               onChange={(e) => onChange({ ...state, regionId: e.target.value || undefined, provinceId: undefined })}
-              className="h-12 rounded-xl border border-black/10 bg-white px-4 text-[15px]"
+              className="h-12 rounded-xl border border-input bg-background text-foreground px-4 text-[15px]"
             >
               <option value="">Chọn vùng miền...</option>
               {regions.map((r) => (
@@ -154,7 +154,7 @@ export function BasicInfoForm({
             <Select
               value={state.provinceId ?? ''}
               onChange={(e) => onChange({ ...state, provinceId: e.target.value || undefined })}
-              className="h-12 rounded-xl border border-black/10 bg-white px-4 text-[15px]"
+              className="h-12 rounded-xl border border-input bg-background text-foreground px-4 text-[15px]"
             >
               <option value="">Chọn tỉnh/thành...</option>
               {filteredProvinces.map((p) => (

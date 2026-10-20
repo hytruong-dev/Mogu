@@ -181,7 +181,7 @@ export function GhostBtn({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'h-10 px-4 text-sm font-semibold text-black bg-white hover:bg-black/[0.03]',
+        'h-10 px-4 text-sm font-semibold border-border bg-background text-foreground hover:bg-muted',
         className,
       )}
     >

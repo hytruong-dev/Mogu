@@ -67,6 +67,22 @@ const GOAL_ICONS: Record<string, LucideIcon> = {
 }
 
 const FLAVOR_OPTIONS = ['Thanh nhẹ', 'Đậm đà', 'Cay', 'Không cay', 'Chua', 'Ngọt', 'Béo', 'Mặn']
+
+const FLAVOR_LABELS: Record<string, string> = {
+  THOM_BEO: 'Thơm béo',
+  DAM_DA: 'Đậm đà',
+  THANH_DAM: 'Thanh đạm',
+  CAY_NHE: 'Cay nhẹ',
+  CHUA_NGOT: 'Chua ngọt',
+  NGOT_THANH: 'Ngọt thanh',
+  MAN_MA: 'Mặn mà',
+  BEO_NGAY: 'Béo ngậy',
+}
+
+export function formatFlavor(f: string): string {
+  return FLAVOR_LABELS[f] ?? f
+}
+
 const DISH_TYPE_OPTIONS = [
   { k: 'monNuoc', l: 'Món nước' },
   { k: 'monKho', l: 'Món khô' },
@@ -136,10 +152,10 @@ export function ClassificationPanel({
                 setOpenCategory((v) => !v)
               }
             }}
-            className="flex min-h-12 w-full cursor-pointer flex-wrap items-center gap-2 rounded-xl border border-black/10 bg-white px-3 py-2 text-left"
+            className="flex min-h-12 w-full cursor-pointer flex-wrap items-center gap-2 rounded-xl border border-input bg-background dark:bg-slate-900 px-3 py-2 text-left"
           >
             {state.categoryIds.length === 0 && (
-              <span className="text-[15px] text-gray-400">Chọn danh mục từ hệ thống...</span>
+              <span className="text-[15px] text-muted-foreground">Chọn danh mục từ hệ thống...</span>
             )}
             {state.categoryIds.map((id) => {
               const cat = categoryList.find((c) => c.id === id)
@@ -152,22 +168,22 @@ export function ClassificationPanel({
                 />
               )
             })}
-            <ChevronDown className="ml-auto h-4 w-4 shrink-0 text-gray-400" />
+            <ChevronDown className="ml-auto h-4 w-4 shrink-0 text-muted-foreground" />
           </div>
           {openCategory && (
-            <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-black/10 bg-white shadow-lg">
-              <div className="border-b border-black/5 p-2">
+            <div className="absolute z-20 mt-1 w-full overflow-hidden rounded-xl border border-border bg-card shadow-lg">
+              <div className="border-b border-border p-2">
                 <Input
                   autoFocus
                   value={categoryQuery}
                   onChange={(e) => setCategoryQuery(e.target.value)}
                   placeholder="Tìm danh mục..."
-                  className="h-10 w-full rounded-lg border border-black/10 px-3 text-sm focus-visible:ring-mogu-yellow"
+                  className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm focus-visible:ring-amber-500"
                 />
               </div>
               <div className="max-h-64 overflow-y-auto py-1">
                 {visibleCategories.length === 0 && (
-                  <p className="px-4 py-3 text-sm text-gray-400">
+                  <p className="px-4 py-3 text-sm text-muted-foreground">
                     {categoryList.length === 0
                       ? 'Chưa có danh mục trong database. Thêm ở trang Danh mục.'
                       : 'Không tìm thấy danh mục phù hợp.'}
@@ -181,12 +197,12 @@ export function ClassificationPanel({
                       type="button"
                       onClick={() => toggle('categoryIds', c.id)}
                       className={cn(
-                        'flex w-full items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-mogu-yellow/20',
-                        selected && 'bg-mogu-yellow-light font-semibold',
+                        'flex w-full items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-amber-500/10 dark:hover:bg-slate-800 transition-colors',
+                        selected && 'bg-amber-500/15 font-semibold text-amber-700 dark:text-amber-400',
                       )}
                     >
                       <span>{c.name}</span>
-                      {selected && <span className="text-xs text-gray-500">Đã chọn</span>}
+                      {selected && <span className="text-xs text-muted-foreground">Đã chọn</span>}
                     </button>
                   )
                 })}
@@ -289,7 +305,7 @@ export function ClassificationPanel({
             {state.flavors.map((f) => (
               <FilterChip
                 key={f}
-                label={f}
+                label={formatFlavor(f)}
                 onRemove={() => onChange({ ...state, flavors: state.flavors.filter((x) => x !== f) })}
               />
             ))}
@@ -302,7 +318,7 @@ export function ClassificationPanel({
                   key={f}
                   type="button"
                   onClick={() => onChange({ ...state, flavors: [...state.flavors, f] })}
-                  className="rounded-full border border-dashed border-border px-3 py-1 text-xs text-muted-foreground hover:border-[var(--mogu-yellow)]"
+                  className="rounded-full border border-dashed border-border px-3 py-1 text-xs text-muted-foreground hover:border-amber-400 hover:text-foreground transition-colors"
                 >
                   + {f}
                 </button>
@@ -315,17 +331,17 @@ export function ClassificationPanel({
       {/* Loại món */}
       <div>
         <SectionLabel>Loại món</SectionLabel>
-        <div className="mt-2 inline-flex w-fit rounded-full border border-border p-1">
+        <div className="mt-2 inline-flex w-fit rounded-full border border-border bg-muted/40 p-1">
           {DISH_TYPE_OPTIONS.map((t) => (
             <button
               key={t.k}
               type="button"
               onClick={() => onChange({ ...state, dishType: t.k })}
               className={cn(
-                'rounded-full px-5 py-1.5 text-sm font-medium transition-colors',
+                'rounded-full px-5 py-1.5 text-sm font-medium transition-all',
                 state.dishType === t.k
-                  ? 'bg-[var(--mogu-yellow)] text-black'
-                  : 'text-muted-foreground',
+                  ? 'bg-amber-500 text-slate-950 font-bold shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground',
               )}
             >
               {t.l}

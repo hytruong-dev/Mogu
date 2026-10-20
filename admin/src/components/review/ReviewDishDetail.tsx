@@ -1148,7 +1148,7 @@ export function ReviewDishDetail({ dish, onBack }: ReviewDishDetailProps) {
               Duyệt và xuất bản món ăn?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Món “<span className="font-bold text-foreground">{currentDish.name}</span>” sẽ được cập nhật trạng thái hoạt động chính thức và hiển thị công khai cho toàn bộ người dùng ứng dụng di động Mogu.
+              Món “<span className="font-bold text-foreground">{currentDish.name}</span>” sẽ được cập nhật trạng thái hoạt động chính thức và hiển thị công khai cho toàn bộ người dùng ứng dụng di động NOAN.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -15,6 +15,8 @@ import {
   ShieldCheck,
   Utensils,
   Command,
+  Sun,
+  Moon,
 } from 'lucide-react'
 import { useAuth } from '../../providers/AuthProvider'
 import { useDashboardActivities } from '../../hooks/useDashboard'
@@ -40,6 +42,38 @@ export function Header() {
   const initial = displayName[0]?.toUpperCase() ?? 'A'
 
   const [commandOpen, setCommandOpen] = useState(false)
+  const [isDark, setIsDark] = useState(() => {
+    return (
+      localStorage.getItem('noan_theme') === 'dark' ||
+      (!('noan_theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+    )
+  })
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('noan_theme', 'dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('noan_theme', 'light')
+    }
+  }, [isDark])
+
+  const toggleTheme = () => {
+    const applyToggle = () => {
+      document.documentElement.classList.add('theme-transition')
+      setIsDark((prev) => !prev)
+      setTimeout(() => {
+        document.documentElement.classList.remove('theme-transition')
+      }, 350)
+    }
+
+    if ('startViewTransition' in document) {
+      (document as any).startViewTransition(applyToggle)
+    } else {
+      applyToggle()
+    }
+  }
 
   // Listen for Cmd+K / Ctrl+K
   useEffect(() => {
@@ -81,6 +115,8 @@ export function Header() {
 
   if (location.pathname === '/foods/new') {
     currentNavLabel = 'Thêm món ăn mới'
+  } else if (location.pathname.startsWith('/foods/') && location.pathname !== '/foods') {
+    currentNavLabel = 'Chỉnh sửa món ăn'
   }
 
   return (
@@ -172,6 +208,17 @@ export function Header() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+
+          {/* Theme Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="p-2 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+            title={isDark ? 'Chuyển sang chế độ sáng' : 'Chuyển sang chế độ tối'}
+            aria-label="Toggle theme"
+          >
+            {isDark ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} />}
+          </button>
 
           {/* Notification Bell */}
           <DropdownMenu>

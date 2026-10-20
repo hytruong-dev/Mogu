@@ -373,7 +373,7 @@ export default function FoodScanReportsPage() {
             <ScanSearch className="text-amber-500" size={24} /> Món chưa có (Scan)
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Ảnh người dùng quét mà Mogu chưa có món tương ứng. Bổ sung món mới hoặc liên kết món có sẵn để lần sau quét ra đúng.
+            Ảnh người dùng quét mà NOAN chưa có món tương ứng. Bổ sung món mới hoặc liên kết món có sẵn để lần sau quét ra đúng.
           </p>
         </div>
         <div className="relative w-full sm:w-72">

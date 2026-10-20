@@ -103,7 +103,10 @@ export class AiService implements AiImportProvider {
   private readonly model: string;
   private tavilyDisabled = false;
 
-  constructor(private readonly config: ConfigService) {
+  constructor(
+    private readonly config: ConfigService,
+    @Optional() private readonly imageGenerator?: DishImageGeneratorService,
+  ) {
     const apiKey = (process.env.XKIRO_API_KEY || this.config.get<string>('XKIRO_API_KEY') || '').trim();
     const baseURL = (process.env.XKIRO_BASE_URL || this.config.get<string>('XKIRO_BASE_URL') || 'https://api.xkiro.com/v1').trim();
     this.model = (process.env.XKIRO_MODEL || this.config.get<string>('XKIRO_MODEL') || 'ag/gemini-3.8-flash').trim();
@@ -611,6 +614,45 @@ Trả về JSON thuần: {"items":[{"name":"tên","per100g":{"caloriesKcal":0,"p
    *        → Unsplash (chỉ nhận khi mô tả khớp ≥ 1 từ khóa)
    *        → null (để admin tự chọn, còn hơn ảnh sai)
    */
+  /**
+   * Tự động sinh ảnh món ăn bằng AI theo chuẩn Studio ẩm thực (như Bánh canh ghẹ).
+   * Ưu tiên 1: AI tự vẽ ảnh (DALL-E 3 / Gemini Image / Custom).
+   * Fallback: Tìm kiếm ảnh mạng đã qua AI Vision thẩm định nếu AI generator không khả dụng.
+   */
+  async resolveOrGenerateDishImage(
+    dishName: string,
+    extraction?: DishExtractionV11,
+  ): Promise<{ imageUrl?: string; imageBuffer?: Buffer; mimeType?: string; credit: string; isAiGenerated: boolean } | null> {
+    if (this.imageGenerator) {
+      try {
+        const generated = await this.imageGenerator.generateDishImage(dishName, extraction);
+        if (generated && (generated.imageUrl || generated.imageBuffer)) {
+          return {
+            imageUrl: generated.imageUrl,
+            imageBuffer: generated.imageBuffer,
+            mimeType: generated.mimeType,
+            credit: generated.credit,
+            isAiGenerated: true,
+          };
+        }
+      } catch (err: any) {
+        this.logger.warn(`Lỗi tạo ảnh AI cho món "${dishName}": ${err.message}`);
+      }
+    }
+
+    // Fallback: Tìm kiếm ảnh mạng có AI Vision kiểm duyệt
+    const searchedUrl = await this.searchDishImage(dishName);
+    if (searchedUrl) {
+      return {
+        imageUrl: searchedUrl,
+        credit: 'Wikimedia Commons / Web Curated',
+        isAiGenerated: false,
+      };
+    }
+
+    return null;
+  }
+
   /**
    * Tìm ảnh món ăn theo thứ tự:
    * 1️⃣ Tavily domain ẩm thực Việt (nếu Tavily hoạt động) + AI Vision thẩm định

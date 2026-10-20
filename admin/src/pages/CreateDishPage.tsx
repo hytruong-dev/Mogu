@@ -1037,7 +1037,7 @@ export default function CreateDishPage() {
       </div>
 
       {/* Footer */}
-      <footer className="flex shrink-0 items-center justify-end gap-4 border-t border-black/5 bg-mogu-cream px-8 py-5">
+      <footer className="flex shrink-0 items-center justify-end gap-4 border-t border-border bg-card px-8 py-5">
         {submitError && (
           <span className="mr-auto text-sm text-red-600 flex items-center gap-1.5 font-medium">
             <AlertTriangle size={15} />

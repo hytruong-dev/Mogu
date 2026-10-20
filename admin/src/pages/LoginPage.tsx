@@ -57,12 +57,17 @@ export default function LoginPage() {
     <div className="login-page flex min-h-screen items-center justify-center bg-muted/40 p-4">
       <Card className="login-card w-full max-w-sm shadow-xl border border-border">
         <CardHeader className="text-center pb-4">
-          <div className="brand mb-3 text-xl font-black tracking-tight text-foreground">
-            Mogu<span className="text-amber-500 font-extrabold ml-1">ADMIN</span>
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-400 flex items-center justify-center shadow-sm text-white">
+              <span className="font-extrabold text-xs">N</span>
+            </div>
+            <span className="text-xl font-black tracking-tight text-foreground">
+              NOAN<span className="text-amber-500 font-extrabold ml-1">STUDIO</span>
+            </span>
           </div>
           <CardTitle className="text-xl font-bold">Đăng nhập</CardTitle>
           <CardDescription className="text-xs">
-            Chỉ dành cho quản trị viên hệ thống
+            Hệ thống quản trị nội dung & dữ liệu ẩm thực
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -78,6 +83,7 @@ export default function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
+                autoComplete="username"
                 autoCapitalize="none"
                 autoCorrect="off"
                 className="h-10 text-sm"
@@ -94,6 +100,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
                 className="h-10 text-sm"
               />
             </div>

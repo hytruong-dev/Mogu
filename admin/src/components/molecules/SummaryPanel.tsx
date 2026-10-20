@@ -3,7 +3,7 @@ import { FilterChip } from '../atoms/FilterChip'
 import { Progress } from '../ui/progress'
 import { Card, CardContent } from '../ui/card'
 import { Badge } from '../ui/badge'
-import type { ClassificationState } from './ClassificationPanel'
+import { formatFlavor, type ClassificationState } from './ClassificationPanel'
 
 interface SummaryPanelProps {
   state: ClassificationState
@@ -43,7 +43,7 @@ export function SummaryPanel({ state, categories, mealTypes, goals, dietTypes }:
     { label: 'Loại bữa ăn', tags: mealNames },
     { label: 'Mục tiêu', tags: goalNames },
     { label: 'Chế độ ăn', tags: dietName ? [dietName] : [] },
-    { label: 'Khẩu vị', tags: state.flavors },
+    { label: 'Khẩu vị', tags: state.flavors.map(formatFlavor) },
     { label: 'Loại món', tags: [dishTypeLabel] },
   ]
 

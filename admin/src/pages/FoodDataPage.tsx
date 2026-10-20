@@ -97,20 +97,20 @@ function FoodDataShell() {
             onValueChange={(val) => selectTab(val as FoodDataTab)}
             className="w-full"
           >
-            <TabsList className="h-auto p-1 bg-slate-100 rounded-xl gap-1.5 flex flex-wrap justify-start">
+            <TabsList className="h-auto p-1 bg-muted rounded-xl gap-1.5 flex flex-wrap justify-start">
               {TABS.map((tab) => {
                 const Icon = tab.icon
                 return (
                   <TabsTrigger
                     key={tab.id}
                     value={tab.id}
-                    className="gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm text-slate-600"
+                    className="gap-2 px-3.5 py-1.5 text-xs font-semibold rounded-lg data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground"
                   >
                     <Icon size={15} />
                     <span>{tab.label}</span>
                     <Badge
                       variant="secondary"
-                      className="ml-1 text-[10px] px-1.5 py-0 h-4 font-mono font-bold bg-slate-200/80 text-slate-700"
+                      className="ml-1 text-[10px] px-1.5 py-0 h-4 font-mono font-bold bg-muted-foreground/15 text-foreground"
                     >
                       {counts[tab.id].toLocaleString('vi-VN')}
                     </Badge>

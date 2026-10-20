@@ -141,32 +141,32 @@ export function StepUpload({ file, headerRow, onHeaderChange, onFile, onClear }:
         <button
           type="button"
           onClick={downloadTemplate}
-          className="flex items-center gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-left transition hover:border-mogu-yellow/70 hover:bg-[#FFFDF5]"
+          className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition hover:border-amber-500/70 hover:bg-muted/40"
         >
           <ExcelMark size={36} />
           <div>
-            <p className="text-sm font-semibold text-black">Tải file mẫu Excel</p>
-            <p className="mt-0.5 text-xs text-[#6B7280]">Tải về file mẫu với định dạng chuẩn</p>
+            <p className="text-sm font-semibold text-foreground">Tải file mẫu Excel</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Tải về file mẫu với định dạng chuẩn</p>
           </div>
         </button>
         <button
           type="button"
           onClick={() => setGuideOpen(true)}
-          className="flex items-center gap-3 rounded-xl border border-black/10 bg-white px-4 py-3 text-left transition hover:border-mogu-yellow/70 hover:bg-[#FFFDF5]"
+          className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left transition hover:border-amber-500/70 hover:bg-muted/40"
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#F3E8FF]">
-            <BookOpen className="h-5 w-5 text-[#7C3AED]" />
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-purple-500/15">
+            <BookOpen className="h-5 w-5 text-purple-600 dark:text-purple-400" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-black">Xem hướng dẫn chuẩn bị dữ liệu</p>
-            <p className="mt-0.5 text-xs text-[#6B7280]">Hướng dẫn chi tiết và ví dụ minh họa</p>
+            <p className="text-sm font-semibold text-foreground">Xem hướng dẫn chuẩn bị dữ liệu</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">Hướng dẫn chi tiết và ví dụ minh họa</p>
           </div>
-          <ChevronRight className="h-4 w-4 shrink-0 text-[#9CA3AF]" />
+          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
         </button>
       </div>
 
       <div>
-        <p className="mb-2 text-sm font-semibold text-black">Quy tắc tệp</p>
+        <p className="mb-2 text-sm font-semibold text-foreground">Quy tắc tệp</p>
         <div className="overflow-hidden rounded-xl border border-black/10">
           {FILE_RULES.map((rule, i) => {
             const Icon = RULE_ICONS[i]

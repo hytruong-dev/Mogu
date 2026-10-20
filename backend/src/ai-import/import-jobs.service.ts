@@ -436,7 +436,7 @@ export class ImportJobsService {
           aiIngredientFallback: (items) => this.ai.estimateIngredientNutrition(items),
           aiDishFallback: () => this.ai.estimateNutrition(dishData.name, normalizedIngredients),
         }),
-        this.resolveCoverImage(dishData.name, evidence),
+        this.resolveCoverImage(dishData.name, evidence, extraction),
         this.stepImages.attach({
           jobId: id,
           steps: extraction.recipe.steps,
@@ -928,8 +928,33 @@ export class ImportJobsService {
   private async resolveCoverImage(
     dishName: string,
     evidence: RecipeEvidence | null,
+    extraction?: DishExtractionV11,
   ): Promise<string | null> {
+    // 1️⃣ Ưu tiên 1: Tự động sinh ảnh AI Studio ẩm thực
+    try {
+      const generated = await this.ai.resolveOrGenerateDishImage(dishName, extraction);
+      if (generated?.imageUrl) {
+        return generated.imageUrl;
+      }
+      if (generated?.imageBuffer) {
+        const mime = generated.mimeType || 'image/jpeg'; const ext = mime.includes('png') ? 'png' : 'jpg';
+        const storageKey = `dishes/ai-generated-${Date.now()}.${ext}`;
+        const { error } = await this.supabase.storage
+          .from(this.storageBucket)
+          .upload(storageKey, generated.imageBuffer, { contentType: mime, upsert: true });
+        if (!error) {
+          const { data } = this.supabase.storage.from(this.storageBucket).getPublicUrl(storageKey);
+          return data.publicUrl;
+        }
+      }
+    } catch (error) {
+      this.logger.warn(`AI image generation failed for "${dishName}": ${(error as Error).message}`);
+    }
+
+    // 2️⃣ Ưu tiên 2: Ảnh chính thức từ nguồn công thức
     if (evidence?.imageUrl && /^https?:\/\//i.test(evidence.imageUrl)) return evidence.imageUrl;
+
+    // 3️⃣ Ưu tiên 3: Tìm kiếm ảnh mạng có AI Vision kiểm duyệt
     try {
       return await this.ai.searchDishImage(dishName);
     } catch (error) {

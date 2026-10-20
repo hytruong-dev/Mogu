@@ -196,12 +196,12 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-[1100px] w-full max-h-[92vh] flex flex-col overflow-hidden p-0 rounded-2xl bg-white shadow-2xl [&>button]:top-5 [&>button]:right-6">
-        <header className="shrink-0 border-b border-black/[0.08] px-6 pb-4 pt-5 pr-14">
+      <DialogContent className="max-w-[1100px] w-full max-h-[92vh] flex flex-col overflow-hidden p-0 rounded-2xl bg-card text-card-foreground border border-border shadow-2xl [&>button]:top-5 [&>button]:right-6">
+        <header className="shrink-0 border-b border-border px-6 pb-4 pt-5 pr-14">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2.5">
-                <DialogTitle className="text-lg font-bold text-black">{title}</DialogTitle>
+                <DialogTitle className="text-lg font-bold text-foreground">{title}</DialogTitle>
                 {apiError && <p className="mt-1 text-xs text-red-600">{apiError}</p>}
                 {phase === 'progress' && (
                   <span className="rounded-full bg-[#DBEAFE] px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-[#1D4ED8]">

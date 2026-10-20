@@ -182,10 +182,10 @@ export function FoodsTable({
                             <Flame size={12} className="text-amber-500" />
                             <span>{nutrition.calories} kcal</span>
                           </div>
-                          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-mono">
-                            <span>P:{nutrition.proteinG ?? 0}g</span>
-                            <span>C:{nutrition.carbsG ?? 0}g</span>
-                            <span>F:{nutrition.fatG ?? 0}g</span>
+                          <div className="flex items-center gap-1.5 text-[10.5px] font-mono font-medium">
+                            <span className="text-emerald-600 dark:text-emerald-400">P:{nutrition.proteinG ?? 0}g</span>
+                            <span className="text-blue-600 dark:text-blue-400">C:{nutrition.carbsG ?? 0}g</span>
+                            <span className="text-amber-600 dark:text-amber-400">F:{nutrition.fatG ?? 0}g</span>
                           </div>
                         </div>
                       ) : (

@@ -44,7 +44,7 @@ export function IngredientsFilterBar({
   )
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200/80 p-3.5 mb-4 shadow-sm space-y-3">
+    <div className="bg-card rounded-xl border border-border p-3.5 mb-4 shadow-sm space-y-3">
       {/* Top row: Status tabs + Search */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <Tabs
@@ -52,12 +52,12 @@ export function IngredientsFilterBar({
           onValueChange={onStatusChange}
           className="w-full md:w-auto"
         >
-          <TabsList className="bg-slate-100 p-1 rounded-lg h-auto flex flex-wrap gap-1">
+          <TabsList className="bg-muted p-1 rounded-lg h-auto flex flex-wrap gap-1">
             {STATUS_TABS.map((t) => (
               <TabsTrigger
                 key={t.value}
                 value={t.value}
-                className="text-xs font-semibold px-3 py-1.5 rounded-md data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-slate-900 text-slate-600"
+                className="text-xs font-semibold px-3 py-1.5 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground"
               >
                 {t.label}
               </TabsTrigger>
@@ -67,18 +67,18 @@ export function IngredientsFilterBar({
 
         {/* Search */}
         <div className="relative w-full md:w-80 flex-shrink-0">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Tìm theo tên nguyên liệu, mã..."
-            className="pl-9 pr-8 h-9 text-xs rounded-lg border-slate-200 bg-slate-50/50 focus:bg-white"
+            className="pl-9 pr-8 h-9 text-xs rounded-lg border-input bg-background"
           />
           {search && (
             <button
               type="button"
               onClick={() => onSearchChange('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-0.5"
             >
               <X size={13} />
             </button>
@@ -87,13 +87,13 @@ export function IngredientsFilterBar({
       </div>
 
       {/* Bottom row: Filter selectors */}
-      <div className="flex flex-wrap items-center gap-2.5 pt-1 border-t border-slate-100">
+      <div className="flex flex-wrap items-center gap-2.5 pt-1 border-t border-border">
         {/* Allergen Select */}
         <div className="w-52">
           <Select
             value={allergenCode ?? ''}
             onChange={(e) => onAllergenCodeChange(e.target.value || undefined)}
-            className="h-8 text-xs bg-slate-50 border-slate-200"
+            className="h-8 text-xs bg-background border-input text-foreground"
           >
             <option value="">Tất cả dị ứng</option>
             {allergenOptions && allergenOptions.length > 0
@@ -117,7 +117,7 @@ export function IngredientsFilterBar({
           <Select
             value={createdVia ?? ''}
             onChange={(e) => onCreatedViaChange(e.target.value || undefined)}
-            className="h-8 text-xs bg-slate-50 border-slate-200"
+            className="h-8 text-xs bg-background border-input text-foreground"
           >
             <option value="">Nguồn tạo</option>
             {Object.entries(CREATED_VIA_LABELS).map(([key, label]) => (
@@ -133,7 +133,7 @@ export function IngredientsFilterBar({
             variant="ghost"
             size="sm"
             onClick={onReset}
-            className="h-8 px-2.5 text-xs text-slate-500 hover:text-slate-800 gap-1.5"
+            className="h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground gap-1.5"
           >
             <RotateCcw size={12} />
             Đặt lại bộ lọc
@@ -141,8 +141,8 @@ export function IngredientsFilterBar({
         )}
 
         {/* Counter */}
-        <div className="ml-auto text-xs text-slate-500 font-medium">
-          Tìm thấy <span className="font-bold text-slate-900">{totalCount}</span> nguyên liệu
+        <div className="ml-auto text-xs text-muted-foreground font-medium">
+          Tìm thấy <span className="font-bold text-foreground">{totalCount}</span> nguyên liệu
         </div>
       </div>
     </div>

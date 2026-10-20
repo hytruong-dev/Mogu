@@ -72,26 +72,26 @@ export function FoodsStatCards({
             onClick={() => onSelectStatus(card.id)}
             className={`p-4 cursor-pointer transition-all border rounded-xl hover:shadow-md ${
               card.active
-                ? 'border-amber-400 bg-amber-50/40 ring-2 ring-amber-300/40 shadow-sm'
-                : 'border-slate-200/80 bg-white hover:border-slate-300'
+                ? 'border-amber-500 bg-amber-500/10 ring-2 ring-amber-400/30 shadow-sm'
+                : 'border-border bg-card hover:border-amber-400/50'
             }`}
           >
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 {card.label}
               </span>
               <div
                 className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                   card.active
                     ? 'bg-amber-500 text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-600'
+                    : 'bg-muted text-muted-foreground'
                 }`}
               >
                 <Icon size={16} />
               </div>
             </div>
             <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl font-bold tracking-tight text-slate-900">
+              <span className="text-2xl font-bold tracking-tight text-foreground">
                 {card.value.toLocaleString('vi-VN')}
               </span>
             </div>

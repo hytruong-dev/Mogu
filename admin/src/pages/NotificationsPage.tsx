@@ -258,7 +258,7 @@ export default function NotificationsPage() {
               </Label>
               <Input
                 id="notif-title"
-                placeholder="VD: Cập nhật tính năng Mogu v2.0 hoặc Lời nhắc bữa trưa"
+                placeholder="VD: Cập nhật tính năng NOAN v2.0 hoặc Lời nhắc bữa trưa"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 className="h-9 text-xs"
@@ -350,7 +350,7 @@ export default function NotificationsPage() {
                   {form.title.trim() || 'Tiêu đề thông báo mẫu'}
                 </p>
                 <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-3 leading-relaxed">
-                  {form.body.trim() || 'Nội dung thông báo sẽ xuất hiện ở đây khi người dùng nhận được thông báo từ ban quản trị Mogu.'}
+                  {form.body.trim() || 'Nội dung thông báo sẽ xuất hiện ở đây khi người dùng nhận được thông báo từ ban quản trị NOAN.'}
                 </p>
               </div>
               {form.deepLink && (

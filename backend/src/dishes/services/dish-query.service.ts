@@ -219,13 +219,14 @@ export class DishQueryService {
       ...(cursor ? { id: { lt: cursor } } : {}),
     };
 
-    const [dishes, grouped] = await Promise.all([
+    const [dishes, totalFiltered, grouped] = await Promise.all([
       this.prisma.db.dish.findMany({
         where: listWhere,
         include: this.adminListInclude(),
         take: take + 1,
         orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
       }),
+      this.prisma.db.dish.count({ where }),
       this.prisma.db.dish.groupBy({
         by: ['status'],
         where: { deletedAt: null },
@@ -244,12 +245,13 @@ export class DishQueryService {
       published: countBy['PUBLISHED'] ?? 0,
       pendingReview: countBy['PENDING_REVIEW'] ?? 0,
       draft: countBy['DRAFT'] ?? 0,
+      archived: countBy['ARCHIVED'] ?? 0,
     };
 
     return {
       data,
       pageInfo: { nextCursor, hasNextPage },
-      total: summary.total,
+      total: totalFiltered,
       summary,
     };
   }

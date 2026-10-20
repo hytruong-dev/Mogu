@@ -18,10 +18,10 @@ interface FilterChipProps {
 export function FilterChip({ label, onRemove, variant = 'yellow', className }: FilterChipProps) {
   const palette =
     variant === 'green'
-      ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+      ? 'bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/80'
       : variant === 'neutral'
         ? 'bg-muted text-muted-foreground border-border'
-        : 'bg-[var(--mogu-yellow-light)] text-foreground border border-[var(--mogu-yellow)]/40'
+        : 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/80 font-medium'
 
   return (
     <Badge

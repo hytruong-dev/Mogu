@@ -152,7 +152,7 @@ function CreateUserModal({
 
   const handleGeneratePassword = () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*'
-    let pwd = 'Mogu@'
+    let pwd = 'Noan@'
     for (let i = 0; i < 6; i++) {
       pwd += chars.charAt(Math.floor(Math.random() * chars.length))
     }
@@ -185,7 +185,7 @@ function CreateUserModal({
 
   const handleCopy = () => {
     if (!result) return
-    const text = `Tài khoản Mogu:\nTên đăng nhập: ${result.username}\nMật khẩu: ${result.temporaryPassword}\nVai trò: ${result.role}`
+    const text = `Tài khoản NOAN:\nTên đăng nhập: ${result.username}\nMật khẩu: ${result.temporaryPassword}\nVai trò: ${result.role}`
     navigator.clipboard.writeText(text)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
@@ -391,7 +391,7 @@ function DirectPasswordResetModal({
 
   const handleGeneratePassword = () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*'
-    let pwd = 'Mogu@'
+    let pwd = 'Noan@'
     for (let i = 0; i < 6; i++) {
       pwd += chars.charAt(Math.floor(Math.random() * chars.length))
     }
@@ -1250,7 +1250,7 @@ export default function UsersPage() {
                 </Badge>
               </h1>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Quản lý tài khoản, trạng thái xác minh và phân quyền truy cập hệ thống Mogu.
+                Quản lý tài khoản, trạng thái xác minh và phân quyền truy cập hệ thống NOAN.
               </p>
             </div>
           </div>

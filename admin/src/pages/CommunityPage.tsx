@@ -446,7 +446,7 @@ export default function CommunityPage() {
               </span>
             ) : null}
           </h1>
-          <p>Bảo đảm không gian thảo luận Mogu luôn an toàn, hữu ích và tuân thủ tiêu chuẩn cộng đồng</p>
+          <p>Bảo đảm không gian thảo luận NOAN luôn an toàn, hữu ích và tuân thủ tiêu chuẩn cộng đồng</p>
         </div>
 
         <div className="mod-tab-switch">
@@ -1184,14 +1184,14 @@ export default function CommunityPage() {
         <Card className="mod-posts-card">
           <div className="mod-posts-filter-bar flex-wrap items-center gap-3">
             <Tabs value={commentType} onValueChange={(val) => setCommentType(val as typeof commentType)}>
-              <TabsList className="bg-zinc-100 p-1 h-9">
-                <TabsTrigger value="all" className="text-xs px-3 py-1 font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm">
+              <TabsList className="bg-muted p-1 h-9">
+                <TabsTrigger value="all" className="text-xs px-3 py-1 font-semibold data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground">
                   Tất cả
                 </TabsTrigger>
-                <TabsTrigger value="article" className="text-xs px-3 py-1 font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                <TabsTrigger value="article" className="text-xs px-3 py-1 font-semibold data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground">
                   Bài viết
                 </TabsTrigger>
-                <TabsTrigger value="post" className="text-xs px-3 py-1 font-semibold data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                <TabsTrigger value="post" className="text-xs px-3 py-1 font-semibold data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm text-muted-foreground">
                   Bài đăng cộng đồng
                 </TabsTrigger>
               </TabsList>
@@ -1381,7 +1381,7 @@ export default function CommunityPage() {
           <DialogHeader>
             <DialogTitle>Xóa bài đăng này?</DialogTitle>
             <DialogDescription>
-              Bài đăng sẽ được đánh dấu DELETED và không còn xuất hiện trên bảng tin Mogu.
+              Bài đăng sẽ được đánh dấu DELETED và không còn xuất hiện trên bảng tin NOAN.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

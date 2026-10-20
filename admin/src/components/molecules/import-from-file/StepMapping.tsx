@@ -94,7 +94,7 @@ export function StepMapping({
           </Table>
         </div>
 
-        <div className="h-fit rounded-xl border border-black/10 bg-white p-4">
+        <div className="h-fit rounded-xl border border-border bg-card text-card-foreground p-4">
           <p className="mb-3 text-sm font-semibold">Tóm tắt ánh xạ</p>
           <ul className="space-y-2 text-sm">
             <li className="flex justify-between">

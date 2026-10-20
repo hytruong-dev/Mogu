@@ -65,14 +65,14 @@ export function IngredientDetailDrawer({
   }
 
   return (
-    <aside className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-white shadow-2xl border-l border-slate-200 flex flex-col animate-in slide-in-from-right duration-200">
+    <aside className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-card text-card-foreground shadow-2xl border-l border-border flex flex-col animate-in slide-in-from-right duration-200">
       {/* Header */}
-      <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-        <h3 className="text-sm font-bold text-slate-900">Chi tiết nguyên liệu</h3>
+      <div className="p-4 border-b border-border flex items-center justify-between">
+        <h3 className="text-sm font-bold text-foreground">Chi tiết nguyên liệu</h3>
         <button
           type="button"
           onClick={onClose}
-          className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+          className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
         >
           <X size={16} />
         </button>
@@ -81,7 +81,7 @@ export function IngredientDetailDrawer({
       {/* Body scroll */}
       <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
         {/* Cover Photo */}
-        <div className="relative aspect-video rounded-xl overflow-hidden bg-slate-100 border border-slate-200">
+        <div className="relative aspect-video rounded-xl overflow-hidden bg-muted border border-border">
           {imgUrl ? (
             <Image
               src={imgUrl}
@@ -90,9 +90,9 @@ export function IngredientDetailDrawer({
               className="h-full w-full object-cover"
             />
           ) : (
-            <div className="flex flex-col items-center justify-center h-full text-slate-400 gap-1.5">
-              <Leaf size={28} className="text-slate-300" />
-              <span className="text-[11px] text-slate-400">Chưa có ảnh nguyên liệu</span>
+            <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-1.5">
+              <Leaf size={28} className="text-muted-foreground/60" />
+              <span className="text-[11px] text-muted-foreground">Chưa có ảnh nguyên liệu</span>
             </div>
           )}
         </div>
@@ -100,9 +100,9 @@ export function IngredientDetailDrawer({
         {/* Title & Status */}
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-base font-bold text-slate-900">{item.name}</h2>
+            <h2 className="text-base font-bold text-foreground">{item.name}</h2>
             {item.nameEn && (
-              <p className="text-slate-500 italic mt-0.5">EN: {item.nameEn}</p>
+              <p className="text-muted-foreground italic mt-0.5">EN: {item.nameEn}</p>
             )}
           </div>
           <Badge
@@ -115,16 +115,16 @@ export function IngredientDetailDrawer({
 
         {/* Description */}
         {item.description && (
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 leading-relaxed">
+          <div className="p-3 rounded-xl bg-muted/40 border border-border text-foreground leading-relaxed">
             {item.description}
           </div>
         )}
 
         {/* Metadata grid */}
-        <div className="rounded-xl border border-slate-100 overflow-hidden divide-y divide-slate-100 bg-slate-50/50">
+        <div className="rounded-xl border border-border overflow-hidden divide-y divide-border bg-muted/20">
           <div className="flex items-center justify-between p-2.5">
-            <span className="text-slate-500">Mã nguyên liệu:</span>
-            <span className="font-mono font-bold text-slate-800">{item.code}</span>
+            <span className="text-muted-foreground">Mã nguyên liệu:</span>
+            <span className="font-mono font-bold text-foreground">{item.code}</span>
           </div>
           <div className="flex items-center justify-between p-2.5">
             <span className="text-slate-500">Đơn vị chuẩn:</span>
@@ -205,9 +205,9 @@ export function IngredientDetailDrawer({
               {imageCandidates.map((c) => (
                 <div
                   key={c.id}
-                  className="p-2 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between gap-2.5"
+                  className="p-2 rounded-xl border border-border bg-muted/40 flex items-center justify-between gap-2.5"
                 >
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-200 flex-shrink-0">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                     <Image
                       src={c.publicUrl || c.previewUrl || c.originalUrl}
                       alt=""
@@ -216,8 +216,8 @@ export function IngredientDetailDrawer({
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-slate-800 truncate">{c.provider}</div>
-                    <div className="text-[10px] text-slate-400">Điểm phù hợp: {c.score}</div>
+                    <div className="font-semibold text-foreground truncate">{c.provider}</div>
+                    <div className="text-[10px] text-muted-foreground">Điểm phù hợp: {c.score}</div>
                   </div>
                   <Button
                     type="button"
@@ -236,7 +236,7 @@ export function IngredientDetailDrawer({
       </div>
 
       {/* Footer actions */}
-      <div className="p-4 border-t border-slate-100 bg-slate-50 flex flex-col gap-2">
+      <div className="p-4 border-t border-border bg-muted/30 flex flex-col gap-2">
         {isPending && (
           <div className="flex items-center gap-2">
             <Button

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Sparkles, Activity, Command } from 'lucide-react'
+import { Sparkles, Activity } from 'lucide-react'
 import { useAuth } from '../../providers/AuthProvider'
 import { useReviewQueue } from '../../hooks/useReviewQueue'
 import { useFoodScanReportSummary } from '../../hooks/useFoodScanReports'
@@ -95,23 +95,16 @@ export function Sidebar({ currentPath }: { currentPath: string }) {
       </nav>
 
       {/* Sidebar Footer */}
-      <div className="p-3.5 border-t border-slate-100 dark:border-slate-800/80 space-y-2">
+      <div className="p-3.5 border-t border-slate-100 dark:border-slate-800/80">
         <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
             <div className="flex flex-col">
               <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200">Hệ thống ổn định</span>
-              <span className="text-[10px] text-slate-400 dark:text-slate-500">Mogu Cloud • v1.3</span>
+              <span className="text-[10px] text-slate-400 dark:text-slate-500">NOAN Cloud • v2.0</span>
             </div>
           </div>
           <Activity size={14} className="text-slate-400 dark:text-slate-500" />
-        </div>
-
-        <div className="flex items-center justify-between px-3 py-1.5 text-[11px] text-slate-400 dark:text-slate-500">
-          <span>Tìm kiếm nhanh</span>
-          <kbd className="inline-flex items-center gap-0.5 font-mono text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 text-slate-500 dark:text-slate-400">
-            <Command size={10} /> K
-          </kbd>
         </div>
       </div>
     </aside>

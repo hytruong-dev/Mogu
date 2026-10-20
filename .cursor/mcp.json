@@ -3,6 +3,29 @@
     "supabase": {
       "url": "https://mcp.supabase.com/mcp?project_ref=teteypzdctohbqghayye&features=docs%2Caccount%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching"
     },
+    "zentao": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@wudidada/zentao-mcp-server"
+      ],
+      "env": {
+        "ZENTAO_BASE_URL": "https://zentao.oasoft.xyz:4433/zentao/api.php/v1",
+        "ZENTAO_ACCOUNT": "Dany",
+        "ZENTAO_PASSWORD": "Dany123456"
+      }
+    },
+    "mobile-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@mobilenext/mobile-mcp@latest"
+      ]
+    },
+    "codebase-memory-mcp": {
+      "command": "C:/Users/PC/AppData/Local/Programs/codebase-memory-mcp/codebase-memory-mcp.exe",
+      "args": []
+    },
     "playwright": {
       "command": "npx",
       "args": [

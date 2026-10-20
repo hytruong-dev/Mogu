@@ -259,7 +259,7 @@ function PendingIngredientRow({
   const isApprovedImage = ing?.imageStatus === 'APPROVED'
 
   return (
-    <div className="rounded-lg border border-amber-200 bg-white p-3.5 shadow-sm transition hover:border-amber-300">
+    <div className="rounded-lg border border-amber-500/30 bg-card p-3.5 shadow-sm transition hover:border-amber-500/50">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         {/* Thumbnail & Image Badge */}
         <div className="flex items-start gap-3">

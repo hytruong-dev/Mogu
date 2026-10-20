@@ -32,6 +32,7 @@ import { IngredientsModule } from '../ingredients/ingredients.module';
 import { getRedisUrl } from '../common/redis/redis-env';
 import { DishOriginResolverService } from './origin/dish-origin-resolver.service';
 import { StepImageService } from './media/step-image.service';
+import { DishImageGeneratorService } from './dish-image-generator.service';
 
 const REDIS_URL = getRedisUrl();
 const nullQueueProvider = { provide: AI_IMPORT_QUEUE_TOKEN, useValue: null };
@@ -61,6 +62,7 @@ const nullQueueProvider = { provide: AI_IMPORT_QUEUE_TOKEN, useValue: null };
     AiImportDraftPersistenceService,
     DishOriginResolverService,
     StepImageService,
+    DishImageGeneratorService,
     { provide: AI_IMPORT_PROVIDER, useExisting: AiService },
     ...(REDIS_URL ? [ImportJobProcessor] : [nullQueueProvider]),
   ],
@@ -76,6 +78,7 @@ const nullQueueProvider = { provide: AI_IMPORT_QUEUE_TOKEN, useValue: null };
     TargetedRepairService,
     DishOriginResolverService,
     StepImageService,
+    DishImageGeneratorService,
     AI_IMPORT_PROVIDER,
     SourceEvidenceModule,
   ],

@@ -66,24 +66,24 @@ export function CommandPaletteModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden rounded-xl border border-border shadow-2xl bg-white">
+      <DialogContent className="max-w-xl p-0 overflow-hidden rounded-xl border border-border shadow-2xl bg-card text-card-foreground">
         <div className="flex items-center px-4 border-b border-border/70 h-13">
-          <Search size={17} className="text-slate-400 mr-3 flex-shrink-0" />
+          <Search size={17} className="text-muted-foreground mr-3 flex-shrink-0" />
           <Input
             autoFocus
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Tìm kiếm trang, chức năng hoặc thao tác nhanh..."
-            className="w-full bg-transparent border-none shadow-none outline-none focus-visible:ring-0 text-sm text-slate-800 placeholder:text-slate-400 h-12"
+            className="w-full bg-transparent border-none shadow-none outline-none focus-visible:ring-0 text-sm text-foreground placeholder:text-muted-foreground h-12"
           />
-          <Badge variant="outline" className="text-[10px] font-bold text-slate-400 border-slate-200">
+          <Badge variant="outline" className="text-[10px] font-bold text-muted-foreground border-border">
             ESC
           </Badge>
         </div>
 
         <div className="max-h-80 overflow-y-auto p-2 space-y-1">
           {filtered.length === 0 ? (
-            <div className="py-8 text-center text-sm text-slate-400">
+            <div className="py-8 text-center text-sm text-muted-foreground">
               Không tìm thấy kết quả phù hợp cho "{search}"
             </div>
           ) : (
@@ -100,17 +100,17 @@ export function CommandPaletteModal({
                   className="w-full flex items-center justify-between p-2.5 rounded-lg text-left hover:bg-amber-500/10 transition-colors group cursor-pointer border-none bg-transparent"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-md bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-amber-500/20 group-hover:text-amber-700 transition-colors flex-shrink-0">
+                    <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-amber-500/20 group-hover:text-amber-500 transition-colors flex-shrink-0">
                       <Icon size={16} />
                     </div>
                     <div className="min-w-0">
-                      <div className="text-xs font-semibold text-slate-800 group-hover:text-amber-950 truncate">
+                      <div className="text-xs font-semibold text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 truncate">
                         {item.label}
                       </div>
-                      <div className="text-[11px] text-slate-400 truncate">{item.desc}</div>
+                      <div className="text-[11px] text-muted-foreground truncate">{item.desc}</div>
                     </div>
                   </div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider group-hover:text-amber-700 flex-shrink-0 ml-2">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider group-hover:text-amber-600 dark:group-hover:text-amber-400 flex-shrink-0 ml-2">
                     {item.category.split(' ')[0]}
                   </span>
                 </button>
@@ -119,14 +119,14 @@ export function CommandPaletteModal({
           )}
         </div>
 
-        <div className="flex items-center justify-between px-4 py-2 bg-slate-50 border-t border-border/70 text-[11px] text-slate-500">
+        <div className="flex items-center justify-between px-4 py-2 bg-muted/40 border-t border-border text-[11px] text-muted-foreground">
           <div className="flex items-center gap-2">
             <span>↑↓ để xem</span>
             <span>•</span>
             <span>↵ để mở trang</span>
           </div>
-          <div className="flex items-center gap-1 font-medium text-slate-400">
-            Mogu Cloud Studio
+          <div className="flex items-center gap-1 font-medium text-muted-foreground">
+            NOAN Cloud Studio
           </div>
         </div>
       </DialogContent>
