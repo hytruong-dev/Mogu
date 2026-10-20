@@ -22,7 +22,7 @@ import {
   Salad,
   AlertTriangle,
 } from 'lucide-react'
-import { TableSkeleton } from '../ui/page-skeleton'
+import { IngredientsTableSkeleton } from '../ui/page-skeleton'
 import { EmptyState } from '../ui/empty-state'
 import {
   STATUS_LABELS,
@@ -56,11 +56,7 @@ export function IngredientsTable({
   const [lightboxImage, setLightboxImage] = useState<{ url: string; name: string } | null>(null)
 
   if (isLoading) {
-    return (
-      <div className="bg-card rounded-xl border border-border shadow-2xs overflow-hidden">
-        <TableSkeleton rows={8} cols={9} />
-      </div>
-    )
+    return <IngredientsTableSkeleton rows={8} />
   }
 
   if (ingredients.length === 0) {

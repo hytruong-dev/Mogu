@@ -33,7 +33,7 @@ import { ReviewSidePanel } from '../components/molecules/ReviewSidePanel'
 import { SubmitSuccessModal } from '../components/molecules/SubmitSuccessModal'
 import { SubmitReviewBlockedDialog } from '../components/molecules/SubmitReviewBlockedDialog'
 import { PendingIngredientsPanel } from '../components/molecules/PendingIngredientsPanel'
-import { PageSkeleton } from '../components/ui/page-skeleton'
+import { DishFormSkeleton } from '../components/ui/page-skeleton'
 import { useAdminDish, useCreateDish, useDishLifecycle, useUpdateDish } from '../hooks/useDishes'
 import { useCategories, useDietTypes, useGoals, useMealTypes, useProvinces, useRegions } from '../hooks/useTaxonomy'
 import { dishesApi, type CreateDishDto, type NutritionPayload, type DishValidationResult } from '../api/dishes'
@@ -867,7 +867,7 @@ export default function CreateDishPage() {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto px-8 py-6">
-        {isLoadingEdit && <PageSkeleton rows={6} withAvatar />}
+        {isLoadingEdit && <DishFormSkeleton />}
         {loadEditFailed && (
           <div className="mx-auto max-w-lg rounded-2xl border border-red-200 bg-red-50 p-6 text-center text-red-700">
             <p className="mb-2 text-base font-semibold">

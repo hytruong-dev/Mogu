@@ -29,7 +29,7 @@ export function StepTabs({ steps }: { steps: StepTab[] }) {
               ? 'border-primary bg-primary font-bold text-primary-foreground shadow-xs ring-2 ring-primary/20'
               : done
                 ? 'border-border bg-card text-foreground hover:border-primary/40'
-                : 'border-border/60 bg-muted/40 text-muted-foreground hover:bg-card hover:text-foreground',
+                : 'border-border/80 bg-muted/50 text-foreground/80 hover:bg-card hover:text-foreground hover:border-primary/40',
           )}
         >
           {done && !active ? (
@@ -38,7 +38,7 @@ export function StepTabs({ steps }: { steps: StepTab[] }) {
             <span
               className={cn(
                 'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold',
-                active ? 'bg-primary-foreground text-primary' : 'bg-muted text-muted-foreground',
+                active ? 'bg-primary-foreground text-primary' : 'bg-muted-foreground/20 text-foreground/90',
               )}
             >
               {n}

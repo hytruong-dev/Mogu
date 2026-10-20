@@ -7,7 +7,7 @@ import { Star, Flame, Eye, ImageOff, UtensilsCrossed } from 'lucide-react'
 import { MediaLightbox } from '../ui/media-lightbox'
 import { DishRowActions } from './DishRowActions'
 import { STATUS_LABELS, STATUS_BADGE_VARIANTS, getMediaUrl } from './types'
-import { TableSkeleton } from '../ui/page-skeleton'
+import { FoodsTableSkeleton } from '../ui/page-skeleton'
 import { EmptyState } from '../ui/empty-state'
 import type { Dish } from '../../types'
 
@@ -36,11 +36,7 @@ export function FoodsTable({
   const isSomeSelected = dishes.some((d) => selectedIds.has(d.id)) && !isAllSelected
 
   if (isLoading) {
-    return (
-      <div className="bg-card rounded-xl border border-border shadow-2xs overflow-hidden">
-        <TableSkeleton rows={8} cols={9} />
-      </div>
-    )
+    return <FoodsTableSkeleton rows={8} />
   }
 
   if (dishes.length === 0) {

@@ -90,20 +90,20 @@ export function PendingIngredientsPanel({
   }
 
   return (
-    <div className="space-y-3 rounded-xl border border-amber-300 bg-amber-50/60 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200/80 pb-2.5">
+    <div className="space-y-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/20 pb-2.5">
         <div className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-amber-600" />
-          <h4 className="font-semibold text-amber-950">
+          <AlertTriangle className="h-5 w-5 text-amber-500" />
+          <h4 className="font-semibold text-amber-950 dark:text-amber-200">
             {list.length} nguyên liệu tự động tìm cần phê duyệt
           </h4>
         </div>
-        <div className="flex items-center gap-2 text-xs text-amber-800">
+        <div className="flex items-center gap-2 text-xs text-amber-800 dark:text-amber-300">
           <span>Cần duyệt hoặc gộp trước khi gửi duyệt món</span>
           <button
             type="button"
             onClick={handleRefresh}
-            className="inline-flex items-center gap-1 rounded px-2 py-1 font-medium hover:bg-amber-100"
+            className="inline-flex items-center gap-1 rounded px-2 py-1 font-medium hover:bg-amber-500/20 text-amber-800 dark:text-amber-200 transition-colors"
           >
             <RefreshCw className="h-3 w-3" />
             Làm mới
@@ -264,7 +264,7 @@ function PendingIngredientRow({
         {/* Thumbnail & Image Badge */}
         <div className="flex items-start gap-3">
           <div className="relative flex-shrink-0 group">
-            <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
+            <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-border bg-muted">
               <Image
                 src={ing?.imageUrl}
                 alt={name}
@@ -277,12 +277,12 @@ function PendingIngredientRow({
               />
             </div>
             {isProvisional && (
-              <span className="absolute -bottom-2 -left-1 -right-1 block text-center text-[9px] font-semibold text-amber-700 bg-amber-100 rounded px-1 py-0.5 border border-amber-300 shadow-xs">
+              <span className="absolute -bottom-2 -left-1 -right-1 block text-center text-[9px] font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/20 rounded px-1 py-0.5 border border-amber-500/30 shadow-xs">
                 Ảnh tự động
               </span>
             )}
             {isApprovedImage && (
-              <span className="absolute -bottom-2 -left-1 -right-1 block text-center text-[9px] font-semibold text-emerald-700 bg-emerald-100 rounded px-1 py-0.5 border border-emerald-300">
+              <span className="absolute -bottom-2 -left-1 -right-1 block text-center text-[9px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/20 rounded px-1 py-0.5 border border-emerald-500/30">
                 Đã duyệt
               </span>
             )}
@@ -290,29 +290,29 @@ function PendingIngredientRow({
 
           <div className="min-w-0 flex-1 space-y-1">
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="font-semibold text-zinc-900">{name}</span>
+              <span className="font-semibold text-foreground">{name}</span>
               {issue.quantity && (
-                <span className="text-xs text-zinc-500">
+                <span className="text-xs text-muted-foreground">
                   ({issue.quantity} {issue.unit || ''})
                 </span>
               )}
               {issue.reason === 'UNLINKED' && (
-                <Badge variant="outline" className="border-red-300 bg-red-50 text-red-700 text-[10px]">
+                <Badge variant="outline" className="border-rose-500/30 bg-rose-500/15 text-rose-600 dark:text-rose-400 text-[10px]">
                   Chưa liên kết
                 </Badge>
               )}
               {issue.reason === 'PENDING_REVIEW' && (
-                <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-800 text-[10px]">
+                <Badge variant="outline" className="border-amber-500/30 bg-amber-500/15 text-amber-700 dark:text-amber-300 text-[10px]">
                   Tự động tìm - cần duyệt
                 </Badge>
               )}
               {issue.reason === 'REJECTED' && (
-                <Badge variant="outline" className="border-red-400 bg-red-100 text-red-800 text-[10px]">
+                <Badge variant="outline" className="border-rose-500/40 bg-rose-500/20 text-rose-700 dark:text-rose-300 text-[10px]">
                   Đã từ chối
                 </Badge>
               )}
               {ing?.createdVia === 'AI_IMPORT' && (
-                <Badge variant="outline" className="border-blue-200 bg-blue-50 text-blue-700 text-[10px]">
+                <Badge variant="outline" className="border-blue-500/30 bg-blue-500/15 text-blue-700 dark:text-blue-300 text-[10px]">
                   AI Import
                 </Badge>
               )}
@@ -320,8 +320,8 @@ function PendingIngredientRow({
 
             {/* Entity reference links */}
             {ing?.enrichment?.entity && (
-              <div className="flex flex-wrap items-center gap-2 pt-0.5 text-[11px] text-zinc-500">
-                <span className="font-medium text-zinc-600">Thực thể:</span>
+              <div className="flex flex-wrap items-center gap-2 pt-0.5 text-[11px] text-muted-foreground">
+                <span className="font-medium text-foreground">Thực thể:</span>
                 {ing.enrichment.entity.viTitle && (
                   <a
                     href={`https://vi.wikipedia.org/wiki/${encodeURIComponent(ing.enrichment.entity.viTitle)}`}
@@ -440,24 +440,24 @@ function PendingIngredientRow({
                 <button
                   type="button"
                   onClick={openCandidatePicker}
-                  className="text-[11px] text-zinc-600 hover:text-amber-700 underline"
+                  className="text-[11px] text-muted-foreground hover:text-amber-500 underline"
                 >
                   Đổi ảnh...
                 </button>
-                <span className="text-zinc-300">·</span>
+                <span className="text-border">·</span>
                 <button
                   type="button"
                   onClick={handleReSearchImage}
-                  className="text-[11px] text-zinc-600 hover:text-amber-700 underline"
+                  className="text-[11px] text-muted-foreground hover:text-amber-500 underline"
                 >
                   Tìm lại ảnh
                 </button>
-                <span className="text-zinc-300">·</span>
+                <span className="text-border">·</span>
                 <a
                   href={`/food-data?tab=ingredients&q=${encodeURIComponent(name)}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-0.5 text-[11px] text-zinc-500 hover:text-zinc-800"
+                  className="inline-flex items-center gap-0.5 text-[11px] text-muted-foreground hover:text-foreground"
                 >
                   Kho NL <ExternalLink className="h-2.5 w-2.5" />
                 </a>
@@ -471,8 +471,8 @@ function PendingIngredientRow({
         <div
           className={`mt-2 rounded p-2 text-xs ${
             feedback.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800'
-              : 'bg-red-50 text-red-800'
+              ? 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/30'
+              : 'bg-rose-500/15 text-rose-800 dark:text-rose-300 border border-rose-500/30'
           }`}
         >
           {feedback.message}
@@ -481,8 +481,8 @@ function PendingIngredientRow({
 
       {/* Inline Merge Picker */}
       {isMerging && (
-        <div className="mt-3 rounded-lg border border-amber-300 bg-amber-50/80 p-3 text-xs">
-          <div className="mb-2 font-medium text-amber-900">
+        <div className="mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs">
+          <div className="mb-2 font-medium text-foreground">
             Chọn nguyên liệu đích đã có sẵn để gộp:
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -501,7 +501,7 @@ function PendingIngredientRow({
                 size="sm"
                 onClick={() => setShowMergeConfirm(true)}
                 disabled={!targetMergeId || isSubmitting}
-                className="bg-amber-600 hover:bg-amber-700 text-white h-8 text-xs"
+                className="bg-amber-600 hover:bg-amber-700 text-white h-8 text-xs font-semibold"
               >
                 Xác nhận gộp
               </Button>
@@ -509,7 +509,7 @@ function PendingIngredientRow({
                 size="sm"
                 variant="ghost"
                 onClick={() => setIsMerging(false)}
-                className="h-8 text-xs"
+                className="h-8 text-xs text-muted-foreground hover:text-foreground"
               >
                 Hủy
               </Button>
@@ -520,24 +520,24 @@ function PendingIngredientRow({
 
       {/* Candidate image picker drawer/dialog */}
       {isChoosingImage && (
-        <div className="mt-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+        <div className="mt-3 rounded-lg border border-border bg-muted/40 p-3">
           <div className="flex items-center justify-between pb-2">
-            <span className="text-xs font-semibold text-zinc-800">
+            <span className="text-xs font-semibold text-foreground">
               Chọn ảnh từ nguồn gợi ý (Wikimedia / Openverse):
             </span>
             <button
               type="button"
               onClick={() => setIsChoosingImage(false)}
-              className="text-zinc-400 hover:text-zinc-600"
+              className="text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
           {loadingCandidates ? (
-            <div className="py-4 text-center text-xs text-zinc-500">Đang tải danh sách ảnh...</div>
+            <div className="py-4 text-center text-xs text-muted-foreground">Đang tải danh sách ảnh...</div>
           ) : candidates.length === 0 ? (
-            <div className="py-3 text-center text-xs text-zinc-500">
+            <div className="py-3 text-center text-xs text-muted-foreground">
               Chưa có ứng viên ảnh nào. Hãy nhấn &quot;Tìm lại ảnh&quot; để tìm tự động.
             </div>
           ) : (

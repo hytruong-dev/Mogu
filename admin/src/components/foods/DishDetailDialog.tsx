@@ -211,10 +211,12 @@ export function DishDetailDialog({ dish, onClose, onEdit }: DishDetailDialogProp
                   Đang tải nguyên liệu...
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <Skeleton className="h-9 w-full rounded-lg" />
-                  <Skeleton className="h-9 w-full rounded-lg" />
-                  <Skeleton className="h-9 w-full rounded-lg" />
-                  <Skeleton className="h-9 w-full rounded-lg" />
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/40 border border-border">
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-3.5 w-12" />
+                    </div>
+                  ))}
                 </div>
               </div>
             ) : ingredients.length > 0 ? (
@@ -244,8 +246,21 @@ export function DishDetailDialog({ dish, onClose, onEdit }: DishDetailDialogProp
                   Đang tải công thức...
                 </h4>
                 <div className="space-y-2.5">
-                  <Skeleton className="h-16 w-full rounded-xl" />
-                  <Skeleton className="h-16 w-full rounded-xl" />
+                  {Array.from({ length: 2 }).map((_, i) => (
+                    <div key={i} className="rounded-xl border border-border overflow-hidden bg-muted/20">
+                      <div className="flex items-center justify-between px-3.5 py-2 bg-muted/50 border-b border-border">
+                        <div className="flex items-center gap-2">
+                          <Skeleton className="w-5 h-5 rounded-full" />
+                          <Skeleton className="h-3.5 w-16" />
+                        </div>
+                        <Skeleton className="h-3.5 w-12" />
+                      </div>
+                      <div className="p-3 space-y-2">
+                        <Skeleton className="h-3.5 w-full" />
+                        <Skeleton className="h-3.5 w-4/5" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ) : steps.length > 0 ? (
