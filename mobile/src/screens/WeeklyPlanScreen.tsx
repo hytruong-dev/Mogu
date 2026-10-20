@@ -112,6 +112,11 @@ type Meal = {
   version: number;
   status: string;
   isLocked: boolean;
+  combo?: {
+    mealStructure: 'SINGLE_DISH' | 'COMPOSITE_MEAL';
+    label: string;
+    sideSuggestions: string[];
+  } | null;
 };
 
 type DayPlan = {
@@ -146,6 +151,7 @@ const parseDayPlan = (day: WeeklyPlanDay): DayPlan => {
     version: sl.version,
     status: sl.status,
     isLocked: sl.isLocked,
+    combo: (sl as any).combo ?? null,
   }));
   const [_, monthStr, dayStr] = day.date.split('-');
   return {
@@ -1203,6 +1209,13 @@ function MealCard({
             {isDone ? <Text style={s.slotStatusDone}>· Đã ăn</Text> : null}
             {isSkipped ? <Text style={s.slotStatusSkip}>· Đã bỏ</Text> : null}
           </View>
+          {meal.combo?.sideSuggestions && meal.combo.sideSuggestions.length > 0 ? (
+            <View style={s.comboRow}>
+              <Text style={s.comboText} numberOfLines={1}>
+                🥢 Gợi ý kèm: {meal.combo.sideSuggestions.join(' · ')}
+              </Text>
+            </View>
+          ) : null}
         </View>
       </Pressable>
 
@@ -1374,6 +1387,19 @@ const s = StyleSheet.create({
   mealMeta: { fontSize: 13.5, color: MUTED, fontWeight: '500' },
   slotStatusDone: { fontSize: 12.5, color: '#15803D', fontWeight: '700' },
   slotStatusSkip: { fontSize: 12.5, color: MUTED, fontWeight: '600' },
+  comboRow: {
+    marginTop: 4,
+    backgroundColor: '#F5F5EC',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+  },
+  comboText: {
+    fontSize: 11,
+    color: '#656056',
+    fontWeight: '600',
+  },
 
   mealActions: { alignItems: 'center', justifyContent: 'center', gap: 10, flexShrink: 0 },
   roundBtn: {

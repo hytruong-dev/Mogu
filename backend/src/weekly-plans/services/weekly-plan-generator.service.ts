@@ -4,6 +4,7 @@ import {
   WeeklyMealSlot,
   WeeklyPlanStatus,
   WeeklyKcalMode,
+  DishType,
 } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { WeeklyPlanCalculatorService } from './weekly-plan-calculator.service';
@@ -49,6 +50,7 @@ interface DishCandidate {
   carbsG: number | null;
   fatG: number | null;
   imageUrl: string | null;
+  dishType: DishType | null;
   ratingAvg: number;
   score: number;
 }
@@ -514,6 +516,21 @@ export class WeeklyPlanGeneratorService {
         }
 
         for (const cs of chosenSlots) {
+          const isSingleDish =
+            cs.dish.dishType === 'WET' ||
+            /bún|phở|mì|miến|cháo|hủ tiếu|bánh mì/i.test(cs.dish.name);
+          const combo = isSingleDish
+            ? {
+                mealStructure: 'SINGLE_DISH',
+                label: 'Món đơn hoàn chỉnh',
+                sideSuggestions: [] as string[],
+              }
+            : {
+                mealStructure: 'COMPOSITE_MEAL',
+                label: 'Mâm cơm gia đình',
+                sideSuggestions: ['Cơm trắng', 'Canh thanh mát hoặc rau luộc'],
+              };
+
           await tx.weeklyPlanSlot.create({
             data: {
               planId,
@@ -530,6 +547,7 @@ export class WeeklyPlanGeneratorService {
               carbsGSnapshot: cs.dish.carbsG ?? undefined,
               fatGSnapshot: cs.dish.fatG ?? undefined,
               scoreSnapshot: { score: cs.dish.score } as Prisma.InputJsonValue,
+              reasonSnapshot: { combo } as Prisma.InputJsonValue,
             },
           });
         }
@@ -773,6 +791,7 @@ export class WeeklyPlanGeneratorService {
           carbsG: mapped.carbsG,
           fatG: mapped.fatG,
           imageUrl: buildStorageUrl(d.media?.[0] ?? null),
+          dishType: d.dishType ?? null,
           ratingAvg: Number(d.ratingAvg),
           score,
         } satisfies DishCandidate;

@@ -52,6 +52,10 @@ function storageKey(planId: string) {
   return `mogu:grocery-checked:${planId}`;
 }
 
+function dataStorageKey(planId: string) {
+  return `mogu:grocery-data:${planId}`;
+}
+
 function itemKey(item: WeeklyIngredientItem) {
   return `${item.ingredientId ?? item.name}|${item.unit ?? ''}`;
 }
@@ -81,6 +85,7 @@ export function WeeklyGroceryScreen({ planId, onBack }: Props) {
   const [data, setData] = useState<WeeklyIngredientsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<FilterKey>('ALL');
   const [checked, setChecked] = useState<Record<string, boolean>>({});
@@ -113,7 +118,20 @@ export function WeeklyGroceryScreen({ planId, onBack }: Props) {
       try {
         const res = await getWeeklyIngredients(planId);
         setData(res);
+        setIsOffline(false);
+        void AsyncStorage.setItem(dataStorageKey(planId), JSON.stringify(res));
       } catch (e) {
+        // Fallback to offline cached data if network fails
+        try {
+          const cached = await AsyncStorage.getItem(dataStorageKey(planId));
+          if (cached) {
+            setData(JSON.parse(cached));
+            setIsOffline(true);
+            return;
+          }
+        } catch {
+          // ignore cache read error
+        }
         setError(formatApiErrorWithCode(e));
       } finally {
         setLoading(false);
@@ -124,9 +142,19 @@ export function WeeklyGroceryScreen({ planId, onBack }: Props) {
   );
 
   useEffect(() => {
-    load();
+    // Read cache first for instant render
+    (async () => {
+      try {
+        const cached = await AsyncStorage.getItem(dataStorageKey(planId));
+        if (cached) {
+          setData(JSON.parse(cached));
+          setLoading(false);
+        }
+      } catch {}
+      await load(true);
+    })();
     loadChecked();
-  }, [load, loadChecked]);
+  }, [planId, load, loadChecked]);
 
   const visibleItems = useMemo(() => {
     if (!data) return [];
@@ -199,6 +227,13 @@ export function WeeklyGroceryScreen({ planId, onBack }: Props) {
           }
           ListHeaderComponent={
             <View style={{ gap: 12 }}>
+              {isOffline && (
+                <View style={s.offlineBanner}>
+                  <Text style={s.offlineText}>
+                    📶 Đang xem danh sách ngoại tuyến (đã lưu trên máy)
+                  </Text>
+                </View>
+              )}
               <Card style={s.summaryCard}>
                 <Text style={s.summaryTitle}>
                   {data.totalIngredientsCount} nguyên liệu · {data.totalDishes} món ·{' '}
@@ -368,4 +403,18 @@ const s = StyleSheet.create({
     backgroundColor: YELLOW,
   },
   retryText: { fontWeight: '700', color: INK },
+  offlineBanner: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#FDE68A',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  offlineText: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: '#92400E',
+    textAlign: 'center',
+  },
 });

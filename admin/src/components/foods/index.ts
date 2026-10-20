@@ -5,4 +5,4 @@ export * from './FoodsTable'
 export * from './FoodsBatchBar'
 export * from './DishRowActions'
 export * from './DishDetailDialog'
-export * from './DishEditModal'
+

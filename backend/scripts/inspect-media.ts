@@ -1,34 +1,24 @@
-import * as path from 'path';
-import * as dotenv from 'dotenv';
-import pg from 'pg';
+import 'dotenv/config';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 
-dotenv.config({ path: path.join(__dirname, '../.env.local') });
-dotenv.config({ path: path.join(__dirname, '../.env') });
-
-async function main() {
-  const pool = new pg.Pool({ connectionString: process.env.DIRECT_DATABASE_URL || process.env.DATABASE_URL });
-  const adapter = new PrismaPg(pool);
-  const prisma = new PrismaClient({ adapter } as any);
-  
+async function checkMedia() {
+  const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+  const prisma = new PrismaClient({ adapter });
   const dishes = await prisma.dish.findMany({
     where: { deletedAt: null },
-    include: {
-      media: true,
-      mealTypes: { include: { mealTypeTag: true } },
-      categories: { include: { category: true } },
+    select: {
+      id: true,
+      name: true,
+      media: { select: { id: true, sourceUrl: true, storageKey: true, isPrimary: true } }
     },
-    take: 15,
+    orderBy: { createdAt: 'desc' },
+    take: 35
   });
-
-  for (const d of dishes) {
-    console.log(`\n=== ${d.name} ===`);
-    console.log('Meal types:', d.mealTypes.map((m: any) => m.mealTypeTag.name || m.mealTypeTag.code));
-    console.log('Media:', d.media.map((m: any) => ({ url: m.sourceUrl, alt: m.altText })));
-  }
-
+  console.log('Total dishes:', dishes.length);
+  dishes.forEach((d, i) => {
+    console.log(`${i + 1}. ${d.name} [ID: ${d.id}] -> media: ${d.media.length ? d.media.map(m => m.sourceUrl || m.storageKey).join(', ') : 'NO MEDIA'}`);
+  });
   await prisma.$disconnect();
-  await pool.end();
 }
-main().catch(console.error);
+checkMedia().catch(console.error);

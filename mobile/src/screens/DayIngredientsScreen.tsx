@@ -4,7 +4,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
   FlatList,
-  Image,
   Pressable,
   RefreshControl,
   StyleSheet,
@@ -12,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ArrowLeft, Leaf } from '@/components/icons';
 import { getDayIngredients } from '../services/api/weekly-plan';
 import type { DayIngredientItem, DayIngredientsResponse } from '../services/api/types';
@@ -35,6 +35,18 @@ type Props = {
   onBack: () => void;
 };
 
+function storageKey(planId: string, date: string) {
+  return `mogu:day-ingredients-checked:${planId}:${date}`;
+}
+
+function dataStorageKey(planId: string, date: string) {
+  return `mogu:day-ingredients-data:${planId}:${date}`;
+}
+
+function itemKey(item: DayIngredientItem) {
+  return `${item.ingredientId ?? item.name}|${item.unit ?? ''}`;
+}
+
 function formatQty(item: DayIngredientItem): string {
   if (item.quantity == null) return item.unit ? `— ${item.unit}` : 'Theo khẩu phần';
   const q =
@@ -55,7 +67,30 @@ export function DayIngredientsScreen({ planId, date, title, onBack }: Props) {
   const [data, setData] = useState<DayIngredientsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [isOffline, setIsOffline] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
+
+  const loadChecked = useCallback(async () => {
+    try {
+      const raw = await AsyncStorage.getItem(storageKey(planId, date));
+      if (raw) setChecked(JSON.parse(raw));
+    } catch {
+      // ignore
+    }
+  }, [planId, date]);
+
+  const persistChecked = useCallback(
+    async (next: Record<string, boolean>) => {
+      setChecked(next);
+      try {
+        await AsyncStorage.setItem(storageKey(planId, date), JSON.stringify(next));
+      } catch {
+        // ignore
+      }
+    },
+    [planId, date],
+  );
 
   const load = useCallback(
     async (silent = false) => {
@@ -64,7 +99,20 @@ export function DayIngredientsScreen({ planId, date, title, onBack }: Props) {
       try {
         const res = await getDayIngredients(planId, date);
         setData(res);
+        setIsOffline(false);
+        void AsyncStorage.setItem(dataStorageKey(planId, date), JSON.stringify(res));
       } catch (e) {
+        // Fallback to offline cached data if available
+        try {
+          const cached = await AsyncStorage.getItem(dataStorageKey(planId, date));
+          if (cached) {
+            setData(JSON.parse(cached));
+            setIsOffline(true);
+            return;
+          }
+        } catch {
+          // ignore cache read error
+        }
         setError(formatApiErrorWithCode(e));
       } finally {
         setLoading(false);
@@ -75,8 +123,24 @@ export function DayIngredientsScreen({ planId, date, title, onBack }: Props) {
   );
 
   useEffect(() => {
-    load();
-  }, [load]);
+    (async () => {
+      try {
+        const cached = await AsyncStorage.getItem(dataStorageKey(planId, date));
+        if (cached) {
+          setData(JSON.parse(cached));
+          setLoading(false);
+        }
+      } catch {}
+      await load(true);
+    })();
+    loadChecked();
+  }, [planId, date, load, loadChecked]);
+
+  const toggleItem = (item: DayIngredientItem) => {
+    const key = itemKey(item);
+    const next = { ...checked, [key]: !checked[key] };
+    void persistChecked(next);
+  };
 
   const headerTitle = title ?? 'Nguyên liệu hôm nay';
 
@@ -131,30 +195,55 @@ export function DayIngredientsScreen({ planId, date, title, onBack }: Props) {
             />
           }
           ListHeaderComponent={
-            <Card style={s.summaryCard}>
-              <Text style={s.summaryTitle}>
-                {data.totalCount} nguyên liệu · {data.dishes.length} món
-              </Text>
-              <Text style={s.summarySub} numberOfLines={2}>
-                {data.dishes.map((d) => d.name).join(' · ')}
-              </Text>
-            </Card>
+            <View style={{ gap: 10, marginBottom: 4 }}>
+              {isOffline && (
+                <View style={s.offlineBanner}>
+                  <Text style={s.offlineText}>
+                    📶 Đang xem danh sách ngoại tuyến (đã lưu trên máy)
+                  </Text>
+                </View>
+              )}
+              <Card style={s.summaryCard}>
+                <Text style={s.summaryTitle}>
+                  {data.totalCount} nguyên liệu · {data.dishes.length} món
+                </Text>
+                <Text style={s.summarySub} numberOfLines={2}>
+                  {data.dishes.map((d) => d.name).join(' · ')}
+                </Text>
+              </Card>
+            </View>
           }
-          renderItem={({ item }) => <IngredientRow item={item} />}
+          renderItem={({ item }) => {
+            const isDone = !!checked[itemKey(item)];
+            return (
+              <IngredientRow
+                item={item}
+                done={isDone}
+                onToggle={() => toggleItem(item)}
+              />
+            );
+          }}
         />
       )}
     </SafeAreaView>
   );
 }
 
-function IngredientRow({ item }: { item: DayIngredientItem }) {
-  const [done, setDone] = useState(false);
+function IngredientRow({
+  item,
+  done,
+  onToggle,
+}: {
+  item: DayIngredientItem;
+  done: boolean;
+  onToggle: () => void;
+}) {
   return (
-    <Pressable onPress={() => setDone(!done)}>
+    <Pressable onPress={onToggle}>
       <Card style={[s.row, done && { opacity: 0.55, backgroundColor: '#F8F8F6' }]}>
         <Checkbox
           checked={done}
-          onCheckedChange={setDone}
+          onCheckedChange={onToggle}
           className="mr-1"
         />
         {item.imageUrl ? (
@@ -248,4 +337,18 @@ const s = StyleSheet.create({
     backgroundColor: YELLOW,
   },
   retryText: { fontWeight: '700', color: INK },
+  offlineBanner: {
+    backgroundColor: '#FEF3C7',
+    borderColor: '#FDE68A',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  offlineText: {
+    fontSize: 12.5,
+    fontWeight: '600',
+    color: '#92400E',
+    textAlign: 'center',
+  },
 });

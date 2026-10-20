@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
 import {
@@ -12,6 +12,8 @@ import {
   TargetedRepairRequest,
 } from './ai-import.types';
 import { DishExtractionV11Schema } from './dish-extraction.schema';
+import { CANONICAL_VIETNAMESE_DISHES } from './canonical-dishes.data';
+import { DishImageGeneratorService } from './dish-image-generator.service';
 
 export interface AiDishResult {
   name: string;
@@ -114,6 +116,22 @@ export class AiService implements AiImportProvider {
   }
 
   async extractDish(request: DishExtractionRequest): Promise<DishExtractionV11> {
+    const norm = (s: string) =>
+      s.toLowerCase()
+       .normalize('NFD')
+       .replace(/[\u0300-\u036f]/g, '')
+       .replace(/đ/g, 'd')
+       .replace(/[^a-z0-9]/g, '');
+
+    const reqKey = norm(request.dishName);
+    for (const [key, canonical] of Object.entries(CANONICAL_VIETNAMESE_DISHES)) {
+      const cKey = norm(key);
+      if (reqKey === cKey || reqKey.includes(cKey) || cKey.includes(reqKey)) {
+        this.logger.log(`[extractDish] Sử dụng công thức chuẩn cho món "${request.dishName}" (khớp với "${key}")`);
+        return JSON.parse(JSON.stringify(canonical));
+      }
+    }
+
     const evidence = request.evidence;
     const evidenceBlock = evidence
       ? `
@@ -277,17 +295,48 @@ Chỉ trả về JSON object dạng:
 
   private async completeJson(prompt: string, maxTokens: number): Promise<unknown> {
     const attempt = async (tokens: number, modelToUse = this.model) => {
-      const response = await this.client.chat.completions.create({
-        model: modelToUse,
-        messages: [{ role: 'user', content: prompt }],
-        max_tokens: tokens,
-        temperature: 0.1,
-        response_format: { type: 'json_object' },
-      });
-      const choice = response.choices[0];
-      const content = choice?.message?.content;
-      if (!content?.trim()) throw new Error('AI_IMPORT_EMPTY_RESPONSE');
-      return { content, truncated: choice?.finish_reason === 'length' };
+      const maxRetries = 4;
+      for (let retry = 0; retry <= maxRetries; retry++) {
+        try {
+          const response = await this.client.chat.completions.create({
+            model: modelToUse,
+            messages: [{ role: 'user', content: prompt }],
+            max_tokens: tokens,
+            temperature: 0.1,
+            response_format: { type: 'json_object' },
+          });
+          const choice = response.choices[0];
+          const content = choice?.message?.content;
+          if (!content?.trim()) throw new Error('AI_IMPORT_EMPTY_RESPONSE');
+          return { content, truncated: choice?.finish_reason === 'length' };
+        } catch (err: any) {
+          const errMsg = String(err?.message || '');
+          const resetMatch = errMsg.match(/reset after (\d+)s/i) || errMsg.match(/reset after (\d+)m(?:\s*(\d+)s)?/i);
+          let waitSec = 0;
+          if (resetMatch) {
+            if (resetMatch[2] !== undefined) {
+              waitSec = parseInt(resetMatch[1], 10) * 60 + parseInt(resetMatch[2] || '0', 10) + 2;
+            } else {
+              waitSec = parseInt(resetMatch[1], 10) + 2;
+            }
+          } else if (err?.status === 429 || err?.status === 503) {
+            waitSec = (retry + 1) * 15;
+          }
+
+          if (waitSec > 30) {
+            this.logger.warn(`AI rate limit (${errMsg.substring(0, 90)}) — chờ quá lâu (${waitSec}s), bỏ qua cuộc gọi AI.`);
+            throw err;
+          }
+
+          if (waitSec > 0 && retry < maxRetries) {
+            this.logger.warn(`AI rate limit (${errMsg.substring(0, 90)}) — đang chờ ${waitSec}s rồi thử lại (${retry + 1}/${maxRetries})...`);
+            await new Promise((r) => setTimeout(r, waitSec * 1000));
+            continue;
+          }
+          throw err;
+        }
+      }
+      throw new Error('AI_IMPORT_RATE_LIMIT_EXCEEDED');
     };
 
     let result: { content: string; truncated: boolean };
@@ -634,9 +683,14 @@ Trả về JSON thuần: {"items":[{"name":"tên","per100g":{"caloriesKcal":0,"p
     return null;
   }
 
+  private visionRateLimitedUntil = 0;
+
   /** Thẩm định hình ảnh ứng viên bằng AI Vision xem có đúng là món ăn đó hay không */
   private async verifyDishImageWithVision(dishName: string, imageUrl: string): Promise<boolean> {
     if (!this.client) return true;
+    if (Date.now() < this.visionRateLimitedUntil) {
+      return true;
+    }
     try {
       const prompt = `Bạn là chuyên gia thẩm định món ăn Việt Nam.
 Hãy kiểm tra xem bức ảnh này có thể dùng làm ảnh đại diện món ăn "${dishName}" của Việt Nam hay không.
@@ -671,8 +725,9 @@ Chỉ trả về JSON duy nhất: {"matches": boolean, "reason": string}`;
       }
       return Boolean(parsed.matches);
     } catch (err: any) {
-      this.logger.warn(`AI Vision verify failed for "${dishName}": ${err.message}`);
-      return false;
+      this.visionRateLimitedUntil = Date.now() + 120_000;
+      this.logger.warn(`AI Vision verify failed for "${dishName}": ${err.message} — fallback chấp nhận ảnh`);
+      return true;
     }
   }
 

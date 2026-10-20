@@ -9,7 +9,6 @@ import {
   FoodsTable,
   FoodsBatchBar,
   DishDetailDialog,
-  DishEditModal,
 } from '../components/foods'
 import { ImportFromFileModal } from '../components/molecules/import-from-file'
 import { SubmitReviewBlockedDialog } from '../components/molecules/SubmitReviewBlockedDialog'
@@ -113,7 +112,6 @@ export default function FoodsPage() {
 
   // Modals & Drawers state
   const [detailDish, setDetailDish] = useState<Dish | null>(null)
-  const [editingDish, setEditingDish] = useState<Dish | null>(null)
   const [importOpen, setImportOpen] = useState(false)
   const [blocked, setBlocked] = useState<{ dishId: string; dishName: string; validation: any } | null>(null)
   const [bulkNotice, setBulkNotice] = useState<string | null>(null)
@@ -255,7 +253,7 @@ export default function FoodsPage() {
         onToggleSelect={handleToggleSelect}
         onToggleSelectAll={handleToggleSelectAll}
         onView={(d) => setDetailDish(d)}
-        onEdit={(d) => setEditingDish(d)}
+        onEdit={(d) => navigate(`/foods/${d.id}`)}
         isLoading={isLoading}
       />
 
@@ -307,19 +305,8 @@ export default function FoodsPage() {
           onClose={() => setDetailDish(null)}
           onEdit={(d) => {
             setDetailDish(null)
-            setEditingDish(d)
+            navigate(`/foods/${d.id}`)
           }}
-        />
-      )}
-
-      {/* Dish Edit Modal */}
-      {editingDish && (
-        <DishEditModal
-          dish={editingDish}
-          onClose={() => setEditingDish(null)}
-          categories={categories}
-          mealTypes={mealTypes}
-          regions={regions}
         />
       )}
 

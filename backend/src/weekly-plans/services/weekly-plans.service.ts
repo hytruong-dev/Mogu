@@ -1070,6 +1070,7 @@ export class WeeklyPlansService {
         isLocked: s.isLocked,
         swapCount: s.swapCount,
         version: s.version,
+        combo: s.reasonSnapshot?.combo ?? null,
         dish: {
           id: s.dishId,
           name: s.dishNameSnapshot,

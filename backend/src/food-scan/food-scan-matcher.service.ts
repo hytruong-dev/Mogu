@@ -645,25 +645,45 @@ export class FoodScanMatcherService {
     latencyMs: number,
   ) {
     try {
-      await this.prisma.db.$executeRawUnsafe(
-        `INSERT INTO food_scan_events (id, user_id, image_phash, extraction, shortlist, result_status, chosen_dish_id, model, latency_ms, created_at)
+      if (this.prisma?.db?.foodScanEvent?.create) {
+        await this.prisma.db.foodScanEvent.create({
+          data: {
+            id: scanId,
+            userId: userId ? userId : null,
+            imagePhash: imagePhash ?? null,
+            extraction: extraction as unknown as Prisma.InputJsonValue,
+            shortlist: candidates.map((c) => ({
+              dishId: c.dishId,
+              name: c.name,
+              score: c.score,
+            })) as unknown as Prisma.InputJsonValue,
+            resultStatus: status,
+            chosenDishId: chosenDishId ? chosenDishId : null,
+            model,
+            latencyMs,
+          },
+        });
+      } else if (typeof this.prisma?.db?.$executeRawUnsafe === 'function') {
+        await this.prisma.db.$executeRawUnsafe(
+          `INSERT INTO food_scan_events (id, user_id, image_phash, extraction, shortlist, result_status, chosen_dish_id, model, latency_ms, created_at)
          VALUES ($1::uuid, $2, $3, $4::jsonb, $5::jsonb, $6, $7, $8, $9, now())`,
-        scanId,
-        userId ? userId : null,
-        imagePhash,
-        JSON.stringify(extraction),
-        JSON.stringify(
-          candidates.map((c) => ({
-            dishId: c.dishId,
-            name: c.name,
-            score: c.score,
-          })),
-        ),
-        status,
-        chosenDishId ? chosenDishId : null,
-        model,
-        latencyMs,
-      );
+          scanId,
+          userId ? userId : null,
+          imagePhash,
+          JSON.stringify(extraction),
+          JSON.stringify(
+            candidates.map((c) => ({
+              dishId: c.dishId,
+              name: c.name,
+              score: c.score,
+            })),
+          ),
+          status,
+          chosenDishId ? chosenDishId : null,
+          model,
+          latencyMs,
+        );
+      }
     } catch (e) {
       this.logger.warn(`Could not log food_scan_event: ${e}`);
     }
