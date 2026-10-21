@@ -123,4 +123,14 @@ export class DishAdminQueryDto extends DishPublicQueryDto {
   @IsOptional()
   @IsUUID()
   createdFromImportSessionId?: string;
+
+  @ApiPropertyOptional({
+    description: 'Số trang (bắt đầu từ 1). Khi truyền page, API dùng phân trang offset và bỏ qua cursor.',
+    minimum: 1,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
 }

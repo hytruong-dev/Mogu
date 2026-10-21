@@ -12,6 +12,8 @@ export interface AdminDishQuery {
   goalId?: string
   createdFromImportSessionId?: string
   limit?: number
+  /** Số trang (bắt đầu từ 1) — phân trang offset */
+  page?: number
   cursor?: string
   sort?: 'newest' | 'popular' | 'relevance'
 }

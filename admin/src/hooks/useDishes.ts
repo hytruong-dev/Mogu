@@ -8,6 +8,8 @@ export function useAdminDishes(params?: AdminDishQuery) {
     queryKey: ['admin-dishes', params],
     queryFn: () => dishesApi.list(params),
     enabled: !!session,
+    // Giữ dữ liệu trang cũ trong lúc tải trang mới để bảng không nhấp nháy
+    placeholderData: (prev) => prev,
   })
 }
 

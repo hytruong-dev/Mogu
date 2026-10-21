@@ -188,8 +188,12 @@ export class DishQueryService {
       categoryCode,
       mealTypeCode,
       goalId,
+      page,
     } = query;
     const take = Math.min(limit, 100);
+    // Phân trang offset (page) được ưu tiên hơn cursor khi client truyền page
+    const usePage = typeof page === 'number' && page >= 1;
+    const skip = usePage ? (page - 1) * take : 0;
 
     const where: Prisma.DishWhereInput = {
       deletedAt: null,
@@ -216,13 +220,14 @@ export class DishQueryService {
 
     const listWhere: Prisma.DishWhereInput = {
       ...where,
-      ...(cursor ? { id: { lt: cursor } } : {}),
+      ...(!usePage && cursor ? { id: { lt: cursor } } : {}),
     };
 
     const [dishes, totalFiltered, grouped] = await Promise.all([
       this.prisma.db.dish.findMany({
         where: listWhere,
         include: this.adminListInclude(),
+        skip,
         take: take + 1,
         orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
       }),
@@ -252,6 +257,9 @@ export class DishQueryService {
       data,
       pageInfo: { nextCursor, hasNextPage },
       total: totalFiltered,
+      ...(usePage
+        ? { page, limit: take, totalPages: Math.max(1, Math.ceil(totalFiltered / take)) }
+        : {}),
       summary,
     };
   }

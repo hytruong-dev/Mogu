@@ -61,6 +61,7 @@ export default function FoodsPage() {
   const queryParams: AdminDishQuery = useMemo(() => {
     const params: AdminDishQuery = {
       limit,
+      page,
     }
     if (debouncedSearch.trim()) params.q = debouncedSearch.trim()
     if (status !== 'ALL') params.status = status
@@ -68,12 +69,35 @@ export default function FoodsPage() {
     if (mealTypeId) params.mealTypeCode = mealTypes.find((m: any) => m.id === mealTypeId)?.code
     if (regionId) params.regionId = regionId
     return params
-  }, [limit, debouncedSearch, status, categoryId, mealTypeId, regionId, categories, mealTypes])
+  }, [limit, page, debouncedSearch, status, categoryId, mealTypeId, regionId, categories, mealTypes])
 
   const { data: dishesResponse, isLoading } = useAdminDishes(queryParams)
   const dishes = dishesResponse?.data ?? []
   const totalCount = dishesResponse?.total ?? dishes.length
   const totalPages = Math.max(1, Math.ceil(totalCount / limit))
+
+  // Nếu tổng số món giảm (xóa/lọc) khiến trang hiện tại vượt quá tổng số trang → quay về trang cuối
+  useEffect(() => {
+    if (dishesResponse && page > totalPages) setPage(totalPages)
+  }, [dishesResponse, page, totalPages])
+
+  // Danh sách số trang hiển thị (rút gọn bằng dấu "…")
+  const pageNumbers = useMemo<(number | '…')[]>(() => {
+    if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1)
+    const pages: (number | '…')[] = [1]
+    const start = Math.max(2, page - 1)
+    const end = Math.min(totalPages - 1, page + 1)
+    if (start > 2) pages.push('…')
+    for (let i = start; i <= end; i++) pages.push(i)
+    if (end < totalPages - 1) pages.push('…')
+    pages.push(totalPages)
+    return pages
+  }, [page, totalPages])
+
+  const goToPage = (p: number) => {
+    setPage(Math.min(Math.max(1, p), totalPages))
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   // Stats from summary
   const summary = (dishesResponse as any)?.summary
@@ -264,17 +288,34 @@ export default function FoodsPage() {
               variant="outline"
               size="sm"
               disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => goToPage(page - 1)}
               className="h-8 px-2 text-xs gap-1"
             >
               <ChevronLeft size={14} /> Trước
             </Button>
+            {pageNumbers.map((p, idx) =>
+              p === '…' ? (
+                <span key={`gap-${idx}`} className="px-1.5 text-slate-400">…</span>
+              ) : (
+                <Button
+                  key={p}
+                  type="button"
+                  variant={p === page ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => goToPage(p)}
+                  aria-current={p === page ? 'page' : undefined}
+                  className="h-8 min-w-8 px-2 text-xs"
+                >
+                  {p}
+                </Button>
+              )
+            )}
             <Button
               type="button"
               variant="outline"
               size="sm"
               disabled={page >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => goToPage(page + 1)}
               className="h-8 px-2 text-xs gap-1"
             >
               Sau <ChevronRight size={14} />
