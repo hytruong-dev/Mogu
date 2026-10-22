@@ -1,3 +1,38 @@
+/**
+ * NOAN Studio design system.
+ *
+ * `amber` is remapped to the NOAN brand orange (logo chick) and `slate` to a
+ * crisp neutral scale, so every existing page that uses these utilities picks
+ * up the new visual language from one place.
+ */
+const brand = {
+  50: '#FFF7ED',
+  100: '#FFEDD5',
+  200: '#FED7AA',
+  300: '#FDBA74',
+  400: '#FB923C',
+  500: '#CC490A',
+  600: '#C2410C',
+  700: '#9A3412',
+  800: '#9A3412',
+  900: '#7C2D12',
+  950: '#431407',
+}
+
+const neutral = {
+  50: '#FAFAFA',
+  100: '#F4F4F5',
+  200: '#E4E4E7',
+  300: '#D4D4D8',
+  400: '#A1A1AA',
+  500: '#71717A',
+  600: '#52525B',
+  700: '#3F3F46',
+  800: '#27272A',
+  900: '#18181B',
+  950: '#0F0F11',
+}
+
 /** @type {import('tailwindcss').Config} */
 export default {
   darkMode: ['class'],
@@ -7,7 +42,17 @@ export default {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        '2xs': '0 1px 1px 0 rgb(0 0 0 / 0.03)',
+        xs: '0 1px 2px 0 rgb(0 0 0 / 0.04)',
+        card: '0 1px 2px 0 rgb(16 16 20 / 0.04), 0 1px 3px 0 rgb(16 16 20 / 0.03)',
+        pop: '0 12px 32px -8px rgb(16 16 20 / 0.18), 0 2px 6px -2px rgb(16 16 20 / 0.08)',
+      },
       colors: {
+        brand,
+        amber: brand,
+        slate: neutral,
+        zinc: neutral,
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -65,7 +110,7 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['"Be Vietnam Pro"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       keyframes: {
         'accordion-down': {

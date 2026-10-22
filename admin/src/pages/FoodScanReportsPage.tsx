@@ -8,7 +8,6 @@ import {
   Link2,
   Loader2,
   Plus,
-  ScanSearch,
   Search,
   Users,
   XCircle,
@@ -42,7 +41,7 @@ import {
   useFoodScanReports,
   useUpdateFoodScanReport,
 } from '../hooks/useFoodScanReports'
-import { PageContainer } from '../components/layout'
+import { PageContainer, PageHeader } from '../components/layout'
 
 const TABS: { value: FoodScanReportStatus; label: string; key: 'new' | 'inProgress' | 'added' | 'dismissed' }[] = [
   { value: 'NEW', label: 'Mới', key: 'new' },
@@ -367,15 +366,11 @@ export default function FoodScanReportsPage() {
 
   return (
     <PageContainer className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight flex items-center gap-2">
-            <ScanSearch className="text-amber-500" size={24} /> Món chưa có (Scan)
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Ảnh người dùng quét mà NOAN chưa có món tương ứng. Bổ sung món mới hoặc liên kết món có sẵn để lần sau quét ra đúng.
-          </p>
-        </div>
+      <PageHeader
+        className="mb-0"
+        title="Món chưa có từ Scan"
+        description="Ảnh người dùng quét mà NOAN chưa nhận diện được. Bổ sung món mới hoặc liên kết món có sẵn."
+        actions={
         <div className="relative w-full sm:w-72">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -385,7 +380,8 @@ export default function FoodScanReportsPage() {
             className="pl-9"
           />
         </div>
-      </div>
+        }
+      />
 
       <Tabs value={status} onValueChange={(v) => setStatus(v as FoodScanReportStatus)}>
         <TabsList>

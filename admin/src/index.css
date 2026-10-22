@@ -2,66 +2,69 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ════════════════════════════════════════════════════════════════════════════
+   NOAN Studio — Design tokens
+   Brand: NOAN orange (#F97316) on crisp neutral surfaces.
+   ════════════════════════════════════════════════════════════════════════════ */
 @layer base {
   :root {
-    /* Modern Slate & Zinc SaaS Palette */
-    --background: 210 40% 98%;       /* #F8FAFC (Slate 50) */
-    --foreground: 222 47% 11%;        /* #0F172A (Slate 900) */
-    
-    --card: 0 0% 100%;                /* #FFFFFF */
-    --card-foreground: 222 47% 11%;
-    
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    
-    --primary: 38 92% 50%;            /* #F59E0B Warm Amber Accent */
-    --primary-foreground: 0 0% 100%;
-    
-    --secondary: 210 40% 96.1%;       /* #F1F5F9 (Slate 100) */
-    --secondary-foreground: 222 47% 11%;
-    
-    --muted: 210 40% 96.1%;           /* #F1F5F9 */
-    --muted-foreground: 215.4 16.3% 46.9%; /* #64748B (Slate 500) */
-    
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222 47% 11%;
-    
-    --destructive: 0 84.2% 60.2%;     /* #EF4444 (Red 500) */
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 214.3 31.8% 91.4%;      /* #E2E8F0 (Slate 200) */
-    --input: 214.3 31.8% 91.4%;       /* #E2E8F0 */
-    --ring: 38 92% 50%;
-    --radius: 0.5rem;                 /* 8px crisp modern corners */
+    --background: 240 10% 98.2%;      /* #F9F9FA app canvas            */
+    --foreground: 240 6% 10%;         /* #18181B primary text          */
 
-    /* Extended Semantic Tokens */
-    --success: 142 71% 45%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 6% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 6% 10%;
+
+    --primary: 21 90% 42%;        /* #F97316 NOAN orange           */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 5% 96%;          /* #F4F4F5                       */
+    --secondary-foreground: 240 6% 10%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;   /* #71717A                       */
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 10%;
+
+    --destructive: 0 72% 51%;         /* #DC2626                       */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 6% 91%;             /* #E7E7EA                       */
+    --input: 240 6% 88%;
+    --ring: 21 90% 42%;
+    --radius: 0.625rem;               /* 10px                          */
+
+    --success: 142 71% 36%;
     --success-soft: 138 76% 97%;
-    --warning: 38 92% 50%;
+    --warning: 32 95% 44%;
     --warning-soft: 48 100% 96%;
     --warning-border: 45 93% 85%;
+
+    --sidebar: 0 0% 100%;
+    --header-h: 3.5rem;
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 13%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 13%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 38 92% 50%;
+    --background: 240 6% 6.5%;        /* #101012                       */
+    --foreground: 240 5% 94%;
+    --card: 240 5% 9.5%;              /* #17171A                       */
+    --card-foreground: 240 5% 94%;
+    --popover: 240 5% 10.5%;
+    --popover-foreground: 240 5% 94%;
+    --primary: 21 90% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 20%;
-    --input: 217.2 32.6% 20%;
-    --ring: 38 92% 50%;
+    --secondary: 240 4% 14%;
+    --secondary-foreground: 240 5% 94%;
+    --muted: 240 4% 14%;
+    --muted-foreground: 240 5% 64%;
+    --accent: 240 4% 15%;
+    --accent-foreground: 240 5% 94%;
+    --destructive: 0 63% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 4% 17%;
+    --input: 240 4% 20%;
+    --ring: 21 90% 52%;
+    --sidebar: 240 5% 8%;
   }
 }
 
@@ -71,48 +74,95 @@
     box-sizing: border-box;
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: 'Be Vietnam Pro', Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     text-rendering: optimizeLegibility;
     margin: 0;
     min-height: 100vh;
   }
 
-  /* Custom Clean Scrollbar */
+  ::selection {
+    background: hsl(var(--primary) / 0.18);
+  }
+
+  :focus-visible {
+    outline: none;
+  }
+
+  /* Clean, thin scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.25) transparent;
+  }
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.2);
+    background: hsl(var(--muted-foreground) / 0.22);
     border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
   }
   ::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--muted-foreground) / 0.4);
+    background-clip: padding-box;
   }
 
-  /* Smooth, eye-pleasing theme transition (anti-glare) */
+  /* Tables must never break page width — wide tables scroll inside their card */
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Smooth theme transition */
   html.theme-transition,
   html.theme-transition *,
   html.theme-transition *::before,
   html.theme-transition *::after {
-    transition: background-color 320ms cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 320ms cubic-bezier(0.4, 0, 0.2, 1),
-                color 200ms cubic-bezier(0.4, 0, 0.2, 1),
-                fill 200ms cubic-bezier(0.4, 0, 0.2, 1),
-                stroke 200ms cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 320ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: background-color 280ms ease, border-color 280ms ease, color 180ms ease,
+      fill 180ms ease, stroke 180ms ease !important;
     transition-delay: 0s !important;
   }
 
   ::view-transition-old(root),
   ::view-transition-new(root) {
-    animation-duration: 350ms;
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    animation-duration: 300ms;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Generic surface used by the shell and pages */
+  .surface {
+    @apply rounded-xl border border-border bg-card text-card-foreground shadow-card;
+  }
+
+  .nav-item {
+    @apply relative flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-[13px] font-medium text-slate-600 transition-colors
+      hover:bg-slate-100 hover:text-slate-900
+      dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-slate-100;
+  }
+  .nav-item[data-active='true'] {
+    @apply bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300;
+  }
+  .nav-item[data-active='true']::before {
+    content: '';
+    @apply absolute -left-3 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-brand-500;
   }
 }

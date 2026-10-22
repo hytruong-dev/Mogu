@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
-  Bell,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -42,7 +41,7 @@ import {
   TableRow,
 } from '../components/ui/table'
 import { Textarea } from '../components/ui/textarea'
-import { PageContainer } from '../components/layout'
+import { PageContainer, PageHeader } from '../components/layout'
 
 const QUICK_LINKS = [
   { label: 'Trang chủ', link: 'mogu://home' },
@@ -142,17 +141,11 @@ export default function NotificationsPage() {
   return (
     <PageContainer className="space-y-6">
       {/* Page Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Bell className="text-primary" size={24} />
-            Phát thông báo hệ thống (Broadcast)
-          </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Gửi thông báo in-app và đẩy Expo Push Notifications trực tiếp đến thiết bị di động người dùng.
-          </p>
-        </div>
-      </div>
+      <PageHeader
+        className="mb-0"
+        title="Thông báo"
+        description="Gửi thông báo trong app và push notification đến thiết bị người dùng."
+      />
 
       {/* Alert banner */}
       {error && (
@@ -176,7 +169,7 @@ export default function NotificationsPage() {
       )}
 
       {/* Grid: Form compose (Left) & Preview device (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 [&>*]:min-w-0">
         {/* Compose Form */}
         <Card className="lg:col-span-2">
           <CardHeader className="pb-4">
@@ -192,7 +185,7 @@ export default function NotificationsPage() {
             {/* Scope selection */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Phạm vi người nhận</Label>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   variant={form.scope === 'ALL' ? 'default' : 'outline'}
@@ -201,7 +194,7 @@ export default function NotificationsPage() {
                   className="gap-2 text-xs h-9"
                 >
                   <Users size={14} />
-                  Toàn bộ người dùng (Broadcast All)
+                  Toàn bộ người dùng
                 </Button>
                 <Button
                   type="button"
@@ -235,7 +228,7 @@ export default function NotificationsPage() {
             {/* Notification Type */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold">Phân loại thông báo</Label>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {(['SYSTEM', 'PROMO', 'REMINDER'] as BroadcastType[]).map((t) => (
                   <Button
                     key={t}

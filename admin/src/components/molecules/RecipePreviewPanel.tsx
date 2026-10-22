@@ -124,9 +124,9 @@ export function RecipePreviewPanel({
 
       <Dialog open={previewImage !== null} onOpenChange={(open) => { if (!open) setPreviewImage(null) }}>
         <DialogContent className="max-w-lg p-5">
-          <DialogHeader className="border-b border-black/10 pb-3">
+          <DialogHeader className="border-b border-border pb-3">
             <div className="flex items-center gap-2">
-              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-mogu-yellow text-xs font-bold">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold">
                 {previewImage?.stepNumber}
               </span>
               <DialogTitle className="truncate text-sm font-bold text-gray-900">

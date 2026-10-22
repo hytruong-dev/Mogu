@@ -80,13 +80,13 @@ export function DialogContent({
       {/* Overlay */}
       <div
         ref={overlayRef}
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade-in"
+        className="absolute inset-0 bg-zinc-950/60 backdrop-blur-[2px] animate-fade-in"
         onClick={() => onOpenChange(false)}
       />
       {/* Panel */}
       <div
         className={cn(
-          'relative z-10 w-full max-w-lg rounded-xl bg-card shadow-xl border border-border',
+          'relative z-10 w-full max-w-lg rounded-2xl bg-card text-card-foreground shadow-2xl border border-border',
           'animate-fade-in',
           'max-h-[90vh] overflow-y-auto',
           className
@@ -97,10 +97,10 @@ export function DialogContent({
         <button
           type="button"
           onClick={() => onOpenChange(false)}
-          className="absolute right-4 top-4 h-8 w-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
+          className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/60"
           aria-label="Đóng cửa sổ"
         >
-          <X size={18} />
+          <X size={16} />
         </button>
       </div>
     </div>,
@@ -109,13 +109,13 @@ export function DialogContent({
 }
 
 export function DialogHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('flex flex-col space-y-1.5 p-6 pb-4', className)} {...props} />
+  return <div className={cn('flex flex-col space-y-1.5 p-5 pb-3 pr-14 sm:p-6 sm:pb-4 sm:pr-14', className)} {...props} />
 }
 
 export function DialogFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 p-6 pt-4', className)}
+      className={cn('flex flex-col-reverse gap-2 p-5 pt-3 sm:flex-row sm:justify-end sm:p-6 sm:pt-4', className)}
       {...props}
     />
   )
@@ -124,7 +124,7 @@ export function DialogFooter({ className, ...props }: HTMLAttributes<HTMLDivElem
 export function DialogTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h2
-      className={cn('text-lg font-semibold leading-none tracking-tight', className)}
+      className={cn('text-base font-semibold leading-snug tracking-tight sm:text-lg', className)}
       {...props}
     />
   )

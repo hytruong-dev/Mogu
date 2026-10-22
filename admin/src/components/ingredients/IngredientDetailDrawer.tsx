@@ -91,7 +91,7 @@ export function IngredientDetailDrawer({
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-1.5">
-              <Leaf size={28} className="text-muted-foreground/60" />
+              <Leaf size={28} className="text-muted-foreground/80" />
               <span className="text-[11px] text-muted-foreground">Chưa có ảnh nguyên liệu</span>
             </div>
           )}

@@ -728,7 +728,7 @@ export function ReviewDishDetail({ dish, onBack }: ReviewDishDetailProps) {
                               {item.notes ? (
                                 <span className="italic">{item.notes}</span>
                               ) : (
-                                <span className="text-muted-foreground/60">—</span>
+                                <span className="text-muted-foreground/80">—</span>
                               )}
                             </TableCell>
 

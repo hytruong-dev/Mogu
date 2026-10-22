@@ -76,7 +76,7 @@ export function StepUpload({ file, headerRow, onHeaderChange, onFile, onClear }:
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-[#6B7280]">Nhập nhiều món ăn bằng CSV hoặc Excel.</p>
+      <p className="text-sm text-muted-foreground">Nhập nhiều món ăn bằng CSV hoặc Excel.</p>
 
       {!file ? (
         <button
@@ -91,14 +91,14 @@ export function StepUpload({ file, headerRow, onHeaderChange, onFile, onClear }:
             if (f) acceptFile(f)
           }}
           className={`flex w-full flex-col items-center justify-center rounded-xl border-2 border-dashed px-6 py-10 transition ${
-            dragging ? 'border-mogu-yellow bg-mogu-yellow-light' : 'border-[#E5E7EB] bg-[#FAFAF9] hover:border-mogu-yellow/80'
+            dragging ? 'border-primary bg-brand-50 dark:bg-brand-500/10' : 'border-border bg-muted/50 hover:border-primary/80'
           }`}
         >
-          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-mogu-yellow-light">
-            <Upload className="h-5 w-5 text-[#A16207]" />
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-brand-50 dark:bg-brand-500/10">
+            <Upload className="h-5 w-5 text-amber-700 dark:text-amber-400" />
           </div>
-          <p className="text-sm font-semibold text-black">Kéo thả file vào đây, hoặc bấm để chọn</p>
-          <p className="mt-1 text-xs text-[#6B7280]">CSV, XLSX · tối đa 10 MB</p>
+          <p className="text-sm font-semibold text-foreground">Kéo thả file vào đây, hoặc bấm để chọn</p>
+          <p className="mt-1 text-xs text-muted-foreground">CSV, XLSX · tối đa 10 MB</p>
         </button>
       ) : (
         <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50/60 px-4 py-3">
@@ -167,19 +167,19 @@ export function StepUpload({ file, headerRow, onHeaderChange, onFile, onClear }:
 
       <div>
         <p className="mb-2 text-sm font-semibold text-foreground">Quy tắc tệp</p>
-        <div className="overflow-hidden rounded-xl border border-black/10">
+        <div className="overflow-hidden rounded-xl border border-border">
           {FILE_RULES.map((rule, i) => {
             const Icon = RULE_ICONS[i]
             return (
               <div
                 key={rule.title}
-                className={`grid grid-cols-[160px_1fr] items-start gap-4 px-4 py-3 ${i < FILE_RULES.length - 1 ? 'border-b border-black/5' : ''}`}
+                className={`grid grid-cols-[160px_1fr] items-start gap-4 px-4 py-3 ${i < FILE_RULES.length - 1 ? 'border-b border-border/60' : ''}`}
               >
-                <div className="flex items-center gap-2 text-sm font-medium text-black">
-                  <Icon className="h-4 w-4 text-[#6B7280]" />
+                <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  <Icon className="h-4 w-4 text-muted-foreground" />
                   {rule.title}
                 </div>
-                <p className="text-sm text-[#4B5563]">{rule.desc}</p>
+                <p className="text-sm text-foreground/70">{rule.desc}</p>
               </div>
             )
           })}
@@ -193,7 +193,7 @@ export function StepUpload({ file, headerRow, onHeaderChange, onFile, onClear }:
         hint="Bỏ chọn nếu file không có hàng tiêu đề."
       />
 
-      <div className="flex items-center gap-2 rounded-lg border border-[#FDE68A] bg-[#FFFBEB] px-3 py-2.5 text-[13px] text-[#92400E]">
+      <div className="flex items-center gap-2 rounded-lg border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 px-3 py-2.5 text-[13px] text-amber-800 dark:text-amber-300">
         <Info className="h-4 w-4 shrink-0" />
         Lần nhập gần nhất: 12/08/2026 • 250 món • hoàn tất
       </div>

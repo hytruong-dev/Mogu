@@ -23,11 +23,11 @@ interface Props {
 }
 
 const STATS = [
-  { value: 243, label: 'Món đủ điều kiện sẽ được nhập', icon: CheckCircle2, color: 'text-[#16A34A]', bg: 'bg-[#ECFDF3]' },
-  { value: 231, label: 'Hợp lệ sẽ được nhập', icon: CheckCircle2, color: 'text-[#16A34A]', bg: 'bg-[#ECFDF3]' },
-  { value: 12, label: 'Cảnh báo vẫn sẽ được nhập', icon: AlertTriangle, color: 'text-[#EA580C]', bg: 'bg-[#FFF7ED]' },
-  { value: 7, label: 'Bị loại trừ không được nhập', icon: XCircle, color: 'text-[#DC2626]', bg: 'bg-[#FEF2F2]' },
-  { value: 5, label: 'Trùng dữ liệu bỏ qua', icon: Link2, color: 'text-[#7C3AED]', bg: 'bg-[#F5F3FF]' },
+  { value: 243, label: 'Món đủ điều kiện sẽ được nhập', icon: CheckCircle2, color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+  { value: 231, label: 'Hợp lệ sẽ được nhập', icon: CheckCircle2, color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-500/10' },
+  { value: 12, label: 'Cảnh báo vẫn sẽ được nhập', icon: AlertTriangle, color: 'text-brand-700 dark:text-brand-400', bg: 'bg-brand-50 dark:bg-brand-500/10' },
+  { value: 7, label: 'Bị loại trừ không được nhập', icon: XCircle, color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-500/10' },
+  { value: 5, label: 'Trùng dữ liệu bỏ qua', icon: Link2, color: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-50 dark:bg-violet-500/10' },
 ]
 
 export function StepConfirm({ options, onChange, fileName }: Props) {
@@ -163,9 +163,9 @@ function OptionRow({
   children: React.ReactNode
 }) {
   return (
-    <div className="border-t border-black/5 pt-3 first:border-t-0 first:pt-0">
+    <div className="border-t border-border/60 pt-3 first:border-t-0 first:pt-0">
       <div className="mb-2 flex items-center gap-2">
-        <Icon className="h-4 w-4 text-[#6B7280]" />
+        <Icon className="h-4 w-4 text-muted-foreground" />
         <p className="text-sm font-semibold">{title}</p>
       </div>
       <div className="space-y-2 pl-6">{children}</div>
@@ -176,7 +176,7 @@ function OptionRow({
 function Est({ icon: Icon, color, label, value }: { icon: typeof Utensils; color: string; label: string; value: string }) {
   return (
     <li className="flex items-center justify-between">
-      <span className="flex items-center gap-2 text-[#4B5563]">
+      <span className="flex items-center gap-2 text-foreground/70">
         <Icon className={`h-4 w-4 ${color}`} />
         {label}
       </span>
@@ -188,7 +188,7 @@ function Est({ icon: Icon, color, label, value }: { icon: typeof Utensils; color
 function Row({ k, v }: { k: string; v: string }) {
   return (
     <div className="flex justify-between gap-3">
-      <dt className="text-[#6B7280]">{k}</dt>
+      <dt className="text-muted-foreground">{k}</dt>
       <dd className="max-w-[160px] truncate text-right font-medium">{v}</dd>
     </div>
   )

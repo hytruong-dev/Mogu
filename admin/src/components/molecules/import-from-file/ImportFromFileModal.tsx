@@ -204,18 +204,18 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
                 <DialogTitle className="text-lg font-bold text-foreground">{title}</DialogTitle>
                 {apiError && <p className="mt-1 text-xs text-red-600">{apiError}</p>}
                 {phase === 'progress' && (
-                  <span className="rounded-full bg-[#DBEAFE] px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-[#1D4ED8]">
+                  <span className="rounded-full bg-sky-100 dark:bg-sky-500/15 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wide text-sky-700 dark:text-sky-400">
                     Đang xử lý
                   </span>
                 )}
                 {phase === 'complete' && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-[#DCFCE7] px-2.5 py-0.5 text-[11px] font-bold text-[#166534]">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-500/15 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
                     <Check className="h-3 w-3" /> Thành công
                   </span>
                 )}
               </div>
               {(phase === 'progress' || phase === 'complete') && (
-                <p className="mt-0.5 text-xs text-[#6B7280]">Batch #BATCH-2026-0812</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">Batch #BATCH-2026-0812</p>
               )}
             </div>
           </div>
@@ -389,11 +389,11 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
                 <Checkbox
                   checked={options.confirmed}
                   onCheckedChange={(checked) => patchOptions({ confirmed: !!checked })}
-                  className="mt-0.5 data-[state=checked]:bg-mogu-yellow data-[state=checked]:text-black data-[state=checked]:border-mogu-yellow"
+                  className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary"
                 />
                 <span>
                   <span className="text-sm font-medium">Tôi đã kiểm tra dữ liệu và đồng ý bắt đầu nhập</span>
-                  <span className="mt-0.5 block text-xs text-[#6B7280]">
+                  <span className="mt-0.5 block text-xs text-muted-foreground">
                     Quá trình nhập có thể mất vài phút. Vui lòng không đóng trang cho đến khi hoàn tất.
                   </span>
                 </span>
@@ -438,7 +438,7 @@ export function ImportFromFileModal({ open, onClose, onViewDrafts }: Props) {
           )}
           {phase === 'progress' && (
             <div className="flex items-center justify-between">
-              <GhostBtn className="border-red-200 text-[#DC2626] hover:bg-red-50" onClick={() => { if (jobId) void dishImportsApi.cancel(jobId); onClose() }}>
+              <GhostBtn className="border-red-200 text-rose-600 dark:text-rose-400 hover:bg-red-50" onClick={() => { if (jobId) void dishImportsApi.cancel(jobId); onClose() }}>
                 <X className="h-4 w-4" /> Hủy tiến trình
               </GhostBtn>
               <div className="flex items-center gap-2">

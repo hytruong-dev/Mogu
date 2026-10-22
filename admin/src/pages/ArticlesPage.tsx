@@ -61,7 +61,7 @@ import { Select } from '../components/ui/select'
 import { Image } from '../components/ui/image'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { MarkdownEditor } from '../components/articles/MarkdownEditor'
-import { PageContainer } from '../components/layout'
+import { PageContainer, PageHeader } from '../components/layout'
 import { ImageUpload } from '../components/ui/image-upload'
 
 const STATUS_CONFIG: Record<
@@ -456,37 +456,24 @@ export default function ArticlesPage() {
   return (
     <PageContainer className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
-              <FileText size={22} />
-            </span>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                Quản lý bài viết (Articles)
-                <Badge variant="secondary" className="font-mono text-xs font-semibold">
-                  {articles.length} bài
-                </Badge>
-              </h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Biên soạn, kiểm duyệt nội dung chuyên sâu và lên lịch xuất bản bài viết ẩm thực trên ứng dụng NOAN.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <Button
-          onClick={() => {
-            setCreateActiveTab('content')
-            setShowCreateModal(true)
-          }}
-          className="font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm flex items-center gap-1.5 h-9 px-4 self-start sm:self-auto"
-        >
-          <Plus size={16} />
-          <span>Viết bài mới</span>
-        </Button>
-      </div>
+      <PageHeader
+        className="mb-0"
+        title="Bài viết"
+        badge={<Badge variant="neutral" className="tabular-nums">{articles.length}</Badge>}
+        description="Biên soạn, duyệt và lên lịch xuất bản bài viết ẩm thực."
+        actions={
+          <Button
+            size="sm"
+            onClick={() => {
+              setCreateActiveTab('content')
+              setShowCreateModal(true)
+            }}
+          >
+            <Plus />
+            Viết bài mới
+          </Button>
+        }
+      />
 
       {/* Metric Cards Banner */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -689,7 +676,7 @@ export default function ArticlesPage() {
                               className="w-16 h-11 rounded-lg object-cover border border-border/80 shadow-xs shrink-0"
                             />
                           ) : (
-                            <div className="w-16 h-11 rounded-lg bg-muted flex items-center justify-center border border-border/80 shrink-0 text-muted-foreground/60">
+                            <div className="w-16 h-11 rounded-lg bg-muted flex items-center justify-center border border-border/80 shrink-0 text-muted-foreground/80">
                               <ImageIcon size={16} />
                             </div>
                           )}
@@ -734,7 +721,7 @@ export default function ArticlesPage() {
                             {article.topic.title}
                           </Badge>
                         ) : (
-                          <span className="text-xs text-muted-foreground/60 italic">— Chưa gắn</span>
+                          <span className="text-xs text-muted-foreground/80 italic">— Chưa gắn</span>
                         )}
                       </TableCell>
 
@@ -1355,7 +1342,7 @@ export default function ArticlesPage() {
                 />
               ) : (
                 <div className="w-16 h-11 rounded-lg bg-muted flex items-center justify-center shrink-0 border border-border">
-                  <FileText size={16} className="text-muted-foreground/60" />
+                  <FileText size={16} className="text-muted-foreground/80" />
                 </div>
               )}
               <div className="min-w-0 flex-1">

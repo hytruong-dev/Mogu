@@ -159,7 +159,7 @@ export function IngredientsTable({
                           <span className="truncate">{allergenName}</span>
                         </Badge>
                       ) : (
-                        <span className="text-muted-foreground/60 text-[11px]">—</span>
+                        <span className="text-muted-foreground/80 text-[11px]">—</span>
                       )}
                     </TableCell>
 

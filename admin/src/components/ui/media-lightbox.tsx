@@ -298,7 +298,7 @@ export function MediaLightbox({ open, onClose, media }: MediaLightboxProps) {
               }}
               className={`h-12 w-12 shrink-0 overflow-hidden rounded-lg border-2 transition ${
                 currentIndex === idx
-                  ? 'border-mogu-yellow scale-105 shadow-md'
+                  ? 'border-primary scale-105 shadow-md'
                   : 'border-transparent opacity-60 hover:opacity-100'
               }`}
             >

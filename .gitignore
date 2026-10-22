@@ -39,3 +39,6 @@ dedupe-report.json
 # OS and editor files
 .DS_Store
 Thumbs.db
+
+# Playwright MCP artifacts
+.playwright-mcp/

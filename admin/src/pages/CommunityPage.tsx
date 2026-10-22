@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+﻿import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   AlertCircle,
   AlertTriangle,
@@ -39,7 +39,7 @@ import { Select } from '../components/ui/select'
 import { Image } from '../components/ui/image'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
-import { PageContainer } from '../components/layout'
+import { PageContainer, PageHeader, SegmentedTabs } from '../components/layout'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table'
@@ -435,42 +435,30 @@ export default function CommunityPage() {
   return (
     <PageContainer className="space-y-6">
       {/* ── Page Heading & Top Switcher ── */}
-      <div className="page-heading">
-        <div>
-          <h1 className="flex items-center gap-3">
-            Kiểm duyệt cộng đồng
-            {stats && stats.pending > 0 ? (
-              <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 bg-amber-100 text-amber-800 rounded-full border border-amber-300">
-                <ShieldAlert size={13} />
-                {stats.pending} chờ xử lý
-              </span>
-            ) : null}
-          </h1>
-          <p>Bảo đảm không gian thảo luận NOAN luôn an toàn, hữu ích và tuân thủ tiêu chuẩn cộng đồng</p>
-        </div>
-
-        <div className="mod-tab-switch">
-          <Tabs value={tab} onValueChange={(val) => setTab(val as typeof tab)}>
-            <TabsList className="bg-muted p-1 h-auto gap-1">
-              <TabsTrigger value="reports" className="gap-2 px-3 py-1.5 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-sm">
-                <Flag size={15} />
-                Báo cáo vi phạm
-                {stats && stats.pending > 0 ? (
-                  <span className="mod-tab-badge bg-rose-500 text-white">{stats.pending}</span>
-                ) : null}
-              </TabsTrigger>
-              <TabsTrigger value="posts" className="gap-2 px-3 py-1.5 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-sm">
-                <FileText size={15} />
-                Quản lý bài đăng
-              </TabsTrigger>
-              <TabsTrigger value="comments" className="gap-2 px-3 py-1.5 text-xs font-semibold data-[state=active]:bg-card data-[state=active]:shadow-sm">
-                <MessageSquare size={15} />
-                Kiểm duyệt bình luận
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-        </div>
-      </div>
+      <PageHeader
+        className="mb-0"
+        title="Cộng đồng"
+        badge={
+          stats && stats.pending > 0 ? (
+            <Badge variant="warning" className="gap-1">
+              <ShieldAlert size={12} />
+              {stats.pending} chờ xử lý
+            </Badge>
+          ) : null
+        }
+        description="Kiểm duyệt báo cáo, bài đăng và bình luận để giữ cộng đồng an toàn."
+        tabs={
+          <SegmentedTabs
+            value={tab}
+            onChange={(v) => setTab(v)}
+            tabs={[
+              { value: 'reports', label: 'Báo cáo vi phạm', icon: Flag, count: stats && stats.pending > 0 ? stats.pending : undefined },
+              { value: 'posts', label: 'Bài đăng', icon: FileText },
+              { value: 'comments', label: 'Bình luận', icon: MessageSquare },
+            ]}
+          />
+        }
+      />
 
       {/* ── Overview Statistics Cards ── */}
       <div className="stats-grid">

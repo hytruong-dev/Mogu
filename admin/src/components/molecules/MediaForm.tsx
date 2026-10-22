@@ -183,7 +183,7 @@ export function MediaForm({ state, onChange, onSelectFiles, uploading }: MediaFo
             <button
               type="button"
               onClick={() => openVideo(state.videoUrl, 'Video hướng dẫn nấu')}
-              className="group relative h-20 w-32 shrink-0 overflow-hidden rounded-lg bg-black text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-mogu-yellow"
+              className="group relative h-20 w-32 shrink-0 overflow-hidden rounded-lg bg-black text-left shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
               title="Nhấn để phát video"
             >
               <Image src={`https://img.youtube.com/vi/${vid}/mqdefault.jpg`} className="h-full w-full object-cover opacity-90 transition group-hover:scale-105 group-hover:opacity-100" alt="" />

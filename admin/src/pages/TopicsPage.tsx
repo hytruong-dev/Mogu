@@ -53,7 +53,7 @@ import { Switch } from '../components/ui/switch'
 import { Label } from '../components/ui/label'
 import { Image } from '../components/ui/image'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
-import { PageContainer } from '../components/layout'
+import { PageContainer, PageHeader } from '../components/layout'
 import { ImageUpload } from '../components/ui/image-upload'
 
 function slugify(text: string): string {
@@ -212,34 +212,18 @@ export default function TopicsPage() {
   return (
     <PageContainer className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
-              <BookOpen size={22} />
-            </span>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                Chủ đề khám phá (Topics)
-                <Badge variant="secondary" className="font-mono text-xs font-semibold">
-                  {topics.length} chủ đề
-                </Badge>
-              </h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Quản lý các nhóm danh mục ẩm thực hiển thị trên thanh cuộn ngang feed Khám phá của ứng dụng NOAN.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <Button
-          onClick={openCreate}
-          className="font-semibold bg-amber-500 hover:bg-amber-600 text-white shadow-sm flex items-center gap-1.5 h-9 px-4 self-start sm:self-auto"
-        >
-          <Plus size={16} />
-          <span>Thêm chủ đề mới</span>
-        </Button>
-      </div>
+      <PageHeader
+        className="mb-0"
+        title="Chủ đề"
+        badge={<Badge variant="neutral" className="tabular-nums">{topics.length}</Badge>}
+        description="Nhóm chuyên mục hiển thị trên feed Khám phá của ứng dụng."
+        actions={
+          <Button size="sm" onClick={openCreate}>
+            <Plus />
+            Thêm chủ đề
+          </Button>
+        }
+      />
 
       {/* Metric Cards Banner */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -420,7 +404,7 @@ export default function TopicsPage() {
                             className="w-16 h-11 object-cover rounded-lg border border-border/80 shadow-xs shrink-0"
                           />
                         ) : (
-                          <div className="w-16 h-11 rounded-lg bg-muted flex items-center justify-center border border-border/80 shrink-0 text-muted-foreground/60">
+                          <div className="w-16 h-11 rounded-lg bg-muted flex items-center justify-center border border-border/80 shrink-0 text-muted-foreground/80">
                             <ImageIcon size={16} />
                           </div>
                         )}
@@ -433,7 +417,7 @@ export default function TopicsPage() {
                               {topic.description}
                             </div>
                           ) : (
-                            <div className="text-[11px] text-muted-foreground/60 italic mt-0.5">
+                            <div className="text-[11px] text-muted-foreground/80 italic mt-0.5">
                               Chưa có mô tả chi tiết
                             </div>
                           )}

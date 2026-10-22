@@ -43,7 +43,7 @@ import { Select } from '../components/ui/select'
 import { TableSkeleton } from '../components/ui/page-skeleton'
 import { Spinner } from '../components/ui/spinner'
 import { Image } from '../components/ui/image'
-import { PageContainer } from '../components/layout'
+import { PageContainer, PageHeader } from '../components/layout'
 import { ImageUpload } from '../components/ui/image-upload'
 import {
   AlertDialog,
@@ -231,26 +231,12 @@ export default function PlacesPage() {
   return (
     <PageContainer className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
-              <MapPin size={22} />
-            </span>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                Quản lý địa điểm quán ăn (Places)
-                <Badge variant="secondary" className="font-mono text-xs font-semibold">
-                  {total.toLocaleString('vi-VN')} quán
-                </Badge>
-              </h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Quản lý thông tin tọa độ GPS, liên kết thực đơn món ăn và kiểm duyệt nguồn dữ liệu (ShopeeFood, OSM, Google).
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        className="mb-0"
+        title="Địa điểm"
+        badge={<Badge variant="neutral" className="tabular-nums">{total.toLocaleString('vi-VN')}</Badge>}
+        description="Quán ăn, toạ độ GPS, thực đơn liên kết và nguồn dữ liệu."
+      />
 
       {/* Metric Cards Banner */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -541,7 +527,7 @@ export default function PlacesPage() {
                         <ExternalLink size={10} />
                       </a>
                     ) : (
-                      <span className="text-xs text-muted-foreground/60 italic">—</span>
+                      <span className="text-xs text-muted-foreground/80 italic">—</span>
                     )}
                   </TableCell>
 

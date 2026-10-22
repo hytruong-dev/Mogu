@@ -1,135 +1,188 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
-import {
-  Bell,
-  BookOpen,
-  CloudDownload,
-  FileText,
-  Heart,
-  LayoutDashboard,
-  Leaf,
-  MapPin,
-  Plus,
-  ScanSearch,
-  Search,
-  ShieldCheck,
-  TrendingUp,
-  Users,
-  Utensils,
-} from 'lucide-react'
-import { Dialog, DialogContent } from '../ui/dialog'
-import { Input } from '../ui/input'
-import { Badge } from '../ui/badge'
+import { CornerDownLeft, Plus, Search, type LucideIcon } from 'lucide-react'
+import { useAuth } from '../../providers/AuthProvider'
+import { cn } from '../../lib/utils'
+import { navGroups } from './nav-config'
+import { useShell } from './shell-context'
 
-export function CommandPaletteModal({
-  open,
-  onOpenChange,
-}: {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}) {
-  const [search, setSearch] = useState('')
+type Entry = {
+  path: string
+  label: string
+  description: string
+  group: string
+  icon: LucideIcon
+  keywords: string
+}
+
+/** Strip Vietnamese diacritics so "mon an" matches "Món ăn". */
+function normalize(s: string) {
+  return s
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'D')
+    .toLowerCase()
+}
+
+export function CommandPaletteModal() {
+  const { commandOpen: open, setCommandOpen: setOpen } = useShell()
+  const { hasRole } = useAuth()
   const navigate = useNavigate()
+  const [query, setQuery] = useState('')
+  const [index, setIndex] = useState(0)
+  const listRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
 
-  const quickNavItems = [
-    { path: '/dashboard', label: 'Tổng quan điều hành', category: 'TỔNG QUAN', icon: LayoutDashboard, desc: 'Chỉ số thống kê, biểu đồ hoạt động và nhiệm vụ' },
-    { path: '/foods', label: 'Kho món ăn', category: 'KHO MÓN & DINH DƯỠNG', icon: Utensils, desc: 'Quản lý toàn bộ danh sách món ăn, calo và dinh dưỡng' },
-    { path: '/foods/new', label: 'Thêm món ăn mới', category: 'KHO MÓN & DINH DƯỠNG', icon: Plus, desc: 'Nhập công thức, nguyên liệu và macro món ăn' },
-    { path: '/food-data', label: 'Dữ liệu món ăn', category: 'KHO MÓN & DINH DƯỠNG', icon: Leaf, desc: 'Quản lý nguyên liệu, danh mục và taxonomy ẩm thực' },
-    { path: '/ingest', label: 'Nhập món tự động (AI)', category: 'KHO MÓN & DINH DƯỠNG', icon: CloudDownload, desc: 'Crawl dữ liệu, trích xuất AI và kiểm duyệt hàng loạt' },
-    { path: '/topics', label: 'Quản lý chủ đề', category: 'KHÁM PHÁ & BÀI VIẾT', icon: BookOpen, desc: 'Các chuyên mục khám phá ẩm thực theo mùa và chủ đề' },
-    { path: '/articles', label: 'Quản lý bài viết', category: 'KHÁM PHÁ & BÀI VIẾT', icon: FileText, desc: 'Soạn thảo, biên tập và xuất bản bài viết ẩm thực' },
-    { path: '/food-scan-reports', label: 'Món chưa có (Scan)', category: 'KHO MÓN & DINH DƯỠNG', icon: ScanSearch, desc: 'Ảnh người dùng quét mà kho món chưa có, cần bổ sung' },
-    { path: '/places', label: 'Địa điểm quán ăn', category: 'KHÁM PHÁ & BÀI VIẾT', icon: MapPin, desc: 'Bản đồ, địa điểm quán ăn gợi ý theo món' },
-    { path: '/review', label: 'Hàng đợi duyệt món', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: ShieldCheck, desc: 'Duyệt các món ăn mới tạo hoặc chỉnh sửa' },
-    { path: '/community', label: 'Quản lý cộng đồng', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: Heart, desc: 'Bài viết chia sẻ, thảo luận và tương tác thành viên' },
-    { path: '/notifications', label: 'Phát thông báo', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: Bell, desc: 'Gửi broadcast push notification tới người dùng' },
-    { path: '/reports', label: 'Báo cáo & Phân tích', category: 'VẬN HÀNH & KIỂM DUYỆT', icon: TrendingUp, desc: 'Thống kê hiệu suất, mức độ gắn kết và phân tích dữ liệu' },
-    { path: '/users', label: 'Quản lý người dùng', category: 'HỆ THỐNG', icon: Users, desc: 'Phân quyền, tài khoản và lịch sử thao tác hệ thống' },
-  ]
+  const entries = useMemo<Entry[]>(() => {
+    const list: Entry[] = []
+    for (const group of navGroups) {
+      for (const item of group.items) {
+        if (item.roles && !hasRole(...item.roles)) continue
+        list.push({
+          path: item.path,
+          label: item.label,
+          description: item.description,
+          group: group.title,
+          icon: item.icon,
+          keywords: item.keywords ?? '',
+        })
+      }
+    }
+    if (hasRole('SUPER_ADMIN', 'CONTENT_ADMIN')) {
+      list.splice(1, 0, {
+        path: '/foods/new',
+        label: 'Thêm món mới',
+        description: 'Tạo món ăn với công thức, nguyên liệu và dinh dưỡng',
+        group: 'Thao tác nhanh',
+        icon: Plus,
+        keywords: 'create new dish them mon tao',
+      })
+    }
+    return list
+  }, [hasRole])
 
-  const filtered = quickNavItems.filter((item) => {
-    if (!search.trim()) return true
-    const q = search.toLowerCase()
-    return (
-      item.label.toLowerCase().includes(q) ||
-      item.category.toLowerCase().includes(q) ||
-      item.desc.toLowerCase().includes(q) ||
-      item.path.toLowerCase().includes(q)
+  const results = useMemo(() => {
+    const q = normalize(query.trim())
+    if (!q) return entries
+    return entries.filter((e) =>
+      normalize(`${e.label} ${e.description} ${e.group} ${e.keywords} ${e.path}`).includes(q)
     )
-  })
+  }, [entries, query])
 
-  // Reset search when modal closes
   useEffect(() => {
-    if (!open) setSearch('')
+    if (open) {
+      setQuery('')
+      setIndex(0)
+      window.setTimeout(() => inputRef.current?.focus(), 10)
+    }
   }, [open])
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl p-0 overflow-hidden rounded-xl border border-border shadow-2xl bg-card text-card-foreground">
-        <div className="flex items-center px-4 border-b border-border/70 h-13">
-          <Search size={17} className="text-muted-foreground mr-3 flex-shrink-0" />
-          <Input
-            autoFocus
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm kiếm trang, chức năng hoặc thao tác nhanh..."
-            className="w-full bg-transparent border-none shadow-none outline-none focus-visible:ring-0 text-sm text-foreground placeholder:text-muted-foreground h-12"
+  useEffect(() => setIndex(0), [query])
+
+  useEffect(() => {
+    const el = listRef.current?.querySelector<HTMLElement>(`[data-index="${index}"]`)
+    el?.scrollIntoView({ block: 'nearest' })
+  }, [index])
+
+  if (!open) return null
+
+  const go = (entry?: Entry) => {
+    if (!entry) return
+    setOpen(false)
+    navigate(entry.path)
+  }
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setIndex((i) => Math.min(results.length - 1, i + 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setIndex((i) => Math.max(0, i - 1))
+    } else if (e.key === 'Enter') {
+      e.preventDefault()
+      go(results[index])
+    } else if (e.key === 'Escape') {
+      e.preventDefault()
+      setOpen(false)
+    }
+  }
+
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-start justify-center px-4 pt-[12vh]" onKeyDown={onKeyDown}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] animate-in fade-in-0" onClick={() => setOpen(false)} />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Tìm kiếm nhanh"
+        className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-border bg-popover text-popover-foreground shadow-pop animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
+      >
+        <div className="flex items-center gap-3 border-b border-border px-4">
+          <Search size={18} className="shrink-0 text-muted-foreground" />
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Tìm trang hoặc chức năng…"
+            className="h-14 w-full bg-transparent text-[15px] text-foreground outline-none placeholder:text-muted-foreground"
           />
-          <Badge variant="outline" className="text-[10px] font-bold text-muted-foreground border-border">
+          <kbd className="shrink-0 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
             ESC
-          </Badge>
+          </kbd>
         </div>
 
-        <div className="max-h-80 overflow-y-auto p-2 space-y-1">
-          {filtered.length === 0 ? (
-            <div className="py-8 text-center text-sm text-muted-foreground">
-              Không tìm thấy kết quả phù hợp cho "{search}"
+        <div ref={listRef} className="max-h-[min(420px,60vh)] overflow-y-auto p-2">
+          {results.length === 0 ? (
+            <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+              Không tìm thấy kết quả cho “{query}”
             </div>
           ) : (
-            filtered.map((item) => {
-              const Icon = item.icon
+            results.map((entry, i) => {
+              const Icon = entry.icon
+              const active = i === index
               return (
                 <button
-                  key={item.path}
+                  key={entry.path}
                   type="button"
-                  onClick={() => {
-                    onOpenChange(false)
-                    navigate(item.path)
-                  }}
-                  className="w-full flex items-center justify-between p-2.5 rounded-lg text-left hover:bg-amber-500/10 transition-colors group cursor-pointer border-none bg-transparent"
+                  data-index={i}
+                  onMouseMove={() => setIndex(i)}
+                  onClick={() => go(entry)}
+                  className={cn(
+                    'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors',
+                    active ? 'bg-accent' : 'hover:bg-accent/60'
+                  )}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-md bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-amber-500/20 group-hover:text-amber-500 transition-colors flex-shrink-0">
-                      <Icon size={16} />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-xs font-semibold text-foreground group-hover:text-amber-600 dark:group-hover:text-amber-400 truncate">
-                        {item.label}
-                      </div>
-                      <div className="text-[11px] text-muted-foreground truncate">{item.desc}</div>
-                    </div>
-                  </div>
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider group-hover:text-amber-600 dark:group-hover:text-amber-400 flex-shrink-0 ml-2">
-                    {item.category.split(' ')[0]}
+                  <span
+                    className={cn(
+                      'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition-colors',
+                      active
+                        ? 'border-brand-200 bg-brand-50 text-brand-600 dark:border-brand-500/30 dark:bg-brand-500/10 dark:text-brand-400'
+                        : 'border-border bg-card text-muted-foreground'
+                    )}
+                  >
+                    <Icon size={17} />
                   </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium text-foreground">{entry.label}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{entry.description}</span>
+                  </span>
+                  <span className="hidden shrink-0 text-[11px] text-muted-foreground sm:block">{entry.group}</span>
+                  {active && <CornerDownLeft size={14} className="shrink-0 text-muted-foreground" />}
                 </button>
               )
             })
           )}
         </div>
 
-        <div className="flex items-center justify-between px-4 py-2 bg-muted/40 border-t border-border text-[11px] text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <span>↑↓ để xem</span>
-            <span>•</span>
-            <span>↵ để mở trang</span>
-          </div>
-          <div className="flex items-center gap-1 font-medium text-muted-foreground">
-            NOAN Cloud Studio
-          </div>
+        <div className="flex items-center gap-4 border-t border-border bg-muted/40 px-4 py-2 text-[11px] text-muted-foreground">
+          <span><kbd className="font-sans font-semibold">↑ ↓</kbd> di chuyển</span>
+          <span><kbd className="font-sans font-semibold">Enter</kbd> mở</span>
+          <span><kbd className="font-sans font-semibold">Esc</kbd> đóng</span>
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>,
+    document.body
   )
 }

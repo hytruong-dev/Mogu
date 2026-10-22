@@ -96,8 +96,8 @@ export function Image({
 
   const renderFallbackIcon = () => {
     if (React.isValidElement(fallbackIcon)) return fallbackIcon
-    if (fallbackIcon === 'image') return <ImageIcon className="h-6 w-6 text-muted-foreground/60" />
-    return <Utensils className="h-6 w-6 text-muted-foreground/60" />
+    if (fallbackIcon === 'image') return <ImageIcon className="h-6 w-6 text-muted-foreground/80" />
+    return <Utensils className="h-6 w-6 text-muted-foreground/80" />
   }
 
   const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {

@@ -16,7 +16,7 @@ import {
   Check,
   Laptop,
 } from 'lucide-react'
-import { PageContainer } from '../components/layout'
+import { PageContainer, PageHeader } from '../components/layout'
 import { Button } from '../components/ui/button'
 import { Card, CardContent } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -165,52 +165,35 @@ export default function AdminUsersPage() {
     <PageContainer>
       <div className="space-y-6">
         {/* Top Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center ring-1 ring-purple-500/20">
-                <ShieldCheck size={22} />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                  Quản lý Nhân sự & Phân quyền Admin
-                </h1>
-                <p className="text-xs text-muted-foreground">
-                  Phân chia vai trò, kiểm soát tài khoản quản trị nội bộ và nhật ký tác vụ
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/users')}
-              className="text-xs flex items-center gap-1.5 border-slate-200 dark:border-slate-800 hover:border-amber-500/40 text-slate-700 dark:text-slate-300"
-            >
-              <Users size={14} className="text-amber-500" />
-              Xem Người dùng App & Thói quen
-              <ArrowRight size={13} />
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => {
-                setCreatedResult(null)
-                setNewUsername('')
-                setNewEmail('')
-                setNewDisplayName('')
-                setNewPassword('')
-                setNewRole('CONTENT_ADMIN')
-                setCreateOpen(true)
-              }}
-              className="text-xs bg-purple-600 hover:bg-purple-700 text-white flex items-center gap-1.5 shadow-sm shadow-purple-500/20"
-            >
-              <UserPlus size={14} />
-              Thêm Nhân sự Mới
-            </Button>
-          </div>
-        </div>
+        <PageHeader
+          className="mb-0"
+          title="Quản trị viên"
+          description="Tài khoản nhân sự nội bộ, vai trò và phiên đăng nhập."
+          actions={
+            <>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/users')}>
+                <Users />
+                Người dùng app
+                <ArrowRight />
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setCreatedResult(null)
+                  setNewUsername('')
+                  setNewEmail('')
+                  setNewDisplayName('')
+                  setNewPassword('')
+                  setNewRole('CONTENT_ADMIN')
+                  setCreateOpen(true)
+                }}
+              >
+                <UserPlus />
+                Thêm quản trị viên
+              </Button>
+            </>
+          }
+        />
 
         {/* Quick KPI Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

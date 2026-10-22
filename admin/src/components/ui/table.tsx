@@ -42,7 +42,7 @@ export function TableHead({ className, ...props }: ThHTMLAttributes<HTMLTableCel
   return (
     <th
       className={cn(
-        'h-11 px-4 text-left align-middle font-bold text-xs text-foreground/80 uppercase tracking-wider bg-muted/50 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
+        'h-10 px-4 text-left align-middle whitespace-nowrap font-semibold text-[11px] text-muted-foreground uppercase tracking-wide bg-muted/40 [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',
         className
       )}
       {...props}

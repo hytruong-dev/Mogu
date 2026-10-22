@@ -30,26 +30,26 @@ interface Props {
 }
 
 const STATS = [
-  { key: 'all', label: 'Tổng dòng', value: 250, icon: FileText, iconBg: 'bg-[#F3F4F6]', iconColor: 'text-[#4B5563]' },
-  { key: 'valid', label: 'Hợp lệ', value: 231, icon: CheckCircle2, iconBg: 'bg-[#ECFDF3]', iconColor: 'text-[#16A34A]' },
-  { key: 'warning', label: 'Cảnh báo', value: 12, icon: AlertTriangle, iconBg: 'bg-[#FFF7ED]', iconColor: 'text-[#EA580C]' },
-  { key: 'error', label: 'Lỗi', value: 7, icon: XCircle, iconBg: 'bg-[#FEF2F2]', iconColor: 'text-[#DC2626]' },
-  { key: 'duplicate', label: 'Trùng dữ liệu', value: 5, icon: Link2, iconBg: 'bg-[#F5F3FF]', iconColor: 'text-[#7C3AED]' },
+  { key: 'all', label: 'Tổng dòng', value: 250, icon: FileText, iconBg: 'bg-muted', iconColor: 'text-foreground/70' },
+  { key: 'valid', label: 'Hợp lệ', value: 231, icon: CheckCircle2, iconBg: 'bg-emerald-50 dark:bg-emerald-500/10', iconColor: 'text-emerald-700 dark:text-emerald-400' },
+  { key: 'warning', label: 'Cảnh báo', value: 12, icon: AlertTriangle, iconBg: 'bg-brand-50 dark:bg-brand-500/10', iconColor: 'text-brand-700 dark:text-brand-400' },
+  { key: 'error', label: 'Lỗi', value: 7, icon: XCircle, iconBg: 'bg-rose-50 dark:bg-rose-500/10', iconColor: 'text-rose-600 dark:text-rose-400' },
+  { key: 'duplicate', label: 'Trùng dữ liệu', value: 5, icon: Link2, iconBg: 'bg-violet-50 dark:bg-violet-500/10', iconColor: 'text-violet-600 dark:text-violet-400' },
 ] as const
 
 const TABS: { id: ValidateTab; label: string; count: number; active: string }[] = [
-  { id: 'all', label: 'Tất cả', count: 250, active: 'border-black text-black' },
-  { id: 'error', label: 'Lỗi', count: 7, active: 'border-[#DC2626] text-[#DC2626]' },
-  { id: 'warning', label: 'Cảnh báo', count: 12, active: 'border-[#EA580C] text-[#EA580C]' },
-  { id: 'duplicate', label: 'Trùng', count: 5, active: 'border-[#7C3AED] text-[#7C3AED]' },
-  { id: 'valid', label: 'Hợp lệ', count: 231, active: 'border-[#16A34A] text-[#16A34A]' },
+  { id: 'all', label: 'Tất cả', count: 250, active: 'border-foreground text-foreground' },
+  { id: 'error', label: 'Lỗi', count: 7, active: 'border-rose-500 text-rose-600 dark:text-rose-400' },
+  { id: 'warning', label: 'Cảnh báo', count: 12, active: 'border-brand-600 text-brand-700 dark:text-brand-400' },
+  { id: 'duplicate', label: 'Trùng', count: 5, active: 'border-violet-500 text-violet-600 dark:text-violet-400' },
+  { id: 'valid', label: 'Hợp lệ', count: 231, active: 'border-emerald-600 text-emerald-700 dark:text-emerald-400' },
 ]
 
 function valueTone(kind: IssueRow['kind']) {
-  if (kind === 'error') return 'bg-[#FEF2F2] text-[#B91C1C]'
-  if (kind === 'duplicate') return 'bg-[#F5F3FF] text-[#6D28D9]'
-  if (kind === 'warning') return 'bg-[#FFF7ED] text-[#C2410C]'
-  return 'bg-[#F3F4F6] text-[#374151]'
+  if (kind === 'error') return 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400'
+  if (kind === 'duplicate') return 'bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300'
+  if (kind === 'warning') return 'bg-brand-50 dark:bg-brand-500/10 text-brand-700 dark:text-brand-400'
+  return 'bg-muted text-foreground/80'
 }
 
 export function StepValidate({
@@ -122,13 +122,13 @@ export function StepValidate({
               <TableBody>
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="px-3 py-8 text-center text-sm text-[#9CA3AF]">
+                    <TableCell colSpan={6} className="px-3 py-8 text-center text-sm text-muted-foreground">
                       Không có dòng trong bộ lọc này.
                     </TableCell>
                   </TableRow>
                 )}
                 {filtered.map((row) => (
-                  <TableRow key={row.id} className="border-t border-black/5">
+                  <TableRow key={row.id} className="border-t border-border/60">
                     <TableCell className="px-3 py-2 font-medium">{row.row}</TableCell>
                     <TableCell className="px-3 py-2 font-medium">{row.dishName}</TableCell>
                     <TableCell className="px-3 py-2 font-mono text-xs">{row.field}</TableCell>
@@ -137,7 +137,7 @@ export function StepValidate({
                         {row.currentValue || '—'}
                       </span>
                     </TableCell>
-                    <TableCell className="px-3 py-2 text-[#4B5563]">{row.problem}</TableCell>
+                    <TableCell className="px-3 py-2 text-foreground/70">{row.problem}</TableCell>
                     <TableCell className="px-3 py-2">
                       {row.fixType === 'input' ? (
                         <Input

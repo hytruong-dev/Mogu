@@ -280,7 +280,7 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
         <h3 className="text-[15px] font-semibold">Phân bổ năng lượng</h3>
         <div className="mt-3 flex h-3 overflow-hidden rounded-full bg-gray-100">
           <div className="bg-ok-green" style={{ width: `${split.protein}%` }} />
-          <div className="bg-mogu-yellow" style={{ width: `${split.carb}%` }} />
+          <div className="bg-primary" style={{ width: `${split.carb}%` }} />
           <div className="bg-warn-orange" style={{ width: `${split.fat}%` }} />
         </div>
         <div className="mt-3 flex flex-wrap gap-5 text-sm">
@@ -288,7 +288,7 @@ export function NutritionForm({ state, onChange }: NutritionFormProps) {
             <span className="h-2.5 w-2.5 rounded-full bg-ok-green" /> Protein {split.protein}%
           </span>
           <span className="flex items-center gap-2">
-            <span className="h-2.5 w-2.5 rounded-full bg-mogu-yellow" /> Carb {split.carb}%
+            <span className="h-2.5 w-2.5 rounded-full bg-primary" /> Carb {split.carb}%
           </span>
           <span className="flex items-center gap-2">
             <span className="h-2.5 w-2.5 rounded-full bg-warn-orange" /> Chất béo {split.fat}%
@@ -463,7 +463,7 @@ export function ProvenanceTable({ provenance }: { provenance: NutritionProvenanc
             <button
               type="button"
               onClick={() => setExpanded((v) => !v)}
-              className="w-full border-t border-black/5 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50"
+              className="w-full border-t border-border/60 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50"
             >
               {expanded ? 'Thu gọn' : `Xem thêm ${rows.length - 8} nguyên liệu`}
             </button>

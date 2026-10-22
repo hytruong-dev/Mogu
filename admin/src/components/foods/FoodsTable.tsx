@@ -198,7 +198,7 @@ export function FoodsTable({
                           <span className="text-[10px] text-muted-foreground font-normal">({dish.ratingCount ?? 0})</span>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground/60 text-[11px]">—</span>
+                        <span className="text-muted-foreground/80 text-[11px]">—</span>
                       )}
                     </TableCell>
 

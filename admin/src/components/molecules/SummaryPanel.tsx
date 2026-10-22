@@ -65,7 +65,7 @@ export function SummaryPanel({ state, categories, mealTypes, goals, dietTypes }:
                   {g.tags.length ? (
                     g.tags.map((t) => <FilterChip key={t} label={t} variant="yellow" />)
                   ) : (
-                    <span className="text-xs text-muted-foreground/60">—</span>
+                    <span className="text-xs text-muted-foreground/80">—</span>
                   )}
                 </div>
               </div>

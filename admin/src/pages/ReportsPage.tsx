@@ -18,7 +18,7 @@ import { Button } from '../components/ui/button'
 import { Progress } from '../components/ui/progress'
 import { Tabs, TabsList, TabsTrigger } from '../components/ui/tabs'
 import { exploreAdminApi, type ExploreAnalytics } from '../api/explore'
-import { PageContainer } from '../components/layout'
+import { PageContainer, PageHeader } from '../components/layout'
 
 function StatCard({
   icon: Icon,
@@ -248,19 +248,17 @@ export default function ReportsPage() {
   return (
     <PageContainer className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl flex items-center gap-2.5">
-            <BarChart3 size={28} className="text-amber-500" />
-            Báo cáo & Phân tích (Analytics)
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Tổng quan hiệu suất tương tác, lượt xem và mức độ gắn kết trên hệ sinh thái NOAN.
-            {loading && <span className="text-muted-foreground ml-1">· Đang đồng bộ...</span>}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2.5">
+      <PageHeader
+        className="mb-0"
+        title="Báo cáo"
+        description={
+          <>
+            Lượt xem, tương tác và mức độ gắn kết trên NOAN.
+            {loading && <span className="ml-1">· Đang đồng bộ…</span>}
+          </>
+        }
+        actions={
+        <div className="flex items-center gap-2">
           <Tabs value={range} onValueChange={(val) => setRange(val as typeof range)}>
             <TabsList className="h-9 p-1">
               <TabsTrigger value="7d" className="text-xs font-semibold px-3 py-1">
@@ -280,13 +278,14 @@ export default function ReportsPage() {
             variant="outline"
             size="sm"
             onClick={handleExportCSV}
-            className="text-xs h-9 gap-1.5 font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border-border"
+            className="h-9"
           >
-            <Download size={14} />
-            <span>Xuất CSV</span>
+            <Download />
+            Xuất CSV
           </Button>
         </div>
-      </div>
+        }
+      />
 
       {error && (
         <div className="p-3 rounded-lg border border-amber-200 bg-amber-50 text-xs font-semibold text-amber-800">

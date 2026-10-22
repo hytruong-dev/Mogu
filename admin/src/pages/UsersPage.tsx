@@ -42,7 +42,7 @@ import { Skeleton } from '../components/ui/skeleton'
 import { PageSkeleton, StatsSkeleton, TableSkeleton } from '../components/ui/page-skeleton'
 import { Spinner } from '../components/ui/spinner'
 import { MediaLightbox, useMediaLightbox } from '../components/ui/media-lightbox'
-import { PageContainer } from '../components/layout'
+import { PageContainer, PageHeader, SegmentedTabs } from '../components/layout'
 import {
   Dialog,
   DialogContent,
@@ -1248,85 +1248,45 @@ export default function UsersPage() {
   return (
     <PageContainer className="space-y-6">
       {/* ── Page Header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20">
-              <Users size={22} />
-            </span>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                Người dùng App & Thống kê Hành vi
-                <Badge variant="secondary" className="font-mono text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20">
-                  {formatNumber(habit.data?.overview?.totalAppUsers ?? metrics.totalUsers)} người dùng App
-                </Badge>
-              </h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Đo lường thời gian hoạt động, tỉ lệ ra vào app, thói quen ẩm thực và tần suất tính năng theo chuẩn Telemetry quốc tế
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 self-start sm:self-auto">
-          <Button
-            type="button"
-            variant="outline"
-            className="h-9 gap-1.5 font-semibold text-xs border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40"
-            onClick={() => navigate('/admin-users')}
-          >
-            <ShieldCheck size={14} className="text-purple-600 dark:text-purple-400" />
-            <span>Quản lý Nhân sự Admin</span>
-            <ArrowRight size={13} />
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="h-9 gap-1.5 font-semibold text-xs shadow-2xs"
-            disabled={isExporting || actions.createExport.isPending}
-            onClick={handleExport}
-          >
-            {isExporting || actions.createExport.isPending ? <Spinner size="sm" /> : <Upload size={14} />}
-            <span>{isExporting ? 'Đang xuất...' : 'Xuất CSV'}</span>
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        className="mb-0"
+        title="Người dùng app"
+        badge={
+          <Badge variant="neutral" className="tabular-nums">
+            {formatNumber(habit.data?.overview?.totalAppUsers ?? metrics.totalUsers)} người dùng
+          </Badge>
+        }
+        description="Tài khoản người dùng, thời gian hoạt động và thói quen sử dụng tính năng."
+        actions={
+          <>
+            <Button type="button" variant="ghost" size="sm" onClick={() => navigate('/admin-users')}>
+              <ShieldCheck />
+              Quản trị viên
+              <ArrowRight />
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isExporting || actions.createExport.isPending}
+              onClick={handleExport}
+            >
+              {isExporting || actions.createExport.isPending ? <Spinner size="sm" /> : <Upload />}
+              {isExporting ? 'Đang xuất…' : 'Xuất CSV'}
+            </Button>
+          </>
+        }
+      />
 
       {/* ── Tabs Bar ── */}
-      <div className="flex items-center gap-2 border-b border-border/60 pb-3">
-        <button
-          type="button"
-          onClick={() => setActiveTab('HABIT_ANALYTICS')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
-            activeTab === 'HABIT_ANALYTICS'
-              ? 'bg-amber-500 text-white shadow-xs ring-1 ring-amber-500/40'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-          }`}
-        >
-          <BarChart3 size={15} />
-          <span>Thống kê Hành vi & Thói quen App</span>
-          <Badge className={`text-[10px] px-1.5 py-0 h-4 ${activeTab === 'HABIT_ANALYTICS' ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground'}`}>
-            Telemetry
-          </Badge>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('APP_USERS')}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
-            activeTab === 'APP_USERS'
-              ? 'bg-amber-500 text-white shadow-xs ring-1 ring-amber-500/40'
-              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-          }`}
-        >
-          <Users size={15} />
-          <span>Danh sách Người dùng Di động</span>
-          <Badge className={`text-[10px] px-1.5 py-0 h-4 ${activeTab === 'APP_USERS' ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground'}`}>
-            {items.length}
-          </Badge>
-        </button>
-      </div>
+      <SegmentedTabs
+        value={activeTab}
+        onChange={setActiveTab}
+        tabs={[
+          { value: 'HABIT_ANALYTICS', label: 'Thói quen sử dụng', icon: BarChart3 },
+          { value: 'APP_USERS', label: 'Danh sách người dùng', icon: Users, count: items.length },
+        ]}
+      />
 
       {/* ── Tab Content: HABIT ANALYTICS ── */}
       {activeTab === 'HABIT_ANALYTICS' && (

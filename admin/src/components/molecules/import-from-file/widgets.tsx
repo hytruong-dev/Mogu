@@ -42,9 +42,9 @@ export function ImportStepper({ current }: { current: 1 | 2 | 3 | 4 }) {
               <span
                 className={cn(
                   'flex h-7 w-7 items-center justify-center rounded-full text-[13px] font-bold',
-                  active && 'bg-mogu-yellow text-black',
-                  done && 'bg-[#22C55E] text-white',
-                  !active && !done && 'bg-[#E5E7EB] text-[#9CA3AF]',
+                  active && 'bg-primary text-primary-foreground',
+                  done && 'bg-emerald-600 text-white',
+                  !active && !done && 'bg-muted text-muted-foreground',
                 )}
               >
                 {done ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : step.n}
@@ -52,14 +52,14 @@ export function ImportStepper({ current }: { current: 1 | 2 | 3 | 4 }) {
               <span
                 className={cn(
                   'whitespace-nowrap text-[13px]',
-                  active ? 'font-semibold text-black' : done ? 'font-medium text-[#166534]' : 'text-[#9CA3AF]',
+                  active ? 'font-semibold text-foreground' : done ? 'font-medium text-emerald-800 dark:text-emerald-300' : 'text-muted-foreground',
                 )}
               >
                 {step.label}
               </span>
             </div>
             {i < WIZARD_STEPS.length - 1 && (
-              <div className={cn('mx-3 h-px w-10 sm:w-14', done ? 'bg-[#22C55E]' : 'bg-[#E5E7EB]')} />
+              <div className={cn('mx-3 h-px w-10 sm:w-14', done ? 'bg-emerald-600' : 'bg-muted')} />
             )}
           </div>
         )
@@ -84,11 +84,11 @@ export function YellowCheck({
       <Checkbox
         checked={checked}
         onCheckedChange={(c) => onChange(!!c)}
-        className="mt-0.5 data-[state=checked]:bg-mogu-yellow data-[state=checked]:text-black data-[state=checked]:border-mogu-yellow"
+        className="mt-0.5 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary"
       />
       <span>
-        <span className="text-sm font-medium text-black">{label}</span>
-        {hint && <span className="mt-0.5 block text-xs text-[#6B7280]">{hint}</span>}
+        <span className="text-sm font-medium text-foreground">{label}</span>
+        {hint && <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>}
       </span>
     </label>
   )
@@ -114,14 +114,14 @@ export function YellowRadio({
         onClick={onChange}
         className={cn(
           'mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full border-2',
-          checked ? 'border-mogu-yellow' : 'border-black/25',
+          checked ? 'border-primary' : 'border-input',
         )}
       >
-        {checked && <span className="h-2.5 w-2.5 rounded-full bg-mogu-yellow" />}
+        {checked && <span className="h-2.5 w-2.5 rounded-full bg-primary" />}
       </button>
       <span>
-        <span className="text-sm font-medium text-black">{title}</span>
-        {hint && <span className="mt-0.5 block text-xs leading-snug text-[#6B7280]">{hint}</span>}
+        <span className="text-sm font-medium text-foreground">{title}</span>
+        {hint && <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{hint}</span>}
       </span>
     </label>
   )
@@ -207,7 +207,7 @@ export function PrimaryBtn({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'h-10 bg-mogu-yellow px-5 text-sm font-bold text-black hover:bg-mogu-yellow-dark shadow-none',
+        'h-10 bg-primary px-5 text-sm font-bold text-primary-foreground hover:bg-brand-600 shadow-none',
         className,
       )}
     >
@@ -230,9 +230,9 @@ export function YellowSwitch({
       <Switch
         checked={checked}
         onCheckedChange={onChange}
-        className="data-[state=checked]:bg-mogu-yellow"
+        className="data-[state=checked]:bg-primary"
       />
-      {label && <span className="text-sm font-medium text-black">{label}</span>}
+      {label && <span className="text-sm font-medium text-foreground">{label}</span>}
     </label>
   )
 }
@@ -251,9 +251,9 @@ export function GreenSwitch({
       <Switch
         checked={checked}
         onCheckedChange={onChange}
-        className="data-[state=checked]:bg-[#22C55E]"
+        className="data-[state=checked]:bg-emerald-600"
       />
-      {label && <span className="text-sm font-medium text-black">{label}</span>}
+      {label && <span className="text-sm font-medium text-foreground">{label}</span>}
     </label>
   )
 }

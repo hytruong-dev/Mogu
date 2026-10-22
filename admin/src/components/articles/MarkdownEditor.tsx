@@ -258,7 +258,7 @@ export function MarkdownEditor({
                 dangerouslySetInnerHTML={{ __html: previewHtml }}
               />
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground/60 py-12 text-xs">
+              <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground/80 py-12 text-xs">
                 <FileEdit size={24} className="mb-2 opacity-40" />
                 <span>Nội dung Markdown sẽ hiển thị trực quan tại đây...</span>
               </div>
