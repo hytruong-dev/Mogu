@@ -47,7 +47,7 @@ const BULBS = [30.7, 40.2, 49.9, 59.6, 69.3];
  */
 export const REEL_STOP_TIMES = [300, 540, 820] as const;
 /** How long the jackpot celebration plays inside the machine before the dish is revealed. */
-export const JACKPOT_HOLD_MS = 150;
+export const JACKPOT_HOLD_MS = 1100;
 export const FOOD_REEL_REVEAL_DELAY = REEL_STOP_TIMES[2] + JACKPOT_HOLD_MS;
 
 const LOOP_COPIES = 4;
@@ -630,7 +630,9 @@ function ReelTrack({
     <>
       <Animated.View style={trackStyle} importantForAccessibility="no-hide-descendants">
         {loopItems.map((source, index) => {
-          const isWinnerLanding = index === 0 && Boolean(winningDish);
+          // Reels always stop on a whole-cycle boundary (-k * cycle), i.e. on the first item
+          // of *some* copy — so every copy's first slot must carry the winning dish.
+          const isWinnerLanding = index % items.length === 0 && Boolean(winningDish);
           return (
             <ReelItem
               key={index}

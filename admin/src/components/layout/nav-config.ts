@@ -63,9 +63,10 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
-    title: 'HỆ THỐNG',
+    title: 'HỆ THỐNG & NGƯỜI DÙNG',
     items: [
-      { path: '/users', label: 'Người dùng', icon: Users, roles: ['SUPER_ADMIN'] },
+      { path: '/users', label: 'Người dùng App & Thói quen', icon: Users, badge: 'Thói quen', roles: ['SUPER_ADMIN'] },
+      { path: '/admin-users', label: 'Nhân sự & Phân quyền Admin', icon: ShieldCheck, roles: ['SUPER_ADMIN'] },
     ],
   },
 ]

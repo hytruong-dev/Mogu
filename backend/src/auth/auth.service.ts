@@ -209,9 +209,33 @@ export class AuthService {
     }
 
     const isEmail = rawIdentifier.includes('@');
-    const internalEmail = isEmail
-      ? rawIdentifier
-      : this.usernameToEmail(rawIdentifier);
+    let internalEmail: string;
+
+    if (isEmail) {
+      internalEmail = rawIdentifier;
+    } else {
+      // Hỗ trợ đăng nhập bằng username cho tài khoản có email thực (Supabase)
+      const account = await this.prisma.db.account
+        .findUnique({
+          where: { username: rawIdentifier.toLowerCase() },
+          select: { userId: true },
+        })
+        .catch(() => null);
+
+      if (account?.userId) {
+        try {
+          const { data: suUser } = await this.supabase.auth.admin.getUserById(
+            account.userId,
+          );
+          internalEmail =
+            suUser?.user?.email || this.usernameToEmail(rawIdentifier);
+        } catch {
+          internalEmail = this.usernameToEmail(rawIdentifier);
+        }
+      } else {
+        internalEmail = this.usernameToEmail(rawIdentifier);
+      }
+    }
 
     const { data, error } = await this.supabase.auth.signInWithPassword({
       email: internalEmail,

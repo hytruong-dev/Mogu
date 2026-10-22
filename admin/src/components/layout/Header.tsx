@@ -22,7 +22,7 @@ import { useAuth } from '../../providers/AuthProvider'
 import { useDashboardActivities } from '../../hooks/useDashboard'
 import { useFoodScanReportSummary } from '../../hooks/useFoodScanReports'
 import { Button } from '../ui/button'
-import { Avatar, AvatarFallback } from '../ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -309,7 +309,8 @@ export function Header() {
                 type="button"
                 className="flex items-center gap-2.5 p-1 pl-1.5 pr-2.5 rounded-lg border border-slate-200/80 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-left group"
               >
-                <Avatar className="w-7 h-7 rounded-lg bg-amber-500 text-white font-bold text-xs ring-1 ring-amber-500/30">
+                <Avatar className="w-8 h-8 rounded-full ring-2 ring-amber-500/40 overflow-hidden bg-amber-500 shadow-xs shrink-0">
+                  <AvatarImage src={user?.avatarUrl ?? undefined} alt={displayName} className="object-cover w-full h-full" />
                   <AvatarFallback className="bg-amber-500 text-white font-bold text-xs">
                     {initial}
                   </AvatarFallback>
@@ -325,10 +326,17 @@ export function Header() {
                 <ChevronDown size={13} className="text-slate-400 group-hover:text-slate-600 transition-colors hidden sm:inline" />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56 p-1.5 shadow-xl rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-              <div className="px-3 py-2 border-b border-slate-100 dark:border-slate-800 mb-1">
-                <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">{displayName}</p>
-                <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate">ID: {user?.id.slice(0, 8) ?? 'admin'}</p>
+            <DropdownMenuContent align="end" className="w-60 p-1.5 shadow-xl rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+              <div className="flex items-center gap-3 px-3 py-2.5 border-b border-slate-100 dark:border-slate-800 mb-1">
+                <Avatar className="w-10 h-10 rounded-full ring-2 ring-amber-500/40 overflow-hidden bg-amber-500 shadow-sm shrink-0">
+                  <AvatarImage src={user?.avatarUrl ?? undefined} alt={displayName} className="object-cover w-full h-full" />
+                  <AvatarFallback className="bg-amber-500 text-white font-bold text-xs">{initial}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">{displayName}</p>
+                  <p className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold truncate">{roleLabel()}</p>
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 truncate">ID: {user?.id.slice(0, 8) ?? 'admin'}</p>
+                </div>
               </div>
               <DropdownMenuItem
                 onClick={() => navigate('/users')}

@@ -16,6 +16,7 @@ const CreateDishPage = lazy(() => import('./pages/CreateDishPage'))
 const IngestPage = lazy(() => import('./pages/IngestPage'))
 const ReviewPage = lazy(() => import('./pages/ReviewPage'))
 const UsersPage = lazy(() => import('./pages/UsersPage'))
+const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage'))
 const CommunityPage = lazy(() => import('./pages/CommunityPage'))
 const ReportsPage = lazy(() => import('./pages/ReportsPage'))
 const FoodDataPage = lazy(() => import('./pages/FoodDataPage'))
@@ -108,6 +109,7 @@ function AppRoutes() {
         <Route path="/ingest" element={<ProtectedLayout currentPath="/ingest"><IngestPage /></ProtectedLayout>} />
         <Route path="/review" element={<ProtectedLayout currentPath="/review"><ReviewPage /></ProtectedLayout>} />
         <Route path="/users" element={<ProtectedLayout currentPath="/users"><UsersPage /></ProtectedLayout>} />
+        <Route path="/admin-users" element={<ProtectedLayout currentPath="/admin-users"><AdminUsersPage /></ProtectedLayout>} />
         <Route path="/community" element={<ProtectedLayout currentPath="/community"><CommunityPage /></ProtectedLayout>} />
         <Route path="/reports" element={<ProtectedLayout currentPath="/reports"><ReportsPage /></ProtectedLayout>} />
         <Route path="/food-data" element={<ProtectedLayout currentPath="/food-data"><FoodDataPage /></ProtectedLayout>} />

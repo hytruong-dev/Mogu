@@ -16,6 +16,15 @@ export function useUsersSummary() {
   })
 }
 
+export function useHabitAnalytics() {
+  const { session } = useAuth()
+  return useQuery({
+    queryKey: ['admin-users-habit-analytics'],
+    queryFn: () => usersApi.habitAnalytics(),
+    enabled: !!session,
+  })
+}
+
 export function useAdminUsers(params?: AdminUserListQuery) {
   const { session } = useAuth()
   return useQuery({

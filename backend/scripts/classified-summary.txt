@@ -1,0 +1,237 @@
+1. [banh-da-do-hai-phong-tuoi-tppoj] "Bánh đa đỏ Hải Phòng tươi" (Dùng trong: Bánh đa cua Hải Phòng)
+   👉 Gợi ý: "Bánh đa" (Code: banh-da-cvny6, Điểm: 85, Lý do: Khớp tiền tố)
+2. [bi-heo-tron-thinh-gao-04aqb] "Bì heo trộn thính gạo" (Dùng trong: Cơm tấm sườn bì chả)
+   👉 Gợi ý: "Gạo" (Code: gao-6r0y4, Điểm: 75, Lý do: Tên chứa 'Gạo')
+3. [bot-gia-vi-bo-kho-iayya] "Bột gia vị bò kho" (Dùng trong: Bò kho bánh mì)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+4. [bot-tom-chay-hue-ruoc-tom-8dwof] "Bột tôm chấy Huế (Ruốc tôm)" (Dùng trong: Bánh ram ít Huế)
+   👉 Gợi ý: "Tôm" (Code: tom-c0k7d, Điểm: 75, Lý do: Tên chứa 'Tôm')
+5. [bun-soi-to-bun-bo-hue-eueh4] "Bún sợi to Bún Bò Huế" (Dùng trong: Bún bò Huế)
+   👉 Gợi ý: "Bún" (Code: bun-9uslg, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Bún bò Huế" (75)
+6. [cha-bo-da-nang-hkz0k] "Chả bò Đà Nẵng" (Dùng trong: Bún mắm nêm Đà Nẵng)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+7. [cha-ca-thu-chien-hap-6ki89] "Chả cá thu chiên hấp" (Dùng trong: Bún chả cá Nha Trang, Bún cá cay Hải Phòng, Bánh canh ghẹ, Bún sứa Quy Nhơn)
+   👉 Gợi ý: "Cá thu" (Code: ca-thu-0ywnt, Điểm: 75, Lý do: Tên chứa 'Cá thu')
+8. [cha-com-ha-noi-0jqaq] "Chả cốm Hà Nội" (Dùng trong: Bún đậu mắm tôm)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+9. [cha-trung-hap-thit-viwuf] "Chả trứng hấp thịt" (Dùng trong: Cơm tấm sườn bì chả)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 75, Lý do: Tên chứa 'Thịt')
+10. [chanh-tuoi-va-ot-hiem-ts23x] "Chanh tươi và ớt hiểm" (Dùng trong: Bún mắm miền Tây)
+   👉 Gợi ý: "Chanh" (Code: chanh-bfxpq, Điểm: 85, Lý do: Khớp tiền tố)
+11. [chi-chuong-hai-phong-ot-chung-095en] "Chí chương Hải Phòng (Ớt chưng)" (Dùng trong: Bún cá cay Hải Phòng)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+12. [com-trang-com-nguoi-s0hyk] "Cơm trắng (Cơm nguội)" (Dùng trong: Cơm hến Huế, Cơm chiên Dương Châu, Cơm cháy kho quẹt)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+13. [cu-cai-muoi-kho-xa-bau-tq7as] "Củ cải muối khô xá bấu" (Dùng trong: Bún thang Hà Nội)
+   👉 Gợi ý: "Cải" (Code: cai-wktvn, Điểm: 75, Lý do: Tên chứa 'Cải')
+   👉 Khác: "Muối" (75)
+14. [cu-ngai-bun-tuoi-lmv3l] "Củ ngải bún tươi" (Dùng trong: Bún mắm miền Tây)
+   👉 Gợi ý: "Bún" (Code: bun-9uslg, Điểm: 75, Lý do: Tên chứa 'Bún')
+15. [cu-san-tuoi-cu-dau-mmw68] "Củ sắn tươi (Củ đậu)" (Dùng trong: Bánh mì xíu mại)
+   👉 Gợi ý: "Củ đậu" (Code: cu-dau-8rgrs, Điểm: 75, Lý do: Tên chứa 'Củ đậu')
+   👉 Khác: "Đậu" (75), "Sắn" (75)
+16. [dau-phu-ran-vang-h6kub] "Đậu phụ rán vàng" (Dùng trong: Lẩu riêu cua bắp bò, Bún ốc Hà Nội, Bún riêu cua đồng)
+   👉 Gợi ý: "Đậu" (Code: dau-8xfnt, Điểm: 85, Lý do: Khớp tiền tố)
+17. [do-chua-ie01z] "Đồ chua" (Dùng trong: Gỏi cuốn tôm thịt, Bún mắm nêm Đà Nẵng)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+18. [do-chua-ca-rot-cu-cai-jxacf] "Đồ chua (Cà rốt & Củ cải)" (Dùng trong: Bánh mì thịt nướng, Cơm tấm sườn bì chả)
+   👉 Gợi ý: "Cà rốt" (Code: ca-rot-4rcfv, Điểm: 75, Lý do: Tên chứa 'Cà rốt')
+   👉 Khác: "Cải" (75)
+19. [doi-sun-chien-mien-nam-o9mmm] "Dồi sụn chiên miền Nam" (Dùng trong: Cháo lòng miền Nam)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+20. [du-du-chua-ngam-gion-k9s9r] "Đu đủ chua ngâm giòn" (Dùng trong: Cơm gà Hội An)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+21. [dua-leo-va-ca-chua-tuoi-yym2k] "Dưa leo và cà chua tươi" (Dùng trong: Bò né trứng ốp la)
+   👉 Gợi ý: "Dưa leo" (Code: dua-leo-a56dg, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Cà chua" (75)
+22. [dui-ga-goc-tu-4kxf3] "Đùi gà góc tư" (Dùng trong: Cơm gà xối mỡ)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+23. [gach-ghe-xao-dau-dieu-yremn] "Gạch ghẹ xào dầu điều" (Dùng trong: Bánh canh ghẹ)
+   👉 Gợi ý: "Dầu điều" (Code: dau-dieu-giahq, Điểm: 75, Lý do: Tên chứa 'Dầu điều')
+24. [gan-heo-tuoi-zones] "Gan heo tươi" (Dùng trong: Nem lụi nướng, Hủ tiếu Nam Vang, Cháo lòng miền Nam)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+25. [gao-tam-thom-iq9ex] "Gạo tấm thơm" (Dùng trong: Cơm tấm sườn bì chả)
+   👉 Gợi ý: "Gạo" (Code: gao-6r0y4, Điểm: 85, Lý do: Khớp tiền tố)
+26. [gia-vi-nau-an-tong-hop-m0pvq] "Gia vị nấu ăn tổng hợp" (Dùng trong: Bún cá cay Hải Phòng)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+27. [gia-vi-uop-toi-gung-s18r6] "Gia vị ướp tỏi gừng" (Dùng trong: Cơm gà xối mỡ)
+   👉 Gợi ý: "Gừng" (Code: gung-x2tfi, Điểm: 75, Lý do: Tên chứa 'Gừng')
+   👉 Khác: "Tỏi" (75)
+28. [gio-lua-truyen-thong-bkhik] "Giò lụa truyền thống" (Dùng trong: Bún thang Hà Nội)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+29. [gio-song-moc-66b6u] "Giò sống (Mọc)" (Dùng trong: Bún mọc sườn chua)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+30. [hanh-kho-hanh-cu-tim-4gybv] "Hành khô (Hành củ tím)" (Dùng trong: Phở gà Hà Nội)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+31. [hanh-la-va-mui-tau-ngo-gai-x7vr7] "Hành lá và mùi tàu (Ngò gai)" (Dùng trong: Bánh đa cua Hải Phòng)
+   👉 Gợi ý: "Hành lá" (Code: hanh-la-53bgh, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Mùi tàu" (75), "Ngò gai" (75)
+32. [hanh-la-va-ngo-ri-uxy0m] "Hành lá và ngò rí" (Dùng trong: Bánh canh cua giò heo, Bánh canh cá lóc Huế)
+   👉 Gợi ý: "Hành lá" (Code: hanh-la-53bgh, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Ngò rí" (75)
+33. [hanh-la-va-rau-mui-ngo-ri-k24wf] "Hành lá và rau mùi (Ngò rí)" (Dùng trong: Nem rán Hà Nội)
+   👉 Gợi ý: "Hành lá" (Code: hanh-la-53bgh, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Ngò rí" (75)
+34. [hanh-la-va-rau-ram-tuoi-9pa00] "Hành lá và rau răm tươi" (Dùng trong: Bún thang Hà Nội)
+   👉 Gợi ý: "Hành lá" (Code: hanh-la-53bgh, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Rau Răm" (75)
+35. [hanh-la-va-thi-la-tuoi-b4ffv] "Hành lá và thì là tươi" (Dùng trong: Bún cá cay Hải Phòng)
+   👉 Gợi ý: "Hành lá" (Code: hanh-la-53bgh, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Thì là" (75)
+36. [hanh-tim-phi-gion-yv2fj] "Hành tím phi giòn" (Dùng trong: Xôi xéo Hà Nội)
+   👉 Gợi ý: "Hành tím" (Code: hanh-tim-jo4u8, Điểm: 85, Lý do: Khớp tiền tố)
+37. [hanh-tim-va-gung-nuong-810f0] "Hành tím và gừng nướng" (Dùng trong: Bún thang Hà Nội)
+   👉 Gợi ý: "Hành tím" (Code: hanh-tim-jo4u8, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Gừng" (75)
+38. [hat-dieu-mau-hat-ca-ri-ca29m] "Hạt điều màu (Hạt cà ri)" (Dùng trong: Bún bò Huế)
+   👉 Gợi ý: "Hạt điều" (Code: hat-dieu-liq0i, Điểm: 85, Lý do: Khớp tiền tố)
+39. [hoa-hoi-va-que-thanh-h89rx] "Hoa hồi và quế thanh" (Dùng trong: Bò sốt vang bánh mì)
+   👉 Gợi ý: "Hoa hồi" (Code: hoa-hoi-gi64w, Điểm: 85, Lý do: Khớp tiền tố)
+40. [hu-tieu-dai-iksax] "Hủ tiếu dai" (Dùng trong: Hủ tiếu Nam Vang)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+41. [kho-muc-mini-nuong-nau-nuoc-dung-0c5iz] "Khô mực mini nướng nấu nước dùng" (Dùng trong: Hủ tiếu Mỹ Tho)
+   👉 Gợi ý: "Mực" (Code: muc-tqodj, Điểm: 75, Lý do: Tên chứa 'Mực')
+42. [khoanh-gio-heo-xh2jw] "Khoanh giò heo" (Dùng trong: Bún bò Huế)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+43. [khuon-chen-sanh-lam-banh-beo-k22j1] "Khuôn chén sành làm bánh bèo" (Dùng trong: Bánh bèo chén)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+44. [la-dong-goi-banh-tuoi-wowmt] "Lá dong gói bánh tươi" (Dùng trong: Bánh nậm Huế)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+45. [la-lot-va-tia-to-u7jym] "lá lốt và tía tô" (Dùng trong: Lẩu ếch măng cay)
+   👉 Gợi ý: "Lá lốt" (Code: la-lot-g0sbv, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Tía tô" (75)
+46. [la-oi-banh-te-tuoi-6uu83] "Lá ổi bánh tẻ tươi" (Dùng trong: Tré Bình Định)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+47. [lap-xuong-mai-que-lo-eaogu] "Lạp xưởng Mai Quế Lộ" (Dùng trong: Cơm chiên Dương Châu)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+48. [mi-trung-tuoi-soi-tron-2ji9y] "Mì trứng tươi sợi tròn" (Dùng trong: Mì xào hải sản)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+49. [mo-ga-thang-yd9pe] "Mỡ gà thắng" (Dùng trong: Xôi xéo Hà Nội)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+50. [mo-hanh-la-liv0t] "Mỡ hành lá" (Dùng trong: Bánh bèo chén, Cơm tấm sườn bì chả)
+   👉 Gợi ý: "Hành lá" (Code: hanh-la-53bgh, Điểm: 75, Lý do: Tên chứa 'Hành lá')
+51. [muoi-ot-xanh-cham-hai-san-7dr3s] "Muối ớt xanh chấm hải sản" (Dùng trong: Bánh canh ghẹ)
+   👉 Gợi ý: "Muối" (Code: muoi-7g8oe, Điểm: 85, Lý do: Khớp tiền tố)
+52. [nam-bao-ngu-xam-tuoi-4pf85] "Nấm bào ngư xám tươi" (Dùng trong: Lẩu gà lá é Đà Lạt)
+   👉 Gợi ý: "Bào ngư" (Code: ING-5D6F19, Điểm: 75, Lý do: Tên chứa 'Bào ngư')
+53. [nem-chua-cay-gu1vh] "Nem chua cây" (Dùng trong: Bún mắm nêm Đà Nẵng)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+54. [nem-ran-cha-gio-pqzw3] "Nem rán (Chả giò)" (Dùng trong: Bún đậu mắm tôm)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+55. [nuoc-cham-nem-chua-ngot-25wxw] "Nước chấm nem chua ngọt" (Dùng trong: Nem rán Hà Nội)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+56. [nuoc-cot-me-chua-wvk4w] "Nước cốt me chua" (Dùng trong: Bún cá cay Hải Phòng)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+57. [nuoc-ham-xuong-u7jws] "nước hầm xương" (Dùng trong: Lẩu ếch măng cay)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+58. [nuoc-ham-xuong-heo-lnoi9] "Nước hầm xương heo" (Dùng trong: Cháo sườn sụn Hà Nội, Lẩu cá kèo lá giang, Bún mắm miền Tây)
+   👉 Gợi ý: "Xương heo" (Code: xuong-heo-s74p8, Điểm: 75, Lý do: Tên chứa 'Xương heo')
+59. [nuoc-luoc-ga-fgizi] "Nước luộc gà" (Dùng trong: Cơm gà Hội An)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+60. [nuoc-ma-long-me-ga-fmrpt] "Nước mạ lòng mề gà" (Dùng trong: Cơm gà Hội An)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+61. [nuoc-sot-tron-iksef] "Nước sốt trộn" (Dùng trong: Hủ tiếu Nam Vang)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+62. [ot-chung-sa-te-6t7n3] "Ớt chưng sa tế" (Dùng trong: Bún ốc Hà Nội)
+   👉 Gợi ý: "Ớt" (Code: ot-149n9, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Sa tế" (75)
+63. [pa-te-gan-heo-beo-gqbsj] "Pa-tê gan heo béo" (Dùng trong: Bánh mì thịt nướng)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+64. [pheo-non-heo-tuoi-long-non-0anzl] "Phèo non heo tươi (Lòng non)" (Dùng trong: Cháo lòng miền Nam)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+65. [phi-le-ca-ro-phi-tuoi-2xvne] "Phi lê cá rô phi tươi" (Dùng trong: Bún cá cay Hải Phòng)
+   👉 Gợi ý: "Cá rô phi" (Code: ca-ro-phi-2fmx8, Điểm: 75, Lý do: Tên chứa 'Cá rô phi')
+66. [que-thanh-cao-vo-aerwl] "Quế thanh cạo vỏ" (Dùng trong: Phở bò, Cao lầu Hội An, Nem lụi nướng, Bánh cuốn Thanh Trì)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+67. [rau-an-lau-mam-thap-cam-keo-neo-rau-dang-dien-dien-bong-sung-ym62o] "Rau ăn lẩu mắm thập cẩm (Kèo nèo, rau đắng, điên điển, bông súng)" (Dùng trong: Lẩu mắm miền Tây)
+   👉 Gợi ý: "Kèo nèo" (Code: keo-neo-ksr7a, Điểm: 75, Lý do: Tên chứa 'Kèo nèo')
+   👉 Khác: "Rau đắng" (75)
+68. [rau-cai-xanh-cai-cay-zzvxf] "Rau cải xanh (Cải cay)" (Dùng trong: Bánh xèo miền Tây)
+   👉 Gợi ý: "Cải" (Code: cai-wktvn, Điểm: 75, Lý do: Tên chứa 'Cải')
+   👉 Khác: "Cải xanh" (75)
+69. [rau-cu-luoc-an-kho-quet-dau-bap-ca-rot-su-su-6f9yf] "Rau củ luộc ăn kho quẹt (Đậu bắp, cà rốt, su su)" (Dùng trong: Cơm cháy kho quẹt)
+   👉 Gợi ý: "Bắp" (Code: bap-gtgpv, Điểm: 75, Lý do: Tên chứa 'Bắp')
+   👉 Khác: "Cà rốt" (75), "Đậu" (75), "Đậu bắp" (75)
+70. [rau-kinh-gioi-va-rau-mui-01m1e] "Rau kinh giới và rau mùi" (Dùng trong: Nộm bò khô Hà Nội)
+   👉 Gợi ý: "Kinh giới" (Code: kinh-gioi-pmadw, Điểm: 75, Lý do: Tên chứa 'Kinh giới')
+71. [rau-mam-cu-cai-trang-jecym] "Rau mầm củ cải trắng" (Dùng trong: Bánh xèo tôm nhảy Bình Định)
+   👉 Gợi ý: "Cải" (Code: cai-wktvn, Điểm: 75, Lý do: Tên chứa 'Cải')
+   👉 Khác: "Củ cải trắng" (75)
+72. [rau-song-idzyt] "Rau sống" (Dùng trong: Gỏi cuốn tôm thịt, Bánh xèo tôm nhảy Bình Định, Bún mắm miền Tây)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+73. [rau-song-an-kem-ulcnw] "Rau sống ăn kèm" (Dùng trong: Bún chả cá Nha Trang, Bún chả Hà Nội)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+74. [rau-song-chuoi-chat-khe-chua-mvyl3] "Rau sống chuối chát khế chua" (Dùng trong: Nem lụi nướng)
+   👉 Gợi ý: "Khế chua" (Code: ING-416E10, Điểm: 75, Lý do: Tên chứa 'Khế chua')
+75. [rau-song-hoa-chuoi-bup-non-o7chr] "Rau sống hoa chuối búp non" (Dùng trong: Mì Quảng tôm thịt)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+76. [rau-xa-lach-va-hung-lui-31xfb] "Rau xà lách và húng lủi" (Dùng trong: Bún mắm nêm Đà Nẵng)
+   👉 Gợi ý: "Rau xà lách" (Code: rau-xa-lach-ouq9m, Điểm: 85, Lý do: Khớp tiền tố)
+77. [ruot-banh-mi-xe-vun-xqcxg] "Ruột bánh mì xé vụn" (Dùng trong: Bánh mì xíu mại)
+   👉 Gợi ý: "Bánh mì" (Code: banh-mi-fkfq7, Điểm: 75, Lý do: Tên chứa 'Bánh mì')
+78. [ruou-vang-do-nau-an-5yg6f] "Rượu vang đỏ nấu ăn" (Dùng trong: Bò sốt vang bánh mì)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+79. [soi-banh-canh-bot-gao-4e1if] "Sợi bánh canh bột gạo" (Dùng trong: Bánh canh cá lóc Huế, Bánh canh cua giò heo)
+   👉 Gợi ý: "Bột gạo" (Code: bot-gao-00jy1, Điểm: 75, Lý do: Tên chứa 'Bột gạo')
+   👉 Khác: "Gạo" (75)
+80. [soi-banh-canh-bot-loc-mzaqg] "Sợi bánh canh bột lọc" (Dùng trong: Bánh canh ghẹ)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+81. [soi-hu-tieu-my-tho-botuy] "Sợi hủ tiếu Mỹ Tho" (Dùng trong: Hủ tiếu Mỹ Tho)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+82. [soi-mi-cao-lau-tuoi-dulqb] "Sợi mì Cao lầu tươi" (Dùng trong: Cao lầu Hội An)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+83. [soi-mi-quang-vang-c5wl5] "Sợi mì Quảng vàng" (Dùng trong: Mì Quảng tôm thịt)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+84. [sot-tuong-den-cay-gb19u] "Sốt tương đen cay" (Dùng trong: Bánh mì thịt nướng)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+85. [sua-bien-tuoi-lam-sach-0r7x5] "Sứa biển tươi làm sạch" (Dùng trong: Bún chả cá Nha Trang, Bún sứa Quy Nhơn)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+86. [suon-cot-let-heo-tuoi-mag0f] "Sườn cốt lết heo tươi" (Dùng trong: Cơm tấm sườn bì chả)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+87. [than-chuoi-non-bao-mong-2xbkv] "Thân chuối non bào mỏng" (Dùng trong: Bún hến Huế)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+88. [thinh-gao-rang-min-w4wsm] "Thính gạo rang mịn" (Dùng trong: Tré Bình Định)
+   👉 Gợi ý: "Gạo" (Code: gao-6r0y4, Điểm: 75, Lý do: Tên chứa 'Gạo')
+89. [thit-ba-chi-heo-tuoi-5q9rd] "Thịt ba chỉ heo tươi" (Dùng trong: Gỏi cuốn tôm thịt)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 85, Lý do: Khớp tiền tố)
+90. [thit-bo-kho-mieng-soi-tam-vi-xkvmb] "Thịt bò khô miếng sợi tẩm vị" (Dùng trong: Nộm bò khô Hà Nội)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 85, Lý do: Khớp tiền tố)
+91. [thit-ca-ngu-hoac-ca-co-yjkqn] "Thịt cá ngừ (hoặc cá cờ)" (Dùng trong: Bún chả cá Nha Trang)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Cá ngừ" (75)
+92. [thit-cua-bien-tuoi-go-san-q6o2t] "Thịt cua biển tươi gỡ sẵn" (Dùng trong: Bánh canh cua giò heo)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 85, Lý do: Khớp tiền tố)
+93. [thit-ghe-tuoi-boc-san-u9h5m] "Thịt ghẹ tươi bóc sẵn" (Dùng trong: Bánh canh ghẹ)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 85, Lý do: Khớp tiền tố)
+94. [thit-hen-tuoi-luoc-san-g4pqa] "Thịt hến tươi luộc sẵn" (Dùng trong: Cơm hến Huế, Bún hến Huế)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Thịt hến" (85)
+95. [thit-heo-quay-gion-bi-kop4s] "Thịt heo quay giòn bì" (Dùng trong: Bún mắm miền Tây, Bún mắm nêm Đà Nẵng)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 85, Lý do: Khớp tiền tố)
+96. [thit-ma-dau-heo-tah6a] "Thịt má đầu heo" (Dùng trong: Tré Bình Định)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 85, Lý do: Khớp tiền tố)
+97. [thit-nac-vai-heo-ljwlc] "Thịt nạc vai heo" (Dùng trong: Nem rán Hà Nội, Cao lầu Hội An)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 85, Lý do: Khớp tiền tố)
+98. [thit-qua-gac-tuoi-zw33x] "Thịt quả gấc tươi" (Dùng trong: Bò sốt vang bánh mì)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Quả gấc" (75)
+99. [thit-xa-xiu-ikscz] "Thịt xá xíu" (Dùng trong: Hủ tiếu Mỹ Tho, Hủ tiếu Nam Vang)
+   👉 Gợi ý: "Thịt" (Code: thit-42b9b, Điểm: 85, Lý do: Khớp tiền tố)
+100. [tinh-dau-ca-cuong-nguyen-chat-gwho4] "Tinh dầu cà cuống nguyên chất" (Dùng trong: Bún thang Hà Nội, Bánh cuốn Thanh Trì)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+101. [toi-phi-vang-thom-tzsln] "Tỏi phi vàng thơm" (Dùng trong: Hủ tiếu Nam Vang)
+   👉 Gợi ý: "Tỏi" (Code: toi-ehjc3, Điểm: 85, Lý do: Khớp tiền tố)
+102. [toi-tep-va-ot-hiem-d5sny] "Tỏi tép và ớt hiểm" (Dùng trong: Bánh xèo tôm nhảy Bình Định)
+   👉 Gợi ý: "Tỏi" (Code: toi-ehjc3, Điểm: 85, Lý do: Khớp tiền tố)
+   👉 Khác: "Tép" (75)
+103. [tom-dat-tuoi-bntj8] "Tôm đất tươi" (Dùng trong: Bánh bột lọc Huế, Bánh xèo miền Tây, Bánh xèo tôm nhảy Bình Định)
+   👉 Gợi ý: "Tôm" (Code: tom-c0k7d, Điểm: 85, Lý do: Khớp tiền tố)
+104. [tuong-den-ie00c] "Tương đen" (Dùng trong: Gỏi cuốn tôm thịt)
+   👉 Gợi ý: "Xì dầu (Nước tương đen)" (Code: xi-dau-nuoc-tuong-den-n5jv8, Điểm: 70, Lý do: Được chứa trong 'Xì dầu (Nước tương đen)')
+105. [xuong-bay-heo-ham-nuoc-dung-573mj] "Xương bay heo hầm nước dùng" (Dùng trong: Bún thang Hà Nội)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+106. [xuong-ca-va-dau-ca-nau-nuoc-dung-ig6y8] "Xương cá và đầu cá nấu nước dùng" (Dùng trong: Bún cá cay Hải Phòng)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]
+107. [xuong-ong-heo-ham-canh-52nm8] "Xương ống heo hầm canh" (Dùng trong: Hủ tiếu Mỹ Tho)
+   ✨ [NGUYÊN LIỆU MỚI HOÀN TOÀN]

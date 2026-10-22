@@ -1,0 +1,335 @@
+1. [banh-da-do-hai-phong-tuoi-tppoj] "Bánh đa đỏ Hải Phòng tươi" (Tinh bột & Ngũ cốc)
+   Image: https://cdn.tgdd.vn/Products/Images/3234/215801/bhx/banh-trang-me-nuong-an-nhien-goi-120g-201912040954252409.jpg
+
+2. [banh-quay-gion-dsr7f] "Bánh quẩy giòn" (Tinh bột & Ngũ cốc)
+   Image: https://images.unsplash.com/photo-1729126042369-a4648cd8c23b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8Y2hpbmVzZSUyMGZyaWVkJTIwZG91Z2glMjBjcnVsbGVyfGVufDB8Mnx8fDE3OTI1NzE1OTh8MA&ixlib=rb-4.1.0&q=80&w=400
+
+3. [banh-trang-me-nuong-njpz9] "Bánh tráng mè nướng" (Món ăn kèm)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2023/07/tinh-nguyen-banh-trang-200g-20230727064859.png
+
+4. [bi-heo-tron-thinh-gao-04aqb] "Bì heo trộn thính gạo" (Thịt & Gia cầm)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/162428573497410009734-g1-gao-thoi-lan-sua-bao-minh-tyi-5kg-og.jpg
+
+5. [bot-gia-vi-bo-kho-iayya] "Bột gia vị bò kho" (null)
+   Image: https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Bo_kho_mien_Bac.jpg/960px-Bo_kho_mien_Bac.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+
+6. [bot-tom-chay-hue-ruoc-tom-8dwof] "Bột tôm chấy Huế (Ruốc tôm)" (Thủy hải sản)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/04/10283789-hdc-tom-su-non-tu-nhien-200g-20240404082149.jpg
+
+7. [bun-soi-to-bun-bo-hue-eueh4] "Bún sợi to Bún Bò Huế" (Tinh bột & Ngũ cốc)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/bun-tuoi-safoco-goi-300g_de532e11-46e5-467b-aed8-3bba91a54543-og.jpg
+
+8. [cha-bo-da-nang-hkz0k] "Chả bò Đà Nẵng" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1691480241974-92481cef09ff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8YmVlZiUyMHJvbGwlMjBzYXVzYWdlfGVufDB8Mnx8fDE3OTI1NzE0NzN8MA&ixlib=rb-4.1.0&q=80&w=400
+
+9. [cha-bong-thit-heo-ruoc-fr1ql] "Chà bông thịt heo (Ruốc)" (Thịt & Gia cầm)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg
+
+10. [cha-ca-thu-chien-hap-6ki89] "Chả cá thu chiên hấp" (Thủy hải sản)
+   Image: https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/226851/bhx/ca-dieu-hong-lam-sach-vi-800g_202505301345436899.jpg
+
+11. [cha-com-ha-noi-0jqaq] "Chả cốm Hà Nội" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1680675706515-fb3eb73116d4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8dmlldG5hbWVzZSUyMGdyZWVuJTIwcmljZSUyMHBvcmslMjBwYXR0eXxlbnwwfDJ8fHwxNzkyNTcxNDY4fDA&ixlib=rb-4.1.0&q=80&w=400
+
+12. [cha-cua-hue-nxsuq] "Chả cua Huế" (Thủy hải sản)
+   Image: https://images.unsplash.com/photo-1708782341917-48a17015194f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8Y3JhYiUyMGNha2UlMjBwYXR0eXxlbnwwfDJ8fHwxNzkyNTcxNDcxfDA&ixlib=rb-4.1.0&q=80&w=400
+
+13. [cha-trung-hap-thit-viwuf] "Chả trứng hấp thịt" (Thịt & Gia cầm)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg
+
+14. [chanh-tuoi-va-ot-hiem-ts23x] "Chanh tươi và ớt hiểm" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2023/02/chanh-khong-hat-500g.jpg
+
+15. [chi-chuong-hai-phong-ot-chung-095en] "Chí chương Hải Phòng (Ớt chưng)" (Gia vị & Nước sốt)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2023/02/ot-trai-cay-150g.jpg
+
+16. [com-trang-com-nguoi-s0hyk] "Cơm trắng (Cơm nguội)" (Tinh bột & Ngũ cốc)
+   Image: https://images.unsplash.com/photo-1566821605471-53801947920b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8Y29va2VkJTIwd2hpdGUlMjByaWNlfGVufDB8Mnx8fDE3OTI1NzE2MDF8MA&ixlib=rb-4.1.0&q=80&w=400
+
+17. [cu-cai-muoi-kho-xa-bau-tq7as] "Củ cải muối khô xá bấu" (Rau củ & Quả)
+   Image: https://cdn.tgdd.vn/Products/Images/8820/230443/bhx/cai-thia-202312271059011562.jpg
+
+18. [cu-ngai-bun-tuoi-lmv3l] "Củ ngải bún tươi" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/bun-tuoi-safoco-goi-300g_de532e11-46e5-467b-aed8-3bba91a54543-og.jpg
+
+19. [cu-san-tuoi-cu-dau-mmw68] "Củ sắn tươi (Củ đậu)" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/cu-dau.jpg
+
+20. [dau-phong-rang-lac-rang-tx3n7] "Đậu phộng rang (Lạc rang)" (Các loại hạt & Đậu)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/dau-cove-xanh-goi-500g_fe356ea1-4a64-415e-b3a4-a817039f0173-og.png
+
+21. [dau-phu-ran-vang-h6kub] "Đậu phụ rán vàng" (Món ăn kèm)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/dau-cove-xanh-goi-500g_fe356ea1-4a64-415e-b3a4-a817039f0173-og.png
+
+22. [do-chua-ie01z] "Đồ chua" (null)
+   Image: https://images.unsplash.com/photo-1608389636247-2caec420177c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8dmlldG5hbWVzZSUyMHBpY2tsZWQlMjB2ZWdldGFibGVzfGVufDB8Mnx8fDE3OTI1NzE1Mjd8MA&ixlib=rb-4.1.0&q=80&w=400
+
+23. [do-chua-ca-rot-cu-cai-jxacf] "Đồ chua (Cà rốt & Củ cải)" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2023/07/ca-rot-20230721084932.png
+
+24. [doi-sun-chien-mien-nam-o9mmm] "Dồi sụn chiên miền Nam" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1691480241974-92481cef09ff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8dmlldG5hbWVzZSUyMGdyaWxsZWQlMjBwb3JrJTIwc2F1c2FnZXxlbnwwfDJ8fHwxNzkyNTcxNDc1fDA&ixlib=rb-4.1.0&q=80&w=400
+
+25. [du-du-chua-ngam-gion-k9s9r] "Đu đủ chua ngâm giòn" (Rau củ & Quả)
+   Image: https://cdn.tgdd.vn/Files/2021/08/18/1376041/cach-lam-du-du-ngam-chua-ngot-gion-ngon-chong-ngan-cho-bua-an-202108181358393529.jpg
+
+26. [dua-leo-va-ca-chua-tuoi-yym2k] "Dưa leo và cà chua tươi" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/ca-chua-beef-globalgap-khay-500g.png
+
+27. [dui-ga-goc-tu-4kxf3] "Đùi gà góc tư" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1737092741731-13279372eacc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8ZHVpJTIwZ2ElMjBnb2MlMjB0dSUyMGZvb2QlMjBpbmdyZWRpZW50fGVufDB8Mnx8fDE3OTI1NzE1OTB8MA&ixlib=rb-4.1.0&q=80&w=400
+
+28. [gach-ghe-xao-dau-dieu-yremn] "Gạch ghẹ xào dầu điều" (Thủy hải sản)
+   Image: https://cdn.tgdd.vn/Products/Images/8271/323030/bhx/dau-mau-dieu-dh-foods-chai-100ml-202404030946077879.jpg
+
+29. [gan-heo-tuoi-zones] "Gan heo tươi" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1715529282042-75cc2f360a73?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8cG9yayUyMGxpdmVyJTIwZnJlc2h8ZW58MHwyfHx8MTc5MjU3MTU4Nnww&ixlib=rb-4.1.0&q=80&w=400
+
+30. [gao-tam-thom-iq9ex] "Gạo tấm thơm" (Tinh bột & Ngũ cốc)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/162428573497410009734-g1-gao-thoi-lan-sua-bao-minh-tyi-5kg-og.jpg
+
+31. [gia-vi-nau-an-tong-hop-m0pvq] "Gia vị nấu ăn tổng hợp" (Gia vị & Nước sốt)
+   Image: https://images.unsplash.com/photo-1640116309648-79c20583e1c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8R2lhJTIwdmklMjBuYXUlMjBhbiUyMHRvbmclMjBob3AlMjBmb29kJTIwaW5ncmVkaWVudHxlbnwwfDJ8fHwxNzkyNTcxNjAwfDA&ixlib=rb-4.1.0&q=80&w=400
+
+32. [gia-vi-uop-toi-gung-s18r6] "Gia vị ướp tỏi gừng" (Gia vị & Nước sốt)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/cu-gung-100g_1ac1e773-c510-4518-84e0-4c8aca6ea8a5-og.jpg
+
+33. [gio-lua-truyen-thong-bkhik] "Giò lụa truyền thống" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1673238110140-fac2331408d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8dmlldG5hbWVzZSUyMHBvcmslMjByb2xsJTIwc2F1c2FnZXxlbnwwfDJ8fHwxNzkyNTcxNTk2fDA&ixlib=rb-4.1.0&q=80&w=400
+
+34. [gio-song-moc-66b6u] "Giò sống (Mọc)" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1694175191539-98270a131444?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8cmF3JTIwc2Vhc29uZWQlMjBwb3JrJTIwcGFzdGV8ZW58MHwyfHx8MTc5MjU3MTQ3MHww&ixlib=rb-4.1.0&q=80&w=400
+
+35. [hanh-kho-hanh-cu-tim-4gybv] "Hành khô (Hành củ tím)" (Rau củ & Quả)
+   Image: https://images.unsplash.com/photo-1587049633312-d628ae50a8ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8c2hhbGxvdHMlMjBvbmlvbnxlbnwwfDJ8fHwxNzkyNTcxNTk0fDA&ixlib=rb-4.1.0&q=80&w=400
+
+36. [hanh-la-va-mui-tau-ngo-gai-x7vr7] "Hành lá và mùi tàu (Ngò gai)" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png
+
+37. [hanh-la-va-ngo-ri-uxy0m] "Hành lá và ngò rí" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png
+
+38. [hanh-la-va-rau-mui-ngo-ri-k24wf] "Hành lá và rau mùi (Ngò rí)" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png
+
+39. [hanh-la-va-rau-ram-tuoi-9pa00] "Hành lá và rau răm tươi" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png
+
+40. [hanh-la-va-thi-la-tuoi-b4ffv] "Hành lá và thì là tươi" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png
+
+41. [hanh-tim-phi-gion-yv2fj] "Hành tím phi giòn" (Gia vị & Nước sốt)
+   Image: https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8785/309133/bhx/hanh-tim-200g-202306080954084413.jpg
+
+42. [hanh-tim-va-gung-nuong-810f0] "Hành tím và gừng nướng" (Gia vị & Nước sốt)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/cu-gung-100g_1ac1e773-c510-4518-84e0-4c8aca6ea8a5-og.jpg
+
+43. [hat-dieu-mau-hat-ca-ri-ca29m] "Hạt điều màu (Hạt cà ri)" (Gia vị & Nước sốt)
+   Image: https://cdn.tgdd.vn/Products/Images/3487/319216/bhx/hat-dieu-vo-lua-ba-tu-binh-phuoc-hop-160g-202312091514345859.jpg
+
+44. [hoa-hoi-va-que-thanh-h89rx] "Hoa hồi và quế thanh" (Gia vị & Nước sốt)
+   Image: https://cdn.tgdd.vn/Files/2020/09/15/1290311/hoa-hoi-la-gi-loi-ich-cua-hoa-hoi-va-nhung-cach-su-dung-hoa-hoi-202009151237459437.jpg
+
+45. [hu-tieu-dai-iksax] "Hủ tiếu dai" (null)
+   Image: https://images.unsplash.com/photo-1572333746612-ebc0722e19a3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8Y2hld3klMjB0YXBpb2NhJTIwZ2xhc3MlMjBub29kbGVzfGVufDB8Mnx8fDE3OTI1NzE1Mjd8MA&ixlib=rb-4.1.0&q=80&w=400
+
+46. [kho-muc-mini-nuong-nau-nuoc-dung-0c5iz] "Khô mực mini nướng nấu nước dùng" (Thủy hải sản)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/muc-trung-dong-lanh-thaibifood-loai-a-khay-450g-20221007080841-og.png
+
+47. [khoanh-gio-heo-xh2jw] "Khoanh giò heo" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1773417325310-cc9c9bef75e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8cG9yayUyMHRyb3R0ZXIlMjBzaGFua3xlbnwwfDJ8fHwxNzkyNTcxNTc4fDA&ixlib=rb-4.1.0&q=80&w=400
+
+48. [khuon-chen-sanh-lam-banh-beo-k22j1] "Khuôn chén sành làm bánh bèo" (Dụng cụ & Đóng gói)
+   Image: https://images.unsplash.com/photo-1610701596007-11502861dcfa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400
+
+49. [la-dong-goi-banh-tuoi-wowmt] "Lá dong gói bánh tươi" (Rau củ & Quả)
+   Image: https://images.unsplash.com/photo-1640116309648-79c20583e1c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8TGElMjBkb25nJTIwZ29pJTIwYmFuaCUyMHR1b2klMjBmb29kJTIwaW5ncmVkaWVudHxlbnwwfDJ8fHwxNzkyNTcxNjAzfDA&ixlib=rb-4.1.0&q=80&w=400
+
+50. [la-lot-va-tia-to-u7jym] "lá lốt và tía tô" (null)
+   Image: https://cdn.tgdd.vn/Products/Images/8820/238405/bhx/la-lot-1kg-202105051630404347.jpg
+
+51. [la-oi-banh-te-tuoi-6uu83] "Lá ổi bánh tẻ tươi" (Rau củ & Quả)
+   Image: https://images.unsplash.com/photo-1766308447374-86baf87de4b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8Z3VhdmElMjBsZWF2ZXN8ZW58MHwyfHx8MTc5MjU3MTYwNHww&ixlib=rb-4.1.0&q=80&w=400
+
+52. [lap-xuong-mai-que-lo-eaogu] "Lạp xưởng Mai Quế Lộ" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1718878654418-765046f6a8ce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8Y2hpbmVzZSUyMHNhdXNhZ2UlMjBsYXAlMjBjaGVvbmd8ZW58MHwyfHx8MTc5MjU3MTYwNnww&ixlib=rb-4.1.0&q=80&w=400
+
+53. [mi-trung-tuoi-soi-tron-2ji9y] "Mì trứng tươi sợi tròn" (Tinh bột & Ngũ cốc)
+   Image: https://images.unsplash.com/photo-1603033172872-c2525115c7b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8ZnJlc2glMjBlZ2clMjBub29kbGVzfGVufDB8Mnx8fDE3OTI1NzE1OTN8MA&ixlib=rb-4.1.0&q=80&w=400
+
+54. [mo-ga-thang-yd9pe] "Mỡ gà thắng" (Dầu mỡ & Bơ)
+   Image: https://images.unsplash.com/photo-1614120263669-43911b47f0b2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8Y2hpY2tlbiUyMGZhdHxlbnwwfDJ8fHwxNzkyNTcxNDY5fDA&ixlib=rb-4.1.0&q=80&w=400
+
+55. [mo-hanh-la-liv0t] "Mỡ hành lá" (Gia vị & Nước sốt)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png
+
+56. [muoi-ot-xanh-cham-hai-san-7dr3s] "Muối ớt xanh chấm hải sản" (Gia vị & Nước sốt)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2023/07/visaco-muoi-bien-mat-troi-tinh-450g-t4-20230727064645.png
+
+57. [nam-bao-ngu-xam-tuoi-4pf85] "Nấm bào ngư xám tươi" (Rau củ & Quả)
+   Image: https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2025/12/image/Products/Images/8400/334534/bhx/bao-ngu-dong-lanh-tan-hai-hoa-khay-300g_202512310950338059.jpg
+
+58. [nem-chua-cay-gu1vh] "Nem chua cây" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1718878654418-765046f6a8ce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8ZmVybWVudGVkJTIwc291ciUyMHBvcmslMjByb2xsfGVufDB8Mnx8fDE3OTI1NzE2MDV8MA&ixlib=rb-4.1.0&q=80&w=400
+
+59. [nem-ran-cha-gio-pqzw3] "Nem rán (Chả giò)" (Món ăn kèm)
+   Image: https://images.unsplash.com/photo-1626028937276-825810a384b1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8ZnJpZWQlMjBzcHJpbmclMjByb2xsfGVufDB8Mnx8fDE3OTI1NzE1NzZ8MA&ixlib=rb-4.1.0&q=80&w=400
+
+60. [nuoc-cham-nem-chua-ngot-25wxw] "Nước chấm nem chua ngọt" (Gia vị & Nước sốt)
+   Image: https://images.unsplash.com/photo-1696950169364-173f61adbf95?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8c3dlZXQlMjBhbmQlMjBzb3VyJTIwZmlzaCUyMHNhdWNlfGVufDB8Mnx8fDE3OTI1NzE1OTd8MA&ixlib=rb-4.1.0&q=80&w=400
+
+61. [nuoc-cot-me-chua-wvk4w] "Nước cốt me chua" (Gia vị & Nước sốt)
+   Image: https://images.unsplash.com/photo-1640116309648-79c20583e1c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8TnVvYyUyMGNvdCUyMG1lJTIwY2h1YSUyMGZvb2QlMjBpbmdyZWRpZW50fGVufDB8Mnx8fDE3OTI1NzE1OTl8MA&ixlib=rb-4.1.0&q=80&w=400
+
+62. [nuoc-ham-xuong-u7jws] "nước hầm xương" (null)
+   Image: https://images.unsplash.com/photo-1625535608282-8f181a38f9e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8c2ltbWVyZWQlMjBib25lJTIwYnJvdGh8ZW58MHwyfHx8MTc5MjU3MTUzMHww&ixlib=rb-4.1.0&q=80&w=400
+
+63. [nuoc-ham-xuong-heo-lnoi9] "Nước hầm xương heo" (Gia vị & Nước sốt)
+   Image: https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/233789/xuong-heo-co-thit-1kg_202607300931064156.jpg
+
+64. [nuoc-luoc-ga-fgizi] "Nước luộc gà" (Khác)
+   Image: https://images.unsplash.com/photo-1604152135912-04a022e23696?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400
+
+65. [nuoc-ma-long-me-ga-fmrpt] "Nước mạ lòng mề gà" (Gia vị & Nước sốt)
+   Image: https://images.unsplash.com/photo-1546069901-ba9599a7e63c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400
+
+66. [nuoc-sot-tron-iksef] "Nước sốt trộn" (null)
+   Image: https://images.unsplash.com/photo-1546069901-ba9599a7e63c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400
+
+67. [ot-chung-sa-te-6t7n3] "Ớt chưng sa tế" (Gia vị & Nước sốt)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2023/02/ot-trai-cay-150g.jpg
+
+68. [pa-te-gan-heo-beo-gqbsj] "Pa-tê gan heo béo" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1715529282042-75cc2f360a73?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8cG9yayUyMGxpdmVyJTIwZnJlc2h8ZW58MHwyfHx8MTc5MjU3MTU4Nnww&ixlib=rb-4.1.0&q=80&w=400
+
+69. [pheo-non-heo-tuoi-long-non-0anzl] "Phèo non heo tươi (Lòng non)" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1673238110140-fac2331408d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8cG9yayUyMHNtYWxsJTIwaW50ZXN0aW5lc3xlbnwwfDJ8fHwxNzkyNTcxNDc0fDA&ixlib=rb-4.1.0&q=80&w=400
+
+70. [phi-le-ca-ro-phi-tuoi-2xvne] "Phi lê cá rô phi tươi" (Thủy hải sản)
+   Image: https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/226851/bhx/ca-dieu-hong-lam-sach-vi-800g_202505301345436899.jpg
+
+71. [que-thanh-cao-vo-aerwl] "Quế thanh cạo vỏ" (Gia vị & Nước sốt)
+   Image: https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Saigoncinnamon.jpg/960px-Saigoncinnamon.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+
+72. [rau-an-lau-mam-thap-cam-keo-neo-rau-dang-dien-dien-bong-sung-ym62o] "Rau ăn lẩu mắm thập cẩm (Kèo nèo, rau đắng, điên điển, bông súng)" (Rau củ & Quả)
+   Image: https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/325781/bhx/keo-neo_202504151614088353.jpg
+
+73. [rau-cai-xanh-cai-cay-zzvxf] "Rau cải xanh (Cải cay)" (Rau củ & Quả)
+   Image: https://cdn.tgdd.vn/Products/Images/8820/230443/bhx/cai-thia-202312271059011562.jpg
+
+74. [rau-cu-luoc-an-kho-quet-dau-bap-ca-rot-su-su-6f9yf] "Rau củ luộc ăn kho quẹt (Đậu bắp, cà rốt, su su)" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2023/02/bap-shank-pacow-khay-250g.png
+
+75. [rau-kinh-gioi-va-rau-mui-01m1e] "Rau kinh giới và rau mùi" (Rau củ & Quả)
+   Image: https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/359427/bhx/rau-kinh-gioi-50g_202511200942497582.jpg
+
+76. [rau-mam-cu-cai-trang-jecym] "Rau mầm củ cải trắng" (Rau củ & Quả)
+   Image: https://cdn.tgdd.vn/Products/Images/8820/230443/bhx/cai-thia-202312271059011562.jpg
+
+77. [rau-song-idzyt] "Rau sống" (null)
+   Image: https://images.unsplash.com/photo-1604880285069-e535d08ecfd2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8bWl4ZWQlMjBmcmVzaCUyMHZpZXRuYW1lc2UlMjBoZXJic3xlbnwwfDJ8fHwxNzkyNTcxNTI4fDA&ixlib=rb-4.1.0&q=80&w=400
+
+78. [rau-song-an-kem-ulcnw] "Rau sống ăn kèm" (Rau củ & Quả)
+   Image: https://images.unsplash.com/photo-1604880285069-e535d08ecfd2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8bWl4ZWQlMjBmcmVzaCUyMHZpZXRuYW1lc2UlMjBoZXJic3xlbnwwfDJ8fHwxNzkyNTcxNTI4fDA&ixlib=rb-4.1.0&q=80&w=400
+
+79. [rau-song-chuoi-chat-khe-chua-mvyl3] "Rau sống chuối chát khế chua" (Rau củ & Quả)
+   Image: https://files.benhvien108.vn/ecm/source_files/2022/10/19/221002-4-1-084318-191022-25.jpg
+
+80. [rau-song-hoa-chuoi-bup-non-o7chr] "Rau sống hoa chuối búp non" (Rau củ & Quả)
+   Image: https://images.unsplash.com/photo-1604880285069-e535d08ecfd2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8bWl4ZWQlMjBmcmVzaCUyMHZpZXRuYW1lc2UlMjBoZXJic3xlbnwwfDJ8fHwxNzkyNTcxNTI4fDA&ixlib=rb-4.1.0&q=80&w=400
+
+81. [rau-xa-lach-va-hung-lui-31xfb] "Rau xà lách và húng lủi" (Rau củ & Quả)
+   Image: https://cdn.tgdd.vn/Files/2021/08/05/1373153/rau-xa-lach-bao-nhieu-calo-an-rau-xa-lach-co-tac-dung-gi-202201151139114940.jpg
+
+82. [ruot-banh-mi-xe-vun-xqcxg] "Ruột bánh mì xé vụn" (Tinh bột & Ngũ cốc)
+   Image: https://cdn.tgdd.vn/Products/Images/7259/266327/bhx/banh-mi-dai-baguette-hoang-phat-goi-200g-202201040933099018.jpg
+
+83. [ruou-vang-do-nau-an-5yg6f] "Rượu vang đỏ nấu ăn" (Gia vị & Nước sốt)
+   Image: https://images.unsplash.com/photo-1591095438120-d0147701080b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8cmVkJTIwd2luZSUyMGNvb2tpbmd8ZW58MHwyfHx8MTc5MjU3MTU3N3ww&ixlib=rb-4.1.0&q=80&w=400
+
+84. [soi-banh-canh-bot-gao-4e1if] "Sợi bánh canh bột gạo" (Tinh bột & Ngũ cốc)
+   Image: https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/2388/83414/bhx/bot-gao-tai-ky-goi-400g-202202121121158226.jpg
+
+85. [soi-banh-canh-bot-loc-mzaqg] "Sợi bánh canh bột lọc" (Tinh bột & Ngũ cốc)
+   Image: https://upload.wikimedia.org/wikipedia/commons/c/c4/Banh-Canh-Noodle-Soup.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled
+
+86. [soi-hu-tieu-my-tho-botuy] "Sợi hủ tiếu Mỹ Tho" (Tinh bột & Ngũ cốc)
+   Image: https://images.unsplash.com/photo-1602881917760-7379db593981?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8Y2xlYXIlMjByaWNlJTIwbm9vZGxlc3xlbnwwfDJ8fHwxNzkyNTcxNTkwfDA&ixlib=rb-4.1.0&q=80&w=400
+
+87. [soi-mi-cao-lau-tuoi-dulqb] "Sợi mì Cao lầu tươi" (Tinh bột & Ngũ cốc)
+   Image: https://images.unsplash.com/photo-1569718212165-3a8278d5f624?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400
+
+88. [soi-mi-quang-vang-c5wl5] "Sợi mì Quảng vàng" (Tinh bột & Ngũ cốc)
+   Image: https://images.unsplash.com/photo-1603033172872-c2525115c7b9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8dHVybWVyaWMlMjByaWNlJTIwbm9vZGxlc3xlbnwwfDJ8fHwxNzkyNTcxNTgwfDA&ixlib=rb-4.1.0&q=80&w=400
+
+89. [sot-tuong-den-cay-gb19u] "Sốt tương đen cay" (Gia vị & Nước sốt)
+   Image: https://thumb.wikimedia.org/wikipedia/commons/thumb/5/52/Fresh_Tomato_Sauce_%28Unsplash%29.jpg/960px-Fresh_Tomato_Sauce_%28Unsplash%29.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+
+90. [sua-bien-tuoi-lam-sach-0r7x5] "Sứa biển tươi làm sạch" (Thủy hải sản)
+   Image: https://images.unsplash.com/photo-1640116309648-79c20583e1c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8U3VhJTIwYmllbiUyMHR1b2klMjBsYW0lMjBzYWNoJTIwZm9vZCUyMGluZ3JlZGllbnR8ZW58MHwyfHx8MTc5MjU3MTQ3Mnww&ixlib=rb-4.1.0&q=80&w=400
+
+91. [suon-cot-let-heo-tuoi-mag0f] "Sườn cốt lết heo tươi" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1595356161904-6708c97be89c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8cG9yayUyMGNob3AlMjBjdXRsZXR8ZW58MHwyfHx8MTc5MjU3MTU4N3ww&ixlib=rb-4.1.0&q=80&w=400
+
+92. [than-chuoi-non-bao-mong-2xbkv] "Thân chuối non bào mỏng" (Rau củ & Quả)
+   Image: https://images.unsplash.com/photo-1707730583937-1add20f8287e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8c2hyZWRkZWQlMjBiYW5hbmElMjBzdGVtfGVufDB8Mnx8fDE3OTI1NzE2MDJ8MA&ixlib=rb-4.1.0&q=80&w=400
+
+93. [thinh-gao-rang-min-w4wsm] "Thính gạo rang mịn" (Gia vị & Nước sốt)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2022/162428573497410009734-g1-gao-thoi-lan-sua-bao-minh-tyi-5kg-og.jpg
+
+94. [thit-ba-chi-heo-tuoi-5q9rd] "Thịt ba chỉ heo tươi" (Thịt & Gia cầm)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg
+
+95. [thit-bo-kho-mieng-soi-tam-vi-xkvmb] "Thịt bò khô miếng sợi tẩm vị" (Thịt & Gia cầm)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg
+
+96. [thit-ca-ngu-hoac-ca-co-yjkqn] "Thịt cá ngừ (hoặc cá cờ)" (Thủy hải sản)
+   Image: https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/226851/bhx/ca-dieu-hong-lam-sach-vi-800g_202505301345436899.jpg
+
+97. [thit-cua-bien-tuoi-go-san-q6o2t] "Thịt cua biển tươi gỡ sẵn" (Thủy hải sản)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg
+
+98. [thit-ghe-tuoi-boc-san-u9h5m] "Thịt ghẹ tươi bóc sẵn" (Thủy hải sản)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2023/02/he-la-100g.png
+
+99. [thit-hen-tuoi-luoc-san-g4pqa] "Thịt hến tươi luộc sẵn" (Thủy hải sản)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg
+
+100. [thit-heo-quay-gion-bi-kop4s] "Thịt heo quay giòn bì" (Thịt & Gia cầm)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg
+
+101. [thit-ma-dau-heo-tah6a] "Thịt má đầu heo" (Thịt & Gia cầm)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg
+
+102. [thit-nac-vai-heo-ljwlc] "Thịt nạc vai heo" (Thịt & Gia cầm)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg
+
+103. [thit-qua-gac-tuoi-zw33x] "Thịt quả gấc tươi" (Rau củ & Quả)
+   Image: https://media.tripmap.vn/marketplace/2026/02/trai-gac-tuoi-1kg-gac-nep-do-sip-gia-chi-60000d-giao-nhanh-trong-1h-1772133977-6b5zou-600x600.webp
+
+104. [thit-xa-xiu-ikscz] "Thịt xá xíu" (null)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg
+
+105. [tinh-dau-ca-cuong-nguyen-chat-gwho4] "Tinh dầu cà cuống nguyên chất" (Gia vị & Nước sốt)
+   Image: https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Lethocerus_indicus.jpg/960px-Lethocerus_indicus.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+
+106. [toi-phi-vang-thom-tzsln] "Tỏi phi vàng thơm" (Gia vị & Nước sốt)
+   Image: https://cdn.tgdd.vn/Products/Images/8820/271536/bhx/toi-co-don-tui-300g-202205190845024132.jpg
+
+107. [toi-tep-va-ot-hiem-d5sny] "Tỏi tép và ớt hiểm" (Rau củ & Quả)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2023/02/ot-trai-cay-150g.jpg
+
+108. [tom-dat-tuoi-bntj8] "Tôm đất tươi" (Thủy hải sản)
+   Image: https://s3-hcmc02.higiocloud.vn/images/2024/04/10283789-hdc-tom-su-non-tu-nhien-200g-20240404082149.jpg
+
+109. [tuong-den-ie00c] "Tương đen" (null)
+   Image: https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d1/Hoisin_sauce_1.jpg/960px-Hoisin_sauce_1.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail
+
+110. [xuong-bay-heo-ham-nuoc-dung-573mj] "Xương bay heo hầm nước dùng" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1640116309648-79c20583e1c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8WHVvbmclMjBiYXklMjBoZW8lMjBoYW0lMjBudW9jJTIwZHVuZyUyMGZvb2QlMjBpbmdyZWRpZW50fGVufDB8Mnx8fDE3OTI1NzE1OTV8MA&ixlib=rb-4.1.0&q=80&w=400
+
+111. [xuong-ca-va-dau-ca-nau-nuoc-dung-ig6y8] "Xương cá và đầu cá nấu nước dùng" (Thủy hải sản)
+   Image: https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/226851/bhx/ca-dieu-hong-lam-sach-vi-800g_202505301345436899.jpg
+
+112. [xuong-ong-heo-ham-canh-52nm8] "Xương ống heo hầm canh" (Thịt & Gia cầm)
+   Image: https://images.unsplash.com/photo-1717989605864-62356e6e55f0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8cG9yayUyMG1hcnJvdyUyMGJvbmVzfGVufDB8Mnx8fDE3OTI1NzE1OTF8MA&ixlib=rb-4.1.0&q=80&w=400

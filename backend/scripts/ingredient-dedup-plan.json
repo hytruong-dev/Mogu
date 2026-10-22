@@ -1,0 +1,1530 @@
+[
+  {
+    "index": 1,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "7ac6f643-ffd4-40eb-9aba-20e2484d79e7",
+    "pendingCode": "banh-da-do-hai-phong-tuoi-tppoj",
+    "pendingName": "Bánh đa đỏ Hải Phòng tươi",
+    "usedInDishes": [
+      "Bánh đa cua Hải Phòng"
+    ],
+    "targetActiveId": "e531c8bd-3e09-48c0-b263-921affb08429",
+    "targetActiveCode": "banh-da-cvny6",
+    "targetActiveName": "Bánh đa",
+    "note": "Bánh đa Hải Phòng quy về Bánh đa"
+  },
+  {
+    "index": 2,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "ca18fdf9-3ec1-4a4d-948f-1c7bfaba6cd9",
+    "pendingCode": "bi-heo-tron-thinh-gao-04aqb",
+    "pendingName": "Bì heo trộn thính gạo",
+    "usedInDishes": [
+      "Cơm tấm sườn bì chả"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 3,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "98308e60-7a1c-4229-9c67-85054fba8ad0",
+    "pendingCode": "bot-gia-vi-bo-kho-iayya",
+    "pendingName": "Bột gia vị bò kho",
+    "usedInDishes": [
+      "Bò kho bánh mì"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 4,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "b3ccae1c-1da2-4362-a639-819e605b924b",
+    "pendingCode": "bot-tom-chay-hue-ruoc-tom-8dwof",
+    "pendingName": "Bột tôm chấy Huế (Ruốc tôm)",
+    "usedInDishes": [
+      "Bánh ram ít Huế"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 5,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "13a4298d-7169-449c-adad-63c707034fc4",
+    "pendingCode": "bun-soi-to-bun-bo-hue-eueh4",
+    "pendingName": "Bún sợi to Bún Bò Huế",
+    "usedInDishes": [
+      "Bún bò Huế"
+    ],
+    "targetActiveId": "f11261c7-83dd-4365-81a3-530da947dc45",
+    "targetActiveCode": "bun-9uslg",
+    "targetActiveName": "Bún",
+    "note": "Quy về bún tươi"
+  },
+  {
+    "index": 6,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "842c9c5d-e459-42c1-8f6b-808f5b3b431a",
+    "pendingCode": "cha-bo-da-nang-hkz0k",
+    "pendingName": "Chả bò Đà Nẵng",
+    "usedInDishes": [
+      "Bún mắm nêm Đà Nẵng"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 7,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "82fd19ca-8137-4379-8a12-0c65c081b741",
+    "pendingCode": "cha-ca-thu-chien-hap-6ki89",
+    "pendingName": "Chả cá thu chiên hấp",
+    "usedInDishes": [
+      "Bún chả cá Nha Trang",
+      "Bún cá cay Hải Phòng",
+      "Bánh canh ghẹ",
+      "Bún sứa Quy Nhơn"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 8,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "ce535032-da18-4a60-b796-bdb464e7b28b",
+    "pendingCode": "cha-com-ha-noi-0jqaq",
+    "pendingName": "Chả cốm Hà Nội",
+    "usedInDishes": [
+      "Bún đậu mắm tôm"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 9,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "33403fc3-dac8-4137-92fd-909d303e9e89",
+    "pendingCode": "cha-trung-hap-thit-viwuf",
+    "pendingName": "Chả trứng hấp thịt",
+    "usedInDishes": [
+      "Cơm tấm sườn bì chả"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 10,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "8c8399c8-8eaa-440d-a83a-e8c91177d2a4",
+    "pendingCode": "chanh-tuoi-va-ot-hiem-ts23x",
+    "pendingName": "Chanh tươi và ớt hiểm",
+    "usedInDishes": [
+      "Bún mắm miền Tây"
+    ],
+    "targetActiveId": "9cf036c5-6905-4dff-b1a6-edbe094448df",
+    "targetActiveCode": "chanh-bfxpq",
+    "targetActiveName": "Chanh",
+    "note": "Nguyên liệu kép: Chanh + Ớt"
+  },
+  {
+    "index": 11,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "00c1d2dd-a891-4441-86ee-76551689683a",
+    "pendingCode": "chi-chuong-hai-phong-ot-chung-095en",
+    "pendingName": "Chí chương Hải Phòng (Ớt chưng)",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 12,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "e60d2aad-ac72-4686-8358-7f36b1cedc38",
+    "pendingCode": "com-trang-com-nguoi-s0hyk",
+    "pendingName": "Cơm trắng (Cơm nguội)",
+    "usedInDishes": [
+      "Cơm hến Huế",
+      "Cơm chiên Dương Châu",
+      "Cơm cháy kho quẹt"
+    ],
+    "targetActiveId": "1ff97a05-f9bb-4088-a761-999bbb18d2e9",
+    "targetActiveCode": "com-te-oqvym",
+    "targetActiveName": "Cơm tẻ",
+    "note": "Cơm trắng là Cơm tẻ"
+  },
+  {
+    "index": 13,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "4219f610-f8fa-4931-8bf3-4b135467f472",
+    "pendingCode": "cu-cai-muoi-kho-xa-bau-tq7as",
+    "pendingName": "Củ cải muối khô xá bấu",
+    "usedInDishes": [
+      "Bún thang Hà Nội"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 14,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "695b2b82-9739-4b9d-85a1-43a74a5d7b5f",
+    "pendingCode": "cu-ngai-bun-tuoi-lmv3l",
+    "pendingName": "Củ ngải bún tươi",
+    "usedInDishes": [
+      "Bún mắm miền Tây"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 15,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "9a314818-9f48-4668-b51b-0993198f58a5",
+    "pendingCode": "cu-san-tuoi-cu-dau-mmw68",
+    "pendingName": "Củ sắn tươi (Củ đậu)",
+    "usedInDishes": [
+      "Bánh mì xíu mại"
+    ],
+    "targetActiveId": "fbe399c5-e557-422d-b746-e5806d180b4d",
+    "targetActiveCode": "cu-dau-8rgrs",
+    "targetActiveName": "Củ đậu",
+    "note": "Củ sắn miền Nam chính là củ đậu"
+  },
+  {
+    "index": 16,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "ea67f63b-ffa0-4608-8e10-2e4dfdc395fb",
+    "pendingCode": "dau-phu-ran-vang-h6kub",
+    "pendingName": "Đậu phụ rán vàng",
+    "usedInDishes": [
+      "Lẩu riêu cua bắp bò",
+      "Bún ốc Hà Nội",
+      "Bún riêu cua đồng"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 17,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "ecdd6098-7f4b-4cdb-afe8-70b3d75aebe2",
+    "pendingCode": "do-chua-ie01z",
+    "pendingName": "Đồ chua",
+    "usedInDishes": [
+      "Gỏi cuốn tôm thịt",
+      "Bún mắm nêm Đà Nẵng"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 18,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "0ceba18a-36ba-4f9c-b6af-63c7b41e338e",
+    "pendingCode": "do-chua-ca-rot-cu-cai-jxacf",
+    "pendingName": "Đồ chua (Cà rốt & Củ cải)",
+    "usedInDishes": [
+      "Bánh mì thịt nướng",
+      "Cơm tấm sườn bì chả"
+    ],
+    "targetActiveId": "ccce0de1-87cf-49b6-b3bc-302e1d6e9975",
+    "targetActiveCode": "ca-rot-4rcfv",
+    "targetActiveName": "Cà rốt",
+    "note": "Nguyên liệu kép: Cà rốt + Củ cải"
+  },
+  {
+    "index": 19,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "415e74e2-50c5-47d5-a53d-ce2d7fd9f3b8",
+    "pendingCode": "doi-sun-chien-mien-nam-o9mmm",
+    "pendingName": "Dồi sụn chiên miền Nam",
+    "usedInDishes": [
+      "Cháo lòng miền Nam"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 20,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "3051aebd-65f0-457c-8392-2a2be31e8209",
+    "pendingCode": "du-du-chua-ngam-gion-k9s9r",
+    "pendingName": "Đu đủ chua ngâm giòn",
+    "usedInDishes": [
+      "Cơm gà Hội An"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 21,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "13b00302-343a-4ead-96bb-85ce862c5db8",
+    "pendingCode": "dua-leo-va-ca-chua-tuoi-yym2k",
+    "pendingName": "Dưa leo và cà chua tươi",
+    "usedInDishes": [
+      "Bò né trứng ốp la"
+    ],
+    "targetActiveId": "7d43799b-04d0-4255-a646-24011e1d628e",
+    "targetActiveCode": "dua-leo-a56dg",
+    "targetActiveName": "Dưa leo",
+    "note": "Nguyên liệu kép: Dưa leo + Cà chua"
+  },
+  {
+    "index": 22,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "8fbc76fa-fa96-4ae5-bd12-b7c9ec699213",
+    "pendingCode": "dui-ga-goc-tu-4kxf3",
+    "pendingName": "Đùi gà góc tư",
+    "usedInDishes": [
+      "Cơm gà xối mỡ"
+    ],
+    "targetActiveId": "fbc47736-d36a-4a7b-badd-c353058b9359",
+    "targetActiveCode": "dui-toi-ga-cz7hn",
+    "targetActiveName": "Đùi tỏi gà",
+    "note": "Quy về đùi gà"
+  },
+  {
+    "index": 23,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "58011764-3ce5-4cb7-8278-9846cb1abadb",
+    "pendingCode": "gach-ghe-xao-dau-dieu-yremn",
+    "pendingName": "Gạch ghẹ xào dầu điều",
+    "usedInDishes": [
+      "Bánh canh ghẹ"
+    ],
+    "targetActiveId": "a5ac5afa-5088-4383-a3ad-962bac434c11",
+    "targetActiveCode": "dau-dieu-giahq",
+    "targetActiveName": "Dầu điều",
+    "note": "Quy về gia vị dầu điều / cua ghẹ"
+  },
+  {
+    "index": 24,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "a927cb4b-72a4-4e3c-88d0-807843ceaa96",
+    "pendingCode": "gan-heo-tuoi-zones",
+    "pendingName": "Gan heo tươi",
+    "usedInDishes": [
+      "Nem lụi nướng",
+      "Hủ tiếu Nam Vang",
+      "Cháo lòng miền Nam"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 25,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "bd8fcd3e-ea32-4a1f-a3b0-89c7e738fdb9",
+    "pendingCode": "gao-tam-thom-iq9ex",
+    "pendingName": "Gạo tấm thơm",
+    "usedInDishes": [
+      "Cơm tấm sườn bì chả"
+    ],
+    "targetActiveId": "beecdad5-dc61-4610-a05f-7f26e56aeb83",
+    "targetActiveCode": "gao-6r0y4",
+    "targetActiveName": "Gạo",
+    "note": "Trùng gạo"
+  },
+  {
+    "index": 26,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "01587e4a-9196-4ef7-b62a-2fcde1453606",
+    "pendingCode": "gia-vi-nau-an-tong-hop-m0pvq",
+    "pendingName": "Gia vị nấu ăn tổng hợp",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 27,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "0084303f-6c12-4f8e-a67c-63462a8436ef",
+    "pendingCode": "gia-vi-uop-toi-gung-s18r6",
+    "pendingName": "Gia vị ướp tỏi gừng",
+    "usedInDishes": [
+      "Cơm gà xối mỡ"
+    ],
+    "targetActiveId": "eeac23ec-b658-4e34-87c9-bd1e7aa95b1a",
+    "targetActiveCode": "gung-x2tfi",
+    "targetActiveName": "Gừng",
+    "note": "Nguyên liệu kép: Tỏi + Gừng"
+  },
+  {
+    "index": 28,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "599c28eb-e746-4bba-a486-3930608715b3",
+    "pendingCode": "gio-lua-truyen-thong-bkhik",
+    "pendingName": "Giò lụa truyền thống",
+    "usedInDishes": [
+      "Bún thang Hà Nội"
+    ],
+    "targetActiveId": "a7abc164-9f74-451e-8c57-ee25e98ebc29",
+    "targetActiveCode": "cha-lua-yhjhc",
+    "targetActiveName": "Chả lụa",
+    "note": "Giò lụa chính là Chả lụa"
+  },
+  {
+    "index": 29,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "5e372231-0fa4-4f6a-a5b1-f41027f9bb42",
+    "pendingCode": "gio-song-moc-66b6u",
+    "pendingName": "Giò sống (Mọc)",
+    "usedInDishes": [
+      "Bún mọc sườn chua"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 30,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "840c493e-ba05-4b07-b833-fd4ec46b9339",
+    "pendingCode": "hanh-kho-hanh-cu-tim-4gybv",
+    "pendingName": "Hành khô (Hành củ tím)",
+    "usedInDishes": [
+      "Phở gà Hà Nội"
+    ],
+    "targetActiveId": "58a7dc8b-c12a-4357-80ec-c74a36e02ecc",
+    "targetActiveCode": "hanh-tim-jo4u8",
+    "targetActiveName": "Hành tím",
+    "note": "Hành củ tím là Hành tím"
+  },
+  {
+    "index": 31,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "79a0c0a7-a87e-4b64-9788-0d5ecd84a885",
+    "pendingCode": "hanh-la-va-mui-tau-ngo-gai-x7vr7",
+    "pendingName": "Hành lá và mùi tàu (Ngò gai)",
+    "usedInDishes": [
+      "Bánh đa cua Hải Phòng"
+    ],
+    "targetActiveId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+    "targetActiveCode": "hanh-la-53bgh",
+    "targetActiveName": "Hành lá",
+    "note": "Nguyên liệu kép: Hành lá + Ngò gai"
+  },
+  {
+    "index": 32,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "a41d338d-8770-48d2-838b-6f54d1852dbd",
+    "pendingCode": "hanh-la-va-ngo-ri-uxy0m",
+    "pendingName": "Hành lá và ngò rí",
+    "usedInDishes": [
+      "Bánh canh cua giò heo",
+      "Bánh canh cá lóc Huế"
+    ],
+    "targetActiveId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+    "targetActiveCode": "hanh-la-53bgh",
+    "targetActiveName": "Hành lá",
+    "note": "Nguyên liệu kép: Hành lá + Ngò rí"
+  },
+  {
+    "index": 33,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "be9ece2e-de65-4d5b-95b6-3031cb390cd1",
+    "pendingCode": "hanh-la-va-rau-mui-ngo-ri-k24wf",
+    "pendingName": "Hành lá và rau mùi (Ngò rí)",
+    "usedInDishes": [
+      "Nem rán Hà Nội"
+    ],
+    "targetActiveId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+    "targetActiveCode": "hanh-la-53bgh",
+    "targetActiveName": "Hành lá",
+    "note": "Nguyên liệu kép: Hành lá + Ngò rí"
+  },
+  {
+    "index": 34,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "2a1fb462-0c19-42ff-ab64-45ce513b4b93",
+    "pendingCode": "hanh-la-va-rau-ram-tuoi-9pa00",
+    "pendingName": "Hành lá và rau răm tươi",
+    "usedInDishes": [
+      "Bún thang Hà Nội"
+    ],
+    "targetActiveId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+    "targetActiveCode": "hanh-la-53bgh",
+    "targetActiveName": "Hành lá",
+    "note": "Nguyên liệu kép: Hành lá + Rau răm"
+  },
+  {
+    "index": 35,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "952e87e1-3df6-45b5-8a1b-929fe0039ee6",
+    "pendingCode": "hanh-la-va-thi-la-tuoi-b4ffv",
+    "pendingName": "Hành lá và thì là tươi",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "targetActiveId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+    "targetActiveCode": "hanh-la-53bgh",
+    "targetActiveName": "Hành lá",
+    "note": "Nguyên liệu kép: Hành lá + Thì là"
+  },
+  {
+    "index": 36,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "da34380f-0c7f-49c4-9f26-9504ea841104",
+    "pendingCode": "hanh-tim-phi-gion-yv2fj",
+    "pendingName": "Hành tím phi giòn",
+    "usedInDishes": [
+      "Xôi xéo Hà Nội"
+    ],
+    "targetActiveId": "08939bf6-eb68-45a2-8e7a-2cdf8cde92c9",
+    "targetActiveCode": "hanh-phi-toi-phi-fokrk",
+    "targetActiveName": "Hành phi tỏi phi",
+    "note": "Khớp hành phi tỏi phi"
+  },
+  {
+    "index": 37,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "2801b190-e17a-46bb-848f-a45f8408a414",
+    "pendingCode": "hanh-tim-va-gung-nuong-810f0",
+    "pendingName": "Hành tím và gừng nướng",
+    "usedInDishes": [
+      "Bún thang Hà Nội"
+    ],
+    "targetActiveId": "58a7dc8b-c12a-4357-80ec-c74a36e02ecc",
+    "targetActiveCode": "hanh-tim-jo4u8",
+    "targetActiveName": "Hành tím",
+    "note": "Nguyên liệu kép: Hành tím + Gừng"
+  },
+  {
+    "index": 38,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "5a887243-0846-418b-b9c7-88051e5b5ba1",
+    "pendingCode": "hat-dieu-mau-hat-ca-ri-ca29m",
+    "pendingName": "Hạt điều màu (Hạt cà ri)",
+    "usedInDishes": [
+      "Bún bò Huế"
+    ],
+    "targetActiveId": "a5ac5afa-5088-4383-a3ad-962bac434c11",
+    "targetActiveCode": "dau-dieu-giahq",
+    "targetActiveName": "Dầu điều",
+    "note": "Hạt điều màu làm dầu điều"
+  },
+  {
+    "index": 39,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "bf864d53-94a0-47eb-b33c-bae386ec22df",
+    "pendingCode": "hoa-hoi-va-que-thanh-h89rx",
+    "pendingName": "Hoa hồi và quế thanh",
+    "usedInDishes": [
+      "Bò sốt vang bánh mì"
+    ],
+    "targetActiveId": "d102a235-2749-45b4-a7b3-ff87a84ba648",
+    "targetActiveCode": "hoa-hoi-gi64w",
+    "targetActiveName": "Hoa hồi",
+    "note": "Khớp hoa hồi"
+  },
+  {
+    "index": 40,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "48af4258-4a2b-4c43-86fd-aceae39a4100",
+    "pendingCode": "hu-tieu-dai-iksax",
+    "pendingName": "Hủ tiếu dai",
+    "usedInDishes": [
+      "Hủ tiếu Nam Vang"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 41,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "83f52329-5080-484d-a6ba-e1bf1762b6a0",
+    "pendingCode": "kho-muc-mini-nuong-nau-nuoc-dung-0c5iz",
+    "pendingName": "Khô mực mini nướng nấu nước dùng",
+    "usedInDishes": [
+      "Hủ tiếu Mỹ Tho"
+    ],
+    "targetActiveId": "7956638d-5092-4a89-b266-e886f0029dbe",
+    "targetActiveCode": "muc-kho-g550k",
+    "targetActiveName": "Mực khô",
+    "note": "Trùng mực khô"
+  },
+  {
+    "index": 42,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "07261d46-fe09-43f1-b6bb-050ea3e559d7",
+    "pendingCode": "khoanh-gio-heo-xh2jw",
+    "pendingName": "Khoanh giò heo",
+    "usedInDishes": [
+      "Bún bò Huế"
+    ],
+    "targetActiveId": "bba606a1-a3b6-4d8b-9ac9-0357228a696d",
+    "targetActiveCode": "chan-gio-heo-1pbeg",
+    "targetActiveName": "Chân giò heo",
+    "note": "Trùng chân giò heo"
+  },
+  {
+    "index": 43,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "245cfa22-1bb0-4993-9c38-e25f9a1903d7",
+    "pendingCode": "khuon-chen-sanh-lam-banh-beo-k22j1",
+    "pendingName": "Khuôn chén sành làm bánh bèo",
+    "usedInDishes": [
+      "Bánh bèo chén"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 44,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "00e2a97f-c3d1-4ad6-8111-e8d18bbe44dc",
+    "pendingCode": "la-dong-goi-banh-tuoi-wowmt",
+    "pendingName": "Lá dong gói bánh tươi",
+    "usedInDishes": [
+      "Bánh nậm Huế"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 45,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "0dd4a449-46c6-4b24-9811-e4f8df4eb7e6",
+    "pendingCode": "la-lot-va-tia-to-u7jym",
+    "pendingName": "lá lốt và tía tô",
+    "usedInDishes": [
+      "Lẩu ếch măng cay"
+    ],
+    "targetActiveId": "ff5bd910-157f-43e5-ac12-51cd09fb29e0",
+    "targetActiveCode": "la-lot-g0sbv",
+    "targetActiveName": "Lá lốt",
+    "note": "Nguyên liệu kép: Lá lốt + Tía tô"
+  },
+  {
+    "index": 46,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "8c7ae569-a079-4fb0-b846-80840b4c5385",
+    "pendingCode": "la-oi-banh-te-tuoi-6uu83",
+    "pendingName": "Lá ổi bánh tẻ tươi",
+    "usedInDishes": [
+      "Tré Bình Định"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 47,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "08c7b473-448c-49f4-a9c8-06c9c9b56c55",
+    "pendingCode": "lap-xuong-mai-que-lo-eaogu",
+    "pendingName": "Lạp xưởng Mai Quế Lộ",
+    "usedInDishes": [
+      "Cơm chiên Dương Châu"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 48,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "77d55404-9d67-429f-89de-1acccc1b7365",
+    "pendingCode": "mi-trung-tuoi-soi-tron-2ji9y",
+    "pendingName": "Mì trứng tươi sợi tròn",
+    "usedInDishes": [
+      "Mì xào hải sản"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 49,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "4f308333-2ee2-4fab-b02d-c377e0fe0f62",
+    "pendingCode": "mo-ga-thang-yd9pe",
+    "pendingName": "Mỡ gà thắng",
+    "usedInDishes": [
+      "Xôi xéo Hà Nội"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 50,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "f2e61566-e2fe-490b-b43c-45aa2a858573",
+    "pendingCode": "mo-hanh-la-liv0t",
+    "pendingName": "Mỡ hành lá",
+    "usedInDishes": [
+      "Bánh bèo chén",
+      "Cơm tấm sườn bì chả"
+    ],
+    "targetActiveId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+    "targetActiveCode": "hanh-la-53bgh",
+    "targetActiveName": "Hành lá",
+    "note": "Mỡ hành quy về hành lá"
+  },
+  {
+    "index": 51,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "f2833643-d00c-48bb-b32f-eb617d61acb1",
+    "pendingCode": "muoi-ot-xanh-cham-hai-san-7dr3s",
+    "pendingName": "Muối ớt xanh chấm hải sản",
+    "usedInDishes": [
+      "Bánh canh ghẹ"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 52,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "1d42fa7c-2426-430c-9ac2-b610e9a96132",
+    "pendingCode": "nam-bao-ngu-xam-tuoi-4pf85",
+    "pendingName": "Nấm bào ngư xám tươi",
+    "usedInDishes": [
+      "Lẩu gà lá é Đà Lạt"
+    ],
+    "targetActiveId": "a6f95839-312c-4b98-96bd-bd7b71bc8ac2",
+    "targetActiveCode": "nam-bao-ngu-trang-f8vyd",
+    "targetActiveName": "Nấm bào ngư trắng",
+    "note": "Trùng nấm bào ngư"
+  },
+  {
+    "index": 53,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "eb98b9ff-a8c4-4946-9e15-69278d6aa552",
+    "pendingCode": "nem-chua-cay-gu1vh",
+    "pendingName": "Nem chua cây",
+    "usedInDishes": [
+      "Bún mắm nêm Đà Nẵng"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 54,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "f3a6f330-1d22-45cb-9af1-b93145b06f2d",
+    "pendingCode": "nem-ran-cha-gio-pqzw3",
+    "pendingName": "Nem rán (Chả giò)",
+    "usedInDishes": [
+      "Bún đậu mắm tôm"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 55,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "17ffb694-a9f0-499c-b0fa-6cd23a6b7a60",
+    "pendingCode": "nuoc-cham-nem-chua-ngot-25wxw",
+    "pendingName": "Nước chấm nem chua ngọt",
+    "usedInDishes": [
+      "Nem rán Hà Nội"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 56,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "4676b100-652f-42f5-95c8-266caa96bc4c",
+    "pendingCode": "nuoc-cot-me-chua-wvk4w",
+    "pendingName": "Nước cốt me chua",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 57,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "8f5fc513-59a8-428f-9c40-e3bc98acd89a",
+    "pendingCode": "nuoc-ham-xuong-u7jws",
+    "pendingName": "nước hầm xương",
+    "usedInDishes": [
+      "Lẩu ếch măng cay"
+    ],
+    "targetActiveId": "9ff88d18-c4da-4d38-b64e-7170e592f41f",
+    "targetActiveCode": "xuong-heo-s74p8",
+    "targetActiveName": "Xương heo",
+    "note": "Quy về xương heo"
+  },
+  {
+    "index": 58,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "bfb51b60-e6ff-4e2c-b33b-df0e6c7190e8",
+    "pendingCode": "nuoc-ham-xuong-heo-lnoi9",
+    "pendingName": "Nước hầm xương heo",
+    "usedInDishes": [
+      "Cháo sườn sụn Hà Nội",
+      "Lẩu cá kèo lá giang",
+      "Bún mắm miền Tây"
+    ],
+    "targetActiveId": "9ff88d18-c4da-4d38-b64e-7170e592f41f",
+    "targetActiveCode": "xuong-heo-s74p8",
+    "targetActiveName": "Xương heo",
+    "note": "Quy về xương heo hầm"
+  },
+  {
+    "index": 59,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "2e56646a-fd7c-42df-9819-503fd0ade616",
+    "pendingCode": "nuoc-luoc-ga-fgizi",
+    "pendingName": "Nước luộc gà",
+    "usedInDishes": [
+      "Cơm gà Hội An"
+    ],
+    "targetActiveId": "ef7fce56-55d0-4666-9341-2731b98d561c",
+    "targetActiveCode": "ga-ta-lbi3c",
+    "targetActiveName": "Gà ta",
+    "note": "Nước luộc gà lấy từ gà ta"
+  },
+  {
+    "index": 60,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "92033ad6-f0d7-49e3-8846-52a53e064129",
+    "pendingCode": "nuoc-ma-long-me-ga-fmrpt",
+    "pendingName": "Nước mạ lòng mề gà",
+    "usedInDishes": [
+      "Cơm gà Hội An"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 61,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "0e784a7b-8179-44cf-aa39-df9ffae7fe94",
+    "pendingCode": "nuoc-sot-tron-iksef",
+    "pendingName": "Nước sốt trộn",
+    "usedInDishes": [
+      "Hủ tiếu Nam Vang"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 62,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "c730f3e8-1a1d-42ec-8c28-717d7b209d13",
+    "pendingCode": "ot-chung-sa-te-6t7n3",
+    "pendingName": "Ớt chưng sa tế",
+    "usedInDishes": [
+      "Bún ốc Hà Nội"
+    ],
+    "targetActiveId": "3dea22c2-831c-4443-b813-030f6fc930a6",
+    "targetActiveCode": "sa-te-dvhmp",
+    "targetActiveName": "Sa tế",
+    "note": "Ớt chưng sa tế là Sa tế"
+  },
+  {
+    "index": 63,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "9f225aff-e0c1-4d4d-b611-f677dc70817a",
+    "pendingCode": "pa-te-gan-heo-beo-gqbsj",
+    "pendingName": "Pa-tê gan heo béo",
+    "usedInDishes": [
+      "Bánh mì thịt nướng"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 64,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "20682b3b-1328-47f9-9853-e6a62163d60c",
+    "pendingCode": "pheo-non-heo-tuoi-long-non-0anzl",
+    "pendingName": "Phèo non heo tươi (Lòng non)",
+    "usedInDishes": [
+      "Cháo lòng miền Nam"
+    ],
+    "targetActiveId": "f249a90a-933f-4138-8da1-4e3d810b26b1",
+    "targetActiveCode": "long-heo-34c41",
+    "targetActiveName": "Lòng heo",
+    "note": "Trùng lòng heo"
+  },
+  {
+    "index": 65,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "28d87a8b-569b-42bd-b9f2-d7b930ed768f",
+    "pendingCode": "phi-le-ca-ro-phi-tuoi-2xvne",
+    "pendingName": "Phi lê cá rô phi tươi",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "targetActiveId": "f25857f8-4a2d-466d-b61d-75cae6331669",
+    "targetActiveCode": "ca-ro-phi-2fmx8",
+    "targetActiveName": "Cá rô phi",
+    "note": "Khớp cá rô phi"
+  },
+  {
+    "index": 66,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "56461891-be25-4b25-b58a-949a6da3624f",
+    "pendingCode": "que-thanh-cao-vo-aerwl",
+    "pendingName": "Quế thanh cạo vỏ",
+    "usedInDishes": [
+      "Phở bò",
+      "Cao lầu Hội An",
+      "Nem lụi nướng",
+      "Bánh cuốn Thanh Trì"
+    ],
+    "targetActiveId": "32d04ebf-203e-40a3-b940-8ae00c9020a5",
+    "targetActiveCode": "que-chi-zaaxm",
+    "targetActiveName": "Quế chi",
+    "note": "Quế thanh quy về Quế chi"
+  },
+  {
+    "index": 67,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "2e013790-4c6d-4a2a-bd48-81ae00328d89",
+    "pendingCode": "rau-an-lau-mam-thap-cam-keo-neo-rau-dang-dien-dien-bong-sung-ym62o",
+    "pendingName": "Rau ăn lẩu mắm thập cẩm (Kèo nèo, rau đắng, điên điển, bông súng)",
+    "usedInDishes": [
+      "Lẩu mắm miền Tây"
+    ],
+    "targetActiveId": "9c835ff7-c591-4b70-9ef2-1d3e73f92157",
+    "targetActiveCode": "rau-dang-k8km8",
+    "targetActiveName": "Rau đắng",
+    "note": "Rau ăn lẩu mắm quy về Rau đắng"
+  },
+  {
+    "index": 68,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "405c3527-3497-410b-9ad2-73f5cb617971",
+    "pendingCode": "rau-cai-xanh-cai-cay-zzvxf",
+    "pendingName": "Rau cải xanh (Cải cay)",
+    "usedInDishes": [
+      "Bánh xèo miền Tây"
+    ],
+    "targetActiveId": "8963b8da-75e1-48f3-a9e5-7e7a889e6401",
+    "targetActiveCode": "cai-xanh-7d9l7",
+    "targetActiveName": "Cải xanh",
+    "note": "Khớp 100% cải xanh"
+  },
+  {
+    "index": 69,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "70604ad0-459b-4e65-b23d-5ef6c5b5738f",
+    "pendingCode": "rau-cu-luoc-an-kho-quet-dau-bap-ca-rot-su-su-6f9yf",
+    "pendingName": "Rau củ luộc ăn kho quẹt (Đậu bắp, cà rốt, su su)",
+    "usedInDishes": [
+      "Cơm cháy kho quẹt"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 70,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "979d516d-3bb7-4d23-bebf-1696686581e5",
+    "pendingCode": "rau-kinh-gioi-va-rau-mui-01m1e",
+    "pendingName": "Rau kinh giới và rau mùi",
+    "usedInDishes": [
+      "Nộm bò khô Hà Nội"
+    ],
+    "targetActiveId": "959f3b10-7818-4eb1-b2af-de40fb966f35",
+    "targetActiveCode": "kinh-gioi-pmadw",
+    "targetActiveName": "Kinh giới",
+    "note": "Nguyên liệu kép: Kinh giới + Rau mùi"
+  },
+  {
+    "index": 71,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "48dc58bd-e028-4b2c-a434-2f5701dc5b3c",
+    "pendingCode": "rau-mam-cu-cai-trang-jecym",
+    "pendingName": "Rau mầm củ cải trắng",
+    "usedInDishes": [
+      "Bánh xèo tôm nhảy Bình Định"
+    ],
+    "targetActiveId": "d6abb171-82e1-4fe7-9dd9-0c31de2302ff",
+    "targetActiveCode": "cu-cai-trang-v974j",
+    "targetActiveName": "Củ cải trắng",
+    "note": "Trùng củ cải trắng"
+  },
+  {
+    "index": 72,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "fb696946-f7e0-47ba-9403-5c19d68ea66b",
+    "pendingCode": "rau-song-idzyt",
+    "pendingName": "Rau sống",
+    "usedInDishes": [
+      "Gỏi cuốn tôm thịt",
+      "Bánh xèo tôm nhảy Bình Định",
+      "Bún mắm miền Tây"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 73,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "2de16b92-41dc-410d-881a-ec7104837e58",
+    "pendingCode": "rau-song-an-kem-ulcnw",
+    "pendingName": "Rau sống ăn kèm",
+    "usedInDishes": [
+      "Bún chả cá Nha Trang",
+      "Bún chả Hà Nội"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 74,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "f179248a-ecdc-4ae9-8564-caf579b055ad",
+    "pendingCode": "rau-song-chuoi-chat-khe-chua-mvyl3",
+    "pendingName": "Rau sống chuối chát khế chua",
+    "usedInDishes": [
+      "Nem lụi nướng"
+    ],
+    "targetActiveId": "e6b57185-7d6b-461c-b382-581da92c55bc",
+    "targetActiveCode": "ING-416E10",
+    "targetActiveName": "Khế chua",
+    "note": "Rau sống chuối chát khế chua quy về Khế chua"
+  },
+  {
+    "index": 75,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "b71892cb-a648-404e-89d6-d63463eecc97",
+    "pendingCode": "rau-song-hoa-chuoi-bup-non-o7chr",
+    "pendingName": "Rau sống hoa chuối búp non",
+    "usedInDishes": [
+      "Mì Quảng tôm thịt"
+    ],
+    "targetActiveId": "d40dd484-3e4b-409a-a4af-18b078bc5282",
+    "targetActiveCode": "bap-chuoi-77ypa",
+    "targetActiveName": "Bắp chuối",
+    "note": "Hoa chuối chính là bắp chuối"
+  },
+  {
+    "index": 76,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "77d7b15d-da44-469f-ba05-26c83d16dbde",
+    "pendingCode": "rau-xa-lach-va-hung-lui-31xfb",
+    "pendingName": "Rau xà lách và húng lủi",
+    "usedInDishes": [
+      "Bún mắm nêm Đà Nẵng"
+    ],
+    "targetActiveId": "c920407b-2620-4cf3-8383-5583639d418c",
+    "targetActiveCode": "rau-xa-lach-ouq9m",
+    "targetActiveName": "Rau xà lách",
+    "note": "Nguyên liệu kép: Xà lách + Húng lủi"
+  },
+  {
+    "index": 77,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "bd2bf886-6be0-4def-84bc-f8529142ddbd",
+    "pendingCode": "ruot-banh-mi-xe-vun-xqcxg",
+    "pendingName": "Ruột bánh mì xé vụn",
+    "usedInDishes": [
+      "Bánh mì xíu mại"
+    ],
+    "targetActiveId": "925978d2-7dcb-4a9f-97ed-c4b1834b8b4c",
+    "targetActiveCode": "banh-mi-fkfq7",
+    "targetActiveName": "Bánh mì",
+    "note": "Trùng bánh mì"
+  },
+  {
+    "index": 78,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "853003be-f9cc-450e-9483-ee72ede1b4ed",
+    "pendingCode": "ruou-vang-do-nau-an-5yg6f",
+    "pendingName": "Rượu vang đỏ nấu ăn",
+    "usedInDishes": [
+      "Bò sốt vang bánh mì"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 79,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "2c159a6c-b6b5-4dcb-8a73-df93930af8c5",
+    "pendingCode": "soi-banh-canh-bot-gao-4e1if",
+    "pendingName": "Sợi bánh canh bột gạo",
+    "usedInDishes": [
+      "Bánh canh cá lóc Huế",
+      "Bánh canh cua giò heo"
+    ],
+    "targetActiveId": "74e4a995-8d00-4dca-8ec3-3e1e593f8962",
+    "targetActiveCode": "bot-gao-00jy1",
+    "targetActiveName": "Bột gạo",
+    "note": "Quy về bột gạo / bánh canh"
+  },
+  {
+    "index": 80,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "95364066-df6e-4b8b-a055-db64b1b2bb6f",
+    "pendingCode": "soi-banh-canh-bot-loc-mzaqg",
+    "pendingName": "Sợi bánh canh bột lọc",
+    "usedInDishes": [
+      "Bánh canh ghẹ"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 81,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "1691f199-b5b1-4aa6-ad18-3cb1c377a525",
+    "pendingCode": "soi-hu-tieu-my-tho-botuy",
+    "pendingName": "Sợi hủ tiếu Mỹ Tho",
+    "usedInDishes": [
+      "Hủ tiếu Mỹ Tho"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 82,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "6106cd1c-60c2-4054-aed3-ed60926e37a7",
+    "pendingCode": "soi-mi-cao-lau-tuoi-dulqb",
+    "pendingName": "Sợi mì Cao lầu tươi",
+    "usedInDishes": [
+      "Cao lầu Hội An"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 83,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "368ec3f7-9773-4529-a0bb-7c74bb956e1c",
+    "pendingCode": "soi-mi-quang-vang-c5wl5",
+    "pendingName": "Sợi mì Quảng vàng",
+    "usedInDishes": [
+      "Mì Quảng tôm thịt"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 84,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "7ce4ac61-1897-47e4-bf0b-8c51086fbd23",
+    "pendingCode": "sot-tuong-den-cay-gb19u",
+    "pendingName": "Sốt tương đen cay",
+    "usedInDishes": [
+      "Bánh mì thịt nướng"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 85,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "8588c256-d606-4076-8bda-d0dc6441e24c",
+    "pendingCode": "sua-bien-tuoi-lam-sach-0r7x5",
+    "pendingName": "Sứa biển tươi làm sạch",
+    "usedInDishes": [
+      "Bún chả cá Nha Trang",
+      "Bún sứa Quy Nhơn"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 86,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "484a8dc0-d32f-4a3a-90c3-8a3c468d8529",
+    "pendingCode": "suon-cot-let-heo-tuoi-mag0f",
+    "pendingName": "Sườn cốt lết heo tươi",
+    "usedInDishes": [
+      "Cơm tấm sườn bì chả"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 87,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "e42cd361-b083-4b7a-bf45-486ce2964dd9",
+    "pendingCode": "than-chuoi-non-bao-mong-2xbkv",
+    "pendingName": "Thân chuối non bào mỏng",
+    "usedInDishes": [
+      "Bún hến Huế"
+    ],
+    "targetActiveId": "d40dd484-3e4b-409a-a4af-18b078bc5282",
+    "targetActiveCode": "bap-chuoi-77ypa",
+    "targetActiveName": "Bắp chuối",
+    "note": "Quy về thân / bắp chuối"
+  },
+  {
+    "index": 88,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "09706f3b-b528-4e0f-b0e5-85ebebfeb273",
+    "pendingCode": "thinh-gao-rang-min-w4wsm",
+    "pendingName": "Thính gạo rang mịn",
+    "usedInDishes": [
+      "Tré Bình Định"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 89,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "50d59a85-85ff-480f-8749-81773e9da5c2",
+    "pendingCode": "thit-ba-chi-heo-tuoi-5q9rd",
+    "pendingName": "Thịt ba chỉ heo tươi",
+    "usedInDishes": [
+      "Gỏi cuốn tôm thịt"
+    ],
+    "targetActiveId": "4badc5c0-efda-4cb5-a0ff-23380fa7ddf2",
+    "targetActiveCode": "thit-heo-ba-chi-ou4je",
+    "targetActiveName": "Thịt heo ba chỉ",
+    "note": "Trùng ba chỉ heo"
+  },
+  {
+    "index": 90,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "961ddca5-63d3-4291-8499-134e5167c21f",
+    "pendingCode": "thit-bo-kho-mieng-soi-tam-vi-xkvmb",
+    "pendingName": "Thịt bò khô miếng sợi tẩm vị",
+    "usedInDishes": [
+      "Nộm bò khô Hà Nội"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 91,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "6c5ea813-f077-45a5-86c9-7539f3d2fe7b",
+    "pendingCode": "thit-ca-ngu-hoac-ca-co-yjkqn",
+    "pendingName": "Thịt cá ngừ (hoặc cá cờ)",
+    "usedInDishes": [
+      "Bún chả cá Nha Trang"
+    ],
+    "targetActiveId": "35ebfdba-1bb1-4c93-af6d-0e7b6f029354",
+    "targetActiveCode": "ca-ngu-we1go",
+    "targetActiveName": "Cá ngừ",
+    "note": "Khớp cá ngừ"
+  },
+  {
+    "index": 92,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "5fde35c3-5a75-4890-be9d-c3da43e970ee",
+    "pendingCode": "thit-cua-bien-tuoi-go-san-q6o2t",
+    "pendingName": "Thịt cua biển tươi gỡ sẵn",
+    "usedInDishes": [
+      "Bánh canh cua giò heo"
+    ],
+    "targetActiveId": "a312dd06-ec70-48a2-9afe-d6a77018dae4",
+    "targetActiveCode": "cua-bien-ghe-78k5h",
+    "targetActiveName": "Cua biển ghẹ",
+    "note": "Trùng cua biển"
+  },
+  {
+    "index": 93,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "b525537e-577a-43a8-b1ad-0fc730687e30",
+    "pendingCode": "thit-ghe-tuoi-boc-san-u9h5m",
+    "pendingName": "Thịt ghẹ tươi bóc sẵn",
+    "usedInDishes": [
+      "Bánh canh ghẹ"
+    ],
+    "targetActiveId": "a312dd06-ec70-48a2-9afe-d6a77018dae4",
+    "targetActiveCode": "cua-bien-ghe-78k5h",
+    "targetActiveName": "Cua biển ghẹ",
+    "note": "Trùng cua biển ghẹ"
+  },
+  {
+    "index": 94,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "4cc344ec-e79d-43bb-8405-6eb266972e4d",
+    "pendingCode": "thit-hen-tuoi-luoc-san-g4pqa",
+    "pendingName": "Thịt hến tươi luộc sẵn",
+    "usedInDishes": [
+      "Cơm hến Huế",
+      "Bún hến Huế"
+    ],
+    "targetActiveId": "04f75fe9-192a-4601-82c2-0b58f26fb0df",
+    "targetActiveCode": "thit-hen-gtqjx",
+    "targetActiveName": "Thịt hến",
+    "note": "Khớp 100% thịt hến"
+  },
+  {
+    "index": 95,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "a98d7efe-b464-4a3a-a4ed-4e9a5e758d32",
+    "pendingCode": "thit-heo-quay-gion-bi-kop4s",
+    "pendingName": "Thịt heo quay giòn bì",
+    "usedInDishes": [
+      "Bún mắm miền Tây",
+      "Bún mắm nêm Đà Nẵng"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 96,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "d8f6936b-9a71-4fe2-9f93-2010a44dbf91",
+    "pendingCode": "thit-ma-dau-heo-tah6a",
+    "pendingName": "Thịt má đầu heo",
+    "usedInDishes": [
+      "Tré Bình Định"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 97,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "6915d139-a5f9-416d-8b19-76fe144617e6",
+    "pendingCode": "thit-nac-vai-heo-ljwlc",
+    "pendingName": "Thịt nạc vai heo",
+    "usedInDishes": [
+      "Nem rán Hà Nội",
+      "Cao lầu Hội An"
+    ],
+    "targetActiveId": "6d21ba01-c314-4d52-bc6f-8c4ee32ae957",
+    "targetActiveCode": "thit-nac-heo-w7psl",
+    "targetActiveName": "Thịt nạc heo",
+    "note": "Trùng thịt nạc heo"
+  },
+  {
+    "index": 98,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "291a6492-17a9-4e52-a53c-781a5147d58d",
+    "pendingCode": "thit-qua-gac-tuoi-zw33x",
+    "pendingName": "Thịt quả gấc tươi",
+    "usedInDishes": [
+      "Bò sốt vang bánh mì"
+    ],
+    "targetActiveId": "4734f696-dfaf-43c9-9137-a82ed6a9c4d4",
+    "targetActiveCode": "qua-gac-8jrrn",
+    "targetActiveName": "Quả gấc",
+    "note": "Khớp quả gấc"
+  },
+  {
+    "index": 99,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "0741cdc5-baa9-4f81-a884-6356dc63ff18",
+    "pendingCode": "thit-xa-xiu-ikscz",
+    "pendingName": "Thịt xá xíu",
+    "usedInDishes": [
+      "Hủ tiếu Mỹ Tho",
+      "Hủ tiếu Nam Vang"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 100,
+    "action": "KEEP_DISTINCT_PENDING",
+    "pendingId": "97224c87-4baf-4944-a693-86a34ea9b3fe",
+    "pendingCode": "tinh-dau-ca-cuong-nguyen-chat-gwho4",
+    "pendingName": "Tinh dầu cà cuống nguyên chất",
+    "usedInDishes": [
+      "Bún thang Hà Nội",
+      "Bánh cuốn Thanh Trì"
+    ],
+    "targetActiveId": null,
+    "targetActiveCode": null,
+    "targetActiveName": null,
+    "note": "Nguyên liệu đặc thù riêng biệt, giữ lại mục Cần duyệt để duyệt tay"
+  },
+  {
+    "index": 101,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "aee50379-847c-4c07-9b71-9b76ffd4796f",
+    "pendingCode": "toi-phi-vang-thom-tzsln",
+    "pendingName": "Tỏi phi vàng thơm",
+    "usedInDishes": [
+      "Hủ tiếu Nam Vang"
+    ],
+    "targetActiveId": "08939bf6-eb68-45a2-8e7a-2cdf8cde92c9",
+    "targetActiveCode": "hanh-phi-toi-phi-fokrk",
+    "targetActiveName": "Hành phi tỏi phi",
+    "note": "Khớp hành phi tỏi phi"
+  },
+  {
+    "index": 102,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "cdc10898-4479-4f8b-818b-59c173cc28f0",
+    "pendingCode": "toi-tep-va-ot-hiem-d5sny",
+    "pendingName": "Tỏi tép và ớt hiểm",
+    "usedInDishes": [
+      "Bánh xèo tôm nhảy Bình Định"
+    ],
+    "targetActiveId": "7f3e38b0-de2e-41c8-836f-61426f0cb3eb",
+    "targetActiveCode": "toi-ehjc3",
+    "targetActiveName": "Tỏi",
+    "note": "Nguyên liệu kép: Tỏi + Ớt"
+  },
+  {
+    "index": 103,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "01bfd91c-e56a-4113-98a9-1659d9c92d86",
+    "pendingCode": "tom-dat-tuoi-bntj8",
+    "pendingName": "Tôm đất tươi",
+    "usedInDishes": [
+      "Bánh bột lọc Huế",
+      "Bánh xèo miền Tây",
+      "Bánh xèo tôm nhảy Bình Định"
+    ],
+    "targetActiveId": "862689ca-46ca-40b7-bf10-cc677fdb9d41",
+    "targetActiveCode": "tom-c0k7d",
+    "targetActiveName": "Tôm",
+    "note": "Trùng tôm tươi"
+  },
+  {
+    "index": 104,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "d9acf68a-6d1d-4227-8758-a7e81d669b4d",
+    "pendingCode": "tuong-den-ie00c",
+    "pendingName": "Tương đen",
+    "usedInDishes": [
+      "Gỏi cuốn tôm thịt"
+    ],
+    "targetActiveId": "0aa28436-2d23-425a-86e4-bbe90ae1adb4",
+    "targetActiveCode": "xi-dau-nuoc-tuong-den-n5jv8",
+    "targetActiveName": "Xì dầu (Nước tương đen)",
+    "note": "Khớp nước tương đen"
+  },
+  {
+    "index": 105,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "dd92341b-d99f-41f3-8392-bf3b75df09f5",
+    "pendingCode": "xuong-bay-heo-ham-nuoc-dung-573mj",
+    "pendingName": "Xương bay heo hầm nước dùng",
+    "usedInDishes": [
+      "Bún thang Hà Nội"
+    ],
+    "targetActiveId": "9ff88d18-c4da-4d38-b64e-7170e592f41f",
+    "targetActiveCode": "xuong-heo-s74p8",
+    "targetActiveName": "Xương heo",
+    "note": "Trùng xương heo"
+  },
+  {
+    "index": 106,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "1618e1fa-6e27-48fa-b783-fe1328f2c5c6",
+    "pendingCode": "xuong-ca-va-dau-ca-nau-nuoc-dung-ig6y8",
+    "pendingName": "Xương cá và đầu cá nấu nước dùng",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "targetActiveId": "9e602e05-8056-4a22-adcc-962235dd0141",
+    "targetActiveCode": "ca-1imyi",
+    "targetActiveName": "Cá",
+    "note": "Quy về cá"
+  },
+  {
+    "index": 107,
+    "action": "MERGE_TO_ACTIVE",
+    "pendingId": "6bf7f278-02af-4c22-b824-c4b6138c5153",
+    "pendingCode": "xuong-ong-heo-ham-canh-52nm8",
+    "pendingName": "Xương ống heo hầm canh",
+    "usedInDishes": [
+      "Hủ tiếu Mỹ Tho"
+    ],
+    "targetActiveId": "9ff88d18-c4da-4d38-b64e-7170e592f41f",
+    "targetActiveCode": "xuong-heo-s74p8",
+    "targetActiveName": "Xương heo",
+    "note": "Trùng xương heo"
+  }
+]

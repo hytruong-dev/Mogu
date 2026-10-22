@@ -1,21 +1,28 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   AlertCircle,
+  ArrowRight,
+  BarChart3,
   Calendar,
   Check,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock,
+  Compass,
   Copy,
   Key,
   Laptop,
+  Lightbulb,
   RotateCcw,
   Search,
   ShieldAlert,
+  ShieldCheck,
   Smartphone,
   Sparkles,
   Target,
+  TrendingUp,
   Upload,
   User,
   UserPlus,
@@ -49,6 +56,7 @@ import {
   useAdminUser,
   useAdminUserActions,
   useAdminUsers,
+  useHabitAnalytics,
   useUserAuditEvents,
   useUserAuthAudit,
   useUserSessions,
@@ -1154,7 +1162,9 @@ function UserDrawer({
 }
 
 export default function UsersPage() {
+  const navigate = useNavigate()
   const { lightboxProps, openImage } = useMediaLightbox()
+  const [activeTab, setActiveTab] = useState<'HABIT_ANALYTICS' | 'APP_USERS'>('HABIT_ANALYTICS')
   const [q, setQ] = useState('')
   const [debouncedQ, setDebouncedQ] = useState('')
   const [status, setStatus] = useState('')
@@ -1170,6 +1180,7 @@ export default function UsersPage() {
   }, [q])
 
   const list = useAdminUsers({
+    type: 'APP_USER',
     q: debouncedQ || undefined,
     status: status || undefined,
     cursor: cursor || undefined,
@@ -1177,6 +1188,7 @@ export default function UsersPage() {
   })
 
   const summary = useUsersSummary()
+  const habit = useHabitAnalytics()
   const actions = useAdminUserActions()
 
   const metrics = summary.data?.metrics ?? {
@@ -1244,13 +1256,13 @@ export default function UsersPage() {
             </span>
             <div>
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
-                Quản lý người dùng
-                <Badge variant="secondary" className="font-mono text-xs font-semibold">
-                  {formatNumber(metrics.totalUsers)} tài khoản
+                Người dùng App & Thống kê Hành vi
+                <Badge variant="secondary" className="font-mono text-xs font-semibold bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20">
+                  {formatNumber(habit.data?.overview?.totalAppUsers ?? metrics.totalUsers)} người dùng App
                 </Badge>
               </h1>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Quản lý tài khoản, trạng thái xác minh và phân quyền truy cập hệ thống NOAN.
+                Đo lường thời gian hoạt động, tỉ lệ ra vào app, thói quen ẩm thực và tần suất tính năng theo chuẩn Telemetry quốc tế
               </p>
             </div>
           </div>
@@ -1259,11 +1271,13 @@ export default function UsersPage() {
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <Button
             type="button"
-            className="h-9 gap-1.5 font-semibold text-xs bg-primary text-primary-foreground hover:bg-primary/90 shadow-2xs cursor-pointer"
-            onClick={() => setCreateModalOpen(true)}
+            variant="outline"
+            className="h-9 gap-1.5 font-semibold text-xs border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-950/40"
+            onClick={() => navigate('/admin-users')}
           >
-            <UserPlus size={14} />
-            <span>Tạo tài khoản mới</span>
+            <ShieldCheck size={14} className="text-purple-600 dark:text-purple-400" />
+            <span>Quản lý Nhân sự Admin</span>
+            <ArrowRight size={13} />
           </Button>
 
           <Button
@@ -1274,22 +1288,330 @@ export default function UsersPage() {
             onClick={handleExport}
           >
             {isExporting || actions.createExport.isPending ? <Spinner size="sm" /> : <Upload size={14} />}
-            <span>{isExporting ? 'Đang xuất...' : 'Xuất danh sách'}</span>
+            <span>{isExporting ? 'Đang xuất...' : 'Xuất CSV'}</span>
           </Button>
         </div>
       </div>
 
-      {/* ── Stat Cards ── */}
-      {summary.isLoading ? (
-        <StatsSkeleton />
-      ) : (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <Stat icon={Users} value={formatNumber(metrics.totalUsers)} label="Tổng người dùng" tone="yellow" />
-          <Stat icon={Zap} value={formatNumber(metrics.activeUsersToday)} label="Hoạt động hôm nay" tone="yellow" />
-          <Stat icon={UserPlus} value={formatNumber(metrics.newUsers)} label="Tài khoản mới" tone="green" />
-          <Stat icon={ShieldAlert} value={formatNumber(metrics.restrictedUsers)} label="Bị hạn chế" tone="red" />
+      {/* ── Tabs Bar ── */}
+      <div className="flex items-center gap-2 border-b border-border/60 pb-3">
+        <button
+          type="button"
+          onClick={() => setActiveTab('HABIT_ANALYTICS')}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
+            activeTab === 'HABIT_ANALYTICS'
+              ? 'bg-amber-500 text-white shadow-xs ring-1 ring-amber-500/40'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+          }`}
+        >
+          <BarChart3 size={15} />
+          <span>Thống kê Hành vi & Thói quen App</span>
+          <Badge className={`text-[10px] px-1.5 py-0 h-4 ${activeTab === 'HABIT_ANALYTICS' ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground'}`}>
+            Telemetry
+          </Badge>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('APP_USERS')}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
+            activeTab === 'APP_USERS'
+              ? 'bg-amber-500 text-white shadow-xs ring-1 ring-amber-500/40'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+          }`}
+        >
+          <Users size={15} />
+          <span>Danh sách Người dùng Di động</span>
+          <Badge className={`text-[10px] px-1.5 py-0 h-4 ${activeTab === 'APP_USERS' ? 'bg-white/20 text-white' : 'bg-muted text-muted-foreground'}`}>
+            {items.length}
+          </Badge>
+        </button>
+      </div>
+
+      {/* ── Tab Content: HABIT ANALYTICS ── */}
+      {activeTab === 'HABIT_ANALYTICS' && (
+        <div className="space-y-6">
+          {/* 4 Core Behavioral Metrics Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <Card className="border-border/60 shadow-xs hover:border-emerald-500/40 transition-colors">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    Tỉ lệ Bám dính (DAU/MAU)
+                  </span>
+                  <div className="text-2xl font-bold font-mono tracking-tight text-emerald-600 dark:text-emerald-400">
+                    {habit.data?.overview?.stickinessRatio ?? 0}%
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Chuẩn App hình thành thói quen</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center ring-1 ring-emerald-500/20">
+                  <Zap size={20} />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/60 shadow-xs hover:border-amber-500/40 transition-colors">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    Thời lượng Phiên TB
+                  </span>
+                  <div className="text-2xl font-bold font-mono tracking-tight text-amber-600 dark:text-amber-400">
+                    {habit.data?.overview?.avgSessionMinutes ?? 0} phút
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    ~{habit.data?.overview?.avgDailyOpensPerUser ?? 0} lần mở app mỗi ngày
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center ring-1 ring-amber-500/20">
+                  <Clock size={20} />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/60 shadow-xs hover:border-rose-500/40 transition-colors">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    Tỉ lệ Ra Vào Chớp Nhoáng
+                  </span>
+                  <div className="text-2xl font-bold font-mono tracking-tight text-rose-600 dark:text-rose-400">
+                    {habit.data?.overview?.bounceRatePercent ?? 0}%
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Thoát app &lt; 15 giây</p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center ring-1 ring-rose-500/20">
+                  <RotateCcw size={20} />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-border/60 shadow-xs hover:border-blue-500/40 transition-colors">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="space-y-1">
+                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    Tỉ lệ Người Dùng Quay Lại
+                  </span>
+                  <div className="text-2xl font-bold font-mono tracking-tight text-blue-600 dark:text-blue-400">
+                    {habit.data?.overview?.returningUserRate ?? 0}%
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Duy trì streak TB {habit.data?.overview?.habitFormationStreakAvg ?? 0} ngày
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-600 flex items-center justify-center ring-1 ring-blue-500/20">
+                  <TrendingUp size={20} />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Section: Feature Breakdown & Circadian Slots */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Feature Breakdown (7 cols) */}
+            <Card className="lg:col-span-7 border-border/60 shadow-xs">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-600 flex items-center justify-center">
+                      <BarChart3 size={17} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                        Ma trận Tần suất Sử dụng Tính năng Cốt lõi
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">
+                        User dùng tính năng nào nhiều nhất để tối ưu UX &amp; vòng lặp giữ chân
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] font-mono">
+                    5 Trụ cột
+                  </Badge>
+                </div>
+
+                <div className="space-y-3.5 pt-1">
+                  {(habit.data?.featureBreakdown ?? []).map((feat) => (
+                    <div
+                      key={feat.id}
+                      className="p-3 rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 space-y-2 hover:border-amber-500/30 transition-colors"
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-slate-900 dark:text-slate-100">{feat.name}</span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium">
+                            {feat.category}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 font-mono">
+                          <span className="font-bold text-amber-600 dark:text-amber-400">{feat.percent}%</span>
+                          <span className="text-muted-foreground text-[11px]">({formatNumber(feat.count)} tương tác)</span>
+                          <span className="text-[10px] text-emerald-600 font-semibold">{feat.trend}</span>
+                        </div>
+                      </div>
+
+                      {/* Progress bar */}
+                      <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-amber-500 to-amber-400 rounded-full transition-all duration-500"
+                          style={{ width: `${feat.percent}%` }}
+                        />
+                      </div>
+
+                      <p className="text-[11px] text-muted-foreground leading-relaxed">{feat.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Circadian Hourly Distribution (5 cols) */}
+            <Card className="lg:col-span-5 border-border/60 shadow-xs">
+              <CardContent className="p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-600 flex items-center justify-center">
+                      <Clock size={17} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                        Nhịp sinh học ăn uống 24h
+                      </h3>
+                      <p className="text-[11px] text-muted-foreground">Khung giờ vàng người dùng mở app ăn uống</p>
+                    </div>
+                  </div>
+                  <Badge variant="outline" className="text-[10px] font-mono text-orange-600 border-orange-500/30">
+                    Circadian
+                  </Badge>
+                </div>
+
+                <div className="space-y-3 pt-1">
+                  {(habit.data?.circadianSlots ?? []).map((slot, idx) => (
+                    <div
+                      key={idx}
+                      className="p-2.5 rounded-xl border border-slate-200/70 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="font-bold text-slate-800 dark:text-slate-200">{slot.slot}</span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] font-mono text-muted-foreground">Đỉnh {slot.peakHour}</span>
+                          <span className="font-bold font-mono text-xs text-orange-600 dark:text-orange-400">
+                            {slot.percent}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                        <div
+                          className="h-full bg-orange-500 rounded-full transition-all duration-500"
+                          style={{ width: `${slot.percent}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] text-muted-foreground leading-tight">{slot.action}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Section: 4 User Habit Cohorts */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Compass size={18} className="text-amber-500" />
+              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                4 Phân khúc Thói quen Người dùng (User Habit Personas)
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {(habit.data?.habitCohorts ?? []).map((cohort, idx) => (
+                <Card key={idx} className="border-border/60 shadow-xs hover:border-amber-500/40 transition-colors flex flex-col justify-between">
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-900 dark:text-slate-100 leading-tight">
+                        {cohort.name}
+                      </span>
+                      <span className="text-sm font-black font-mono text-amber-600 dark:text-amber-400">
+                        {cohort.sharePercent}%
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-muted-foreground leading-relaxed">
+                      {cohort.characteristics}
+                    </p>
+
+                    <div className="p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-800 dark:text-amber-300">
+                      <strong className="block text-[10px] uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-0.5">
+                        💡 Giải pháp tối ưu:
+                      </strong>
+                      {cohort.recommendation}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* Section: Actionable Product Optimization Insights */}
+          <Card className="border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-transparent to-amber-500/5 shadow-xs">
+            <CardContent className="p-5 space-y-3">
+              <div className="flex items-center gap-2">
+                <Lightbulb size={20} className="text-amber-500" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                  Đề xuất Cải tiến Ứng dụng dựa trên Dữ liệu Thói quen (Product Optimization Roadmap)
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs pt-1">
+                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-1.5">
+                  <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                    <span className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] font-bold">1</span>
+                    Predictive Push Notification
+                  </div>
+                  <p className="text-muted-foreground text-[11px] leading-relaxed">
+                    Đón đầu đỉnh ăn trưa 11h45 bằng cách gửi gợi ý món ăn vào đúng <strong>11h15</strong>. Giúp người dùng giải quyết bài toán &quot;Ăn gì?&quot; ngay trước khi cảm giác đói xuất hiện.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-1.5">
+                  <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                    <span className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] font-bold">2</span>
+                    Rút ngắn vòng lặp quay Reel
+                  </div>
+                  <p className="text-muted-foreground text-[11px] leading-relaxed">
+                    Hiện tại người dùng quay trung bình <strong>2.3 lần</strong>. Tích hợp thanh trượt khoảng cách (&lt;2km) và ngân sách ngay trên Reel để chốt món nhanh hơn và tăng chuyển đổi đến quán.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 space-y-1.5">
+                  <div className="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                    <span className="w-5 h-5 rounded-full bg-amber-500 text-white flex items-center justify-center text-[10px] font-bold">3</span>
+                    1-Tap AI Scan to Meal Diary
+                  </div>
+                  <p className="text-muted-foreground text-[11px] leading-relaxed">
+                    Sau khi AI camera nhận diện đúng món, cung cấp nút <strong>&quot;Ghi vào Nhật ký ăn trưa&quot;</strong> với 1 chạm duy nhất. Giảm ma sát nhập liệu, nâng tỉ lệ duy trì streak lên &gt;70%.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       )}
+
+      {/* ── Tab Content: APP USERS DIRECTORY ── */}
+      {activeTab === 'APP_USERS' && (
+        <div className="space-y-6">
+          {/* ── Stat Cards ── */}
+          {summary.isLoading ? (
+            <StatsSkeleton />
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+              <Stat icon={Users} value={formatNumber(habit.data?.overview?.totalAppUsers ?? metrics.totalUsers)} label="Tổng người dùng App" tone="yellow" />
+              <Stat icon={Zap} value={formatNumber(habit.data?.overview?.dau ?? metrics.activeUsersToday)} label="Hoạt động hôm nay (DAU)" tone="yellow" />
+              <Stat icon={UserPlus} value={formatNumber(metrics.newUsers)} label="Tài khoản mới" tone="green" />
+              <Stat icon={ShieldAlert} value={formatNumber(metrics.restrictedUsers)} label="Bị hạn chế" tone="red" />
+            </div>
+          )}
 
       {/* ── Filter Toolbar ── */}
       <Card className="border-border/60 shadow-xs">
@@ -1578,6 +1900,8 @@ export default function UsersPage() {
           </div>
         )}
       </div>
+    </div>
+  )}
 
       <CreateUserModal
         open={createModalOpen}

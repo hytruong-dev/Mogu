@@ -45,15 +45,22 @@ export class AdminUsersController {
     return this.adminUsers.getSummary({ from, to, timezone });
   }
 
+  @Get('users/habit-analytics')
+  @ApiOperation({ summary: 'Thống kê hành vi & thói quen người dùng ứng dụng' })
+  getHabitAnalytics() {
+    return this.adminUsers.getHabitAnalytics();
+  }
+
   @Get('users')
   @ApiOperation({ summary: 'Danh sách người dùng (cursor)' })
   listUsers(
     @Query('q') q?: string,
     @Query('status') status?: string,
+    @Query('type') type?: 'ALL' | 'ADMIN' | 'APP_USER',
     @Query('cursor') cursor?: string,
     @Query('limit') limit?: number,
   ) {
-    return this.adminUsers.listUsers({ q, status, cursor, limit });
+    return this.adminUsers.listUsers({ q, status, type, cursor, limit });
   }
 
   @Post('users')

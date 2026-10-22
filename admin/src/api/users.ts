@@ -3,8 +3,47 @@ import api from './client'
 export type AdminUserListQuery = {
   q?: string
   status?: string
+  type?: 'ALL' | 'ADMIN' | 'APP_USER'
   cursor?: string
   limit?: number
+}
+
+export type HabitAnalyticsResponse = {
+  overview: {
+    totalAppUsers: number
+    dau: number
+    mau: number
+    stickinessRatio: number
+    avgSessionMinutes: number
+    bounceRatePercent: number
+    avgDailyOpensPerUser: number
+    returningUserRate: number
+    avgSpinsToChoice: number
+    habitFormationStreakAvg: number
+  }
+  featureBreakdown: Array<{
+    id: string
+    name: string
+    category: string
+    count: number
+    percent: number
+    trend: string
+    avgUsagePerUser: string
+    description: string
+  }>
+  circadianSlots: Array<{
+    slot: string
+    percent: number
+    peakHour: string
+    action: string
+  }>
+  habitCohorts: Array<{
+    name: string
+    sharePercent: number
+    characteristics: string
+    recommendation: string
+  }>
+  generatedAt: string
 }
 
 export type AdminUserSummary = {
@@ -25,6 +64,8 @@ export type AdminUserListItem = {
   email: string
   emailMasked: boolean
   avatarUrl: string | null
+  roles?: string[]
+  isAdmin?: boolean
   accountStatus: string
   primaryGoal: { id: string; code: string; name: string } | null
   lastActiveAt: string | null
@@ -109,6 +150,9 @@ export const usersApi = {
 
   summary: (params?: { from?: string; to?: string; timezone?: string }) =>
     api.get<AdminUserSummary>('/admin/users/summary', { params }).then((r) => r.data),
+
+  habitAnalytics: () =>
+    api.get<HabitAnalyticsResponse>('/admin/users/habit-analytics').then((r) => r.data),
 
   list: (params?: AdminUserListQuery) =>
     api

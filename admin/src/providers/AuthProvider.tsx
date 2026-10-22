@@ -31,6 +31,7 @@ export type SystemRole = AdminRole
 interface AdminUser {
   id: string
   displayName: string | null
+  avatarUrl?: string | null
   accountStatus: string
   onboardingStatus: string
   roles?: AdminRole[]

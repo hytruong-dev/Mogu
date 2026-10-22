@@ -1,0 +1,512 @@
+[
+  {
+    "code": "banh-da-do-hai-phong-tuoi-tppoj",
+    "name": "Bánh đa đỏ Hải Phòng tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/banh-da-do-hai-phong-tuoi-tppoj.jpg",
+    "size": 174540
+  },
+  {
+    "code": "banh-trang-me-nuong-njpz9",
+    "name": "Bánh tráng mè nướng",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/banh-trang-me-nuong-njpz9.jpg",
+    "size": 73757
+  },
+  {
+    "code": "bot-gia-vi-bo-kho-iayya",
+    "name": "Bột gia vị bò kho",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/bot-gia-vi-bo-kho-iayya.jpg",
+    "size": 260236
+  },
+  {
+    "code": "bot-tom-chay-hue-ruoc-tom-8dwof",
+    "name": "Bột tôm chấy Huế (Ruốc tôm)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/bot-tom-chay-hue-ruoc-tom-8dwof.jpg",
+    "size": 242371
+  },
+  {
+    "code": "bun-soi-to-bun-bo-hue-eueh4",
+    "name": "Bún sợi to Bún Bò Huế",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/bun-soi-to-bun-bo-hue-eueh4.jpg",
+    "size": 84571
+  },
+  {
+    "code": "cha-bo-da-nang-hkz0k",
+    "name": "Chả bò Đà Nẵng",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cha-bo-da-nang-hkz0k.jpg",
+    "size": 306163
+  },
+  {
+    "code": "cha-ca-thu-chien-hap-6ki89",
+    "name": "Chả cá thu chiên hấp",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cha-ca-thu-chien-hap-6ki89.jpg",
+    "size": 300494
+  },
+  {
+    "code": "cha-com-ha-noi-0jqaq",
+    "name": "Chả cốm Hà Nội",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cha-com-ha-noi-0jqaq.jpg",
+    "size": 303366
+  },
+  {
+    "code": "cha-cua-hue-nxsuq",
+    "name": "Chả cua Huế",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cha-cua-hue-nxsuq.jpg",
+    "size": 136132
+  },
+  {
+    "code": "cha-trung-hap-thit-viwuf",
+    "name": "Chả trứng hấp thịt",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cha-trung-hap-thit-viwuf.jpg",
+    "size": 127533
+  },
+  {
+    "code": "chanh-tuoi-va-ot-hiem-ts23x",
+    "name": "Chanh tươi và ớt hiểm",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/chanh-tuoi-va-ot-hiem-ts23x.jpg",
+    "size": 111745
+  },
+  {
+    "code": "chi-chuong-hai-phong-ot-chung-095en",
+    "name": "Chí chương Hải Phòng (Ớt chưng)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/chi-chuong-hai-phong-ot-chung-095en.jpg",
+    "size": 271283
+  },
+  {
+    "code": "com-trang-com-nguoi-s0hyk",
+    "name": "Cơm trắng (Cơm nguội)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/com-trang-com-nguoi-s0hyk.jpg",
+    "size": 26088
+  },
+  {
+    "code": "cu-cai-muoi-kho-xa-bau-tq7as",
+    "name": "Củ cải muối khô xá bấu",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cu-cai-muoi-kho-xa-bau-tq7as.jpg",
+    "size": 253213
+  },
+  {
+    "code": "cu-ngai-bun-tuoi-lmv3l",
+    "name": "Củ ngải bún tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cu-ngai-bun-tuoi-lmv3l.png",
+    "size": 683816
+  },
+  {
+    "code": "cu-san-tuoi-cu-dau-mmw68",
+    "name": "Củ sắn tươi (Củ đậu)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cu-san-tuoi-cu-dau-mmw68.jpg",
+    "size": 43188
+  },
+  {
+    "code": "dau-phu-ran-vang-h6kub",
+    "name": "Đậu phụ rán vàng",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/dau-phu-ran-vang-h6kub.jpg",
+    "size": 456324
+  },
+  {
+    "code": "doi-sun-chien-mien-nam-o9mmm",
+    "name": "Dồi sụn chiên miền Nam",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/doi-sun-chien-mien-nam-o9mmm.jpg",
+    "size": 189715
+  },
+  {
+    "code": "du-du-chua-ngam-gion-k9s9r",
+    "name": "Đu đủ chua ngâm giòn",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/du-du-chua-ngam-gion-k9s9r.jpg",
+    "size": 213259
+  },
+  {
+    "code": "dua-leo-va-ca-chua-tuoi-yym2k",
+    "name": "Dưa leo và cà chua tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/dua-leo-va-ca-chua-tuoi-yym2k.jpg",
+    "size": 68261
+  },
+  {
+    "code": "dui-ga-goc-tu-4kxf3",
+    "name": "Đùi gà góc tư",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/dui-ga-goc-tu-4kxf3.jpg",
+    "size": 612729
+  },
+  {
+    "code": "gach-ghe-xao-dau-dieu-yremn",
+    "name": "Gạch ghẹ xào dầu điều",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gach-ghe-xao-dau-dieu-yremn.jpg",
+    "size": 190148
+  },
+  {
+    "code": "gan-heo-tuoi-zones",
+    "name": "Gan heo tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gan-heo-tuoi-zones.jpg",
+    "size": 68833
+  },
+  {
+    "code": "gao-tam-thom-iq9ex",
+    "name": "Gạo tấm thơm",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gao-tam-thom-iq9ex.png",
+    "size": 259821
+  },
+  {
+    "code": "gia-vi-nau-an-tong-hop-m0pvq",
+    "name": "Gia vị nấu ăn tổng hợp",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gia-vi-nau-an-tong-hop-m0pvq.jpg",
+    "size": 56823
+  },
+  {
+    "code": "gio-lua-truyen-thong-bkhik",
+    "name": "Giò lụa truyền thống",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gio-lua-truyen-thong-bkhik.jpg",
+    "size": 360485
+  },
+  {
+    "code": "gio-song-moc-66b6u",
+    "name": "Giò sống (Mọc)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gio-song-moc-66b6u.jpg",
+    "size": 100982
+  },
+  {
+    "code": "hanh-la-va-mui-tau-ngo-gai-x7vr7",
+    "name": "Hành lá và mùi tàu (Ngò gai)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-la-va-mui-tau-ngo-gai-x7vr7.webp",
+    "size": 76062
+  },
+  {
+    "code": "hanh-la-va-ngo-ri-uxy0m",
+    "name": "Hành lá và ngò rí",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-la-va-ngo-ri-uxy0m.jpg",
+    "size": 50716
+  },
+  {
+    "code": "hanh-la-va-rau-mui-ngo-ri-k24wf",
+    "name": "Hành lá và rau mùi (Ngò rí)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-la-va-rau-mui-ngo-ri-k24wf.jpg",
+    "size": 50716
+  },
+  {
+    "code": "hanh-la-va-rau-ram-tuoi-9pa00",
+    "name": "Hành lá và rau răm tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-la-va-rau-ram-tuoi-9pa00.jpg",
+    "size": 49346
+  },
+  {
+    "code": "hanh-la-va-thi-la-tuoi-b4ffv",
+    "name": "Hành lá và thì là tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-la-va-thi-la-tuoi-b4ffv.jpg",
+    "size": 105465
+  },
+  {
+    "code": "hanh-tim-phi-gion-yv2fj",
+    "name": "Hành tím phi giòn",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-tim-phi-gion-yv2fj.jpg",
+    "size": 339042
+  },
+  {
+    "code": "hat-dieu-mau-hat-ca-ri-ca29m",
+    "name": "Hạt điều màu (Hạt cà ri)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hat-dieu-mau-hat-ca-ri-ca29m.jpg",
+    "size": 190148
+  },
+  {
+    "code": "kho-muc-mini-nuong-nau-nuoc-dung-0c5iz",
+    "name": "Khô mực mini nướng nấu nước dùng",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/kho-muc-mini-nuong-nau-nuoc-dung-0c5iz.jpg",
+    "size": 409275
+  },
+  {
+    "code": "khoanh-gio-heo-xh2jw",
+    "name": "Khoanh giò heo",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/khoanh-gio-heo-xh2jw.jpg",
+    "size": 89610
+  },
+  {
+    "code": "khuon-chen-sanh-lam-banh-beo-k22j1",
+    "name": "Khuôn chén sành làm bánh bèo",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/khuon-chen-sanh-lam-banh-beo-k22j1.jpg",
+    "size": 250196
+  },
+  {
+    "code": "la-lot-va-tia-to-u7jym",
+    "name": "lá lốt và tía tô",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/la-lot-va-tia-to-u7jym.jpg",
+    "size": 666296
+  },
+  {
+    "code": "lap-xuong-mai-que-lo-eaogu",
+    "name": "Lạp xưởng Mai Quế Lộ",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/lap-xuong-mai-que-lo-eaogu.jpg",
+    "size": 71058
+  },
+  {
+    "code": "mo-ga-thang-yd9pe",
+    "name": "Mỡ gà thắng",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/mo-ga-thang-yd9pe.jpg",
+    "size": 107983
+  },
+  {
+    "code": "mo-hanh-la-liv0t",
+    "name": "Mỡ hành lá",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/mo-hanh-la-liv0t.jpg",
+    "size": 181814
+  },
+  {
+    "code": "muoi-ot-xanh-cham-hai-san-7dr3s",
+    "name": "Muối ớt xanh chấm hải sản",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/muoi-ot-xanh-cham-hai-san-7dr3s.webp",
+    "size": 25482
+  },
+  {
+    "code": "nam-bao-ngu-xam-tuoi-4pf85",
+    "name": "Nấm bào ngư xám tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nam-bao-ngu-xam-tuoi-4pf85.jpg",
+    "size": 293302
+  },
+  {
+    "code": "nem-ran-cha-gio-pqzw3",
+    "name": "Nem rán (Chả giò)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nem-ran-cha-gio-pqzw3.jpg",
+    "size": 343530
+  },
+  {
+    "code": "nuoc-cham-nem-chua-ngot-25wxw",
+    "name": "Nước chấm nem chua ngọt",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-cham-nem-chua-ngot-25wxw.jpg",
+    "size": 213259
+  },
+  {
+    "code": "nuoc-cot-me-chua-wvk4w",
+    "name": "Nước cốt me chua",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-cot-me-chua-wvk4w.jpg",
+    "size": 79770
+  },
+  {
+    "code": "nuoc-ham-xuong-u7jws",
+    "name": "nước hầm xương",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-ham-xuong-u7jws.jpg",
+    "size": 230774
+  },
+  {
+    "code": "nuoc-ham-xuong-heo-lnoi9",
+    "name": "Nước hầm xương heo",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-ham-xuong-heo-lnoi9.jpg",
+    "size": 230774
+  },
+  {
+    "code": "nuoc-luoc-ga-fgizi",
+    "name": "Nước luộc gà",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-luoc-ga-fgizi.jpg",
+    "size": 230774
+  },
+  {
+    "code": "nuoc-ma-long-me-ga-fmrpt",
+    "name": "Nước mạ lòng mề gà",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-ma-long-me-ga-fmrpt.jpg",
+    "size": 230774
+  },
+  {
+    "code": "nuoc-sot-tron-iksef",
+    "name": "Nước sốt trộn",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-sot-tron-iksef.jpg",
+    "size": 181297
+  },
+  {
+    "code": "ot-chung-sa-te-6t7n3",
+    "name": "Ớt chưng sa tế",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/ot-chung-sa-te-6t7n3.jpg",
+    "size": 271283
+  },
+  {
+    "code": "pa-te-gan-heo-beo-gqbsj",
+    "name": "Pa-tê gan heo béo",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/pa-te-gan-heo-beo-gqbsj.webp",
+    "size": 60256
+  },
+  {
+    "code": "pheo-non-heo-tuoi-long-non-0anzl",
+    "name": "Phèo non heo tươi (Lòng non)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/pheo-non-heo-tuoi-long-non-0anzl.jpg",
+    "size": 189715
+  },
+  {
+    "code": "phi-le-ca-ro-phi-tuoi-2xvne",
+    "name": "Phi lê cá rô phi tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/phi-le-ca-ro-phi-tuoi-2xvne.jpg",
+    "size": 93070
+  },
+  {
+    "code": "rau-cai-xanh-cai-cay-zzvxf",
+    "name": "Rau cải xanh (Cải cay)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-cai-xanh-cai-cay-zzvxf.jpg",
+    "size": 224047
+  },
+  {
+    "code": "rau-kinh-gioi-va-rau-mui-01m1e",
+    "name": "Rau kinh giới và rau mùi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-kinh-gioi-va-rau-mui-01m1e.jpg",
+    "size": 303366
+  },
+  {
+    "code": "rau-mam-cu-cai-trang-jecym",
+    "name": "Rau mầm củ cải trắng",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-mam-cu-cai-trang-jecym.jpg",
+    "size": 374840
+  },
+  {
+    "code": "rau-song-idzyt",
+    "name": "Rau sống",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-song-idzyt.jpg",
+    "size": 127533
+  },
+  {
+    "code": "rau-song-an-kem-ulcnw",
+    "name": "Rau sống ăn kèm",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-song-an-kem-ulcnw.jpg",
+    "size": 127533
+  },
+  {
+    "code": "rau-song-chuoi-chat-khe-chua-mvyl3",
+    "name": "Rau sống chuối chát khế chua",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-song-chuoi-chat-khe-chua-mvyl3.jpg",
+    "size": 89750
+  },
+  {
+    "code": "rau-song-hoa-chuoi-bup-non-o7chr",
+    "name": "Rau sống hoa chuối búp non",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-song-hoa-chuoi-bup-non-o7chr.jpg",
+    "size": 106565
+  },
+  {
+    "code": "rau-xa-lach-va-hung-lui-31xfb",
+    "name": "Rau xà lách và húng lủi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-xa-lach-va-hung-lui-31xfb.jpg",
+    "size": 127533
+  },
+  {
+    "code": "ruou-vang-do-nau-an-5yg6f",
+    "name": "Rượu vang đỏ nấu ăn",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/ruou-vang-do-nau-an-5yg6f.jpg",
+    "size": 55008
+  },
+  {
+    "code": "soi-mi-cao-lau-tuoi-dulqb",
+    "name": "Sợi mì Cao lầu tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/soi-mi-cao-lau-tuoi-dulqb.jpg",
+    "size": 179986
+  },
+  {
+    "code": "soi-mi-quang-vang-c5wl5",
+    "name": "Sợi mì Quảng vàng",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/soi-mi-quang-vang-c5wl5.jpg",
+    "size": 163100
+  },
+  {
+    "code": "sot-tuong-den-cay-gb19u",
+    "name": "Sốt tương đen cay",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/sot-tuong-den-cay-gb19u.jpg",
+    "size": 181297
+  },
+  {
+    "code": "suon-cot-let-heo-tuoi-mag0f",
+    "name": "Sườn cốt lết heo tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/suon-cot-let-heo-tuoi-mag0f.jpg",
+    "size": 68833
+  },
+  {
+    "code": "than-chuoi-non-bao-mong-2xbkv",
+    "name": "Thân chuối non bào mỏng",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/than-chuoi-non-bao-mong-2xbkv.jpg",
+    "size": 106565
+  },
+  {
+    "code": "thit-ba-chi-heo-tuoi-5q9rd",
+    "name": "Thịt ba chỉ heo tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-ba-chi-heo-tuoi-5q9rd.jpg",
+    "size": 68833
+  },
+  {
+    "code": "thit-ca-ngu-hoac-ca-co-yjkqn",
+    "name": "Thịt cá ngừ (hoặc cá cờ)",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-ca-ngu-hoac-ca-co-yjkqn.jpg",
+    "size": 67033
+  },
+  {
+    "code": "thit-cua-bien-tuoi-go-san-q6o2t",
+    "name": "Thịt cua biển tươi gỡ sẵn",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-cua-bien-tuoi-go-san-q6o2t.jpg",
+    "size": 164396
+  },
+  {
+    "code": "thit-ghe-tuoi-boc-san-u9h5m",
+    "name": "Thịt ghẹ tươi bóc sẵn",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-ghe-tuoi-boc-san-u9h5m.jpg",
+    "size": 97756
+  },
+  {
+    "code": "thit-hen-tuoi-luoc-san-g4pqa",
+    "name": "Thịt hến tươi luộc sẵn",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-hen-tuoi-luoc-san-g4pqa.jpg",
+    "size": 58431
+  },
+  {
+    "code": "thit-ma-dau-heo-tah6a",
+    "name": "Thịt má đầu heo",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-ma-dau-heo-tah6a.jpg",
+    "size": 56785
+  },
+  {
+    "code": "thit-nac-vai-heo-ljwlc",
+    "name": "Thịt nạc vai heo",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-nac-vai-heo-ljwlc.jpg",
+    "size": 607932
+  },
+  {
+    "code": "thit-qua-gac-tuoi-zw33x",
+    "name": "Thịt quả gấc tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-qua-gac-tuoi-zw33x.jpg",
+    "size": 183334
+  },
+  {
+    "code": "thit-xa-xiu-ikscz",
+    "name": "Thịt xá xíu",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-xa-xiu-ikscz.jpg",
+    "size": 170849
+  },
+  {
+    "code": "tinh-dau-ca-cuong-nguyen-chat-gwho4",
+    "name": "Tinh dầu cà cuống nguyên chất",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/tinh-dau-ca-cuong-nguyen-chat-gwho4.jpg",
+    "size": 199649
+  },
+  {
+    "code": "toi-phi-vang-thom-tzsln",
+    "name": "Tỏi phi vàng thơm",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/toi-phi-vang-thom-tzsln.jpg",
+    "size": 56823
+  },
+  {
+    "code": "tom-dat-tuoi-bntj8",
+    "name": "Tôm đất tươi",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/tom-dat-tuoi-bntj8.jpg",
+    "size": 45411
+  },
+  {
+    "code": "tuong-den-ie00c",
+    "name": "Tương đen",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/tuong-den-ie00c.jpg",
+    "size": 181297
+  },
+  {
+    "code": "xuong-bay-heo-ham-nuoc-dung-573mj",
+    "name": "Xương bay heo hầm nước dùng",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/xuong-bay-heo-ham-nuoc-dung-573mj.jpg",
+    "size": 94558
+  },
+  {
+    "code": "xuong-ca-va-dau-ca-nau-nuoc-dung-ig6y8",
+    "name": "Xương cá và đầu cá nấu nước dùng",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/xuong-ca-va-dau-ca-nau-nuoc-dung-ig6y8.jpg",
+    "size": 93070
+  },
+  {
+    "code": "xuong-ong-heo-ham-canh-52nm8",
+    "name": "Xương ống heo hầm canh",
+    "publicUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/xuong-ong-heo-ham-canh-52nm8.jpg",
+    "size": 94558
+  }
+]

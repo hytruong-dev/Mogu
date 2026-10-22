@@ -1,0 +1,4298 @@
+[
+  {
+    "id": "5de8dbd4-987a-416e-970f-13af8c66350f",
+    "code": "ba-chi-bo-ct2he",
+    "name": "Ba chỉ bò",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/viber_image_2023-01-05_17-05-54-489_1-removebg-preview-62-.jpg"
+  },
+  {
+    "id": "2591231b-ba18-4e70-854f-64ac386ba6bc",
+    "code": "ba-roi-heo-fgpr6",
+    "name": "Ba rọi heo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/226834/ba-roi-heo-1kg_202607300933343971.jpg"
+  },
+  {
+    "id": "660b3118-b694-4b95-80e1-40333d2f3c98",
+    "code": "ba-roi-rut-suon-heo-bcn8e",
+    "name": "Ba rọi rút sườn heo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/275804/ba-roi-heo-nhap-khau_202607130947458793.jpg"
+  },
+  {
+    "id": "6190d4d7-799c-478b-a5c5-1901d19127ee",
+    "code": "bach-tuoc-4aey5",
+    "name": "Bạch tuộc",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/273876/bhx/cdntgddvnproductsimages8782273934bhxbach-tuoc-khay-500g-15-20-con-kg-202203071311484236_202410031059497865.jpg"
+  },
+  {
+    "id": "e531c8bd-3e09-48c0-b263-921affb08429",
+    "code": "banh-da-cvny6",
+    "name": "Bánh đa",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3234/215801/bhx/banh-trang-me-nuong-an-nhien-goi-120g-201912040954252409.jpg"
+  },
+  {
+    "id": "828a3207-3e82-41a4-b4f4-4ff644028b57",
+    "code": "banh-da-cua-k8vok",
+    "name": "Bánh đa cua",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427282708410007952-g1-bot-canh-i-ot-vifon-gui-190g-og.jpg"
+  },
+  {
+    "id": "172ec200-7889-4642-afbc-9caa20e17538",
+    "code": "banh-da-kho-sb6se",
+    "name": "Bánh đa khô",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427282928510622836-g1-bonh-pho-khu-bung-lya-vàng-vifon-gui-400g-og.jpg"
+  },
+  {
+    "id": "d088f384-af87-44be-9519-acd3295f62d0",
+    "code": "banh-da-nem-z84kl",
+    "name": "Bánh đa nem",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427315128010324885-g1-byn-khu-hung-lu-thion-nhion-xanh-500g-og.jpg"
+  },
+  {
+    "id": "1499d5a2-e08c-4013-857f-d3a3c8729bd5",
+    "code": "banh-gao-han-quoc-dsu0a",
+    "name": "Bánh gạo Hàn Quốc",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/10141087-20230831064122.jpg"
+  },
+  {
+    "id": "925978d2-7dcb-4a9f-97ed-c4b1834b8b4c",
+    "code": "banh-mi-fkfq7",
+    "name": "Bánh mì",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/7259/266327/bhx/banh-mi-dai-baguette-hoang-phat-goi-200g-202201040933099018.jpg"
+  },
+  {
+    "id": "8bb41daa-d4ae-4784-85ed-42ad79dffeeb",
+    "code": "banh-pho-gu7a0",
+    "name": "Bánh phở",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/banh-pho-kho-bong-lua-vang-vifon-goi-400g_664a5747-a999-49c6-9945-bb2e29023771-og.jpg"
+  },
+  {
+    "id": "74a30567-cfe0-421a-9b50-5bc279e49cac",
+    "code": "banh-phong-tom-jeets",
+    "name": "Bánh phồng tôm",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/1/image/Products/Images/3234/362400/bhx/banh-phong-tom-mikiri-goi-125g_202601231647306860.jpg"
+  },
+  {
+    "id": "ad0b6ac8-d063-435f-a4a7-2e3273282528",
+    "code": "banh-trang-6pwrx",
+    "name": "Bánh tráng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/tinh-nguyen-banh-trang-200g-20230727064859.png"
+  },
+  {
+    "id": "0470e58a-b229-4a3c-a12a-a61e9df81fa7",
+    "code": "ING-2880FA",
+    "name": "Bánh tráng phơi sương",
+    "imageUrl": "https://nongsandungha.com/wp-content/uploads/2024/07/banh-trang-phoi-suong-Tay-Ninh.jpg"
+  },
+  {
+    "id": "250f9dbb-3f7a-4098-a0de-0e28144ac590",
+    "code": "ING-5D6F19",
+    "name": "Bào ngư",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2025/12/image/Products/Images/8400/334534/bhx/bao-ngu-dong-lanh-tan-hai-hoa-khay-300g_202512310950338059.jpg"
+  },
+  {
+    "id": "747b9170-6cf7-4247-a4d7-e86ac7e9539a",
+    "code": "bao-tu-ca-basa-ermwt",
+    "name": "Bao tử cá basa",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/bao-tu-ca-basa_f7b9c752-0fd8-4090-9337-9de0af0da717-og.jpg"
+  },
+  {
+    "id": "4d5984c7-d534-4e32-b0aa-d1ad0e0253b1",
+    "code": "bao-tu-heo-vkv2z",
+    "name": "Bao tử heo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/3/image/production/2026/3/image/Products/8781/309291/bao-tu-heo-300g_202603201030354341.jpg"
+  },
+  {
+    "id": "a919f391-66b4-47f0-b90e-8b91dedc5944",
+    "code": "bap-gtgpv",
+    "name": "Bắp",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/bap-shank-pacow-khay-250g.png"
+  },
+  {
+    "id": "8dc9865c-9445-49be-aa06-daa9136d5f51",
+    "code": "bap-bo-ovswy",
+    "name": "Bắp bò",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8139/233810/bhx/bap-bo-1kg_202511041111594354.jpg"
+  },
+  {
+    "id": "9cacf962-0274-4b02-95e7-ef674053c015",
+    "code": "bap-cai-go81w",
+    "name": "Bắp cải",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428572368810054020-kg-bap-non-200g-og.jpg"
+  },
+  {
+    "id": "be45a549-09c7-4c11-80fc-7537bb048972",
+    "code": "bap-cai-tim-k8mhi",
+    "name": "Bắp cải tím",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/bap-cai-tim.jpg"
+  },
+  {
+    "id": "d40dd484-3e4b-409a-a4af-18b078bc5282",
+    "code": "bap-chuoi-77ypa",
+    "name": "Bắp chuối",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2018/05/23/1090326/hoa-chuoi-va-nhung-cong-dung-it-ai-biet1_800x400.jpg"
+  },
+  {
+    "id": "eb181223-5337-4234-813c-7e09b554793a",
+    "code": "bap-gio-cuon-7p1r2",
+    "name": "Bắp giò cuộn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10281594-20241205101711.jpg"
+  },
+  {
+    "id": "2ca8d2a1-b9ff-4c78-895a-58fcb00e6e54",
+    "code": "bap-my-kmlds",
+    "name": "Bắp Mỹ",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/222881/bhx/bap-my-2-trai-202012282219106049.jpg"
+  },
+  {
+    "id": "ab414451-7ebe-458d-a662-4b7ff840b6c1",
+    "code": "bau-sao-be053",
+    "name": "Bầu sao",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/312963/bhx/bau-sao-500g_202507291538440211.jpg"
+  },
+  {
+    "id": "3ce6ffe5-a507-4820-b81b-d97c3b4beb77",
+    "code": "be-be-d725i",
+    "name": "Bề bề",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/07/29/1371689/be-be-tom-tit-la-con-gi-cach-che-bien-be-be-ngon-dung-chuan-202107292051093317.jpg"
+  },
+  {
+    "id": "7f88fbb8-bbef-4c04-98c6-ed5bdec708bb",
+    "code": "bi-dao-1zb16",
+    "name": "Bí đao",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/233895/bhx/bi-xanh-tui-1kg_202507040912036256.jpg"
+  },
+  {
+    "id": "cda3b056-4cb4-44af-b505-49b033d4facc",
+    "code": "bi-do-8fog6",
+    "name": "Bí đỏ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/bi-do-tron.jpeg"
+  },
+  {
+    "id": "b7ac679c-a4f0-4b5a-90c5-fd4e70e6f9b0",
+    "code": "bi-xanh-ot8st",
+    "name": "Bí xanh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428566288110053954-kg-bia-sài-gun-lager-lon-330ml-og.jpg"
+  },
+  {
+    "id": "0316589b-8b53-4e33-8117-f3ab6aa0422f",
+    "code": "bo-o2szx",
+    "name": "Bơ",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2020/05/09/1254508/bo-034-la-bo-gi-cach-chon-va-bao-quan-bo-034-ngon-202005091603016777.jpg"
+  },
+  {
+    "id": "55a9d45b-e845-4296-8856-90769723cd8f",
+    "code": "bo-thuc-vat-tzaf2",
+    "name": "Bơ thực vật",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3465/91785/bhx/bo-thuc-vat-tuong-an-hu-200g-202212011022285054.jpg"
+  },
+  {
+    "id": "09dae9b1-1165-42b3-bcd6-924b5c4e98b3",
+    "code": "ING-AE97D4",
+    "name": "Bông atiso",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/09dae9b1-1165-42b3-bcd6-924b5c4e98b3/1792036462523.jpg"
+  },
+  {
+    "id": "5a671264-7e94-4b25-9a2a-803fd8166ac6",
+    "code": "bong-bi-nu-250l1",
+    "name": "Bông bí nụ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/bong-bi-nu-300g.jpg"
+  },
+  {
+    "id": "0b61e7c2-ad3d-4648-b486-8d78f4462b96",
+    "code": "bong-dien-dien-f6tm2",
+    "name": "Bông điên điển",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/8/image/production/2026/8/image/Products/8820/5368048/bong-dien-dien-vi-100g_202608050145269035.jpg"
+  },
+  {
+    "id": "cbde66ea-707c-436a-9670-4b18d8dcc9ff",
+    "code": "bong-so-dua-pmmjr",
+    "name": "Bông so đũa",
+    "imageUrl": "https://product.hstatic.net/1000288770/product/bong_so_dua_trang_cecc445061ba467e86112bda7640f331_1805b11ba9b1490ab5140d021449a43b_master.jpg"
+  },
+  {
+    "id": "e5292227-7f2a-4689-a5d9-f9e1b0c26c84",
+    "code": "bot-bang-omoat",
+    "name": "Bột báng",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/198156/bhx/bot-bang-viet-san-goi-150g-202103040200093144.jpg"
+  },
+  {
+    "id": "d702929d-4e2a-4bec-94b2-e991cc9f50c5",
+    "code": "bot-banh-ran-pl1la",
+    "name": "Bột bánh rán",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/10223985-1--20230814050938.png"
+  },
+  {
+    "id": "5934eec4-d76f-4125-a412-2a2cb378a02e",
+    "code": "bot-banh-xeo-56944",
+    "name": "Bột bánh xèo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/bot-bxmoi-20230526085051.png"
+  },
+  {
+    "id": "5beac633-c0c9-43ab-9a5f-18ffb62f705b",
+    "code": "bot-bap-nnilq",
+    "name": "Bột bắp",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/botbap-150g-copy-20230526081212.png"
+  },
+  {
+    "id": "a00006d6-e61c-4c90-b9df-4904bfdf06f3",
+    "code": "bot-ca-ri-g50mh",
+    "name": "Bột cà ri",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/bot-vianco-cary-10g.jpg"
+  },
+  {
+    "id": "584c0b54-0c68-478b-9a61-3d9342c63ef5",
+    "code": "bot-canh-9ndsw",
+    "name": "Bột canh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/bot-canh-thit-ha-noi-hanufood-goi-500g.jpg"
+  },
+  {
+    "id": "e947641f-18e4-4d7f-bd3b-5de7cc0878dd",
+    "code": "bot-chien-ga-gion-6s923",
+    "name": "Bột chiên gà giòn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/bot-chien-ga-gion-miwon-goi-70g_47116dc4-0487-4610-a5ca-3d71ff643818-og.jpg"
+  },
+  {
+    "id": "d9110758-356e-4e9e-b96d-3a8e8498cbe9",
+    "code": "bot-chien-gion-ahngo",
+    "name": "Bột chiên giòn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/botchiengion-new-copy-20230526074853.png"
+  },
+  {
+    "id": "b0fff680-17aa-40ce-8631-377d396e4f9f",
+    "code": "bot-chien-xu-h2cit",
+    "name": "Bột chiên xù",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428182052510008569-g1-lo-kim-cuon-com-miwon-gui-10g-og.jpg"
+  },
+  {
+    "id": "3244758d-ad82-42d5-9c69-361490f2412f",
+    "code": "bot-cot-dua-g1bup",
+    "name": "Bột cốt dừa",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2388/229792/bhx/bot-cot-dua-tai-ky-goi-50g-202010171155551938.jpg"
+  },
+  {
+    "id": "74e4a995-8d00-4dca-8ec3-3e1e593f8962",
+    "code": "bot-gao-00jy1",
+    "name": "Bột gạo",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/2388/83414/bhx/bot-gao-tai-ky-goi-400g-202202121121158226.jpg"
+  },
+  {
+    "id": "ca07f927-bd01-4e4c-839e-2b149bab5c61",
+    "code": "bot-khoai-tulfz",
+    "name": "Bột khoai",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/198149/bhx/bot-khoai-viet-san-goi-100g-202103040159560195.jpg"
+  },
+  {
+    "id": "ba0f9a5f-5774-45f0-9af4-e4cdd4f8926b",
+    "code": "bot-mi-da-dung-edubj",
+    "name": "Bột mì đa dụng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/bmdd_mz_500g-20230525103450.png"
+  },
+  {
+    "id": "2692b6dc-8579-4262-9df1-6a7f92e126e4",
+    "code": "bot-nang-e3ptf",
+    "name": "Bột năng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/botnang-400g-copy-20230526075538.png"
+  },
+  {
+    "id": "cc6d135a-065e-4f38-a87e-1b402216b9f5",
+    "code": "bot-nep-mlxk1",
+    "name": "Bột nếp",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2388/175957/bhx/bot-nep-tai-ky-400g-2-org.jpg"
+  },
+  {
+    "id": "7705f0aa-317a-4b02-9b64-5280a59063de",
+    "code": "bot-nghe-3hqqs",
+    "name": "Bột nghệ",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/219653/bhx/nghe-bot-vipep-hu-35g-202407091557085073.jpg"
+  },
+  {
+    "id": "7e2c87b6-6d8e-48ae-b34e-ba112a1a1c4e",
+    "code": "bot-ngot-a0fhu",
+    "name": "Bột ngọt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427287896710008624-g1-mat-na-vedette-dat-sot-nha-dam-140g-og.jpg"
+  },
+  {
+    "id": "39ffbd9c-eb4c-46cd-a79f-4be80e53582b",
+    "code": "bot-no-baking-tymrd",
+    "name": "Bột nở baking",
+    "imageUrl": "https://dolambanhdanang.com/wp-content/uploads/2021/04/bot-no-alsa-baking-powder-11g.jpg"
+  },
+  {
+    "id": "378e0ecd-63d2-43c8-a139-83c2ea9099e0",
+    "code": "bot-que-thom-rpstk",
+    "name": "Bột quế thơm",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8275/77082/bhx/bot-que-thien-thanh-hu-50g-201907151705308684.JPG"
+  },
+  {
+    "id": "952bd657-91c8-4d74-8dd6-d556f09d9300",
+    "code": "bot-rau-cau-4zvx6",
+    "name": "Bột rau câu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/jim-willie-bot-lam-thach-trai-dua10gt24-20230727064612.png"
+  },
+  {
+    "id": "0db3c250-8df9-4efe-9cb9-6a6b17deddee",
+    "code": "bot-san-day-rau-cau-thach-q08p0",
+    "name": "Bột sắn dây rau câu thạch",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8286/234480/bhx/bot-san-day-sora-nguyen-chat-goi-300g-202101260951598978.jpg"
+  },
+  {
+    "id": "1d97c40a-b277-4382-9b4a-e26101a0ea0f",
+    "code": "bot-tam-kho-chien-gion-ap1z2",
+    "name": "Bột tẩm khô chiên giòn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/bot-tam-kho-chien-gion-aji-quick-ajinomoto-goi-84g_e85d64de-36ca-4ea6-bd98-63ce67147b10-og.jpg"
+  },
+  {
+    "id": "1abeab14-d7c3-4a0a-be8c-412c0e160c11",
+    "code": "bot-tau-hu-unu05",
+    "name": "Bột tàu hủ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/04/9038467d6bc17dc681276617a9924912-20230428062014.jpg"
+  },
+  {
+    "id": "1fc1719b-3fdd-4289-8ef4-617dda13a291",
+    "code": "bot-thach-agar-hr36r",
+    "name": "Bột Thạch Agar",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/swallowglobe-brand-bot-thach-agar-10gt24-20230727064614.jpg"
+  },
+  {
+    "id": "0a4b36b1-ee1b-480f-82c1-8233a0488fe8",
+    "code": "bot-toi-thom-bhahe",
+    "name": "Bột tỏi thơm",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/326649/bhx/bot-toi-chinsu-ly-son-hu-60g-202406101321045214.jpg"
+  },
+  {
+    "id": "f11261c7-83dd-4365-81a3-530da947dc45",
+    "code": "bun-9uslg",
+    "name": "Bún",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/bun-tuoi-safoco-goi-300g_de532e11-46e5-467b-aed8-3bba91a54543-og.jpg"
+  },
+  {
+    "id": "ff615e5b-4657-46a3-9a9d-6ab610ad0290",
+    "code": "bun-bo-hue-xhhbd",
+    "name": "Bún bò Huế",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/bun-bo-hue-vifon-hoang-gia-goi-120g_3671eff9-51d4-4f0e-b736-02696815fc73-og.jpg"
+  },
+  {
+    "id": "95d1a940-e3ac-4bed-8c53-c18924e3b00d",
+    "code": "bun-kho-rjf5x",
+    "name": "Bún khô",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/bun-kho-safoco-goi-400g-20221007081240-og.jpg"
+  },
+  {
+    "id": "d7c9c942-89c9-46f1-8a24-ee5c40db0469",
+    "code": "bun-rieu-cua-an-lien-30-x-qg0xq",
+    "name": "Bún riêu cua ăn liền 30 x",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427282317210007955-t-thung-30-gui-byn-tum-an-lien-vifon-gui-65g-og.jpg"
+  },
+  {
+    "id": "e38b8e90-1321-4dc7-b032-448d1b63a091",
+    "code": "buoi-5-roi-5xq22",
+    "name": "Bưởi 5 roi",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/buoi-5-roi-tui-luoi-loai-1.jpg"
+  },
+  {
+    "id": "47ae344a-8fb8-474d-815e-85029f789c2a",
+    "code": "buoi-da-xanh-lhwqj",
+    "name": "Bưởi da xanh",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/223418/bhx/gggb_202412181028370834.jpg"
+  },
+  {
+    "id": "9af265ca-97f5-40b2-8277-984eb1cf7c37",
+    "code": "buoi-hong-da-xanh-plupp",
+    "name": "Bưởi hồng da xanh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/11/buoi-da-xanh-wineco-20231102060839.jpg"
+  },
+  {
+    "id": "42d21c7f-bd1d-4fd4-bb2d-f3bba64461fc",
+    "code": "bup-mang-uf8du",
+    "name": "Búp măng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/bup-mang-tuoi-kim-boi-goi-500g.jpg"
+  },
+  {
+    "id": "9e602e05-8056-4a22-adcc-962235dd0141",
+    "code": "ca-1imyi",
+    "name": "Cá",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/226851/bhx/ca-dieu-hong-lam-sach-vi-800g_202505301345436899.jpg"
+  },
+  {
+    "id": "ee8400c1-7f06-4e9d-853c-703317f65c46",
+    "code": "ca-basa-lj524",
+    "name": "Cá basa",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/311245/bhx/ca-basa-phi-le-250g-202311202033557945.jpg"
+  },
+  {
+    "id": "23a69575-746f-43c3-bc98-82ccba0879c3",
+    "code": "ca-bong-pnhb5",
+    "name": "Cá bống",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/6/image/production/2026/6/image/Products/8782/244404/ca-bong-1kg_202606010154313665.jpg"
+  },
+  {
+    "id": "75d0b3a1-0b30-4917-b8d1-9e931bc4dea3",
+    "code": "ca-bop-vgf80",
+    "name": "Cá bớp",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/316251/bhx/-202405041322436480.jpg"
+  },
+  {
+    "id": "1d46fe94-178f-4e96-9169-a812efec0147",
+    "code": "ca-cao-ca-phe-bot-vk8h7",
+    "name": "Ca cao Cà phê bột",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8286/225223/bhx/bot-ca-cao-nguyen-chat-cacaomi-original-hop-127g-202211230926129317.jpg"
+  },
+  {
+    "id": "0c816d8c-de17-4c44-b2cf-13a9230f1fa7",
+    "code": "ca-chach-aaesm",
+    "name": "Cá chạch",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/Products/Images/8782/5367950/bhx/ca-chach-que-lam-sach_202607300919095655.jpg"
+  },
+  {
+    "id": "dd3d03b8-bdc8-4fbe-8b0a-2a56caa4e6b8",
+    "code": "ca-chep-e3fjd",
+    "name": "Cá chép",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2020/11/17/1307353/cac-loai-ca-chep-pho-bien-o-viet-nam-202112201112136499.jpg"
+  },
+  {
+    "id": "8406d8ea-3602-42ae-9112-3c86ec72339c",
+    "code": "ING-2BDEB6",
+    "name": "Cá chép giòn",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/8406d8ea-3602-42ae-9112-3c86ec72339c/1792036487035.jpg"
+  },
+  {
+    "id": "6aa6bee1-57e4-4f58-af5f-9fce39c890dd",
+    "code": "ca-chim-trang-mjsqv",
+    "name": "Cá chim trắng",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/233744/bhx/ca-chim-trang-bien-202405072348028444.jpg"
+  },
+  {
+    "id": "6650ebce-8096-496f-9650-194039247055",
+    "code": "ca-chua-v3v00",
+    "name": "Cà chua",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/ca-chua-beef-globalgap-khay-500g.png"
+  },
+  {
+    "id": "546b6c1e-2829-48db-9bc9-7b32b67abcb1",
+    "code": "ca-chua-beef-t1hwq",
+    "name": "Cà chua beef",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/ca-chua-beef-globalgap-khay-500g.png"
+  },
+  {
+    "id": "2a57579d-8938-4127-9e0c-39e8de2ef5a5",
+    "code": "ca-chua-bi-cffih",
+    "name": "Cà chua bi",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8785/271475/bhx/ca-chua-bi-hop-300g-202212070834503111.jpg"
+  },
+  {
+    "id": "95a7ce55-168b-4b66-a0e3-23afa16746bc",
+    "code": "ca-chua-cherry-do-guo25",
+    "name": "Cà chua cherry đỏ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/ca-chua-cherry-do-300g.jpg"
+  },
+  {
+    "id": "63d1df10-d6b8-4c17-a370-b89318e58760",
+    "code": "ca-chua-cherry-mix-s2gfz",
+    "name": "Cà chua cherry mix",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/ca-chua-cherry-mix-300g.jpg"
+  },
+  {
+    "id": "cc51cbc9-3a36-4434-8f82-5539d10c8ed3",
+    "code": "ING-D8242E",
+    "name": "Cá cơm",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/233745/bhx/ca-com-202408221623172166.jpg"
+  },
+  {
+    "id": "93cc8388-a0b1-4f62-b7ed-05b1c4d42a02",
+    "code": "ca-dieu-hong-1gm7u",
+    "name": "Cá điêu hồng",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/309731/bhx/ca-dieu-hong-lam-sach-nguyen-con_202505151838315969.jpg"
+  },
+  {
+    "id": "fec2e83a-126d-4fb2-a39c-f4eee2767091",
+    "code": "ING-B711F3",
+    "name": "Cá đuối",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/fec2e83a-126d-4fb2-a39c-f4eee2767091/1792036533071.jpg"
+  },
+  {
+    "id": "6e784035-0ff9-4fbc-a796-765baffd8a61",
+    "code": "ca-hoi-87e4r",
+    "name": "Cá hồi",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/ca-hoi-uc-nguyen-con.jpg"
+  },
+  {
+    "id": "dfb61229-ff4c-4b43-9e74-8c1985fdad2d",
+    "code": "ca-keo-fklvi",
+    "name": "Cá kèo",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/10/image/Products/Images/8782/5368603/bhx/ca-keo-vi-250g_202610021421217334.jpg"
+  },
+  {
+    "id": "498ea5bb-f9d8-4921-8dc5-aa664baa985d",
+    "code": "ca-kho-oq9qb",
+    "name": "Cá khô",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/498ea5bb-f9d8-4921-8dc5-aa664baa985d/1791975326791.jpg"
+  },
+  {
+    "id": "c4b9d295-b5cf-40ae-b096-c83ac0826fff",
+    "code": "ca-khoai-urbe8",
+    "name": "Cá khoai",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images//8400/265734/bhx/files/ca-khoai-dong-lanh-hdc-khay-400g-202112281040497762.jpg"
+  },
+  {
+    "id": "93dbc312-c9cc-4ac1-a2a1-7c2c79834d53",
+    "code": "ca-lang-4jvm6",
+    "name": "Cá lăng",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/10/image/Products/Images/8782/313869/bhx/ca-lang-song-lam-sach_202610051054350951.jpg"
+  },
+  {
+    "id": "ee9510cd-031f-4c7c-bc95-4fed69f981ba",
+    "code": "ca-linh-ousod",
+    "name": "Cá linh",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/8/image/Products/Images/8782/5368435/bhx/ca-linh-non-200g_202608240937520835.jpg"
+  },
+  {
+    "id": "b873a19b-3328-4d64-9ef2-1ca59e5e0637",
+    "code": "ca-loc-h8dt6",
+    "name": "Cá lóc",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2019/05/01/1164192/ca-loc-la-gi-thanh-phan-tac-dung-cac-mon-an-ngon-tu-ca-loc-202206011329016350.jpg"
+  },
+  {
+    "id": "d258dd1a-5fa7-481a-9bb5-44f8fd39c0b6",
+    "code": "ca-me-b2e1w",
+    "name": "Cá mè",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/d258dd1a-5fa7-481a-9bb5-44f8fd39c0b6/1792033422098.jpg"
+  },
+  {
+    "id": "35ebfdba-1bb1-4c93-af6d-0e7b6f029354",
+    "code": "ca-ngu-we1go",
+    "name": "Cá ngừ",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/233857/bhx/ca-ngu-202312251120255985.jpg"
+  },
+  {
+    "id": "b42aac49-339e-4576-b972-4adf97a4f4a4",
+    "code": "ca-nuc-3w9zj",
+    "name": "Cá nục",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/301614/bhx/ca-nuc-dong-lanh-500g-4-7-con-202304211114173936.jpg"
+  },
+  {
+    "id": "6b2231c0-f0b9-4495-a5d9-48230fe0aac8",
+    "code": "ca-phao-hycv3",
+    "name": "Cà pháo",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8785/301611/bhx/ca-phao-vi-200g-202301110814339191.jpg"
+  },
+  {
+    "id": "399b0839-3ab0-4793-81b5-c38d05b66c1d",
+    "code": "ING-CA6617",
+    "name": "Cá rô đồng",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/10/image/Products/Images/8782/309126/bhx/ca-ro-lam-sach_202610021425010048.jpg"
+  },
+  {
+    "id": "f25857f8-4a2d-466d-b61d-75cae6331669",
+    "code": "ca-ro-phi-2fmx8",
+    "name": "Cá rô phi",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/312448/bhx/ca-ro-phi-lam-sach-500g-202308030914149318.jpg"
+  },
+  {
+    "id": "ccce0de1-87cf-49b6-b3bc-302e1d6e9975",
+    "code": "ca-rot-4rcfv",
+    "name": "Cà rốt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/ca-rot-20230721084932.png"
+  },
+  {
+    "id": "b853daad-bff3-4460-8a8f-bfb16daac66e",
+    "code": "ca-tai-tuong-8fdit",
+    "name": "Cá tai tượng",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/314893/bhx/ca-tai-tuong-lam-sach_202504121747512113.jpg"
+  },
+  {
+    "id": "1d4e485c-b86d-4716-b238-784683f7ca91",
+    "code": "ING-FB29BC",
+    "name": "Cá thòi lòi",
+    "imageUrl": "https://chihaisan.com/wp-content/uploads/2024/06/ca-thoi-loi-avr.png"
+  },
+  {
+    "id": "bdfacf39-9a29-4caf-990c-4415e8a37b8f",
+    "code": "ca-thu-0ywnt",
+    "name": "Cá thu",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2017/11/18/1042600/cach-chon-ca-thu-tuoi-ngon-dinh-duong-cho-chi-em-noi-tro-202206111324556578.jpg"
+  },
+  {
+    "id": "71415394-e558-44ba-9025-d05d9e49e63c",
+    "code": "ca-tim-yjqwn",
+    "name": "Cà tím",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428530768210054175-kg-socola-hanh-nhon-cadbury-dairy-milk-thanh-40g-og.jpg"
+  },
+  {
+    "id": "f76c44af-dc29-4d21-a2c8-ccd284464793",
+    "code": "ING-E84306",
+    "name": "Cá trắm cỏ",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/f76c44af-dc29-4d21-a2c8-ccd284464793/1792036565648.jpg"
+  },
+  {
+    "id": "de588559-4a9f-4126-b149-73fff27c30ed",
+    "code": "ING-8D067A",
+    "name": "Cá trắm đen",
+    "imageUrl": "https://bactom.com/wp-content/uploads/2022/06/Cam-tram-den.webp"
+  },
+  {
+    "id": "f60a2b88-fc4c-49f8-82e0-46fd04310d41",
+    "code": "ca-tre-kfe30",
+    "name": "Cá trê",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2020/09/28/1294150/bi-quyet-chon-va-so-che-ca-tre-lam-mon-kho-mon-chien-deu-ngon-202202151144292993.jpg"
+  },
+  {
+    "id": "97ba6bd9-d7df-4b17-ae99-492a362dbbae",
+    "code": "ca-trich-10lvz",
+    "name": "Cá trích",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/97ba6bd9-d7df-4b17-ae99-492a362dbbae/1792033462459.jpg"
+  },
+  {
+    "id": "09a0b5b5-0905-4574-b41e-aa3fd00157d2",
+    "code": "cai-wktvn",
+    "name": "Cải",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8820/230443/bhx/cai-thia-202312271059011562.jpg"
+  },
+  {
+    "id": "ec933320-5070-4504-8241-45c0bfd078c1",
+    "code": "cai-bo-xoi-9iujl",
+    "name": "Cải bó xôi",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/10281825-1-.jpg"
+  },
+  {
+    "id": "fad59d1a-3a05-4f49-a655-067e39666810",
+    "code": "cai-chip-2qucf",
+    "name": "Cải chíp",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/cai-chip-300g.png"
+  },
+  {
+    "id": "b6b19a8c-fc0d-4220-abfd-c504b1a6bab9",
+    "code": "cai-cuc-o25zl",
+    "name": "Cải cúc",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/337494/bhx/rau-tan-o-300g_202505091128132036.jpg"
+  },
+  {
+    "id": "d1f5e45a-26fb-421d-a021-9d1dafb33664",
+    "code": "cai-thao-24o6c",
+    "name": "Cải thảo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428528568010053860-kg-cai-xanh-(cai-canh)-l1-vineco-og.jpg"
+  },
+  {
+    "id": "7c864ace-650f-4d99-b25a-ef155ac7eec8",
+    "code": "cai-thia-guvqs",
+    "name": "Cải thìa",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2017/11/21/1043435/meo-chon-mua-va-bao-quan-cai-thia-tuoi-ngon-202205281653231967.jpg"
+  },
+  {
+    "id": "8963b8da-75e1-48f3-a9e5-7e7a889e6401",
+    "code": "cai-xanh-7d9l7",
+    "name": "Cải xanh",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8820/309156/bhx/cai-be-xanh-500g-202401121613149216.jpg"
+  },
+  {
+    "id": "919e0a91-6330-4adf-bba4-e497880f4435",
+    "code": "cai-xoan-1ip4l",
+    "name": "Cải xoăn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/cai-xoan-300g_848c3131-e1ba-4c2e-8ecf-56a9326d0f60-og.jpg"
+  },
+  {
+    "id": "4a4a328e-97fb-413e-b66d-ba56f3656662",
+    "code": "cam-lqgo2",
+    "name": "Cam",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/hop-.jpg"
+  },
+  {
+    "id": "f362d5a5-9883-4a23-a1e1-ed0b056e8431",
+    "code": "cam-cara-ec9r1",
+    "name": "Cam cara",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/hop-.jpg"
+  },
+  {
+    "id": "2163019a-7f4d-49fb-a9b1-9d6b039bc125",
+    "code": "cam-ruot-vang-sq6n4",
+    "name": "Cam ruột vàng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162985899484210628789-og.jpg"
+  },
+  {
+    "id": "e7f2e093-f67e-4221-89e9-82c7cb7f7dd7",
+    "code": "cam-sanh-xxfno",
+    "name": "Cam sành",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/cam-sanh-loai-1.jpg"
+  },
+  {
+    "id": "a1dc5b97-720e-4a5a-be2b-234f690275dc",
+    "code": "can-tay-i0beh",
+    "name": "Cần tây",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/10054767-01-05_17-05-54-489_1-removebg-preview.jpg"
+  },
+  {
+    "id": "9ea5ecb9-0b3f-4fd8-bc6a-9f58d54048fe",
+    "code": "cang-ghe-zmn8g",
+    "name": "Càng ghẹ",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8400/236777/bhx/thit-cang-ghe-dong-lanh-mama-food-goi-150g-202104060951357746.jpg"
+  },
+  {
+    "id": "08df819e-c68f-42a2-a900-025ea0af6421",
+    "code": "canh-ga-2kxkj",
+    "name": "Cánh gà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10283202-20241205093808.jpg"
+  },
+  {
+    "id": "59bff627-1a25-47b6-99e2-affd86c74e09",
+    "code": "cat-heo-tbunq",
+    "name": "Cật heo",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8781/309298/bhx/cat-heo-300g-202306220842347922.jpg"
+  },
+  {
+    "id": "3d7c5fe0-de42-48e1-ac47-bbe431153b0a",
+    "code": "cha-cua-cha-ca-9n66u",
+    "name": "Chả cua chả cá",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/7259/258268/bhx/cha-cua-hue-ngon-ngon-goi-300g-202112091451107828.jpg"
+  },
+  {
+    "id": "94b04411-af53-4e16-bff4-759699399a76",
+    "code": "cha-la-nguyen-canh-devie-ghj4p",
+    "name": "Chà là nguyên cành Devie",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/975aa53de675535c6ed4ddb154444f8c.jpg"
+  },
+  {
+    "id": "a7abc164-9f74-451e-8c57-ee25e98ebc29",
+    "code": "cha-lua-yhjhc",
+    "name": "Chả lụa",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/10/image/Products/Images/7618/316994/bhx/cha-lua-cp-goi-500g_202610061115366141.jpg"
+  },
+  {
+    "id": "bb76f8ab-6922-4269-a361-1ef6e1130ff4",
+    "code": "cha-oc-nscbd",
+    "name": "Chả ốc",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/cha-oc-hoa-doanh-200g.jpg"
+  },
+  {
+    "id": "3846b16f-9576-4530-9485-05c9d4b79df0",
+    "code": "ING-136549",
+    "name": "Chẩm chéo",
+    "imageUrl": "https://caonguabach.com/wp-content/uploads/2025/01/cham-cheo.webp"
+  },
+  {
+    "id": "e0589bc3-d3ea-413f-8206-5c3c67d6915f",
+    "code": "chan-ga-sgdrn",
+    "name": "Chân gà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10283201-20241205093945.jpg"
+  },
+  {
+    "id": "bba606a1-a3b6-4d8b-9ac9-0357228a696d",
+    "code": "chan-gio-heo-1pbeg",
+    "name": "Chân giò heo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/233783/chan-gio-heo-1kg_202607301031597500.jpg"
+  },
+  {
+    "id": "9cf036c5-6905-4dff-b1a6-edbe094448df",
+    "code": "chanh-bfxpq",
+    "name": "Chanh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/chanh-khong-hat-500g.jpg"
+  },
+  {
+    "id": "d383336b-18ba-49fd-b694-76d75a000512",
+    "code": "chanh-co-hat-7ry46",
+    "name": "Chanh có hạt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/chanh-co-hat-250g_0ede30d9-a9aa-4ac0-a17e-2188947029dc-og.jpg"
+  },
+  {
+    "id": "278711bc-9734-40fc-b310-413b6dd92f59",
+    "code": "chanh-leo-zv070",
+    "name": "Chanh leo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/chanh-leo-chanh-day-.jpg"
+  },
+  {
+    "id": "35c0e092-74a6-4bae-ba41-2430d292dd7b",
+    "code": "chao-rga5l",
+    "name": "Chao",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_260x260/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/3525/174518/bhx/chao-bong-mai-hu-170g_202507281558547489.jpg"
+  },
+  {
+    "id": "10c3983d-9475-44ac-aa82-d39e172019d0",
+    "code": "chao-do-bqec4",
+    "name": "Chao đỏ",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/3525/174518/bhx/chao-bong-mai-hu-170g-2-700x467.jpg"
+  },
+  {
+    "id": "d201de51-f990-4903-a903-e4688356e64b",
+    "code": "chao-trang-vwzrl",
+    "name": "Chao trắng",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/3525/339521/bhx/chao-khoai-mon-bong-mai-hu-170g_202510131403583249.jpg"
+  },
+  {
+    "id": "08b34da6-c1c8-44ea-9b26-800e0025293c",
+    "code": "chom-chom-c9xm7",
+    "name": "Chôm chôm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/06/chom-chom-800-800-20230612063723.jpg"
+  },
+  {
+    "id": "ad3154aa-8663-479c-9119-b04fadca0efc",
+    "code": "chuoi-chin-wk1zs",
+    "name": "Chuối chín",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/228923/bhx/chuoi-gia-giong-nam-my_202512031458490151.jpg"
+  },
+  {
+    "id": "c86db771-c36a-4b52-87ee-030550af4f64",
+    "code": "chuoi-gia-h2evv",
+    "name": "Chuối già",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8788/313132/bhx/chuoi-gia-giong-nam-my-1kg_202505201047413543.jpg"
+  },
+  {
+    "id": "13fbf8eb-0a0d-4e5c-8701-001a94e1a3ee",
+    "code": "ING-811E65",
+    "name": "Cốm Làng Vòng",
+    "imageUrl": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEib2oaNmiHYPiPG5Ddxn7kDEXEVaMyLbbFTh1AhQbV3mmj6hgbu_gyp01s_DyvQnFgFvc8eFv5zgRuk2dlr80odWDP65UCldmL_kuXuryoEDytszaPzwJz1oKZMyMWEgCfAbVu6H8Wv43g/s1600/com-lang-vong.jpg"
+  },
+  {
+    "id": "0a77d7aa-fcbf-49e2-9d13-3ff5e104ef24",
+    "code": "com-me-e296f",
+    "name": "Cơm mẻ",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8271/296170/bhx/com-me-elkei-a-tuan-khang-chai-500g-202306200927163889.jpg"
+  },
+  {
+    "id": "2e052284-4644-44ab-a292-cdb50109ce14",
+    "code": "com-ruou-e34q1",
+    "name": "Cơm rượu",
+    "imageUrl": "https://cdn.hstatic.net/products/200000460455/c_m_r__u_n_p_c_i_hoa_v_ng_king_s__h__50g__e79907e10f3341cb915ec9a00d4e0f02.png"
+  },
+  {
+    "id": "1ff97a05-f9bb-4088-a761-999bbb18d2e9",
+    "code": "com-te-oqvym",
+    "name": "Cơm tẻ",
+    "imageUrl": "https://image.bephoa.vn/data/thumb_750/2023/06/202306231118195612.webp"
+  },
+  {
+    "id": "dbd27f08-2c4e-4cdb-b93b-ff6e0c313fa2",
+    "code": "cot-lau-tomyum-84w6g",
+    "name": "Cốt lẩu Tomyum",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/hadiloa-20230822032744.png"
+  },
+  {
+    "id": "e7f69540-c5cc-460c-a2d8-39e66427bc23",
+    "code": "cu-au-jfpog",
+    "name": "Củ ấu",
+    "imageUrl": "https://cdn2.fptshop.com.vn/unsafe/1920x0/filters:format(webp):quality(75)/cach_luoc_cu_au_thumb_b20b410581.jpg"
+  },
+  {
+    "id": "d6abb171-82e1-4fe7-9dd9-0c31de2302ff",
+    "code": "cu-cai-trang-v974j",
+    "name": "Củ cải trắng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/cu-cai-trang.jpg"
+  },
+  {
+    "id": "fbe399c5-e557-422d-b746-e5806d180b4d",
+    "code": "cu-dau-8rgrs",
+    "name": "Củ đậu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/cu-dau.jpg"
+  },
+  {
+    "id": "c6de0ee1-6b73-4c23-b329-28b96b222cff",
+    "code": "cu-hu-dua-lqok7",
+    "name": "Củ hũ dừa",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/7459/229123/bhx/co-hu-dua-chua-ngot-thanh-phat-goi-200g-202011111132174486.jpg"
+  },
+  {
+    "id": "dc1eef5e-8af0-44af-83f9-36ff897058bf",
+    "code": "ING-FD182E",
+    "name": "Củ kiệu",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/7459/233681/bhx/cu-kieu-chua-ngot-vasifood-hu-380g-202101211203120047.jpg"
+  },
+  {
+    "id": "aadbc990-aabb-44e1-8a5e-783b7334dce1",
+    "code": "cu-nang-zjp61",
+    "name": "Củ năng",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/303718/bhx/cu-nang-tuoi-got-vo-goi-200gr-202303041503470234.jpg"
+  },
+  {
+    "id": "6d1292dd-7e52-42c2-8f59-b74969085bd8",
+    "code": "cu-nen-rn2uw",
+    "name": "Củ nén",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/08/11/1374407/cach-dung-va-nhung-cong-dung-bat-ngo-cua-cu-hanh-tam-cu-nen-202206031216189977.jpg"
+  },
+  {
+    "id": "d92125f3-4f7b-47b0-a318-3d751f4d7dfa",
+    "code": "cu-sen-f2zfm",
+    "name": "Củ sen",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/7459/321067/bhx/cu-sen-xuan-thu-goi-500g-202402010940077561.jpg"
+  },
+  {
+    "id": "a312dd06-ec70-48a2-9afe-d6a77018dae4",
+    "code": "cua-bien-ghe-78k5h",
+    "name": "Cua biển ghẹ",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/313726/bhx/ghe-tuoi-202405081559414078.jpg"
+  },
+  {
+    "id": "d580308a-097a-42ed-8d97-45e5fa4009fd",
+    "code": "cua-dong-fo5hh",
+    "name": "Cua đồng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/9549357678622-og.jpg"
+  },
+  {
+    "id": "3f2ab039-7a35-475f-9f3d-2ce215e2711b",
+    "code": "ING-17F9AE",
+    "name": "Cuống tim heo",
+    "imageUrl": "https://nongsandungha.com/wp-content/uploads/2026/09/cuong-tim-heo.jpg"
+  },
+  {
+    "id": "3cc63d0a-9d98-4429-ac4c-a4c28e637642",
+    "code": "da-heo-i8l22",
+    "name": "Da heo",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/7259/286699/bhx/bi-heo-vissan-goi-300g-202208180904401989.jpg"
+  },
+  {
+    "id": "9f6083af-69d1-41b9-bff6-52cf90d4980e",
+    "code": "dam-susiy",
+    "name": "Dấm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428518261210008746-cha-sa-te-tum-cholimex-lo-90g-og.jpg"
+  },
+  {
+    "id": "b126e449-6895-4a65-b7cc-96f2637b8fc1",
+    "code": "dam-tao-u41mw",
+    "name": "Dấm táo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/dam-tao_11zon-20230817091137.jpeg"
+  },
+  {
+    "id": "21a66ef6-5ae9-45d3-9db0-4f6251d98904",
+    "code": "dau-8xfnt",
+    "name": "Đậu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-cove-xanh-goi-500g_fe356ea1-4a64-415e-b3a4-a817039f0173-og.png"
+  },
+  {
+    "id": "f4c54557-b739-4a0a-b251-65c8bd36093b",
+    "code": "dau-an-44812",
+    "name": "Dầu ăn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-an-tuong-an-gold-chai-2l_2ee63e51-1c61-4c84-bde3-75adc705d3a4-og.jpg"
+  },
+  {
+    "id": "5f71f0fe-073a-4510-88c6-eb673d402297",
+    "code": "dau-bap-9shx0",
+    "name": "Đậu bắp",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-bap-goi-300g_7448b3d9-5997-4bbe-bd19-e64495b21c70-og.png"
+  },
+  {
+    "id": "7d60ed5d-98aa-4047-bf6e-56f025579a73",
+    "code": "dau-cove-nhat-ayvp1",
+    "name": "Đậu cove nhật",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/dau-cove-nhat-300g.png"
+  },
+  {
+    "id": "31c760b9-e1a1-4a65-ac24-29665f8d8335",
+    "code": "dau-cove-xanh-gnh2y",
+    "name": "Đậu cove xanh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-cove-xanh-goi-500g_fe356ea1-4a64-415e-b3a4-a817039f0173-og.png"
+  },
+  {
+    "id": "e7022b8e-0d00-4a3d-84e9-58e93ea7d78b",
+    "code": "dau-dam-tron-salad-6s6w4",
+    "name": "Dầu dấm trộn salad",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428518261210008746-cha-sa-te-tum-cholimex-lo-90g-og.jpg"
+  },
+  {
+    "id": "bf9f4a10-1dcc-435a-aa85-bae681397701",
+    "code": "dau-dau-lang-mo-thai-corp-gupj3",
+    "name": "Đậu đậu Làng Mơ Thai corp",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/09/dau-phu-lang-mo-500g-20240930092514.png"
+  },
+  {
+    "id": "a39d2ad4-dfe2-4ce2-8b6f-f7fbf5ae5d32",
+    "code": "dau-den-03l28",
+    "name": "Đậu đen",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/138632/bhx/dau-den-xanh-long-pmt-goi-250g-201912121540367876.jpg"
+  },
+  {
+    "id": "a5ac5afa-5088-4383-a3ad-962bac434c11",
+    "code": "dau-dieu-giahq",
+    "name": "Dầu điều",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8271/323030/bhx/dau-mau-dieu-dh-foods-chai-100ml-202404030946077879.jpg"
+  },
+  {
+    "id": "f67465a9-1eab-4d0f-a8c3-e37da7121ca7",
+    "code": "dau-do-hsuac",
+    "name": "Đậu đỏ",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/83053/bhx/dau-do-viet-san-500g-201812041406447073.jpg"
+  },
+  {
+    "id": "4cff681d-8c92-4775-a3ec-7600128ff650",
+    "code": "dau-dua-e3sba",
+    "name": "Dầu dừa",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-dua-tinh-khiet-organic-vietcoco-0.5l"
+  },
+  {
+    "id": "6d6f3ef0-2aa9-43f3-976e-221c06c48118",
+    "code": "dau-gao-lut-og3rt",
+    "name": "Dầu gạo lứt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/dau-gao-lut-light-5-duong-chat-tuong-an-chai-1-lit-202205311046108642-20230224043436.jpg"
+  },
+  {
+    "id": "47da09a4-efde-4a5c-ab2a-daa9296eb1df",
+    "code": "dau-ha-lan-r538l",
+    "name": "Đậu Hà Lan",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/244595/bhx/dau-ha-lan-sg-food-goi-500g-202403092033558371.jpg"
+  },
+  {
+    "id": "287afeda-1c07-4f86-a0f7-879e71208e00",
+    "code": "dau-hao-7cc1u",
+    "name": "Dầu hào",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/06/maggi-dau-hao-nam-huong-820gr-t12_9b63a207-a24b-45bd-9080-082ac1e4f071-og-removebg-preview-20230614073854.png"
+  },
+  {
+    "id": "be06bd2e-63ab-4eba-9409-f1894f5d16c6",
+    "code": "dau-hat-cai-gh5b6",
+    "name": "Dầu hạt cải",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2025/12/cno-1l_10010072-20251206093851.png"
+  },
+  {
+    "id": "25a08d25-1c33-4473-bc0f-a108aced6b63",
+    "code": "dau-huong-duong-qk60q",
+    "name": "Dầu hướng dương",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428218657110619545-cha-mang-dang-dac-san-kim-bui-gui-500g-og.jpg"
+  },
+  {
+    "id": "932b6c6b-60b9-4a78-82e0-dfeb04eee8b6",
+    "code": "dau-me-wwil9",
+    "name": "Dầu mè",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-me-tuong-an-chai-400ml_68ced70f-bd5c-4cce-99d9-ea4105c6f0a2-og.jpg"
+  },
+  {
+    "id": "4e1913cf-128e-4e2a-9b1b-296f5c20b61d",
+    "code": "dau-me-thom-1hp1w",
+    "name": "Dầu mè thơm",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2286/228302/bhx/dau-me-thom-tuong-an-chai-100ml-202407121521338294.png"
+  },
+  {
+    "id": "64edfa0a-78f0-43a9-a085-3789096baf86",
+    "code": "dau-nanh-jhuhe",
+    "name": "Dầu nành",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427292546710010117-cha-dau-u-liu-extra-virgin-tuong-an-chai-500ml-og.jpg"
+  },
+  {
+    "id": "c0e28ade-9b67-4766-94f6-88b0e568aa5c",
+    "code": "dau-nanh-mscqc",
+    "name": "Đậu nành",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/83021/bhx/dau-nanh-hat-nho-vua-deu-viet-san-500g-201812041355329350.jpg"
+  },
+  {
+    "id": "d11a5c26-b164-414f-a36a-af6242204abe",
+    "code": "ING-1E5E24",
+    "name": "Đậu ngự",
+    "imageUrl": "https://nongsandungha.com/wp-content/uploads/2024/07/dau-ngu-kho-nong-san-dung-ha.jpg"
+  },
+  {
+    "id": "40137073-5c1b-42cd-969d-dfde2bc5685e",
+    "code": "dau-o-liu-extra-virgin-skrmf",
+    "name": "Dầu ô liu Extra Virgin",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427292480210010162-cha-dau-dau-phong-tuong-an-1-lot-og.jpg"
+  },
+  {
+    "id": "15806560-da92-4b50-bb72-13180326b0b1",
+    "code": "dau-o-liu-olivoila-pomace-xqmse",
+    "name": "Dầu ô liu Olivoila Pomace",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/06/olivoila-pomace-750ml_mockup_spain-20230613012225.png"
+  },
+  {
+    "id": "63014f4e-c460-49f7-b997-c44994605b5a",
+    "code": "dau-oliu-olivoila-extra-virgin-mnc5p",
+    "name": "Dầu ôliu Olivoila Extra Virgin",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/olivoila-extra-750ml_mockup_spain-1--20230526034808.png"
+  },
+  {
+    "id": "de4b631f-61ca-4a5e-a411-fa5322764c38",
+    "code": "dau-phong-dooky",
+    "name": "Đậu phộng",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/83022/bhx/dau-phong-viet-san-500g-201812111146444694.jpg"
+  },
+  {
+    "id": "5254db4e-89d3-4b8f-90a0-8e284f7f1f36",
+    "code": "dau-phu-non-lang-mo-hocc3",
+    "name": "Đâu phụ non làng mơ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/lang_mo-removebg-preview-20230822031606.png"
+  },
+  {
+    "id": "63e1414d-92f2-490a-9edb-1cebbf97a9b1",
+    "code": "dau-que-cx1sm",
+    "name": "Đậu que",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images//8820/222861/bhx/files/dau-cove-tui-500g-202009290951597685.jpg"
+  },
+  {
+    "id": "cc327eac-09dd-4ce1-ade2-7dc6dd2b0b62",
+    "code": "dau-ran-o-liu-6imgm",
+    "name": "Dầu rán o liu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10010208-20230911101901.png"
+  },
+  {
+    "id": "2cebafd0-4a94-4cf4-83be-e08f4eb0b6da",
+    "code": "dau-tay-fjvyd",
+    "name": "Dâu tây",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/News/Images/2025/08/26/1582094/image4_202508261718154429.jpg"
+  },
+  {
+    "id": "25ce6577-ba1d-42aa-96b8-ff823ad93fe9",
+    "code": "dau-thuc-vat-lrcxm",
+    "name": "Dầu thực vật",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/cl_5l-copy-20230526033130.png"
+  },
+  {
+    "id": "79c5351a-05e5-4f43-b8ed-b4437891c5a4",
+    "code": "dau-truyen-thong-8d1hn",
+    "name": "Đậu truyền thống",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/abc-dau-thanh-truyen-thong-500g-20230727064607.png"
+  },
+  {
+    "id": "5eb800b4-a943-4023-95e6-308a07cf44a3",
+    "code": "dau-xanh-rmkwx",
+    "name": "Đậu xanh",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/80595/bhx/dau-xanh-hat-viet-san-150g-201812041426289819.JPG"
+  },
+  {
+    "id": "ec09ce3c-5e20-4eaa-8aad-44ad8044a9ab",
+    "code": "dau-xanh-boc-vo-pkdze",
+    "name": "Đậu xanh bóc vỏ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-xanh-boc-vo-thu-dung-goi-500g.jpg"
+  },
+  {
+    "id": "51b23ae7-4117-4976-850f-861aec350793",
+    "code": "diep-ca-e8wsh",
+    "name": "Diếp cá",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/299258/bhx/rau-diep-ca-goi-100g_202505091413116213.jpg"
+  },
+  {
+    "id": "a761d27d-9dca-4984-a691-86a9f980e079",
+    "code": "dinh-huong-6sqwd",
+    "name": "Đinh hương",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/a761d27d-9dca-4984-a691-86a9f980e079/1792033510259.jpg"
+  },
+  {
+    "id": "dbeb9188-607f-48f2-b6b7-e258fd2275a5",
+    "code": "doc-mung-93uh3",
+    "name": "Dọc mùng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/doc-mung-300g.jpg"
+  },
+  {
+    "id": "6a8e5930-7bfd-4f6e-a9ca-9b419ac5c0f6",
+    "code": "doi-truong-8vksc",
+    "name": "Dồi trường",
+    "imageUrl": "https://bizweb.dktcdn.net/thumb/1024x1024/100/485/487/products/820a4eb1-fc77-49c3-a46e-3e0f1ec2b405.jpg?v=1720278449870"
+  },
+  {
+    "id": "41273570-2f61-473d-927c-bf5afcd2aedc",
+    "code": "du-du-ruot-do-9i5vd",
+    "name": "Đu đủ ruột đỏ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/du-du-ruot-do.jpg"
+  },
+  {
+    "id": "b51402ae-d19a-469f-90b4-3ae081892f48",
+    "code": "du-du-xanh-qk3ut",
+    "name": "Đu đủ xanh",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8788/244446/bhx/du-du-ruot-do-202312281117143192.jpg"
+  },
+  {
+    "id": "c1529acb-4060-44c6-bfd4-185ab227c0c8",
+    "code": "dua-sq7ca",
+    "name": "Dứa",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/khom.jpg"
+  },
+  {
+    "id": "b80d6e4b-31c2-4a61-a355-c858b2ce3d42",
+    "code": "dua-a6jya",
+    "name": "Dừa",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8788/314978/bhx/combo-3-trai-dua-xiem-got-vo-202309161129449788.jpg"
+  },
+  {
+    "id": "d1578573-8028-45b8-b1ec-bf9235880018",
+    "code": "dua-cai-muoi-lzmu6",
+    "name": "Dưa cải muối",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2024/02/21/1561468/nhung-thuong-hieu-cai-chua-dua-muoi-gion-ngon-ban-nen-thu-202402211655353256.jpg"
+  },
+  {
+    "id": "2bca69aa-ff16-45e2-a130-bd87c26da723",
+    "code": "dua-chuot-dai-ubn6l",
+    "name": "Dưa chuột dài",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/dua-chuot-dai-500g.jpg"
+  },
+  {
+    "id": "28612dd5-9318-47e5-8706-bbdba71d4be6",
+    "code": "dua-de-vuong-king-ruot-cam-3ciu8",
+    "name": "Dưa Đế Vương King ruột cam",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/10242407.jpg"
+  },
+  {
+    "id": "e9b7c862-6aea-4f52-8f7b-7274362e73ca",
+    "code": "dua-hau-6ut1j",
+    "name": "Dưa hấu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/dua-hau-giong-nhat.png"
+  },
+  {
+    "id": "d0b670f3-361b-4602-b4c9-ee56b370c9bc",
+    "code": "dua-khom-4viuc",
+    "name": "Dứa khóm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/khom.jpg"
+  },
+  {
+    "id": "f581c98f-6711-44ec-a2d1-e8b1a9a01126",
+    "code": "dua-le-kim-co-nuong-af3d3",
+    "name": "Dưa lê kim cô nương",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/65ad0b9af622cfef24469cac1825e388.jpg"
+  },
+  {
+    "id": "7d43799b-04d0-4255-a646-24011e1d628e",
+    "code": "dua-leo-a56dg",
+    "name": "Dưa leo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/226881/bhx/dua-leo-tui-500g_202504140837248711.jpg"
+  },
+  {
+    "id": "36303690-fa0e-4d11-9978-f7bff03becac",
+    "code": "dua-vo-xanh-ruot-cam-q7dvb",
+    "name": "Dưa vỏ xanh ruột cam",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/dua-luoi-vo-xanh-ruot-cam-20230524025643.jpg"
+  },
+  {
+    "id": "94537cd6-2e32-4647-9a22-85b1ed3f61fd",
+    "code": "dui-bo-eywl8",
+    "name": "Đùi bò",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dui-bo.jpg"
+  },
+  {
+    "id": "6347d84b-df39-4f8c-8654-97c583880ad6",
+    "code": "dui-ga-rut-xuong-kl6og",
+    "name": "Đùi gà rút xương",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10283205-20241205094015.jpg"
+  },
+  {
+    "id": "fbc47736-d36a-4a7b-badd-c353058b9359",
+    "code": "dui-toi-ga-cz7hn",
+    "name": "Đùi tỏi gà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10283199-20241205094046.jpg"
+  },
+  {
+    "id": "d13f9c77-5145-45e4-b643-58169e1299fd",
+    "code": "duoi-bo-0jhij",
+    "name": "Đuôi bò",
+    "imageUrl": "https://daithanhfood.vn/resize/570x500/1/upload/baiviet/duoibocatkhuc-5723.jpg"
+  },
+  {
+    "id": "332b8780-c460-4dbe-8aee-e71e2585ce4f",
+    "code": "duong-m22lk",
+    "name": "Đường",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2025/04/10008633-20250422033213.png"
+  },
+  {
+    "id": "90f9431d-aa01-4e63-a3d3-858c5e0ef327",
+    "code": "duong-an-kieng-4zyrm",
+    "name": "Đường ăn kiêng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/9515899715614-og.jpg"
+  },
+  {
+    "id": "aaaf1123-5fe8-4c3e-91e4-75ba3766acc2",
+    "code": "duong-an-kieng-isomalts-48vgs",
+    "name": "Đường ăn kiêng Isomalts",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2025/04/10009571-20250421093917.png"
+  },
+  {
+    "id": "fcf66dc8-9016-42d6-8c69-b8e9a051d917",
+    "code": "duong-den-nu-hoang-lsuuz",
+    "name": "Đường đen nữ hoàng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2025/04/10627913-20250423021705.png"
+  },
+  {
+    "id": "30867d43-f97e-4d3c-af5b-303537d87142",
+    "code": "duong-phen-lnpuc",
+    "name": "Đường phèn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2025/04/10009244-20250422033948.png"
+  },
+  {
+    "id": "22d91b62-4a6f-4f65-bc92-007840668343",
+    "code": "duong-thot-not-vqrc0",
+    "name": "Đường thốt nốt",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2804/207731/bhx/207731-thumb-moi_202411112107287986.jpg"
+  },
+  {
+    "id": "dfb4621e-d4d3-4be8-8ab9-5584b291cf02",
+    "code": "duong-trang-cao-cap-daily-hdbri",
+    "name": "Đường trắng cao cấp Daily",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2025/04/10009573-20250422031018.png"
+  },
+  {
+    "id": "f9836eb2-4498-43d1-a513-65074d509410",
+    "code": "duong-vang-khoang-chat-3spgj",
+    "name": "Đường vàng khoáng chất",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428564565510009271-g1-duong-sach-bion-hua-saving-1kg-og.jpg"
+  },
+  {
+    "id": "bbd86129-a605-4037-9d44-eaaf99f64bd4",
+    "code": "duong-vang-thien-nhien-rp478",
+    "name": "Đường vàng thiên nhiên",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10401819-20230911041458.png"
+  },
+  {
+    "id": "febf7f58-9a44-4b9e-9d76-3cae29b02de6",
+    "code": "ING-EED44E",
+    "name": "Gà ác",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/febf7f58-9a44-4b9e-9d76-3cae29b02de6/1792036586340.jpg"
+  },
+  {
+    "id": "ef7fce56-55d0-4666-9341-2731b98d561c",
+    "code": "ga-ta-lbi3c",
+    "name": "Gà ta",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/04/ga-ta-3f-khay-vang-20240415024517.jpeg"
+  },
+  {
+    "id": "08e034b9-49f3-44e0-a68e-387b2b986cae",
+    "code": "gan-bo-0ocq1",
+    "name": "Gân bò",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2025/12/image/production/2025/12/image/Products/8139/320674/gan-bo-100g_202512311008245240.jpg"
+  },
+  {
+    "id": "beecdad5-dc61-4610-a05f-7f26e56aeb83",
+    "code": "gao-6r0y4",
+    "name": "Gạo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428573497410009734-g1-gao-thoi-lan-sua-bao-minh-tyi-5kg-og.jpg"
+  },
+  {
+    "id": "d31f545a-b71c-466d-9e51-0beb80cf1d5e",
+    "code": "gao-japonica-g34fn",
+    "name": "Gạo Japonica",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/neptune-japonica-5kg-a-20230526102506.png"
+  },
+  {
+    "id": "1e5726f9-9f3e-400a-b050-fceaea1aa12e",
+    "code": "gao-lua-tom-st25-8ovoe",
+    "name": "Gạo lúa tôm ST25",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/04/ngoc-nuong-gao-lua-tom-st25-5kg_vns-20230426094537.png"
+  },
+  {
+    "id": "57849b34-1f86-474a-ba14-d9b3835a93c5",
+    "code": "gao-luc-do-mb2e1",
+    "name": "Gạo Lức đỏ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/04/ngoc-nuong-gao-luc-do-1-kg-20230426095003.png"
+  },
+  {
+    "id": "0bb9e54b-649e-4475-9fc9-237b007293e9",
+    "code": "gao-lut-ph96l",
+    "name": "Gạo lứt",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2513/138644/bhx/gao-luc-huyet-rong-pmt-tui-1kg-201912101606511730.JPG"
+  },
+  {
+    "id": "12a01f2e-da85-4acb-a9d2-d47d467bd518",
+    "code": "gao-nep-p8exz",
+    "name": "Gạo nếp",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/9539433136158-og.jpg"
+  },
+  {
+    "id": "a53683a1-506c-497e-bb69-4c259448a3e9",
+    "code": "gao-nep-cai-hoa-vang-flml1",
+    "name": "Gạo nếp cái hoa vàng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/9539433136158-og.jpg"
+  },
+  {
+    "id": "2903d86a-34c2-4409-a4ec-8a70a0ff0be1",
+    "code": "gao-nep-hoa-vang-dac-biet-wyh7y",
+    "name": "Gạo nếp hoa vàng đặc biệt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/gao-nep-vinaseed-hoa-vang-dac-biet-2kg.jpg"
+  },
+  {
+    "id": "63b9d899-6aa1-45f6-b913-e8ee552c62b0",
+    "code": "gao-phuc-tho-cay-trong-y1h0s",
+    "name": "Gạo phúc thọ cây trồng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427264330310605189-hop-gao-st25-giong-coy-trong-tw-tyi-3kg-og.jpg"
+  },
+  {
+    "id": "2fdff1c1-4971-4eb3-bc23-55cfb17147ec",
+    "code": "gao-seng-cu-itamy",
+    "name": "Gạo Séng Cù",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428573390410009735-g1-bonh-my-paket-bao-ngoc-gui-108g-og.jpg"
+  },
+  {
+    "id": "07f10d80-48e8-456d-b5b4-7097b6e99b9e",
+    "code": "gao-st-25-dac-san-ansjg",
+    "name": "Gạo ST 25 đặc sản",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/11/10141993-20241109090819.jpg"
+  },
+  {
+    "id": "4cba5908-438a-49b4-ac8c-ad47e5675e67",
+    "code": "gao-st25-tq2b5",
+    "name": "Gạo ST25",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/04/ngoc-nuong-gao-st25-5kg_tv-20230426082612.png"
+  },
+  {
+    "id": "4f696755-2af2-4b7d-bcad-e19956983013",
+    "code": "gao-st25-giong-cay-trong-tw-8fp99",
+    "name": "Gạo ST25 Giống Cây Trồng TW",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427264225210141040-g1-gao-tron-chou-huong-vinaseed-tyi-5kg-og.jpg"
+  },
+  {
+    "id": "cfb2e636-440d-467c-ae48-ecd850f82267",
+    "code": "gao-st25-lua-ruong-ruoi-9wus5",
+    "name": "Gạo ST25 lúa ruộng rươi",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/gao-st25-bao-minh-lua-ruong-ruoi-3kg.png"
+  },
+  {
+    "id": "6c5e6b89-4c81-4829-915f-1738730ae8be",
+    "code": "gao-tam-go-cong-d1an7",
+    "name": "Gạo tám Gò Công",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/gao-tam-go-cong-vinafood1-tui-3kg_d1526e95-8fd4-488a-9ae8-d930397066d1-og.jpg"
+  },
+  {
+    "id": "9af68ca9-f66a-4328-8007-aff99ff9ed6b",
+    "code": "gao-tam-soc-trang-fim4u",
+    "name": "Gạo Tám Sóc Trăng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/gao-tam-20230926064926.png"
+  },
+  {
+    "id": "470954f0-3792-45a1-98c0-d2350da28fff",
+    "code": "gao-te-5rixd",
+    "name": "Gạo tẻ",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/2513/236014/bhx/gao-thom-vua-gao-st25-tui-5kg-202103131616343493.jpg"
+  },
+  {
+    "id": "f27ac469-0e74-4045-960a-2865f0de5721",
+    "code": "gau-bo-5y4bz",
+    "name": "Gầu bò",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/10140200.jpg"
+  },
+  {
+    "id": "2609539d-ff98-42ac-b173-d85d3848494a",
+    "code": "gia-do-x0e72",
+    "name": "Giá đỗ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/10281835.jpg"
+  },
+  {
+    "id": "06babf4e-a815-4e54-8230-495347827837",
+    "code": "gia-mam-hvoff",
+    "name": "Giá mầm",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/342012/bhx/httpscdnv2tgddvnbhx-staticbhxproductsimages8820342012bhxhttpscdnv2tgddvnbhx-staticbhxproductsimages8820227717bhxthumb-gia-mam-tich-xanh202508040907463_202509300903521840.jpg"
+  },
+  {
+    "id": "73092b49-c17f-43b8-b2ee-fc85eaaae9f4",
+    "code": "gia-vi-bun-bo-hue-dhfood-natural-tbggg",
+    "name": "Gia vị bún bò huế DHFood Natural",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/dhf-natural-gia-vi-bun-bo-hue-25g-t48-20230727063940.png"
+  },
+  {
+    "id": "6293871d-46cd-40ff-8178-5db440fb0687",
+    "code": "gia-vi-hoan-chinh-ca-kho-rieng-0jnuh",
+    "name": "Gia vị hoàn chỉnh cá kho riềng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/04/8934707010968_1-20230426044542.png"
+  },
+  {
+    "id": "cdb8166b-898f-44d9-8b4e-8178ab3d8d10",
+    "code": "gia-vi-hoan-chinh-thit-kho-dang-xot-63625",
+    "name": "Gia vị hoàn chỉnh thịt kho dạng xốt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/11/10624152-20241117094926.jpg"
+  },
+  {
+    "id": "78f8ca98-81c8-4526-8378-ce8a746feb82",
+    "code": "gia-vi-hoan-chinh-thit-kho-tau-wyi4a",
+    "name": "Gia vị hoàn chỉnh thịt kho tàu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/04/8934707011026_1-20230426045317.jpg"
+  },
+  {
+    "id": "5686e824-4245-40ba-b4e0-8891bfe93905",
+    "code": "gia-vi-nau-pho-bo-sg-sbjui",
+    "name": "Gia Vị Nấu Phở Bò SG",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/dhfoods-gia-vi-nau-pho-bo-sg-25grt48-20230727063935.png"
+  },
+  {
+    "id": "c85e2d6c-e34b-4980-9532-dbc366b6623b",
+    "code": "gia-vi-nem-san-lau-thai-i99dv",
+    "name": "Gia vị nêm sẵn lẩu Thái",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428594394310008611-g1-mieng-rua-da-nang-bang-nhum-mem-ajs-og.jpg"
+  },
+  {
+    "id": "119e762c-3f86-4f68-beb7-30ad6ee2b731",
+    "code": "gia-vi-wasabi-neri-3kpy7",
+    "name": "Gia vị wasabi neri",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427525974310009100-tuy-mu-tat-wasabi-s&b-hop-43g-og.jpg"
+  },
+  {
+    "id": "dfc93d60-a258-47c9-83f2-9aafc5daf8ca",
+    "code": "giam-bong-sh3rp",
+    "name": "Giấm bỗng",
+    "imageUrl": "https://dambongnep.com/wp-content/uploads/Dam-bong-2-lit.jpg"
+  },
+  {
+    "id": "ad6ce4fe-a4e7-4c54-9002-d9b1ad4f2004",
+    "code": "giam-gao-vri2z",
+    "name": "Giấm gạo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/dam-gao-len-men-lisa-chai-400ml-20221007081149-og.jpg"
+  },
+  {
+    "id": "eeac23ec-b658-4e34-87c9-bd1e7aa95b1a",
+    "code": "gung-x2tfi",
+    "name": "Gừng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/cu-gung-100g_1ac1e773-c510-4518-84e0-4c8aca6ea8a5-og.jpg"
+  },
+  {
+    "id": "339841e7-da71-41d0-88d0-63f550aefb41",
+    "code": "ING-FE0F0E",
+    "name": "Hải sâm",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/339841e7-da71-41d0-88d0-63f550aefb41/1792036616563.jpg"
+  },
+  {
+    "id": "7228d536-73cf-4806-af25-c84885fdd262",
+    "code": "hanh-cu-hai-duong-dgesg",
+    "name": "Hành củ Hải Dương",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428409952210626162-g1-hành-paro-dl-l1-mt-og.png"
+  },
+  {
+    "id": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+    "code": "hanh-la-53bgh",
+    "name": "Hành lá",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png"
+  },
+  {
+    "id": "f7a8403a-f03b-4b3f-ae06-f20c02da5dd7",
+    "code": "hanh-ly-son-t6ruo",
+    "name": "Hành Lý Sơn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/hanh-ly-son-100g.jpg"
+  },
+  {
+    "id": "08939bf6-eb68-45a2-8e7a-2cdf8cde92c9",
+    "code": "hanh-phi-toi-phi-fokrk",
+    "name": "Hành phi tỏi phi",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8271/233816/bhx/toi-phi-tui-50g-202101260032288093.jpg"
+  },
+  {
+    "id": "8fa7681c-79c2-49fe-81d0-f066b1cb4dc2",
+    "code": "hanh-tay-aoc56",
+    "name": "Hành tây",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/273076/bhx/hanh-tay-tui-1kg_202505211039247088.jpg"
+  },
+  {
+    "id": "58a7dc8b-c12a-4357-80ec-c74a36e02ecc",
+    "code": "hanh-tim-jo4u8",
+    "name": "Hành tím",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8785/309133/bhx/hanh-tim-200g-202306080954084413.jpg"
+  },
+  {
+    "id": "103e97a8-18b3-4d4e-99b3-29a26095b6c0",
+    "code": "hat-danh-danh-4ku5k",
+    "name": "Hạt dành dành",
+    "imageUrl": "https://thaphaco.vn/wp-content/uploads/2025/10/danh-danh-6.jpg"
+  },
+  {
+    "id": "8c05916f-6d40-4cae-96a7-d0bca2b97aaa",
+    "code": "hat-dieu-liq0i",
+    "name": "Hạt điều",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3487/319216/bhx/hat-dieu-vo-lua-ba-tu-binh-phuoc-hop-160g-202312091514345859.jpg"
+  },
+  {
+    "id": "a0ec96e3-6abf-437f-a457-dcb33b6d03fa",
+    "code": "hat-doi-wnluw",
+    "name": "Hạt dổi",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/216080/bhx/hat-doi-dh-foods-natural-hu-30g-201912101320116387.jpg"
+  },
+  {
+    "id": "c345b9db-769c-48e8-95c5-dad58d689c86",
+    "code": "ING-00A4B0",
+    "name": "Hạt é",
+    "imageUrl": "https://cdn.tgdd.vn/2021/12/CookDish/hat-e-la-gi-hat-e-tu-cay-gi-va-cach-phan-biet-hat-e-va-hat-avt-1200x676.jpg"
+  },
+  {
+    "id": "41678b3d-b6b8-4367-a5fc-bbbdfb4c665c",
+    "code": "hat-hem-chin-su-nam-shiitake-tao-kombu-zpmlm",
+    "name": "Hạt hêm Chin Su nấm shiitake & tảo kombu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/10142074-removebg-preview-1--20230727072302.png"
+  },
+  {
+    "id": "67774ffd-e66f-4f7c-a8b9-c22e83844918",
+    "code": "hat-lac-nhan-fb3my",
+    "name": "Hạt lạc nhân",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/lac-truoc-20230815045910.jpg"
+  },
+  {
+    "id": "5c8616c2-fe30-464b-888c-f945211dc484",
+    "code": "hat-mac-khen-9qdgs",
+    "name": "Hạt mắc khén",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/216081/bhx/hat-mac-khen-dh-foods-natural-hu-15g-201912101321418589.jpg"
+  },
+  {
+    "id": "b2e50c56-3fff-43da-a20b-e5f73ab5d843",
+    "code": "hat-nem-542i7",
+    "name": "Hạt nêm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/04/10008782-20230404041826__2_-removebg-preview-20230427094842.png"
+  },
+  {
+    "id": "1e774d11-b4d6-4ddf-97b8-b6ad11478abc",
+    "code": "hat-ngo-sjnpe",
+    "name": "Hạt ngò",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/216079/bhx/hat-ngo-dh-foods-natural-hu-25g-201912101317154020.jpg"
+  },
+  {
+    "id": "bb94cc38-27d9-47cb-ac99-54059e302c3f",
+    "code": "hat-sen-senta-3kfql",
+    "name": "Hạt sen Senta",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/hat-sen-tuoi-senta-200g_a8572784-c297-460a-a501-b6d2aa79d978-og.jpg"
+  },
+  {
+    "id": "213a743b-0667-49f6-b908-83d03394bc2a",
+    "code": "hau-nuong-pho-mai-92tzu",
+    "name": "Hàu nướng phô mai",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/hausubi-hau-nuong-pho-mai-dl-200g-20230517025932.jpg"
+  },
+  {
+    "id": "7716d851-8476-42af-a27b-145ea0c1178f",
+    "code": "hau-sua-tach-vo-d893r",
+    "name": "Hàu sữa tách vỏ",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/12/14/1404362/cach-chon-mua-hau-nhieu-thit-tuoi-ngon-va-cach-bao-quan-hau-nhu-luc-moi-mua-202112141524282286.jpg"
+  },
+  {
+    "id": "1e9ef5b5-6850-4560-a201-fa0c9be1dc23",
+    "code": "hau-sua-thai-hasubi-4zs5f",
+    "name": "Hàu sữa Thái Hasubi",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/hausubi_thit_hau_sua_goi_300g--20230517030209.png"
+  },
+  {
+    "id": "f00b1746-2a98-43e5-af0b-8a0ddc23ef66",
+    "code": "he-368qv",
+    "name": "Hẹ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/he-la-100g.png"
+  },
+  {
+    "id": "167d46d2-4e34-4c1f-bb7e-dcde40c772dd",
+    "code": "he-la-ijv36",
+    "name": "Hẹ lá",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/he-la-100g.png"
+  },
+  {
+    "id": "57138eea-1b9c-433b-9185-d0b8021abeed",
+    "code": "ING-895894",
+    "name": "Hoa hẹ",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/07/19/1369330/bong-he-bong-hanh-la-gi-an-bong-he-co-tac-dung-gi-202107192108134041.jpg"
+  },
+  {
+    "id": "d102a235-2749-45b4-a7b3-ff87a84ba648",
+    "code": "hoa-hoi-gi64w",
+    "name": "Hoa hồi",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2020/09/15/1290311/hoa-hoi-la-gi-loi-ich-cua-hoa-hoi-va-nhung-cach-su-dung-hoa-hoi-202009151237459437.jpg"
+  },
+  {
+    "id": "354eecbe-27d4-467e-9705-fee75fb60fcf",
+    "code": "hu-tieu-nam-vang-18-x-wp0iw",
+    "name": "Hủ tiếu Nam Vang 18 x",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10007957-20230921072543.png"
+  },
+  {
+    "id": "4c107c02-dd19-424a-98bb-91e9a32f410f",
+    "code": "hung-bac-ha-zjhjc",
+    "name": "Húng bạc hà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/hung-bac-ha-50g.jpg"
+  },
+  {
+    "id": "aa8d6560-5a73-4487-b080-736397e830e0",
+    "code": "hung-que-rnc49",
+    "name": "Húng quế",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/299256/bhx/thumb-hung-que_202506131016509419.jpg"
+  },
+  {
+    "id": "ea52d4ac-a163-4ce6-9c03-b410f09c015b",
+    "code": "huong-duong-gvgzf",
+    "name": "Hướng dương",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2025/12/sfo-2l_10405275-20251206094124.png"
+  },
+  {
+    "id": "f33f807d-ff67-4cd6-98e8-28d04b65d63e",
+    "code": "huyet-heo-tknv1",
+    "name": "Huyết heo",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2022/03/30/1423077/cach-lam-huyet-heo-luoc-khong-tanh-mem-va-thom-ngon-nhu-ngoai-tiem-202203301518102863.jpg"
+  },
+  {
+    "id": "d0a56b9e-f531-49f6-903e-31a722e46de5",
+    "code": "kem-i869r",
+    "name": "Kem",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/kem-sua-tuoi-danh-tiet-trung-anchor-hop-250ml_43491195-af3b-4aa2-9ed1-2407c03e26bb-og.jpg"
+  },
+  {
+    "id": "50074026-fc6a-4f22-99e1-915c284f2136",
+    "code": "keo-neo-ksr7a",
+    "name": "Kèo nèo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/325781/bhx/keo-neo_202504151614088353.jpg"
+  },
+  {
+    "id": "e6b57185-7d6b-461c-b382-581da92c55bc",
+    "code": "ING-416E10",
+    "name": "Khế chua",
+    "imageUrl": "https://files.benhvien108.vn/ecm/source_files/2022/10/19/221002-4-1-084318-191022-25.jpg"
+  },
+  {
+    "id": "0df39635-c3ba-4505-bd2d-ae9acf8b6665",
+    "code": "kho-qua-wvg6k",
+    "name": "Khổ qua",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/230454/bhx/kho-qua-202312251131121024.jpg"
+  },
+  {
+    "id": "baa57b2f-01b4-4976-8b15-044b647d74fa",
+    "code": "khoai-lang-tdeig",
+    "name": "Khoai lang",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/khoai-lang-mat.jpg"
+  },
+  {
+    "id": "8441da6a-766b-4ce4-8942-8596446a03ff",
+    "code": "khoai-mo-qcf2w",
+    "name": "Khoai mỡ",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/233886/bhx/khoai-mo-202312271420168720.jpg"
+  },
+  {
+    "id": "9a7deefc-afd8-40b5-b29c-587e8f379f1a",
+    "code": "khoai-mon-33zwz",
+    "name": "Khoai môn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/khoai-mon.jpg"
+  },
+  {
+    "id": "95637c83-9bfb-4631-aff1-2abbec7a946d",
+    "code": "khoai-tay-k5tz0",
+    "name": "Khoai tây",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428322359110053947-kg-ba-chi-bu-úc-kiaora-cat-lot-400g-og.jpg"
+  },
+  {
+    "id": "fa5b2686-cce1-4519-9fee-042ce1214ce8",
+    "code": "khoai-tu-3615p",
+    "name": "Khoai từ",
+    "imageUrl": "https://trucvufarm.com.vn/wp-content/uploads/2025/08/20240717194641-101tac_dung_cua_cu_tu_long_1.jpg"
+  },
+  {
+    "id": "959f3b10-7818-4eb1-b2af-de40fb966f35",
+    "code": "kinh-gioi-pmadw",
+    "name": "Kinh giới",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/359427/bhx/rau-kinh-gioi-50g_202511200942497582.jpg"
+  },
+  {
+    "id": "cb781f17-cc53-4ae6-97f8-0fbb3c4ea9d0",
+    "code": "kiwi-vang-c11hz",
+    "name": "Kiwi vàng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162520178919310235281-hop-kiwi-vang-newzealand-4trai-hop-og.jpg"
+  },
+  {
+    "id": "17150d68-9251-44c6-97c1-46d4a41cb35e",
+    "code": "kiwi-xanh-zdge4",
+    "name": "Kiwi xanh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428311450610054840-kg-sua-rua-tay-kleen-huong-trà-xanh-500ml-og.jpg"
+  },
+  {
+    "id": "96268c0d-d617-4c92-8171-1d81290598a8",
+    "code": "la-cach-l462z",
+    "name": "Lá cách",
+    "imageUrl": "https://cdn.medigoapp.com/product/la_cach_e5537e1ce7.png"
+  },
+  {
+    "id": "63f25ec8-0090-44db-a0da-c1be06cd8eb8",
+    "code": "la-cam-121t1",
+    "name": "Lá cẩm",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/63f25ec8-0090-44db-a0da-c1be06cd8eb8/1792033534732.jpg"
+  },
+  {
+    "id": "effd7c88-64e2-4cbe-97de-a3d8d9321d6e",
+    "code": "la-chanh-obg4j",
+    "name": "Lá chanh",
+    "imageUrl": "https://chanhthai.vn/wp-content/uploads/2017/09/La-Chanh-Thai.jpg"
+  },
+  {
+    "id": "7dbeeea5-3714-4144-b32d-7e06fc7c479d",
+    "code": "ING-85BFE2",
+    "name": "Lá chúc",
+    "imageUrl": "https://file.hstatic.net/1000387874/file/la-chanh-thai-1_affdc90b7da64cfebd2ad1eb54ea3cf7_grande.jpg"
+  },
+  {
+    "id": "0e4ad130-c753-4b56-b517-72d3bcda94cb",
+    "code": "la-chuoi-0cgd1",
+    "name": "Lá chuối",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/0e4ad130-c753-4b56-b517-72d3bcda94cb/1792033552983.jpg"
+  },
+  {
+    "id": "1ed273c8-2c5f-4e0e-b419-4c3e8b82032c",
+    "code": "la-dua-e6b8e",
+    "name": "Lá dứa",
+    "imageUrl": "https://www.lottemart.vn/media/catalog/product/cache/0x0/0/4/0400272520006-1-bb.jpg.webp"
+  },
+  {
+    "id": "ccfa31da-31eb-4e1d-b2be-bad76ec7d4f9",
+    "code": "la-e-hl5tp",
+    "name": "Lá é",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/ccfa31da-31eb-4e1d-b2be-bad76ec7d4f9/1792033578408.jpg"
+  },
+  {
+    "id": "667d1024-0fff-4126-a865-191b0af30345",
+    "code": "la-giang-zxfvs",
+    "name": "Lá giang",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/233971/bhx/la-giang-1kg_202505090937298052.jpg"
+  },
+  {
+    "id": "a5981ba7-596e-43f7-b4f6-18dade543178",
+    "code": "la-kim-cuon-com-5j68q",
+    "name": "Lá Kim cuốn cơm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/10181044-20230810102834.jpg"
+  },
+  {
+    "id": "d05388e8-d1ee-496d-8123-9073bb529f45",
+    "code": "la-kim-tam-dau-o-liu-sji4g",
+    "name": "Lá Kim tẩm dầu Ô Liu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10181043_optimized-20230920092904.png"
+  },
+  {
+    "id": "060ffe3f-45ba-44f9-b18c-d3b89f2510f6",
+    "code": "la-kim-tam-gia-vi-cuuix",
+    "name": "Lá kim tẩm gia vị",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/miwon-la-kim-tam-gia-vi-22g-20230727064628.jpg"
+  },
+  {
+    "id": "ff5bd910-157f-43e5-ac12-51cd09fb29e0",
+    "code": "la-lot-g0sbv",
+    "name": "Lá lốt",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8820/238405/bhx/la-lot-1kg-202105051630404347.jpg"
+  },
+  {
+    "id": "147f17fb-e0e6-41a1-ad70-fef9c78a0116",
+    "code": "ING-5379DD",
+    "name": "Lá mắc mật",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/147f17fb-e0e6-41a1-ad70-fef9c78a0116/1792036641438.jpg"
+  },
+  {
+    "id": "295e26a4-e600-4268-bac0-a6d6474be7a7",
+    "code": "la-me-62fjw",
+    "name": "Lá mè",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/la-me-50g.jpg"
+  },
+  {
+    "id": "e8de5440-ab49-44a0-9680-a84cbe97ae65",
+    "code": "la-mo-long-b7c9e",
+    "name": "Lá mơ lông",
+    "imageUrl": "https://suckhoedoisong.qltns.mediacdn.vn/thumb_w/730/324455921873985536/2024/10/13/photo-1728824914580-1728824914731248619726.jpeg"
+  },
+  {
+    "id": "3b1fc03b-0aaf-4b68-a3e6-6d2836a55364",
+    "code": "la-rong-bien-cuon-com-obols",
+    "name": "Lá rong biển cuốn cơm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/la-rong-bien-cuon-com-ottogi-20g.jpg"
+  },
+  {
+    "id": "5209caeb-f219-45e0-9f64-4ba332ff3ba2",
+    "code": "la-sung-aylqd",
+    "name": "Lá sung",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/la-sung-100g.jpg"
+  },
+  {
+    "id": "ae4a9d07-2d0b-4f18-835a-e019d40a5c54",
+    "code": "lac-rang-6jeri",
+    "name": "Lạc rang",
+    "imageUrl": "https://images.unsplash.com/photo-1546545584-c03ac781caaf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3wxMDM1MDk4fDB8MXxzZWFyY2h8MXx8cm9hc3RlZCUyMHBlYW51dHN8ZW58MHwyfHx8MTc5MjU3MTU4Nnww&ixlib=rb-4.1.0&q=80&w=400"
+  },
+  {
+    "id": "d3dfff63-fcdb-43a1-8a44-f47dfa3b1d42",
+    "code": "le-e4haj",
+    "name": "Lê",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/le-han-quoc.jpg"
+  },
+  {
+    "id": "f249a90a-933f-4138-8da1-4e3d810b26b1",
+    "code": "long-heo-34c41",
+    "name": "Lòng heo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/3/image/production/2026/3/image/Products/8781/325688/pheo-non-heo-300g_202603201033124012.jpg"
+  },
+  {
+    "id": "cf51fbaa-f071-40c7-ac21-def5ab8b6b4d",
+    "code": "luoi-bo-jwfch",
+    "name": "Lưỡi bò",
+    "imageUrl": "https://thucphamgiatot.com.vn/upload/hinhanh/luoi-bo-tuoi845o.jpg"
+  },
+  {
+    "id": "888cacd8-bf9e-47fe-8337-ee0187be8ad7",
+    "code": "luoi-heo-p49tb",
+    "name": "Lưỡi heo",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/3/image/Products/Images/8781/309277/bhx/luoi-heo-300g_202603201030090849.jpg"
+  },
+  {
+    "id": "d2532db8-905c-442c-b6b8-2e45f822b661",
+    "code": "luon-ji5zr",
+    "name": "Lươn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/luon-lam-sach_8abc26a4-8da6-4b4c-a6cd-29f94ed605fd-og.jpg"
+  },
+  {
+    "id": "ed12b8df-c76f-41c1-8f82-de7a0c62d937",
+    "code": "mam-ba-khia-uictu",
+    "name": "Mắm ba khía",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8285/247201/bhx/ba-khia-muoi-nhat-tam-hu-400g-202205231430319488.jpg"
+  },
+  {
+    "id": "a5f54ef6-5fbb-4188-8499-85853e6d778d",
+    "code": "mam-ca-linh-mueyh",
+    "name": "Mắm cá linh",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8285/197278/bhx/mam-ca-linh-song-huong-hu-400g-201902271415516055.jpg"
+  },
+  {
+    "id": "13b07185-6fdb-4ad3-8791-c837cca56f15",
+    "code": "mam-ca-sac-mtmlh",
+    "name": "Mắm cá sặc",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8285/188806/bhx/mam-ca-sac-song-huong-hu-400g-2-org.jpg"
+  },
+  {
+    "id": "9ef0cbdb-8d27-4827-9813-e1a179cc3294",
+    "code": "mam-cay-na6im",
+    "name": "Mắm cáy",
+    "imageUrl": "https://biggreen.com.vn/data/product/b%E1%BB%99%20%E1%BA%A3nh%20th%C6%B0%C6%A1ng%20hi%E1%BB%87u%202025/m%E1%BA%AFm%20c%C3%A1y%20ho%C3%A0ng%20%C4%91%E1%BA%ADu%20500g%20-%20h%E1%BA%A3i%20d%C6%B0%C6%A1ng.png"
+  },
+  {
+    "id": "dbbdff81-7533-44b9-9e87-f3b0b308d5cc",
+    "code": "mam-chay-nhat-tam2-5cy7l",
+    "name": "Mắm chay Nhất Tâm2",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/9547340054558-og.jpg"
+  },
+  {
+    "id": "47f88f47-6d19-434d-8061-1a9e3c84695c",
+    "code": "mam-nem-ill5z",
+    "name": "Mắm nêm",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/7779/311005/bhx/mam-nem-pha-san-ngoc-lien-chai-250ml-202404290926015034.jpg"
+  },
+  {
+    "id": "2429a742-a99c-4a0f-a6be-ab0d86809ef2",
+    "code": "mam-nem-mam-ca-ey1ef",
+    "name": "Mắm nêm mắm cá",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8285/197278/bhx/mam-ca-linh-song-huong-hu-400g-201902271415516055.jpg"
+  },
+  {
+    "id": "c040e490-33f2-4d68-b708-cdd42a999add",
+    "code": "mam-ruoc-rvcsn",
+    "name": "Mắm ruốc",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/7779/204270/bhx/mam-ruoc-co-gia-vi-cao-cap-tri-hai-hu-300g-201906241053195107.jpg"
+  },
+  {
+    "id": "725228db-d617-4f67-b9dd-bbe4a9d4f794",
+    "code": "ING-FF7886",
+    "name": "Mắm tép",
+    "imageUrl": "https://media.loveitopcdn.com/41258/kcfinder/upload/images/mam-tep-chung-thit-hang-be.jpg"
+  },
+  {
+    "id": "882fa29b-5580-4ded-a93f-3cca91828bbb",
+    "code": "mam-tom-rnte3",
+    "name": "Mắm tôm",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/7779/204277/bhx/cdntgddvnproductsimages7779204277bhx-202311220902415696_202411301555541186.jpg"
+  },
+  {
+    "id": "8f9adf96-9d15-4d3d-9751-5a49a2176e3f",
+    "code": "mam-tom-chua-e84jh",
+    "name": "Mắm tôm chua",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8285/239531/bhx/mam-tom-chua-hue-dh-foods-hu-250g-202105271031056489.jpg"
+  },
+  {
+    "id": "54222fc4-5f9e-47f1-be66-daa435b1651d",
+    "code": "man-an-phuoc-pkvsh",
+    "name": "Mận An Phước",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/viber_image_2023-01-05_17-05-54-489_1-removebg-preview-4-.jpg"
+  },
+  {
+    "id": "d44075a1-68d2-444e-95e0-1ca6269a6962",
+    "code": "man-da-duong-6wi8u",
+    "name": "Mận đá đường",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/man-da-duong.jpg"
+  },
+  {
+    "id": "e1f33f82-afcf-43de-b4e4-6760db7b24ba",
+    "code": "man-sua-xf46w",
+    "name": "Mận sữa",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/man-sua.jpg"
+  },
+  {
+    "id": "2c8df83c-b638-445d-9037-41e5e3126ae0",
+    "code": "mang-zbc0c",
+    "name": "Măng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/bup-mang-tuoi-kim-boi-goi-500g.jpg"
+  },
+  {
+    "id": "45697153-748a-43e1-b6c0-35702ba0adb9",
+    "code": "mang-chua-vsjbj",
+    "name": "Măng chua",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/bup-mang-tuoi-kim-boi-goi-500g.jpg"
+  },
+  {
+    "id": "75a6cebb-97ec-4d5d-976f-1de08f8526bf",
+    "code": "mang-chua-thai-san-np1cf",
+    "name": "Măng chua thái sẵn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/mang-chua-thai-san-kim-boi-goi-300g.jpg"
+  },
+  {
+    "id": "d9effd84-2cc9-4cae-a17e-f944a41e77fe",
+    "code": "mang-cu-thai-san-619na",
+    "name": "Măng củ thái sẵn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/mang-cu-thai-san-kim-boi-goi-500g.jpg"
+  },
+  {
+    "id": "18ecb359-929c-4450-aa26-ac30abe4584c",
+    "code": "mang-giang-dac-san-0xb7z",
+    "name": "Măng giang đặc sản",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/mang-giang-dac-san-kim-boi-goi-300g.jpg"
+  },
+  {
+    "id": "31e57b10-f586-447b-9dc0-e614b4f568bb",
+    "code": "mang-lay-hov6l",
+    "name": "Măng lay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/mang-lay-tay-bac-kim-boi-goi-300g.png"
+  },
+  {
+    "id": "bd671c99-5bf2-4ed0-82ba-67649221b4c9",
+    "code": "mang-luoi-lon-kho-nau-ngay-regxp",
+    "name": "Măng lưỡi lợn khô nấu ngay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mang-luoi-lon-kho-nau-ngay-kim-boi-500g.jpg"
+  },
+  {
+    "id": "bd77345b-5bb6-49a0-8504-806839c067ad",
+    "code": "mang-nua-6uuy5",
+    "name": "Măng nứa",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428217332910054001-g1--de-pizza--manna-280g-og.jpg"
+  },
+  {
+    "id": "4fda8a02-812f-47a1-807f-70fe1de5ffc3",
+    "code": "mang-nua-kho-nau-ngay-149vv",
+    "name": "Măng nứa khô nấu ngay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/mang-nua-kho-nau-ngay-kim-boi-goi-500g.jpg"
+  },
+  {
+    "id": "4da3a950-e0ee-4891-a691-ce5180e0cfba",
+    "code": "mang-ong-kho-nau-ngay-66v6z",
+    "name": "Măng ống khô nấu ngay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/mang-ong-kho-nau-ngay-kim-boi-goi-500g.jpg"
+  },
+  {
+    "id": "3a225b19-77b0-41dd-955f-d0adc60291cb",
+    "code": "mang-soi-kho-nau-ngay-bf4z2",
+    "name": "Măng sợi khô nấu ngay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/mang-soi-kho-nau-ngay-kim-boi-goi-500g.jpg"
+  },
+  {
+    "id": "ca552d75-4817-4026-be30-dd0b6ad3b3e9",
+    "code": "mang-tay-xanh-3vhld",
+    "name": "Măng tây xanh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mang-tay-xanh-200g_043c8f87-784d-433a-a39d-89e23c94dda4-og.jpeg"
+  },
+  {
+    "id": "03167d63-abe6-4d6e-9e32-4efe15a78417",
+    "code": "mang-truc-dac-san-s20x3",
+    "name": "Măng trúc đặc sản",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/mang-truc-dac-san-goi-300g.jpg"
+  },
+  {
+    "id": "6681fe16-4a00-4e74-bed3-3bf3f225ada9",
+    "code": "mang-truc-quan-thu-jthx0",
+    "name": "Măng trúc quân thử",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428216881110054007-g1-pizza-manna-thit-bu-sot-bbq-200g-og.jpg"
+  },
+  {
+    "id": "de4564cf-a0f1-493d-946e-080f3a5c9826",
+    "code": "mat-mia-n2jzk",
+    "name": "Mật mía",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/216855/bhx/nuoc-mau-bep-xua-chai-210g-201912271557478701.JPG"
+  },
+  {
+    "id": "59d1eee2-1ade-4e06-8b5f-951801eaab71",
+    "code": "mat-ong-ujbji",
+    "name": "Mật ong",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427277527810007259-lo-cà-pho-tan-gold-original-vinacafe-800g-og.jpg"
+  },
+  {
+    "id": "d92d29b0-8d1c-4055-88e4-57d9cc749e3c",
+    "code": "mat-ong-hoa-rung-6wtg3",
+    "name": "Mật ông hoa rừng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mat-ong-hoa-rung-vinabee-chai-14kg-20221014063412-og.jpeg"
+  },
+  {
+    "id": "2748d681-73b5-4191-bfe5-e1230cf5f3da",
+    "code": "mat-ong-sua-chua-4g125",
+    "name": "Mật ong sữa chúa",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427277527810007259-lo-cà-pho-tan-gold-original-vinacafe-800g-og.jpg"
+  },
+  {
+    "id": "3ab3fe64-743b-433b-acf2-509278dd5fc2",
+    "code": "me-dszji",
+    "name": "Mè",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/86774/bhx/me-trang-khong-vo-viet-san-250gr-202107071048344563.jpg"
+  },
+  {
+    "id": "14eabea0-fada-4fe2-8016-bad9bf36724f",
+    "code": "me-chin-s6deu",
+    "name": "Me chín",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/222877/bhx/me-chua-vat-hop-68g-202205181657130760.jpg"
+  },
+  {
+    "id": "ee6210a1-7f08-4c3c-bce2-87bfc5b3fac1",
+    "code": "me-vat-uib1w",
+    "name": "Me vắt",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/222877/bhx/me-chua-vat-hop-68g-202205181657130760.jpg"
+  },
+  {
+    "id": "15d9b91c-c4f1-45d1-9b31-66a68c35269e",
+    "code": "mi-an-lien-4nri2",
+    "name": "Mì ăn liền",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2565/77622/bhx/slide-1_202410151354441725.jpg"
+  },
+  {
+    "id": "642acd81-b5d2-4b64-8acb-b333db6ea3b0",
+    "code": "mi-chay-cao-cap-b7u2f",
+    "name": "Mì Chay Cao Cấp",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/mi-chay-cao-cap-meizan-250g-20230531024010.png"
+  },
+  {
+    "id": "57921ae2-eb05-48ff-9018-43d65c88faca",
+    "code": "mi-chinh-jp-dfbhx",
+    "name": "Mì chính JP",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mi-chinh-ajinomoto-jp-1kg.jpg"
+  },
+  {
+    "id": "6dee3253-2cdb-46e8-a066-ce200fc120cb",
+    "code": "mi-chinh-plus-umwqp",
+    "name": "Mì chính Plus",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428595189010008603-g1-gia-vi-nom-san-pho-bu-aji-quick-gui-57g-og.jpg"
+  },
+  {
+    "id": "37f31187-0a82-4889-8f66-50a36c5b14a0",
+    "code": "mi-soi-gno75",
+    "name": "Mì sợi",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8158/80133/bhx/mi-trung-safoco-cao-cap-500g-2-700x467.jpg"
+  },
+  {
+    "id": "a7d23002-8126-4e42-9978-eddad15219a9",
+    "code": "mien-an-lien-vi-suon-heo-3lh2s",
+    "name": "Miến ăn liền vị sườn heo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mien-an-lien-phu-huong-vi-suon-heo-acecook-goi-58g_23bde912-498f-456b-84a5-2adb9db67b32-og.jpg"
+  },
+  {
+    "id": "288e3b1d-b9f9-4827-aa14-f54ea09ebeec",
+    "code": "mien-an-lien-vi-thit-bam-xrw7t",
+    "name": "Miến ăn liền vị thịt bằm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mien-an-lien-phu-huong-vi-thit-bam-acecook-goi-58g_f614343b-c531-4ab2-8afa-facbdcfc2b5d-og.jpg"
+  },
+  {
+    "id": "896168c8-a330-451e-8840-01012d875a09",
+    "code": "mien-cua-yrjsg",
+    "name": "Miến Cua",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/hoang-gia-mien-cua-vifon-goi-105g_36cd27b2-38b3-4bce-a6ff-85cf968e6c34-og.jpg"
+  },
+  {
+    "id": "1f85646e-8f29-4ee6-8277-c9980155e72e",
+    "code": "mien-det-ecfac",
+    "name": "Miến dẹt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/ottogi-mien-det-300g-20230727064553.png"
+  },
+  {
+    "id": "91080d42-e9b2-4f3d-ae21-bd239dc33751",
+    "code": "mien-dong-iy7kf",
+    "name": "Miến dong",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mien-dong-na-ri-thien-nhien-xanh-500g.jpg"
+  },
+  {
+    "id": "0786df16-b581-4647-911e-c92eee025282",
+    "code": "mien-huong-vi-ga-mr8sy",
+    "name": "Miến Hương vị Gà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mien-phu-huong-huong-vi-ga-goi-53g_933c885c-25ef-47f6-b757-15007ea116ce-og.png"
+  },
+  {
+    "id": "bed04ede-974d-4d57-8092-f1ea6a3b2478",
+    "code": "mien-kho-ea2pa",
+    "name": "Miến khô",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mien-kho-vifon-goi-300g_138a379e-8ccb-4d35-ac64-a11878aef52a-og.jpg"
+  },
+  {
+    "id": "0a850bad-ba1f-402a-b0ce-122a652f003b",
+    "code": "mien-lau-thai-xs6u6",
+    "name": "Miến lẩu Thái",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mien-lau-thai-vifon-goi-60g_b0352f6a-f0dc-48a7-a9f3-2f3a01ce5efe-og.jpg"
+  },
+  {
+    "id": "a2f8cab9-332d-47e0-85f0-b02578a569cf",
+    "code": "mien-mang-vit-y9rca",
+    "name": "Miến Măng Vịt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mien-mang-vit-vifon-goi-105g_5aae781a-5fd0-47b3-9254-9e97a2e21f1a-og.jpg"
+  },
+  {
+    "id": "cc81ae4b-0940-45df-9edf-9b34d4a4dad1",
+    "code": "mien-soi-ercl6",
+    "name": "Miến sợi",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/ottogi-mien-soi-lon-400g-20230727064651.png"
+  },
+  {
+    "id": "f77d2db4-193a-49ed-a159-a51b3970d62b",
+    "code": "mien-yen-tiec-vina-fd5h0",
+    "name": "Miến Yến tiệc Vina",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mien-phu-huong-yen-tiec-vina-acecook-goi-210g_ce6a5539-0bef-4acc-9dce-f9ab37d7c2bd-og.jpg"
+  },
+  {
+    "id": "ae912e4e-5b1a-4eaf-85a3-5d251050d158",
+    "code": "mit-h34wm",
+    "name": "Mít",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8788/313137/bhx/mit-thai-1-kg-202308151310238228.jpg"
+  },
+  {
+    "id": "09a8d8f1-3277-4a88-825d-30310cfbdb15",
+    "code": "mo-chai-fankq",
+    "name": "Mỡ chài",
+    "imageUrl": "http://cdn.hstatic.net/products/200000460299/c7baf10312a7432dab18ea169ea7068e_d7d9dcef0871432b8331ff8ff2547c06_grande.jpg"
+  },
+  {
+    "id": "872caa47-749c-4a2e-8e40-ae67f36a0962",
+    "code": "mo-heo-mic4j",
+    "name": "Mỡ heo",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2019/09/25/1201751/mo-heo-va-dau-an-nen-dung-loai-nao-trong-nau-an-201909251628482187.jpg"
+  },
+  {
+    "id": "919df89b-ebb0-4ec6-8de2-3b9020dac3f9",
+    "code": "moc-nhi-me408",
+    "name": "Mộc nhĩ",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/07/20/1369378/moc-nhi-bao-nhieu-calo-cong-dung-cua-moc-nhi-voi-suc-khoe-202201092244253417.jpeg"
+  },
+  {
+    "id": "29e38cb4-048f-4d57-a4ee-7e47321da3bc",
+    "code": "mu-tat-wasabi-rpk35",
+    "name": "Mù tạt Wasabi",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427525922010615362-hop-mieng-rua-chon-bot-scotch-brite-sach-ben-3x-gui-3-mieng-76-x-101-mm-og.jpg"
+  },
+  {
+    "id": "0ea40214-6635-4668-b7e9-0046733fc6b9",
+    "code": "muc-tqodj",
+    "name": "Mực",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/muc-trung-dong-lanh-thaibifood-loai-a-khay-450g-20221007080841-og.png"
+  },
+  {
+    "id": "7956638d-5092-4a89-b266-e886f0029dbe",
+    "code": "muc-kho-g550k",
+    "name": "Mực khô",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8400/327779/bhx/muc-kho-size-s-an-vinh-goi-200g-202407091448096560.jpg"
+  },
+  {
+    "id": "8d812908-0a32-438c-86b6-1e26e059bb91",
+    "code": "muc-nang-m2775",
+    "name": "Mực nang",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/233740/bhx/muc-nut-lam-sach-202407151505275869.jpg"
+  },
+  {
+    "id": "3aef799a-2dad-4462-ba24-5dbe318fdc1e",
+    "code": "muc-ong-h5aa8",
+    "name": "Mực ống",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/10/image/Products/Images/8782/233753/bhx/muc-ong-1kg_202610021531284938.jpg"
+  },
+  {
+    "id": "aad1f429-e337-4d5c-a6d1-ad967c777162",
+    "code": "muc-trung-3n7zt",
+    "name": "Mực trứng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/muc-trung-minh-tien-goi-400g-20221007080850-og.jpg"
+  },
+  {
+    "id": "9b65f695-1bc2-499f-907a-5b167318a8fa",
+    "code": "muc-trung-com-xoi-ntf-y5u0e",
+    "name": "Mực trứng cơm xôi NTF",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/sdfdsa.gif"
+  },
+  {
+    "id": "4ecacaf9-10b7-40b8-97d9-c58010df64d8",
+    "code": "mui-heo-hh6sw",
+    "name": "Mũi heo",
+    "imageUrl": "https://product.hstatic.net/200000956928/product/mui-heo-sach_6c7f365b205a4a24a1fdeb7267966f2d_grande.jpg"
+  },
+  {
+    "id": "88af3363-c099-44b0-b361-ef1d93ae2e48",
+    "code": "mui-ta-3nn2i",
+    "name": "Mùi ta",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/mui-ta-goi-50g_bc97be52-1c1e-4110-bdf8-262f4b8cb9e2-og.jpg"
+  },
+  {
+    "id": "2357d337-0a67-42df-bc16-2e212c85279b",
+    "code": "mui-tau-gr4ie",
+    "name": "Mùi tàu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/mui-tau-ngo-gai-50g.webp"
+  },
+  {
+    "id": "c076a8c7-e910-4163-9ffa-1589837bf16f",
+    "code": "muoi-7g8oe",
+    "name": "Muối",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/visaco-muoi-bien-mat-troi-tinh-450g-t4-20230727064645.png"
+  },
+  {
+    "id": "019e928e-88b3-4bea-8b99-cbe9f53b76e4",
+    "code": "muoi-bien-mat-troi-t87zd",
+    "name": "Muối biển Mặt trời",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/visaco-muoi-bien-mat-troi-tinh-450g-t4-20230727064645.png"
+  },
+  {
+    "id": "664ac6a7-f1c1-4832-9529-0d42d7406440",
+    "code": "muoi-cham-tom-chua-cay-3yevc",
+    "name": "Muối chấm Tôm chua cay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/muoi-cham-tom-chua-cay-hao-hao-120g_1de525e7-245a-4000-a249-90fa777729ec-og.jpg"
+  },
+  {
+    "id": "d7acf1b5-8417-434d-8e23-e068fc822374",
+    "code": "muoi-hong-himalaya-aa9sr",
+    "name": "Muối hồng Himalaya",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2803/204385/bhx/muoi-hong-himalaya-hat-min-auro-salt-goi-500g-202205171453421457.jpg"
+  },
+  {
+    "id": "7c4be44c-3b6a-4bc2-bc41-dcbf5afcb2ea",
+    "code": "muoi-hong-xay-nhuyen-gzjxk",
+    "name": "Muối hồng xay nhuyễn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/muoi-hong-vipep-xay-nhuyen-500g.jpg"
+  },
+  {
+    "id": "2d18eff3-a0e7-450d-9ba7-415456327130",
+    "code": "muoi-hot-3j1wk",
+    "name": "Muối hột",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2803/210397/bhx/muoi-hat-thien-nhien-sosalco-goi-1kg-201909071441216173.jpg"
+  },
+  {
+    "id": "3ea1febe-ecd3-4ea8-b325-4f14425c5658",
+    "code": "muoi-o-mai-duyen-hai-tew8z",
+    "name": "Muối ô mai Duyên Hải",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/26943820136478.jpg"
+  },
+  {
+    "id": "462f30d0-a26d-48a1-9cc1-78a03681e03b",
+    "code": "muoi-ot-chanh-nha-trang-mwhoz",
+    "name": "Muối ớt chanh Nha Trang",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428482024110009094-cha-hat-dieu-do-natural-dh-food-hu-50g-og.jpg"
+  },
+  {
+    "id": "09b5733f-b601-42ae-a38e-129d65c22fcc",
+    "code": "muoi-tinh-kkewg",
+    "name": "Muối tinh",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/5/image/production/2026/5/image/Products/2803/5366792/10-goi-muoi-say-i-ot-sosal-group-1kg_202605260022560803.jpg"
+  },
+  {
+    "id": "c94f92b8-b4f0-4bce-afdb-355083eeab1f",
+    "code": "muoi-tom-ot-kieu-tay-ninh-lx2h4",
+    "name": "Muối tôm ớt kiểu Tây Ninh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428481874910131071-cha-ot-bot-hàn-quoc-dh-foods-natural-lo-90g-og.jpg"
+  },
+  {
+    "id": "87c8d479-a9a3-44b5-8c53-cbbd55ab48a8",
+    "code": "muoi-tom-tay-ninh-uz3yj",
+    "name": "Muối tôm Tây Ninh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428481910210009160-hop-ot-bot-hàn-quoc-dh-foods-natural-lo-45g-og.jpg"
+  },
+  {
+    "id": "be1b14e1-67c3-492a-9d64-8bf671068f50",
+    "code": "muop-rktbi",
+    "name": "Mướp",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8785/233900/bhx/muop-huong-tui-1kg-202207081348050644.jpg"
+  },
+  {
+    "id": "ef563534-4a0a-441b-bbd8-07d6c7ce30d8",
+    "code": "muop-huong-d1p5j",
+    "name": "Mướp hương",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/233900/bhx/muop-huong-tui-1kg-202207081348050644.jpg"
+  },
+  {
+    "id": "3d99fc65-e98a-4f5e-9a87-2ab38b33d213",
+    "code": "nac-vai-bo-9u11v",
+    "name": "Nạc vai bò",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162788936623910404845-kh-nac-vai-bo-my-thien-vuong-ace-foods-goi--500g-og.jpg"
+  },
+  {
+    "id": "a6f95839-312c-4b98-96bd-bd7b71bc8ac2",
+    "code": "nam-bao-ngu-trang-f8vyd",
+    "name": "Nấm bào ngư trắng",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8779/226955/bhx/nam-bao-ngu-trang-goi-300g-202212021431259434.jpg"
+  },
+  {
+    "id": "03dc2cdf-5abc-40c3-82ea-bd6f17c2188f",
+    "code": "nam-bo-e5fh0",
+    "name": "Nạm bò",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8139/238859/bhx/nam-bo-tuoi-ngon-tui-1kg_202508181609362938.jpg"
+  },
+  {
+    "id": "caf4d21b-8245-498e-98cc-61c05b227033",
+    "code": "nam-bunapi-meinf",
+    "name": "Nấm Bunapi",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428563546510054024-g1-tat-cao-nam-bizmen-bsc1605-og.jpg"
+  },
+  {
+    "id": "14311b5b-f925-419a-b798-82ebadd52b86",
+    "code": "nam-bunashimeji-ak86j",
+    "name": "Nấm Bunashimeji",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428563492710054025-g1-tat-cao-nam-bizmen-bsc1606-og.jpg"
+  },
+  {
+    "id": "688cc03f-910e-480c-96ee-06ac407202e6",
+    "code": "nam-dong-co-7vrm6",
+    "name": "Nấm Đông Cô",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/nam-dong-co-nam-huong-200g.jpg"
+  },
+  {
+    "id": "bc690379-f87f-4263-a3eb-c14b84811d8c",
+    "code": "nam-dong-trung-ha-thao-5teac",
+    "name": "Nấm đông trùng hạ thảo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/nam-dong-trung-ha-thao-tuoi-100g.jpg"
+  },
+  {
+    "id": "b5b53d6e-ce7d-4b01-a46d-10fe6da48c28",
+    "code": "nam-dui-ga-2xftq",
+    "name": "Nấm đùi gà",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8779/228921/bhx/nam-dui-ga-200g-202308291057432198.jpg"
+  },
+  {
+    "id": "26a6542a-bf04-4ccb-b291-7b6f97bb7cad",
+    "code": "nam-hon-hop-abiwy",
+    "name": "Nấm hỗn hợp",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/nam-hon-hop-300g.jpg"
+  },
+  {
+    "id": "db4939c0-f339-4bd2-810b-4fb61b9a6c90",
+    "code": "nam-hon-hop-dong-trung-ha-thao-tvmml",
+    "name": "Nấm hỗn hợp đông trùng hạ thảo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/nam-hon-hop-dong-trung-ha-thao-250g_3bce9420-1fff-48da-a3b6-7e32e1223aa2-og.jpg"
+  },
+  {
+    "id": "beb3e090-c903-4d70-a3aa-94d9074c0076",
+    "code": "nam-huong-roj8j",
+    "name": "Nấm hương",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/197209/bhx/nam-huong-kho-viet-san-goi-250g-201812121505285905.jpg"
+  },
+  {
+    "id": "71c94529-0a82-4e07-98d9-912c314c139b",
+    "code": "nam-kim-cham-twrfh",
+    "name": "Nấm kim châm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428165402310053991-g1-nam-mo-yoshimoto-nou-khay-150g-og.jpg"
+  },
+  {
+    "id": "c8a9668f-c69f-4420-be8c-629ac6cd8ad6",
+    "code": "nam-mo-s8hjs",
+    "name": "Nấm mỡ",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8779/233788/bhx/nam-mo-trang-hop-150g_202506051703255500.jpg"
+  },
+  {
+    "id": "e0942414-1962-45e6-936e-e8b34350230a",
+    "code": "nam-rom-f3hyc",
+    "name": "Nấm rơm",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8779/238596/bhx/nam-rom-1kg-202312091940254492.jpg"
+  },
+  {
+    "id": "fd5c4b89-c57f-4f0d-9937-974a595dec09",
+    "code": "nam-tram-8rkdd",
+    "name": "Nấm tràm",
+    "imageUrl": "https://cdn3.ivivu.com/2023/11/nam-tram-phu-quoc-ivivu-1.jpg"
+  },
+  {
+    "id": "a6642943-ff36-44ca-8e00-87836183dab8",
+    "code": "nam-tuyet-jicpx",
+    "name": "Nấm tuyết",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/3235/222457/bhx/nam-tuyet-viet-san-goi-60g-202008011103130557.jpg"
+  },
+  {
+    "id": "44f64e9b-6ace-481a-9709-8e18cde23efb",
+    "code": "nep-sap-fc5s2",
+    "name": "Nếp sáp",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/04/wmgood-nep-sap-1kg-bm-20230427041704.png"
+  },
+  {
+    "id": "97b5486c-47aa-4178-8159-12c152dec91f",
+    "code": "nghe-fbiyn",
+    "name": "Nghệ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/cu-nghe-100g.jpeg"
+  },
+  {
+    "id": "213223b4-798a-4967-9117-30c2b47af831",
+    "code": "ngheu-p0h76",
+    "name": "Nghêu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428239669210053469-hop-sua-bap-non-lif-thung-48-hop-x-180ml-og.jpg"
+  },
+  {
+    "id": "76159385-8fb3-4d57-a0f4-460f0a4b22d8",
+    "code": "ngheu-so-hen-wnl20",
+    "name": "Nghêu sò hến",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/4/image/Products/Images/8782/365369/bhx/ngheu-co-song_202604041842461199.jpg"
+  },
+  {
+    "id": "36d62a96-3bc4-44e2-82b2-ef7d24f8fa45",
+    "code": "ngo-7wvaj",
+    "name": "Ngô",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/ngo-ngot-uyen-uong.png"
+  },
+  {
+    "id": "d7e5d0a0-ca9b-4753-bc34-c53b01c0a954",
+    "code": "ngo-gai-h004i",
+    "name": "Ngò gai",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8820/309145/bhx/ngo-gai-rau-om-50g-202306081026496827.jpg"
+  },
+  {
+    "id": "4b23dec6-72bd-450d-996d-70636ce24fd9",
+    "code": "ngo-gai-rau-om-0klwz",
+    "name": "Ngò gai, rau om",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/309145/bhx/thumb-hung-que-1_202506131023339168.jpg"
+  },
+  {
+    "id": "386bbba7-2089-4339-bcd3-117f8268b121",
+    "code": "ngo-ngot-uyen-uong-hws9k",
+    "name": "Ngô ngọt uyên ương",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/ngo-ngot-uyen-uong.png"
+  },
+  {
+    "id": "2aabc327-ea32-4dc0-80e5-e2bfab951200",
+    "code": "ngo-om-pwu1r",
+    "name": "Ngò om",
+    "imageUrl": "https://tracuuduoclieu.vn/wp-content/uploads/2019/03/rau-om-rau-ngo.jpg"
+  },
+  {
+    "id": "8191ad57-d838-40f3-91a9-56ebecb89c4a",
+    "code": "ngo-ri-icfsd",
+    "name": "Ngò rí",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/combo-hanh-la-ngo-ri-50g.jpg"
+  },
+  {
+    "id": "67dbc07d-623f-4078-834b-11571bfe3a77",
+    "code": "ngon-bi-3kpp9",
+    "name": "Ngọn bí",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/ngon-bi-500g.png"
+  },
+  {
+    "id": "252c878e-af85-407f-a1e0-83524a0d531e",
+    "code": "ngu-coc-an-sang-j06am",
+    "name": "Ngũ cốc ăn sáng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/10015556-20230831063904.jpg"
+  },
+  {
+    "id": "1b2877ef-b3f0-4edf-9d42-dcde3afb5984",
+    "code": "ngu-coc-dinh-duong-jwg71",
+    "name": "Ngũ cốc dinh dưỡng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10015542-20230926041357.png"
+  },
+  {
+    "id": "189fdcc8-52cf-4202-a2d3-b8f3f955c2ed",
+    "code": "ngu-coc-mat-ong-yxlz0",
+    "name": "Ngũ cốc mật ong",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/ngu-coc-mat-ong-honey-stars-hop-20230816082543.jpg"
+  },
+  {
+    "id": "c123d553-d17a-4e7f-b4d9-fbc36cd60d5d",
+    "code": "ngu-coc-muesli-5-dried-fruits-honey-av6rv",
+    "name": "Ngũ cốc Muesli 5 Dried Fruits & Honey",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427612052310615401-g1-nha-dam-dà-lat-og.jpg"
+  },
+  {
+    "id": "edcc3367-a49f-4fd1-91d1-d7383ae9a06e",
+    "code": "ngu-coc-muesli-5-grains-cranberry-honey-c5qqf",
+    "name": "Ngũ cốc Muesli 5 Grains Cranberry & Honey",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428576379210615405-g1-xou-mai-tum-bamboo-gui-300g-og.jpg"
+  },
+  {
+    "id": "18c86240-de15-44a5-8854-ebefa0533ba6",
+    "code": "ngu-coc-muesli-5-nuts-honey-t74yf",
+    "name": "Ngũ cốc Muesli 5 Nuts & Honey",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428576398110615403-g1-kem-chong-nang-the-thao-banana-boat-spf110-90ml-og.jpg"
+  },
+  {
+    "id": "9f6cda68-56d2-472e-a602-70aa053e6a78",
+    "code": "ngu-coc-muesli-5-tropical-fruits-honey-vgep4",
+    "name": "Ngũ cốc Muesli 5 Tropical Fruits & Honey",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428576459110615402-g1-kem-donh-rang-bamboo-trang-rang-100g-og.jpg"
+  },
+  {
+    "id": "dec622b4-1088-4fce-bba7-1b6bab2ed7fa",
+    "code": "ngu-coc-trai-cay-ngx26",
+    "name": "Ngũ cốc Trái cây",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/ngu-coc-trai-cay-calbee-700g-20221007081222-og.jpg"
+  },
+  {
+    "id": "864fb267-f71b-488d-bae9-92496a252042",
+    "code": "ngu-vi-huong-gxbhj",
+    "name": "Ngũ vị hương",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/77205/bhx/bot-ngu-vi-huong-thien-thanh-goi-10g-201902282120028416.JPG"
+  },
+  {
+    "id": "975aeb1d-0d47-475c-92d3-42da0718d806",
+    "code": "nhan-vai-1en06",
+    "name": "Nhãn Vải",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2017/11/10/1040111/cach-chon-mua-nhan-day-cui-tuoi-ngon-3_800x400.jpg"
+  },
+  {
+    "id": "4333c02e-d313-40e8-a4ae-93888e41d4b7",
+    "code": "nho-den-357sk",
+    "name": "Nho đen",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427610609410054896-kg-nho-do-khung-hat-my-og.jpg"
+  },
+  {
+    "id": "63355314-a8d9-4a9e-8d2d-2707c432c751",
+    "code": "nhong-tam-mhqpi",
+    "name": "Nhộng tằm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/nhong-tam-mv_2d639e35-f4fc-4261-8905-4d01abe1ebec-og.jpg"
+  },
+  {
+    "id": "66dccf77-7427-4608-8ead-5646b0654d44",
+    "code": "nui-cao-cap-chu-c-qmntc",
+    "name": "Nui cao cấp chữ C",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/nui-cao-cap-meizan-chu-c-400g-20230526081604.png"
+  },
+  {
+    "id": "99f5a278-1075-4181-ac5b-982253dc6654",
+    "code": "nui-hinh-xoan-agbwp",
+    "name": "Nui hình xoắn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/nui-cao-cap-meizan-hinh-xoan-300g-20230526080933.png"
+  },
+  {
+    "id": "677ac2fc-3ae9-444e-8f3c-152f485bbcb7",
+    "code": "nui-ong-tlh85",
+    "name": "Nui ống",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/safoco-nui-ong-lon-safoco-goi-200g-20230727064747.png"
+  },
+  {
+    "id": "72abcc45-2a50-4aa7-a69d-555cf53a248c",
+    "code": "nuoc-cham-me-rang-j9al7",
+    "name": "Nước chấm mè rang",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10009101-min-20230915062555.png"
+  },
+  {
+    "id": "a23cc582-4817-4608-90ff-1e5d49da4b4f",
+    "code": "nuoc-cham-nhan-vang-1inwy",
+    "name": "Nước chấm nhãn vàng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/10602829-20230825104337.jpg"
+  },
+  {
+    "id": "84308724-dec3-49ed-9ecf-cbc7cf8ff5c7",
+    "code": "nuoc-cham-toi-ot-ly-son-3ejam",
+    "name": "Nước chấm tỏi ớt Lý Sơn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/sa2b8c253effc4127a6258c5a051197c8a-20230727045132.jpg"
+  },
+  {
+    "id": "2e2f0e69-168f-4b04-a437-4cf0fbbb111b",
+    "code": "nuoc-cot-chanh-day-siro-mn3wl",
+    "name": "Nước cốt chanh dây siro",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/7779/195879/bhx/sot-chanh-day-chua-ngot-dh-foods-chai-200g-202205172014267170.jpg"
+  },
+  {
+    "id": "042530a4-d5b3-4ad4-80e4-c63483c5d97f",
+    "code": "nuoc-cot-dua-hljct",
+    "name": "Nước cốt dừa",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/nuoc-cot-dua-tuoi-vietcoco-160ml-20230727064644.jpg"
+  },
+  {
+    "id": "6aa98767-037a-455b-a240-b301a7bd5f0a",
+    "code": "nuoc-dua-i12js",
+    "name": "Nước dừa",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/12/02/1401775/top-san-pham-nuoc-dua-tuoi-dong-chai-duoc-ua-chuong-tren-thi-truong-hien-nay-202112020059018848.jpg"
+  },
+  {
+    "id": "913ee18a-c03a-4ff9-857d-0863698552a3",
+    "code": "nuoc-dung-co-dac-thai-chay-4gu0n",
+    "name": "Nước dùng Cô Đặc Thái chay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/180g-20230727064731.jpg"
+  },
+  {
+    "id": "dee0cc33-a074-4d01-a0a7-552e87c2ec20",
+    "code": "nuoc-dung-co-dac-vi-lau-thai-qawdh",
+    "name": "Nước dùng cô đặc vị lẩu Thái",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/1a39d4a5-8d81-4704-8c30-fc1db67eba69_20210907023429-og.png"
+  },
+  {
+    "id": "3a0fee8d-4824-405f-9881-6ee2e9b52627",
+    "code": "nuoc-dung-ga-bo-p3zle",
+    "name": "Nước dùng gà bò",
+    "imageUrl": "https://file.hstatic.net/200000079049/file/cach-lam-nuoc-dung-ga-trong-veo-02_c689e2712bd547fc931949d6bd496054.jpg"
+  },
+  {
+    "id": "02ba3e15-74df-4277-858b-1244c83fd06e",
+    "code": "nuoc-dung-lau-thai-5h773",
+    "name": "Nước Dùng Lẩu Thái",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/nuoc-dung-barona-lau-thai-barona-180g-20221007081220-og.png"
+  },
+  {
+    "id": "f54b232f-7e13-4255-80b8-9e7f4946e22b",
+    "code": "nuoc-lau-tomyum-hotpot-story-ett4u",
+    "name": "Nước lẩu Tomyum Hotpot Story",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10625523-min-20230915073322.png"
+  },
+  {
+    "id": "4bef3967-135d-4f83-b974-026e635918ea",
+    "code": "nuoc-loc-3ymsv",
+    "name": "Nước lọc",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2563/76509/bhx/nuoc-tinh-khiet-aquafina-5-lit-201910140954185442.jpg"
+  },
+  {
+    "id": "eee4e942-d340-42f7-b5ad-25cc10a70b3f",
+    "code": "nuoc-mam-lvlhj",
+    "name": "Nước mắm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/04/8934707029823_1-20230424071453__1_-removebg-preview-20230427084026.png"
+  },
+  {
+    "id": "bc42a7d2-48e9-444e-88cf-8da7358b9f4e",
+    "code": "ING-09CD7E",
+    "name": "Nước màu dừa",
+    "imageUrl": "https://product.hstatic.net/200000460455/product/nuoc_mau_dua_ben_tre__chai_275gr__914e1d6ae739447e8bcbc2bc9b2e5cab_master.png"
+  },
+  {
+    "id": "bbc1898a-1b7c-4e6d-acfb-45b15a36db45",
+    "code": "nuoc-mau-dua-anh-tuan-khang-0l0hs",
+    "name": "Nước màu dừa Anh Tuấn Khang",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/nuoc-mau-dua-anh-tuan-khang-150g.jpg"
+  },
+  {
+    "id": "7dabdfa6-f83c-43c3-aa7c-e57d62fd3f46",
+    "code": "nuoc-sot-me-rang-95e9g",
+    "name": "Nước sốt mè rang",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/16296523279048936066340229-og.jpg"
+  },
+  {
+    "id": "799b504f-7769-4b05-8eee-4417f416625d",
+    "code": "nuoc-tuong-hqvsl",
+    "name": "Nước tương",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/thuong-hang-1951-20230526071355.png"
+  },
+  {
+    "id": "0b25ccbf-e46a-4b1e-abf5-bcaeb17dff81",
+    "code": "nuoc-xot-me-rang-vwgkw",
+    "name": "Nước xốt mè rang",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10316242-20230914034542.png"
+  },
+  {
+    "id": "5cfd2c5c-97f3-4e70-a6fb-88e1a6c35bfd",
+    "code": "nuoc-xot-me-rang-wasabi-va-rong-bien-yiull",
+    "name": "Nước xốt mè rang wasabi và rong biển",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/nuoc-xot-me-rang-wasabi-va-rong-bien-kewpie-210ml.jpg"
+  },
+  {
+    "id": "76281002-5da8-4e91-bc63-76b549792482",
+    "code": "nuoc-xot-pho-mai-cay-26csx",
+    "name": "Nước xốt phô mai cay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428326143310009535-cha-sot-mayonnaise-kewpie-gui-300g-og.jpg"
+  },
+  {
+    "id": "b444671b-9561-4d79-839e-0c04035e60b7",
+    "code": "oc-buou-0u4t5",
+    "name": "Ốc bươu",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8782/306941/bhx/oc-buou-song-1kg-202305081432041496.jpg"
+  },
+  {
+    "id": "1d5ce793-9266-4200-b19f-95252a13bbd6",
+    "code": "oc-heo-057wv",
+    "name": "Óc heo",
+    "imageUrl": "https://cdn.tgdd.vn/2021/03/CookProduct/oc1-1200x676.jpg"
+  },
+  {
+    "id": "228e6223-fd6e-4074-8965-216fffd41fff",
+    "code": "oc-huong-wocwz",
+    "name": "Ốc hương",
+    "imageUrl": "https://cdn.hstatic.net/products/1000182631/_c_h__ng_63417890254f4de1b8b6f64d7a8f125f.jpg"
+  },
+  {
+    "id": "55a639a9-25b1-4cb1-ad84-651038a6eb73",
+    "code": "ING-BF53C1",
+    "name": "Ốc len",
+    "imageUrl": "https://cdn.tgdd.vn/2022/01/CookDish/oc-len-la-gi-oc-len-song-o-dau-oc-len-mua-o-dau-va-bao-nhieu-avt-1200x676.jpg"
+  },
+  {
+    "id": "4bb1fcee-3edb-4c67-be8c-891b0ac03b0b",
+    "code": "oc-mong-tay-orea2",
+    "name": "Ốc móng tay",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8782/306940/bhx/oc-mong-tay-1kg-202305081416230567.jpg"
+  },
+  {
+    "id": "ed9772cc-57e5-4ae3-813c-9c2865cb0020",
+    "code": "ING-ABD821",
+    "name": "Ốc nhồi",
+    "imageUrl": "https://monngonmoingay.com/wp-content/uploads/2024/07/Cach-phan-biet-oc-buou-den-va-oc-buou-vang-rat-don-gian-MNMN-1.jpg"
+  },
+  {
+    "id": "8034856d-59f1-4a13-a9b9-0229777198e2",
+    "code": "oc-vien-y4wjw",
+    "name": "Ốc viên",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/oc-vien-hoa-doanh-goi-200g.jpg"
+  },
+  {
+    "id": "c4131213-04b2-49bb-8e89-d6998da55c4b",
+    "code": "ot-149n9",
+    "name": "Ớt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/ot-trai-cay-150g.jpg"
+  },
+  {
+    "id": "0dce136d-7928-4bf7-8537-253fc2cf716d",
+    "code": "ot-bot-p2g66",
+    "name": "Ớt bột",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2809/272367/bhx/ot-bot-han-quoc-ottogi-goi-500g-202202280817351498.jpg"
+  },
+  {
+    "id": "a8f978fa-61c9-4989-8019-740335e20468",
+    "code": "ot-bot-ot-kho-5m485",
+    "name": "Ớt bột Ớt khô",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2809/193564/bhx/ot-bot-xay-tho-pham-tan-hu-150g-201908021746405805.jpg"
+  },
+  {
+    "id": "0cb7d902-cb25-4fd7-9dc3-01cc4c902723",
+    "code": "ot-chuong-mgy4o",
+    "name": "Ớt chuông",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2017/05/29/987322/bi-quyet-chon-mua-bao-quan-va-che-bien-ot-chuong-202201191624076106.jpg"
+  },
+  {
+    "id": "d4d9a040-74f5-40b1-8096-3e3819e9ccc7",
+    "code": "ot-sung-odmvo",
+    "name": "Ớt sừng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/ot-sung-100g.jpg"
+  },
+  {
+    "id": "31493d16-4b06-47c6-8a97-e8fc34e06efe",
+    "code": "ot-trai-cay-hcs54",
+    "name": "Ớt trái cây",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/ot-trai-cay-150g.jpg"
+  },
+  {
+    "id": "2a1be08f-38b2-430c-a6dd-b86d30d0e505",
+    "code": "pate-gan-oz58z",
+    "name": "Pate gan",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/3238/325695/bhx/pate-gan-heo-wyn-150g-202405101403148039.jpg"
+  },
+  {
+    "id": "e51163e1-9a5b-4067-b0fd-4dec6d5a909e",
+    "code": "pho-bo-gnyzr",
+    "name": "Phở bò",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/lc-food-pho-bo-75g-20230727063821.jpeg"
+  },
+  {
+    "id": "a8fb504e-eaf2-44aa-b12b-911813ac1443",
+    "code": "pho-bo-an-lien-vina-9j4vs",
+    "name": "Phở bò ăn liền Vina",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/68g_54fdd533-c200-4dd5-a93f-0216f0572544-og.jpg"
+  },
+  {
+    "id": "415677ab-87fd-42d8-9431-65ec0e98bab4",
+    "code": "pho-bo-chin-su-story-co-thit-to-on820",
+    "name": "Phở Bò Chin su Story có thịt tô",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/10/frame-2-2--20241026061033.jpg"
+  },
+  {
+    "id": "1404584e-e8d0-4ece-9df9-d99e8a3690e6",
+    "code": "pho-chay-rau-nam-d1lmr",
+    "name": "Phở chay rau nấm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427280331710008474-g1-pho-thit-bu-hoàng-gia-gui-120g-og.jpg"
+  },
+  {
+    "id": "4ec42981-02fa-4f80-b4a3-0eb59528d5f0",
+    "code": "pho-co-xot-thit-vi-bo-xrfgt",
+    "name": "Phở Có Xốt Thịt Vị Bò",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/pho-co-goi-xot-thit-vi-bo-70g_e5298dbd-06ec-4fe7-bf72-81820715d04a-og.png"
+  },
+  {
+    "id": "ca794de3-a5a4-4987-9203-942841ac9509",
+    "code": "pho-co-xot-thit-vi-ga-ezsxs",
+    "name": "Phở Có Xốt Thịt Vị Gà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/pho-co-goi-xot-thit-vi-ga-70g_29df206b-2f03-432b-84ee-4f5b4d75cb55-og.png"
+  },
+  {
+    "id": "cd945773-2697-4c5c-8567-0fc2d43ea2d2",
+    "code": "pho-ga-vvv0y",
+    "name": "Phở gà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/pho-ga-de-nhat-goi-65g_9c434af7-89ee-4bf3-9f9d-1a3aa5376763-og.jpg"
+  },
+  {
+    "id": "f580238b-42d1-41e9-83b8-de654b3bb04e",
+    "code": "pho-huong-vi-bo-30-ajyfc",
+    "name": "Phở hương vị bò *30",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428489649710618197-g1-áo-len-tam-nu-cài-khuy-anu.18-og.20-cymic-t20"
+  },
+  {
+    "id": "25e4b817-6f92-4f44-9da8-a8264d7d38d0",
+    "code": "pho-huong-vi-ga-30-z0t6m",
+    "name": "Phở hương vị gà *30",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428489606610618198-g1-áo-thun-nu-suung-anu-1.18-og.20-cymic-t20"
+  },
+  {
+    "id": "aa3f9ffb-eb37-4f22-8528-f56780c5e51d",
+    "code": "pho-mai-373g2",
+    "name": "Phô mai",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/8/image/Products/Images/7558/201194/bhx/pho-mai-con-bo-cuoi-hop-120g-8-mieng_202608241432538373.jpg"
+  },
+  {
+    "id": "9c80a232-07cc-402e-b004-a7b30a85a650",
+    "code": "pho-thit-bo-o2q9x",
+    "name": "Phở thịt bò",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427279536210007964-g1-pho-thit-bu-vifon-gui-65g-og.jpg"
+  },
+  {
+    "id": "b3238cee-0463-462f-bd8a-4d36e34f4d0d",
+    "code": "qua-bau-66ypa",
+    "name": "Quả bầu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427548299310053988-kg-qua-quat-og.jpg"
+  },
+  {
+    "id": "c8d96e0a-9790-4077-9935-2b01caf691ee",
+    "code": "ING-B7BAE4",
+    "name": "Quả dọc",
+    "imageUrl": "https://vnn-imgs-f.vgcloud.vn/2021/10/14/17/qua-doc-1-1.jpg?width=0&s=JdyAe_smmfEgR0qodqjH1g"
+  },
+  {
+    "id": "4734f696-dfaf-43c9-9137-a82ed6a9c4d4",
+    "code": "qua-gac-8jrrn",
+    "name": "Quả gấc",
+    "imageUrl": "https://media.tripmap.vn/marketplace/2026/02/trai-gac-tuoi-1kg-gac-nep-do-sip-gia-chi-60000d-giao-nhanh-trong-1h-1772133977-6b5zou-600x600.webp"
+  },
+  {
+    "id": "dc3c2098-33f8-4eb2-af3c-05869319c96d",
+    "code": "ING-2BBBFA",
+    "name": "Quả mắc mật",
+    "imageUrl": "https://langsonshop.com/wp-content/uploads/2026/01/mac-mat-tuoi1.jpg"
+  },
+  {
+    "id": "dfca90a5-407e-46dc-8c1c-4bb02a310a75",
+    "code": "qua-sau-ordbh",
+    "name": "Quả sấu",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/11/09/1396691/hoc-ngay-meo-bao-quan-sau-tuoi-de-quanh-nam-ma-van-thom-ngon-202111090203045771.jpg"
+  },
+  {
+    "id": "6b726bf4-5bb6-4b52-a365-d1211cb75dc8",
+    "code": "qua-tram-t5hhu",
+    "name": "Quả trám",
+    "imageUrl": "https://cdn.tgdd.vn/2023/08/CookDish/qua-tram-den-la-qua-gi-cach-bao-quan-qua-tram-den-tuoi-lau-avt-1200x676.jpg"
+  },
+  {
+    "id": "fa64fc2a-0ac9-4fc8-84a7-3bb59bebfea7",
+    "code": "quat-8ald6",
+    "name": "Quất",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/quat-100g.png"
+  },
+  {
+    "id": "32d04ebf-203e-40a3-b940-8ae00c9020a5",
+    "code": "que-chi-zaaxm",
+    "name": "Quế chi",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/239120/bhx/que-hoi-thao-qua-dh-foods-hu-25g-202404021557129335.jpg"
+  },
+  {
+    "id": "f66052a3-754c-479a-803c-352122ba0187",
+    "code": "rau-can-tau-olvr0",
+    "name": "Rau cần tàu",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/309142/bhx/thumb-hung-que-2_202506131023390844.jpg"
+  },
+  {
+    "id": "a2473cb5-25e9-47c1-9777-40cbc9498d45",
+    "code": "rau-cang-cua-5bp4e",
+    "name": "Rau càng cua",
+    "imageUrl": "https://thucphamdongxanh.com/wp-content/uploads/2019/09/Rau-cang-cua-510x510.png"
+  },
+  {
+    "id": "604fd836-0af8-4c4d-b504-6d1b86b7fddd",
+    "code": "rau-chum-ngay-xohv9",
+    "name": "Rau chùm ngây",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/604fd836-0af8-4c4d-b504-6d1b86b7fddd/1792033602868.jpg"
+  },
+  {
+    "id": "e0b20418-9981-40a3-be96-7bfdace5a62a",
+    "code": "rau-cu-hon-hop-1h200",
+    "name": "Rau củ hỗn hợp",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/rau-cu-hon-hop-goi-400g.jpg"
+  },
+  {
+    "id": "9c835ff7-c591-4b70-9ef2-1d3e73f92157",
+    "code": "rau-dang-k8km8",
+    "name": "Rau đắng",
+    "imageUrl": "https://thucphamdongxanh.com/wp-content/uploads/2019/09/Rau-dang.png"
+  },
+  {
+    "id": "105e7e7e-a4d9-4d7f-9c97-d71e7073fde5",
+    "code": "rau-day-b98rh",
+    "name": "Rau đay",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/359426/bhx/rau-day-clone_202511200928415114.jpg"
+  },
+  {
+    "id": "849be6fd-175a-496e-9e04-f0d25fc82781",
+    "code": "rau-den-yrr9z",
+    "name": "Rau dền",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/rau-den-goi-500g_63911bc4-bd58-47ea-9741-08af7b0a0cc2-og.jpg"
+  },
+  {
+    "id": "67deef9c-6939-406f-bc7f-759d5f7048c0",
+    "code": "rau-lang-3d8t5",
+    "name": "Rau lang",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/rau-lang-500g.jpg"
+  },
+  {
+    "id": "b1e523e3-a25b-498f-8572-777191521d5e",
+    "code": "rau-ma-konl0",
+    "name": "Rau má",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/271747/bhx/thumb-rau-ma_202506131012086910.jpg"
+  },
+  {
+    "id": "41ce303e-8b2a-4ed5-b899-c726c83bc95a",
+    "code": "rau-mam-cai-xanh-vccds",
+    "name": "Rau mầm cải xanh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/10281839.jpg"
+  },
+  {
+    "id": "018f366b-937c-4de3-b09a-0d90f2416fb5",
+    "code": "rau-mong-toi-uk2x5",
+    "name": "Rau mồng tơi",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/310775/bhx/rau-mong-toi-500-g_202505081431588846.jpg"
+  },
+  {
+    "id": "d8942198-f6a9-4235-8172-3058c6b4dff6",
+    "code": "rau-muong-cw5jj",
+    "name": "Rau muống",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/4/image/production/2026/4/image/Products/8820/298822/rau-muong-hat-goi-300g_202604170932071179.jpg"
+  },
+  {
+    "id": "53c44fc2-4eda-48a1-9c5e-ec7daa367356",
+    "code": "rau-ngot-fd2ol",
+    "name": "Rau ngót",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8820/309146/bhx/rau-ngot-250gr-202401101419097447.jpg"
+  },
+  {
+    "id": "631488bc-48ab-49ee-98a6-04bf2c005a62",
+    "code": "rau-nhut-rau-ngo-psxki",
+    "name": "Rau nhút rau ngổ",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/09/10/1381563/cach-lam-canh-ca-ro-phi-rau-nhut-dan-da-dam-da-huong-vi-mien-tay-202109100912067459.jpg"
+  },
+  {
+    "id": "81b0181c-5394-4c42-93cd-be5e413e73c6",
+    "code": "rau-ram-6ymci",
+    "name": "Rau Răm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/rau-ram-50g.jpg"
+  },
+  {
+    "id": "364d3d32-eb48-46d1-9b7c-0ac82dc0ee40",
+    "code": "ING-5FDF0F",
+    "name": "Rau sắng",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/364d3d32-eb48-46d1-9b7c-0ac82dc0ee40/1792036664897.jpg"
+  },
+  {
+    "id": "97d82861-e626-4f5f-9473-57a1d7b136c0",
+    "code": "rau-thom-dn6lr",
+    "name": "Rau thơm",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/271489/bhx/cdntgddvnproductsimages8820271489bhxrau-thom-cac-loai-200gr-202401101312127671_202408301732482086.jpg"
+  },
+  {
+    "id": "1ffccdcb-61f4-463b-b1f6-efa1b800b51d",
+    "code": "ING-EBCC4D",
+    "name": "Rau tiến vua",
+    "imageUrl": "https://product.hstatic.net/200000460455/product/rau_ti_n_vua__g_i_100g__89752c9017ff4f1e97652f3b1c6345f8.png"
+  },
+  {
+    "id": "c920407b-2620-4cf3-8383-5583639d418c",
+    "code": "rau-xa-lach-ouq9m",
+    "name": "Rau xà lách",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/08/05/1373153/rau-xa-lach-bao-nhieu-calo-an-rau-xa-lach-co-tac-dung-gi-202201151139114940.jpg"
+  },
+  {
+    "id": "4a06c7ea-bcd8-42fd-9797-517b2aa97b32",
+    "code": "rieng-roszh",
+    "name": "Riềng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/cu-rieng-100g.jpg"
+  },
+  {
+    "id": "f90f4966-2dcb-4027-ab7c-37f2366fd522",
+    "code": "rong-bien-w3vm7",
+    "name": "Rong biển",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/miwon-rong-bien-han-quoc-goi-50g_2e4fc346-e292-40fd-975b-8ca3d87f42bc-og.jpg"
+  },
+  {
+    "id": "e933d0f6-628c-4a88-b989-13642661d64c",
+    "code": "rong-bien-cuon-nuong-vi-muc-mrugb",
+    "name": "Rong biển cuộn nướng vị mực",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/miwon-rong-bien-cuon-nuong-vi-muc-6g-20230727064626.png"
+  },
+  {
+    "id": "1952efe6-fff3-416b-92a9-9bca3224990e",
+    "code": "rong-bien-em-be-cuoi-hat-huong-duong-va-hanh-nhan-z0he7",
+    "name": "Rong biển em bé cười hạt hướng dương và hạnh nhân",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/rong-bien-em-be-cuoi-hat-huong-duong-va-hanh-nhan-humanwell-goi-50g.jpg"
+  },
+  {
+    "id": "87fab06e-e828-4ff5-9e79-7c740e188c75",
+    "code": "rong-bien-em-be-cuoi-tom-va-ca-com-a896p",
+    "name": "Rong biển em bé cười tôm và cá cơm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/rong-bien-em-be-cuoi-tom-va-ca-com-humanwell-goi-50g.jpg"
+  },
+  {
+    "id": "23d1f4f1-1009-4882-b103-0d9fd12c2c13",
+    "code": "rong-bien-gion-tron-gia-vi-q3quv",
+    "name": "Rong Biển Giòn Trộn Gia Vị",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428180137910327450-g1-sot-spaghet-huong-toi-nuong-miwon-lo-300g-og.jpg"
+  },
+  {
+    "id": "1691ccf7-ea6b-4f93-bd7e-98636fa183d5",
+    "code": "rong-bien-gion-tron-hai-san-nnuq1",
+    "name": "Rong Biển Giòn Trộn Hải Sản",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/miwon-rong-bien-gion-tron-hai-san-30gt30_7492c934-a92d-46cc-b438-51a9dde1ad1b-og.jpg"
+  },
+  {
+    "id": "2858df19-77da-4620-ae3d-e7c42143aea8",
+    "code": "rong-bien-gion-tron-kho-ga-m3u2l",
+    "name": "Rong biển giòn trộn khô gà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/miwon-rong-bien-gion-tron-kho-ga-30g-t30_78fb6006-c8c4-4fd9-9057-128402aab1b1-og.jpg"
+  },
+  {
+    "id": "def4edf1-eacc-4f16-b7ef-fa2467ede7a2",
+    "code": "rong-bien-gion-tron-oc-cho-hanh-nhan-esj5a",
+    "name": "Rong Biển Giòn Trộn Óc Chó, Hạnh Nhân",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/8935304200837_ecd01d4d-d9e0-4d4b-a37d-8ab1a2e75aa2-og.jpg"
+  },
+  {
+    "id": "c185f4c1-7300-4c99-ab02-780660f3d5a7",
+    "code": "rong-bien-nau-canh-bxnbj",
+    "name": "Rong biển nấu canh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427578940610010370-g1-sot-cà-ri-khung-cay-ottogi-hop-200g-og.jpg"
+  },
+  {
+    "id": "27d993e1-433a-4007-acdb-dd44a3c86d85",
+    "code": "rong-bien-tam-gia-vi-8-x-aciom",
+    "name": "Rong biển tẩm gia vị 8 x",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10327449-20230911041243.png"
+  },
+  {
+    "id": "d871377a-6348-40b9-8fd1-951bc8f1ba6e",
+    "code": "rong-bien-tam-gia-vi-an-lien-rgewr",
+    "name": "Rong biển tẩm gia vị ăn liền",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/10616887-20230831065303.jpg"
+  },
+  {
+    "id": "1e2f3f54-6c52-443f-947c-825f5d051397",
+    "code": "rong-bien-tron-com-food-ej4p9",
+    "name": "Rong biển trộn cơm Food",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/rong-bien-tron-com-phuc-thinh-food-goi-50g.jpg"
+  },
+  {
+    "id": "62e97ede-29df-4a5d-bced-40124cffd678",
+    "code": "rong-bien-tron-com-hai-san-m2s2z",
+    "name": "Rong biển trộn cơm hải sản",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/rong-bien-tron-com-hai-san-kimnori-tohogenkai-50g.jpg"
+  },
+  {
+    "id": "7ef68e37-87a2-4adc-a2c2-63cd85b77db5",
+    "code": "rong-bien-tron-com-rau-cu-zq0lm",
+    "name": "Rong biển trộn cơm rau củ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/tohogenkai-rb-tron-com-rau-cu-kimnori50g_3b6a1991-c2b0-45de-b912-21dad460aaeb-og.jpg"
+  },
+  {
+    "id": "e3f7db53-46b9-4e7c-b8c2-82dd1224ddb9",
+    "code": "rong-bien-vi-truyen-thong-91w46",
+    "name": "Rong biển vị truyền thống",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/4g.jpg"
+  },
+  {
+    "id": "b2b4974b-71d2-410e-ad6c-c7cfe57d9f7e",
+    "code": "rong-nho-woso9",
+    "name": "Rong nho",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/rong-nho-tasami-75g.jpg"
+  },
+  {
+    "id": "a95a6d76-3b30-4e3e-8548-8ffacdc59a91",
+    "code": "rong-nho-sot-me-rang-5-w71dt",
+    "name": "Rong nho sốt mè rang *5",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/rong-nho-sot-me-rang-tasami-35g5-20221007080828-og.jpg"
+  },
+  {
+    "id": "bf552542-8a07-40d5-b738-e6ccd23bf0aa",
+    "code": "ruoi-ldsbn",
+    "name": "Rươi",
+    "imageUrl": "https://ruoi.com.vn/wp-content/uploads/2020/05/ruoi-tu-ky-cua-dasavina-4.webp"
+  },
+  {
+    "id": "c746ee9b-52fd-4a68-970b-3a3f428cb907",
+    "code": "ruou-mai-que-lo-tjram",
+    "name": "Rượu mai quế lộ",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8271/198821/bhx/nuoc-uop-mai-que-lo-thien-thanh-goi-20ml-201901231735041278.jpg"
+  },
+  {
+    "id": "811c093d-5790-4095-bb38-5894bd7309ba",
+    "code": "ruou-nau-an-rtbo9",
+    "name": "Rượu nấu ăn",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2021/03/17/1336022/ruou-nau-an-la-gi-cong-dung-va-cach-su-dung-ruou-nau-an-202112211719595286.jpg"
+  },
+  {
+    "id": "ebd494f9-1c87-468d-adf4-02d054e34f1a",
+    "code": "sa-taifl",
+    "name": "Sả",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/1629651777576sa-cay-goi-100g-202012282251412312-og.jpg"
+  },
+  {
+    "id": "0ae4d1e5-962a-4528-8a8c-df4e2b6efa66",
+    "code": "sa-cay-ayhd3",
+    "name": "Sả cây",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8820/271533/bhx/sa-cay-goi-200g-202205190841573571.jpg"
+  },
+  {
+    "id": "c1651f37-57c0-49e0-ba37-9e1376870230",
+    "code": "sa-sung-vursk",
+    "name": "Sá sùng",
+    "imageUrl": "https://dasavina.com.vn/wp-content/uploads/2023/06/sa-sung-quan-lan-dasavina.jpg"
+  },
+  {
+    "id": "3dea22c2-831c-4443-b813-030f6fc930a6",
+    "code": "sa-te-dvhmp",
+    "name": "Sa tế",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/thuan-phat-sa-te-tom-ngon-lo-85g-20230727064601.jpg"
+  },
+  {
+    "id": "272885e9-8c1a-4f13-98ec-2c1885bd89db",
+    "code": "sa-te-tom-b0pkr",
+    "name": "Sa tế tôm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/thuan-phat-sa-te-tom-ngon-lo-85g-20230727064601.jpg"
+  },
+  {
+    "id": "ac5d1bb1-532b-4376-9784-520556d70d14",
+    "code": "san-8rqgq",
+    "name": "Sắn",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/233854/bhx/cu-san-202312251507003100.jpg"
+  },
+  {
+    "id": "6fd22801-ca06-4c44-a4ad-a7aa4ed0a7e5",
+    "code": "so-diep-wl26x",
+    "name": "Sò điệp",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8400/243096/bhx/sellingpoint.jpg"
+  },
+  {
+    "id": "63a28001-d1f2-47c7-8d9d-209a8f3186fe",
+    "code": "so-huyet-8hrv8",
+    "name": "Sò huyết",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/305369/bhx/cdntgddvnproductsimages8782305369bhxso-huyet-202403271641140105_202409061554251125.jpg"
+  },
+  {
+    "id": "cc1ef7eb-cc7d-4265-84ff-cca3aa67e0c1",
+    "code": "sot-aij-mayo-mayoinaise-ngotdiu-ktaxg",
+    "name": "Sốt Aij Mayo mayoinaise ngọtdịu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/aji-mayo-sot-mayoinaise-ngotdiu-260grt30_604b9d34-fa6b-4924-a5a5-5ff8f7b50933-og.jpg"
+  },
+  {
+    "id": "34326e0e-9d13-4761-bac5-d43a19309549",
+    "code": "sot-arrabbiata-er9b3",
+    "name": "Sốt Arrabbiata",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/sot-arrabbiata-barilla-lo-400g.jpg"
+  },
+  {
+    "id": "fbed6cee-289e-423c-9811-91b9dd433674",
+    "code": "sot-bbq-3hmjt",
+    "name": "Sốt BBQ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/sot-bbq-sai-gon-dh-foods-chai-200g.jpg"
+  },
+  {
+    "id": "db1566f4-04ae-4a21-910a-4868abc5b0f6",
+    "code": "sot-dau-tu-xuyen-hcykt",
+    "name": "Sốt đậu Tứ Xuyên",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/10142063-20230831085738.jpeg"
+  },
+  {
+    "id": "c7006c84-c984-404c-ac50-fc0be6713169",
+    "code": "sot-ga-chien-vi-cay-han-quoc-mfs3c",
+    "name": "Sốt gà chiên vị cay Han Quốc",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/sot-ga-chien-vi-cay-miwon-han-quoc-goi-120g-_ec1363a2-23d1-4474-a56a-1fd1c88c4513-og.png"
+  },
+  {
+    "id": "19c41777-082d-401e-8b1f-f0dbbdd76f90",
+    "code": "sot-ga-chien-vi-phomai-k21k4",
+    "name": "Sốt gà chiên vị phomai",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/sot-ga-chien-vi-phomai-miwon-han-quoc-goi-120g-_87d4fe56-f4d9-42e5-af83-a9639a3a0214-og.png"
+  },
+  {
+    "id": "255b8e3c-d47d-486e-bc09-b4ab72f6cfdf",
+    "code": "sot-gia-vi-ca-thit-kho-fn0xh",
+    "name": "Sốt gia vị cá thịt kho",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/sot-gia-vi-ca-thit-kho-barona-goi-80g.jpg"
+  },
+  {
+    "id": "a45589f4-e28e-41cf-a7ae-6aaaf09665c9",
+    "code": "sot-gia-vi-canh-chua-nam-bo-i2pxu",
+    "name": "Sốt gia vị canh chua Nam Bộ",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/edd6trs.jpg"
+  },
+  {
+    "id": "b1bf04a3-6835-4a40-9e26-cef774fafda3",
+    "code": "sot-gia-vi-thit-nuong-sa-cq2z4",
+    "name": "Sốt gia vị thịt nướng sả",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428570845510009084-g1-xot-gia-vi-hoàn-chinh-thit-nuong-kieu-hàn-quoc-barona-gui-80g-og.jpg"
+  },
+  {
+    "id": "d17f3680-5c6c-480b-a30c-87d6578ba802",
+    "code": "sot-lau-thai-84f87",
+    "name": "Sốt lẩu Thái",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/88eadc34-23ca-4659-a7c2-dbce81fe51fd-20230906075951.jpeg"
+  },
+  {
+    "id": "b3d915f4-0943-46dd-8aab-73cbf251da6d",
+    "code": "sot-lau-thap-cam-y35wp",
+    "name": "Sốt lẩu thập cẩm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10141786-20230906084449.jpeg"
+  },
+  {
+    "id": "c75cf983-4619-4173-a4a3-a8e678110068",
+    "code": "sot-mayonnaise-d9pvm",
+    "name": "Sốt mayonnaise",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428325648410008589-cha-kho-qua-rung-baby-300g-og.jpg"
+  },
+  {
+    "id": "889d533f-68e0-4f2c-af79-3e4d7e93a411",
+    "code": "sot-mayonnaise-huong-vi-nhat-5hbrp",
+    "name": "Sốt mayonnaise hương vị Nhật",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/sot-mayonnaise-kewpie-huong-vi-nhat-goi-300g.webp"
+  },
+  {
+    "id": "5354cf98-f8ba-4f17-8a83-f2637b85aa4b",
+    "code": "sot-mi-spaghetti-fresco-rme2x",
+    "name": "Sốt mì Spaghetti Fresco",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-mi-spaghetti-ottogi-hu-220g-202008111414013953.jpg"
+  },
+  {
+    "id": "beae0b89-e9c7-44da-aa2b-f883120b7eea",
+    "code": "sot-muoi-kim-chi-2xbny",
+    "name": "Sốt muối kim chi",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/sot-muoi-kim-chi-han-quoc-miwon-180g.jpg"
+  },
+  {
+    "id": "77fe810b-ffac-448c-bdee-c5200245b568",
+    "code": "sot-spagetti-885ra",
+    "name": "Sốt Spagetti",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/sot-spagetti-heinz-400ml.jpg"
+  },
+  {
+    "id": "f4b91d40-bdac-4698-98bb-9d0dc2dd96c1",
+    "code": "sot-spaghetti-nguyen-ban-f09rs",
+    "name": "Sốt spaghetti nguyên bản",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/sot-spaghetti-miwon-nguyen-ban-20230817073301.jpg"
+  },
+  {
+    "id": "cbd40ee5-4eb4-4165-9368-ad4e2b98be87",
+    "code": "sot-tieu-den-u7eu7",
+    "name": "Sốt tiêu đen",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/lee-kum-kee-sot-tieu-den-lo-230g-20230727064650.png"
+  },
+  {
+    "id": "a657765e-8269-41a5-bfef-1a605e0dc15f",
+    "code": "sot-uop-do-nuong-go1i7",
+    "name": "Sốt ướp đồ nướng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428242323210008816-hop-bia-leffe-vàng-chai-330ml-og.jpg"
+  },
+  {
+    "id": "e5e91efc-5432-42dc-9a09-03c30c5e522e",
+    "code": "sot-uop-thit-vi-cay-lkux6",
+    "name": "Sốt uớp thịt vị cay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428179429410181091-g1-tokpokki-miwon-han-quoc-vi-phu-mai-hop-105g-og.jpg"
+  },
+  {
+    "id": "a5a4ac41-b4ea-4337-b613-91f3f5241ed5",
+    "code": "sot-uop-thit-vi-truyen-thong-f0ord",
+    "name": "Sốt uớp thịt vị truyền thống",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428179444010181093-g1-tuong-ot-tu-miwon-nhion-cay-dam-250g-og.jpg"
+  },
+  {
+    "id": "4ca08fe2-d7c6-48a5-b78f-92d28fcfd933",
+    "code": "su-2gr8y",
+    "name": "Su",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/11/10624151-20241117095010.jpg"
+  },
+  {
+    "id": "f53e3242-eac4-40f0-8c6a-8b04ee80a651",
+    "code": "su-hao-mrxsh",
+    "name": "Su hào",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2017/05/29/987249/cach-chon-mua-su-hao-sach-va-tuoi-ngon-4_800x555-1_800x450.jpg"
+  },
+  {
+    "id": "814541b5-3e4f-4978-81b3-8a5b43481ada",
+    "code": "su-su-dh3po",
+    "name": "Su su",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427343823210053949-kg-su-su-qua-dl-l1-vineco-og.jpg"
+  },
+  {
+    "id": "0ce35733-af41-473a-aaf5-7e834c587a6b",
+    "code": "sua-j20xt",
+    "name": "Sữa",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/2386/79296/bhx/sua-tuoi-tiet-trung-co-duong-th-true-milk-hop-1-lit-202211231533101889.jpg"
+  },
+  {
+    "id": "f966ff52-8151-44f2-a0d0-93b51a7d6d15",
+    "code": "sua-chua-igm69",
+    "name": "Sữa chua",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/7558/198066/bhx/loc-4-hu-sua-chua-co-duong-vinamilk-len-men-tu-nhien-100g_202508281518442130.jpg"
+  },
+  {
+    "id": "c1d9c4d7-3ddf-4ba0-9947-aa66f9b9147f",
+    "code": "sua-dac-co-duong-ile26",
+    "name": "Sữa đặc có đường",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images//2526/79329/bhx/files/sd-nspn-cam-lon-380g-2-org.jpg"
+  },
+  {
+    "id": "dee823be-fbb8-4e96-8ace-dc601df62d59",
+    "code": "sua-dau-nanh-vxfox",
+    "name": "Sữa đậu nành",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2943/80495/bhx/loc-6-hop-sua-dau-nanh-nguyen-chat-fami-200ml-202407161357598452.jpg"
+  },
+  {
+    "id": "c07e9590-ce9a-46e5-b4db-4e5a8a0f542a",
+    "code": "sun-ga-a4f8f",
+    "name": "Sụn gà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10283207-20241205094216.jpg"
+  },
+  {
+    "id": "cdb1523f-6347-4289-808c-f716a87dfce7",
+    "code": "ING-664FDF",
+    "name": "Sườn bò",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cdb1523f-6347-4289-808c-f716a87dfce7/1792036699545.jpg"
+  },
+  {
+    "id": "4bcc2a02-9a88-43cf-ada2-42b16a54230c",
+    "code": "suon-heo-dixf5",
+    "name": "Sườn heo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/1/image/Products/Images/8781/226856/bhx/suon-non-heo-1kg_202601300959049826.jpg"
+  },
+  {
+    "id": "bc061f7c-2ca7-4d9f-89aa-7d44edbadb09",
+    "code": "suon-que-heo-k8ccn",
+    "name": "Sườn que heo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/1/image/production/2026/1/image/Products/8781/233766/xuong-que-heo-nhap-khau-1kg_202601081014438944.jpg"
+  },
+  {
+    "id": "5c5887e8-1574-4582-96d7-3c0a81e7abe4",
+    "code": "suon-st-louis-kk2g9",
+    "name": "Sườn St. Louis",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10281592-20241205101914.jpg"
+  },
+  {
+    "id": "c162058a-195b-4559-ba94-bb8937b88f28",
+    "code": "suon-sun-heo-9gfn6",
+    "name": "Sườn sụn heo",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/c162058a-195b-4559-ba94-bb8937b88f28/1792033627296.jpg"
+  },
+  {
+    "id": "0bec2b13-35d5-48bd-a266-1aa5a979187d",
+    "code": "suong-sao-den-g8cjn",
+    "name": "Sương sáo đen",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428624129110014400-g1-729-ba-ve-trung-gà-ta-quo-gio-10-qua-og.jpg"
+  },
+  {
+    "id": "b0165bf5-f13d-4ed1-b0c8-db144200a338",
+    "code": "sup-lo-xlgrw",
+    "name": "Súp lơ",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8785/316280/bhx/bong-cai-xanh-400g-500g-202310170841009023.jpg"
+  },
+  {
+    "id": "2dbd1651-3cd0-4e46-81fb-561ab696c975",
+    "code": "ING-E5612F",
+    "name": "Súp lơ trắng",
+    "imageUrl": "https://winmart.onl/assets/media/images/products/05975/oemslt081_0925_171625_6QgMsm.jpg"
+  },
+  {
+    "id": "c9531686-894a-41f9-852c-260fd999d368",
+    "code": "tac-vm8ws",
+    "name": "Tắc",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8788/321613/bhx/tac-duong-kim-quat-202401220100448272.jpg"
+  },
+  {
+    "id": "4b17abc6-143d-4fa0-894c-d4ce7664bb5b",
+    "code": "tai-chua-3qigp",
+    "name": "Tai chua",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/4b17abc6-143d-4fa0-894c-d4ce7664bb5b/1792033664891.jpg"
+  },
+  {
+    "id": "04af8df1-6af8-44af-b772-4b74090ceb14",
+    "code": "tai-heo-9hp2s",
+    "name": "Tai heo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/3/image/Products/Images/8781/309294/bhx/tai-heo-300g_202603201031481217.jpg"
+  },
+  {
+    "id": "e3292edb-f5af-4fc6-8643-377eb0ef33fc",
+    "code": "tao-a7ixr",
+    "name": "Táo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/tao-breeze-newzealand-hop-6-trai.jpg"
+  },
+  {
+    "id": "9f4bfce4-a92b-4446-bd6e-fb2a02e404c0",
+    "code": "tao-bien-3-x-3h8yp",
+    "name": "Tảo biển 3 x",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/tao-bien-godbawee-goi-3-x-15g_d453dab6-8aac-4993-ad06-d44a7ae8181f-og.jpg"
+  },
+  {
+    "id": "15979121-20e5-4f35-a8b0-0febca350596",
+    "code": "tao-bien-green-3-x-kghvn",
+    "name": "Tảo biển Green 3 x",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10010268-20230906074110.jpeg"
+  },
+  {
+    "id": "4bd2162f-2de8-4d9b-b4c7-e4017b4a5c1e",
+    "code": "tao-bien-mini-type-8-x-9jplt",
+    "name": "Tảo biển Mini Type 8 x",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/godbae-_11zon-20230817094913.jpeg"
+  },
+  {
+    "id": "71f55c17-06c3-4c01-8d67-00ee16deddd3",
+    "code": "tao-bien-wild-3-x-7gkt6",
+    "name": "Tảo biển Wild 3 x",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/tao-bien-wild-sonka-tui-3-goi-x-4g_204d5f74-9335-4542-b9d9-8092293bb803-og.jpg"
+  },
+  {
+    "id": "b0a0b4da-4582-45a9-b53b-5d46396e8adb",
+    "code": "tao-breeze-newzealand-o9a3e",
+    "name": "Táo Breeze Newzealand",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/tao-breeze-newzealand-hop-6-trai.jpg"
+  },
+  {
+    "id": "7337b046-73ef-4738-8712-c44f6ade168b",
+    "code": "tao-cuon-com-130-o8g49",
+    "name": "Tảo cuốn cơm *130",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/tao-cuon-com-godbawee-20g130-20221007080831-og.jpg"
+  },
+  {
+    "id": "ee428787-0cb8-41f9-bb95-eb79e793ad3c",
+    "code": "tao-envy-tkpeh",
+    "name": "Táo Envy",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/hộp_ec2fd383-e80a-45f9-8b82-8b83c935e2f4-og.jpg"
+  },
+  {
+    "id": "c9777f8d-58ab-4b3a-93f6-9bea794b6957",
+    "code": "tao-fuji-nam-phi-4h4zp",
+    "name": "Táo Fuji Nam Phi",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/tao-fuji-nam-phi-size-nho.jpg"
+  },
+  {
+    "id": "facc08bb-a7e8-46b7-ae03-0fe3a0012db1",
+    "code": "tao-jazz-z7t2j",
+    "name": "Táo Jazz",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/jazz.png"
+  },
+  {
+    "id": "b3791d48-1738-4a7d-bd99-0b0a16d43c38",
+    "code": "tao-koru-11may",
+    "name": "Táo Koru",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/unnamed_816a5ab4-3bc8-48bb-bcb2-8ed2daa4ea03-og.jpg"
+  },
+  {
+    "id": "56341acc-4371-4d0b-8a60-2df3f614b7a7",
+    "code": "tao-mi-yuk-36-farvl",
+    "name": "Tảo Mi Yuk *36",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/tao-mi-yuk-godbawee-50g36-20221007080823-og.jpg"
+  },
+  {
+    "id": "06abab00-dd17-48c2-b12d-65cfaf354b6f",
+    "code": "tao-rockit-trai-docsw",
+    "name": "Táo Rockit trái",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/tao-rockit-hop-3-4-trai_054b365d-ae9d-47f4-985d-0d06f9610638-og.jpg"
+  },
+  {
+    "id": "52922153-9450-49ab-a3ee-9b11f1ef0810",
+    "code": "tao-royal-gala-pg-no6pl",
+    "name": "Táo Royal Gala PG",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/tao-royal-gala-nzl_10d51e19-3d56-4a5b-8013-c7912766a9f8-og.jpg"
+  },
+  {
+    "id": "3b45f65f-45b9-4419-b040-1cf7b6fff31b",
+    "code": "tao-truyen-thong-jaban-a4120",
+    "name": "Tảo truyền thống Jaban",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/tao-truyen-thong-jaban-40g.png"
+  },
+  {
+    "id": "4baa04c8-75f4-4f06-9f84-f7147c6edca4",
+    "code": "tau-bo-duong-tafu-2xaqb",
+    "name": "Tàu bổ dưỡng Tafu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/10/ichiban-tau-hu-tafu-300g-20241002033832.png"
+  },
+  {
+    "id": "a845a45b-eb0e-4238-bf43-398a32e3a850",
+    "code": "tau-chien-3wkkc",
+    "name": "Tàu chiên",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/09/dau-hu-momen-330g-20240930092015.png"
+  },
+  {
+    "id": "d4fbe2ea-09eb-434f-8711-be2e706373d1",
+    "code": "ING-5C4AF6",
+    "name": "Tàu hũ ky",
+    "imageUrl": "https://nongsandungha.com/wp-content/uploads/2024/07/vang-dau-kho-sieu-thi-nong-san-dung-ha.jpg"
+  },
+  {
+    "id": "050d4189-ca32-4cad-97f8-3d36e3ff360c",
+    "code": "tau-mem-9cuzn",
+    "name": "Tàu mềm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/09/dau-hu-mem-ome-330g-20240930092133.png"
+  },
+  {
+    "id": "22a76026-6ebd-46e7-8ae6-a331c38d4a29",
+    "code": "tau-trung-bo-duong-wwmzr",
+    "name": "Tàu trứng bổ dưỡng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/10/ichiban-tau-hu-trung-tafu-240g-20241002033928.png"
+  },
+  {
+    "id": "8519a418-1c5b-47de-b039-88b2f437049a",
+    "code": "tau-trung-fuji-san-watcs",
+    "name": "Tàu trứng Fuji San",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/10/ichiban-tau-hu-trung-fujisan-240g-20241002034041.png"
+  },
+  {
+    "id": "41dcb577-c0ce-487f-916d-2f1ad0bf4e15",
+    "code": "tep-zpnhv",
+    "name": "Tép",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/313876/bhx/tep-rong_202510151051414468.jpg"
+  },
+  {
+    "id": "710ebba7-f09c-4e36-9269-9354fe50c7d4",
+    "code": "tep-dong-94sp7",
+    "name": "Tép đồng",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/313876/bhx/tep-rong_202510151051414468.jpg"
+  },
+  {
+    "id": "075a593f-7c71-4775-b157-32e39d0908a1",
+    "code": "thach-rau-cau-vi-khoai-mon-k2so1",
+    "name": "Thạch rau câu vị khoai môn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/9484802949150-og.jpg"
+  },
+  {
+    "id": "18b0a0bc-be53-4d9e-9954-34257430279a",
+    "code": "than-bo-7vwk3",
+    "name": "Thăn bò",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2023/09/15/1547385/than-bo-la-gi-cach-phan-biet-cac-loai-than-bo-don-gian-202309151358309984.jpg"
+  },
+  {
+    "id": "25141886-9db1-4b32-8681-184265fe9b29",
+    "code": "thao-qua-8djt8",
+    "name": "Thảo quả",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/216077/bhx/thao-qua-dh-foods-natural-hu-20g-201912101315463089.jpg"
+  },
+  {
+    "id": "8cf5c6bb-45ab-41e5-b951-64de4966d8e0",
+    "code": "thi-la-3frhq",
+    "name": "Thì là",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/thi-la-50g_04aeae6f-f85d-438b-9a67-4e5224b88fa0-og.jpg"
+  },
+  {
+    "id": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+    "code": "thit-42b9b",
+    "name": "Thịt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg"
+  },
+  {
+    "id": "be22714b-64c8-414f-b15d-5416b6290378",
+    "code": "thit-ba-roi-co-da-mh-giun-que-d2lkr",
+    "name": "Thịt Ba Rọi có da MH giun quế",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/thit-ba-roi-co-da.jpg"
+  },
+  {
+    "id": "f8ead8ce-b0d1-46ce-9767-97395fd12c18",
+    "code": "thit-be-st7z0",
+    "name": "Thịt bê",
+    "imageUrl": "https://phanphoithucpham.com.vn/upload/hinhanh/thumb/thit-vai-be-tuoi-co-da-hao-hang5587.png"
+  },
+  {
+    "id": "a04a1697-5943-4854-b0de-9ecdf51ec54d",
+    "code": "thit-bo-hamburger-ua7g7",
+    "name": "Thịt bò Hamburger",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/thit-bo-new-zealand-hamburger-kiaora-khay-200g_d7cbf8b1-9e97-40e1-b3f9-c345f092d81a-og.jpg"
+  },
+  {
+    "id": "5dfaea33-531a-492a-ae51-fadd0f2411d6",
+    "code": "thit-bo-nac-yv4cc",
+    "name": "Thịt bò nạc",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_260x260/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8139/238859/bhx/nam-bo-tuoi-ngon-tui-1kg_202512041003538471.jpg"
+  },
+  {
+    "id": "7c29a6ae-8263-48b8-b317-120b62235fac",
+    "code": "thit-bo-xay-qfizs",
+    "name": "Thịt bò xay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/1cbafe3a-dc0a-4b5a-bfba-ff5d44d0670c_20210827081956-og.jpg"
+  },
+  {
+    "id": "c8f6040b-d9bc-41b0-89c2-6dfda5ff7399",
+    "code": "thit-chim-bo-cau-wue92",
+    "name": "Thịt chim bồ câu",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/314819/bhx/bo-cau-con-235g_202504141446587963.jpg"
+  },
+  {
+    "id": "750c5b97-3140-4881-bd58-47d2a2dc4cb0",
+    "code": "ING-506AFE",
+    "name": "Thịt chim cút",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/750c5b97-3140-4881-bd58-47d2a2dc4cb0/1792036716633.jpg"
+  },
+  {
+    "id": "d617ecc4-4ae7-43fb-8af8-f97d5e1f156f",
+    "code": "thit-de-5oord",
+    "name": "Thịt dê",
+    "imageUrl": "https://vinhhanhfood.com/wp-content/uploads/2022/07/1.56-Dui-de-sau.jpg"
+  },
+  {
+    "id": "e1f74666-d65b-403b-a844-f989dd8398bf",
+    "code": "thit-dui-heo-c20uu",
+    "name": "Thịt đùi heo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10617961-20241205094717.jpg"
+  },
+  {
+    "id": "2b7636c7-8708-4e1c-8f86-b13aa162bac6",
+    "code": "thit-ech-8dulh",
+    "name": "Thịt ếch",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/10/image/Products/Images/8782/364493/bhx/thit-ech-lam-sach-300g_202610021504458849.jpg"
+  },
+  {
+    "id": "4c9772f8-fafa-46c5-8bae-10f90cdf2fe8",
+    "code": "thit-ga-e2bhi",
+    "name": "Thịt gà",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8790/320408/bhx/ga-ta-nguyen-con-202402271109594671.jpg"
+  },
+  {
+    "id": "04f75fe9-192a-4601-82c2-0b58f26fb0df",
+    "code": "thit-hen-gtqjx",
+    "name": "Thịt hến",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/thit-hen-lam-sach_c612a941-9b5b-4e2c-a7c2-7518219f8826-og.jpg"
+  },
+  {
+    "id": "4badc5c0-efda-4cb5-a0ff-23380fa7ddf2",
+    "code": "thit-heo-ba-chi-ou4je",
+    "name": "Thịt heo ba chỉ",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/1/image/Products/Images/8781/226834/bhx/ba-roi-heo-1kg_202601271522376205.jpg"
+  },
+  {
+    "id": "2eb699dc-70ee-4192-9ea2-6291535345e1",
+    "code": "thit-heo-mo-2sua2",
+    "name": "Thịt heo mỡ",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/1/image/Products/Images/8781/226842/bhx/nac-dam-heo-1kg_202601080950454483.jpg"
+  },
+  {
+    "id": "39fcc4e7-cd22-43cf-84e6-e8dae27828fd",
+    "code": "thit-heo-nac-dua8b",
+    "name": "Thịt heo nạc",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/1/image/Products/Images/8781/226842/bhx/nac-dam-heo-1kg_202601080950454483.jpg"
+  },
+  {
+    "id": "3634e051-6e4e-4bde-9d05-2c86ff2a8bc6",
+    "code": "thit-heo-xay-3pche",
+    "name": "Thịt heo xay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10617947-20241205094732.jpg"
+  },
+  {
+    "id": "4e6e0e7e-9ea8-4650-ba4f-c71103149391",
+    "code": "thit-heo-xay-dac-biet-xk5ep",
+    "name": "Thịt heo xay đặc biệt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10617963-20241205102004.jpg"
+  },
+  {
+    "id": "4c78304c-8e2e-4c15-b45a-f4f64e9056a7",
+    "code": "thit-nac-dam-dau-gion-92rit",
+    "name": "Thịt Nạc dăm đầu giòn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10183114-20241205101805.jpg"
+  },
+  {
+    "id": "ca4e4ae8-440c-4c19-9884-2ac716854fb0",
+    "code": "thit-nac-dam-heo-nr094",
+    "name": "Thịt Nạc dăm heo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10617957-20241205094605.jpg"
+  },
+  {
+    "id": "6d21ba01-c314-4d52-bc6f-8c4ee32ae957",
+    "code": "thit-nac-heo-w7psl",
+    "name": "Thịt nạc heo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/226842/nac-dam-heo-1kg_202607300940333712.jpg"
+  },
+  {
+    "id": "dbc277ce-16e7-4a75-966f-7e2fcd5ac323",
+    "code": "thit-nac-nong-w1hx1",
+    "name": "Thịt Nạc nọng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10281597-20241205101823.jpg"
+  },
+  {
+    "id": "b365519c-2602-4989-80a7-a3c5c403bdd6",
+    "code": "thit-nac-than-heo-c0ocx",
+    "name": "Thịt Nạc thăn heo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10617958-20241205094633.jpg"
+  },
+  {
+    "id": "6daf05f2-f000-469f-86ac-cb61994c4a0c",
+    "code": "thit-nam-bung-bo-22ze5",
+    "name": "Thịt Nạm bụng bò",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/eaa340b9-a0fa-479b-a420-f2dac8abeae1_20210906084834-og.png"
+  },
+  {
+    "id": "c1749162-986c-4607-856d-82d4400c342c",
+    "code": "thit-ngan-nme80",
+    "name": "Thịt ngan",
+    "imageUrl": "https://product.hstatic.net/200000401369/product/ngan_de_03487cbd31f346ceb69524fd3b9012b6.jpg"
+  },
+  {
+    "id": "4d6893b4-2eba-4150-b7f2-6c50d30d842b",
+    "code": "thit-ngong-s3ewx",
+    "name": "Thịt ngỗng",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/4d6893b4-2eba-4150-b7f2-6c50d30d842b/1792033693218.jpg"
+  },
+  {
+    "id": "f4f70d67-d036-4210-b0bc-006e2bb21054",
+    "code": "thit-nguoi-thit-xong-khoi-w2na5",
+    "name": "Thịt nguội Thịt xông khói",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/7618/267872/bhx/jambon-xong-khoi-shinshu-goi-200g-202201191038042850.jpg"
+  },
+  {
+    "id": "43bd7325-c1e9-41bf-af8c-36c8dfd0deb6",
+    "code": "ING-3D9F30",
+    "name": "Thịt nọng heo",
+    "imageUrl": "https://nongsandungha.com/wp-content/uploads/2026/08/nac-nong-heo.jpg"
+  },
+  {
+    "id": "a9dfb313-9c83-45a3-983e-c76e8612b05e",
+    "code": "thit-oc-wqlvu",
+    "name": "Thịt ốc",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/thit-oc-lam-sach-mv_c792ef68-2b47-4874-9892-3627ee7362f2-og.jpg"
+  },
+  {
+    "id": "93c3ef88-8cf8-49a6-89aa-9af29f92150d",
+    "code": "thit-suon-than-70qhh",
+    "name": "Thịt Sườn thăn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10281593-20241205101931.jpg"
+  },
+  {
+    "id": "a4f79ed8-8242-4bfc-b29f-d090185c760c",
+    "code": "thit-suon-vai-heo-825j3",
+    "name": "Thịt Sườn vai heo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10617948-20241205094702.jpg"
+  },
+  {
+    "id": "a270e17e-34a9-4d10-941c-a082a7e5f741",
+    "code": "ING-9F59D5",
+    "name": "Thịt thỏ",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/a270e17e-34a9-4d10-941c-a082a7e5f741/1792036739931.jpg"
+  },
+  {
+    "id": "ab6e96e2-66ed-4df1-af95-427ce2f922e8",
+    "code": "thit-trau-fghgm",
+    "name": "Thịt trâu",
+    "imageUrl": "https://shoptaybac.com/wp-content/uploads/2025/04/Thit-trau-ban-tuoi-loai-1.jpg"
+  },
+  {
+    "id": "f08d0b07-bb15-48ea-8fc3-5ca4d81bd71b",
+    "code": "thit-vai-heo-me15t",
+    "name": "Thịt vai heo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10617956-20241205094748.jpg"
+  },
+  {
+    "id": "891a1cda-548a-462b-a01c-46f8684f7eb1",
+    "code": "thit-vit-o6tfh",
+    "name": "Thịt vịt",
+    "imageUrl": "https://cdn.tgdd.vn/Files/2017/08/02/1009369/cach-chon-mua-thit-vit-chac-day-thom-ngon-202206011351538655.jpg"
+  },
+  {
+    "id": "62982354-0623-4be2-a604-0867dd55448d",
+    "code": "tia-to-9k3wv",
+    "name": "Tía tô",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/299255/bhx/thumb-tia-to_202506131016015354.jpg"
+  },
+  {
+    "id": "148e63d9-956e-4759-82d2-fd9b2f34b8af",
+    "code": "tieu-3bx3a",
+    "name": "Tiêu",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/2809/225392/bhx/225392-slide-moi_202411121307016558.jpg"
+  },
+  {
+    "id": "2994d001-6dc1-4e02-9b1f-b1c429059110",
+    "code": "tieu-den-u0187",
+    "name": "Tiêu đen",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428480341910316253-lo-bang-ve-sinh-ban-dom-diana-sensi-cu-conh-3-mieng-35cm-og.jpg"
+  },
+  {
+    "id": "db7b7b19-aec5-42db-9920-74d4efca2a14",
+    "code": "tieu-hoi-p19t5",
+    "name": "Tiểu hồi",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8275/216082/bhx/hat-tieu-hoi-dh-foods-natural-hu-30g-201912101327523330.jpg"
+  },
+  {
+    "id": "8296e52c-66b7-48e6-8e92-6995a3d3df92",
+    "code": "tieu-so-nguyen-hat-xb5vs",
+    "name": "Tiêu sọ nguyên hạt",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2809/244902/bhx/tieu-so-hat-nguyen-bao-goi-50g-202110281054073985.jpg"
+  },
+  {
+    "id": "5deb6610-c27c-4a6f-8f2a-062d96f698ff",
+    "code": "ING-0CCB45",
+    "name": "Tiêu sọ Phú Quốc",
+    "imageUrl": "https://dhfoods.com.vn/upload/SP_Gia%20Vi%20Tu%20Nhien/2026/Natural-Tieu-So-Xay-Phu-Quoc-45g-New-b9c35029-b304-4f18-9c0a-2fcad5f2c7fb.webp"
+  },
+  {
+    "id": "2db18abf-228c-48b7-96d2-764f6dfee8bc",
+    "code": "tieu-so-xay-h4xai",
+    "name": "Tiêu sọ xay",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/tieu-so-xay-phu-quoc-dh-foods-lo-45g.jpg"
+  },
+  {
+    "id": "8370aea5-2a45-476b-b495-2790125b3abd",
+    "code": "tieu-xanh-v75p7",
+    "name": "Tiêu xanh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/tieu-xanh-goi-50g.jpg"
+  },
+  {
+    "id": "d4899648-06e8-4bf6-891b-4dd0cce980d0",
+    "code": "tim-ga-8o0bs",
+    "name": "Tim gà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10283208-20241205094232.jpg"
+  },
+  {
+    "id": "77c3c97e-34c9-4d6e-aba5-6bd4ea880845",
+    "code": "tim-heo-2o8rv",
+    "name": "Tim heo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/tim-heo.png"
+  },
+  {
+    "id": "294e9cb8-da8b-42d1-8529-c6a809a3a261",
+    "code": "tinh-bot-bap-lam-banh-t00lu",
+    "name": "Tinh bột bắp làm bánh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/stfood-tinh-bot-bap-lam-banh-200g-t24-20230727063930.jpg"
+  },
+  {
+    "id": "7f3e38b0-de2e-41c8-836f-61426f0cb3eb",
+    "code": "toi-ehjc3",
+    "name": "Tỏi",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8820/271536/bhx/toi-co-don-tui-300g-202205190845024132.jpg"
+  },
+  {
+    "id": "8f6c0e07-38d2-4d2b-be07-b2095b3796b8",
+    "code": "toi-cu-hai-duong-ndm8m",
+    "name": "Tỏi củ Hải Dương",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427301852110626163-g1-toi-cu-hai-duong-hop-300g-og.jpg"
+  },
+  {
+    "id": "3b5e8de5-817a-4515-bff2-a6a1d816f3a0",
+    "code": "toi-cu-ly-son-icxvr",
+    "name": "Tỏi củ Lý Sơn",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/toi-cu-ly-son-100g.png"
+  },
+  {
+    "id": "862689ca-46ca-40b7-bf10-cc677fdb9d41",
+    "code": "tom-c0k7d",
+    "name": "Tôm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/04/10283789-hdc-tom-su-non-tu-nhien-200g-20240404082149.jpg"
+  },
+  {
+    "id": "60d8c5d2-606e-4f01-990a-553b7e13d5b8",
+    "code": "tom-kho-4blae",
+    "name": "Tôm khô",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8400/326569/bhx/tom-kho-an-vinh-hu-100g-202406071423208120.jpg"
+  },
+  {
+    "id": "894e3a4f-35af-413d-8d36-6df2d4bef9cb",
+    "code": "tom-su-niihr",
+    "name": "Tôm sú",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/50-450g-20221007080914-og.jpg"
+  },
+  {
+    "id": "6c85b9a1-d048-43e1-ac2c-fa6e5712717a",
+    "code": "tom-the-gsp89",
+    "name": "Tôm thẻ",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/340083/bhx/tom-the-cp_202511101112421650.jpg"
+  },
+  {
+    "id": "70f0f5a7-244e-452a-8d4b-a6508d1d63e7",
+    "code": "tom-thit-zcki6",
+    "name": "Tôm thịt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/20-450g-20221007080631-og.jpg"
+  },
+  {
+    "id": "33259790-eb13-41d1-bd47-87c64c335be6",
+    "code": "top-mo-chien-gion-5a7qr",
+    "name": "Tóp mỡ chiên giòn",
+    "imageUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/M%C3%B3n_t%C3%B3p_m%E1%BB%A1.jpg/960px-M%C3%B3n_t%C3%B3p_m%E1%BB%A1.jpg?utm_source=vi.wikipedia.org&utm_campaign=api&utm_content=thumbnail"
+  },
+  {
+    "id": "6c34e145-5c3b-46b4-bb96-b9d3e8dfb936",
+    "code": "tra-ck3za",
+    "name": "Trà",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2385/203772/bhx/tra-xanh-thai-nguyen-hung-thai-2-sao-hop-200g-202209122330358192.jpg"
+  },
+  {
+    "id": "afa39048-bd44-4bee-9873-07194cac538a",
+    "code": "tran-bi-kjoq8",
+    "name": "Trần bì",
+    "imageUrl": "https://sieuthitra.vn/upload/sanpham/tran-bi-vo-quyt-say-kho-hu-pet-80gr-1.jpg"
+  },
+  {
+    "id": "5ba7d6a2-4011-4e23-b365-1fae1dbc0a4e",
+    "code": "trung-bac-thao-hqhba",
+    "name": "Trứng bắc thảo",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8783/311103/bhx/trung-vit-bac-thao-hop-4-qua-giao-ngau-nhien-thuong-hieu-202404161147546482.jpg"
+  },
+  {
+    "id": "75e1d811-8890-4500-8d36-f213b4bc11dc",
+    "code": "trung-cut-5mmup",
+    "name": "Trứng cút",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2026/02/trung-cut_10195899-10199093-10195881-20260211174603.png"
+  },
+  {
+    "id": "41df9d6a-90cf-44fc-b58e-4bc3e1c7a03f",
+    "code": "trung-cut-lon-1keo1",
+    "name": "Trứng cút lộn",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8783/311101/bhx/trung-cut-hop-30_202509301108005468.jpg"
+  },
+  {
+    "id": "5a5aeff4-37db-4571-9aba-248bab3218ca",
+    "code": "trung-ga-luo5e",
+    "name": "Trứng gà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/trung-ga-tuoi-dabaco-hop-10-qua_b4759e0e-0137-4de9-aa2d-994fc19daf04-og.jpg"
+  },
+  {
+    "id": "048830dc-2a98-4aa8-b465-aacb8c42c412",
+    "code": "trung-ga-non-49rjn",
+    "name": "Trứng gà non",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8790/308246/bhx/trung-ga-non-va-long-ga-nt-pearly-food-300g-202408271532433495.png"
+  },
+  {
+    "id": "a06e22f8-07f8-4693-857d-5281c39a577d",
+    "code": "trung-vit-b4bx2",
+    "name": "Trứng vịt",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_260x260/https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8783/358508/bhx/trung-vit-hop-10-qua-tu-600g-700g-giao-ngau-nhien-thuong-hieu-clone_202510301504309050.jpg"
+  },
+  {
+    "id": "51895ee7-82f3-41b0-8cdc-0bfc3fba54b7",
+    "code": "trung-vit-lon-amkwc",
+    "name": "Trứng vịt lộn",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8783/249752/bhx/dieu-honga2-min_202409301347585189.jpg"
+  },
+  {
+    "id": "26014be6-d7ac-4bde-b194-70671acac233",
+    "code": "trung-vit-muoi-qizkr",
+    "name": "Trứng vịt muối",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8783/311104/bhx/trung-vit-muoi-hop-4-qua-giao-ngau-nhien-thuong-hieu-202404161158086368.jpg"
+  },
+  {
+    "id": "cca7b932-f6db-45ad-8ed4-e6dc4991ee07",
+    "code": "ING-C004C3",
+    "name": "Tu hài",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cca7b932-f6db-45ad-8ed4-e6dc4991ee07/1792036759536.jpg"
+  },
+  {
+    "id": "f9d670af-c39b-4ea9-bf83-be6b941fa737",
+    "code": "tuong-ban-zkzda",
+    "name": "Tương bần",
+    "imageUrl": "https://salt.tikicdn.com/cache/750x750/ts/product/98/8a/ca/9494c0c5d1464bc8fd02fbf1110f1186.jpg"
+  },
+  {
+    "id": "93d57516-34d8-4391-aecb-5432c4338ad4",
+    "code": "tuong-ca-6lfpf",
+    "name": "Tương cà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/11/10624156-20241110105502.jpg"
+  },
+  {
+    "id": "7bc14ec9-2ad7-49a6-8119-b0c95c3d8124",
+    "code": "tuong-ca-chua-uavoi",
+    "name": "Tương cà chua",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428401662510008931-cha-khan-giay-lua-2-lop-hensley-hop-200-to-og.jpg"
+  },
+  {
+    "id": "4fc69baa-3ed5-4fbe-91f5-866d8367ff23",
+    "code": "tuong-dau-aubnj",
+    "name": "Tương đậu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/tuong-dau-chungjungone-daesang-hop-200g.jpg"
+  },
+  {
+    "id": "1babddcf-702e-4d30-b44a-c4de2d3da439",
+    "code": "tuong-hot-tuong-ban-selvr",
+    "name": "Tương hột Tương bần",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/2567/76915/bhx/tuong-hot-cholimex-250g-2-700x467.jpg"
+  },
+  {
+    "id": "6a0d214e-df1a-41b2-929d-5bf2a6cd8138",
+    "code": "tuong-ot-zb77n",
+    "name": "Tương ớt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/todbc_400g-20230526072009.png"
+  },
+  {
+    "id": "6aae552b-599c-44d2-922c-79ea85a3c58a",
+    "code": "uc-ga-3olk1",
+    "name": "Ức gà",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10283216-20241205094431.jpg"
+  },
+  {
+    "id": "7415d54c-a1c3-44bf-ac65-e891487576b8",
+    "code": "vi-chua-zkocf",
+    "name": "Vị chua",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/08/10141091-20230831064215.jpg"
+  },
+  {
+    "id": "89acad4b-0df0-495c-80a5-7ea639d83ce9",
+    "code": "vit-xiem-tbr2w",
+    "name": "Vịt xiêm",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8790/303471/bhx/vit-nua-con-cp_202512110940466033.jpg"
+  },
+  {
+    "id": "8b0b70d2-fe3d-4259-a1da-5b572caeab9d",
+    "code": "xa-lach-lolo-xanh-y8hpe",
+    "name": "Xà lách lolo xanh",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/xa-lach-lolo-xanh-wineco-300g.jpg"
+  },
+  {
+    "id": "835eb546-f2e5-4547-98de-c9f96fda7405",
+    "code": "xa-lach-thuy-tinh-d40w8",
+    "name": "Xà lách thủy tinh",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/303824/bhx/thumb-hung-que-4_202506131023511107.jpg"
+  },
+  {
+    "id": "0aa28436-2d23-425a-86e4-bbe90ae1adb4",
+    "code": "xi-dau-nuoc-tuong-den-n5jv8",
+    "name": "Xì dầu (Nước tương đen)",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/05/thuong-hang-1951-20230526071355.png"
+  },
+  {
+    "id": "f646aaeb-d7e1-4d13-9baa-5edd1810b2bd",
+    "code": "xoai-cat-chu-bao-vang-1zwj8",
+    "name": "Xoài cát chu bao vàng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/04/xoai-cat-chu-tranl-loai-1-20230418043919.jpg"
+  },
+  {
+    "id": "e3758956-7336-43f5-9316-e5d73a233c85",
+    "code": "xoai-cat-chu-chu-chin-kdtce",
+    "name": "Xoài Cát Chu Chú Chín",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xoai-cat-chu-chu-chin.jpg"
+  },
+  {
+    "id": "b45623d9-c964-4783-a8ef-e91dad2a30ef",
+    "code": "xoai-dai-giong-dai-loan-7xucr",
+    "name": "Xoài dài giống Đài Loan",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xoai-dai-giong-dai-loan.png"
+  },
+  {
+    "id": "b31bd82b-3027-44f0-9602-554d8f3f2339",
+    "code": "xoai-do-giong-dai-loan-e3zfa",
+    "name": "Xoài Đỏ giống Đài Loan",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xoai-do-giong-dai-loan.jpg"
+  },
+  {
+    "id": "a11a98a1-a84c-4b00-b5b4-2a02008b61fb",
+    "code": "xoai-giong-j2ekw",
+    "name": "Xoài giống",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xoai-giong-uc.png"
+  },
+  {
+    "id": "7a2d3f1e-cf47-4c3a-b015-9d2d7480274a",
+    "code": "xoai-keo-6dmo0",
+    "name": "Xoài keo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xoai-keo.jpg"
+  },
+  {
+    "id": "9aae869c-b33c-4397-a2bd-3b5ee4185f93",
+    "code": "xoai-tu-quy-xwjx8",
+    "name": "Xoài tứ quý",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/xoai-20230721085329.png"
+  },
+  {
+    "id": "dbb6c19e-8472-43fb-a0c8-1631b9a09c32",
+    "code": "xoai-xanh-xy1fq",
+    "name": "Xoài xanh",
+    "imageUrl": "https://cdn.tgdd.vn/Products/Images/8788/234063/bhx/xoai-tu-quy-202403061019108231.jpg"
+  },
+  {
+    "id": "344a76cb-a036-41ea-9d40-86b281aeca70",
+    "code": "xot-basilico-jymgq",
+    "name": "Xốt Basilico",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428571176510008531-lo-sot-gia-vi-hoàn-chinh-canh-chua-nam-bo-barona-gui-80g-og.jpg"
+  },
+  {
+    "id": "ac679b9f-e41a-4e71-8d1f-40a1683426ed",
+    "code": "xot-bo-kho-bfkln",
+    "name": "Xốt bò kho",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-bo-kho-cholimex-goi-90g.jpg"
+  },
+  {
+    "id": "d1fb22be-ecbe-4e35-9328-fc647ffdf566",
+    "code": "xot-ca-chua-thit-bo-bam-7ljqu",
+    "name": "Xốt cà chua thịt bò băm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428571151910008529-lo-sot-gia-vi-thit-nuong-sa-barona-gui-80g-og.jpg"
+  },
+  {
+    "id": "f15905d8-88ae-4b5c-a4b9-68ddc872a495",
+    "code": "xot-gia-vi-hoan-chinh-ca-ri-pps50",
+    "name": "Xốt gia vị hoàn chỉnh cà ri",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-gia-vi-hoan-chinh-barona-ca-ri-goi-80g.jpg"
+  },
+  {
+    "id": "7ddc91da-519c-419f-b40e-ef47aa4eea76",
+    "code": "xot-gia-vi-hoan-chinh-ga-chien-nuoc-mam-gbhjq",
+    "name": "Xốt gia vị hoàn chỉnh gà chiên nước mắm",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-gia-vi-hoan-chinh-barona-ga-chien-nuoc-mam-80g.jpg"
+  },
+  {
+    "id": "a3034c3f-d9e0-4e91-8fe3-7bd56e873ebc",
+    "code": "xot-gia-vi-hoan-chinh-nuong-muoi-ot-pk3mm",
+    "name": "Xốt gia vị hoàn chỉnh nướng muối ớt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-gia-vi-hoan-chinh-barona-nuong-muoi-ot-80g.jpg"
+  },
+  {
+    "id": "9393e19d-6789-47bb-9a7e-06643c85fe3d",
+    "code": "xot-gia-vi-hoan-chinh-thit-nuong-aujz7",
+    "name": "Xốt gia vị hoàn chỉnh thịt nướng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-gia-vi-hoan-chinh-barona-thit-nuong-han-quoc-80g.jpg"
+  },
+  {
+    "id": "e3808999-16b5-4b4f-9c8e-aec99d3b54a7",
+    "code": "xot-gia-vi-hoan-chinh-xao-sa-ot-pvro5",
+    "name": "Xốt gia vị hoàn chỉnh xào sả ớt",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-gia-vi-hoan-chinh-barona-xao-sa-ot-80g.png"
+  },
+  {
+    "id": "19b27e60-109d-4f5e-b7dd-cdeaa88a4ae5",
+    "code": "xot-mayonnaise-55oaj",
+    "name": "Xốt mayonnaise",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162428596650910009550-tuy-bot-bonh-ron-pha-san-ajinomoto-gui-200g-og.jpg"
+  },
+  {
+    "id": "10e22602-582c-4bea-aaf8-6c7172f31039",
+    "code": "xot-mi-napoletana-481bj",
+    "name": "Xốt mì Napoletana",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-mi-napoletana-barilla-lo-400g.jpg"
+  },
+  {
+    "id": "89a38d31-7028-4cfc-882f-12b6c830d9bc",
+    "code": "xot-mi-o-liu-8vr0l",
+    "name": "Xốt mì ô liu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-mi-o-liu-barilla-lo-400g.jpg"
+  },
+  {
+    "id": "3662763a-17aa-4767-8f96-4590a3f9c015",
+    "code": "xot-muoi-kim-cho-asvs4",
+    "name": "Xốt muối kim cho",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-muoi-kim-cho-barona-han-quoc-180g.jpg"
+  },
+  {
+    "id": "7f4676be-9dff-4344-ad6a-6ef8e766cca0",
+    "code": "xot-salad-me-rang-vmnpx",
+    "name": "Xốt salad mè rang",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-salad-golden-farm-me-rang-250ml.jpg"
+  },
+  {
+    "id": "28c40d52-370d-4384-b8d7-e6c101f90049",
+    "code": "xot-spaghetti-presco-ldbcr",
+    "name": "Xốt spaghetti Presco",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/sot-spaghetti-ottogi-presco-lo-400g.jpg"
+  },
+  {
+    "id": "b9758a3d-e6d8-4749-a571-52da3f2ddb85",
+    "code": "xot-tuong-6ilre",
+    "name": "Xốt tương",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/07/lee-kum-kee-xot-tuong-ngot-240g-t12-20230727064540.png"
+  },
+  {
+    "id": "71f60905-5da7-4f6f-b519-f97c12bbe495",
+    "code": "xot-uop-thit-nuong-rpn1d",
+    "name": "Xốt ướp thịt nướng",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2025/10/10009184-20251022064621.png"
+  },
+  {
+    "id": "d84c9773-a678-4c1d-8a69-ef7941ccacf5",
+    "code": "xot-xa-xiu-0covg",
+    "name": "Xốt xá xíu",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/xot-xa-xiu-cholimex-goi-70g.jpg"
+  },
+  {
+    "id": "5513c707-cbf7-4ed8-80d2-c2658a88017f",
+    "code": "xuc-xich-yssrm",
+    "name": "Xúc xích",
+    "imageUrl": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/5/image/Products/Images/7618/296859/bhx/xuc-xich-vuon-bia-lc-foods-goi-500g_202605291331503071.jpg"
+  },
+  {
+    "id": "f982cac6-e0e4-4584-b0d7-7ff8a3419f69",
+    "code": "xuong-bo-c9924",
+    "name": "Xương bò",
+    "imageUrl": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/f982cac6-e0e4-4584-b0d7-7ff8a3419f69/1791975362866.jpg"
+  },
+  {
+    "id": "aed43da7-af5b-467d-87d6-7a726da055e8",
+    "code": "xuong-duoi-heo-fla1l",
+    "name": "Xương đuôi heo",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427172139810053791-kg-xuong-duui-heo-og.jpg"
+  },
+  {
+    "id": "9ff88d18-c4da-4d38-b64e-7170e592f41f",
+    "code": "xuong-heo-s74p8",
+    "name": "Xương heo",
+    "imageUrl": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/233789/xuong-heo-co-thit-1kg_202607300931064156.jpg"
+  },
+  {
+    "id": "da0fb512-54e0-4b0f-a30d-98c3c60962d2",
+    "code": "yen-mach-an-lien-n64lv",
+    "name": "Yến mạch ăn liền",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/yen-mach-nguyen-chat-an-lien-nhap-khau-uc-xuan-an-hop-400g-20221007081032-og.jpg"
+  },
+  {
+    "id": "1bd89993-d18f-4c0c-8d1f-89ba727bbdf6",
+    "code": "yen-mach-hanh-nhan-pho-mai-gh0a2",
+    "name": "Yến Mạch Hạnh nhân Phô mai",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2022/162427598089810181145-g1-oi-lo-og.jpg"
+  },
+  {
+    "id": "b88cffd1-e3b4-4203-8f6c-cbb2fe8fccf7",
+    "code": "yen-mach-oganic-2veep",
+    "name": "Yến Mạch Oganic",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/02/viber_image_2023-01-05_17-05-54-489_1-removebg-preview-41-.jpg"
+  },
+  {
+    "id": "f750087d-0b98-4c11-ba2a-724b77e0e0e9",
+    "code": "yen-mach-trai-cay-pu610",
+    "name": "Yến Mạch Trái Cây",
+    "imageUrl": "https://s3-hcmc02.higiocloud.vn/images/2023/09/10181143-20230912094248.jpeg"
+  }
+]

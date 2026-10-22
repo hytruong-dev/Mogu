@@ -1,0 +1,2148 @@
+[
+  {
+    "pendingId": "7ac6f643-ffd4-40eb-9aba-20e2484d79e7",
+    "pendingCode": "banh-da-do-hai-phong-tuoi-tppoj",
+    "pendingName": "Bánh đa đỏ Hải Phòng tươi",
+    "pendingGroup": "Tinh bột & Ngũ cốc",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/banh-da-do-hai-phong-tuoi-tppoj.jpg",
+    "usedInDishes": [
+      "Bánh đa cua Hải Phòng"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "e531c8bd-3e09-48c0-b263-921affb08429",
+        "activeCode": "banh-da-cvny6",
+        "activeName": "Bánh đa",
+        "activeGroup": "Nông sản & ngũ cốc",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/3234/215801/bhx/banh-trang-me-nuong-an-nhien-goi-120g-201912040954252409.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "ca18fdf9-3ec1-4a4d-948f-1c7bfaba6cd9",
+    "pendingCode": "bi-heo-tron-thinh-gao-04aqb",
+    "pendingName": "Bì heo trộn thính gạo",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/bi-heo-tron-thinh-gao-04aqb.jpg",
+    "usedInDishes": [
+      "Cơm tấm sườn bì chả"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "beecdad5-dc61-4610-a05f-7f26e56aeb83",
+        "activeCode": "gao-6r0y4",
+        "activeName": "Gạo",
+        "activeGroup": "Nông sản & ngũ cốc",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/162428573497410009734-g1-gao-thoi-lan-sua-bao-minh-tyi-5kg-og.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Gạo'"
+      }
+    ]
+  },
+  {
+    "pendingId": "98308e60-7a1c-4229-9c67-85054fba8ad0",
+    "pendingCode": "bot-gia-vi-bo-kho-iayya",
+    "pendingName": "Bột gia vị bò kho",
+    "pendingGroup": null,
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/bot-gia-vi-bo-kho-iayya.jpg",
+    "usedInDishes": [
+      "Bò kho bánh mì"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "b3ccae1c-1da2-4362-a639-819e605b924b",
+    "pendingCode": "bot-tom-chay-hue-ruoc-tom-8dwof",
+    "pendingName": "Bột tôm chấy Huế (Ruốc tôm)",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/bot-tom-chay-hue-ruoc-tom-8dwof.jpg",
+    "usedInDishes": [
+      "Bánh ram ít Huế"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "862689ca-46ca-40b7-bf10-cc677fdb9d41",
+        "activeCode": "tom-c0k7d",
+        "activeName": "Tôm",
+        "activeGroup": "Thủy hải sản",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/04/10283789-hdc-tom-su-non-tu-nhien-200g-20240404082149.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Tôm'"
+      }
+    ]
+  },
+  {
+    "pendingId": "13a4298d-7169-449c-adad-63c707034fc4",
+    "pendingCode": "bun-soi-to-bun-bo-hue-eueh4",
+    "pendingName": "Bún sợi to Bún Bò Huế",
+    "pendingGroup": "Tinh bột & Ngũ cốc",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/bun-soi-to-bun-bo-hue-eueh4.jpg",
+    "usedInDishes": [
+      "Bún bò Huế"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "f11261c7-83dd-4365-81a3-530da947dc45",
+        "activeCode": "bun-9uslg",
+        "activeName": "Bún",
+        "activeGroup": "Nông sản & ngũ cốc",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/bun-tuoi-safoco-goi-300g_de532e11-46e5-467b-aed8-3bba91a54543-og.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "ff615e5b-4657-46a3-9a9d-6ab610ad0290",
+        "activeCode": "bun-bo-hue-xhhbd",
+        "activeName": "Bún bò Huế",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/bun-bo-hue-vifon-hoang-gia-goi-120g_3671eff9-51d4-4f0e-b736-02696815fc73-og.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Bún bò Huế'"
+      }
+    ]
+  },
+  {
+    "pendingId": "842c9c5d-e459-42c1-8f6b-808f5b3b431a",
+    "pendingCode": "cha-bo-da-nang-hkz0k",
+    "pendingName": "Chả bò Đà Nẵng",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cha-bo-da-nang-hkz0k.jpg",
+    "usedInDishes": [
+      "Bún mắm nêm Đà Nẵng"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "82fd19ca-8137-4379-8a12-0c65c081b741",
+    "pendingCode": "cha-ca-thu-chien-hap-6ki89",
+    "pendingName": "Chả cá thu chiên hấp",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cha-ca-thu-chien-hap-6ki89.jpg",
+    "usedInDishes": [
+      "Bún chả cá Nha Trang",
+      "Bún cá cay Hải Phòng",
+      "Bánh canh ghẹ",
+      "Bún sứa Quy Nhơn"
+    ],
+    "dishCount": 4,
+    "topCandidates": [
+      {
+        "activeId": "bdfacf39-9a29-4caf-990c-4415e8a37b8f",
+        "activeCode": "ca-thu-0ywnt",
+        "activeName": "Cá thu",
+        "activeGroup": "Thủy hải sản",
+        "activeImage": "https://cdn.tgdd.vn/Files/2017/11/18/1042600/cach-chon-ca-thu-tuoi-ngon-dinh-duong-cho-chi-em-noi-tro-202206111324556578.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Cá thu'"
+      }
+    ]
+  },
+  {
+    "pendingId": "ce535032-da18-4a60-b796-bdb464e7b28b",
+    "pendingCode": "cha-com-ha-noi-0jqaq",
+    "pendingName": "Chả cốm Hà Nội",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cha-com-ha-noi-0jqaq.jpg",
+    "usedInDishes": [
+      "Bún đậu mắm tôm"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "33403fc3-dac8-4137-92fd-909d303e9e89",
+    "pendingCode": "cha-trung-hap-thit-viwuf",
+    "pendingName": "Chả trứng hấp thịt",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cha-trung-hap-thit-viwuf.jpg",
+    "usedInDishes": [
+      "Cơm tấm sườn bì chả"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Thịt'"
+      }
+    ]
+  },
+  {
+    "pendingId": "8c8399c8-8eaa-440d-a83a-e8c91177d2a4",
+    "pendingCode": "chanh-tuoi-va-ot-hiem-ts23x",
+    "pendingName": "Chanh tươi và ớt hiểm",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/chanh-tuoi-va-ot-hiem-ts23x.jpg",
+    "usedInDishes": [
+      "Bún mắm miền Tây"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "9cf036c5-6905-4dff-b1a6-edbe094448df",
+        "activeCode": "chanh-bfxpq",
+        "activeName": "Chanh",
+        "activeGroup": "Trái cây",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/02/chanh-khong-hat-500g.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "00c1d2dd-a891-4441-86ee-76551689683a",
+    "pendingCode": "chi-chuong-hai-phong-ot-chung-095en",
+    "pendingName": "Chí chương Hải Phòng (Ớt chưng)",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/chi-chuong-hai-phong-ot-chung-095en.jpg",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "e60d2aad-ac72-4686-8358-7f36b1cedc38",
+    "pendingCode": "com-trang-com-nguoi-s0hyk",
+    "pendingName": "Cơm trắng (Cơm nguội)",
+    "pendingGroup": "Tinh bột & Ngũ cốc",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/com-trang-com-nguoi-s0hyk.jpg",
+    "usedInDishes": [
+      "Cơm hến Huế",
+      "Cơm chiên Dương Châu",
+      "Cơm cháy kho quẹt"
+    ],
+    "dishCount": 3,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "4219f610-f8fa-4931-8bf3-4b135467f472",
+    "pendingCode": "cu-cai-muoi-kho-xa-bau-tq7as",
+    "pendingName": "Củ cải muối khô xá bấu",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cu-cai-muoi-kho-xa-bau-tq7as.jpg",
+    "usedInDishes": [
+      "Bún thang Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "09a0b5b5-0905-4574-b41e-aa3fd00157d2",
+        "activeCode": "cai-wktvn",
+        "activeName": "Cải",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8820/230443/bhx/cai-thia-202312271059011562.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Cải'"
+      },
+      {
+        "activeId": "c076a8c7-e910-4163-9ffa-1589837bf16f",
+        "activeCode": "muoi-7g8oe",
+        "activeName": "Muối",
+        "activeGroup": "Gia vị & nước chấm",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/07/visaco-muoi-bien-mat-troi-tinh-450g-t4-20230727064645.png",
+        "score": 75,
+        "reason": "Tên chứa 'Muối'"
+      }
+    ]
+  },
+  {
+    "pendingId": "695b2b82-9739-4b9d-85a1-43a74a5d7b5f",
+    "pendingCode": "cu-ngai-bun-tuoi-lmv3l",
+    "pendingName": "Củ ngải bún tươi",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cu-ngai-bun-tuoi-lmv3l.png",
+    "usedInDishes": [
+      "Bún mắm miền Tây"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "f11261c7-83dd-4365-81a3-530da947dc45",
+        "activeCode": "bun-9uslg",
+        "activeName": "Bún",
+        "activeGroup": "Nông sản & ngũ cốc",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/bun-tuoi-safoco-goi-300g_de532e11-46e5-467b-aed8-3bba91a54543-og.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Bún'"
+      }
+    ]
+  },
+  {
+    "pendingId": "9a314818-9f48-4668-b51b-0993198f58a5",
+    "pendingCode": "cu-san-tuoi-cu-dau-mmw68",
+    "pendingName": "Củ sắn tươi (Củ đậu)",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/cu-san-tuoi-cu-dau-mmw68.jpg",
+    "usedInDishes": [
+      "Bánh mì xíu mại"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "fbe399c5-e557-422d-b746-e5806d180b4d",
+        "activeCode": "cu-dau-8rgrs",
+        "activeName": "Củ đậu",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/cu-dau.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Củ đậu'"
+      },
+      {
+        "activeId": "21a66ef6-5ae9-45d3-9db0-4f6251d98904",
+        "activeCode": "dau-8xfnt",
+        "activeName": "Đậu",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-cove-xanh-goi-500g_fe356ea1-4a64-415e-b3a4-a817039f0173-og.png",
+        "score": 75,
+        "reason": "Tên chứa 'Đậu'"
+      },
+      {
+        "activeId": "ac5d1bb1-532b-4376-9784-520556d70d14",
+        "activeCode": "san-8rqgq",
+        "activeName": "Sắn",
+        "activeGroup": "Đậu & hạt",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8785/233854/bhx/cu-san-202312251507003100.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Sắn'"
+      }
+    ]
+  },
+  {
+    "pendingId": "ea67f63b-ffa0-4608-8e10-2e4dfdc395fb",
+    "pendingCode": "dau-phu-ran-vang-h6kub",
+    "pendingName": "Đậu phụ rán vàng",
+    "pendingGroup": "Món ăn kèm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/dau-phu-ran-vang-h6kub.jpg",
+    "usedInDishes": [
+      "Lẩu riêu cua bắp bò",
+      "Bún ốc Hà Nội",
+      "Bún riêu cua đồng"
+    ],
+    "dishCount": 3,
+    "topCandidates": [
+      {
+        "activeId": "21a66ef6-5ae9-45d3-9db0-4f6251d98904",
+        "activeCode": "dau-8xfnt",
+        "activeName": "Đậu",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-cove-xanh-goi-500g_fe356ea1-4a64-415e-b3a4-a817039f0173-og.png",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "ecdd6098-7f4b-4cdb-afe8-70b3d75aebe2",
+    "pendingCode": "do-chua-ie01z",
+    "pendingName": "Đồ chua",
+    "pendingGroup": null,
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/do-chua-ie01z.jpg",
+    "usedInDishes": [
+      "Gỏi cuốn tôm thịt",
+      "Bún mắm nêm Đà Nẵng"
+    ],
+    "dishCount": 2,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "0ceba18a-36ba-4f9c-b6af-63c7b41e338e",
+    "pendingCode": "do-chua-ca-rot-cu-cai-jxacf",
+    "pendingName": "Đồ chua (Cà rốt & Củ cải)",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/do-chua-ca-rot-cu-cai-jxacf.jpg",
+    "usedInDishes": [
+      "Bánh mì thịt nướng",
+      "Cơm tấm sườn bì chả"
+    ],
+    "dishCount": 2,
+    "topCandidates": [
+      {
+        "activeId": "ccce0de1-87cf-49b6-b3bc-302e1d6e9975",
+        "activeCode": "ca-rot-4rcfv",
+        "activeName": "Cà rốt",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/07/ca-rot-20230721084932.png",
+        "score": 75,
+        "reason": "Tên chứa 'Cà rốt'"
+      },
+      {
+        "activeId": "09a0b5b5-0905-4574-b41e-aa3fd00157d2",
+        "activeCode": "cai-wktvn",
+        "activeName": "Cải",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8820/230443/bhx/cai-thia-202312271059011562.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Cải'"
+      }
+    ]
+  },
+  {
+    "pendingId": "415e74e2-50c5-47d5-a53d-ce2d7fd9f3b8",
+    "pendingCode": "doi-sun-chien-mien-nam-o9mmm",
+    "pendingName": "Dồi sụn chiên miền Nam",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/doi-sun-chien-mien-nam-o9mmm.jpg",
+    "usedInDishes": [
+      "Cháo lòng miền Nam"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "3051aebd-65f0-457c-8392-2a2be31e8209",
+    "pendingCode": "du-du-chua-ngam-gion-k9s9r",
+    "pendingName": "Đu đủ chua ngâm giòn",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/du-du-chua-ngam-gion-k9s9r.jpg",
+    "usedInDishes": [
+      "Cơm gà Hội An"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "13b00302-343a-4ead-96bb-85ce862c5db8",
+    "pendingCode": "dua-leo-va-ca-chua-tuoi-yym2k",
+    "pendingName": "Dưa leo và cà chua tươi",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/dua-leo-va-ca-chua-tuoi-yym2k.jpg",
+    "usedInDishes": [
+      "Bò né trứng ốp la"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "7d43799b-04d0-4255-a646-24011e1d628e",
+        "activeCode": "dua-leo-a56dg",
+        "activeName": "Dưa leo",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8785/226881/bhx/dua-leo-tui-500g_202504140837248711.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "6650ebce-8096-496f-9650-194039247055",
+        "activeCode": "ca-chua-v3v00",
+        "activeName": "Cà chua",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/ca-chua-beef-globalgap-khay-500g.png",
+        "score": 75,
+        "reason": "Tên chứa 'Cà chua'"
+      }
+    ]
+  },
+  {
+    "pendingId": "8fbc76fa-fa96-4ae5-bd12-b7c9ec699213",
+    "pendingCode": "dui-ga-goc-tu-4kxf3",
+    "pendingName": "Đùi gà góc tư",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/dui-ga-goc-tu-4kxf3.jpg",
+    "usedInDishes": [
+      "Cơm gà xối mỡ"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "58011764-3ce5-4cb7-8278-9846cb1abadb",
+    "pendingCode": "gach-ghe-xao-dau-dieu-yremn",
+    "pendingName": "Gạch ghẹ xào dầu điều",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gach-ghe-xao-dau-dieu-yremn.jpg",
+    "usedInDishes": [
+      "Bánh canh ghẹ"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "a5ac5afa-5088-4383-a3ad-962bac434c11",
+        "activeCode": "dau-dieu-giahq",
+        "activeName": "Dầu điều",
+        "activeGroup": "Gia vị & nước chấm",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8271/323030/bhx/dau-mau-dieu-dh-foods-chai-100ml-202404030946077879.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Dầu điều'"
+      }
+    ]
+  },
+  {
+    "pendingId": "a927cb4b-72a4-4e3c-88d0-807843ceaa96",
+    "pendingCode": "gan-heo-tuoi-zones",
+    "pendingName": "Gan heo tươi",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gan-heo-tuoi-zones.jpg",
+    "usedInDishes": [
+      "Nem lụi nướng",
+      "Hủ tiếu Nam Vang",
+      "Cháo lòng miền Nam"
+    ],
+    "dishCount": 3,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "bd8fcd3e-ea32-4a1f-a3b0-89c7e738fdb9",
+    "pendingCode": "gao-tam-thom-iq9ex",
+    "pendingName": "Gạo tấm thơm",
+    "pendingGroup": "Tinh bột & Ngũ cốc",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gao-tam-thom-iq9ex.png",
+    "usedInDishes": [
+      "Cơm tấm sườn bì chả"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "beecdad5-dc61-4610-a05f-7f26e56aeb83",
+        "activeCode": "gao-6r0y4",
+        "activeName": "Gạo",
+        "activeGroup": "Nông sản & ngũ cốc",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/162428573497410009734-g1-gao-thoi-lan-sua-bao-minh-tyi-5kg-og.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "01587e4a-9196-4ef7-b62a-2fcde1453606",
+    "pendingCode": "gia-vi-nau-an-tong-hop-m0pvq",
+    "pendingName": "Gia vị nấu ăn tổng hợp",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gia-vi-nau-an-tong-hop-m0pvq.jpg",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "0084303f-6c12-4f8e-a67c-63462a8436ef",
+    "pendingCode": "gia-vi-uop-toi-gung-s18r6",
+    "pendingName": "Gia vị ướp tỏi gừng",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gia-vi-uop-toi-gung-s18r6.jpg",
+    "usedInDishes": [
+      "Cơm gà xối mỡ"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "eeac23ec-b658-4e34-87c9-bd1e7aa95b1a",
+        "activeCode": "gung-x2tfi",
+        "activeName": "Gừng",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/cu-gung-100g_1ac1e773-c510-4518-84e0-4c8aca6ea8a5-og.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Gừng'"
+      },
+      {
+        "activeId": "7f3e38b0-de2e-41c8-836f-61426f0cb3eb",
+        "activeCode": "toi-ehjc3",
+        "activeName": "Tỏi",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8820/271536/bhx/toi-co-don-tui-300g-202205190845024132.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Tỏi'"
+      }
+    ]
+  },
+  {
+    "pendingId": "599c28eb-e746-4bba-a486-3930608715b3",
+    "pendingCode": "gio-lua-truyen-thong-bkhik",
+    "pendingName": "Giò lụa truyền thống",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gio-lua-truyen-thong-bkhik.jpg",
+    "usedInDishes": [
+      "Bún thang Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "5e372231-0fa4-4f6a-a5b1-f41027f9bb42",
+    "pendingCode": "gio-song-moc-66b6u",
+    "pendingName": "Giò sống (Mọc)",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/gio-song-moc-66b6u.jpg",
+    "usedInDishes": [
+      "Bún mọc sườn chua"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "840c493e-ba05-4b07-b833-fd4ec46b9339",
+    "pendingCode": "hanh-kho-hanh-cu-tim-4gybv",
+    "pendingName": "Hành khô (Hành củ tím)",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-kho-hanh-cu-tim-4gybv.jpg",
+    "usedInDishes": [
+      "Phở gà Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "79a0c0a7-a87e-4b64-9788-0d5ecd84a885",
+    "pendingCode": "hanh-la-va-mui-tau-ngo-gai-x7vr7",
+    "pendingName": "Hành lá và mùi tàu (Ngò gai)",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-la-va-mui-tau-ngo-gai-x7vr7.webp",
+    "usedInDishes": [
+      "Bánh đa cua Hải Phòng"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+        "activeCode": "hanh-la-53bgh",
+        "activeName": "Hành lá",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "2357d337-0a67-42df-bc16-2e212c85279b",
+        "activeCode": "mui-tau-gr4ie",
+        "activeName": "Mùi tàu",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/02/mui-tau-ngo-gai-50g.webp",
+        "score": 75,
+        "reason": "Tên chứa 'Mùi tàu'"
+      },
+      {
+        "activeId": "d7e5d0a0-ca9b-4753-bc34-c53b01c0a954",
+        "activeCode": "ngo-gai-h004i",
+        "activeName": "Ngò gai",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8820/309145/bhx/ngo-gai-rau-om-50g-202306081026496827.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Ngò gai'"
+      }
+    ]
+  },
+  {
+    "pendingId": "a41d338d-8770-48d2-838b-6f54d1852dbd",
+    "pendingCode": "hanh-la-va-ngo-ri-uxy0m",
+    "pendingName": "Hành lá và ngò rí",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-la-va-ngo-ri-uxy0m.jpg",
+    "usedInDishes": [
+      "Bánh canh cua giò heo",
+      "Bánh canh cá lóc Huế"
+    ],
+    "dishCount": 2,
+    "topCandidates": [
+      {
+        "activeId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+        "activeCode": "hanh-la-53bgh",
+        "activeName": "Hành lá",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "8191ad57-d838-40f3-91a9-56ebecb89c4a",
+        "activeCode": "ngo-ri-icfsd",
+        "activeName": "Ngò rí",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/combo-hanh-la-ngo-ri-50g.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Ngò rí'"
+      }
+    ]
+  },
+  {
+    "pendingId": "be9ece2e-de65-4d5b-95b6-3031cb390cd1",
+    "pendingCode": "hanh-la-va-rau-mui-ngo-ri-k24wf",
+    "pendingName": "Hành lá và rau mùi (Ngò rí)",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-la-va-rau-mui-ngo-ri-k24wf.jpg",
+    "usedInDishes": [
+      "Nem rán Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+        "activeCode": "hanh-la-53bgh",
+        "activeName": "Hành lá",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "8191ad57-d838-40f3-91a9-56ebecb89c4a",
+        "activeCode": "ngo-ri-icfsd",
+        "activeName": "Ngò rí",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/combo-hanh-la-ngo-ri-50g.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Ngò rí'"
+      }
+    ]
+  },
+  {
+    "pendingId": "2a1fb462-0c19-42ff-ab64-45ce513b4b93",
+    "pendingCode": "hanh-la-va-rau-ram-tuoi-9pa00",
+    "pendingName": "Hành lá và rau răm tươi",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-la-va-rau-ram-tuoi-9pa00.jpg",
+    "usedInDishes": [
+      "Bún thang Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+        "activeCode": "hanh-la-53bgh",
+        "activeName": "Hành lá",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "81b0181c-5394-4c42-93cd-be5e413e73c6",
+        "activeCode": "rau-ram-6ymci",
+        "activeName": "Rau Răm",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/02/rau-ram-50g.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Rau Răm'"
+      }
+    ]
+  },
+  {
+    "pendingId": "952e87e1-3df6-45b5-8a1b-929fe0039ee6",
+    "pendingCode": "hanh-la-va-thi-la-tuoi-b4ffv",
+    "pendingName": "Hành lá và thì là tươi",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-la-va-thi-la-tuoi-b4ffv.jpg",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+        "activeCode": "hanh-la-53bgh",
+        "activeName": "Hành lá",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "8cf5c6bb-45ab-41e5-b951-64de4966d8e0",
+        "activeCode": "thi-la-3frhq",
+        "activeName": "Thì là",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/thi-la-50g_04aeae6f-f85d-438b-9a67-4e5224b88fa0-og.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Thì là'"
+      }
+    ]
+  },
+  {
+    "pendingId": "da34380f-0c7f-49c4-9f26-9504ea841104",
+    "pendingCode": "hanh-tim-phi-gion-yv2fj",
+    "pendingName": "Hành tím phi giòn",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-tim-phi-gion-yv2fj.jpg",
+    "usedInDishes": [
+      "Xôi xéo Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "58a7dc8b-c12a-4357-80ec-c74a36e02ecc",
+        "activeCode": "hanh-tim-jo4u8",
+        "activeName": "Hành tím",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8785/309133/bhx/hanh-tim-200g-202306080954084413.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "2801b190-e17a-46bb-848f-a45f8408a414",
+    "pendingCode": "hanh-tim-va-gung-nuong-810f0",
+    "pendingName": "Hành tím và gừng nướng",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hanh-tim-va-gung-nuong-810f0.jpg",
+    "usedInDishes": [
+      "Bún thang Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "58a7dc8b-c12a-4357-80ec-c74a36e02ecc",
+        "activeCode": "hanh-tim-jo4u8",
+        "activeName": "Hành tím",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/8785/309133/bhx/hanh-tim-200g-202306080954084413.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "eeac23ec-b658-4e34-87c9-bd1e7aa95b1a",
+        "activeCode": "gung-x2tfi",
+        "activeName": "Gừng",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/cu-gung-100g_1ac1e773-c510-4518-84e0-4c8aca6ea8a5-og.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Gừng'"
+      }
+    ]
+  },
+  {
+    "pendingId": "5a887243-0846-418b-b9c7-88051e5b5ba1",
+    "pendingCode": "hat-dieu-mau-hat-ca-ri-ca29m",
+    "pendingName": "Hạt điều màu (Hạt cà ri)",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hat-dieu-mau-hat-ca-ri-ca29m.jpg",
+    "usedInDishes": [
+      "Bún bò Huế"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "8c05916f-6d40-4cae-96a7-d0bca2b97aaa",
+        "activeCode": "hat-dieu-liq0i",
+        "activeName": "Hạt điều",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/3487/319216/bhx/hat-dieu-vo-lua-ba-tu-binh-phuoc-hop-160g-202312091514345859.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "bf864d53-94a0-47eb-b33c-bae386ec22df",
+    "pendingCode": "hoa-hoi-va-que-thanh-h89rx",
+    "pendingName": "Hoa hồi và quế thanh",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hoa-hoi-va-que-thanh-h89rx.jpg",
+    "usedInDishes": [
+      "Bò sốt vang bánh mì"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "d102a235-2749-45b4-a7b3-ff87a84ba648",
+        "activeCode": "hoa-hoi-gi64w",
+        "activeName": "Hoa hồi",
+        "activeGroup": "Gia vị & nước chấm",
+        "activeImage": "https://cdn.tgdd.vn/Files/2020/09/15/1290311/hoa-hoi-la-gi-loi-ich-cua-hoa-hoi-va-nhung-cach-su-dung-hoa-hoi-202009151237459437.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "48af4258-4a2b-4c43-86fd-aceae39a4100",
+    "pendingCode": "hu-tieu-dai-iksax",
+    "pendingName": "Hủ tiếu dai",
+    "pendingGroup": null,
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/hu-tieu-dai-iksax.jpg",
+    "usedInDishes": [
+      "Hủ tiếu Nam Vang"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "83f52329-5080-484d-a6ba-e1bf1762b6a0",
+    "pendingCode": "kho-muc-mini-nuong-nau-nuoc-dung-0c5iz",
+    "pendingName": "Khô mực mini nướng nấu nước dùng",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/kho-muc-mini-nuong-nau-nuoc-dung-0c5iz.jpg",
+    "usedInDishes": [
+      "Hủ tiếu Mỹ Tho"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "0ea40214-6635-4668-b7e9-0046733fc6b9",
+        "activeCode": "muc-tqodj",
+        "activeName": "Mực",
+        "activeGroup": "Thủy hải sản",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/muc-trung-dong-lanh-thaibifood-loai-a-khay-450g-20221007080841-og.png",
+        "score": 75,
+        "reason": "Tên chứa 'Mực'"
+      }
+    ]
+  },
+  {
+    "pendingId": "07261d46-fe09-43f1-b6bb-050ea3e559d7",
+    "pendingCode": "khoanh-gio-heo-xh2jw",
+    "pendingName": "Khoanh giò heo",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/khoanh-gio-heo-xh2jw.jpg",
+    "usedInDishes": [
+      "Bún bò Huế"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "245cfa22-1bb0-4993-9c38-e25f9a1903d7",
+    "pendingCode": "khuon-chen-sanh-lam-banh-beo-k22j1",
+    "pendingName": "Khuôn chén sành làm bánh bèo",
+    "pendingGroup": "Dụng cụ & Đóng gói",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/khuon-chen-sanh-lam-banh-beo-k22j1.jpg",
+    "usedInDishes": [
+      "Bánh bèo chén"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "00e2a97f-c3d1-4ad6-8111-e8d18bbe44dc",
+    "pendingCode": "la-dong-goi-banh-tuoi-wowmt",
+    "pendingName": "Lá dong gói bánh tươi",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/la-dong-goi-banh-tuoi-wowmt.jpg",
+    "usedInDishes": [
+      "Bánh nậm Huế"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "0dd4a449-46c6-4b24-9811-e4f8df4eb7e6",
+    "pendingCode": "la-lot-va-tia-to-u7jym",
+    "pendingName": "lá lốt và tía tô",
+    "pendingGroup": null,
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/la-lot-va-tia-to-u7jym.jpg",
+    "usedInDishes": [
+      "Lẩu ếch măng cay"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "ff5bd910-157f-43e5-ac12-51cd09fb29e0",
+        "activeCode": "la-lot-g0sbv",
+        "activeName": "Lá lốt",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8820/238405/bhx/la-lot-1kg-202105051630404347.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "62982354-0623-4be2-a604-0867dd55448d",
+        "activeCode": "tia-to-9k3wv",
+        "activeName": "Tía tô",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/299255/bhx/thumb-tia-to_202506131016015354.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Tía tô'"
+      }
+    ]
+  },
+  {
+    "pendingId": "8c7ae569-a079-4fb0-b846-80840b4c5385",
+    "pendingCode": "la-oi-banh-te-tuoi-6uu83",
+    "pendingName": "Lá ổi bánh tẻ tươi",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/la-oi-banh-te-tuoi-6uu83.jpg",
+    "usedInDishes": [
+      "Tré Bình Định"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "08c7b473-448c-49f4-a9c8-06c9c9b56c55",
+    "pendingCode": "lap-xuong-mai-que-lo-eaogu",
+    "pendingName": "Lạp xưởng Mai Quế Lộ",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/lap-xuong-mai-que-lo-eaogu.jpg",
+    "usedInDishes": [
+      "Cơm chiên Dương Châu"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "77d55404-9d67-429f-89de-1acccc1b7365",
+    "pendingCode": "mi-trung-tuoi-soi-tron-2ji9y",
+    "pendingName": "Mì trứng tươi sợi tròn",
+    "pendingGroup": "Tinh bột & Ngũ cốc",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/mi-trung-tuoi-soi-tron-2ji9y.jpg",
+    "usedInDishes": [
+      "Mì xào hải sản"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "4f308333-2ee2-4fab-b02d-c377e0fe0f62",
+    "pendingCode": "mo-ga-thang-yd9pe",
+    "pendingName": "Mỡ gà thắng",
+    "pendingGroup": "Dầu mỡ & Bơ",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/mo-ga-thang-yd9pe.jpg",
+    "usedInDishes": [
+      "Xôi xéo Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "f2e61566-e2fe-490b-b43c-45aa2a858573",
+    "pendingCode": "mo-hanh-la-liv0t",
+    "pendingName": "Mỡ hành lá",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/mo-hanh-la-liv0t.jpg",
+    "usedInDishes": [
+      "Bánh bèo chén",
+      "Cơm tấm sườn bì chả"
+    ],
+    "dishCount": 2,
+    "topCandidates": [
+      {
+        "activeId": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+        "activeCode": "hanh-la-53bgh",
+        "activeName": "Hành lá",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/hanh-la-100g_32be1d63-8c44-4190-81d0-5e1a2a84b301-og.png",
+        "score": 75,
+        "reason": "Tên chứa 'Hành lá'"
+      }
+    ]
+  },
+  {
+    "pendingId": "f2833643-d00c-48bb-b32f-eb617d61acb1",
+    "pendingCode": "muoi-ot-xanh-cham-hai-san-7dr3s",
+    "pendingName": "Muối ớt xanh chấm hải sản",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/muoi-ot-xanh-cham-hai-san-7dr3s.webp",
+    "usedInDishes": [
+      "Bánh canh ghẹ"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "c076a8c7-e910-4163-9ffa-1589837bf16f",
+        "activeCode": "muoi-7g8oe",
+        "activeName": "Muối",
+        "activeGroup": "Gia vị & nước chấm",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/07/visaco-muoi-bien-mat-troi-tinh-450g-t4-20230727064645.png",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "1d42fa7c-2426-430c-9ac2-b610e9a96132",
+    "pendingCode": "nam-bao-ngu-xam-tuoi-4pf85",
+    "pendingName": "Nấm bào ngư xám tươi",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nam-bao-ngu-xam-tuoi-4pf85.jpg",
+    "usedInDishes": [
+      "Lẩu gà lá é Đà Lạt"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "250f9dbb-3f7a-4098-a0de-0e28144ac590",
+        "activeCode": "ING-5D6F19",
+        "activeName": "Bào ngư",
+        "activeGroup": "Thủy hải sản",
+        "activeImage": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdnv2.tgdd.vn/bhx-static/bhx/production/2025/12/image/Products/Images/8400/334534/bhx/bao-ngu-dong-lanh-tan-hai-hoa-khay-300g_202512310950338059.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Bào ngư'"
+      }
+    ]
+  },
+  {
+    "pendingId": "eb98b9ff-a8c4-4946-9e15-69278d6aa552",
+    "pendingCode": "nem-chua-cay-gu1vh",
+    "pendingName": "Nem chua cây",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nem-chua-cay-gu1vh.jpg",
+    "usedInDishes": [
+      "Bún mắm nêm Đà Nẵng"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "f3a6f330-1d22-45cb-9af1-b93145b06f2d",
+    "pendingCode": "nem-ran-cha-gio-pqzw3",
+    "pendingName": "Nem rán (Chả giò)",
+    "pendingGroup": "Món ăn kèm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nem-ran-cha-gio-pqzw3.jpg",
+    "usedInDishes": [
+      "Bún đậu mắm tôm"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "17ffb694-a9f0-499c-b0fa-6cd23a6b7a60",
+    "pendingCode": "nuoc-cham-nem-chua-ngot-25wxw",
+    "pendingName": "Nước chấm nem chua ngọt",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-cham-nem-chua-ngot-25wxw.jpg",
+    "usedInDishes": [
+      "Nem rán Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "4676b100-652f-42f5-95c8-266caa96bc4c",
+    "pendingCode": "nuoc-cot-me-chua-wvk4w",
+    "pendingName": "Nước cốt me chua",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-cot-me-chua-wvk4w.jpg",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "8f5fc513-59a8-428f-9c40-e3bc98acd89a",
+    "pendingCode": "nuoc-ham-xuong-u7jws",
+    "pendingName": "nước hầm xương",
+    "pendingGroup": null,
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-ham-xuong-u7jws.jpg",
+    "usedInDishes": [
+      "Lẩu ếch măng cay"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "bfb51b60-e6ff-4e2c-b33b-df0e6c7190e8",
+    "pendingCode": "nuoc-ham-xuong-heo-lnoi9",
+    "pendingName": "Nước hầm xương heo",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-ham-xuong-heo-lnoi9.jpg",
+    "usedInDishes": [
+      "Cháo sườn sụn Hà Nội",
+      "Lẩu cá kèo lá giang",
+      "Bún mắm miền Tây"
+    ],
+    "dishCount": 3,
+    "topCandidates": [
+      {
+        "activeId": "9ff88d18-c4da-4d38-b64e-7170e592f41f",
+        "activeCode": "xuong-heo-s74p8",
+        "activeName": "Xương heo",
+        "activeGroup": "Thịt",
+        "activeImage": "https://cdnv2.tgdd.vn/bhx-static/bhx/production/2026/7/image/production/2026/7/image/Products/8781/233789/xuong-heo-co-thit-1kg_202607300931064156.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Xương heo'"
+      }
+    ]
+  },
+  {
+    "pendingId": "2e56646a-fd7c-42df-9819-503fd0ade616",
+    "pendingCode": "nuoc-luoc-ga-fgizi",
+    "pendingName": "Nước luộc gà",
+    "pendingGroup": "Khác",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-luoc-ga-fgizi.jpg",
+    "usedInDishes": [
+      "Cơm gà Hội An"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "92033ad6-f0d7-49e3-8846-52a53e064129",
+    "pendingCode": "nuoc-ma-long-me-ga-fmrpt",
+    "pendingName": "Nước mạ lòng mề gà",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-ma-long-me-ga-fmrpt.jpg",
+    "usedInDishes": [
+      "Cơm gà Hội An"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "0e784a7b-8179-44cf-aa39-df9ffae7fe94",
+    "pendingCode": "nuoc-sot-tron-iksef",
+    "pendingName": "Nước sốt trộn",
+    "pendingGroup": null,
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/nuoc-sot-tron-iksef.jpg",
+    "usedInDishes": [
+      "Hủ tiếu Nam Vang"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "c730f3e8-1a1d-42ec-8c28-717d7b209d13",
+    "pendingCode": "ot-chung-sa-te-6t7n3",
+    "pendingName": "Ớt chưng sa tế",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/ot-chung-sa-te-6t7n3.jpg",
+    "usedInDishes": [
+      "Bún ốc Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "c4131213-04b2-49bb-8e89-d6998da55c4b",
+        "activeCode": "ot-149n9",
+        "activeName": "Ớt",
+        "activeGroup": "Trái cây",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/02/ot-trai-cay-150g.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "3dea22c2-831c-4443-b813-030f6fc930a6",
+        "activeCode": "sa-te-dvhmp",
+        "activeName": "Sa tế",
+        "activeGroup": "Gia vị & nước chấm",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/07/thuan-phat-sa-te-tom-ngon-lo-85g-20230727064601.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Sa tế'"
+      }
+    ]
+  },
+  {
+    "pendingId": "9f225aff-e0c1-4d4d-b611-f677dc70817a",
+    "pendingCode": "pa-te-gan-heo-beo-gqbsj",
+    "pendingName": "Pa-tê gan heo béo",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/pa-te-gan-heo-beo-gqbsj.webp",
+    "usedInDishes": [
+      "Bánh mì thịt nướng"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "20682b3b-1328-47f9-9853-e6a62163d60c",
+    "pendingCode": "pheo-non-heo-tuoi-long-non-0anzl",
+    "pendingName": "Phèo non heo tươi (Lòng non)",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/pheo-non-heo-tuoi-long-non-0anzl.jpg",
+    "usedInDishes": [
+      "Cháo lòng miền Nam"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "28d87a8b-569b-42bd-b9f2-d7b930ed768f",
+    "pendingCode": "phi-le-ca-ro-phi-tuoi-2xvne",
+    "pendingName": "Phi lê cá rô phi tươi",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/phi-le-ca-ro-phi-tuoi-2xvne.jpg",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "f25857f8-4a2d-466d-b61d-75cae6331669",
+        "activeCode": "ca-ro-phi-2fmx8",
+        "activeName": "Cá rô phi",
+        "activeGroup": "Thủy hải sản",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8782/312448/bhx/ca-ro-phi-lam-sach-500g-202308030914149318.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Cá rô phi'"
+      }
+    ]
+  },
+  {
+    "pendingId": "56461891-be25-4b25-b58a-949a6da3624f",
+    "pendingCode": "que-thanh-cao-vo-aerwl",
+    "pendingName": "Quế thanh cạo vỏ",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/que-thanh-cao-vo-aerwl.jpg",
+    "usedInDishes": [
+      "Phở bò",
+      "Cao lầu Hội An",
+      "Nem lụi nướng",
+      "Bánh cuốn Thanh Trì"
+    ],
+    "dishCount": 4,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "2e013790-4c6d-4a2a-bd48-81ae00328d89",
+    "pendingCode": "rau-an-lau-mam-thap-cam-keo-neo-rau-dang-dien-dien-bong-sung-ym62o",
+    "pendingName": "Rau ăn lẩu mắm thập cẩm (Kèo nèo, rau đắng, điên điển, bông súng)",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-an-lau-mam-thap-cam-keo-neo-rau-dang-dien-dien-bong-sung-ym62o.jpg",
+    "usedInDishes": [
+      "Lẩu mắm miền Tây"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "50074026-fc6a-4f22-99e1-915c284f2136",
+        "activeCode": "keo-neo-ksr7a",
+        "activeName": "Kèo nèo",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/325781/bhx/keo-neo_202504151614088353.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Kèo nèo'"
+      },
+      {
+        "activeId": "9c835ff7-c591-4b70-9ef2-1d3e73f92157",
+        "activeCode": "rau-dang-k8km8",
+        "activeName": "Rau đắng",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://thucphamdongxanh.com/wp-content/uploads/2019/09/Rau-dang.png",
+        "score": 75,
+        "reason": "Tên chứa 'Rau đắng'"
+      }
+    ]
+  },
+  {
+    "pendingId": "405c3527-3497-410b-9ad2-73f5cb617971",
+    "pendingCode": "rau-cai-xanh-cai-cay-zzvxf",
+    "pendingName": "Rau cải xanh (Cải cay)",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-cai-xanh-cai-cay-zzvxf.jpg",
+    "usedInDishes": [
+      "Bánh xèo miền Tây"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "09a0b5b5-0905-4574-b41e-aa3fd00157d2",
+        "activeCode": "cai-wktvn",
+        "activeName": "Cải",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8820/230443/bhx/cai-thia-202312271059011562.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Cải'"
+      },
+      {
+        "activeId": "8963b8da-75e1-48f3-a9e5-7e7a889e6401",
+        "activeCode": "cai-xanh-7d9l7",
+        "activeName": "Cải xanh",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8820/309156/bhx/cai-be-xanh-500g-202401121613149216.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Cải xanh'"
+      }
+    ]
+  },
+  {
+    "pendingId": "70604ad0-459b-4e65-b23d-5ef6c5b5738f",
+    "pendingCode": "rau-cu-luoc-an-kho-quet-dau-bap-ca-rot-su-su-6f9yf",
+    "pendingName": "Rau củ luộc ăn kho quẹt (Đậu bắp, cà rốt, su su)",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-cu-luoc-an-kho-quet-dau-bap-ca-rot-su-su-6f9yf.jpg",
+    "usedInDishes": [
+      "Cơm cháy kho quẹt"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "a919f391-66b4-47f0-b90e-8b91dedc5944",
+        "activeCode": "bap-gtgpv",
+        "activeName": "Bắp",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/02/bap-shank-pacow-khay-250g.png",
+        "score": 75,
+        "reason": "Tên chứa 'Bắp'"
+      },
+      {
+        "activeId": "ccce0de1-87cf-49b6-b3bc-302e1d6e9975",
+        "activeCode": "ca-rot-4rcfv",
+        "activeName": "Cà rốt",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/07/ca-rot-20230721084932.png",
+        "score": 75,
+        "reason": "Tên chứa 'Cà rốt'"
+      },
+      {
+        "activeId": "21a66ef6-5ae9-45d3-9db0-4f6251d98904",
+        "activeCode": "dau-8xfnt",
+        "activeName": "Đậu",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-cove-xanh-goi-500g_fe356ea1-4a64-415e-b3a4-a817039f0173-og.png",
+        "score": 75,
+        "reason": "Tên chứa 'Đậu'"
+      },
+      {
+        "activeId": "5f71f0fe-073a-4510-88c6-eb673d402297",
+        "activeCode": "dau-bap-9shx0",
+        "activeName": "Đậu bắp",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/dau-bap-goi-300g_7448b3d9-5997-4bbe-bd19-e64495b21c70-og.png",
+        "score": 75,
+        "reason": "Tên chứa 'Đậu bắp'"
+      },
+      {
+        "activeId": "814541b5-3e4f-4978-81b3-8a5b43481ada",
+        "activeCode": "su-su-dh3po",
+        "activeName": "Su su",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/162427343823210053949-kg-su-su-qua-dl-l1-vineco-og.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Su su'"
+      }
+    ]
+  },
+  {
+    "pendingId": "979d516d-3bb7-4d23-bebf-1696686581e5",
+    "pendingCode": "rau-kinh-gioi-va-rau-mui-01m1e",
+    "pendingName": "Rau kinh giới và rau mùi",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-kinh-gioi-va-rau-mui-01m1e.jpg",
+    "usedInDishes": [
+      "Nộm bò khô Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "959f3b10-7818-4eb1-b2af-de40fb966f35",
+        "activeCode": "kinh-gioi-pmadw",
+        "activeName": "Kinh giới",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8820/359427/bhx/rau-kinh-gioi-50g_202511200942497582.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Kinh giới'"
+      }
+    ]
+  },
+  {
+    "pendingId": "48dc58bd-e028-4b2c-a434-2f5701dc5b3c",
+    "pendingCode": "rau-mam-cu-cai-trang-jecym",
+    "pendingName": "Rau mầm củ cải trắng",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-mam-cu-cai-trang-jecym.jpg",
+    "usedInDishes": [
+      "Bánh xèo tôm nhảy Bình Định"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "09a0b5b5-0905-4574-b41e-aa3fd00157d2",
+        "activeCode": "cai-wktvn",
+        "activeName": "Cải",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8820/230443/bhx/cai-thia-202312271059011562.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Cải'"
+      },
+      {
+        "activeId": "d6abb171-82e1-4fe7-9dd9-0c31de2302ff",
+        "activeCode": "cu-cai-trang-v974j",
+        "activeName": "Củ cải trắng",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/02/cu-cai-trang.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Củ cải trắng'"
+      }
+    ]
+  },
+  {
+    "pendingId": "fb696946-f7e0-47ba-9403-5c19d68ea66b",
+    "pendingCode": "rau-song-idzyt",
+    "pendingName": "Rau sống",
+    "pendingGroup": null,
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-song-idzyt.jpg",
+    "usedInDishes": [
+      "Gỏi cuốn tôm thịt",
+      "Bánh xèo tôm nhảy Bình Định",
+      "Bún mắm miền Tây"
+    ],
+    "dishCount": 3,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "2de16b92-41dc-410d-881a-ec7104837e58",
+    "pendingCode": "rau-song-an-kem-ulcnw",
+    "pendingName": "Rau sống ăn kèm",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-song-an-kem-ulcnw.jpg",
+    "usedInDishes": [
+      "Bún chả cá Nha Trang",
+      "Bún chả Hà Nội"
+    ],
+    "dishCount": 2,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "f179248a-ecdc-4ae9-8564-caf579b055ad",
+    "pendingCode": "rau-song-chuoi-chat-khe-chua-mvyl3",
+    "pendingName": "Rau sống chuối chát khế chua",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-song-chuoi-chat-khe-chua-mvyl3.jpg",
+    "usedInDishes": [
+      "Nem lụi nướng"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "e6b57185-7d6b-461c-b382-581da92c55bc",
+        "activeCode": "ING-416E10",
+        "activeName": "Khế chua",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://files.benhvien108.vn/ecm/source_files/2022/10/19/221002-4-1-084318-191022-25.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Khế chua'"
+      }
+    ]
+  },
+  {
+    "pendingId": "b71892cb-a648-404e-89d6-d63463eecc97",
+    "pendingCode": "rau-song-hoa-chuoi-bup-non-o7chr",
+    "pendingName": "Rau sống hoa chuối búp non",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-song-hoa-chuoi-bup-non-o7chr.jpg",
+    "usedInDishes": [
+      "Mì Quảng tôm thịt"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "77d7b15d-da44-469f-ba05-26c83d16dbde",
+    "pendingCode": "rau-xa-lach-va-hung-lui-31xfb",
+    "pendingName": "Rau xà lách và húng lủi",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/rau-xa-lach-va-hung-lui-31xfb.jpg",
+    "usedInDishes": [
+      "Bún mắm nêm Đà Nẵng"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "c920407b-2620-4cf3-8383-5583639d418c",
+        "activeCode": "rau-xa-lach-ouq9m",
+        "activeName": "Rau xà lách",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdn.tgdd.vn/Files/2021/08/05/1373153/rau-xa-lach-bao-nhieu-calo-an-rau-xa-lach-co-tac-dung-gi-202201151139114940.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "bd2bf886-6be0-4def-84bc-f8529142ddbd",
+    "pendingCode": "ruot-banh-mi-xe-vun-xqcxg",
+    "pendingName": "Ruột bánh mì xé vụn",
+    "pendingGroup": "Tinh bột & Ngũ cốc",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/ruot-banh-mi-xe-vun-xqcxg.jpg",
+    "usedInDishes": [
+      "Bánh mì xíu mại"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "925978d2-7dcb-4a9f-97ed-c4b1834b8b4c",
+        "activeCode": "banh-mi-fkfq7",
+        "activeName": "Bánh mì",
+        "activeGroup": "Nông sản & ngũ cốc",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/7259/266327/bhx/banh-mi-dai-baguette-hoang-phat-goi-200g-202201040933099018.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Bánh mì'"
+      }
+    ]
+  },
+  {
+    "pendingId": "853003be-f9cc-450e-9483-ee72ede1b4ed",
+    "pendingCode": "ruou-vang-do-nau-an-5yg6f",
+    "pendingName": "Rượu vang đỏ nấu ăn",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/ruou-vang-do-nau-an-5yg6f.jpg",
+    "usedInDishes": [
+      "Bò sốt vang bánh mì"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "2c159a6c-b6b5-4dcb-8a73-df93930af8c5",
+    "pendingCode": "soi-banh-canh-bot-gao-4e1if",
+    "pendingName": "Sợi bánh canh bột gạo",
+    "pendingGroup": "Tinh bột & Ngũ cốc",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/soi-banh-canh-bot-gao-4e1if.jpg",
+    "usedInDishes": [
+      "Bánh canh cá lóc Huế",
+      "Bánh canh cua giò heo"
+    ],
+    "dishCount": 2,
+    "topCandidates": [
+      {
+        "activeId": "74e4a995-8d00-4dca-8ec3-3e1e593f8962",
+        "activeCode": "bot-gao-00jy1",
+        "activeName": "Bột gạo",
+        "activeGroup": "Bột & phụ gia",
+        "activeImage": "https://img.bhxwork.vn/imgt/bhx/f_webp,fit_outside,quality_95,s_720x584/https://cdn.tgdd.vn/Products/Images/2388/83414/bhx/bot-gao-tai-ky-goi-400g-202202121121158226.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Bột gạo'"
+      },
+      {
+        "activeId": "beecdad5-dc61-4610-a05f-7f26e56aeb83",
+        "activeCode": "gao-6r0y4",
+        "activeName": "Gạo",
+        "activeGroup": "Nông sản & ngũ cốc",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/162428573497410009734-g1-gao-thoi-lan-sua-bao-minh-tyi-5kg-og.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Gạo'"
+      }
+    ]
+  },
+  {
+    "pendingId": "95364066-df6e-4b8b-a055-db64b1b2bb6f",
+    "pendingCode": "soi-banh-canh-bot-loc-mzaqg",
+    "pendingName": "Sợi bánh canh bột lọc",
+    "pendingGroup": "Tinh bột & Ngũ cốc",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/soi-banh-canh-bot-loc-mzaqg.jpg",
+    "usedInDishes": [
+      "Bánh canh ghẹ"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "1691f199-b5b1-4aa6-ad18-3cb1c377a525",
+    "pendingCode": "soi-hu-tieu-my-tho-botuy",
+    "pendingName": "Sợi hủ tiếu Mỹ Tho",
+    "pendingGroup": "Tinh bột & Ngũ cốc",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/soi-hu-tieu-my-tho-botuy.jpg",
+    "usedInDishes": [
+      "Hủ tiếu Mỹ Tho"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "6106cd1c-60c2-4054-aed3-ed60926e37a7",
+    "pendingCode": "soi-mi-cao-lau-tuoi-dulqb",
+    "pendingName": "Sợi mì Cao lầu tươi",
+    "pendingGroup": "Tinh bột & Ngũ cốc",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/soi-mi-cao-lau-tuoi-dulqb.jpg",
+    "usedInDishes": [
+      "Cao lầu Hội An"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "368ec3f7-9773-4529-a0bb-7c74bb956e1c",
+    "pendingCode": "soi-mi-quang-vang-c5wl5",
+    "pendingName": "Sợi mì Quảng vàng",
+    "pendingGroup": "Tinh bột & Ngũ cốc",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/soi-mi-quang-vang-c5wl5.jpg",
+    "usedInDishes": [
+      "Mì Quảng tôm thịt"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "7ce4ac61-1897-47e4-bf0b-8c51086fbd23",
+    "pendingCode": "sot-tuong-den-cay-gb19u",
+    "pendingName": "Sốt tương đen cay",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/sot-tuong-den-cay-gb19u.jpg",
+    "usedInDishes": [
+      "Bánh mì thịt nướng"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "8588c256-d606-4076-8bda-d0dc6441e24c",
+    "pendingCode": "sua-bien-tuoi-lam-sach-0r7x5",
+    "pendingName": "Sứa biển tươi làm sạch",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/sua-bien-tuoi-lam-sach-0r7x5.jpg",
+    "usedInDishes": [
+      "Bún chả cá Nha Trang",
+      "Bún sứa Quy Nhơn"
+    ],
+    "dishCount": 2,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "484a8dc0-d32f-4a3a-90c3-8a3c468d8529",
+    "pendingCode": "suon-cot-let-heo-tuoi-mag0f",
+    "pendingName": "Sườn cốt lết heo tươi",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/suon-cot-let-heo-tuoi-mag0f.jpg",
+    "usedInDishes": [
+      "Cơm tấm sườn bì chả"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "e42cd361-b083-4b7a-bf45-486ce2964dd9",
+    "pendingCode": "than-chuoi-non-bao-mong-2xbkv",
+    "pendingName": "Thân chuối non bào mỏng",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/than-chuoi-non-bao-mong-2xbkv.jpg",
+    "usedInDishes": [
+      "Bún hến Huế"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "09706f3b-b528-4e0f-b0e5-85ebebfeb273",
+    "pendingCode": "thinh-gao-rang-min-w4wsm",
+    "pendingName": "Thính gạo rang mịn",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thinh-gao-rang-min-w4wsm.jpg",
+    "usedInDishes": [
+      "Tré Bình Định"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "beecdad5-dc61-4610-a05f-7f26e56aeb83",
+        "activeCode": "gao-6r0y4",
+        "activeName": "Gạo",
+        "activeGroup": "Nông sản & ngũ cốc",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/162428573497410009734-g1-gao-thoi-lan-sua-bao-minh-tyi-5kg-og.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Gạo'"
+      }
+    ]
+  },
+  {
+    "pendingId": "50d59a85-85ff-480f-8749-81773e9da5c2",
+    "pendingCode": "thit-ba-chi-heo-tuoi-5q9rd",
+    "pendingName": "Thịt ba chỉ heo tươi",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-ba-chi-heo-tuoi-5q9rd.jpg",
+    "usedInDishes": [
+      "Gỏi cuốn tôm thịt"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "961ddca5-63d3-4291-8499-134e5167c21f",
+    "pendingCode": "thit-bo-kho-mieng-soi-tam-vi-xkvmb",
+    "pendingName": "Thịt bò khô miếng sợi tẩm vị",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-bo-kho-mieng-soi-tam-vi-xkvmb.jpg",
+    "usedInDishes": [
+      "Nộm bò khô Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "6c5ea813-f077-45a5-86c9-7539f3d2fe7b",
+    "pendingCode": "thit-ca-ngu-hoac-ca-co-yjkqn",
+    "pendingName": "Thịt cá ngừ (hoặc cá cờ)",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-ca-ngu-hoac-ca-co-yjkqn.jpg",
+    "usedInDishes": [
+      "Bún chả cá Nha Trang"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "35ebfdba-1bb1-4c93-af6d-0e7b6f029354",
+        "activeCode": "ca-ngu-we1go",
+        "activeName": "Cá ngừ",
+        "activeGroup": "Thủy hải sản",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8782/233857/bhx/ca-ngu-202312251120255985.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Cá ngừ'"
+      }
+    ]
+  },
+  {
+    "pendingId": "5fde35c3-5a75-4890-be9d-c3da43e970ee",
+    "pendingCode": "thit-cua-bien-tuoi-go-san-q6o2t",
+    "pendingName": "Thịt cua biển tươi gỡ sẵn",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-cua-bien-tuoi-go-san-q6o2t.jpg",
+    "usedInDishes": [
+      "Bánh canh cua giò heo"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "b525537e-577a-43a8-b1ad-0fc730687e30",
+    "pendingCode": "thit-ghe-tuoi-boc-san-u9h5m",
+    "pendingName": "Thịt ghẹ tươi bóc sẵn",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-ghe-tuoi-boc-san-u9h5m.jpg",
+    "usedInDishes": [
+      "Bánh canh ghẹ"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "4cc344ec-e79d-43bb-8405-6eb266972e4d",
+    "pendingCode": "thit-hen-tuoi-luoc-san-g4pqa",
+    "pendingName": "Thịt hến tươi luộc sẵn",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-hen-tuoi-luoc-san-g4pqa.jpg",
+    "usedInDishes": [
+      "Cơm hến Huế",
+      "Bún hến Huế"
+    ],
+    "dishCount": 2,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "04f75fe9-192a-4601-82c2-0b58f26fb0df",
+        "activeCode": "thit-hen-gtqjx",
+        "activeName": "Thịt hến",
+        "activeGroup": "Thủy hải sản",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2022/thit-hen-lam-sach_c612a941-9b5b-4e2c-a7c2-7518219f8826-og.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "a98d7efe-b464-4a3a-a4ed-4e9a5e758d32",
+    "pendingCode": "thit-heo-quay-gion-bi-kop4s",
+    "pendingName": "Thịt heo quay giòn bì",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-heo-quay-gion-bi-kop4s.jpg",
+    "usedInDishes": [
+      "Bún mắm miền Tây",
+      "Bún mắm nêm Đà Nẵng"
+    ],
+    "dishCount": 2,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "d8f6936b-9a71-4fe2-9f93-2010a44dbf91",
+    "pendingCode": "thit-ma-dau-heo-tah6a",
+    "pendingName": "Thịt má đầu heo",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-ma-dau-heo-tah6a.jpg",
+    "usedInDishes": [
+      "Tré Bình Định"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "6915d139-a5f9-416d-8b19-76fe144617e6",
+    "pendingCode": "thit-nac-vai-heo-ljwlc",
+    "pendingName": "Thịt nạc vai heo",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-nac-vai-heo-ljwlc.jpg",
+    "usedInDishes": [
+      "Nem rán Hà Nội",
+      "Cao lầu Hội An"
+    ],
+    "dishCount": 2,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "291a6492-17a9-4e52-a53c-781a5147d58d",
+    "pendingCode": "thit-qua-gac-tuoi-zw33x",
+    "pendingName": "Thịt quả gấc tươi",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-qua-gac-tuoi-zw33x.jpg",
+    "usedInDishes": [
+      "Bò sốt vang bánh mì"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "4734f696-dfaf-43c9-9137-a82ed6a9c4d4",
+        "activeCode": "qua-gac-8jrrn",
+        "activeName": "Quả gấc",
+        "activeGroup": "Trái cây",
+        "activeImage": "https://media.tripmap.vn/marketplace/2026/02/trai-gac-tuoi-1kg-gac-nep-do-sip-gia-chi-60000d-giao-nhanh-trong-1h-1772133977-6b5zou-600x600.webp",
+        "score": 75,
+        "reason": "Tên chứa 'Quả gấc'"
+      }
+    ]
+  },
+  {
+    "pendingId": "0741cdc5-baa9-4f81-a884-6356dc63ff18",
+    "pendingCode": "thit-xa-xiu-ikscz",
+    "pendingName": "Thịt xá xíu",
+    "pendingGroup": null,
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/thit-xa-xiu-ikscz.jpg",
+    "usedInDishes": [
+      "Hủ tiếu Mỹ Tho",
+      "Hủ tiếu Nam Vang"
+    ],
+    "dishCount": 2,
+    "topCandidates": [
+      {
+        "activeId": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+        "activeCode": "thit-42b9b",
+        "activeName": "Thịt",
+        "activeGroup": "Thịt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/12/10140306-20241205102617.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "97224c87-4baf-4944-a693-86a34ea9b3fe",
+    "pendingCode": "tinh-dau-ca-cuong-nguyen-chat-gwho4",
+    "pendingName": "Tinh dầu cà cuống nguyên chất",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/tinh-dau-ca-cuong-nguyen-chat-gwho4.jpg",
+    "usedInDishes": [
+      "Bún thang Hà Nội",
+      "Bánh cuốn Thanh Trì"
+    ],
+    "dishCount": 2,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "aee50379-847c-4c07-9b71-9b76ffd4796f",
+    "pendingCode": "toi-phi-vang-thom-tzsln",
+    "pendingName": "Tỏi phi vàng thơm",
+    "pendingGroup": "Gia vị & Nước sốt",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/toi-phi-vang-thom-tzsln.jpg",
+    "usedInDishes": [
+      "Hủ tiếu Nam Vang"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "7f3e38b0-de2e-41c8-836f-61426f0cb3eb",
+        "activeCode": "toi-ehjc3",
+        "activeName": "Tỏi",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8820/271536/bhx/toi-co-don-tui-300g-202205190845024132.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "cdc10898-4479-4f8b-818b-59c173cc28f0",
+    "pendingCode": "toi-tep-va-ot-hiem-d5sny",
+    "pendingName": "Tỏi tép và ớt hiểm",
+    "pendingGroup": "Rau củ & Quả",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/toi-tep-va-ot-hiem-d5sny.png",
+    "usedInDishes": [
+      "Bánh xèo tôm nhảy Bình Định"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "7f3e38b0-de2e-41c8-836f-61426f0cb3eb",
+        "activeCode": "toi-ehjc3",
+        "activeName": "Tỏi",
+        "activeGroup": "Rau củ",
+        "activeImage": "https://cdn.tgdd.vn/Products/Images/8820/271536/bhx/toi-co-don-tui-300g-202205190845024132.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      },
+      {
+        "activeId": "41dcb577-c0ce-487f-916d-2f1ad0bf4e15",
+        "activeCode": "tep-zpnhv",
+        "activeName": "Tép",
+        "activeGroup": "Thủy hải sản",
+        "activeImage": "https://cdnv2.tgdd.vn/bhx-static/bhx/Products/Images/8782/313876/bhx/tep-rong_202510151051414468.jpg",
+        "score": 75,
+        "reason": "Tên chứa 'Tép'"
+      }
+    ]
+  },
+  {
+    "pendingId": "01bfd91c-e56a-4113-98a9-1659d9c92d86",
+    "pendingCode": "tom-dat-tuoi-bntj8",
+    "pendingName": "Tôm đất tươi",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/tom-dat-tuoi-bntj8.jpg",
+    "usedInDishes": [
+      "Bánh bột lọc Huế",
+      "Bánh xèo miền Tây",
+      "Bánh xèo tôm nhảy Bình Định"
+    ],
+    "dishCount": 3,
+    "topCandidates": [
+      {
+        "activeId": "862689ca-46ca-40b7-bf10-cc677fdb9d41",
+        "activeCode": "tom-c0k7d",
+        "activeName": "Tôm",
+        "activeGroup": "Thủy hải sản",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2024/04/10283789-hdc-tom-su-non-tu-nhien-200g-20240404082149.jpg",
+        "score": 85,
+        "reason": "Khớp tiền tố"
+      }
+    ]
+  },
+  {
+    "pendingId": "d9acf68a-6d1d-4227-8758-a7e81d669b4d",
+    "pendingCode": "tuong-den-ie00c",
+    "pendingName": "Tương đen",
+    "pendingGroup": null,
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/tuong-den-ie00c.jpg",
+    "usedInDishes": [
+      "Gỏi cuốn tôm thịt"
+    ],
+    "dishCount": 1,
+    "topCandidates": [
+      {
+        "activeId": "0aa28436-2d23-425a-86e4-bbe90ae1adb4",
+        "activeCode": "xi-dau-nuoc-tuong-den-n5jv8",
+        "activeName": "Xì dầu (Nước tương đen)",
+        "activeGroup": "Gia vị & Nước sốt",
+        "activeImage": "https://s3-hcmc02.higiocloud.vn/images/2023/05/thuong-hang-1951-20230526071355.png",
+        "score": 70,
+        "reason": "Được chứa trong 'Xì dầu (Nước tương đen)'"
+      }
+    ]
+  },
+  {
+    "pendingId": "dd92341b-d99f-41f3-8392-bf3b75df09f5",
+    "pendingCode": "xuong-bay-heo-ham-nuoc-dung-573mj",
+    "pendingName": "Xương bay heo hầm nước dùng",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/xuong-bay-heo-ham-nuoc-dung-573mj.jpg",
+    "usedInDishes": [
+      "Bún thang Hà Nội"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "1618e1fa-6e27-48fa-b783-fe1328f2c5c6",
+    "pendingCode": "xuong-ca-va-dau-ca-nau-nuoc-dung-ig6y8",
+    "pendingName": "Xương cá và đầu cá nấu nước dùng",
+    "pendingGroup": "Thủy hải sản",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/xuong-ca-va-dau-ca-nau-nuoc-dung-ig6y8.jpg",
+    "usedInDishes": [
+      "Bún cá cay Hải Phòng"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  },
+  {
+    "pendingId": "6bf7f278-02af-4c22-b824-c4b6138c5153",
+    "pendingCode": "xuong-ong-heo-ham-canh-52nm8",
+    "pendingName": "Xương ống heo hầm canh",
+    "pendingGroup": "Thịt & Gia cầm",
+    "pendingImage": "https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/ingredient-images/xuong-ong-heo-ham-canh-52nm8.jpg",
+    "usedInDishes": [
+      "Hủ tiếu Mỹ Tho"
+    ],
+    "dishCount": 1,
+    "topCandidates": []
+  }
+]

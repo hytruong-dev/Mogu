@@ -1,0 +1,3165 @@
+{
+  "thịt": [
+    {
+      "id": "39e8517a-1dce-4286-91d8-b3aa5fcabe66",
+      "code": "cha-bong-thit-heo-ruoc-fr1ql",
+      "name": "Chà bông thịt heo (Ruốc)",
+      "group": "Thịt & Gia cầm"
+    },
+    {
+      "id": "cdb8166b-898f-44d9-8b4e-8178ab3d8d10",
+      "code": "gia-vi-hoan-chinh-thit-kho-dang-xot-63625",
+      "name": "Gia vị hoàn chỉnh thịt kho dạng xốt",
+      "group": "Thịt"
+    },
+    {
+      "id": "78f8ca98-81c8-4526-8378-ce8a746feb82",
+      "code": "gia-vi-hoan-chinh-thit-kho-tau-wyi4a",
+      "name": "Gia vị hoàn chỉnh thịt kho tàu",
+      "group": "Thịt"
+    },
+    {
+      "id": "288e3b1d-b9f9-4827-aa14-f54ea09ebeec",
+      "code": "mien-an-lien-vi-thit-bam-xrw7t",
+      "name": "Miến ăn liền vị thịt bằm",
+      "group": "Thịt"
+    },
+    {
+      "id": "415677ab-87fd-42d8-9431-65ec0e98bab4",
+      "code": "pho-bo-chin-su-story-co-thit-to-on820",
+      "name": "Phở Bò Chin su Story có thịt tô",
+      "group": "Thịt"
+    },
+    {
+      "id": "4ec42981-02fa-4f80-b4a3-0eb59528d5f0",
+      "code": "pho-co-xot-thit-vi-bo-xrfgt",
+      "name": "Phở Có Xốt Thịt Vị Bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "ca794de3-a5a4-4987-9203-942841ac9509",
+      "code": "pho-co-xot-thit-vi-ga-ezsxs",
+      "name": "Phở Có Xốt Thịt Vị Gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "9c80a232-07cc-402e-b004-a7b30a85a650",
+      "code": "pho-thit-bo-o2q9x",
+      "name": "Phở thịt bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "255b8e3c-d47d-486e-bc09-b4ab72f6cfdf",
+      "code": "sot-gia-vi-ca-thit-kho-fn0xh",
+      "name": "Sốt gia vị cá thịt kho",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "b1bf04a3-6835-4a40-9e26-cef774fafda3",
+      "code": "sot-gia-vi-thit-nuong-sa-cq2z4",
+      "name": "Sốt gia vị thịt nướng sả",
+      "group": "Thịt"
+    },
+    {
+      "id": "e5e91efc-5432-42dc-9a09-03c30c5e522e",
+      "code": "sot-uop-thit-vi-cay-lkux6",
+      "name": "Sốt uớp thịt vị cay",
+      "group": "Thịt"
+    },
+    {
+      "id": "a5a4ac41-b4ea-4337-b613-91f3f5241ed5",
+      "code": "sot-uop-thit-vi-truyen-thong-f0ord",
+      "name": "Sốt uớp thịt vị truyền thống",
+      "group": "Thịt"
+    },
+    {
+      "id": "6e6954f7-eb63-4a65-8ae5-4c1d45207321",
+      "code": "thit-42b9b",
+      "name": "Thịt",
+      "group": "Thịt"
+    },
+    {
+      "id": "be22714b-64c8-414f-b15d-5416b6290378",
+      "code": "thit-ba-roi-co-da-mh-giun-que-d2lkr",
+      "name": "Thịt Ba Rọi có da MH giun quế",
+      "group": "Thịt"
+    },
+    {
+      "id": "f8ead8ce-b0d1-46ce-9767-97395fd12c18",
+      "code": "thit-be-st7z0",
+      "name": "Thịt bê",
+      "group": "Thịt"
+    },
+    {
+      "id": "a04a1697-5943-4854-b0de-9ecdf51ec54d",
+      "code": "thit-bo-hamburger-ua7g7",
+      "name": "Thịt bò Hamburger",
+      "group": "Thịt"
+    },
+    {
+      "id": "5dfaea33-531a-492a-ae51-fadd0f2411d6",
+      "code": "thit-bo-nac-yv4cc",
+      "name": "Thịt bò nạc",
+      "group": "Thịt"
+    },
+    {
+      "id": "7c29a6ae-8263-48b8-b317-120b62235fac",
+      "code": "thit-bo-xay-qfizs",
+      "name": "Thịt bò xay",
+      "group": "Thịt"
+    },
+    {
+      "id": "c8f6040b-d9bc-41b0-89c2-6dfda5ff7399",
+      "code": "thit-chim-bo-cau-wue92",
+      "name": "Thịt chim bồ câu",
+      "group": "Thịt"
+    },
+    {
+      "id": "750c5b97-3140-4881-bd58-47d2a2dc4cb0",
+      "code": "ING-506AFE",
+      "name": "Thịt chim cút",
+      "group": "Thịt"
+    },
+    {
+      "id": "d617ecc4-4ae7-43fb-8af8-f97d5e1f156f",
+      "code": "thit-de-5oord",
+      "name": "Thịt dê",
+      "group": "Thịt"
+    },
+    {
+      "id": "e1f74666-d65b-403b-a844-f989dd8398bf",
+      "code": "thit-dui-heo-c20uu",
+      "name": "Thịt đùi heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "2b7636c7-8708-4e1c-8f86-b13aa162bac6",
+      "code": "thit-ech-8dulh",
+      "name": "Thịt ếch",
+      "group": "Thịt"
+    },
+    {
+      "id": "4c9772f8-fafa-46c5-8bae-10f90cdf2fe8",
+      "code": "thit-ga-e2bhi",
+      "name": "Thịt gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "04f75fe9-192a-4601-82c2-0b58f26fb0df",
+      "code": "thit-hen-gtqjx",
+      "name": "Thịt hến",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "4badc5c0-efda-4cb5-a0ff-23380fa7ddf2",
+      "code": "thit-heo-ba-chi-ou4je",
+      "name": "Thịt heo ba chỉ",
+      "group": "Thịt"
+    },
+    {
+      "id": "2eb699dc-70ee-4192-9ea2-6291535345e1",
+      "code": "thit-heo-mo-2sua2",
+      "name": "Thịt heo mỡ",
+      "group": "Thịt"
+    },
+    {
+      "id": "39fcc4e7-cd22-43cf-84e6-e8dae27828fd",
+      "code": "thit-heo-nac-dua8b",
+      "name": "Thịt heo nạc",
+      "group": "Thịt"
+    },
+    {
+      "id": "3634e051-6e4e-4bde-9d05-2c86ff2a8bc6",
+      "code": "thit-heo-xay-3pche",
+      "name": "Thịt heo xay",
+      "group": "Thịt"
+    },
+    {
+      "id": "4c78304c-8e2e-4c15-b45a-f4f64e9056a7",
+      "code": "thit-nac-dam-dau-gion-92rit",
+      "name": "Thịt Nạc dăm đầu giòn",
+      "group": "Thịt"
+    },
+    {
+      "id": "ca4e4ae8-440c-4c19-9884-2ac716854fb0",
+      "code": "thit-nac-dam-heo-nr094",
+      "name": "Thịt Nạc dăm heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "6d21ba01-c314-4d52-bc6f-8c4ee32ae957",
+      "code": "thit-nac-heo-w7psl",
+      "name": "Thịt nạc heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "dbc277ce-16e7-4a75-966f-7e2fcd5ac323",
+      "code": "thit-nac-nong-w1hx1",
+      "name": "Thịt Nạc nọng",
+      "group": "Thịt"
+    },
+    {
+      "id": "b365519c-2602-4989-80a7-a3c5c403bdd6",
+      "code": "thit-nac-than-heo-c0ocx",
+      "name": "Thịt Nạc thăn heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "6daf05f2-f000-469f-86ac-cb61994c4a0c",
+      "code": "thit-nam-bung-bo-22ze5",
+      "name": "Thịt Nạm bụng bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "c1749162-986c-4607-856d-82d4400c342c",
+      "code": "thit-ngan-nme80",
+      "name": "Thịt ngan",
+      "group": "Thịt"
+    },
+    {
+      "id": "4d6893b4-2eba-4150-b7f2-6c50d30d842b",
+      "code": "thit-ngong-s3ewx",
+      "name": "Thịt ngỗng",
+      "group": "Thịt"
+    },
+    {
+      "id": "f4f70d67-d036-4210-b0bc-006e2bb21054",
+      "code": "thit-nguoi-thit-xong-khoi-w2na5",
+      "name": "Thịt nguội Thịt xông khói",
+      "group": "Thịt"
+    },
+    {
+      "id": "43bd7325-c1e9-41bf-af8c-36c8dfd0deb6",
+      "code": "ING-3D9F30",
+      "name": "Thịt nọng heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "a9dfb313-9c83-45a3-983e-c76e8612b05e",
+      "code": "thit-oc-wqlvu",
+      "name": "Thịt ốc",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "93c3ef88-8cf8-49a6-89aa-9af29f92150d",
+      "code": "thit-suon-than-70qhh",
+      "name": "Thịt Sườn thăn",
+      "group": "Thịt"
+    },
+    {
+      "id": "a4f79ed8-8242-4bfc-b29f-d090185c760c",
+      "code": "thit-suon-vai-heo-825j3",
+      "name": "Thịt Sườn vai heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "a270e17e-34a9-4d10-941c-a082a7e5f741",
+      "code": "ING-9F59D5",
+      "name": "Thịt thỏ",
+      "group": "Thịt"
+    },
+    {
+      "id": "ab6e96e2-66ed-4df1-af95-427ce2f922e8",
+      "code": "thit-trau-fghgm",
+      "name": "Thịt trâu",
+      "group": "Thịt"
+    },
+    {
+      "id": "f08d0b07-bb15-48ea-8fc3-5ca4d81bd71b",
+      "code": "thit-vai-heo-me15t",
+      "name": "Thịt vai heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "891a1cda-548a-462b-a01c-46f8684f7eb1",
+      "code": "thit-vit-o6tfh",
+      "name": "Thịt vịt",
+      "group": "Thịt"
+    },
+    {
+      "id": "70f0f5a7-244e-452a-8d4b-a6508d1d63e7",
+      "code": "tom-thit-zcki6",
+      "name": "Tôm thịt",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "d1fb22be-ecbe-4e35-9328-fc647ffdf566",
+      "code": "xot-ca-chua-thit-bo-bam-7ljqu",
+      "name": "Xốt cà chua thịt bò băm",
+      "group": "Thịt"
+    },
+    {
+      "id": "9393e19d-6789-47bb-9a7e-06643c85fe3d",
+      "code": "xot-gia-vi-hoan-chinh-thit-nuong-aujz7",
+      "name": "Xốt gia vị hoàn chỉnh thịt nướng",
+      "group": "Thịt"
+    },
+    {
+      "id": "71f60905-5da7-4f6f-b519-f97c12bbe495",
+      "code": "xot-uop-thit-nuong-rpn1d",
+      "name": "Xốt ướp thịt nướng",
+      "group": "Thịt"
+    }
+  ],
+  "ba chỉ": [
+    {
+      "id": "5de8dbd4-987a-416e-970f-13af8c66350f",
+      "code": "ba-chi-bo-ct2he",
+      "name": "Ba chỉ bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "4badc5c0-efda-4cb5-a0ff-23380fa7ddf2",
+      "code": "thit-heo-ba-chi-ou4je",
+      "name": "Thịt heo ba chỉ",
+      "group": "Thịt"
+    }
+  ],
+  "ba rọi": [
+    {
+      "id": "2591231b-ba18-4e70-854f-64ac386ba6bc",
+      "code": "ba-roi-heo-fgpr6",
+      "name": "Ba rọi heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "660b3118-b694-4b95-80e1-40333d2f3c98",
+      "code": "ba-roi-rut-suon-heo-bcn8e",
+      "name": "Ba rọi rút sườn heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "be22714b-64c8-414f-b15d-5416b6290378",
+      "code": "thit-ba-roi-co-da-mh-giun-que-d2lkr",
+      "name": "Thịt Ba Rọi có da MH giun quế",
+      "group": "Thịt"
+    }
+  ],
+  "nạc": [
+    {
+      "id": "3d99fc65-e98a-4f5e-9a87-2ab38b33d213",
+      "code": "nac-vai-bo-9u11v",
+      "name": "Nạc vai bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "5dfaea33-531a-492a-ae51-fadd0f2411d6",
+      "code": "thit-bo-nac-yv4cc",
+      "name": "Thịt bò nạc",
+      "group": "Thịt"
+    },
+    {
+      "id": "39fcc4e7-cd22-43cf-84e6-e8dae27828fd",
+      "code": "thit-heo-nac-dua8b",
+      "name": "Thịt heo nạc",
+      "group": "Thịt"
+    },
+    {
+      "id": "4c78304c-8e2e-4c15-b45a-f4f64e9056a7",
+      "code": "thit-nac-dam-dau-gion-92rit",
+      "name": "Thịt Nạc dăm đầu giòn",
+      "group": "Thịt"
+    },
+    {
+      "id": "ca4e4ae8-440c-4c19-9884-2ac716854fb0",
+      "code": "thit-nac-dam-heo-nr094",
+      "name": "Thịt Nạc dăm heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "6d21ba01-c314-4d52-bc6f-8c4ee32ae957",
+      "code": "thit-nac-heo-w7psl",
+      "name": "Thịt nạc heo",
+      "group": "Thịt"
+    }
+  ],
+  "sườn": [
+    {
+      "id": "660b3118-b694-4b95-80e1-40333d2f3c98",
+      "code": "ba-roi-rut-suon-heo-bcn8e",
+      "name": "Ba rọi rút sườn heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "a7d23002-8126-4e42-9978-eddad15219a9",
+      "code": "mien-an-lien-vi-suon-heo-3lh2s",
+      "name": "Miến ăn liền vị sườn heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "cdb1523f-6347-4289-808c-f716a87dfce7",
+      "code": "ING-664FDF",
+      "name": "Sườn bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "4bcc2a02-9a88-43cf-ada2-42b16a54230c",
+      "code": "suon-heo-dixf5",
+      "name": "Sườn heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "bc061f7c-2ca7-4d9f-89aa-7d44edbadb09",
+      "code": "suon-que-heo-k8ccn",
+      "name": "Sườn que heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "5c5887e8-1574-4582-96d7-3c0a81e7abe4",
+      "code": "suon-st-louis-kk2g9",
+      "name": "Sườn St. Louis",
+      "group": "Thịt"
+    },
+    {
+      "id": "c162058a-195b-4559-ba94-bb8937b88f28",
+      "code": "suon-sun-heo-9gfn6",
+      "name": "Sườn sụn heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "93c3ef88-8cf8-49a6-89aa-9af29f92150d",
+      "code": "thit-suon-than-70qhh",
+      "name": "Thịt Sườn thăn",
+      "group": "Thịt"
+    },
+    {
+      "id": "a4f79ed8-8242-4bfc-b29f-d090185c760c",
+      "code": "thit-suon-vai-heo-825j3",
+      "name": "Thịt Sườn vai heo",
+      "group": "Thịt"
+    }
+  ],
+  "cốt lết": [],
+  "heo": [
+    {
+      "id": "2591231b-ba18-4e70-854f-64ac386ba6bc",
+      "code": "ba-roi-heo-fgpr6",
+      "name": "Ba rọi heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "660b3118-b694-4b95-80e1-40333d2f3c98",
+      "code": "ba-roi-rut-suon-heo-bcn8e",
+      "name": "Ba rọi rút sườn heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "4d5984c7-d534-4e32-b0aa-d1ad0e0253b1",
+      "code": "bao-tu-heo-vkv2z",
+      "name": "Bao tử heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "59bff627-1a25-47b6-99e2-affd86c74e09",
+      "code": "cat-heo-tbunq",
+      "name": "Cật heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "39e8517a-1dce-4286-91d8-b3aa5fcabe66",
+      "code": "cha-bong-thit-heo-ruoc-fr1ql",
+      "name": "Chà bông thịt heo (Ruốc)",
+      "group": "Thịt & Gia cầm"
+    },
+    {
+      "id": "bba606a1-a3b6-4d8b-9ac9-0357228a696d",
+      "code": "chan-gio-heo-1pbeg",
+      "name": "Chân giò heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "3f2ab039-7a35-475f-9f3d-2ce215e2711b",
+      "code": "ING-17F9AE",
+      "name": "Cuống tim heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "3cc63d0a-9d98-4429-ac4c-a4c28e637642",
+      "code": "da-heo-i8l22",
+      "name": "Da heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "f33f807d-ff67-4cd6-98e8-28d04b65d63e",
+      "code": "huyet-heo-tknv1",
+      "name": "Huyết heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "f249a90a-933f-4138-8da1-4e3d810b26b1",
+      "code": "long-heo-34c41",
+      "name": "Lòng heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "888cacd8-bf9e-47fe-8337-ee0187be8ad7",
+      "code": "luoi-heo-p49tb",
+      "name": "Lưỡi heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "a7d23002-8126-4e42-9978-eddad15219a9",
+      "code": "mien-an-lien-vi-suon-heo-3lh2s",
+      "name": "Miến ăn liền vị sườn heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "872caa47-749c-4a2e-8e40-ae67f36a0962",
+      "code": "mo-heo-mic4j",
+      "name": "Mỡ heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "4ecacaf9-10b7-40b8-97d9-c58010df64d8",
+      "code": "mui-heo-hh6sw",
+      "name": "Mũi heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "1d5ce793-9266-4200-b19f-95252a13bbd6",
+      "code": "oc-heo-057wv",
+      "name": "Óc heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "4bcc2a02-9a88-43cf-ada2-42b16a54230c",
+      "code": "suon-heo-dixf5",
+      "name": "Sườn heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "bc061f7c-2ca7-4d9f-89aa-7d44edbadb09",
+      "code": "suon-que-heo-k8ccn",
+      "name": "Sườn que heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "c162058a-195b-4559-ba94-bb8937b88f28",
+      "code": "suon-sun-heo-9gfn6",
+      "name": "Sườn sụn heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "04af8df1-6af8-44af-b772-4b74090ceb14",
+      "code": "tai-heo-9hp2s",
+      "name": "Tai heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "e1f74666-d65b-403b-a844-f989dd8398bf",
+      "code": "thit-dui-heo-c20uu",
+      "name": "Thịt đùi heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "4badc5c0-efda-4cb5-a0ff-23380fa7ddf2",
+      "code": "thit-heo-ba-chi-ou4je",
+      "name": "Thịt heo ba chỉ",
+      "group": "Thịt"
+    },
+    {
+      "id": "2eb699dc-70ee-4192-9ea2-6291535345e1",
+      "code": "thit-heo-mo-2sua2",
+      "name": "Thịt heo mỡ",
+      "group": "Thịt"
+    },
+    {
+      "id": "39fcc4e7-cd22-43cf-84e6-e8dae27828fd",
+      "code": "thit-heo-nac-dua8b",
+      "name": "Thịt heo nạc",
+      "group": "Thịt"
+    },
+    {
+      "id": "3634e051-6e4e-4bde-9d05-2c86ff2a8bc6",
+      "code": "thit-heo-xay-3pche",
+      "name": "Thịt heo xay",
+      "group": "Thịt"
+    },
+    {
+      "id": "4e6e0e7e-9ea8-4650-ba4f-c71103149391",
+      "code": "thit-heo-xay-dac-biet-xk5ep",
+      "name": "Thịt heo xay đặc biệt",
+      "group": "Thịt"
+    },
+    {
+      "id": "ca4e4ae8-440c-4c19-9884-2ac716854fb0",
+      "code": "thit-nac-dam-heo-nr094",
+      "name": "Thịt Nạc dăm heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "6d21ba01-c314-4d52-bc6f-8c4ee32ae957",
+      "code": "thit-nac-heo-w7psl",
+      "name": "Thịt nạc heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "b365519c-2602-4989-80a7-a3c5c403bdd6",
+      "code": "thit-nac-than-heo-c0ocx",
+      "name": "Thịt Nạc thăn heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "43bd7325-c1e9-41bf-af8c-36c8dfd0deb6",
+      "code": "ING-3D9F30",
+      "name": "Thịt nọng heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "a4f79ed8-8242-4bfc-b29f-d090185c760c",
+      "code": "thit-suon-vai-heo-825j3",
+      "name": "Thịt Sườn vai heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "f08d0b07-bb15-48ea-8fc3-5ca4d81bd71b",
+      "code": "thit-vai-heo-me15t",
+      "name": "Thịt vai heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "77c3c97e-34c9-4d6e-aba5-6bd4ea880845",
+      "code": "tim-heo-2o8rv",
+      "name": "Tim heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "aed43da7-af5b-467d-87d6-7a726da055e8",
+      "code": "xuong-duoi-heo-fla1l",
+      "name": "Xương đuôi heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "9ff88d18-c4da-4d38-b64e-7170e592f41f",
+      "code": "xuong-heo-s74p8",
+      "name": "Xương heo",
+      "group": "Thịt"
+    }
+  ],
+  "bò": [
+    {
+      "id": "5de8dbd4-987a-416e-970f-13af8c66350f",
+      "code": "ba-chi-bo-ct2he",
+      "name": "Ba chỉ bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "8dc9865c-9445-49be-aa06-daa9136d5f51",
+      "code": "bap-bo-ovswy",
+      "name": "Bắp bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "ff615e5b-4657-46a3-9a9d-6ab610ad0290",
+      "code": "bun-bo-hue-xhhbd",
+      "name": "Bún bò Huế",
+      "group": "Thịt"
+    },
+    {
+      "id": "94537cd6-2e32-4647-9a22-85b1ed3f61fd",
+      "code": "dui-bo-eywl8",
+      "name": "Đùi bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "d13f9c77-5145-45e4-b643-58169e1299fd",
+      "code": "duoi-bo-0jhij",
+      "name": "Đuôi bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "08e034b9-49f3-44e0-a68e-387b2b986cae",
+      "code": "gan-bo-0ocq1",
+      "name": "Gân bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "f27ac469-0e74-4045-960a-2865f0de5721",
+      "code": "gau-bo-5y4bz",
+      "name": "Gầu bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "73092b49-c17f-43b8-b2ee-fc85eaaae9f4",
+      "code": "gia-vi-bun-bo-hue-dhfood-natural-tbggg",
+      "name": "Gia vị bún bò huế DHFood Natural",
+      "group": "Thịt"
+    },
+    {
+      "id": "5686e824-4245-40ba-b4e0-8891bfe93905",
+      "code": "gia-vi-nau-pho-bo-sg-sbjui",
+      "name": "Gia Vị Nấu Phở Bò SG",
+      "group": "Thịt"
+    },
+    {
+      "id": "cf51fbaa-f071-40c7-ac21-def5ab8b6b4d",
+      "code": "luoi-bo-jwfch",
+      "name": "Lưỡi bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "3d99fc65-e98a-4f5e-9a87-2ab38b33d213",
+      "code": "nac-vai-bo-9u11v",
+      "name": "Nạc vai bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "03dc2cdf-5abc-40c3-82ea-bd6f17c2188f",
+      "code": "nam-bo-e5fh0",
+      "name": "Nạm bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "3a0fee8d-4824-405f-9881-6ee2e9b52627",
+      "code": "nuoc-dung-ga-bo-p3zle",
+      "name": "Nước dùng gà bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "e51163e1-9a5b-4067-b0fd-4dec6d5a909e",
+      "code": "pho-bo-gnyzr",
+      "name": "Phở bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "a8fb504e-eaf2-44aa-b12b-911813ac1443",
+      "code": "pho-bo-an-lien-vina-9j4vs",
+      "name": "Phở bò ăn liền Vina",
+      "group": "Thịt"
+    },
+    {
+      "id": "415677ab-87fd-42d8-9431-65ec0e98bab4",
+      "code": "pho-bo-chin-su-story-co-thit-to-on820",
+      "name": "Phở Bò Chin su Story có thịt tô",
+      "group": "Thịt"
+    },
+    {
+      "id": "4ec42981-02fa-4f80-b4a3-0eb59528d5f0",
+      "code": "pho-co-xot-thit-vi-bo-xrfgt",
+      "name": "Phở Có Xốt Thịt Vị Bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "f580238b-42d1-41e9-83b8-de654b3bb04e",
+      "code": "pho-huong-vi-bo-30-ajyfc",
+      "name": "Phở hương vị bò *30",
+      "group": "Thịt"
+    },
+    {
+      "id": "9c80a232-07cc-402e-b004-a7b30a85a650",
+      "code": "pho-thit-bo-o2q9x",
+      "name": "Phở thịt bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "cdb1523f-6347-4289-808c-f716a87dfce7",
+      "code": "ING-664FDF",
+      "name": "Sườn bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "18b0a0bc-be53-4d9e-9954-34257430279a",
+      "code": "than-bo-7vwk3",
+      "name": "Thăn bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "a04a1697-5943-4854-b0de-9ecdf51ec54d",
+      "code": "thit-bo-hamburger-ua7g7",
+      "name": "Thịt bò Hamburger",
+      "group": "Thịt"
+    },
+    {
+      "id": "5dfaea33-531a-492a-ae51-fadd0f2411d6",
+      "code": "thit-bo-nac-yv4cc",
+      "name": "Thịt bò nạc",
+      "group": "Thịt"
+    },
+    {
+      "id": "7c29a6ae-8263-48b8-b317-120b62235fac",
+      "code": "thit-bo-xay-qfizs",
+      "name": "Thịt bò xay",
+      "group": "Thịt"
+    },
+    {
+      "id": "6daf05f2-f000-469f-86ac-cb61994c4a0c",
+      "code": "thit-nam-bung-bo-22ze5",
+      "name": "Thịt Nạm bụng bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "ac679b9f-e41a-4e71-8d1f-40a1683426ed",
+      "code": "xot-bo-kho-bfkln",
+      "name": "Xốt bò kho",
+      "group": "Thịt"
+    },
+    {
+      "id": "d1fb22be-ecbe-4e35-9328-fc647ffdf566",
+      "code": "xot-ca-chua-thit-bo-bam-7ljqu",
+      "name": "Xốt cà chua thịt bò băm",
+      "group": "Thịt"
+    },
+    {
+      "id": "f982cac6-e0e4-4584-b0d7-7ff8a3419f69",
+      "code": "xuong-bo-c9924",
+      "name": "Xương bò",
+      "group": "Thịt"
+    }
+  ],
+  "gà": [
+    {
+      "id": "e947641f-18e4-4d7f-bd3b-5de7cc0878dd",
+      "code": "bot-chien-ga-gion-6s923",
+      "name": "Bột chiên gà giòn",
+      "group": "Thịt"
+    },
+    {
+      "id": "08df819e-c68f-42a2-a900-025ea0af6421",
+      "code": "canh-ga-2kxkj",
+      "name": "Cánh gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "e0589bc3-d3ea-413f-8206-5c3c67d6915f",
+      "code": "chan-ga-sgdrn",
+      "name": "Chân gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "6347d84b-df39-4f8c-8654-97c583880ad6",
+      "code": "dui-ga-rut-xuong-kl6og",
+      "name": "Đùi gà rút xương",
+      "group": "Thịt"
+    },
+    {
+      "id": "fbc47736-d36a-4a7b-badd-c353058b9359",
+      "code": "dui-toi-ga-cz7hn",
+      "name": "Đùi tỏi gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "febf7f58-9a44-4b9e-9d76-3cae29b02de6",
+      "code": "ING-EED44E",
+      "name": "Gà ác",
+      "group": "Thịt"
+    },
+    {
+      "id": "ef7fce56-55d0-4666-9341-2731b98d561c",
+      "code": "ga-ta-lbi3c",
+      "name": "Gà ta",
+      "group": "Thịt"
+    },
+    {
+      "id": "0786df16-b581-4647-911e-c92eee025282",
+      "code": "mien-huong-vi-ga-mr8sy",
+      "name": "Miến Hương vị Gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "b5b53d6e-ce7d-4b01-a46d-10fe6da48c28",
+      "code": "nam-dui-ga-2xftq",
+      "name": "Nấm đùi gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "3a0fee8d-4824-405f-9881-6ee2e9b52627",
+      "code": "nuoc-dung-ga-bo-p3zle",
+      "name": "Nước dùng gà bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "ca794de3-a5a4-4987-9203-942841ac9509",
+      "code": "pho-co-xot-thit-vi-ga-ezsxs",
+      "name": "Phở Có Xốt Thịt Vị Gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "cd945773-2697-4c5c-8567-0fc2d43ea2d2",
+      "code": "pho-ga-vvv0y",
+      "name": "Phở gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "25e4b817-6f92-4f44-9da8-a8264d7d38d0",
+      "code": "pho-huong-vi-ga-30-z0t6m",
+      "name": "Phở hương vị gà *30",
+      "group": "Thịt"
+    },
+    {
+      "id": "2858df19-77da-4620-ae3d-e7c42143aea8",
+      "code": "rong-bien-gion-tron-kho-ga-m3u2l",
+      "name": "Rong biển giòn trộn khô gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "c7006c84-c984-404c-ac50-fc0be6713169",
+      "code": "sot-ga-chien-vi-cay-han-quoc-mfs3c",
+      "name": "Sốt gà chiên vị cay Han Quốc",
+      "group": "Thịt"
+    },
+    {
+      "id": "19c41777-082d-401e-8b1f-f0dbbdd76f90",
+      "code": "sot-ga-chien-vi-phomai-k21k4",
+      "name": "Sốt gà chiên vị phomai",
+      "group": "Thịt"
+    },
+    {
+      "id": "c07e9590-ce9a-46e5-b4db-4e5a8a0f542a",
+      "code": "sun-ga-a4f8f",
+      "name": "Sụn gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "4c9772f8-fafa-46c5-8bae-10f90cdf2fe8",
+      "code": "thit-ga-e2bhi",
+      "name": "Thịt gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "d4899648-06e8-4bf6-891b-4dd0cce980d0",
+      "code": "tim-ga-8o0bs",
+      "name": "Tim gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "5a5aeff4-37db-4571-9aba-248bab3218ca",
+      "code": "trung-ga-luo5e",
+      "name": "Trứng gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "048830dc-2a98-4aa8-b465-aacb8c42c412",
+      "code": "trung-ga-non-49rjn",
+      "name": "Trứng gà non",
+      "group": "Thịt"
+    },
+    {
+      "id": "6aae552b-599c-44d2-922c-79ea85a3c58a",
+      "code": "uc-ga-3olk1",
+      "name": "Ức gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "7ddc91da-519c-419f-b40e-ef47aa4eea76",
+      "code": "xot-gia-vi-hoan-chinh-ga-chien-nuoc-mam-gbhjq",
+      "name": "Xốt gia vị hoàn chỉnh gà chiên nước mắm",
+      "group": "Thịt"
+    }
+  ],
+  "chả": [
+    {
+      "id": "3d7c5fe0-de42-48e1-ac47-bbe431153b0a",
+      "code": "cha-cua-cha-ca-9n66u",
+      "name": "Chả cua chả cá",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "7c6de917-d615-4c5e-a748-f67b82073214",
+      "code": "cha-cua-hue-nxsuq",
+      "name": "Chả cua Huế",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "a7abc164-9f74-451e-8c57-ee25e98ebc29",
+      "code": "cha-lua-yhjhc",
+      "name": "Chả lụa",
+      "group": "Thịt"
+    },
+    {
+      "id": "bb76f8ab-6922-4269-a361-1ef6e1130ff4",
+      "code": "cha-oc-nscbd",
+      "name": "Chả ốc",
+      "group": "Thủy hải sản"
+    }
+  ],
+  "giò": [
+    {
+      "id": "a2589c79-1b5d-4a6e-a451-ea7594170892",
+      "code": "banh-quay-gion-dsr7f",
+      "name": "Bánh quẩy giòn",
+      "group": "Tinh bột & Ngũ cốc"
+    },
+    {
+      "id": "eb181223-5337-4234-813c-7e09b554793a",
+      "code": "bap-gio-cuon-7p1r2",
+      "name": "Bắp giò cuộn",
+      "group": "Thịt"
+    },
+    {
+      "id": "e947641f-18e4-4d7f-bd3b-5de7cc0878dd",
+      "code": "bot-chien-ga-gion-6s923",
+      "name": "Bột chiên gà giòn",
+      "group": "Thịt"
+    },
+    {
+      "id": "d9110758-356e-4e9e-b96d-3a8e8498cbe9",
+      "code": "bot-chien-gion-ahngo",
+      "name": "Bột chiên giòn",
+      "group": "Bột & phụ gia"
+    },
+    {
+      "id": "1d97c40a-b277-4382-9b4a-e26101a0ea0f",
+      "code": "bot-tam-kho-chien-gion-ap1z2",
+      "name": "Bột tẩm khô chiên giòn",
+      "group": "Bột & phụ gia"
+    },
+    {
+      "id": "8406d8ea-3602-42ae-9112-3c86ec72339c",
+      "code": "ING-2BDEB6",
+      "name": "Cá chép giòn",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "bba606a1-a3b6-4d8b-9ac9-0357228a696d",
+      "code": "chan-gio-heo-1pbeg",
+      "name": "Chân giò heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "23d1f4f1-1009-4882-b103-0d9fd12c2c13",
+      "code": "rong-bien-gion-tron-gia-vi-q3quv",
+      "name": "Rong Biển Giòn Trộn Gia Vị",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "1691ccf7-ea6b-4f93-bd7e-98636fa183d5",
+      "code": "rong-bien-gion-tron-hai-san-nnuq1",
+      "name": "Rong Biển Giòn Trộn Hải Sản",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "2858df19-77da-4620-ae3d-e7c42143aea8",
+      "code": "rong-bien-gion-tron-kho-ga-m3u2l",
+      "name": "Rong biển giòn trộn khô gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "def4edf1-eacc-4f16-b7ef-fa2467ede7a2",
+      "code": "rong-bien-gion-tron-oc-cho-hanh-nhan-esj5a",
+      "name": "Rong Biển Giòn Trộn Óc Chó, Hạnh Nhân",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "4c78304c-8e2e-4c15-b45a-f4f64e9056a7",
+      "code": "thit-nac-dam-dau-gion-92rit",
+      "name": "Thịt Nạc dăm đầu giòn",
+      "group": "Thịt"
+    },
+    {
+      "id": "33259790-eb13-41d1-bd47-87c64c335be6",
+      "code": "top-mo-chien-gion-5a7qr",
+      "name": "Tóp mỡ chiên giòn",
+      "group": "Món ăn kèm"
+    }
+  ],
+  "mọc": [],
+  "nem": [
+    {
+      "id": "d088f384-af87-44be-9519-acd3295f62d0",
+      "code": "banh-da-nem-z84kl",
+      "name": "Bánh đa nem",
+      "group": "Nông sản & ngũ cốc"
+    }
+  ],
+  "dồi": [
+    {
+      "id": "6a8e5930-7bfd-4f6e-a9ca-9b419ac5c0f6",
+      "code": "doi-truong-8vksc",
+      "name": "Dồi trường",
+      "group": "Thịt"
+    }
+  ],
+  "bún": [
+    {
+      "id": "f11261c7-83dd-4365-81a3-530da947dc45",
+      "code": "bun-9uslg",
+      "name": "Bún",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "ff615e5b-4657-46a3-9a9d-6ab610ad0290",
+      "code": "bun-bo-hue-xhhbd",
+      "name": "Bún bò Huế",
+      "group": "Thịt"
+    },
+    {
+      "id": "95d1a940-e3ac-4bed-8c53-c18924e3b00d",
+      "code": "bun-kho-rjf5x",
+      "name": "Bún khô",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "d7c9c942-89c9-46f1-8a24-ee5c40db0469",
+      "code": "bun-rieu-cua-an-lien-30-x-qg0xq",
+      "name": "Bún riêu cua ăn liền 30 x",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "73092b49-c17f-43b8-b2ee-fc85eaaae9f4",
+      "code": "gia-vi-bun-bo-hue-dhfood-natural-tbggg",
+      "name": "Gia vị bún bò huế DHFood Natural",
+      "group": "Thịt"
+    }
+  ],
+  "mì": [
+    {
+      "id": "925978d2-7dcb-4a9f-97ed-c4b1834b8b4c",
+      "code": "banh-mi-fkfq7",
+      "name": "Bánh mì",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "ba0f9a5f-5774-45f0-9af4-e4cdd4f8926b",
+      "code": "bot-mi-da-dung-edubj",
+      "name": "Bột mì đa dụng",
+      "group": "Bột & phụ gia"
+    },
+    {
+      "id": "15d9b91c-c4f1-45d1-9b31-66a68c35269e",
+      "code": "mi-an-lien-4nri2",
+      "name": "Mì ăn liền",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "642acd81-b5d2-4b64-8acb-b333db6ea3b0",
+      "code": "mi-chay-cao-cap-b7u2f",
+      "name": "Mì Chay Cao Cấp",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "57921ae2-eb05-48ff-9018-43d65c88faca",
+      "code": "mi-chinh-jp-dfbhx",
+      "name": "Mì chính JP",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "6dee3253-2cdb-46e8-a066-ce200fc120cb",
+      "code": "mi-chinh-plus-umwqp",
+      "name": "Mì chính Plus",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "37f31187-0a82-4889-8f66-50a36c5b14a0",
+      "code": "mi-soi-gno75",
+      "name": "Mì sợi",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "5354cf98-f8ba-4f17-8a83-f2637b85aa4b",
+      "code": "sot-mi-spaghetti-fresco-rme2x",
+      "name": "Sốt mì Spaghetti Fresco",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "10e22602-582c-4bea-aaf8-6c7172f31039",
+      "code": "xot-mi-napoletana-481bj",
+      "name": "Xốt mì Napoletana",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "89a38d31-7028-4cfc-882f-12b6c830d9bc",
+      "code": "xot-mi-o-liu-8vr0l",
+      "name": "Xốt mì ô liu",
+      "group": "Gia vị & nước chấm"
+    }
+  ],
+  "phở": [
+    {
+      "id": "8bb41daa-d4ae-4784-85ed-42ad79dffeeb",
+      "code": "banh-pho-gu7a0",
+      "name": "Bánh phở",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "5686e824-4245-40ba-b4e0-8891bfe93905",
+      "code": "gia-vi-nau-pho-bo-sg-sbjui",
+      "name": "Gia Vị Nấu Phở Bò SG",
+      "group": "Thịt"
+    },
+    {
+      "id": "e51163e1-9a5b-4067-b0fd-4dec6d5a909e",
+      "code": "pho-bo-gnyzr",
+      "name": "Phở bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "a8fb504e-eaf2-44aa-b12b-911813ac1443",
+      "code": "pho-bo-an-lien-vina-9j4vs",
+      "name": "Phở bò ăn liền Vina",
+      "group": "Thịt"
+    },
+    {
+      "id": "415677ab-87fd-42d8-9431-65ec0e98bab4",
+      "code": "pho-bo-chin-su-story-co-thit-to-on820",
+      "name": "Phở Bò Chin su Story có thịt tô",
+      "group": "Thịt"
+    },
+    {
+      "id": "1404584e-e8d0-4ece-9df9-d99e8a3690e6",
+      "code": "pho-chay-rau-nam-d1lmr",
+      "name": "Phở chay rau nấm",
+      "group": "Rau củ"
+    },
+    {
+      "id": "4ec42981-02fa-4f80-b4a3-0eb59528d5f0",
+      "code": "pho-co-xot-thit-vi-bo-xrfgt",
+      "name": "Phở Có Xốt Thịt Vị Bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "ca794de3-a5a4-4987-9203-942841ac9509",
+      "code": "pho-co-xot-thit-vi-ga-ezsxs",
+      "name": "Phở Có Xốt Thịt Vị Gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "cd945773-2697-4c5c-8567-0fc2d43ea2d2",
+      "code": "pho-ga-vvv0y",
+      "name": "Phở gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "f580238b-42d1-41e9-83b8-de654b3bb04e",
+      "code": "pho-huong-vi-bo-30-ajyfc",
+      "name": "Phở hương vị bò *30",
+      "group": "Thịt"
+    },
+    {
+      "id": "25e4b817-6f92-4f44-9da8-a8264d7d38d0",
+      "code": "pho-huong-vi-ga-30-z0t6m",
+      "name": "Phở hương vị gà *30",
+      "group": "Thịt"
+    },
+    {
+      "id": "9c80a232-07cc-402e-b004-a7b30a85a650",
+      "code": "pho-thit-bo-o2q9x",
+      "name": "Phở thịt bò",
+      "group": "Thịt"
+    }
+  ],
+  "hủ tiếu": [
+    {
+      "id": "354eecbe-27d4-467e-9705-fee75fb60fcf",
+      "code": "hu-tieu-nam-vang-18-x-wp0iw",
+      "name": "Hủ tiếu Nam Vang 18 x",
+      "group": "Nông sản & ngũ cốc"
+    }
+  ],
+  "bánh canh": [],
+  "bánh đa": [
+    {
+      "id": "e531c8bd-3e09-48c0-b263-921affb08429",
+      "code": "banh-da-cvny6",
+      "name": "Bánh đa",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "828a3207-3e82-41a4-b4f4-4ff644028b57",
+      "code": "banh-da-cua-k8vok",
+      "name": "Bánh đa cua",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "172ec200-7889-4642-afbc-9caa20e17538",
+      "code": "banh-da-kho-sb6se",
+      "name": "Bánh đa khô",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "d088f384-af87-44be-9519-acd3295f62d0",
+      "code": "banh-da-nem-z84kl",
+      "name": "Bánh đa nem",
+      "group": "Nông sản & ngũ cốc"
+    }
+  ],
+  "gạo": [
+    {
+      "id": "1499d5a2-e08c-4013-857f-d3a3c8729bd5",
+      "code": "banh-gao-han-quoc-dsu0a",
+      "name": "Bánh gạo Hàn Quốc",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "74e4a995-8d00-4dca-8ec3-3e1e593f8962",
+      "code": "bot-gao-00jy1",
+      "name": "Bột gạo",
+      "group": "Bột & phụ gia"
+    },
+    {
+      "id": "6d6f3ef0-2aa9-43f3-976e-221c06c48118",
+      "code": "dau-gao-lut-og3rt",
+      "name": "Dầu gạo lứt",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "beecdad5-dc61-4610-a05f-7f26e56aeb83",
+      "code": "gao-6r0y4",
+      "name": "Gạo",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "d31f545a-b71c-466d-9e51-0beb80cf1d5e",
+      "code": "gao-japonica-g34fn",
+      "name": "Gạo Japonica",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "1e5726f9-9f3e-400a-b050-fceaea1aa12e",
+      "code": "gao-lua-tom-st25-8ovoe",
+      "name": "Gạo lúa tôm ST25",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "57849b34-1f86-474a-ba14-d9b3835a93c5",
+      "code": "gao-luc-do-mb2e1",
+      "name": "Gạo Lức đỏ",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "0bb9e54b-649e-4475-9fc9-237b007293e9",
+      "code": "gao-lut-ph96l",
+      "name": "Gạo lứt",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "12a01f2e-da85-4acb-a9d2-d47d467bd518",
+      "code": "gao-nep-p8exz",
+      "name": "Gạo nếp",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "a53683a1-506c-497e-bb69-4c259448a3e9",
+      "code": "gao-nep-cai-hoa-vang-flml1",
+      "name": "Gạo nếp cái hoa vàng",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "2903d86a-34c2-4409-a4ec-8a70a0ff0be1",
+      "code": "gao-nep-hoa-vang-dac-biet-wyh7y",
+      "name": "Gạo nếp hoa vàng đặc biệt",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "63b9d899-6aa1-45f6-b913-e8ee552c62b0",
+      "code": "gao-phuc-tho-cay-trong-y1h0s",
+      "name": "Gạo phúc thọ cây trồng",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "2fdff1c1-4971-4eb3-bc23-55cfb17147ec",
+      "code": "gao-seng-cu-itamy",
+      "name": "Gạo Séng Cù",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "07f10d80-48e8-456d-b5b4-7097b6e99b9e",
+      "code": "gao-st-25-dac-san-ansjg",
+      "name": "Gạo ST 25 đặc sản",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "4cba5908-438a-49b4-ac8c-ad47e5675e67",
+      "code": "gao-st25-tq2b5",
+      "name": "Gạo ST25",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "4f696755-2af2-4b7d-bcad-e19956983013",
+      "code": "gao-st25-giong-cay-trong-tw-8fp99",
+      "name": "Gạo ST25 Giống Cây Trồng TW",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "cfb2e636-440d-467c-ae48-ecd850f82267",
+      "code": "gao-st25-lua-ruong-ruoi-9wus5",
+      "name": "Gạo ST25 lúa ruộng rươi",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "6c5e6b89-4c81-4829-915f-1738730ae8be",
+      "code": "gao-tam-go-cong-d1an7",
+      "name": "Gạo tám Gò Công",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "9af68ca9-f66a-4328-8007-aff99ff9ed6b",
+      "code": "gao-tam-soc-trang-fim4u",
+      "name": "Gạo Tám Sóc Trăng",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "470954f0-3792-45a1-98c0-d2350da28fff",
+      "code": "gao-te-5rixd",
+      "name": "Gạo tẻ",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "ad6ce4fe-a4e7-4c54-9002-d9b1ad4f2004",
+      "code": "giam-gao-vri2z",
+      "name": "Giấm gạo",
+      "group": "Nông sản & ngũ cốc"
+    }
+  ],
+  "tấm": [],
+  "cơm": [
+    {
+      "id": "cc51cbc9-3a36-4434-8f82-5539d10c8ed3",
+      "code": "ING-D8242E",
+      "name": "Cá cơm",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "0a77d7aa-fcbf-49e2-9d13-3ff5e104ef24",
+      "code": "com-me-e296f",
+      "name": "Cơm mẻ",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "2e052284-4644-44ab-a292-cdb50109ce14",
+      "code": "com-ruou-e34q1",
+      "name": "Cơm rượu",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "1ff97a05-f9bb-4088-a761-999bbb18d2e9",
+      "code": "com-te-oqvym",
+      "name": "Cơm tẻ",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "a5981ba7-596e-43f7-b4f6-18dade543178",
+      "code": "la-kim-cuon-com-5j68q",
+      "name": "Lá Kim cuốn cơm",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "3b1fc03b-0aaf-4b68-a3e6-6d2836a55364",
+      "code": "la-rong-bien-cuon-com-obols",
+      "name": "Lá rong biển cuốn cơm",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "9b65f695-1bc2-499f-907a-5b167318a8fa",
+      "code": "muc-trung-com-xoi-ntf-y5u0e",
+      "name": "Mực trứng cơm xôi NTF",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "87fab06e-e828-4ff5-9e79-7c740e188c75",
+      "code": "rong-bien-em-be-cuoi-tom-va-ca-com-a896p",
+      "name": "Rong biển em bé cười tôm và cá cơm",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "1e2f3f54-6c52-443f-947c-825f5d051397",
+      "code": "rong-bien-tron-com-food-ej4p9",
+      "name": "Rong biển trộn cơm Food",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "62e97ede-29df-4a5d-bced-40124cffd678",
+      "code": "rong-bien-tron-com-hai-san-m2s2z",
+      "name": "Rong biển trộn cơm hải sản",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "7ef68e37-87a2-4adc-a2c2-63cd85b77db5",
+      "code": "rong-bien-tron-com-rau-cu-zq0lm",
+      "name": "Rong biển trộn cơm rau củ",
+      "group": "Rau củ"
+    },
+    {
+      "id": "7337b046-73ef-4738-8712-c44f6ade168b",
+      "code": "tao-cuon-com-130-o8g49",
+      "name": "Tảo cuốn cơm *130",
+      "group": "Nông sản & ngũ cốc"
+    }
+  ],
+  "hành": [
+    {
+      "id": "7228d536-73cf-4806-af25-c84885fdd262",
+      "code": "hanh-cu-hai-duong-dgesg",
+      "name": "Hành củ Hải Dương",
+      "group": "Rau củ"
+    },
+    {
+      "id": "0fbf4bdb-802e-4f50-a621-029e1c5a3dc0",
+      "code": "hanh-la-53bgh",
+      "name": "Hành lá",
+      "group": "Rau củ"
+    },
+    {
+      "id": "f7a8403a-f03b-4b3f-ae06-f20c02da5dd7",
+      "code": "hanh-ly-son-t6ruo",
+      "name": "Hành Lý Sơn",
+      "group": "Rau củ"
+    },
+    {
+      "id": "08939bf6-eb68-45a2-8e7a-2cdf8cde92c9",
+      "code": "hanh-phi-toi-phi-fokrk",
+      "name": "Hành phi tỏi phi",
+      "group": "Rau củ"
+    },
+    {
+      "id": "8fa7681c-79c2-49fe-81d0-f066b1cb4dc2",
+      "code": "hanh-tay-aoc56",
+      "name": "Hành tây",
+      "group": "Rau củ"
+    },
+    {
+      "id": "58a7dc8b-c12a-4357-80ec-c74a36e02ecc",
+      "code": "hanh-tim-jo4u8",
+      "name": "Hành tím",
+      "group": "Rau củ"
+    }
+  ],
+  "tỏi": [
+    {
+      "id": "0a4b36b1-ee1b-480f-82c1-8233a0488fe8",
+      "code": "bot-toi-thom-bhahe",
+      "name": "Bột tỏi thơm",
+      "group": "Rau củ"
+    },
+    {
+      "id": "fbc47736-d36a-4a7b-badd-c353058b9359",
+      "code": "dui-toi-ga-cz7hn",
+      "name": "Đùi tỏi gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "08939bf6-eb68-45a2-8e7a-2cdf8cde92c9",
+      "code": "hanh-phi-toi-phi-fokrk",
+      "name": "Hành phi tỏi phi",
+      "group": "Rau củ"
+    },
+    {
+      "id": "84308724-dec3-49ed-9ecf-cbc7cf8ff5c7",
+      "code": "nuoc-cham-toi-ot-ly-son-3ejam",
+      "name": "Nước chấm tỏi ớt Lý Sơn",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "7f3e38b0-de2e-41c8-836f-61426f0cb3eb",
+      "code": "toi-ehjc3",
+      "name": "Tỏi",
+      "group": "Rau củ"
+    },
+    {
+      "id": "8f6c0e07-38d2-4d2b-be07-b2095b3796b8",
+      "code": "toi-cu-hai-duong-ndm8m",
+      "name": "Tỏi củ Hải Dương",
+      "group": "Rau củ"
+    },
+    {
+      "id": "3b5e8de5-817a-4515-bff2-a6a1d816f3a0",
+      "code": "toi-cu-ly-son-icxvr",
+      "name": "Tỏi củ Lý Sơn",
+      "group": "Rau củ"
+    }
+  ],
+  "ớt": [
+    {
+      "id": "462f30d0-a26d-48a1-9cc1-78a03681e03b",
+      "code": "muoi-ot-chanh-nha-trang-mwhoz",
+      "name": "Muối ớt chanh Nha Trang",
+      "group": "Trái cây"
+    },
+    {
+      "id": "c94f92b8-b4f0-4bce-afdb-355083eeab1f",
+      "code": "muoi-tom-ot-kieu-tay-ninh-lx2h4",
+      "name": "Muối tôm ớt kiểu Tây Ninh",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "84308724-dec3-49ed-9ecf-cbc7cf8ff5c7",
+      "code": "nuoc-cham-toi-ot-ly-son-3ejam",
+      "name": "Nước chấm tỏi ớt Lý Sơn",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "c4131213-04b2-49bb-8e89-d6998da55c4b",
+      "code": "ot-149n9",
+      "name": "Ớt",
+      "group": "Trái cây"
+    },
+    {
+      "id": "0dce136d-7928-4bf7-8537-253fc2cf716d",
+      "code": "ot-bot-p2g66",
+      "name": "Ớt bột",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "a8f978fa-61c9-4989-8019-740335e20468",
+      "code": "ot-bot-ot-kho-5m485",
+      "name": "Ớt bột Ớt khô",
+      "group": "Rau củ"
+    },
+    {
+      "id": "0cb7d902-cb25-4fd7-9dc3-01cc4c902723",
+      "code": "ot-chuong-mgy4o",
+      "name": "Ớt chuông",
+      "group": "Trái cây"
+    },
+    {
+      "id": "d4d9a040-74f5-40b1-8096-3e3819e9ccc7",
+      "code": "ot-sung-odmvo",
+      "name": "Ớt sừng",
+      "group": "Rau củ"
+    },
+    {
+      "id": "31493d16-4b06-47c6-8a97-e8fc34e06efe",
+      "code": "ot-trai-cay-hcs54",
+      "name": "Ớt trái cây",
+      "group": "Rau củ"
+    },
+    {
+      "id": "6a0d214e-df1a-41b2-929d-5bf2a6cd8138",
+      "code": "tuong-ot-zb77n",
+      "name": "Tương ớt",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "a3034c3f-d9e0-4e91-8fe3-7bd56e873ebc",
+      "code": "xot-gia-vi-hoan-chinh-nuong-muoi-ot-pk3mm",
+      "name": "Xốt gia vị hoàn chỉnh nướng muối ớt",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "e3808999-16b5-4b4f-9c8e-aec99d3b54a7",
+      "code": "xot-gia-vi-hoan-chinh-xao-sa-ot-pvro5",
+      "name": "Xốt gia vị hoàn chỉnh xào sả ớt",
+      "group": "Rau củ"
+    }
+  ],
+  "gừng": [
+    {
+      "id": "eeac23ec-b658-4e34-87c9-bd1e7aa95b1a",
+      "code": "gung-x2tfi",
+      "name": "Gừng",
+      "group": "Rau củ"
+    }
+  ],
+  "chanh": [
+    {
+      "id": "9cf036c5-6905-4dff-b1a6-edbe094448df",
+      "code": "chanh-bfxpq",
+      "name": "Chanh",
+      "group": "Trái cây"
+    },
+    {
+      "id": "d383336b-18ba-49fd-b694-76d75a000512",
+      "code": "chanh-co-hat-7ry46",
+      "name": "Chanh có hạt",
+      "group": "Trái cây"
+    },
+    {
+      "id": "278711bc-9734-40fc-b310-413b6dd92f59",
+      "code": "chanh-leo-zv070",
+      "name": "Chanh leo",
+      "group": "Trái cây"
+    },
+    {
+      "id": "effd7c88-64e2-4cbe-97de-a3d8d9321d6e",
+      "code": "la-chanh-obg4j",
+      "name": "Lá chanh",
+      "group": "Rau củ"
+    },
+    {
+      "id": "462f30d0-a26d-48a1-9cc1-78a03681e03b",
+      "code": "muoi-ot-chanh-nha-trang-mwhoz",
+      "name": "Muối ớt chanh Nha Trang",
+      "group": "Trái cây"
+    },
+    {
+      "id": "2e2f0e69-168f-4b04-a437-4cf0fbbb111b",
+      "code": "nuoc-cot-chanh-day-siro-mn3wl",
+      "name": "Nước cốt chanh dây siro",
+      "group": "Trái cây"
+    }
+  ],
+  "tiêu": [
+    {
+      "id": "cbd40ee5-4eb4-4165-9368-ad4e2b98be87",
+      "code": "sot-tieu-den-u7eu7",
+      "name": "Sốt tiêu đen",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "148e63d9-956e-4759-82d2-fd9b2f34b8af",
+      "code": "tieu-3bx3a",
+      "name": "Tiêu",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "2994d001-6dc1-4e02-9b1f-b1c429059110",
+      "code": "tieu-den-u0187",
+      "name": "Tiêu đen",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "8296e52c-66b7-48e6-8e92-6995a3d3df92",
+      "code": "tieu-so-nguyen-hat-xb5vs",
+      "name": "Tiêu sọ nguyên hạt",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "5deb6610-c27c-4a6f-8f2a-062d96f698ff",
+      "code": "ING-0CCB45",
+      "name": "Tiêu sọ Phú Quốc",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "2db18abf-228c-48b7-96d2-764f6dfee8bc",
+      "code": "tieu-so-xay-h4xai",
+      "name": "Tiêu sọ xay",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "8370aea5-2a45-476b-b495-2790125b3abd",
+      "code": "tieu-xanh-v75p7",
+      "name": "Tiêu xanh",
+      "group": "Gia vị & nước chấm"
+    }
+  ],
+  "quế": [
+    {
+      "id": "378e0ecd-63d2-43c8-a139-83c2ea9099e0",
+      "code": "bot-que-thom-rpstk",
+      "name": "Bột quế thơm",
+      "group": "Trái cây"
+    },
+    {
+      "id": "aa8d6560-5a73-4487-b080-736397e830e0",
+      "code": "hung-que-rnc49",
+      "name": "Húng quế",
+      "group": "Rau củ"
+    },
+    {
+      "id": "32d04ebf-203e-40a3-b940-8ae00c9020a5",
+      "code": "que-chi-zaaxm",
+      "name": "Quế chi",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "c746ee9b-52fd-4a68-970b-3a3f428cb907",
+      "code": "ruou-mai-que-lo-tjram",
+      "name": "Rượu mai quế lộ",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "be22714b-64c8-414f-b15d-5416b6290378",
+      "code": "thit-ba-roi-co-da-mh-giun-que-d2lkr",
+      "name": "Thịt Ba Rọi có da MH giun quế",
+      "group": "Thịt"
+    }
+  ],
+  "hồi": [
+    {
+      "id": "6e784035-0ff9-4fbc-a796-765baffd8a61",
+      "code": "ca-hoi-87e4r",
+      "name": "Cá hồi",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "d102a235-2749-45b4-a7b3-ff87a84ba648",
+      "code": "hoa-hoi-gi64w",
+      "name": "Hoa hồi",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "ed9772cc-57e5-4ae3-813c-9c2865cb0020",
+      "code": "ING-ABD821",
+      "name": "Ốc nhồi",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "db7b7b19-aec5-42db-9920-74d4efca2a14",
+      "code": "tieu-hoi-p19t5",
+      "name": "Tiểu hồi",
+      "group": "Gia vị & nước chấm"
+    }
+  ],
+  "rau": [
+    {
+      "id": "952bd657-91c8-4d74-8dd6-d556f09d9300",
+      "code": "bot-rau-cau-4zvx6",
+      "name": "Bột rau câu",
+      "group": "Rau củ"
+    },
+    {
+      "id": "0db3c250-8df9-4efe-9cb9-6a6b17deddee",
+      "code": "bot-san-day-rau-cau-thach-q08p0",
+      "name": "Bột sắn dây rau câu thạch",
+      "group": "Rau củ"
+    },
+    {
+      "id": "4b23dec6-72bd-450d-996d-70636ce24fd9",
+      "code": "ngo-gai-rau-om-0klwz",
+      "name": "Ngò gai, rau om",
+      "group": "Rau củ"
+    },
+    {
+      "id": "1404584e-e8d0-4ece-9df9-d99e8a3690e6",
+      "code": "pho-chay-rau-nam-d1lmr",
+      "name": "Phở chay rau nấm",
+      "group": "Rau củ"
+    },
+    {
+      "id": "f66052a3-754c-479a-803c-352122ba0187",
+      "code": "rau-can-tau-olvr0",
+      "name": "Rau cần tàu",
+      "group": "Rau củ"
+    },
+    {
+      "id": "a2473cb5-25e9-47c1-9777-40cbc9498d45",
+      "code": "rau-cang-cua-5bp4e",
+      "name": "Rau càng cua",
+      "group": "Rau củ"
+    },
+    {
+      "id": "604fd836-0af8-4c4d-b504-6d1b86b7fddd",
+      "code": "rau-chum-ngay-xohv9",
+      "name": "Rau chùm ngây",
+      "group": "Rau củ"
+    },
+    {
+      "id": "e0b20418-9981-40a3-be96-7bfdace5a62a",
+      "code": "rau-cu-hon-hop-1h200",
+      "name": "Rau củ hỗn hợp",
+      "group": "Rau củ"
+    },
+    {
+      "id": "9c835ff7-c591-4b70-9ef2-1d3e73f92157",
+      "code": "rau-dang-k8km8",
+      "name": "Rau đắng",
+      "group": "Rau củ"
+    },
+    {
+      "id": "105e7e7e-a4d9-4d7f-9c97-d71e7073fde5",
+      "code": "rau-day-b98rh",
+      "name": "Rau đay",
+      "group": "Rau củ"
+    },
+    {
+      "id": "849be6fd-175a-496e-9e04-f0d25fc82781",
+      "code": "rau-den-yrr9z",
+      "name": "Rau dền",
+      "group": "Rau củ"
+    },
+    {
+      "id": "67deef9c-6939-406f-bc7f-759d5f7048c0",
+      "code": "rau-lang-3d8t5",
+      "name": "Rau lang",
+      "group": "Rau củ"
+    },
+    {
+      "id": "b1e523e3-a25b-498f-8572-777191521d5e",
+      "code": "rau-ma-konl0",
+      "name": "Rau má",
+      "group": "Rau củ"
+    },
+    {
+      "id": "41ce303e-8b2a-4ed5-b899-c726c83bc95a",
+      "code": "rau-mam-cai-xanh-vccds",
+      "name": "Rau mầm cải xanh",
+      "group": "Rau củ"
+    },
+    {
+      "id": "018f366b-937c-4de3-b09a-0d90f2416fb5",
+      "code": "rau-mong-toi-uk2x5",
+      "name": "Rau mồng tơi",
+      "group": "Rau củ"
+    },
+    {
+      "id": "d8942198-f6a9-4235-8172-3058c6b4dff6",
+      "code": "rau-muong-cw5jj",
+      "name": "Rau muống",
+      "group": "Rau củ"
+    },
+    {
+      "id": "53c44fc2-4eda-48a1-9c5e-ec7daa367356",
+      "code": "rau-ngot-fd2ol",
+      "name": "Rau ngót",
+      "group": "Rau củ"
+    },
+    {
+      "id": "631488bc-48ab-49ee-98a6-04bf2c005a62",
+      "code": "rau-nhut-rau-ngo-psxki",
+      "name": "Rau nhút rau ngổ",
+      "group": "Rau củ"
+    },
+    {
+      "id": "81b0181c-5394-4c42-93cd-be5e413e73c6",
+      "code": "rau-ram-6ymci",
+      "name": "Rau Răm",
+      "group": "Rau củ"
+    },
+    {
+      "id": "364d3d32-eb48-46d1-9b7c-0ac82dc0ee40",
+      "code": "ING-5FDF0F",
+      "name": "Rau sắng",
+      "group": "Rau củ"
+    },
+    {
+      "id": "97d82861-e626-4f5f-9473-57a1d7b136c0",
+      "code": "rau-thom-dn6lr",
+      "name": "Rau thơm",
+      "group": "Rau củ"
+    },
+    {
+      "id": "1ffccdcb-61f4-463b-b1f6-efa1b800b51d",
+      "code": "ING-EBCC4D",
+      "name": "Rau tiến vua",
+      "group": "Rau củ"
+    },
+    {
+      "id": "c920407b-2620-4cf3-8383-5583639d418c",
+      "code": "rau-xa-lach-ouq9m",
+      "name": "Rau xà lách",
+      "group": "Rau củ"
+    },
+    {
+      "id": "7ef68e37-87a2-4adc-a2c2-63cd85b77db5",
+      "code": "rong-bien-tron-com-rau-cu-zq0lm",
+      "name": "Rong biển trộn cơm rau củ",
+      "group": "Rau củ"
+    },
+    {
+      "id": "075a593f-7c71-4775-b157-32e39d0908a1",
+      "code": "thach-rau-cau-vi-khoai-mon-k2so1",
+      "name": "Thạch rau câu vị khoai môn",
+      "group": "Rau củ"
+    }
+  ],
+  "cải": [
+    {
+      "id": "9cacf962-0274-4b02-95e7-ef674053c015",
+      "code": "bap-cai-go81w",
+      "name": "Bắp cải",
+      "group": "Rau củ"
+    },
+    {
+      "id": "be45a549-09c7-4c11-80fc-7537bb048972",
+      "code": "bap-cai-tim-k8mhi",
+      "name": "Bắp cải tím",
+      "group": "Rau củ"
+    },
+    {
+      "id": "09a0b5b5-0905-4574-b41e-aa3fd00157d2",
+      "code": "cai-wktvn",
+      "name": "Cải",
+      "group": "Rau củ"
+    },
+    {
+      "id": "ec933320-5070-4504-8241-45c0bfd078c1",
+      "code": "cai-bo-xoi-9iujl",
+      "name": "Cải bó xôi",
+      "group": "Rau củ"
+    },
+    {
+      "id": "fad59d1a-3a05-4f49-a655-067e39666810",
+      "code": "cai-chip-2qucf",
+      "name": "Cải chíp",
+      "group": "Rau củ"
+    },
+    {
+      "id": "b6b19a8c-fc0d-4220-abfd-c504b1a6bab9",
+      "code": "cai-cuc-o25zl",
+      "name": "Cải cúc",
+      "group": "Rau củ"
+    },
+    {
+      "id": "d1f5e45a-26fb-421d-a021-9d1dafb33664",
+      "code": "cai-thao-24o6c",
+      "name": "Cải thảo",
+      "group": "Rau củ"
+    },
+    {
+      "id": "7c864ace-650f-4d99-b25a-ef155ac7eec8",
+      "code": "cai-thia-guvqs",
+      "name": "Cải thìa",
+      "group": "Rau củ"
+    },
+    {
+      "id": "8963b8da-75e1-48f3-a9e5-7e7a889e6401",
+      "code": "cai-xanh-7d9l7",
+      "name": "Cải xanh",
+      "group": "Rau củ"
+    },
+    {
+      "id": "919e0a91-6330-4adf-bba4-e497880f4435",
+      "code": "cai-xoan-1ip4l",
+      "name": "Cải xoăn",
+      "group": "Rau củ"
+    },
+    {
+      "id": "d6abb171-82e1-4fe7-9dd9-0c31de2302ff",
+      "code": "cu-cai-trang-v974j",
+      "name": "Củ cải trắng",
+      "group": "Rau củ"
+    },
+    {
+      "id": "be06bd2e-63ab-4eba-9409-f1894f5d16c6",
+      "code": "dau-hat-cai-gh5b6",
+      "name": "Dầu hạt cải",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "d1578573-8028-45b8-b1ec-bf9235880018",
+      "code": "dua-cai-muoi-lzmu6",
+      "name": "Dưa cải muối",
+      "group": "Rau củ"
+    },
+    {
+      "id": "41ce303e-8b2a-4ed5-b899-c726c83bc95a",
+      "code": "rau-mam-cai-xanh-vccds",
+      "name": "Rau mầm cải xanh",
+      "group": "Rau củ"
+    }
+  ],
+  "muống": [
+    {
+      "id": "d8942198-f6a9-4235-8172-3058c6b4dff6",
+      "code": "rau-muong-cw5jj",
+      "name": "Rau muống",
+      "group": "Rau củ"
+    }
+  ],
+  "chuối": [
+    {
+      "id": "d40dd484-3e4b-409a-a4af-18b078bc5282",
+      "code": "bap-chuoi-77ypa",
+      "name": "Bắp chuối",
+      "group": "Rau củ"
+    },
+    {
+      "id": "ad3154aa-8663-479c-9119-b04fadca0efc",
+      "code": "chuoi-chin-wk1zs",
+      "name": "Chuối chín",
+      "group": "Trái cây"
+    },
+    {
+      "id": "c86db771-c36a-4b52-87ee-030550af4f64",
+      "code": "chuoi-gia-h2evv",
+      "name": "Chuối già",
+      "group": "Trái cây"
+    },
+    {
+      "id": "0e4ad130-c753-4b56-b517-72d3bcda94cb",
+      "code": "la-chuoi-0cgd1",
+      "name": "Lá chuối",
+      "group": "Rau củ"
+    }
+  ],
+  "hoa chuối": [],
+  "bắp chuối": [
+    {
+      "id": "d40dd484-3e4b-409a-a4af-18b078bc5282",
+      "code": "bap-chuoi-77ypa",
+      "name": "Bắp chuối",
+      "group": "Rau củ"
+    }
+  ],
+  "kèo nèo": [
+    {
+      "id": "50074026-fc6a-4f22-99e1-915c284f2136",
+      "code": "keo-neo-ksr7a",
+      "name": "Kèo nèo",
+      "group": "Rau củ"
+    }
+  ],
+  "rau đắng": [
+    {
+      "id": "9c835ff7-c591-4b70-9ef2-1d3e73f92157",
+      "code": "rau-dang-k8km8",
+      "name": "Rau đắng",
+      "group": "Rau củ"
+    }
+  ],
+  "bông súng": [],
+  "điên điển": [
+    {
+      "id": "0b61e7c2-ad3d-4648-b486-8d78f4462b96",
+      "code": "bong-dien-dien-f6tm2",
+      "name": "Bông điên điển",
+      "group": "Rau củ"
+    }
+  ],
+  "cá": [
+    {
+      "id": "747b9170-6cf7-4247-a4d7-e86ac7e9539a",
+      "code": "bao-tu-ca-basa-ermwt",
+      "name": "Bao tử cá basa",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "9e602e05-8056-4a22-adcc-962235dd0141",
+      "code": "ca-1imyi",
+      "name": "Cá",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "ee8400c1-7f06-4e9d-853c-703317f65c46",
+      "code": "ca-basa-lj524",
+      "name": "Cá basa",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "23a69575-746f-43c3-bc98-82ccba0879c3",
+      "code": "ca-bong-pnhb5",
+      "name": "Cá bống",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "75d0b3a1-0b30-4917-b8d1-9e931bc4dea3",
+      "code": "ca-bop-vgf80",
+      "name": "Cá bớp",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "0c816d8c-de17-4c44-b2cf-13a9230f1fa7",
+      "code": "ca-chach-aaesm",
+      "name": "Cá chạch",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "dd3d03b8-bdc8-4fbe-8b0a-2a56caa4e6b8",
+      "code": "ca-chep-e3fjd",
+      "name": "Cá chép",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "8406d8ea-3602-42ae-9112-3c86ec72339c",
+      "code": "ING-2BDEB6",
+      "name": "Cá chép giòn",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "6aa6bee1-57e4-4f58-af5f-9fce39c890dd",
+      "code": "ca-chim-trang-mjsqv",
+      "name": "Cá chim trắng",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "cc51cbc9-3a36-4434-8f82-5539d10c8ed3",
+      "code": "ING-D8242E",
+      "name": "Cá cơm",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "93cc8388-a0b1-4f62-b7ed-05b1c4d42a02",
+      "code": "ca-dieu-hong-1gm7u",
+      "name": "Cá điêu hồng",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "fec2e83a-126d-4fb2-a39c-f4eee2767091",
+      "code": "ING-B711F3",
+      "name": "Cá đuối",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "6e784035-0ff9-4fbc-a796-765baffd8a61",
+      "code": "ca-hoi-87e4r",
+      "name": "Cá hồi",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "dfb61229-ff4c-4b43-9e74-8c1985fdad2d",
+      "code": "ca-keo-fklvi",
+      "name": "Cá kèo",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "498ea5bb-f9d8-4921-8dc5-aa664baa985d",
+      "code": "ca-kho-oq9qb",
+      "name": "Cá khô",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "c4b9d295-b5cf-40ae-b096-c83ac0826fff",
+      "code": "ca-khoai-urbe8",
+      "name": "Cá khoai",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "93dbc312-c9cc-4ac1-a2a1-7c2c79834d53",
+      "code": "ca-lang-4jvm6",
+      "name": "Cá lăng",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "ee9510cd-031f-4c7c-bc95-4fed69f981ba",
+      "code": "ca-linh-ousod",
+      "name": "Cá linh",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "b873a19b-3328-4d64-9ef2-1ca59e5e0637",
+      "code": "ca-loc-h8dt6",
+      "name": "Cá lóc",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "d258dd1a-5fa7-481a-9bb5-44f8fd39c0b6",
+      "code": "ca-me-b2e1w",
+      "name": "Cá mè",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "35ebfdba-1bb1-4c93-af6d-0e7b6f029354",
+      "code": "ca-ngu-we1go",
+      "name": "Cá ngừ",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "b42aac49-339e-4576-b972-4adf97a4f4a4",
+      "code": "ca-nuc-3w9zj",
+      "name": "Cá nục",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "399b0839-3ab0-4793-81b5-c38d05b66c1d",
+      "code": "ING-CA6617",
+      "name": "Cá rô đồng",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "f25857f8-4a2d-466d-b61d-75cae6331669",
+      "code": "ca-ro-phi-2fmx8",
+      "name": "Cá rô phi",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "b853daad-bff3-4460-8a8f-bfb16daac66e",
+      "code": "ca-tai-tuong-8fdit",
+      "name": "Cá tai tượng",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "1d4e485c-b86d-4716-b238-784683f7ca91",
+      "code": "ING-FB29BC",
+      "name": "Cá thòi lòi",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "bdfacf39-9a29-4caf-990c-4415e8a37b8f",
+      "code": "ca-thu-0ywnt",
+      "name": "Cá thu",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "f76c44af-dc29-4d21-a2c8-ccd284464793",
+      "code": "ING-E84306",
+      "name": "Cá trắm cỏ",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "de588559-4a9f-4126-b149-73fff27c30ed",
+      "code": "ING-8D067A",
+      "name": "Cá trắm đen",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "f60a2b88-fc4c-49f8-82e0-46fd04310d41",
+      "code": "ca-tre-kfe30",
+      "name": "Cá trê",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "97ba6bd9-d7df-4b17-ae99-492a362dbbae",
+      "code": "ca-trich-10lvz",
+      "name": "Cá trích",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "08df819e-c68f-42a2-a900-025ea0af6421",
+      "code": "canh-ga-2kxkj",
+      "name": "Cánh gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "3d7c5fe0-de42-48e1-ac47-bbe431153b0a",
+      "code": "cha-cua-cha-ca-9n66u",
+      "name": "Chả cua chả cá",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "51b23ae7-4117-4976-850f-861aec350793",
+      "code": "diep-ca-e8wsh",
+      "name": "Diếp cá",
+      "group": "Rau củ"
+    },
+    {
+      "id": "a53683a1-506c-497e-bb69-4c259448a3e9",
+      "code": "gao-nep-cai-hoa-vang-flml1",
+      "name": "Gạo nếp cái hoa vàng",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "6293871d-46cd-40ff-8178-5db440fb0687",
+      "code": "gia-vi-hoan-chinh-ca-kho-rieng-0jnuh",
+      "name": "Gia vị hoàn chỉnh cá kho riềng",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "96268c0d-d617-4c92-8171-1d81290598a8",
+      "code": "la-cach-l462z",
+      "name": "Lá cách",
+      "group": "Rau củ"
+    },
+    {
+      "id": "a5f54ef6-5fbb-4188-8499-85853e6d778d",
+      "code": "mam-ca-linh-mueyh",
+      "name": "Mắm cá linh",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "13b07185-6fdb-4ad3-8791-c837cca56f15",
+      "code": "mam-ca-sac-mtmlh",
+      "name": "Mắm cá sặc",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "9ef0cbdb-8d27-4827-9813-e1a179cc3294",
+      "code": "mam-cay-na6im",
+      "name": "Mắm cáy",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "2429a742-a99c-4a0f-a6be-ab0d86809ef2",
+      "code": "mam-nem-mam-ca-ey1ef",
+      "name": "Mắm nêm mắm cá",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "87fab06e-e828-4ff5-9e79-7c740e188c75",
+      "code": "rong-bien-em-be-cuoi-tom-va-ca-com-a896p",
+      "name": "Rong biển em bé cười tôm và cá cơm",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "255b8e3c-d47d-486e-bc09-b4ab72f6cfdf",
+      "code": "sot-gia-vi-ca-thit-kho-fn0xh",
+      "name": "Sốt gia vị cá thịt kho",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "f646aaeb-d7e1-4d13-9baa-5edd1810b2bd",
+      "code": "xoai-cat-chu-bao-vang-1zwj8",
+      "name": "Xoài cát chu bao vàng",
+      "group": "Trái cây"
+    },
+    {
+      "id": "e3758956-7336-43f5-9316-e5d73a233c85",
+      "code": "xoai-cat-chu-chu-chin-kdtce",
+      "name": "Xoài Cát Chu Chú Chín",
+      "group": "Trái cây"
+    }
+  ],
+  "tôm": [
+    {
+      "id": "74a30567-cfe0-421a-9b50-5bc279e49cac",
+      "code": "banh-phong-tom-jeets",
+      "name": "Bánh phồng tôm",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "1e5726f9-9f3e-400a-b050-fceaea1aa12e",
+      "code": "gao-lua-tom-st25-8ovoe",
+      "name": "Gạo lúa tôm ST25",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "882fa29b-5580-4ded-a93f-3cca91828bbb",
+      "code": "mam-tom-rnte3",
+      "name": "Mắm tôm",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "8f9adf96-9d15-4d3d-9751-5a49a2176e3f",
+      "code": "mam-tom-chua-e84jh",
+      "name": "Mắm tôm chua",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "664ac6a7-f1c1-4832-9529-0d42d7406440",
+      "code": "muoi-cham-tom-chua-cay-3yevc",
+      "name": "Muối chấm Tôm chua cay",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "c94f92b8-b4f0-4bce-afdb-355083eeab1f",
+      "code": "muoi-tom-ot-kieu-tay-ninh-lx2h4",
+      "name": "Muối tôm ớt kiểu Tây Ninh",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "87c8d479-a9a3-44b5-8c53-cbbd55ab48a8",
+      "code": "muoi-tom-tay-ninh-uz3yj",
+      "name": "Muối tôm Tây Ninh",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "87fab06e-e828-4ff5-9e79-7c740e188c75",
+      "code": "rong-bien-em-be-cuoi-tom-va-ca-com-a896p",
+      "name": "Rong biển em bé cười tôm và cá cơm",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "272885e9-8c1a-4f13-98ec-2c1885bd89db",
+      "code": "sa-te-tom-b0pkr",
+      "name": "Sa tế tôm",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "862689ca-46ca-40b7-bf10-cc677fdb9d41",
+      "code": "tom-c0k7d",
+      "name": "Tôm",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "60d8c5d2-606e-4f01-990a-553b7e13d5b8",
+      "code": "tom-kho-4blae",
+      "name": "Tôm khô",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "894e3a4f-35af-413d-8d36-6df2d4bef9cb",
+      "code": "tom-su-niihr",
+      "name": "Tôm sú",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "6c85b9a1-d048-43e1-ac2c-fa6e5712717a",
+      "code": "tom-the-gsp89",
+      "name": "Tôm thẻ",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "70f0f5a7-244e-452a-8d4b-a6508d1d63e7",
+      "code": "tom-thit-zcki6",
+      "name": "Tôm thịt",
+      "group": "Thủy hải sản"
+    }
+  ],
+  "mực": [
+    {
+      "id": "0ea40214-6635-4668-b7e9-0046733fc6b9",
+      "code": "muc-tqodj",
+      "name": "Mực",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "7956638d-5092-4a89-b266-e886f0029dbe",
+      "code": "muc-kho-g550k",
+      "name": "Mực khô",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "8d812908-0a32-438c-86b6-1e26e059bb91",
+      "code": "muc-nang-m2775",
+      "name": "Mực nang",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "3aef799a-2dad-4462-ba24-5dbe318fdc1e",
+      "code": "muc-ong-h5aa8",
+      "name": "Mực ống",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "aad1f429-e337-4d5c-a6d1-ad967c777162",
+      "code": "muc-trung-3n7zt",
+      "name": "Mực trứng",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "9b65f695-1bc2-499f-907a-5b167318a8fa",
+      "code": "muc-trung-com-xoi-ntf-y5u0e",
+      "name": "Mực trứng cơm xôi NTF",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "e933d0f6-628c-4a88-b989-13642661d64c",
+      "code": "rong-bien-cuon-nuong-vi-muc-mrugb",
+      "name": "Rong biển cuộn nướng vị mực",
+      "group": "Thủy hải sản"
+    }
+  ],
+  "cua": [
+    {
+      "id": "828a3207-3e82-41a4-b4f4-4ff644028b57",
+      "code": "banh-da-cua-k8vok",
+      "name": "Bánh đa cua",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "d7c9c942-89c9-46f1-8a24-ee5c40db0469",
+      "code": "bun-rieu-cua-an-lien-30-x-qg0xq",
+      "name": "Bún riêu cua ăn liền 30 x",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "3d7c5fe0-de42-48e1-ac47-bbe431153b0a",
+      "code": "cha-cua-cha-ca-9n66u",
+      "name": "Chả cua chả cá",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "7c6de917-d615-4c5e-a748-f67b82073214",
+      "code": "cha-cua-hue-nxsuq",
+      "name": "Chả cua Huế",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "a312dd06-ec70-48a2-9afe-d6a77018dae4",
+      "code": "cua-bien-ghe-78k5h",
+      "name": "Cua biển ghẹ",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "d580308a-097a-42ed-8d97-45e5fa4009fd",
+      "code": "cua-dong-fo5hh",
+      "name": "Cua đồng",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "896168c8-a330-451e-8840-01012d875a09",
+      "code": "mien-cua-yrjsg",
+      "name": "Miến Cua",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "a2473cb5-25e9-47c1-9777-40cbc9498d45",
+      "code": "rau-cang-cua-5bp4e",
+      "name": "Rau càng cua",
+      "group": "Rau củ"
+    }
+  ],
+  "ghẹ": [
+    {
+      "id": "9ea5ecb9-0b3f-4fd8-bc6a-9f58d54048fe",
+      "code": "cang-ghe-zmn8g",
+      "name": "Càng ghẹ",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "a312dd06-ec70-48a2-9afe-d6a77018dae4",
+      "code": "cua-bien-ghe-78k5h",
+      "name": "Cua biển ghẹ",
+      "group": "Thủy hải sản"
+    }
+  ],
+  "hến": [
+    {
+      "id": "76159385-8fb3-4d57-a0f4-460f0a4b22d8",
+      "code": "ngheu-so-hen-wnl20",
+      "name": "Nghêu sò hến",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "04f75fe9-192a-4601-82c2-0b58f26fb0df",
+      "code": "thit-hen-gtqjx",
+      "name": "Thịt hến",
+      "group": "Thủy hải sản"
+    }
+  ],
+  "sứa": [],
+  "ốc": [
+    {
+      "id": "1499d5a2-e08c-4013-857f-d3a3c8729bd5",
+      "code": "banh-gao-han-quoc-dsu0a",
+      "name": "Bánh gạo Hàn Quốc",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "39e8517a-1dce-4286-91d8-b3aa5fcabe66",
+      "code": "cha-bong-thit-heo-ruoc-fr1ql",
+      "name": "Chà bông thịt heo (Ruốc)",
+      "group": "Thịt & Gia cầm"
+    },
+    {
+      "id": "bb76f8ab-6922-4269-a361-1ef6e1130ff4",
+      "code": "cha-oc-nscbd",
+      "name": "Chả ốc",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "c040e490-33f2-4d68-b708-cdd42a999add",
+      "code": "mam-ruoc-rvcsn",
+      "name": "Mắm ruốc",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "252c878e-af85-407f-a1e0-83524a0d531e",
+      "code": "ngu-coc-an-sang-j06am",
+      "name": "Ngũ cốc ăn sáng",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "1b2877ef-b3f0-4edf-9d42-dcde3afb5984",
+      "code": "ngu-coc-dinh-duong-jwg71",
+      "name": "Ngũ cốc dinh dưỡng",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "189fdcc8-52cf-4202-a2d3-b8f3f955c2ed",
+      "code": "ngu-coc-mat-ong-yxlz0",
+      "name": "Ngũ cốc mật ong",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "c123d553-d17a-4e7f-b4d9-fbc36cd60d5d",
+      "code": "ngu-coc-muesli-5-dried-fruits-honey-av6rv",
+      "name": "Ngũ cốc Muesli 5 Dried Fruits & Honey",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "edcc3367-a49f-4fd1-91d1-d7383ae9a06e",
+      "code": "ngu-coc-muesli-5-grains-cranberry-honey-c5qqf",
+      "name": "Ngũ cốc Muesli 5 Grains Cranberry & Honey",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "18c86240-de15-44a5-8854-ebefa0533ba6",
+      "code": "ngu-coc-muesli-5-nuts-honey-t74yf",
+      "name": "Ngũ cốc Muesli 5 Nuts & Honey",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "9f6cda68-56d2-472e-a602-70aa053e6a78",
+      "code": "ngu-coc-muesli-5-tropical-fruits-honey-vgep4",
+      "name": "Ngũ cốc Muesli 5 Tropical Fruits & Honey",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "dec622b4-1088-4fce-bba7-1b6bab2ed7fa",
+      "code": "ngu-coc-trai-cay-ngx26",
+      "name": "Ngũ cốc Trái cây",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "b444671b-9561-4d79-839e-0c04035e60b7",
+      "code": "oc-buou-0u4t5",
+      "name": "Ốc bươu",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "228e6223-fd6e-4074-8965-216fffd41fff",
+      "code": "oc-huong-wocwz",
+      "name": "Ốc hương",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "55a639a9-25b1-4cb1-ad84-651038a6eb73",
+      "code": "ING-BF53C1",
+      "name": "Ốc len",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "4bb1fcee-3edb-4c67-be8c-891b0ac03b0b",
+      "code": "oc-mong-tay-orea2",
+      "name": "Ốc móng tay",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "ed9772cc-57e5-4ae3-813c-9c2865cb0020",
+      "code": "ING-ABD821",
+      "name": "Ốc nhồi",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "8034856d-59f1-4a13-a9b9-0229777198e2",
+      "code": "oc-vien-y4wjw",
+      "name": "Ốc viên",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "c7006c84-c984-404c-ac50-fc0be6713169",
+      "code": "sot-ga-chien-vi-cay-han-quoc-mfs3c",
+      "name": "Sốt gà chiên vị cay Han Quốc",
+      "group": "Thịt"
+    },
+    {
+      "id": "a9dfb313-9c83-45a3-983e-c76e8612b05e",
+      "code": "thit-oc-wqlvu",
+      "name": "Thịt ốc",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "5deb6610-c27c-4a6f-8f2a-062d96f698ff",
+      "code": "ING-0CCB45",
+      "name": "Tiêu sọ Phú Quốc",
+      "group": "Gia vị & nước chấm"
+    }
+  ],
+  "đậu": [
+    {
+      "id": "fbe399c5-e557-422d-b746-e5806d180b4d",
+      "code": "cu-dau-8rgrs",
+      "name": "Củ đậu",
+      "group": "Rau củ"
+    },
+    {
+      "id": "21a66ef6-5ae9-45d3-9db0-4f6251d98904",
+      "code": "dau-8xfnt",
+      "name": "Đậu",
+      "group": "Rau củ"
+    },
+    {
+      "id": "5f71f0fe-073a-4510-88c6-eb673d402297",
+      "code": "dau-bap-9shx0",
+      "name": "Đậu bắp",
+      "group": "Rau củ"
+    },
+    {
+      "id": "7d60ed5d-98aa-4047-bf6e-56f025579a73",
+      "code": "dau-cove-nhat-ayvp1",
+      "name": "Đậu cove nhật",
+      "group": "Rau củ"
+    },
+    {
+      "id": "31c760b9-e1a1-4a65-ac24-29665f8d8335",
+      "code": "dau-cove-xanh-gnh2y",
+      "name": "Đậu cove xanh",
+      "group": "Rau củ"
+    },
+    {
+      "id": "bf9f4a10-1dcc-435a-aa85-bae681397701",
+      "code": "dau-dau-lang-mo-thai-corp-gupj3",
+      "name": "Đậu đậu Làng Mơ Thai corp",
+      "group": "Trái cây"
+    },
+    {
+      "id": "a39d2ad4-dfe2-4ce2-8b6f-f7fbf5ae5d32",
+      "code": "dau-den-03l28",
+      "name": "Đậu đen",
+      "group": "Rau củ"
+    },
+    {
+      "id": "f67465a9-1eab-4d0f-a8c3-e37da7121ca7",
+      "code": "dau-do-hsuac",
+      "name": "Đậu đỏ",
+      "group": "Rau củ"
+    },
+    {
+      "id": "47da09a4-efde-4a5c-ab2a-daa9296eb1df",
+      "code": "dau-ha-lan-r538l",
+      "name": "Đậu Hà Lan",
+      "group": "Rau củ"
+    },
+    {
+      "id": "c0e28ade-9b67-4766-94f6-88b0e568aa5c",
+      "code": "dau-nanh-mscqc",
+      "name": "Đậu nành",
+      "group": "Rau củ"
+    },
+    {
+      "id": "d11a5c26-b164-414f-a36a-af6242204abe",
+      "code": "ING-1E5E24",
+      "name": "Đậu ngự",
+      "group": "Đậu & hạt"
+    },
+    {
+      "id": "de4b631f-61ca-4a5e-a411-fa5322764c38",
+      "code": "dau-phong-dooky",
+      "name": "Đậu phộng",
+      "group": "Rau củ"
+    },
+    {
+      "id": "8632fbb2-3341-4593-a397-4f8a4e00e10c",
+      "code": "dau-phong-rang-lac-rang-tx3n7",
+      "name": "Đậu phộng rang (Lạc rang)",
+      "group": "Các loại hạt & Đậu"
+    },
+    {
+      "id": "63e1414d-92f2-490a-9edb-1cebbf97a9b1",
+      "code": "dau-que-cx1sm",
+      "name": "Đậu que",
+      "group": "Rau củ"
+    },
+    {
+      "id": "79c5351a-05e5-4f43-b8ed-b4437891c5a4",
+      "code": "dau-truyen-thong-8d1hn",
+      "name": "Đậu truyền thống",
+      "group": "Đậu & hạt"
+    },
+    {
+      "id": "5eb800b4-a943-4023-95e6-308a07cf44a3",
+      "code": "dau-xanh-rmkwx",
+      "name": "Đậu xanh",
+      "group": "Rau củ"
+    },
+    {
+      "id": "ec09ce3c-5e20-4eaa-8aad-44ad8044a9ab",
+      "code": "dau-xanh-boc-vo-pkdze",
+      "name": "Đậu xanh bóc vỏ",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "db1566f4-04ae-4a21-910a-4868abc5b0f6",
+      "code": "sot-dau-tu-xuyen-hcykt",
+      "name": "Sốt đậu Tứ Xuyên",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "dee823be-fbb8-4e96-8ace-dc601df62d59",
+      "code": "sua-dau-nanh-vxfox",
+      "name": "Sữa đậu nành",
+      "group": "Trứng & sữa"
+    },
+    {
+      "id": "4fc69baa-3ed5-4fbe-91f5-866d8367ff23",
+      "code": "tuong-dau-aubnj",
+      "name": "Tương đậu",
+      "group": "Gia vị & nước chấm"
+    }
+  ],
+  "nấm": [
+    {
+      "id": "41678b3d-b6b8-4367-a5fc-bbbdfb4c665c",
+      "code": "hat-hem-chin-su-nam-shiitake-tao-kombu-zpmlm",
+      "name": "Hạt hêm Chin Su nấm shiitake & tảo kombu",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "a6f95839-312c-4b98-96bd-bd7b71bc8ac2",
+      "code": "nam-bao-ngu-trang-f8vyd",
+      "name": "Nấm bào ngư trắng",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "caf4d21b-8245-498e-98cc-61c05b227033",
+      "code": "nam-bunapi-meinf",
+      "name": "Nấm Bunapi",
+      "group": "Rau củ"
+    },
+    {
+      "id": "14311b5b-f925-419a-b798-82ebadd52b86",
+      "code": "nam-bunashimeji-ak86j",
+      "name": "Nấm Bunashimeji",
+      "group": "Rau củ"
+    },
+    {
+      "id": "688cc03f-910e-480c-96ee-06ac407202e6",
+      "code": "nam-dong-co-7vrm6",
+      "name": "Nấm Đông Cô",
+      "group": "Rau củ"
+    },
+    {
+      "id": "bc690379-f87f-4263-a3eb-c14b84811d8c",
+      "code": "nam-dong-trung-ha-thao-5teac",
+      "name": "Nấm đông trùng hạ thảo",
+      "group": "Rau củ"
+    },
+    {
+      "id": "b5b53d6e-ce7d-4b01-a46d-10fe6da48c28",
+      "code": "nam-dui-ga-2xftq",
+      "name": "Nấm đùi gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "26a6542a-bf04-4ccb-b291-7b6f97bb7cad",
+      "code": "nam-hon-hop-abiwy",
+      "name": "Nấm hỗn hợp",
+      "group": "Rau củ"
+    },
+    {
+      "id": "db4939c0-f339-4bd2-810b-4fb61b9a6c90",
+      "code": "nam-hon-hop-dong-trung-ha-thao-tvmml",
+      "name": "Nấm hỗn hợp đông trùng hạ thảo",
+      "group": "Rau củ"
+    },
+    {
+      "id": "beb3e090-c903-4d70-a3aa-94d9074c0076",
+      "code": "nam-huong-roj8j",
+      "name": "Nấm hương",
+      "group": "Nấm"
+    },
+    {
+      "id": "71c94529-0a82-4e07-98d9-912c314c139b",
+      "code": "nam-kim-cham-twrfh",
+      "name": "Nấm kim châm",
+      "group": "Rau củ"
+    },
+    {
+      "id": "c8a9668f-c69f-4420-be8c-629ac6cd8ad6",
+      "code": "nam-mo-s8hjs",
+      "name": "Nấm mỡ",
+      "group": "Nấm"
+    },
+    {
+      "id": "e0942414-1962-45e6-936e-e8b34350230a",
+      "code": "nam-rom-f3hyc",
+      "name": "Nấm rơm",
+      "group": "Nấm"
+    },
+    {
+      "id": "fd5c4b89-c57f-4f0d-9937-974a595dec09",
+      "code": "nam-tram-8rkdd",
+      "name": "Nấm tràm",
+      "group": "Nấm"
+    },
+    {
+      "id": "a6642943-ff36-44ca-8e00-87836183dab8",
+      "code": "nam-tuyet-jicpx",
+      "name": "Nấm tuyết",
+      "group": "Nấm"
+    },
+    {
+      "id": "1404584e-e8d0-4ece-9df9-d99e8a3690e6",
+      "code": "pho-chay-rau-nam-d1lmr",
+      "name": "Phở chay rau nấm",
+      "group": "Rau củ"
+    }
+  ],
+  "trứng": [
+    {
+      "id": "aad1f429-e337-4d5c-a6d1-ad967c777162",
+      "code": "muc-trung-3n7zt",
+      "name": "Mực trứng",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "9b65f695-1bc2-499f-907a-5b167318a8fa",
+      "code": "muc-trung-com-xoi-ntf-y5u0e",
+      "name": "Mực trứng cơm xôi NTF",
+      "group": "Thủy hải sản"
+    },
+    {
+      "id": "22a76026-6ebd-46e7-8ae6-a331c38d4a29",
+      "code": "tau-trung-bo-duong-wwmzr",
+      "name": "Tàu trứng bổ dưỡng",
+      "group": "Đậu & hạt"
+    },
+    {
+      "id": "8519a418-1c5b-47de-b039-88b2f437049a",
+      "code": "tau-trung-fuji-san-watcs",
+      "name": "Tàu trứng Fuji San",
+      "group": "Đậu & hạt"
+    },
+    {
+      "id": "5ba7d6a2-4011-4e23-b365-1fae1dbc0a4e",
+      "code": "trung-bac-thao-hqhba",
+      "name": "Trứng bắc thảo",
+      "group": "Trứng & sữa"
+    },
+    {
+      "id": "75e1d811-8890-4500-8d36-f213b4bc11dc",
+      "code": "trung-cut-5mmup",
+      "name": "Trứng cút",
+      "group": "Trứng & sữa"
+    },
+    {
+      "id": "41df9d6a-90cf-44fc-b58e-4bc3e1c7a03f",
+      "code": "trung-cut-lon-1keo1",
+      "name": "Trứng cút lộn",
+      "group": "Trứng & sữa"
+    },
+    {
+      "id": "5a5aeff4-37db-4571-9aba-248bab3218ca",
+      "code": "trung-ga-luo5e",
+      "name": "Trứng gà",
+      "group": "Thịt"
+    },
+    {
+      "id": "048830dc-2a98-4aa8-b465-aacb8c42c412",
+      "code": "trung-ga-non-49rjn",
+      "name": "Trứng gà non",
+      "group": "Thịt"
+    },
+    {
+      "id": "a06e22f8-07f8-4693-857d-5281c39a577d",
+      "code": "trung-vit-b4bx2",
+      "name": "Trứng vịt",
+      "group": "Thịt"
+    },
+    {
+      "id": "51895ee7-82f3-41b0-8cdc-0bfc3fba54b7",
+      "code": "trung-vit-lon-amkwc",
+      "name": "Trứng vịt lộn",
+      "group": "Trứng & sữa"
+    },
+    {
+      "id": "26014be6-d7ac-4bde-b194-70671acac233",
+      "code": "trung-vit-muoi-qizkr",
+      "name": "Trứng vịt muối",
+      "group": "Trứng & sữa"
+    }
+  ],
+  "mỡ": [
+    {
+      "id": "8441da6a-766b-4ce4-8942-8596446a03ff",
+      "code": "khoai-mo-qcf2w",
+      "name": "Khoai mỡ",
+      "group": "Rau củ"
+    },
+    {
+      "id": "09a8d8f1-3277-4a88-825d-30310cfbdb15",
+      "code": "mo-chai-fankq",
+      "name": "Mỡ chài",
+      "group": "Thịt"
+    },
+    {
+      "id": "872caa47-749c-4a2e-8e40-ae67f36a0962",
+      "code": "mo-heo-mic4j",
+      "name": "Mỡ heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "c8a9668f-c69f-4420-be8c-629ac6cd8ad6",
+      "code": "nam-mo-s8hjs",
+      "name": "Nấm mỡ",
+      "group": "Nấm"
+    },
+    {
+      "id": "2eb699dc-70ee-4192-9ea2-6291535345e1",
+      "code": "thit-heo-mo-2sua2",
+      "name": "Thịt heo mỡ",
+      "group": "Thịt"
+    },
+    {
+      "id": "33259790-eb13-41d1-bd47-87c64c335be6",
+      "code": "top-mo-chien-gion-5a7qr",
+      "name": "Tóp mỡ chiên giòn",
+      "group": "Món ăn kèm"
+    }
+  ],
+  "xương": [
+    {
+      "id": "6347d84b-df39-4f8c-8654-97c583880ad6",
+      "code": "dui-ga-rut-xuong-kl6og",
+      "name": "Đùi gà rút xương",
+      "group": "Thịt"
+    },
+    {
+      "id": "f982cac6-e0e4-4584-b0d7-7ff8a3419f69",
+      "code": "xuong-bo-c9924",
+      "name": "Xương bò",
+      "group": "Thịt"
+    },
+    {
+      "id": "aed43da7-af5b-467d-87d6-7a726da055e8",
+      "code": "xuong-duoi-heo-fla1l",
+      "name": "Xương đuôi heo",
+      "group": "Thịt"
+    },
+    {
+      "id": "9ff88d18-c4da-4d38-b64e-7170e592f41f",
+      "code": "xuong-heo-s74p8",
+      "name": "Xương heo",
+      "group": "Thịt"
+    }
+  ],
+  "dầu": [
+    {
+      "id": "f4c54557-b739-4a0a-b251-65c8bd36093b",
+      "code": "dau-an-44812",
+      "name": "Dầu ăn",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "e7022b8e-0d00-4a3d-84e9-58e93ea7d78b",
+      "code": "dau-dam-tron-salad-6s6w4",
+      "name": "Dầu dấm trộn salad",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "a5ac5afa-5088-4383-a3ad-962bac434c11",
+      "code": "dau-dieu-giahq",
+      "name": "Dầu điều",
+      "group": "Gia vị & nước chấm"
+    },
+    {
+      "id": "4cff681d-8c92-4775-a3ec-7600128ff650",
+      "code": "dau-dua-e3sba",
+      "name": "Dầu dừa",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "6d6f3ef0-2aa9-43f3-976e-221c06c48118",
+      "code": "dau-gao-lut-og3rt",
+      "name": "Dầu gạo lứt",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "287afeda-1c07-4f86-a0f7-879e71208e00",
+      "code": "dau-hao-7cc1u",
+      "name": "Dầu hào",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "be06bd2e-63ab-4eba-9409-f1894f5d16c6",
+      "code": "dau-hat-cai-gh5b6",
+      "name": "Dầu hạt cải",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "25a08d25-1c33-4473-bc0f-a108aced6b63",
+      "code": "dau-huong-duong-qk60q",
+      "name": "Dầu hướng dương",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "932b6c6b-60b9-4a78-82e0-dfeb04eee8b6",
+      "code": "dau-me-wwil9",
+      "name": "Dầu mè",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "4e1913cf-128e-4e2a-9b1b-296f5c20b61d",
+      "code": "dau-me-thom-1hp1w",
+      "name": "Dầu mè thơm",
+      "group": "Trái cây"
+    },
+    {
+      "id": "64edfa0a-78f0-43a9-a085-3789096baf86",
+      "code": "dau-nanh-jhuhe",
+      "name": "Dầu nành",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "40137073-5c1b-42cd-969d-dfde2bc5685e",
+      "code": "dau-o-liu-extra-virgin-skrmf",
+      "name": "Dầu ô liu Extra Virgin",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "15806560-da92-4b50-bb72-13180326b0b1",
+      "code": "dau-o-liu-olivoila-pomace-xqmse",
+      "name": "Dầu ô liu Olivoila Pomace",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "63014f4e-c460-49f7-b997-c44994605b5a",
+      "code": "dau-oliu-olivoila-extra-virgin-mnc5p",
+      "name": "Dầu ôliu Olivoila Extra Virgin",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "cc327eac-09dd-4ce1-ade2-7dc6dd2b0b62",
+      "code": "dau-ran-o-liu-6imgm",
+      "name": "Dầu rán o liu",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "25ce6577-ba1d-42aa-96b8-ff823ad93fe9",
+      "code": "dau-thuc-vat-lrcxm",
+      "name": "Dầu thực vật",
+      "group": "Dầu ăn & mỡ"
+    },
+    {
+      "id": "d05388e8-d1ee-496d-8123-9073bb529f45",
+      "code": "la-kim-tam-dau-o-liu-sji4g",
+      "name": "Lá Kim tẩm dầu Ô Liu",
+      "group": "Nông sản & ngũ cốc"
+    },
+    {
+      "id": "0aa28436-2d23-425a-86e4-bbe90ae1adb4",
+      "code": "xi-dau-nuoc-tuong-den-n5jv8",
+      "name": "Xì dầu (Nước tương đen)",
+      "group": "Gia vị & Nước sốt"
+    }
+  ]
+}
