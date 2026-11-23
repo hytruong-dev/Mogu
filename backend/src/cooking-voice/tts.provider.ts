@@ -50,10 +50,11 @@ export interface TtsProvider {
 export async function boundedRequest(
   url: string,
   init: RequestInit,
-  maxBytes = 2_000_000,
+  maxBytes = 5_000_000,
+  timeoutMs = 15_000,
 ): Promise<Buffer> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15_000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   try {
     const response = await fetch(url, { ...init, signal: controller.signal });
     if (!response.ok || !response.body) throw new Error('Upstream unavailable');
@@ -76,6 +77,44 @@ export async function boundedRequest(
     throw new ServiceUnavailableException('COOKING_VOICE_PROVIDER_UNAVAILABLE');
   } finally {
     clearTimeout(timeout);
+  }
+}
+
+export class VoiceStudioTtsProvider implements TtsProvider {
+  readonly identity: TtsIdentity;
+  constructor(
+    private readonly baseUrl: string = 'http://127.0.0.1:3900',
+    model: string = 'omnivoice',
+    voice: string = 'noan_female_cooking',
+  ) {
+    this.identity = {
+      provider: 'voicestudio',
+      model,
+      voice,
+    };
+  }
+
+  synthesize(text: string, rate: number): Promise<Buffer> {
+    validateSpeech(text, rate);
+    return boundedRequest(
+      `${this.baseUrl.replace(/\/$/, '')}/v1/audio/speech`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: this.identity.model,
+          input: text,
+          voice: this.identity.voice,
+          language: 'Vietnamese',
+          speed: rate,
+          response_format: 'mp3',
+        }),
+      },
+      5_000_000,
+      240_000,
+    );
   }
 }
 
@@ -151,8 +190,25 @@ export class OpenAiTtsProvider implements TtsProvider {
 @Injectable()
 export class CookingTtsService {
   private active = 0;
+  private voiceStudioQueue: Promise<void> = Promise.resolve();
+
   constructor(private readonly config: ConfigService) {}
-  provider(): TtsProvider {
+  provider(requestedVoice?: string): TtsProvider {
+    const vsEnabled =
+      this.config.get<string>('VOICESTUDIO_ENABLED') === 'true' ||
+      Boolean(this.config.get<string>('VOICESTUDIO_API_URL'));
+    if (vsEnabled) {
+      const baseUrl =
+        this.config.get<string>('VOICESTUDIO_API_URL') ||
+        'http://127.0.0.1:3900';
+      const model =
+        this.config.get<string>('VOICESTUDIO_MODEL') || 'omnivoice';
+      const voice =
+        requestedVoice ||
+        this.config.get<string>('VOICESTUDIO_VOICE') ||
+        'noan_female_cooking';
+      return new VoiceStudioTtsProvider(baseUrl, model, voice);
+    }
     const openAiKey = this.config.get<string>('COOKING_OPENAI_API_KEY');
     const customVoiceId = this.config.get<string>('COOKING_OPENAI_VOICE_ID');
     const openAiProvider = (apiKey: string) =>
@@ -183,6 +239,19 @@ export class CookingTtsService {
     if (this.active >= 8) throw new HttpException('COOKING_VOICE_BUSY', 429);
     this.active++;
     try {
+      if (provider.identity.provider === 'voicestudio') {
+        const prev = this.voiceStudioQueue;
+        let release: () => void = () => {};
+        this.voiceStudioQueue = new Promise<void>((r) => {
+          release = r;
+        });
+        await prev;
+        try {
+          return await provider.synthesize(text, rate);
+        } finally {
+          release();
+        }
+      }
       return await provider.synthesize(text, rate);
     } finally {
       this.active--;

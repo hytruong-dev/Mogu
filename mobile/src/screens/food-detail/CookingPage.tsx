@@ -970,6 +970,65 @@ export function CookingPage({
               </Button>
             ))}
           </View>
+          <View className="mt-1">
+            <UIText className="font-semibold text-ink mb-2">Giọng đọc NOAN (VoiceStudio AI)</UIText>
+            <View className="gap-2">
+              {voice.availableVoices.map((v) => {
+                const isSelected = voice.selectedVoice === v.id;
+                return (
+                  <Pressable
+                    key={v.id}
+                    onPress={() => {
+                      clearConfirmation();
+                      void voice.changeVoice(v.id);
+                    }}
+                    style={{
+                      padding: 12,
+                      borderRadius: 12,
+                      borderWidth: 1.5,
+                      borderColor: isSelected ? '#C9A64A' : '#E7E5E4',
+                      backgroundColor: isSelected ? '#FEF9C3' : '#FFFFFF',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: isSelected }}
+                  >
+                    <View style={{ flex: 1, paddingRight: 8 }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <Text style={{ fontWeight: '600', color: INK, fontSize: 14 }}>
+                          {v.name}
+                        </Text>
+                        {v.recommended && (
+                          <View
+                            style={{
+                              backgroundColor: '#FEF08A',
+                              paddingHorizontal: 6,
+                              paddingVertical: 2,
+                              borderRadius: 4,
+                            }}
+                          >
+                            <Text style={{ color: '#854D0E', fontSize: 10, fontWeight: '700' }}>
+                              Khuyên dùng
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                      <Text style={{ fontSize: 12, color: MUTED, marginTop: 2 }}>
+                        {v.description}
+                      </Text>
+                    </View>
+                    {isSelected ? (
+                      <Check size={18} color="#C9A64A" />
+                    ) : (
+                      <Volume2 size={16} color="#A8A29E" />
+                    )}
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
           <Button
             variant="secondary"
             onPress={async () => {

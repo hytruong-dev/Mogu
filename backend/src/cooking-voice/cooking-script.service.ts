@@ -40,7 +40,7 @@ export class CookingScriptService {
       throw new BadRequestException('COOKING_RECIPE_TOO_LARGE');
     return dish;
   }
-  async script(dishId: string) {
+  async script(dishId: string, voiceId?: string) {
     const dish = await this.recipe(dishId);
     const greeting = noanCookingGreeting(dish.name);
     const ingredients = ingredientsSummary(dish.dishIngredients);
@@ -54,19 +54,18 @@ export class CookingScriptService {
       texts.reduce((n, t) => n + t.length, 0) > 24_000
     )
       throw new BadRequestException('COOKING_RECIPE_TOO_LARGE');
-    // At most three workers, with duplicate utterances synthesized only once per request.
+    // Synthesize utterances sequentially to avoid CPU thread thrashing on local VoiceStudio
     const unique = [...new Set(texts)];
     const audios = new Map<string, string | null>();
-    let next = 0;
-    await Promise.all(
-      Array.from({ length: Math.min(3, unique.length) }, async () => {
-        while (next < unique.length) {
-          const text = unique[next++];
-          const speech = await this.voice.publicRecipeSpeech(text);
-          audios.set(text, speech.audioUrl);
-        }
-      }),
-    );
+    for (const text of unique) {
+      try {
+        const speech = await this.voice.publicRecipeSpeech(text, 0.95, voiceId);
+        audios.set(text, speech.audioUrl);
+      } catch (err) {
+        console.error('[CookingScriptService] TTS error for:', text.slice(0, 30), err);
+        audios.set(text, null);
+      }
+    }
     const part = (text: string) => ({
       text,
       audioUrl: audios.get(text) ?? null,
@@ -82,6 +81,7 @@ export class CookingScriptService {
           JSON.stringify({
             script: SCRIPT_VERSION,
             version: dish.version,
+            voice: voiceId || 'default',
             texts,
           }),
         )

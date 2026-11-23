@@ -1,0 +1,56 @@
+[
+  {
+    "id": "1e330f16-a1ce-4340-bffc-0c87e61545ad",
+    "name": "Gỏi cá bỗng sông Lô",
+    "prefix": "goi_ca_bong_song_lo",
+    "prompt": "Professional culinary food photography of Tuyen Quang Lo River Fish Salad (Gỏi cá bỗng sông Lô). Translucent paper-thin slices of fresh mountain river carp tossed with crispy roasted fish bone meal (thính xương cá), served on a bed of assorted wild forest leaves. Accompanied by sour starfruit slices, green bananas, and an artisanal ceramic bowl of sweet-tangy herbal dipping sauce. Dark rustic wooden background, 8k resolution."
+  },
+  {
+    "id": "c9f9f515-c675-426c-bd1e-aabbce41dd74",
+    "name": "Tôm chua Ba Bể cuốn thịt luộc",
+    "prefix": "tom_chua_ba_be_cuon_thit_luoc",
+    "prompt": "Professional culinary food photography of Bac Kan Ba Be Lake Fermented Sour Shrimp Rolls (Tôm chua Ba Bể cuốn thịt luộc). A platter displaying bright red fermented whole freshwater shrimp mixed with garlic and red chili slices, alongside thinly sliced boiled pork belly, crisp cucumber, tart starfruit, and green banana slices. Served with rice paper and fresh mountain herbs on a dark rustic table, 8k resolution."
+  },
+  {
+    "id": "eb739de9-6524-439d-99f6-e329bc168db3",
+    "name": "Bánh cuốn canh Cao Bằng",
+    "prefix": "banh_cuon_canh_cao_bang",
+    "prompt": "Professional culinary food photography of Cao Bang Steamed Rice Rolls with Savory Bone Broth (Bánh cuốn canh Cao Bằng). Soft, delicate steamed rice rolls filled with savory minced pork, resting on a ceramic dish, served directly beside a hot bowl of rich pork bone broth infused with chopped cilantro, scallions, a soft poached egg, and local steamed pork sausage (giò nạc). Dark wooden table, rising steam, 8k resolution."
+  },
+  {
+    "id": "66dd750c-049d-4839-bab9-e368e9cd66cc",
+    "name": "Pa pỉnh tộp Lai Châu",
+    "prefix": "pa_pinh_top_lai_chau",
+    "prompt": "Professional culinary food photography of Lai Chau Thai Ethnic Grilled Folded Carp (Pa pỉnh tộp Lai Châu). A whole freshwater carp stuffed with herbs, wild pepper (mắc khén), scallions, and ginger, folded in half and held in a split bamboo clamp, charcoal grilled to a crisp golden exterior while retaining juicy, fragrant flesh. Resting on fresh banana leaves with sticky rice and forest dipping sauce, 8k resolution."
+  },
+  {
+    "id": "caedb642-0dd1-41a8-8a5d-d3b2ed4fac8d",
+    "name": "Súp lươn Nghệ An bánh mì",
+    "prefix": "sup_luon_nghe_an_banh_mi",
+    "prompt": "Professional culinary food photography of Nghe An Spicy Freshwater Eel Soup with Baguette (Súp lươn Nghệ An bánh mì). A steaming, vibrant reddish-orange spicy broth loaded with tender, flavorful wok-seared eel strips sautéed with native shallots (hành tăm), fresh turmeric, and chili. Served with warm, golden crispy Vietnamese baguettes (bánh mì giòn), lime wedges, and Vietnamese coriander (rau răm). Dark rustic wood table, rising steam, 8k resolution."
+  },
+  {
+    "id": "685e9d2f-19d3-4edd-8fde-990282f5e217",
+    "name": "Cá lăng nướng đọt mây Đắk Nông",
+    "prefix": "ca_lang_nuong_dot_may_dak_nong",
+    "prompt": "Professional culinary food photography of Dak Nong Grilled River Catfish with Rattan Shoots (Cá lăng nướng đọt mây Đắk Nông). Chunks of rich Serepok river catfish grilled on bamboo skewers with wild forest salt, served with grilled tender rattan shoots (đọt mây nướng) possessing an exquisite sweet-bitter flavor. Presented on a banana leaf with roasted bird's eye chili salt, dark wooden table, 8k resolution."
+  },
+  {
+    "id": "8fa00cc6-ef65-49eb-9ebc-00af11ae6583",
+    "name": "Gỏi măng cụt gà xé Bình Dương",
+    "prefix": "goi_mang_cut_ga_xe_binh_duong",
+    "prompt": "Professional culinary food photography of Binh Duong Mangosteen Chicken Salad (Gỏi măng cụt gà xé Bình Dương). Crisp floral-shaped slices of tart-sweet green mangosteen fruit tossed with hand-shredded boiled free-range chicken, fragrant Vietnamese coriander (rau răm), crunchy roasted peanuts, and fried shallots, dressed in tangy sweet fish sauce. Artisanal ceramic dish, bright fresh colors, 8k resolution."
+  },
+  {
+    "id": "d6c30485-1bd8-4e70-ba20-a70947d26a76",
+    "name": "Chả cá thác lác Hậu Giang",
+    "prefix": "cha_ca_thac_lac_hau_giang",
+    "prompt": "Professional culinary food photography of Hau Giang Featherback Fish Cakes (Chả cá thác lác Hậu Giang). Golden-fried, springy, savory patties of pounded bronze featherback fish speckled with black peppercorns and scallions, served steaming hot alongside a platter of paper-thin bitter melon slices and sweet chili dipping sauce. Dark rustic wooden tabletop, natural warm light, 8k resolution."
+  },
+  {
+    "id": "547b58be-fe54-4a4d-904b-2917d550ed85",
+    "name": "Cua Cà Mau rang me",
+    "prefix": "cua_ca_mau_rang_me",
+    "prompt": "Professional culinary food photography of famous Ca Mau Mud Crab Stir-Fried in Tamarind Sauce (Cua Cà Mau rang me). Large, meaty Ca Mau sea crab with deep orange shells, cut in half and generously coated in a thick, glossy, sweet-and-sour mahogany-colored tamarind glaze with fried garlic and red chilies. Garnished with fresh Vietnamese coriander (rau răm) and served with warm, crusty bread (bánh mì) for dipping. Dark wood table, glistening textures, 8k resolution."
+  }
+]

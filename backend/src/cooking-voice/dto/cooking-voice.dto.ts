@@ -12,6 +12,7 @@ import {
 export class TtsDto {
   @IsString() @MinLength(1) @MaxLength(4000) text!: string;
   @IsOptional() @IsNumber() @Min(0.5) @Max(1.5) rate?: number;
+  @IsOptional() @IsString() @MaxLength(100) voice?: string;
 }
 export class AskDto {
   @IsUUID() dishId!: string;

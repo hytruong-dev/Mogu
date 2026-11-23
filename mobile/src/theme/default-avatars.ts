@@ -76,6 +76,89 @@ export const defaultAvatars: readonly DefaultAvatar[] = [
   },
 ] as const;
 
+/** Bundled high-resolution mascot avatars for official NOAN administrative staff accounts */
+export const adminAvatars = {
+  content: {
+    id: 'admin_noan_content',
+    gender: 'male' as const,
+    label: 'NOAN Content Admin',
+    source: require('../assets/images/noan/admin-avatars/admin-noan-content.png'),
+  },
+  reviewer: {
+    id: 'admin_noan_reviewer',
+    gender: 'male' as const,
+    label: 'NOAN Reviewer',
+    source: require('../assets/images/noan/admin-avatars/admin-noan-reviewer.png'),
+  },
+  studiomaster: {
+    id: 'admin_noan_studiomaster',
+    gender: 'male' as const,
+    label: 'NOAN Studio Master',
+    source: require('../assets/images/noan/admin-avatars/admin-noan-studiomaster.png'),
+  },
+  superadmin: {
+    id: 'admin_noan_superadmin',
+    gender: 'male' as const,
+    label: 'NOAN Super Admin',
+    source: require('../assets/images/noan/admin-avatars/admin-noan-superadmin.png'),
+  },
+  classic: {
+    id: 'admin_superadmin_classic',
+    gender: 'male' as const,
+    label: 'Super Admin',
+    source: require('../assets/images/noan/admin-avatars/admin-superadmin-classic.png'),
+  },
+};
+
+/** Detects if an avatar URI or author name/seed matches an official NOAN Admin account */
+export function getAdminAvatar(
+  uri?: string | null,
+  seedOrName?: string | number | null
+): DefaultAvatar | null {
+  const u = (uri || '').toLowerCase();
+  const s = String(seedOrName || '').toLowerCase();
+
+  if (
+    u.includes('admin-noan-content') ||
+    s.includes('content admin') ||
+    s === 'noan content' ||
+    s === 'content@noan.vn'
+  ) {
+    return adminAvatars.content;
+  }
+  if (
+    u.includes('admin-noan-reviewer') ||
+    s.includes('reviewer') ||
+    s === 'noan reviewer' ||
+    s === 'reviewer@noan.vn'
+  ) {
+    return adminAvatars.reviewer;
+  }
+  if (
+    u.includes('admin-noan-studiomaster') ||
+    s.includes('studio master') ||
+    s === 'admin' ||
+    s === 'admin@noan.vn'
+  ) {
+    return adminAvatars.studiomaster;
+  }
+  if (
+    u.includes('admin-noan-superadmin') ||
+    s.includes('noan super admin') ||
+    s === 'superadmin@noan.vn'
+  ) {
+    return adminAvatars.superadmin;
+  }
+  if (
+    u.includes('admin-superadmin-classic') ||
+    s === 'super admin' ||
+    s === 'superadmin'
+  ) {
+    return adminAvatars.classic;
+  }
+  return null;
+}
+
 export function getDefaultAvatar(id?: string | null) {
   return defaultAvatars.find((avatar) => avatar.id === id) ?? null;
 }

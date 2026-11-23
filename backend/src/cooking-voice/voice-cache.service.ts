@@ -39,9 +39,14 @@ export class VoiceCacheService {
     private readonly tts: CookingTtsService,
   ) {}
   // This entry point accepts arbitrary text and NEVER uses public persistence or a shared cache.
-  async privateSpeech(text: string, rate = 0.95): Promise<SpeechResult> {
+  async privateSpeech(
+    text: string,
+    rate = 0.95,
+    voice?: string,
+  ): Promise<SpeechResult> {
     validateSpeech(text, rate);
-    const bytes = await this.tts.synthesize(this.tts.provider(), text, rate);
+    const provider = this.tts.provider(voice);
+    const bytes = await this.tts.synthesize(provider, text, rate);
     return {
       text,
       audioUrl: `data:audio/mpeg;base64,${bytes.toString('base64')}`,
@@ -49,9 +54,13 @@ export class VoiceCacheService {
     };
   }
   // Only the authoritative published recipe builder may call this method.
-  async publicRecipeSpeech(text: string, rate = 0.95): Promise<SpeechResult> {
+  async publicRecipeSpeech(
+    text: string,
+    rate = 0.95,
+    voice?: string,
+  ): Promise<SpeechResult> {
     validateSpeech(text, rate);
-    const provider = this.tts.provider();
+    const provider = this.tts.provider(voice);
     const key = speechCacheKey(provider.identity, text, rate);
     const cached = this.urls.get(key);
     if (cached) return { text, audioUrl: cached, durationMs: null };
@@ -65,9 +74,11 @@ export class VoiceCacheService {
         : null;
       if (url) {
         try {
-          await boundedRequest(url, { method: 'GET' });
-          this.remember(key, url);
-          return { text, audioUrl: url, durationMs: null };
+          const headRes = await fetch(url, { method: 'HEAD' });
+          if (headRes.ok) {
+            this.remember(key, url);
+            return { text, audioUrl: url, durationMs: null };
+          }
         } catch {
           /* Missing bucket/object is a supported offline-storage mode. */
         }
@@ -89,8 +100,8 @@ export class VoiceCacheService {
           );
           this.remember(key, url);
           return { text, audioUrl: url, durationMs: null };
-        } catch {
-          /* No bucket creation or remote schema mutation. */
+        } catch (storageErr) {
+          console.error('[VoiceCacheService] Storage upload error:', storageErr);
         }
       }
       return {

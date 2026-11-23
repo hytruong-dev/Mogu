@@ -5,6 +5,7 @@ import {
   escapeSsml,
   OpenAiTtsProvider,
   validateSpeech,
+  VoiceStudioTtsProvider,
 } from './tts.provider';
 import { NOAN_TTS_INSTRUCTIONS } from './noan-voice-profile';
 
@@ -77,6 +78,33 @@ describe('cooking speech providers', () => {
         }),
       ).provider(),
     ).toBeInstanceOf(OpenAiTtsProvider);
+    expect(
+      new CookingTtsService(
+        new ConfigService({
+          VOICESTUDIO_ENABLED: 'true',
+          VOICESTUDIO_API_URL: 'http://127.0.0.1:3900',
+        }),
+      ).provider(),
+    ).toBeInstanceOf(VoiceStudioTtsProvider);
+  });
+  it('posts correct JSON request to VoiceStudio API and respects selected voice', async () => {
+    const fetchMock = jest
+      .spyOn(global, 'fetch')
+      .mockImplementation(async () => new Response(new Uint8Array([1, 2, 3])));
+    const provider = new VoiceStudioTtsProvider(
+      'http://127.0.0.1:3900',
+      'omnivoice',
+      'noan_female_cooking',
+    );
+    await provider.synthesize('Ướp cá trong 15 phút.', 0.95);
+    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('http://127.0.0.1:3900/v1/audio/speech');
+    const body = JSON.parse(init.body as string);
+    expect(body.model).toBe('omnivoice');
+    expect(body.voice).toBe('noan_female_cooking');
+    expect(body.language).toBe('Vietnamese');
+    expect(body.speed).toBe(0.95);
+    expect(body.response_format).toBe('mp3');
   });
   it('sends the NOAN delivery guide to supported TTS models and can use a consented custom voice', async () => {
     const fetchMock = jest

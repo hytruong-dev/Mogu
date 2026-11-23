@@ -45,7 +45,7 @@ const ADMIN_ACCOUNTS: AdminSeedConfig[] = [
     role: SystemRole.SUPER_ADMIN,
     jobDescription:
       'Quản trị viên Cấp cao: Toàn quyền quản trị hệ thống, quản lý người dùng & phân quyền admin, đặt lại mật khẩu khẩn cấp, cấu hình bảo mật và logs kiểm toán.',
-    avatarUrl: '/avatars/admin-noan-superadmin.png',
+    avatarUrl: 'https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/dish-images/avatars/admin-noan-superadmin.png',
   },
   {
     username: 'admin',
@@ -55,7 +55,7 @@ const ADMIN_ACCOUNTS: AdminSeedConfig[] = [
     role: SystemRole.SUPER_ADMIN,
     jobDescription:
       'Quản trị viên Điều hành Toàn diện: Tài khoản tổng dự phòng với quyền SUPER_ADMIN phục vụ vận hành nhanh và kiểm thử toàn bộ tính năng.',
-    avatarUrl: '/avatars/admin-noan-studiomaster.png',
+    avatarUrl: 'https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/dish-images/avatars/admin-noan-studiomaster.png',
   },
   {
     username: 'noan.content',
@@ -65,7 +65,7 @@ const ADMIN_ACCOUNTS: AdminSeedConfig[] = [
     role: SystemRole.CONTENT_ADMIN,
     jobDescription:
       'Quản trị viên Nội dung & Ẩm thực: Quản lý kho món ăn, dữ liệu nguyên liệu, dinh dưỡng macro/calo, AI Ingest, xuất bản bài viết cẩm nang và chủ đề ẩm thực.',
-    avatarUrl: '/avatars/admin-noan-content.png',
+    avatarUrl: 'https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/dish-images/avatars/admin-noan-content.png',
   },
   {
     username: 'noan.reviewer',
@@ -75,7 +75,7 @@ const ADMIN_ACCOUNTS: AdminSeedConfig[] = [
     role: SystemRole.REVIEWER,
     jobDescription:
       'Kiểm duyệt viên Nội dung & Cộng đồng: Kiểm duyệt hàng đợi món ăn bản nháp, duyệt chuyển sang công khai, giám sát bài viết/bình luận cộng đồng, xử lý báo cáo vi phạm và phát thông báo hệ thống.',
-    avatarUrl: '/avatars/admin-noan-reviewer.png',
+    avatarUrl: 'https://lkqvyvllmrbxgaoqrkhd.supabase.co/storage/v1/object/public/dish-images/avatars/admin-noan-reviewer.png',
   },
 ]
 

@@ -35,8 +35,19 @@ export type CookingVoiceAnswer = {
   action?: CookingVoiceServerAction;
   audioUrl?: string | null;
 };
-// v3 drops old script audio after the NOAN voice-profile change. Keep original server URLs.
-const scriptKey = (id: string) => `cooking-voice-script:v3:${id}`;
+export type CookingVoiceOption = {
+  id: string;
+  name: string;
+  description: string;
+  gender: string;
+  style?: string;
+  sampleText?: string;
+  recommended?: boolean;
+};
+
+// v4 drops old script audio and supports voice-profile routing. Keep original server URLs.
+const scriptKey = (id: string, voice?: string) =>
+  `cooking-voice-script:v4:${id}:${voice || 'default'}`;
 const audioDownloads = new Map<string, Promise<string>>();
 // Deterministic filename; collisions are checked through the separate URL index.
 function hash(value: string): string {
@@ -112,13 +123,56 @@ export async function cacheCookingScriptAudio(url: string, signal?: AbortSignal)
   }
 }
 export const cookingVoiceApi = {
-  async getScript(dishId: string, signal?: AbortSignal): Promise<CookingVoiceScript> {
-    const key = scriptKey(dishId);
+  async getVoices(): Promise<{ voices: CookingVoiceOption[]; defaultVoice: string }> {
+    try {
+      const result = await apiRequest<{
+        voices: CookingVoiceOption[];
+        defaultVoice: string;
+      }>('/cooking-voice/voices', { auth: false, timeout: 15000 });
+      return result;
+    } catch {
+      return {
+        voices: [
+          {
+            id: 'noan_female_cooking',
+            name: 'NOAN Bếp Việt Nữ (Ấm áp)',
+            description:
+              'Giọng nữ truyền cảm, phát âm rõ ràng, nhịp điệu từ tốn, chuẩn vị bếp Việt.',
+            gender: 'female',
+            recommended: true,
+          },
+          {
+            id: 'noan_male_cooking',
+            name: 'NOAN Bếp Việt Nam (Trầm ấm)',
+            description:
+              'Giọng nam ấm áp, tự nhiên, nhịp điệu thong thả, bạn đồng hành nấu ăn gia đình.',
+            gender: 'male',
+          },
+          {
+            id: 'noan_mascot',
+            name: 'NOAN Mascot Vàng (Năng động)',
+            description:
+              'Giọng chú bò mascot vui tươi, khích lệ, hướng dẫn từng bước nấu ăn tràn đầy năng lượng.',
+            gender: 'mascot',
+          },
+        ],
+        defaultVoice: 'noan_female_cooking',
+      };
+    }
+  },
+
+  async getScript(
+    dishId: string,
+    voice?: string,
+    signal?: AbortSignal,
+  ): Promise<CookingVoiceScript> {
+    const key = scriptKey(dishId, voice);
     let script: CookingVoiceScript;
     try {
+      const query = voice ? `?voice=${encodeURIComponent(voice)}` : '';
       script = await apiRequest<CookingVoiceScript>(
-        `/cooking-voice/dishes/${encodeURIComponent(dishId)}/script`,
-        { signal },
+        `/cooking-voice/dishes/${encodeURIComponent(dishId)}/script${query}`,
+        { auth: false, signal, timeout: 120000 },
       );
     } catch (error) {
       if (signal?.aborted) throw error;
@@ -131,13 +185,26 @@ export const cookingVoiceApi = {
     void AsyncStorage.setItem(key, JSON.stringify(script)).catch(() => {});
     return script;
   },
-  tts(text: string, rate?: number, signal?: AbortSignal): Promise<CookingVoiceAudio> {
+
+  tts(
+    text: string,
+    rate?: number,
+    voice?: string,
+    signal?: AbortSignal,
+  ): Promise<CookingVoiceAudio> {
     return apiRequest('/cooking-voice/tts', {
       method: 'POST',
-      body: JSON.stringify({ text, ...(rate === undefined ? {} : { rate }) }),
+      body: JSON.stringify({
+        text,
+        ...(rate === undefined ? {} : { rate }),
+        ...(voice ? { voice } : {}),
+      }),
+      auth: false,
       signal,
+      timeout: 120000,
     });
   },
+
   ask(payload: CookingVoiceAskPayload, signal?: AbortSignal): Promise<CookingVoiceAnswer> {
     return apiRequest('/cooking-voice/ask', {
       method: 'POST',

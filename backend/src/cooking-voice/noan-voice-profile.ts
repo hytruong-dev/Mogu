@@ -1,5 +1,35 @@
 /** One version for the spoken persona and all public recipe audio. */
-export const NOAN_VOICE_PROFILE_VERSION = 'noan-kitchen-v2';
+export const NOAN_VOICE_PROFILE_VERSION = 'noan-kitchen-vs-v1';
+
+export interface CookingVoiceOption {
+  id: string;
+  name: string;
+  gender: 'female' | 'male' | 'mascot';
+  description: string;
+  recommended?: boolean;
+}
+
+export const VOICESTUDIO_COOKING_VOICES: CookingVoiceOption[] = [
+  {
+    id: 'noan_female_cooking',
+    name: 'NOAN Bếp Việt Nữ (Ấm áp)',
+    gender: 'female',
+    description: 'Giọng nữ nhẹ nhàng, ấm áp, truyền cảm, phát âm rõ ràng nguyên liệu và bước nấu.',
+    recommended: true,
+  },
+  {
+    id: 'noan_male_cooking',
+    name: 'NOAN Bếp Việt Nam (Trầm ấm)',
+    gender: 'male',
+    description: 'Giọng nam ấm áp, tự nhiên, nhịp điệu từ tốn, bạn đồng hành nấu ăn gia đình.',
+  },
+  {
+    id: 'noan_mascot',
+    name: 'NOAN Mascot Vàng (Năng động)',
+    gender: 'mascot',
+    description: 'Giọng linh vật NOAN tươi vui, khích lệ, hướng dẫn từng bước nấu ăn.',
+  },
+];
 
 /** Supported by gpt-4o-mini-tts; older TTS models must omit this field. */
 export const NOAN_TTS_INSTRUCTIONS =
@@ -16,3 +46,4 @@ export const NOAN_ANSWER_VOICE_RULES =
 export function noanCookingGreeting(dishName: string): string {
   return `NOAN đây! Hôm nay mình cùng nấu món ${dishName} nhé. Mình sẽ đọc từng bước thật rõ. Sẵn sàng thì nói bắt đầu nha.`;
 }
+

@@ -7,6 +7,7 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -15,10 +16,12 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { Public } from '../auth/decorators/public.decorator';
 import { CookingScriptService } from './cooking-script.service';
 import { CookingAskService } from './cooking-ask.service';
 import { VoiceCacheService } from './voice-cache.service';
 import { AskDto, TtsDto } from './dto/cooking-voice.dto';
+import { VOICESTUDIO_COOKING_VOICES } from './noan-voice-profile';
 
 @Injectable()
 export class CookingVoiceRateLimiter {
@@ -67,32 +70,48 @@ export class CookingVoiceController {
     private readonly limiter: CookingVoiceRateLimiter,
   ) {}
   private async limited<T>(
-    request: { user?: { sub?: string } },
+    request: { user?: { sub?: string }; ip?: string },
     work: () => Promise<T>,
   ): Promise<T> {
-    const release = this.limiter.acquire(request.user?.sub || '');
+    const id = request.user?.sub || request.ip || 'anonymous';
+    const release = this.limiter.acquire(id);
     try {
       return await work();
     } finally {
       release();
     }
   }
+
+  @Public()
+  @Get('voices')
+  voices() {
+    return {
+      voices: VOICESTUDIO_COOKING_VOICES,
+      defaultVoice: 'noan_female_cooking',
+    };
+  }
+
+  @Public()
   @Post('tts')
-  tts(@Req() request: { user?: { sub?: string } }, @Body() dto: TtsDto) {
+  tts(@Req() request: { user?: { sub?: string }; ip?: string }, @Body() dto: TtsDto) {
     return this.limited(request, async () => {
-      const result = await this.voice.privateSpeech(dto.text, dto.rate);
+      const result = await this.voice.privateSpeech(dto.text, dto.rate, dto.voice);
       return { text: result.text, audioUrl: result.audioUrl };
     });
   }
+
+  @Public()
   @Get('dishes/:id/script')
   script(
-    @Req() request: { user?: { sub?: string } },
+    @Req() request: { user?: { sub?: string }; ip?: string },
     @Param('id', ParseUUIDPipe) id: string,
+    @Query('voice') voice?: string,
   ) {
-    return this.limited(request, () => this.scripts.script(id));
+    return this.limited(request, () => this.scripts.script(id, voice));
   }
+
   @Post('ask')
-  ask(@Req() request: { user?: { sub?: string } }, @Body() dto: AskDto) {
+  ask(@Req() request: { user?: { sub?: string }; ip?: string }, @Body() dto: AskDto) {
     return this.limited(request, () => this.questions.ask(dto));
   }
 }

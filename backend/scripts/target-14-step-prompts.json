@@ -1,0 +1,114 @@
+[
+  {
+    "dishName": "Phở bò",
+    "dishId": "3470c816-74b3-42b2-9c98-e512fab7ba2e",
+    "stepId": "a75c3be1-9afe-4cfb-993b-a266858f66e1",
+    "stepOrder": 1,
+    "imageName": "pho_bo_step_1",
+    "prompt": "Authentic culinary photography of parboiling beef marrow bones in a large stainless steel stockpot with vigorous boiling water and steam rising. Chef using steel tongs lifting blanched beef bones to rinse under clean cool tap water. Clean rustic Vietnamese kitchen atmosphere, natural bright culinary lighting, 16:9 aspect ratio, 8k resolution."
+  },
+  {
+    "dishName": "Phở bò",
+    "dishId": "3470c816-74b3-42b2-9c98-e512fab7ba2e",
+    "stepId": "d612b17d-e263-4a94-ba8f-1e20056804c0",
+    "stepOrder": 2,
+    "imageName": "pho_bo_step_2",
+    "prompt": "Top-down overhead cooking shot: Whole unpeeled fresh ginger roots, purple shallots, and quartered onion charred directly over flame with blackened fragrant blistered skins. Beside them on the counter, a dry cast-iron skillet gently toasting whole star anise pods, cinnamon sticks, and black cardamom releasing aromatic steam, 16:9 aspect ratio, professional food photography."
+  },
+  {
+    "dishName": "Phở bò",
+    "dishId": "3470c816-74b3-42b2-9c98-e512fab7ba2e",
+    "stepId": "d8d33c32-3ead-46d0-b6e3-d741426e46b5",
+    "stepOrder": 3,
+    "imageName": "pho_bo_step_3",
+    "prompt": "High-angle cooking shot of a large stockpot of golden clear amber pho broth simmering with gentle rolling bubbles. Tender beef shank and a cotton spice pouch simmering with charred ginger and shallots. Subtle wisps of fragrant steam billowing up, clean broth surface glistening, 16:9 aspect ratio, 8k resolution."
+  },
+  {
+    "dishName": "Phở bò",
+    "dishId": "3470c816-74b3-42b2-9c98-e512fab7ba2e",
+    "stepId": "ee5ea91e-ac63-4cab-85d0-e131e640f551",
+    "stepOrder": 4,
+    "imageName": "pho_bo_step_4",
+    "prompt": "Macro close-up cooking photo of a stainless steel ladle dipping into and lifting crystal-clear, glistening golden pho broth seasoned with fish sauce and rock sugar. Droplets of savory amber broth glistening in warm kitchen lighting, professional culinary photography, 16:9 aspect ratio."
+  },
+  {
+    "dishName": "Phở bò",
+    "dishId": "3470c816-74b3-42b2-9c98-e512fab7ba2e",
+    "stepId": "9c1b8ab0-8881-40be-a8a8-6c25b253d740",
+    "stepOrder": 5,
+    "imageName": "pho_bo_step_5",
+    "prompt": "Kitchen prep scene: Fresh flat white rice pho noodles freshly blanched and drained in a wire mesh spider strainer. On a dark wooden cutting board beside it, thinly sliced tender raw beef tenderloin fanned out neatly with a chef knife, finely chopped scallions and cilantro, 16:9 aspect ratio, high resolution."
+  },
+  {
+    "dishName": "Phở bò",
+    "dishId": "3470c816-74b3-42b2-9c98-e512fab7ba2e",
+    "stepId": "229bc4eb-94ed-4981-b455-63d65b96a413",
+    "stepOrder": 6,
+    "imageName": "pho_bo_step_6",
+    "prompt": "Action culinary shot of boiling hot aromatic pho broth being poured from a ladle directly over thin slices of rare beef and cooked brisket in a traditional white porcelain bowl, instantly cooking the beef to a tender blush pink. Fresh chopped scallions, onions, and steam billowing, appetizing food photography, 16:9 aspect ratio."
+  },
+  {
+    "dishName": "Bún bò Huế",
+    "dishId": "97c368bd-c9c3-4802-aab7-43a73a0516e0",
+    "stepId": "0da57963-b981-44bc-9229-5bb289d9685b",
+    "stepOrder": 1,
+    "imageName": "bun_bo_hue_step_1",
+    "prompt": "Simmering stockpot with tender beef shank, sliced pork knuckles, and bundles of bruised lemongrass stalks gently bubbling in a rich aromatic broth. Chef skimming white foam with a mesh spoon, authentic Central Vietnamese cooking scene, 16:9 aspect ratio."
+  },
+  {
+    "dishName": "Bún bò Huế",
+    "dishId": "97c368bd-c9c3-4802-aab7-43a73a0516e0",
+    "stepId": "ebe99338-705c-499c-abaf-a7036de78817",
+    "stepOrder": 2,
+    "imageName": "bun_bo_hue_step_2",
+    "prompt": "Close-up cooking process: Traditional Hue fermented shrimp paste (mắm ruốc Huế) mixed with cool water in a ceramic bowl to settle, the clear aromatic shrimp essence being poured gently into the simmering Bun Bo broth pot, rustic kitchen atmosphere, 16:9 aspect ratio."
+  },
+  {
+    "dishName": "Bún bò Huế",
+    "dishId": "97c368bd-c9c3-4802-aab7-43a73a0516e0",
+    "stepId": "e623cc01-e753-472b-9a0f-1696c59f672b",
+    "stepOrder": 3,
+    "imageName": "bun_bo_hue_step_3",
+    "prompt": "Sizzling pan making chili lemongrass oil (sa tế): Bright red annatto oil frying finely minced lemongrass, minced garlic, and vibrant red chili flakes, crackling and bubbling with a glowing crimson hue and rich spicy aroma, 16:9 aspect ratio, macro food photography."
+  },
+  {
+    "dishName": "Bún bò Huế",
+    "dishId": "97c368bd-c9c3-4802-aab7-43a73a0516e0",
+    "stepId": "2603da2d-6027-4daf-aa6c-c79e5abb4250",
+    "stepOrder": 4,
+    "imageName": "bun_bo_hue_step_4",
+    "prompt": "Plating a steaming bowl of Bun Bo Hue: Thick round rice noodles topped with sliced beef shank, pork knuckle, crab meatball, and onion herbs, with fiery red spicy lemongrass broth being ladled steaming hot over the top. Rising vapor, authentic Vietnamese culinary art, 16:9 aspect ratio."
+  },
+  {
+    "dishName": "Cơm tấm sườn bì chả",
+    "dishId": "bc10cf25-3b27-4c64-b1e1-a79e45adc591",
+    "stepId": "2d9f11a2-dabd-4524-97a1-0d2ed523d4f1",
+    "stepOrder": 1,
+    "imageName": "com_tam_step_1",
+    "prompt": "Pork chops marinated in minced lemongrass, honey, and condensed milk grilling over a glowing red charcoal grill (bếp than hoa). Plumes of aromatic savory smoke rising, charred caramelization on the meat edges, authentic Saigon street food photography, 16:9 aspect ratio."
+  },
+  {
+    "dishName": "Cơm tấm sườn bì chả",
+    "dishId": "bc10cf25-3b27-4c64-b1e1-a79e45adc591",
+    "stepId": "dbcf45c1-0044-4d03-aa1f-925b8b4bb904",
+    "stepOrder": 2,
+    "imageName": "com_tam_step_2",
+    "prompt": "Freshly steamed Vietnamese egg meatloaf (chả trứng hấp) in a bamboo steamer tray. A glistening golden baked egg yolk layer on top, cut into neat rectangular slices revealing minced pork, wood ear mushrooms, and glass noodles inside, 16:9 aspect ratio."
+  },
+  {
+    "dishName": "Cơm tấm sườn bì chả",
+    "dishId": "bc10cf25-3b27-4c64-b1e1-a79e45adc591",
+    "stepId": "b5b928f1-fb95-44bb-b1c3-323fa0ed55ce",
+    "stepOrder": 3,
+    "imageName": "com_tam_step_3",
+    "prompt": "Fluffy steaming hot cooked broken rice (cơm tấm) in an open rice cooker pot. Beside it, hot sizzling cooking oil being poured over a small ceramic bowl of vibrant chopped green scallions to make fragrant scallion oil (mỡ hành), 16:9 aspect ratio."
+  },
+  {
+    "dishName": "Cơm tấm sườn bì chả",
+    "dishId": "bc10cf25-3b27-4c64-b1e1-a79e45adc591",
+    "stepId": "4b81ac96-8e98-4873-84c3-54add5672b8c",
+    "stepOrder": 4,
+    "imageName": "com_tam_step_4",
+    "prompt": "Plating the iconic Saigon Com Tam plate: A neat mound of broken rice garnished with green scallion oil, alongside charred golden grilled pork chop, a slice of steamed egg meatloaf, shredded pork skin (bì), a sunny-side up fried egg, sliced cucumbers, and pickled daikon, 16:9 aspect ratio."
+  }
+]

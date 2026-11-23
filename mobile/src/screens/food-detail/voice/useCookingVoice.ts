@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState, NativeModules, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import { requireOptionalNativeModule } from 'expo-modules-core';
 import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
-import * as Speech from 'expo-speech';
 import {
   cookingVoiceApi,
   getCachedCookingScriptAudio,
   cacheCookingScriptAudio,
+  type CookingVoiceOption,
   type CookingVoiceScript,
   type CookingVoiceServerAction,
 } from '../../../services/api/cooking-voice';
@@ -71,6 +72,29 @@ export function useCookingVoice(options: CookingVoiceOptions) {
   const [volume, setVolume] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [rate, setRateState] = useState(1);
+  const [selectedVoice, setSelectedVoiceState] = useState<string>('noan_female_cooking');
+  const [availableVoices, setAvailableVoices] = useState<CookingVoiceOption[]>([
+    {
+      id: 'noan_female_cooking',
+      name: 'NOAN Bếp Việt Nữ (Ấm áp)',
+      description: 'Giọng nữ nhẹ nhàng, ấm áp, truyền cảm, phát âm rõ ràng nguyên liệu và bước nấu.',
+      gender: 'female',
+      recommended: true,
+    },
+    {
+      id: 'noan_male_cooking',
+      name: 'NOAN Bếp Việt Nam (Trầm ấm)',
+      description: 'Giọng nam ấm áp, tự nhiên, nhịp điệu từ tốn, bạn đồng hành nấu ăn gia đình.',
+      gender: 'male',
+    },
+    {
+      id: 'noan_mascot',
+      name: 'NOAN Mascot Vàng (Năng động)',
+      description: 'Giọng linh vật NOAN tươi vui, khích lệ, hướng dẫn từng bước nấu ăn.',
+      gender: 'mascot',
+    },
+  ]);
+  const selectedVoiceRef = useRef('noan_female_cooking');
   const ctx = useRef(options);
   ctx.current = options;
   const session = useRef({
@@ -100,14 +124,13 @@ export function useCookingVoice(options: CookingVoiceOptions) {
     if (requestTimeout.current) clearTimeout(requestTimeout.current);
     const controller = new AbortController();
     request.current = controller;
-    requestTimeout.current = setTimeout(() => controller.abort(), 25000);
+    requestTimeout.current = setTimeout(() => controller.abort(), 90000);
     return controller;
   };
   const restart = useRef<ReturnType<typeof setTimeout> | null>(null);
   const playbackTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const finishPlayback = useRef<(() => void) | null>(null);
   const stopWaiters = useRef<(() => void)[]>([]);
-  const deviceSpeechStop = useRef<Promise<void>>(Promise.resolve());
   const textAudio = useRef(new Map<string, string>());
   const move = useCallback((next: CookingVoiceState) => {
     session.current.state = next;
@@ -149,7 +172,6 @@ export function useCookingVoice(options: CookingVoiceOptions) {
     if (requestTimeout.current) clearTimeout(requestTimeout.current);
     requestTimeout.current = null;
     stopAudio();
-    deviceSpeechStop.current = Speech.stop().catch(() => {});
     session.current.stopping = true;
     try {
       recognizer.current?.abort();
@@ -235,57 +257,6 @@ export function useCookingVoice(options: CookingVoiceOptions) {
       move('paused');
     }
   };
-  const speakDevice = async (text: string, generation: number) => {
-    await deviceSpeechStop.current;
-    if (!valid(generation)) return;
-    const voices = await Speech.getAvailableVoicesAsync();
-    if (!valid(generation)) return;
-    // Web exposes localService; native lists installed engine voices but does not
-    // expose whether the engine may fetch extra resources. Never choose a known remote voice.
-    const localVoices = voices.filter(
-      (item) => (item as Speech.Voice & { localService?: boolean }).localService !== false,
-    );
-    const voice =
-      localVoices.find((item) => item.language.toLowerCase().replace('_', '-') === 'vi-vn') ??
-      localVoices.find((item) => /^vi(?:-|_)/i.test(item.language));
-    if (!voice)
-      throw new Error(
-        'Thiết bị chưa có giọng tiếng Việt. Tải giọng trong cài đặt hoặc đọc nội dung trên màn hình.',
-      );
-    setError('Đang dùng giọng thiết bị vì giọng NOAN chưa khả dụng');
-    await new Promise<void>((resolve, reject) => {
-      let finished = false;
-      const done = (failure?: Error) => {
-        if (finished) return;
-        finished = true;
-        if (playbackTimeout.current) clearTimeout(playbackTimeout.current);
-        playbackTimeout.current = null;
-        finishPlayback.current = null;
-        if (failure) reject(failure);
-        else resolve();
-      };
-      finishPlayback.current = () => done();
-      playbackTimeout.current = setTimeout(() => {
-        deviceSpeechStop.current = Speech.stop().catch(() => {});
-        done(new Error('Giọng thiết bị đã dừng vì quá thời gian.'));
-      }, 180000);
-      Speech.speak(text, {
-        language: 'vi-VN',
-        voice: voice.identifier,
-        rate: session.current.rate,
-        pitch: 1.04,
-        onDone: () => {
-          if (valid(generation)) done();
-        },
-        onStopped: () => {
-          if (valid(generation)) done(new Error('Giọng thiết bị đã dừng.'));
-        },
-        onError: (failure) => {
-          if (valid(generation)) done(failure);
-        },
-      });
-    });
-  };
   const speak = useCallback(
     async (text: string, audioUrl?: string | null, greeting = false, resumeListening = true) => {
       if (!session.current.enabled || !session.current.active || !session.current.alive) return;
@@ -293,27 +264,29 @@ export function useCookingVoice(options: CookingVoiceOptions) {
       const generation = session.current.generation;
       setReply(text);
       move(greeting ? 'greeting' : 'speaking');
-      let ttsAttempted = false;
       try {
         await pauseRecognition();
         // A previous abort may still be completing even if listening already ended.
         if (!valid(generation)) return;
         session.current.stopping = false;
-        await deviceSpeechStop.current;
         if (!valid(generation)) return;
-        ttsAttempted = true;
-        const key = `${session.current.rate}:${text}`;
+        const key = `${selectedVoiceRef.current}:${session.current.rate}:${text}`;
         let uri = audioUrl || textAudio.current.get(key);
         let cloudRated = !audioUrl;
         if (!uri) {
           const controller = newRequest();
-          const audio = await cookingVoiceApi.tts(text, session.current.rate, controller.signal);
+          const audio = await cookingVoiceApi.tts(
+            text,
+            session.current.rate,
+            selectedVoiceRef.current,
+            controller.signal,
+          );
           if (!valid(generation)) return;
           uri = audio.audioUrl ?? undefined;
           if (uri) textAudio.current.set(key, uri);
         }
         if (!uri)
-          throw new Error('NOAN chưa có âm thanh. Bạn vẫn có thể đọc nội dung trên màn hình.');
+          throw new Error('Đang tải âm thanh VoiceStudio. Bạn có thể xem bước trên màn hình.');
         const sourceUrl = uri;
         uri = await getCachedCookingScriptAudio(sourceUrl);
         if (!valid(generation)) return;
@@ -342,8 +315,8 @@ export function useCookingVoice(options: CookingVoiceOptions) {
         await new Promise<void>((resolve, reject) => {
           let finished = false;
           const loadTimeout = setTimeout(
-            () => done(new Error('Không tải được âm thanh NOAN.')),
-            12000,
+            () => done(new Error('Không tải được âm thanh VoiceStudio.')),
+            15000,
           );
           const done = (failure?: Error) => {
             if (finished) return;
@@ -369,9 +342,7 @@ export function useCookingVoice(options: CookingVoiceOptions) {
         });
         if (!valid(generation)) return;
         stopAudio();
-        setError((current) =>
-          current === 'Đang dùng giọng thiết bị vì giọng NOAN chưa khả dụng' ? null : current,
-        );
+        setError(null);
         session.current.replyUntil = Date.now() + 8000;
         move(resumeListening ? 'waiting' : 'paused');
         if (resumeListening) scheduleListen();
@@ -385,25 +356,10 @@ export function useCookingVoice(options: CookingVoiceOptions) {
           return;
         }
         session.current.stopping = false;
-        if (ttsAttempted) {
-          try {
-            await speakDevice(text, generation);
-            if (!valid(generation)) return;
-            session.current.replyUntil = Date.now() + 8000;
-            move(resumeListening ? 'waiting' : 'paused');
-            if (resumeListening) scheduleListen();
-            return;
-          } catch (fallbackFailure) {
-            if (!valid(generation)) return;
-            stopAudio();
-            deviceSpeechStop.current = Speech.stop().catch(() => {});
-            failure = fallbackFailure;
-          }
-        }
         setError(
-          failure instanceof Error
+          failure instanceof Error && !failure.message.includes('aborted')
             ? failure.message
-            : 'Không phát được giọng NOAN. Nội dung vẫn hiển thị.',
+            : 'Đang tạo âm thanh VoiceStudio AI. Nội dung hướng dẫn vẫn hiển thị trên màn hình.',
         );
         move(resumeListening ? 'waiting' : 'paused');
         if (resumeListening) scheduleListen();
@@ -610,6 +566,45 @@ export function useCookingVoice(options: CookingVoiceOptions) {
     setEnabled(false);
     move('idle');
   }, [move]);
+  useEffect(() => {
+    void AsyncStorage.getItem('@mogu/preferred_cooking_voice').then((stored) => {
+      if (stored) {
+        selectedVoiceRef.current = stored;
+        setSelectedVoiceState(stored);
+      }
+    });
+    void cookingVoiceApi.getVoices().then((res) => {
+      if (res?.voices?.length) {
+        setAvailableVoices(res.voices);
+        if (res.defaultVoice && !selectedVoiceRef.current) {
+          selectedVoiceRef.current = res.defaultVoice;
+          setSelectedVoiceState(res.defaultVoice);
+        }
+      }
+    });
+  }, []);
+
+  const changeVoice = useCallback(async (voiceId: string) => {
+    selectedVoiceRef.current = voiceId;
+    setSelectedVoiceState(voiceId);
+    void AsyncStorage.setItem('@mogu/preferred_cooking_voice', voiceId).catch(() => {});
+    textAudio.current.clear();
+    script.current = null;
+    if (ctx.current.dishId && session.current.enabled) {
+      try {
+        const controller = newRequest();
+        const result = await cookingVoiceApi.getScript(
+          ctx.current.dishId,
+          voiceId,
+          controller.signal,
+        );
+        if (valid(session.current.generation)) {
+          script.current = result;
+        }
+      } catch {}
+    }
+  }, []);
+
   const start = useCallback(async () => {
     if (!session.current.alive || !session.current.active) return;
     cancel();
@@ -633,7 +628,11 @@ export function useCookingVoice(options: CookingVoiceOptions) {
     if (ctx.current.dishId) {
       try {
         const controller = newRequest();
-        const result = await cookingVoiceApi.getScript(ctx.current.dishId, controller.signal);
+        const result = await cookingVoiceApi.getScript(
+          ctx.current.dishId,
+          selectedVoiceRef.current,
+          controller.signal,
+        );
         if (!valid(generation)) return;
         script.current = result;
       } catch {
@@ -854,5 +853,8 @@ export function useCookingVoice(options: CookingVoiceOptions) {
       setRateState(next);
     },
     rate,
+    selectedVoice,
+    availableVoices,
+    changeVoice,
   };
 }

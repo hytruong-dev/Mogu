@@ -290,6 +290,10 @@ export function normalizeImageUrl(url: string | null | undefined): string | null
     const subPath = trimmed.replace(/^ingredient-images\//, '');
     return `${storageBase}/storage/v1/object/public/ingredient-images/${subPath}`;
   }
+  if (trimmed.startsWith('/avatars/') || trimmed.startsWith('avatars/')) {
+    const subPath = trimmed.replace(/^\/?avatars\//, '');
+    return `${storageBase}/storage/v1/object/public/dish-images/avatars/${subPath}`;
+  }
   return trimmed;
 }
 
